@@ -1,10 +1,14 @@
 /* VitaInk offline service worker — relative scope (works at /juego/ and unzip root) */
-const CACHE = 'vitaink-juego-offline-v1';
+const CACHE = 'vitaink-juego-offline-v2-2026-09-20';
 const PRECACHE = [
   "./",
-  "./index.html",
   "./README-DESCARGA.md",
-  "./_bundle/index-DH3RTdl_.js",
+  "./_bundle/index-BEAQ8_kv.js",
+  "./assets/hud/COPY-TO-RCV.sh",
+  "./assets/hud/README.md",
+  "./assets/hud/catalog.json",
+  "./assets/hud/inventory.json",
+  "./assets/hud/manifest.json",
   "./assets/hud/png/128/coin-disabled.png",
   "./assets/hud/png/128/coin-night.png",
   "./assets/hud/png/128/coin.png",
@@ -17,6 +21,9 @@ const PRECACHE = [
   "./assets/hud/png/128/inventory-disabled.png",
   "./assets/hud/png/128/inventory-night.png",
   "./assets/hud/png/128/inventory.png",
+  "./assets/hud/png/128/key-disabled.png",
+  "./assets/hud/png/128/key-night.png",
+  "./assets/hud/png/128/key.png",
   "./assets/hud/png/128/quest-disabled.png",
   "./assets/hud/png/128/quest-night.png",
   "./assets/hud/png/128/quest.png",
@@ -32,6 +39,75 @@ const PRECACHE = [
   "./assets/hud/png/128/tower_eye-disabled.png",
   "./assets/hud/png/128/tower_eye-night.png",
   "./assets/hud/png/128/tower_eye.png",
+  "./assets/hud/png/256/coin-disabled.png",
+  "./assets/hud/png/256/coin-night.png",
+  "./assets/hud/png/256/coin.png",
+  "./assets/hud/png/256/heart-empty-disabled.png",
+  "./assets/hud/png/256/heart-empty-night.png",
+  "./assets/hud/png/256/heart-empty.png",
+  "./assets/hud/png/256/heart-full-disabled.png",
+  "./assets/hud/png/256/heart-full-night.png",
+  "./assets/hud/png/256/heart-full.png",
+  "./assets/hud/png/256/inventory-disabled.png",
+  "./assets/hud/png/256/inventory-night.png",
+  "./assets/hud/png/256/inventory.png",
+  "./assets/hud/png/256/key-disabled.png",
+  "./assets/hud/png/256/key-night.png",
+  "./assets/hud/png/256/key.png",
+  "./assets/hud/png/256/minimap-frame-night.png",
+  "./assets/hud/png/256/minimap-frame.png",
+  "./assets/hud/png/256/quest-disabled.png",
+  "./assets/hud/png/256/quest-night.png",
+  "./assets/hud/png/256/quest.png",
+  "./assets/hud/png/256/stamina-empty-disabled.png",
+  "./assets/hud/png/256/stamina-empty-night.png",
+  "./assets/hud/png/256/stamina-empty.png",
+  "./assets/hud/png/256/stamina-full-disabled.png",
+  "./assets/hud/png/256/stamina-full-night.png",
+  "./assets/hud/png/256/stamina-full.png",
+  "./assets/hud/png/256/stamina-half-disabled.png",
+  "./assets/hud/png/256/stamina-half-night.png",
+  "./assets/hud/png/256/stamina-half.png",
+  "./assets/hud/png/256/tower_eye-disabled.png",
+  "./assets/hud/png/256/tower_eye-night.png",
+  "./assets/hud/png/256/tower_eye.png",
+  "./assets/hud/png/512/minimap-frame-night.png",
+  "./assets/hud/png/512/minimap-frame.png",
+  "./assets/hud/svg/coin-disabled.svg",
+  "./assets/hud/svg/coin-night.svg",
+  "./assets/hud/svg/coin.svg",
+  "./assets/hud/svg/heart-empty-disabled.svg",
+  "./assets/hud/svg/heart-empty-night.svg",
+  "./assets/hud/svg/heart-empty.svg",
+  "./assets/hud/svg/heart-full-disabled.svg",
+  "./assets/hud/svg/heart-full-night.svg",
+  "./assets/hud/svg/heart-full.svg",
+  "./assets/hud/svg/inventory-disabled.svg",
+  "./assets/hud/svg/inventory-night.svg",
+  "./assets/hud/svg/inventory.svg",
+  "./assets/hud/svg/minimap-frame-night.svg",
+  "./assets/hud/svg/minimap-frame.svg",
+  "./assets/hud/svg/quest-disabled.svg",
+  "./assets/hud/svg/quest-night.svg",
+  "./assets/hud/svg/quest.svg",
+  "./assets/hud/svg/stamina-empty-disabled.svg",
+  "./assets/hud/svg/stamina-empty-night.svg",
+  "./assets/hud/svg/stamina-empty.svg",
+  "./assets/hud/svg/stamina-full-disabled.svg",
+  "./assets/hud/svg/stamina-full-night.svg",
+  "./assets/hud/svg/stamina-full.svg",
+  "./assets/hud/svg/stamina-half-disabled.svg",
+  "./assets/hud/svg/stamina-half-night.svg",
+  "./assets/hud/svg/stamina-half.svg",
+  "./assets/hud/svg/tower_eye-disabled.svg",
+  "./assets/hud/svg/tower_eye-night.svg",
+  "./assets/hud/svg/tower_eye.svg",
+  "./assets/mari/from-mari-gym/idle.png",
+  "./assets/mari/from-mari-gym/marcha-L.png",
+  "./assets/mari/from-mari-gym/marcha-R.png",
+  "./assets/mari/fullbody/idle-clothed-side.png",
+  "./assets/mari/fullbody/idle-front.png",
+  "./assets/mari/paperdoll/torso-idle-camisole.png",
   "./assets/mari/puppet/front/abdomen.png",
   "./assets/mari/puppet/front/calf.png",
   "./assets/mari/puppet/front/catalog.json",
@@ -80,9 +156,29 @@ const PRECACHE = [
   "./assets/mari/puppet/side/shoulder_joint.png",
   "./assets/mari/puppet/side/thigh.png",
   "./assets/mari/puppet/side/upperarm.png",
+  "./assets/mari/skel-skin/calf.png",
+  "./assets/mari/skel-skin/footL.png",
+  "./assets/mari/skel-skin/footR.png",
+  "./assets/mari/skel-skin/forearm.png",
+  "./assets/mari/skel-skin/hand.png",
+  "./assets/mari/skel-skin/head-placement.json",
+  "./assets/mari/skel-skin/head.png",
+  "./assets/mari/skel-skin/thigh.png",
+  "./assets/mari/skel-skin/torso.png",
+  "./assets/mari/skel-skin/upperarm.png",
+  "./assets/props/day/prop_campfire_day.png",
+  "./assets/props/day/prop_chest_closed.png",
+  "./assets/props/day/prop_door_ruin.png",
+  "./assets/props/day/prop_shrine_tower.png",
+  "./assets/props/day/prop_sign_wood.png",
+  "./assets/props/side-persp/prop_bridge_short_side.png",
+  "./assets/props/side-persp/prop_campfire_qleft.png",
+  "./assets/props/side-persp/prop_chest_closed_qleft.png",
+  "./assets/props/side-persp/prop_door_ruin_qleft.png",
   "./assets/props/side-persp/prop_key_bronze_qleft.png",
   "./assets/props/side-persp/prop_key_silver_qleft.png",
   "./assets/props/side-persp/prop_ring_bronze_qleft.png",
+  "./assets/props/side-persp/prop_shrine_tower_qleft.png",
   "./assets/ropa/day/viajero-pradera/boots_L.png",
   "./assets/ropa/day/viajero-pradera/boots_R.png",
   "./assets/ropa/day/viajero-pradera/pants_L.png",
@@ -105,36 +201,20 @@ const PRECACHE = [
   "./icons/icon-512.png",
   "./icons/icon.svg",
   "./icons.svg",
-  "./manifest.webmanifest",
-  "./sw.js"
+  "./index.html",
+  "./manifest.webmanifest"
 ];
-
 self.addEventListener('install', (event) => {
-  event.waitUntil(
-    caches.open(CACHE).then((cache) => cache.addAll(PRECACHE)).then(() => self.skipWaiting())
-  );
+  event.waitUntil(caches.open(CACHE).then((cache) => cache.addAll(PRECACHE)).then(() => self.skipWaiting()));
 });
-
 self.addEventListener('activate', (event) => {
-  event.waitUntil(
-    caches.keys().then((keys) =>
-      Promise.all(keys.filter((k) => k !== CACHE).map((k) => caches.delete(k)))
-    ).then(() => self.clients.claim())
-  );
+  event.waitUntil(caches.keys().then((keys) => Promise.all(keys.filter((k) => k !== CACHE).map((k) => caches.delete(k)))).then(() => self.clients.claim()));
 });
-
 self.addEventListener('fetch', (event) => {
   const req = event.request;
   if (req.method !== 'GET') return;
-  event.respondWith(
-    caches.match(req).then((cached) => {
-      if (cached) return cached;
-      return fetch(req).then((res) => {
-        if (!res || res.status !== 200 || (res.type !== 'basic' && res.type !== 'cors')) return res;
-        const copy = res.clone();
-        caches.open(CACHE).then((c) => c.put(req, copy));
-        return res;
-      }).catch(() => caches.match('./index.html'));
-    })
-  );
+  event.respondWith(caches.match(req).then((cached) => cached || fetch(req).then((res) => {
+    if (!res || res.status !== 200 || (res.type !== 'basic' && res.type !== 'cors')) return res;
+    const copy = res.clone(); caches.open(CACHE).then((c) => c.put(req, copy)); return res;
+  }).catch(() => caches.match('./index.html')));
 });
