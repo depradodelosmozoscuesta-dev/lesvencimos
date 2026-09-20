@@ -1,0 +1,3225 @@
+<!DOCTYPE html>
+<!--
+  CHARLA — asistente conversacional entrenable de Casa.
+  Un archivo. Sin internet, sin CDN, sin dependencias. Licencia MIT.
+
+  Cómo funciona:
+   1. Escribes. Casa analiza intención, tipo de respuesta esperado y ánimo.
+   2. Si sabe, contesta. Si no, dice que no sabe y te deja enseñarle.
+   3. Toda respuesta se puede corregir ENTERA o POR BLOQUES.
+   4. Lo aprendido se guarda con su contexto y se reutiliza.
+  Nada entra en firme sin que lo confirmes tú.
+-->
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Charla · Casa</title>
+<style>
+:root{
+  --fondo:#efe8dc; --papel:#f7f1e6; --tinta:#1c1916; --suave:#6a6258;
+  --linea:#d7cfc2; --acento:#8b3a2f; --acento-texto:#f7f1e6;
+  --mia:#e6ddcd; --radio:14px;
+  --ui:"Segoe UI","Helvetica Neue",system-ui,sans-serif; --libro:Georgia,"Times New Roman",serif;
+}
+html[data-tema="noche"]{--fondo:#171513;--papel:#211e1a;--tinta:#efe8dc;--suave:#a89e90;
+  --linea:#3a342d;--acento:#c9705c;--acento-texto:#171513;--mia:#2b2621}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{margin:0;background:var(--fondo);color:var(--tinta);font-family:var(--ui);
+  font-size:16px;line-height:1.5;display:flex;flex-direction:column;-webkit-text-size-adjust:100%}
+header{border-bottom:1px solid var(--linea);padding:8px 12px;flex:0 0 auto}
+h1{margin:0;font-family:var(--libro);font-size:18px;font-weight:600}
+nav{display:flex;gap:6px;margin-top:6px}
+nav button{flex:1;padding:6px;font-size:13px;background:var(--papel);color:var(--tinta);
+  border:1px solid var(--linea);border-radius:10px;cursor:pointer}
+nav button[aria-current="true"]{background:var(--acento);color:var(--acento-texto);border-color:var(--acento)}
+main{flex:1 1 auto;overflow-y:auto;padding:12px;-webkit-overflow-scrolling:touch}
+footer{flex:0 0 auto;border-top:1px solid var(--linea);padding:8px 12px;background:var(--fondo)}
+.ctxbar{display:flex;align-items:center;gap:8px;margin-bottom:6px;font-size:13px}
+.ctxbar{flex-wrap:wrap}
+.ctxbar button{font-size:12px;padding:4px 9px;background:var(--papel);
+  color:var(--tinta);border:1px solid var(--linea);border-radius:999px;cursor:pointer}
+.brow{display:flex;align-items:center;gap:8px;margin:4px 0;font-size:13px}
+.bet{flex:0 0 40%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--suave)}
+.bar{flex:1;height:12px;background:var(--fondo);border:1px solid var(--linea);
+  border-radius:6px;overflow:hidden}
+.bar i{display:block;height:100%;background:var(--acento)}
+.bnum{flex:0 0 auto;min-width:34px;text-align:right}
+.pal button[disabled]{opacity:.65;cursor:default}
+.acc.rapido{margin:-2px 0 6px;padding-left:84px}
+.acc.rapido button{font-size:11px;padding:3px 8px}
+.acc button.puesto{background:var(--acento);color:var(--acento-texto);border-color:var(--acento)}
+.opc{border-top:1px solid var(--linea);padding:7px 0}
+.opct{font-size:14px;margin-bottom:4px}
+.fila{display:flex;align-items:center;gap:8px;margin:3px 0}
+.fila.sub{padding-left:12px;opacity:.85}
+.et{font-size:12px;color:var(--suave);min-width:76px;max-width:110px;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.fila input[type=range]{flex:1;accent-color:var(--acento)}
+.pc{min-width:44px;text-align:right;font-size:13px}
+.pq{margin:2px 0 6px;font-size:12px;color:var(--suave)}
+.pq summary{cursor:pointer}
+.pq ul{margin:4px 0 0 16px;padding:0}
+.otra{margin:4px 0}
+.otra>button{font-size:13px;padding:5px 10px;border:1px dashed var(--linea);
+  border-radius:10px;background:var(--fondo);color:var(--tinta);cursor:pointer;text-align:left}
+.marca{text-align:center;font-size:12px;color:var(--suave);margin:8px 0;
+  border-top:1px dashed var(--linea);padding-top:6px}
+.pal{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:8px}
+.pal button{font-size:13px;padding:4px 9px;border:1px solid var(--linea);border-radius:8px;
+  background:var(--fondo);color:var(--tinta);cursor:pointer}
+.pal button[data-clase]{border-color:var(--acento);font-weight:600}
+.pal button small{display:block;font-size:10px;color:var(--suave);font-weight:400}
+.pal.elige{margin:-4px 0 8px;padding:6px;background:var(--fondo);border-radius:8px}
+.pal.elige button{font-size:11px;padding:3px 7px}
+.linea{display:flex;gap:8px}
+.linea input{flex:1;padding:11px;font:inherit;color:var(--tinta);background:var(--papel);
+  border:1px solid var(--linea);border-radius:12px}
+.linea button{padding:11px 16px;font:inherit;font-weight:600;background:var(--acento);
+  color:var(--acento-texto);border:0;border-radius:12px;cursor:pointer}
+.msg{max-width:88%;margin:0 0 10px;padding:10px 12px;border-radius:var(--radio);white-space:pre-wrap}
+.mio{margin-left:auto;background:var(--mia)}
+.suyo{background:var(--papel);border:1px solid var(--linea)}
+.meta{font-size:12px;color:var(--suave);margin:-6px 0 10px}
+.acc{display:flex;gap:6px;flex-wrap:wrap;margin:-4px 0 12px}
+.acc button{font-size:12px;padding:5px 9px;background:var(--papel);color:var(--tinta);
+  border:1px solid var(--linea);border-radius:999px;cursor:pointer}
+.bloques{display:flex;gap:5px;flex-wrap:wrap;margin:6px 0 0}
+.bloques button{font-size:13px;padding:4px 8px;background:var(--fondo);color:var(--tinta);
+  border:1px dashed var(--linea);border-radius:8px;cursor:pointer;text-align:left}
+.panel{background:var(--papel);border:1px solid var(--acento);border-radius:var(--radio);
+  padding:12px;margin:0 0 12px}
+.panel h2{margin:0 0 8px;font-family:var(--libro);font-size:16px}
+.panel input,.panel select{width:100%;padding:9px;font:inherit;color:var(--tinta);
+  background:var(--fondo);border:1px solid var(--linea);border-radius:8px;margin-bottom:8px}
+.sug{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px}
+.sug button{font-size:13px;padding:6px 10px;background:var(--fondo);color:var(--tinta);
+  border:1px solid var(--linea);border-radius:999px;cursor:pointer}
+.principal{width:100%;padding:11px;font:inherit;font-weight:600;background:var(--acento);
+  color:var(--acento-texto);border:0;border-radius:12px;cursor:pointer}
+.aviso{font-size:13px;color:var(--suave)}
+.mal{color:#8b2f2f;font-weight:600}
+table{width:100%;border-collapse:collapse;font-size:14px}
+td,th{padding:6px 4px;border-bottom:1px solid var(--linea);text-align:left;vertical-align:top}
+th{color:var(--suave)}
+button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid var(--acento);outline-offset:2px}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+<header>
+  <h1>Charla <span class="aviso" style="font-weight:400">v10</span></h1>
+  <nav id="nav"></nav>
+</header>
+<main id="main"></main>
+<footer id="pie"></footer>
+
+<script>
+"use strict";
+(function () {
+
+/* =====================================================================
+   1. NORMALIZAR
+   ===================================================================== */
+function escRe(t){ return String(t).replace(/[.*+?^${}()|[\]\\]/g,"\\$&"); }
+function n(t){return String(t||"").toLowerCase().normalize("NFD")
+  .replace(/[\u0300-\u036f]/g,"").replace(/\s+/g," ").trim();}
+function esc(t){return String(t).replace(/[&<>"']/g,function(c){
+  return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c];});}
+
+/* =====================================================================
+   2. TEMAS GRAVES — aquí no se aconseja nunca
+   ===================================================================== */
+var GRAVE = ["murio","se murio","fallecio","muerte","entierro","cancer","tumor",
+  "enfermo grave","suicid","quitarme de en medio","me pego","maltrat","denuncia",
+  "juicio","adiccion","alcoholic","drogas","no quiero vivir","estoy fatal de la cabeza"];
+function esGrave(t){for(var i=0;i<GRAVE.length;i++) if(t.indexOf(GRAVE[i])!==-1) return true;return false;}
+
+/* =====================================================================
+   3. INTENCIÓN — catálogo cerrado de 18. No se amplía desde el código.
+   ===================================================================== */
+var INTENCIONES = ["SALUDAR","DESPEDIR","PREGUNTAR_ESTADO","VALORAR_EXPERIENCIA",
+  "PREGUNTAR_DATO","PEDIR_OPINION","PEDIR_INSTRUCCION","COMPROBAR_EXISTENCIAS",
+  "PROPONER","OFRECER","PEDIR_FAVOR","CONFIRMAR","DECLINAR","CHARLA_LIGERA",
+  "REACCIONAR","EXPRESAR_MALESTAR","CONSOLAR","CORTESIA","PREGUNTAR_IDENTIDAD","AFIRMAR_HECHO"];
+
+var REGLAS_INT = [
+  [/\b(como te llamas|cual es tu nombre|tu nombre|^nombre|quien eres|que eres|que sabes|que sabes hacer|que te gusta|te gusta|tu .{0,12}favorit|como puedo verte|donde estas|tienes .{0,10}(cuerpo|cara|edad)|cuantos anos tienes|eres (real|humano|una maquina)|como me ves|de donde eres)\b/, "PREGUNTAR_IDENTIDAD"],
+  [/\b(que tal (estas|andas|vas)|como (estas|te encuentras|andas|vas)|todo bien|has dormido|que tal la (manana|noche))\b/, "PREGUNTAR_ESTADO"],
+  [/\b(que tal (fue|estuvo|lo pasaste)|como fue|como estuvo|te gusto|merecio la pena)\b/, "VALORAR_EXPERIENCIA"],
+  [/\b(hola|holi|buenas|buen dia|buenos dias|buenas tardes|buenas noches|hey|ey|que pasa|saludos)\b/, "SALUDAR"],
+  [/^\s*(que hay|que hay\?|que hay de nuevo)\s*[?!]*\s*$/, "SALUDAR"],
+  [/\b(adios|adio|chao|chau|ciao|hasta luego|hasta manana|hasta pronto|hasta ahora|me voy|nos vemos|buenas noches ya|me piro|me largo)\b/, "DESPEDIR"],
+  [/\b(queda|quedan|hay)\s+\w+\s+(en (la|el) (nevera|despensa|armario)|para)\b|\bnos queda\b/, "COMPROBAR_EXISTENCIAS"],
+  [/\b(me dejas|me pasas|me prestas|puedes .{0,20}(traer|coger|bajar|subir)|se puede (entrar|pasar))\b/, "PEDIR_FAVOR"],
+  [/\b(que te parece|crees que|piensas que|tu que opinas|que opinas)\b/, "PEDIR_OPINION"],
+  [/\b(que hago con|que hay que hacer|que se hace con|donde pongo|debo|tengo que|hace falta que|como lo hago|como se arregla|como se cura)\b/, "PEDIR_INSTRUCCION"],
+  [/\b(quieres|te apetece|nos vamos|vamos a|y si|podriamos|te vienes)\b/, "PROPONER"],
+  [/\b(te ayudo|quieres que|te echo una mano|necesitas algo)\b/, "OFRECER"],
+  [/\b(no, gracias|paso|no me apetece|prefiero no|otro dia)\b/, "DECLINAR"],
+  [/\b(gracias|de nada|que aproveche|muy amable|un placer)\b/, "CORTESIA"],
+  [/\b(que me dices|no me digas|anda ya|en serio|madre mia|vaya tela)\b/, "REACCIONAR"],
+  [/\b(estoy\s+(cansad|hech|fatal|molid|revent|agotad)|que pereza|no puedo mas|me duele|estoy hart|vaya dia|vaya cansancio|cansancio vital|que sueno|estoy roto)/, "EXPRESAR_MALESTAR"],
+  [/\b(estoy triste|lo estoy pasando mal|me siento sol|estoy baj)\b/, "CONSOLAR"],
+  [/\bhace\s+(un\s+|una\s+|)(frio|calor|dia|tarde|noche|sol|viento)|\bvaya\s+(frio|calor)|\bque\s+(frio|calor)\s+hace|\bllueve|\besta\s+lloviendo/, "CHARLA_LIGERA"],
+  [/\b(vale|de acuerdo|hecho|perfecto|apuntalo|si, claro|me parece bien)\b/, "CONFIRMAR"],
+  [/\b(donde|cuando|a que hora|quien|cuanto|por que|que dia)\b/, "PREGUNTAR_DATO"]
+];
+function intencionDe(t){
+  for(var i=0;i<REGLAS_INT.length;i++) if(REGLAS_INT[i][0].test(t)) return REGLAS_INT[i][1];
+  /* Red de seguridad: si no pregunta nada, te está contando algo.
+     Mejor una intención floja que ninguna: sin intención, el filtro
+     que impide responder cualquier cosa se queda sin efecto. */
+  if(!/[?]/.test(t) && !/\b(que|quien|cuando|donde|cuanto|cual|como|por que)\b/.test(t))
+    return "AFIRMAR_HECHO";
+  return "";
+}
+
+/* Forma de hablar: no es lo mismo "dame eso" que "¿me lo das, porfa?" */
+var MODOS=["pregunta","orden","ruego","afirmacion"];
+var VERBO_INI=/^(dame|dame|pon|ponme|trae|traeme|coge|cogeme|deja|dejame|abre|cierra|apaga|enciende|llama|dile|dime|busca|guarda|apunta|borra|quita|saca|mete|ven|vete|espera|para|sigue|escucha|mira)\b/;
+function modoDe(t){
+  if(/\b(porfa|por favor|te lo pido|si eres tan amable|si puedes|hazme el favor)\b/.test(t)) return "ruego";
+  /* "el arroz dónde está" es una pregunta aunque no lleve interrogante
+     y aunque el "dónde" no vaya delante. Al dictar por voz casi nunca
+     llega el signo. */
+  if(/[?]/.test(t)||/\b(que|quien|quienes|cuando|donde|cuanto|cuanta|cuantos|cuantas|cual|cuales|como|por que)\b/.test(t))
+    return "pregunta";
+  if(VERBO_INI.test(t)) return "orden";
+  return "afirmacion";
+}
+
+/* =====================================================================
+   GRAMÁTICA CASTELLANA (incrustada: un módulo, un archivo)
+   ===================================================================== */
+var PERSONAS = ["yo","tu","el","nosotros","vosotros","ellos"];
+var TIEMPOS  = ["presente","pasado","imperfecto","futuro","condicional"];
+
+/* --- terminaciones regulares ------------------------------------- */
+var TERM = {
+  ar:{ presente:["o","as","a","amos","áis","an"],
+       pasado:["é","aste","ó","amos","asteis","aron"],
+       imperfecto:["aba","abas","aba","ábamos","abais","aban"] },
+  er:{ presente:["o","es","e","emos","éis","en"],
+       pasado:["í","iste","ió","imos","isteis","ieron"],
+       imperfecto:["ía","ías","ía","íamos","íais","ían"] },
+  ir:{ presente:["o","es","e","imos","ís","en"],
+       pasado:["í","iste","ió","imos","isteis","ieron"],
+       imperfecto:["ía","ías","ía","íamos","íais","ían"] }
+};
+var FUT  = ["é","ás","á","emos","éis","án"];
+var COND = ["ía","ías","ía","íamos","íais","ían"];
+
+/* raíces de futuro que no se hacen con el infinitivo entero */
+var RAIZ_FUT = { tener:"tendr", poner:"pondr", salir:"saldr", venir:"vendr",
+  hacer:"har", decir:"dir", poder:"podr", querer:"querr", saber:"sabr",
+  haber:"habr", caber:"cabr", valer:"valdr" };
+
+/* cambio de raíz en presente (no en nosotros ni vosotros) */
+var DIPTONGA = {
+  e_ie:["querer","pensar","empezar","cerrar","entender","perder","sentir",
+        "preferir","despertar","calentar","encender","merendar","regar"],
+  o_ue:["poder","contar","volver","dormir","recordar","encontrar","costar",
+        "mover","llover","probar","acostar","soler","doler","colgar","oler","cocer","volar","sonar","rogar","tostar"],
+  e_i :["pedir","servir","repetir","vestir","seguir","medir","reir","freir"]
+};
+
+/* verbos que van por su cuenta */
+var IRREG = {
+  ser:{presente:["soy","eres","es","somos","sois","son"],
+       pasado:["fui","fuiste","fue","fuimos","fuisteis","fueron"],
+       imperfecto:["era","eras","era","éramos","erais","eran"]},
+  estar:{presente:["estoy","estás","está","estamos","estáis","están"],
+       pasado:["estuve","estuviste","estuvo","estuvimos","estuvisteis","estuvieron"]},
+  ir:{presente:["voy","vas","va","vamos","vais","van"],
+       pasado:["fui","fuiste","fue","fuimos","fuisteis","fueron"],
+       imperfecto:["iba","ibas","iba","íbamos","ibais","iban"]},
+  haber:{presente:["he","has","ha","hemos","habéis","han"],
+       pasado:["hube","hubiste","hubo","hubimos","hubisteis","hubieron"]},
+  tener:{presente:["tengo","tienes","tiene","tenemos","tenéis","tienen"],
+       pasado:["tuve","tuviste","tuvo","tuvimos","tuvisteis","tuvieron"]},
+  hacer:{presente:["hago","haces","hace","hacemos","hacéis","hacen"],
+       pasado:["hice","hiciste","hizo","hicimos","hicisteis","hicieron"]},
+  decir:{presente:["digo","dices","dice","decimos","decís","dicen"],
+       pasado:["dije","dijiste","dijo","dijimos","dijisteis","dijeron"]},
+  poder:{presente:["puedo","puedes","puede","podemos","podéis","pueden"],
+       pasado:["pude","pudiste","pudo","pudimos","pudisteis","pudieron"]},
+  querer:{presente:["quiero","quieres","quiere","queremos","queréis","quieren"],
+       pasado:["quise","quisiste","quiso","quisimos","quisisteis","quisieron"]},
+  saber:{presente:["sé","sabes","sabe","sabemos","sabéis","saben"],
+       pasado:["supe","supiste","supo","supimos","supisteis","supieron"]},
+  ver:{presente:["veo","ves","ve","vemos","veis","ven"],
+       pasado:["vi","viste","vio","vimos","visteis","vieron"],
+       imperfecto:["veía","veías","veía","veíamos","veíais","veían"]},
+  dar:{presente:["doy","das","da","damos","dais","dan"],
+       pasado:["di","diste","dio","dimos","disteis","dieron"]},
+  venir:{presente:["vengo","vienes","viene","venimos","venís","vienen"],
+       pasado:["vine","viniste","vino","vinimos","vinisteis","vinieron"]},
+  poner:{presente:["pongo","pones","pone","ponemos","ponéis","ponen"],
+       pasado:["puse","pusiste","puso","pusimos","pusisteis","pusieron"]},
+  salir:{presente:["salgo","sales","sale","salimos","salís","salen"]},
+  traer:{presente:["traigo","traes","trae","traemos","traéis","traen"],
+       pasado:["traje","trajiste","trajo","trajimos","trajisteis","trajeron"]},
+  oir:{presente:["oigo","oyes","oye","oímos","oís","oyen"]},
+  caer:{presente:["caigo","caes","cae","caemos","caéis","caen"]}
+};
+
+/* verbos de andar por casa: con estos se cubre casi toda la conversación */
+var VERBOS = ["ser","estar","ir","haber","tener","hacer","decir","poder",
+"querer","saber","ver","dar","venir","poner","salir","traer","oir","caer",
+"hablar","llamar","llevar","dejar","pasar","quedar","tomar","comprar",
+"cocinar","cenar","comer","beber","limpiar","lavar","planchar","barrer",
+"fregar","tender","recoger","guardar","apuntar","mirar","escuchar","esperar",
+"llegar","entrar","subir","bajar","abrir","cerrar","encender","apagar",
+"trabajar","descansar","dormir","despertar","levantar","sentar","andar",
+"correr","volver","contar","pensar","creer","olvidar","recordar","buscar",
+"encontrar","empezar","acabar","terminar","seguir","parar","ayudar",
+"cuidar","preguntar","contestar","llorar","reir","cantar","bailar","jugar",
+"coger","fregar","tirar","meter","sacar","quitar","poner","echar","doblar",
+"sobrar","oler","calentar","congelar","descongelar","hervir","freir","asar",
+"aprovechar","estropear","caducar","guardar","enfriar","picar","rallar",
+"colgar","enviar","mandar","avisar","cambiar","arreglar","montar","cortar",
+"leer","escribir","pintar","coser","regar","pagar","costar","doler",
+"necesitar","gustar","preferir","pedir","servir","usar","probar","romper",
+"aconsejar","cansar","calentar","estropear","caducar","brillar","molestar",
+"soldar","taladrar","enchufar","cargar","descargar","apretar","aflojar",
+"volar","viajar","conducir","aparcar","llover","nevar","doler","toser",
+"estudiar","aprender","ensenar","enseñar","cantar","tocar","sonar","soñar",
+"nadar","pasear","visitar","invitar","celebrar","cumplir","casar","nacer",
+"morir","vivir","quedarse","marchar","volverse","acordar","fijar","tardar"];
+
+/* --- conjugar ----------------------------------------------------- */
+function clase(inf){ return inf.slice(-2); }
+function raizDe(inf){ return inf.slice(0,-2); }
+
+function conjugar(inf, persona, tiempo){
+  var i = PERSONAS.indexOf(persona);
+  if(i < 0 || TIEMPOS.indexOf(tiempo) < 0) return null;
+  var c = clase(inf);
+  if(c !== "ar" && c !== "er" && c !== "ir") return null;
+
+  if(tiempo === "futuro" || tiempo === "condicional"){
+    var r = RAIZ_FUT[inf] || inf;
+    return r + (tiempo === "futuro" ? FUT[i] : COND[i]);
+  }
+  if(IRREG[inf] && IRREG[inf][tiempo]) return IRREG[inf][tiempo][i];
+
+  var raiz = raizDe(inf);
+  if(tiempo === "presente" && i !== 3 && i !== 4){
+    if(DIPTONGA.e_ie.indexOf(inf) >= 0) raiz = cambiaUltima(raiz, "e", "ie");
+    else if(DIPTONGA.o_ue.indexOf(inf) >= 0) raiz = cambiaUltima(raiz, "o", "ue");
+    else if(DIPTONGA.e_i.indexOf(inf) >= 0) raiz = cambiaUltima(raiz, "e", "i");
+  }
+  if(tiempo === "pasado" && i === 2 && DIPTONGA.e_i.indexOf(inf) >= 0)
+    raiz = cambiaUltima(raiz, "e", "i");
+  var forma = raiz + TERM[c][tiempo][i];
+  /* En castellano el diptongo ue al principio de palabra lleva h:
+     oler -> huele, no "uele". Sin esto, "las lentejas huelen raro" no
+     reconocía el verbo. */
+  if(/^ue/.test(forma)) forma = "h" + forma;
+  return forma;
+}
+
+/* cambia la ÚLTIMA vocal indicada de la raíz (pensar -> piens, no pienss) */
+function cambiaUltima(raiz, de, a){
+  var p = raiz.lastIndexOf(de);
+  return p < 0 ? raiz : raiz.slice(0,p) + a + raiz.slice(p+1);
+}
+
+
+/* Participio y gerundio: no son personas, pero son verbo. */
+function participio(inf){
+  var IRR={hacer:"hecho",decir:"dicho",ver:"visto",poner:"puesto",volver:"vuelto",
+    abrir:"abierto",escribir:"escrito",romper:"roto",morir:"muerto",cubrir:"cubierto",
+    dar:"dado",ser:"sido",ir:"ido",tener:"tenido"};
+  if(IRR[inf]) return IRR[inf];
+  return clase(inf)==="ar" ? raizDe(inf)+"ado" : raizDe(inf)+"ido";
+}
+function gerundio(inf){
+  var IRR={ir:"yendo",decir:"diciendo",poder:"pudiendo",venir:"viniendo",
+    dormir:"durmiendo",pedir:"pidiendo",leer:"leyendo",traer:"trayendo",oir:"oyendo"};
+  if(IRR[inf]) return IRR[inf];
+  return clase(inf)==="ar" ? raizDe(inf)+"ando" : raizDe(inf)+"iendo";
+}
+
+/* --- análisis inverso: de la forma al infinitivo ------------------- */
+function sinTilde(p){ return p.replace(/á/g,"a").replace(/é/g,"e").replace(/í/g,"i")
+  .replace(/ó/g,"o").replace(/ú/g,"u").replace(/ü/g,"u"); }
+var INDICE = null;
+function indice(){
+  if(INDICE) return INDICE;
+  INDICE = {};
+  VERBOS.forEach(function(inf){
+    TIEMPOS.forEach(function(t){
+      PERSONAS.forEach(function(p){
+        var f = conjugar(inf, p, t);
+        if(!f) return;
+        /* se guarda también sin tildes: el motor normaliza el texto y
+           busca "cantara", no "cantará" */
+        [f, sinTilde(f)].forEach(function(k){
+          if(!INDICE[k]) INDICE[k] = [];
+          INDICE[k].push({inf:inf, persona:p, tiempo:t});
+        });
+      });
+    });
+    INDICE[inf] = INDICE[inf] || [];
+    INDICE[inf].push({inf:inf, persona:null, tiempo:"infinitivo"});
+    /* "hay" no encaja en ninguna casilla del cuadro: es impersonal.
+       Se añade a mano o "¿qué hay que hacer?" no reconoce el verbo. */
+    if(inf==="haber"){ INDICE["hay"]=[{inf:"haber", persona:"el", tiempo:"presente"}]; }
+    [[participio(inf),"participio"],[gerundio(inf),"gerundio"]].forEach(function(x){
+      [x[0], sinTilde(x[0])].forEach(function(k){
+        if(!INDICE[k]) INDICE[k]=[];
+        INDICE[k].push({inf:inf, persona:null, tiempo:x[1]});
+      });
+    });
+  });
+  return INDICE;
+}
+function analizarVerbo(palabra){
+  var l = indice()[palabra.toLowerCase()];
+  return l ? l.slice() : null;
+}
+
+/* --- espejo: lo que tú dices, dicho por él ------------------------- */
+var PAR = { yo:"tú", "tú":"yo", me:"te", te:"me", mi:"tu", tu:"mi",
+  mis:"tus", tus:"mis", mío:"tuyo", tuyo:"mío", mía:"tuya", tuya:"mía",
+  conmigo:"contigo", contigo:"conmigo", "mí":"ti", ti:"mí" };
+var VUELTA = { yo:"tu", tu:"yo", el:"el", nosotros:"vosotros",
+               vosotros:"nosotros", ellos:"ellos" };
+
+function espejo(frase){
+  return frase.split(/(\s+)/).map(function(tr){
+    if(/^\s+$/.test(tr)) return tr;
+    var m = tr.match(/^([^a-záéíóúüñ]*)([a-záéíóúüñ]*)([\s\S]*)$/i);
+    var antes = m[1], limpio = m[2], cola = m[3];
+    if(!limpio) return tr;
+    var baja = limpio.toLowerCase();
+    if(PAR[baja]) return antes + mayus(limpio, PAR[baja]) + cola;
+    /* "como", "sobre", "vale" o "para" parecen verbos y no lo son en
+       la frase. Si la palabra pertenece a una clase cerrada, se deja
+       en paz: convertir "y como quemado" en "y comes quemado" es peor
+       que no hacer nada. */
+    var cat = categoria(baja);
+    if(cat==="adverbio"||cat==="interrogativo"||cat==="conjuncion"||
+       cat==="preposicion"||cat==="articulo") return tr;
+    var an = analizarVerbo(baja);
+    if(an){
+      var v = an.filter(function(x){return x.persona==="yo"||x.persona==="tu";})[0];
+      if(v){
+        var otra = conjugar(v.inf, VUELTA[v.persona], v.tiempo);
+        if(otra) return antes + mayus(limpio, otra) + cola;
+      }
+    }
+    return tr;
+  }).join("");
+}
+function mayus(orig, nueva){
+  return /^[A-ZÁÉÍÓÚÑ]/.test(orig) ? nueva.charAt(0).toUpperCase()+nueva.slice(1) : nueva;
+}
+
+
+/* ---------------------------------------------------------------
+   CATEGORÍA GRAMATICAL. Los artículos, preposiciones, pronombres y
+   conjunciones del castellano son listas CERRADAS: caben enteras y
+   no fallan nunca. Los verbos salen del índice. Lo que no es nada de
+   eso, es nombre o adjetivo. Esto no se marca a mano: se calcula.
+   --------------------------------------------------------------- */
+var ARTICULOS="el la los las lo un una unos unas al del".split(" ");
+var PREPOS=("a ante bajo cabe con contra de desde durante en entre hacia hasta "+
+  "mediante para por segun sin so sobre tras versus via").split(" ");
+var PRONOM=("yo tu tú el ella ello nosotros nosotras vosotros vosotras ellos ellas "+
+  "me te se nos os le les mi mí ti sí conmigo contigo consigo usted ustedes vos "+
+  "este esta esto estos estas ese esa eso esos esas aquel aquella aquello "+
+  "aquellos aquellas mio mia mios mias tuyo tuya tuyos tuyas suyo suya "+
+  "nuestro nuestra vuestro vuestra quien quienes cual cuales cuyo cuya "+
+  "alguien nadie algo nada alguno alguna ninguno ninguna todo toda todos todas").split(" ");
+var CONJUN=("y e ni o u pero sino mas aunque porque pues si que cuando "+
+  "mientras aunque conque luego asi").split(" ");
+var ADVERB=("no si sí tambien tampoco muy mas menos ya aun todavia siempre nunca "+
+  "jamas aqui alli ahi aca alla hoy ayer manana ahora luego antes despues "+
+  "bien mal asi casi solo solamente quiza quizas acaso tal vez bastante "+
+  "demasiado poco mucho pronto tarde temprano arriba abajo dentro fuera "+
+  "cerca lejos encima debajo delante detras enfrente donde cuanto cuanta "+
+  "cuantos cuantas cuando adonde porque").split(" ");
+var INTERROG="que quien quienes cual cuales cuando donde adonde cuanto cuanta cuantos cuantas como porque".split(" ");
+/* Adjetivos frecuentes en casa. La terminación no basta: "bonito" y
+   "libro" acaban igual. Lista más una pista por sufijo. */
+var ADJET=("bueno buena malo mala grande pequeno pequeño alto alta bajo baja "+
+  "nuevo nueva viejo vieja joven guapo guapa feo fea listo lista tonto tonta "+
+  "caro cara barato barata facil dificil rapido rapida lento lenta limpio "+
+  "limpia sucio sucia frio fria caliente templado seco seca mojado mojada "+
+  "lleno llena vacio vacia abierto abierta cerrado cerrada roto rota "+
+  "cansado cansada contento contenta triste alegre enfadado enfadada "+
+  "tranquilo tranquila nervioso nerviosa rico rica pobre fuerte debil "+
+  "largo larga corto corta ancho ancha estrecho estrecha gordo gorda "+
+  "flaco flaca blando blanda duro dura dulce salado salada amargo amarga "+
+  "estupendo estupenda horrible precioso preciosa basura penoso penosa").split(" ");
+var SUF_ADJ=/(oso|osa|able|ible|ivo|iva|ante|ente|ico|ica|udo|uda|ísimo|isimo|ísima|isima)$/;
+
+function enLista(p, l){ return l.indexOf(p)>=0; }
+function categoria(palabra){
+  var p = sinTilde(String(palabra||"").toLowerCase());
+  if(!p) return "";
+  if(enLista(p, ARTICULOS)) return "articulo";
+  if(enLista(p, PREPOS))    return "preposicion";
+  if(enLista(p, INTERROG))  return "interrogativo";
+  if(enLista(p, PRONOM))    return "pronombre";
+  if(enLista(p, CONJUN))    return "conjuncion";
+  if(enLista(p, ADVERB))    return "adverbio";
+  var v = indice()[p];
+  if(v && v.length) return v[0].tiempo==="infinitivo" ? "verbo (infinitivo)" : "verbo";
+  if(enLista(p, ADJET) || SUF_ADJ.test(p)) return "adjetivo";
+  if(/^[0-9]+$/.test(p)) return "numero";
+  return "nombre";
+}
+
+/* --- contracciones y concordancia --------------------------------- */
+function contraer(t){
+  return t.replace(/\ba el\b/g,"al").replace(/\bde el\b/g,"del")
+          .replace(/\bA el\b/g,"Al").replace(/\bDe el\b/g,"Del");
+}
+/* Los nombres acabados en -e o en consonante no tienen regla de género
+   en castellano: "el coche" pero "la llave". No hay truco que valga, hay
+   que listarlos. Estos son los de andar por casa. */
+var FEM_EXC = ["mano","foto","moto","radio",
+  "llave","leche","carne","noche","tarde","gente","calle","clase","nube",
+  "sangre","muerte","suerte","parte","fuente","base","serpiente","corriente",
+  "torre","nieve","fiebre","costumbre","cumbre","legumbre","clave","nave",
+  "sal","piel","miel","flor","labor","pared","red","sed","vez","luz","voz",
+  "cruz","paz","nariz","razon","razón","imagen","cancion","canción","mujer",
+  "col","hiel","crin","sien","tos","res","mies"];
+var MASC_EXC = ["dia","día","mapa","problema","tema","sofa","sofá","agua"];
+/* Del plural al singular: vocal + s, consonante + es, -ones -> -ón */
+function singular(p){
+  if(!/s$/.test(p) || p.length<3) return p;
+  if(/ones$/.test(p)) return p.slice(0,-4)+"ón";
+  if(/ces$/.test(p))  return p.slice(0,-3)+"z";      // luces -> luz
+  if(/es$/.test(p)){
+    /* El castellano solo termina palabra en l, r, n, d, z, s, j, y.
+       Si al quitar "es" queda algo que no puede acabar así, es que la
+       palabra terminaba en -e: llaves -> llav(e), coches -> coch(e). */
+    var sin = p.slice(0,-2);
+    return /[lrndzsjy]$/.test(sin) ? sin : p.slice(0,-1);
+  }
+  return p.slice(0,-1);
+}
+function genero(p){
+  p = p.toLowerCase();
+  p = singular(p);
+  if(MASC_EXC.indexOf(p) >= 0) return "m";
+  if(FEM_EXC.indexOf(p) >= 0) return "f";
+  if(/(a|ción|sión|dad|tad|umbre|ez)$/.test(p)) return "f";
+  return "m";
+}
+function numero(p){ return /(s|es)$/.test(p.toLowerCase()) ? "pl" : "sg"; }
+function concordar(palabra){
+  var g = genero(palabra), n = numero(palabra);
+  return { articulo: n==="pl" ? (g==="f"?"las":"los") : (g==="f"?"la":"el"),
+           indef:    n==="pl" ? (g==="f"?"unas":"unos") : (g==="f"?"una":"un"),
+           genero:g, numero:n };
+}
+
+var GRAM={categoria:categoria, conjugar:conjugar, analizarVerbo:analizarVerbo, espejo:espejo,
+  contraer:contraer, concordar:concordar, singular:singular, indice:indice};
+
+/* =====================================================================
+   4. TIPO DE RESPUESTA EXIGIDO — el interrogativo manda
+   ===================================================================== */
+var TIPOS = [
+  [/\bcuant[oa]s?\s+(?:tiempo\s+)?(?:se\s+)?tarda\b|\bcuanto\s+se\s+tarda\b/, "DURACION"],
+  [/\bque\s+ingredientes\b|\bque\s+lleva\b|\bcon\s+que\s+se\s+hace\b/, "LISTA"],
+  [/\bquien(?:es)?\b/, "PERSONA"],
+  [/\bdonde\b|\ben que (sitio|parte|cajon|armario)\b|\bpor donde\b/, "LUGAR"],
+  [/\bcuando\b|\bque\s+dia\b|\ba\s+que\s+hora\b/, "MOMENTO"],
+  [/\bcuant[oa]s?\b/, "CANTIDAD"],
+  [/\bpor\s+que\b/, "MOTIVO"],
+  [/\bcomo\s+se\s+(hace|prepara|pone)\b/, "PROCEDIMIENTO"],
+  [/^(?:\s*)(?:es|son|esta|estan|hay|tienes|puedes|quieres|te)\b.*\?/, "SI_NO"]
+];
+function tipoDe(t){for(var i=0;i<TIPOS.length;i++) if(TIPOS[i][0].test(t)) return TIPOS[i][1];return "";}
+
+/* =====================================================================
+   5. DESAMBIGUADOR DE "PASAR" (probado aparte, 40/40)
+   ===================================================================== */
+var VP="(?:pasar|pasarlo|pasarse|paso|pasas|pasa|pasamos|pasan|pase|pases|pasaste|"+
+       "pasaron|pase|pasaba|pasaban|pasando|pasado|pasada|pasame|pasamelo|pasale|"+
+       "pasanos|pasalo|pasate)";
+var PAS=[
+ [new RegExp("\\b(?:me|te|se|nos|os)?\\s*lo\\s+"+VP+"\\b"),"VALORAR_EXPERIENCIA"],
+ [new RegExp("\\b"+VP+"\\s+pagina\\b"),"OLVIDAR"],
+ [new RegExp("\\b"+VP+"\\s+(?:el|la|los|las|un|una|dos|tres|toda\\s+la|todo\\s+el)?\\s*(?:tiempo|tarde|manana|noche|dia|dias|semana|mes|meses|ano|anos|rato|horas?)\\b"),"TRANSCURRIR"],
+ [new RegExp("\\bse\\s+(?:me|te|le|nos)\\s+(?:ha\\s+)?"+VP+"\\b"),"OLVIDAR"],
+ [new RegExp("\\b"+VP+"\\s+(?:mucho\\s+|mucha\\s+|muchisimo\\s+|un\\s+|una\\s+|bastante\\s+)?(?:frio|calor|hambre|sed|miedo|sueno|verguenza|dolor)\\b"),"PADECER"],
+ [new RegExp("\\b"+VP+"\\s+de\\b(?!\\s+(?:una\\s+vez|golpe))|\\b"+VP+"\\s+olimpicamente\\b"),"DESINTERES"],
+ [new RegExp("\\b"+VP+"\\s+por\\s+"),"DESPLAZARSE"],
+ [new RegExp("\\b"+VP+"\\s+(?:el|la|los|las)?\\s*(?:examen|itv|curso|prueba|revision|corte)\\b"),"SUPERAR"],
+ [new RegExp("\\b(?:pasame|pasamelo|pasale|pasanos)\\s+"),"TRANSFERIR"],
+ [new RegExp("\\b"+VP+"\\s+(?:el|la|los|las)?\\s*(?:aspiradora|fregona|trapo|bayeta|escoba)\\b"),"LIMPIAR"],
+ [new RegExp("\\b(?:me|te|le|nos)\\s+"+VP+"\\s+(?:el|la|los|las|un|una)\\b"),"TRANSFERIR"]
+];
+function sentidoPasar(t){
+  if(!/\bpas/.test(t)) return "";
+  if(/\bpastill|\bpasta\b|\bpasillo/.test(t) && !new RegExp("\\b"+VP+"\\b").test(t)) return "";
+  for(var i=0;i<PAS.length;i++) if(PAS[i][0].test(t)) return PAS[i][1];
+  return "";
+}
+
+/* =====================================================================
+   6. ÁNIMO Y CONTEXTO — peso = 2,624 * segundos^-0,628
+   ===================================================================== */
+function pesoPrevio(seg){ return seg<=1?1:Math.min(1, 2.624*Math.pow(seg,-0.628)); }
+var POS=/\b(bien|genial|estupendo|contento|feliz|me alegro|fenomenal|de lujo|encantad)\b/;
+var NEG=/\b(mal|fatal|triste|cansad|hart|pereza|horrible|regular|jodid|agobiad|solo)\b/;
+function animoDe(t){ if(NEG.test(t)) return "neg"; if(POS.test(t)) return "pos"; return "neu"; }
+
+function animoActual(){
+  // El ánimo de ahora, más el de antes pesado por lo que hace que se dijo.
+  var v={pos:0,neu:0,neg:0}, ahora=Date.now(), i, m, p;
+  for(i=datos.charla.length-1;i>=0 && i>datos.charla.length-8;i--){
+    m=datos.charla[i]; if(m.quien!=="yo") continue;
+    p=pesoPrevio((ahora-m.t)/1000);
+    v[m.animo||"neu"]+=p;
+  }
+  return v.neg>v.pos && v.neg>v.neu*0.6 ? "neg" : (v.pos>v.neg && v.pos>v.neu*0.6 ? "pos" : "neu");
+}
+
+/* =====================================================================
+   7. PLANTILLAS DE SUGERENCIA — para cuando no sepa qué decir
+   ===================================================================== */
+var SUG_SERIE = {
+  SALUDAR:["Hola.","Buenos días.","Buenas.","Aquí estoy. | Dime.",
+    "¡Buenas! | ¿Qué tal?","Hola, {PERSONA}.","Dime.","Buenas tardes.",
+    "Ya era hora.","Hola. | ¿Qué necesitas?","Aquí sigo.","Buenas noches."],
+  DESPEDIR:["Hasta luego.","Que descanses.","Hasta ahora.","Cuídate.",
+    "Adiós.","Venga, hasta luego.","Nos vemos.","Que vaya bien.",
+    "Hasta mañana.","Chao.","Que duermas bien.","Ale, hasta otra."],
+  PREGUNTAR_ESTADO:["Bien, ¿y tú?","Aquí sigo.","Tirando. | ¿Y tú qué tal?",
+    "Todo en orden.","Bien.","Sin novedad.","Como siempre.","Vamos tirando.",
+    "Perfectamente.","Ni bien ni mal.","Aquí andamos.","Bien. | ¿Y por casa?"],
+  VALORAR_EXPERIENCIA:["Me alegro.","¿Y qué es lo que más te gustó?",
+    "Vaya, ¿tan mal?","Cuéntame.","Qué bien.","Pues mira qué bien.",
+    "Ya me lo imaginaba.","¿Repetirías?","Vaya faena.","Menos mal.",
+    "¿Y eso por qué?","Me alegro mucho."],
+  PREGUNTAR_DATO:["No lo tengo guardado.","Déjame mirarlo.",
+    "Eso no me lo has dicho todavía.","No lo sé.","Ni idea.",
+    "No me consta.","Eso tendrás que decírmelo tú.","No lo tengo apuntado.",
+    "Apúntamelo y te lo guardo.","No caigo."],
+  PEDIR_OPINION:["No me convence.","Me parece bien.","Ni fu ni fa.",
+    "A mí no me preguntes.","Está bien.","No está mal.","Regular.",
+    "Muy bien.","No me gusta.","Mejor que la última vez.",
+    "Depende de para qué.","Es una basura."],
+  PEDIR_INSTRUCCION:["Primero {OBJETO}, luego lo demás.","Con calma.",
+    "Cómelo antes de que se estropee.","Al horno con queso.",
+    "Tíralo por si acaso.","Congélalo hoy mismo.","Caliéntalo bien.",
+    "Guárdalo en la nevera.","Aprovéchalo mañana.","Ni lo toques.",
+    "Míralo, huélelo y decides.","Con {COMIDA} sale un buen plato."],
+  COMPROBAR_EXISTENCIAS:["Queda poco.","No queda nada.","Hay de sobra.",
+    "Eso no lo tengo apuntado.","Habrá que comprar.","Aún queda.",
+    "Se acabó ayer.","Mira en la despensa.","Está justo.","Apúntalo en la lista."],
+  PROPONER:["¿Y si {COMIDA} para cenar?","Mejor mañana.","Venga.",
+    "Buena idea.","Ahora no.","Como quieras.","Yo lo dejaría para otro día.",
+    "Vale, hagámoslo.","¿Y si lo dejamos?","Me parece bien.",
+    "Hoy no. | Mañana sí.","Adelante."],
+  OFRECER:["¿Te lo apunto?","¿Quieres que lo guarde?","Dímelo y lo hago.",
+    "Puedo recordártelo.","¿Te lo dejo apuntado?","Si quieres lo miro.",
+    "Tú dirás.","¿Hago algo?","Si te hace falta, aquí estoy."],
+  PEDIR_FAVOR:["Claro.","Ahora mismo.","Dame un momento.","Vale.",
+    "Hecho.","Sin problema.","Voy.","Eso no lo sé hacer.",
+    "Puedo intentarlo.","Dime cómo."],
+  CONFIRMAR:["Hecho.","Apuntado.","Vale.","Entendido.","Ya está.",
+    "Confirmado.","Queda apuntado.","Anotado para {FECHA}.","De acuerdo.",
+    "Muy bien.","Listo.","Perfecto."],
+  DECLINAR:["Eso no lo hago.","Mejor no.","No puedo.","No me parece buena idea.",
+    "Prefiero no meterme.","No.","Eso no me toca a mí.","Ahí no te ayudo.",
+    "No sabría."],
+  CHARLA_LIGERA:["Ya ves.","Pues sí.","Anda.","Vaya.","Qué cosas.",
+    "Pues mira.","Ajá.","Hombre, claro.","Ya te digo.","No me digas.",
+    "Menuda historia.","Pues eso."],
+  REACCIONAR:["Vaya.","Anda.","No fastidies.","Qué bien.","Vaya tela.",
+    "Menos mal.","Uf.","Toma ya.","Qué mala suerte.","Me alegro.",
+    "Pues vaya.","Bien hecho."],
+  EXPRESAR_MALESTAR:["Vaya día.","A ver si mañana mejor.","Descansa un rato.",
+    "Normal, con lo que has hecho hoy.","Siéntate un poco.",
+    "Eso se pasa durmiendo.","Tómatelo con calma.","Déjalo para mañana.",
+    "Un descanso y ya.","Hoy has hecho bastante."],
+  CONSOLAR:["Vaya.","Aquí estoy.","Eso pasará.","Lo siento.",
+    "Cuéntame si quieres.","Descansa.","Mañana se ve distinto.",
+    "No te machaques.","Ya está.","Tranquilo."],
+  CORTESIA:["De nada.","A mandar.","Para eso estoy.","Nada, hombre.",
+    "Cuando quieras.","No hay de qué.","Gracias a ti.","Un placer."],
+  PREGUNTAR_IDENTIDAD:["Me llamo Finegan.","Lo que me enseñes.",
+    "No puedo, soy inmaterial.","Eso todavía no me lo has dicho.",
+    "Un programa de esta casa.","Nada que no me hayas contado tú.",
+    "Ni idea, dímelo tú.","Lo que tú quieras que sea."],
+  AFIRMAR_HECHO:["Vale.","Apuntado.","Ah, ¿sí?","Entendido.","Tomo nota.",
+    "Ya lo sé.","Vaya.","Bien saberlo.","Queda dicho.","Me lo guardo."]
+}
+
+/* Sugerencias: las que vienen de serie más las que pegues tú en
+   Ajustes. No son fichas: solo salen cuando pides ayuda al enseñar,
+   así que por muchas que metas no compiten con lo que le enseñes. */
+function sugerencias(intencion){
+  var a=SUG_SERIE[intencion]||[], b=(datos && datos.sug && datos.sug[intencion])||[];
+  var vistas={}, out=[];
+  b.concat(a).forEach(function(x){
+    var k=String(x).toLowerCase();
+    if(!vistas[k]){ vistas[k]=1; out.push(x); }
+  });
+  return out;
+}
+
+
+/* =====================================================================
+   8. ALMACÉN — IndexedDB, y si no se puede, localStorage. Sin silencios.
+   ===================================================================== */
+var VERSION_APP="10";
+var CLAVE="casa-charla-v1", alm={modo:"memoria",bd:null,mem:null};
+function abrir(){return new Promise(function(ok){
+  var p; try{p=indexedDB.open(CLAVE,1);}catch(e){return ok(local());}
+  if(!p) return ok(local());
+  p.onupgradeneeded=function(){p.result.createObjectStore("estado");};
+  p.onsuccess=function(){alm.modo="indexeddb";alm.bd=p.result;ok(true);};
+  p.onerror=function(){ok(local());};
+  setTimeout(function(){if(alm.modo==="memoria") ok(local());},1500);
+});}
+function local(){try{localStorage.setItem(CLAVE+"-t","1");localStorage.removeItem(CLAVE+"-t");
+  alm.modo="localstorage";}catch(e){alm.modo="memoria";}return true;}
+function leer(){return new Promise(function(ok){
+  if(alm.modo==="indexeddb"){var t=alm.bd.transaction("estado","readonly").objectStore("estado").get("todo");
+    t.onsuccess=function(){ok(t.result||null);};t.onerror=function(){ok(null);};}
+  else if(alm.modo==="localstorage"){try{ok(JSON.parse(localStorage.getItem(CLAVE)||"null"));}catch(e){ok(null);}}
+  else ok(alm.mem);
+});}
+function escribir(d){return new Promise(function(ok,mal){
+  if(alm.modo==="indexeddb"){var tx=alm.bd.transaction("estado","readwrite");
+    tx.objectStore("estado").put(d,"todo");tx.oncomplete=function(){ok(true);};
+    tx.onerror=function(){mal(new Error("La base de datos rechazó el guardado."));};}
+  else if(alm.modo==="localstorage"){try{localStorage.setItem(CLAVE,JSON.stringify(d));ok(true);}
+    catch(e){mal(new Error("No cabe más. Exporta la copia ya."));}}
+  else {alm.mem=d;mal(new Error("Sin almacenamiento: al cerrar se pierde. Exporta la copia."));}
+});}
+
+/* =====================================================================
+   9. ESTADO
+   ===================================================================== */
+var datos=null, vista="charla", aviso="", ense=null, corr=null;
+/* Clases que marcas TÚ, porque solo tú sabes que Vicente es una
+   persona y que el Madrid es un equipo. Lo gramatical (artículo,
+   verbo, preposición) no se marca: lo calcula GRAM.categoria. */
+/* Estas nombran una categoría, no una cosa concreta. Si "sobras" fuera
+   COMIDA, "¿qué hago con las sobras?" rellenaría el hueco consigo mismo
+   y saldría "con sobras añade queso". No se dejan marcar. */
+var GENERICAS=("sobras sobra comida comidas cosa cosas algo esto eso aquello "+
+  "resto restos trozo trozos parte partes gente persona personas sitio lugar "+
+  "sitios cacharro cacharros bicho bichos animal animales").split(" ");
+function esGenerica(p){ return GENERICAS.indexOf(p)>=0; }
+
+/* La clase tiene que cuadrar con lo que la palabra ES. Marcar "bien"
+   como CUALIDAD convirtió una respuesta en plantilla con hueco y la
+   dejó inservible. Ahora se comprueba antes y se explica por qué no.
+   ACCION pide un verbo, CUALIDAD un adjetivo, y el resto un nombre. */
+function pegaClase(palabra, clase){
+  var c=GRAM.categoria(palabra);
+  /* Solo se rechaza a ciegas lo que NUNCA nombra nada: artículos,
+     preposiciones, pronombres, conjunciones, adverbios. Con el resto
+     hay que ser flexible, porque en castellano nombre y verbo se
+     solapan sin parar: "la cocina" y "él cocina" son la misma palabra,
+     y "roto" es participio y adjetivo a la vez. */
+  if(c==="articulo"||c==="preposicion"||c==="pronombre"||c==="conjuncion"||
+     c==="adverbio"||c==="interrogativo")
+    return '"'+palabra+'" es un '+c+", y esos no nombran nada. "+
+           "Marca la palabra que dice QUÉ o QUIÉN.";
+  /* Y hasta aquí. No se puede saber si "raro", "moho" o "hinchada" son
+     adjetivos sin un diccionario entero, y rechazarlos por no estar en
+     una lista es peor que dejarlos pasar. Lo único seguro es lo de
+     arriba: las clases cerradas del castellano. */
+  return null;
+}
+
+var CLASES_SERIE=["PERSONA","ANIMAL","PLANTA","LUGAR","SITIO_CASA","OBJETO",
+  "APARATO","HERRAMIENTA","COMIDA","BEBIDA","MEDICINA","ROPA","EQUIPO",
+  "ACTIVIDAD","FECHA","HORA","CANTIDAD","DINERO","CUALIDAD","ACCION"];
+
+/* Las de serie más las que te inventes tú. No hay lista de clases que
+   valga para todas las casas: quien tiene plantas necesita PLANTA y
+   quien tiene taller necesita BROCA. Se crean desde el mismo sitio
+   donde se marca la palabra. */
+var CLASES=CLASES_SERIE.slice();
+function refrescarClases(){
+  CLASES=CLASES_SERIE.concat((datos && datos.clases) || []);
+}
+function nuevo(){return {version:7, charla:[], fichas:[], entidades:{}, contexto:null,
+          perfil:0, marcador:[0,0,0,0,0], pesos:null, ajustes:0,
+          sug:{}, hechos:[], pendiente:null, clases:[], contextos:[],
+          atributos:{}, capas:{}, sentidos:{}, plantillas:{}, grave:0};}
+
+/* Qué entidades conocidas aparecen en la frase. */
+function entidadesEn(t, ctx){
+  var out=[], k, vistas={}, e=datos.entidades||{}, se=datos.sentidos||{};
+  function mete(k2){
+    if(vistas[k2] || !new RegExp("\\b"+escRe(k2)+"\\b").test(t)) return;
+    vistas[k2]=1;
+    var sen=elegirSentido(k2, t, ctx||null);
+    if(sen) out.push({palabra:k2, clase:sen.clase, sentido:sen});
+  }
+  for(k in se) mete(k);
+  for(k in e)  mete(k);
+  return out;
+}
+
+/* Palabras con carga, sin las de relleno. */
+var VACIAS={que:1,de:1,la:1,el:1,y:1,a:1,en:1,un:1,una:1,es:1,se:1,no:1,con:1,por:1,
+  para:1,me:1,te:1,lo:1,los:1,las:1,su:1,mi:1,tu:1,al:1,del:1,si:1,ya:1,muy:1,mas:1,
+  este:1,esta:1,eso:1,esto:1,como:1,pero:1,tan:1,le:1,ha:1,he:1,has:1,hay:1,
+  quien:1,quienes:1,cuando:1,donde:1,cuanto:1,cuanta:1,cuantos:1,cuantas:1,
+  cual:1,cuales:1,porque:1,tiene:1,tienes:1,tengo:1,tienen:1,hace:1,haces:1,
+  hacer:1,estan:1,estoy:1,puede:1,puedes:1,puedo:1,quiere:1,quieres:1,
+  tener:1,poder:1,querer:1,haber:1,estar:1,ser:1,
+  ellos:1,ellas:1,nosotros:1,vosotros:1,usted:1,ustedes:1,ella:1};
+/* Palabras que significan lo mismo comparten clave. Sin esto, "tu nombre"
+   y "como te llamas" generan dos fichas distintas para la misma pregunta. */
+var SINON={llamas:"nombre",llamo:"nombre",llamar:"nombre",llaman:"nombre",
+  apellido:"nombre",apodo:"nombre",edad:"anos",annos:"anos",
+  gusta:"gustar",gustan:"gustar",gustaria:"gustar",encanta:"gustar",
+  sabes:"saber",sabe:"saber",conoces:"saber",
+  eres:"ser",soy:"ser",es:"ser",
+  favorito:"favorito",favorita:"favorito",preferido:"favorito",preferida:"favorito",
+  cansado:"cansancio",cansada:"cansancio",cansadisimo:"cansancio",agotado:"cansancio",
+  comprar:"compra",compro:"compra",compras:"compra",
+  /* Saludos: todos a la misma palabra. Sin esto, "Hola ¿qué tal?" y
+     "Buenas ¿cómo estás?" no comparten ninguna palabra y no se
+     reconocen entre sí. */
+  buenas:"hola",holi:"hola",hey:"hola",saludos:"hola",
+  adios:"despedida",chao:"despedida",hasta:"despedida",luego:"despedida",
+  /* Cortesía y estado */
+  gracias:"gracias",graciasss:"gracias",
+  vale:"conforme",conforme:"conforme",
+  ayuda:"ayudar",ayudas:"ayudar",ayudame:"ayudar",
+  /* "estar" y "ser" son vacías por lo mucho que salen, pero el estado
+     de ánimo sí importa: se rescata por aquí. */
+  tal:"estado",animo:"estado",animado:"estado"};
+
+/* Todas las formas de un verbo se guardan como el infinitivo. Así
+   "canta", "cantaba", "cantarás" y "cantó" son la misma palabra clave.
+   Esto es lo que hace que una ficha valga para muchas frases sin tener
+   que enseñarle cada tiempo verbal por separado. */
+function lema(p){
+  if(SINON[p]) return SINON[p];
+  var a=GRAM.analizarVerbo(p);
+  if(a && a.length){
+    var v=a.filter(function(x){return x.tiempo!=="infinitivo";})[0];
+    if(v) return v.inf;
+  }
+  return p;
+}
+function claves(t){
+  return n(t).replace(/[^a-z0-9 ]/g," ").split(" ")
+    .filter(function(p){return p.length>2 && !VACIAS[p];})
+    .map(lema)
+    .filter(function(p){return !VACIAS[p];}).slice(0,8);
+}
+var FORMULAS={SALUDAR:1, DESPEDIR:1, CORTESIA:1, AGRADECER:1};
+function clavesCon(t, intencion, ctx){
+  var c=claves(t), e=datos.entidades||{}, i, clases=[], rutas=[];
+  var tn=n(t);
+  for(i=0;i<c.length;i++){
+    if(!e[c[i]]) continue;
+    var sen0=elegirSentido(c[i], tn, ctx||null);
+    /* La clase sale del sentido ELEGIDO, no del primero de la lista:
+       "el banco y el dinero" es un LUGAR, aunque el banco del parque
+       vaya primero en el vocabulario. */
+    var cl0="@"+((sen0 && sen0.clase) || e[c[i]]);
+    if(clases.indexOf(cl0)<0) clases.push(cl0);
+    /* LA RUTA. El sentido ya elegido tiene una etiqueta inglesa, y esa
+       etiqueta es el camino por el que se guarda y se busca. Hace dos
+       cosas de una vez:
+         · junta sinónimos    nevera y frigorifico -> #fridge
+         · separa sentidos    el banco del parque  -> #bench
+                              el banco del dinero  -> #bank
+       Se guarda ADEMÁS de la palabra, no en su lugar: la palabra
+       exacta sigue valiendo más que la ruta. */
+    var sen=sen0;
+    if(sen && sen.en){
+      var ruta="#"+n(sen.en).replace(/[^a-z0-9]/g,"_");
+      if(rutas.indexOf(ruta)<0) rutas.push(ruta);
+    }
+  }
+  c=c.concat(rutas).concat(clases);
+  if(intencion && FORMULAS[intencion]) c.push("@"+intencion);
+  return c;
+}
+
+/* =====================================================================
+   10. ANÁLISIS Y RESPUESTA
+   ===================================================================== */
+/* Distancia de una letra: sirve para las erratas de dictado, no para
+   parecerse en general. Solo se usa con listas cerradas. */
+function unaLetra(a2, b2){
+  if(Math.abs(a2.length-b2.length)>1) return false;
+  var i=0, j=0, fallos=0;
+  while(i<a2.length && j<b2.length){
+    if(a2[i]===b2[j]){ i++; j++; continue; }
+    if(++fallos>1) return false;
+    if(a2.length>b2.length) i++;
+    else if(a2.length<b2.length) j++;
+    else { i++; j++; }
+  }
+  return fallos + (a2.length-i) + (b2.length-j) <= 1;
+}
+
+/* Los interrogativos cambian el sentido de la frase entera: si "dónde"
+   llega como "dnde", Charla deja de saber que le preguntan un sitio y
+   contesta cualquier cosa. Se corrigen antes de nada. */
+var INTERROG_FIJOS="que quien quienes cuando donde adonde cuanto cuanta cuantos cuantas cual cuales como porque".split(" ");
+function arreglaInterrogativos(t){
+  return t.split(" ").map(function(p){
+    if(p.length<3 || INTERROG_FIJOS.indexOf(p)>=0) return p;
+    /* Solo se corrige lo que NO es una palabra conocida. "canta" está a
+       una letra de "cuanta" y convertirlo sería destrozar la frase.
+       Una errata es una palabra que no existe, no una que se parece. */
+    if(GRAM.analizarVerbo(p)) return p;
+    if((datos && datos.entidades && datos.entidades[p]) ||
+       (datos && datos.sentidos && datos.sentidos[p])) return p;
+    if(VACIAS[p] || SINON[p] || ALIM[p] || HERRAM[p]) return p;
+    if(GRAM.categoria(p)!=="nombre") return p;
+    for(var i=0;i<INTERROG_FIJOS.length;i++)
+      if(unaLetra(p, INTERROG_FIJOS[i])) return INTERROG_FIJOS[i];
+    return p;
+  }).join(" ");
+}
+
+function analizar(frase){
+  var t=arreglaInterrogativos(n(frase)), inten=intencionDe(t);
+  var ents=entidadesEn(t, datos.contexto||null);
+  if(!datos.contexto){
+    /* Sin contexto abierto: se deduce de las palabras y se vuelven a
+       elegir los sentidos con ese contexto ya puesto. */
+    var imp=contextoImplicito(ents);
+    if(imp) ents=entidadesEn(t, imp);
+  }
+  return { texto:frase, t:t, grave:esGrave(t), intencion:inten,
+           tipo:tipoDe(t), pasar:sentidoPasar(t), animo:animoDe(t),
+           modo:modoDe(t), entidades:ents,
+           contexto:(datos.contexto || contextoImplicito(ents) || null),
+           implicito:(!datos.contexto && !!contextoImplicito(ents)),
+           claves:clavesCon(frase, inten, datos.contexto||contextoImplicito(ents)) };
+}
+
+
+
+/* =====================================================================
+   CONTEXTOS Y ATRIBUTOS
+   Un contexto ya no es solo un nombre: son CAPAS. Dónde estás, con
+   quién, de tú o de usted, qué momento y qué tono. Dos situaciones
+   pueden compartir el sitio y diferenciarse por el trato.
+
+   Y cada palabra puede llevar atributos: dónde vive, en qué estado
+   está, a qué contexto pertenece. Eso permite que Charla sepa que si
+   hablas de arroz estás en la cocina aunque no lo hayas dicho.
+   ===================================================================== */
+var CONTEXTOS_SERIE = [
+  "cocina","comedor","salon","dormitorio","bano","terraza","jardin",
+  "garaje","taller","trastero","despensa","lavadero",
+  "compra","cocinar","limpieza","colada","plantas","mascotas",
+  "medicos","medicinas","dinero","papeleo","averias","bricolaje",
+  "coche","viaje","calle","trabajo","tienda","vecinos",
+  "familia","amigos","ocio","deporte","futbol","musica","lectura",
+  "fiesta","cena","desayuno","noche","manana","fin de semana"
+];
+
+/* Las capas: cada una es una pregunta distinta sobre la situación. */
+var CAPAS = [
+  {id:"sitio",   nombre:"Dónde",     valores:["casa","cocina","salon","dormitorio","bano","terraza","garaje","taller","calle","coche","trabajo","tienda"]},
+  {id:"quien",   nombre:"Con quién", valores:["solo","pareja","hijos","familia","amigos","vecino","desconocido","cliente"]},
+  {id:"trato",   nombre:"Trato",     valores:["tu","usted"]},
+  {id:"momento", nombre:"Cuándo",    valores:["manana","mediodia","tarde","noche","madrugada"]},
+  {id:"tono",    nombre:"Tono",      valores:["normal","prisa","broma","serio","cansado"]}
+];
+
+/* Atributos que tiene sentido rellenar según la clase. Es una guía
+   para quien los rellene, no una obligación. */
+var ATRIBUTOS_GUIA = {
+  COMIDA:      ["contexto","sitio","estado","se_congela","dura_dias"],
+  BEBIDA:      ["contexto","sitio","estado","abierto","dura_dias"],
+  MEDICINA:    ["contexto","sitio","receta","momento"],
+  HERRAMIENTA: ["contexto","sitio","riesgo","para"],
+  APARATO:     ["contexto","sitio","enchufe","marca"],
+  ROPA:        ["contexto","sitio","lavado","temporada"],
+  PLANTA:      ["contexto","sitio","riego","luz"],
+  ANIMAL:      ["contexto","come","paseo"],
+  PERSONA:     ["contexto","trato","relacion"],
+  SITIO_CASA:  ["contexto"],
+  OBJETO:      ["contexto","sitio","para"]
+};
+
+/* Carga un paquete de vocabulario entero. Formato:
+   { "palabras": { "arroz": {"clase":"COMIDA","contexto":"cocina",
+                             "sitio":"despensa","se_congela":"si"} },
+     "contextos": ["cocina","taller"],
+     "capas": { "cocina": {"sitio":"cocina","trato":"tu"} } }
+   Comprueba todo antes de guardar y te dice qué ha descartado. */
+function cargarVocabulario(txt){
+  var obj;
+  try{
+    var limpio=txt.replace(/^[\s\S]*?var\s+\w+\s*=\s*/,"").replace(/;\s*$/,"").trim();
+    obj=JSON.parse(limpio);
+  }catch(e){ return {error:"No he podido leerlo: "+e.message}; }
+  if(!obj || typeof obj!=="object") return {error:"Eso no es un paquete de vocabulario."};
+
+  var puestas=0, atrs=0, ctxs=0, caps=0, fuera=[];
+  datos.atributos=datos.atributos||{};
+  datos.entidades=datos.entidades||{};
+  datos.contextos=datos.contextos||[];
+  datos.capas=datos.capas||{};
+  datos.clases=datos.clases||[];
+
+  (obj.contextos||[]).forEach(function(c){
+    c=n(String(c)).trim();
+    if(c && datos.contextos.indexOf(c)<0){ datos.contextos.push(c); ctxs++; }
+  });
+
+  var k, v, ck;
+  for(k in (obj.capas||{})){
+    var nom=n(k).trim(), cap=obj.capas[k], guarda={};
+    if(!nom || typeof cap!=="object") continue;
+    CAPAS.forEach(function(c){ if(cap[c.id]) guarda[c.id]=n(String(cap[c.id])); });
+    if(Object.keys(guarda).length){ datos.capas[nom]=guarda; caps++;
+      if(datos.contextos.indexOf(nom)<0) datos.contextos.push(nom); }
+  }
+
+  for(k in (obj.palabras||{})){
+    var pal=n(k).replace(/[^a-z0-9ñ ]/g,"").trim();
+    if(!pal){ fuera.push(k); continue; }
+    if(esGenerica(pal)){ fuera.push(pal+" (categoría, no cosa)"); continue; }
+    v=obj.palabras[k];
+    if(typeof v==="string") v={clase:v};
+    if(!v || typeof v!=="object"){ fuera.push(pal); continue; }
+    /* Formato nuevo: lista de sentidos. Formato viejo: una clase
+       suelta, que se convierte en un sentido único. */
+    var lista = Array.isArray(v.sentidos) && v.sentidos.length
+      ? v.sentidos : (v.clase ? [v] : []);
+    if(!lista.length){ fuera.push(pal+" (sin clase)"); continue; }
+
+    var buenos=[], malo=null;
+    lista.forEach(function(sen){
+      if(!sen || typeof sen!=="object") return;
+      var clase=String(sen.clase||"").toUpperCase().replace(/[^A-Z0-9_]/g,"");
+      if(!clase) return;
+      var mal=pegaClase(pal, clase);
+      if(mal){ malo=GRAM.categoria(pal); return; }
+      if(CLASES.indexOf(clase)<0){ datos.clases.push(clase); refrescarClases(); }
+      var limpio={clase:clase};
+      for(ck in sen){
+        if(ck==="clase"||ck==="sentidos") continue;
+        var val=n(String(sen[ck])).trim();
+        if(!val) continue;
+        limpio[n(ck).replace(/[^a-z0-9_]/g,"_")]=val;
+        atrs++;
+      }
+      buenos.push(limpio);
+      if(limpio.contexto){
+        datos.contextos=datos.contextos||[];
+        if(datos.contextos.indexOf(limpio.contexto)<0) datos.contextos.push(limpio.contexto);
+      }
+    });
+    if(!buenos.length){ fuera.push(pal+(malo?" ("+malo+")":"")); continue; }
+
+    /* No se pisa: se suman los sentidos que no estuvieran ya. */
+    datos.sentidos=datos.sentidos||{};
+    var ya=datos.sentidos[pal]||[];
+    buenos.forEach(function(nuevo){
+      /* Si el sentido trae su traducción inglesa, esa manda como
+         identidad: "bench" es "bench" venga del paquete que venga.
+         Es la manera más fiable de no duplicar ni pisar sentidos. */
+      var igual = nuevo.en
+        ? ya.filter(function(x){ return x.en===nuevo.en; })[0]
+        : ya.filter(function(x){
+            return x.clase===nuevo.clase && (x.contexto||"")===(nuevo.contexto||""); })[0];
+      if(igual){ for(ck in nuevo) igual[ck]=nuevo[ck]; }
+      else ya.push(nuevo);
+    });
+    datos.sentidos[pal]=ya;
+    datos.entidades[pal]=ya[0].clase;      // el primero hace de principal
+    puestas++;
+  }
+  if(!puestas && !atrs && !ctxs && !caps)
+    return {error:"No he encontrado nada aprovechable."};
+  var multi=0, mk;
+  for(mk in (datos.sentidos||{})) if(datos.sentidos[mk].length>1) multi++;
+  datos.fichas.forEach(function(f){ rehacer(f); });
+  tirarIndice();
+  return {puestas:puestas, atrs:atrs, ctxs:ctxs, caps:caps, multi:multi, fuera:fuera};
+}
+
+/* ---------------------------------------------------------------
+   SENTIDOS. Una palabra puede ser varias cosas. El alcohol del
+   botiquín, el de la copa y el de limpiar son tres, y solo la frase
+   entera dice cuál. Se guardan todos y se elige en cada momento.
+   --------------------------------------------------------------- */
+function sentidosDe(palabra){
+  var l=(datos.sentidos||{})[palabra];
+  if(l && l.length) return l;
+  /* Formato viejo: una clase suelta más sus atributos. */
+  var c=(datos.entidades||{})[palabra];
+  if(!c) return [];
+  var uno={clase:c}, at=(datos.atributos||{})[palabra]||{}, k;
+  for(k in at) uno[k]=at[k];
+  return [uno];
+}
+
+/* Puntúa un sentido contra la frase: manda el contexto abierto, luego
+   las palabras vecinas que coinciden con sus atributos o su glosa. */
+/* Todas las formas de las palabras de la frase, para poder comparar
+   "limpia" con "limpiar" y "cristal" con "cristales". */
+function bolsaDe(t){
+  var b={};
+  t.replace(/[^a-z0-9ñ ]/g," ").split(/\s+/).forEach(function(w){
+    if(w.length<3) return;
+    b[w]=1; b[lema(w)]=1; b[GRAM.singular(w)]=1; b[lema(GRAM.singular(w))]=1;
+  });
+  return b;
+}
+function puntuaSentido(sen, t, ctx, bolsa){
+  var p=0, k, v;
+  bolsa=bolsa||bolsaDe(t);
+  if(ctx && sen.contexto===ctx) p+=6;
+  for(k in sen){
+    /* "en" es la etiqueta inglesa: sirve para identificar el sentido,
+       no para buscarla dentro de una frase en español. */
+    if(k==="clase" || k==="en") continue;
+    v=n(String(sen[k])).replace(/[^a-z0-9ñ ]/g," ");
+    if(!v) continue;
+    v.split(/\s+/).forEach(function(w){
+      if(w.length<3) return;
+      if(bolsa[w] || bolsa[lema(w)] || bolsa[GRAM.singular(w)])
+        p+= (k==="contexto"?3:2);
+    });
+  }
+  return p;
+}
+
+function elegirSentido(palabra, t, ctx){
+  var l=sentidosDe(palabra);
+  if(!l.length) return null;
+  if(l.length===1) return l[0];
+  var bolsa=bolsaDe(t);
+  var mejor=l[0], mp=puntuaSentido(l[0], t, ctx, bolsa), i, p;
+  for(i=1;i<l.length;i++){
+    p=puntuaSentido(l[i], t, ctx, bolsa);
+    if(p>mp){ mp=p; mejor=l[i]; }
+  }
+  return mejor;
+}
+
+/* Limpia entidades que nunca debieron entrar. Devuelve las quitadas. */
+function purgarVacias(){
+  var fuera=[], retiradas={}, e=datos.entidades||{};
+  Object.keys(e).forEach(function(p){
+    if(p.length<=2 || esGenerica(p) || CERRADAS[GRAM.categoria(p)]){
+      fuera.push(p+" ("+GRAM.categoria(p)+")");
+      retiradas[p]=e[p];
+      delete datos.entidades[p];
+      if(datos.sentidos) delete datos.sentidos[p];
+      if(datos.atributos) delete datos.atributos[p];
+    }
+  });
+  if(!fuera.length) return fuera;
+  /* Los huecos que dejaron esas palabras quedan huérfanos: {CUALIDAD}
+     en una respuesta que ya no puede rellenarlo. Se les devuelve la
+     palabra original, que casi siempre era el artículo. */
+  datos.fichas.forEach(function(f){ limpiaHuecos(f, retiradas); rehacer(f); });
+  tirarIndice();
+  return fuera;
+}
+
+function limpiaHuecos(f, retiradas){
+  var texto=(f.bloques||[]).join(" ");
+  var marcas=texto.match(/\{([A-Z_]+)\}/g);
+  if(!marcas) return;
+  var hay=(analizar(f.ida||"").entidades||[]).map(function(x){return x.clase;});
+  var huerfanas=marcas.map(function(x){return x.slice(1,-1);})
+                      .filter(function(c){return hay.indexOf(c)<0;});
+  if(!huerfanas.length) return;
+  f.bloques=f.bloques.map(function(b){
+    huerfanas.forEach(function(c){
+      var orig=Object.keys(retiradas||{}).filter(function(p){return retiradas[p]===c;})[0];
+      b=b.split("{"+c+"}").join(orig||"");
+      b=b.replace(/\s+/g," ").trim();
+    });
+    return b;
+  }).filter(function(b){ return /[a-záéíóúüñ0-9]/i.test(b); });
+}
+
+function atributosDe(palabra, t, ctx){
+  var sen=elegirSentido(palabra, t===undefined?"":t, ctx||null);
+  if(!sen) return null;
+  var o={}, k;
+  for(k in sen) if(k!=="clase") o[k]=sen[k];
+  return Object.keys(o).length? o : null;
+}
+
+function ponerAtributo(palabra, clave, valor){
+  datos.atributos=datos.atributos||{};
+  var a=datos.atributos[palabra]||{};
+  if(valor===null||valor==="") delete a[clave]; else a[clave]=String(valor);
+  if(Object.keys(a).length) datos.atributos[palabra]=a;
+  else delete datos.atributos[palabra];
+  if(clave==="contexto" && valor){
+    datos.contextos=datos.contextos||[];
+    if(datos.contextos.indexOf(valor)<0) datos.contextos.push(valor);
+  }
+}
+
+/* Contexto que se deduce de las palabras: si hablas de arroz y arroz
+   pertenece a cocina, estás en la cocina aunque no lo hayas abierto. */
+function contextoImplicito(entidades){
+  var cuenta={}, mejor=null, i;
+  (entidades||[]).forEach(function(e){
+    var sen=e.sentido;
+    if(sen && sen.contexto){ cuenta[sen.contexto]=(cuenta[sen.contexto]||0)+1; }
+  });
+  for(i in cuenta) if(!mejor || cuenta[i]>cuenta[mejor]) mejor=i;
+  return mejor;
+}
+
+/* Capas del contexto en uso. Un contexto puede declararlas o no. */
+function capasDe(nombre){
+  return ((datos.capas||{})[nombre]) || null;
+}
+function capasComunes(a2, b2){
+  var ca=capasDe(a2), cb=capasDe(b2), n2=0, k;
+  if(!ca||!cb) return 0;
+  for(k in ca) if(cb[k]===ca[k]) n2++;
+  return n2;
+}
+
+
+/* =====================================================================
+   PLANTILLAS: HABLAR SIN FICHA
+   Cuando no hay ninguna ficha buena pero el vocabulario sí sabe algo,
+   Charla compone la frase. No inventa hechos: solo pone en castellano
+   lo que ya está etiquetado. Si no hay dato, no hay plantilla.
+   ===================================================================== */
+var IMPER_IRREG={ir:"ve", venir:"ven", tener:"ten", poner:"pon", salir:"sal",
+  hacer:"haz", decir:"di", ser:"se", saber:"sabe", oir:"oye", dar:"da"};
+function imperativo(inf){
+  if(IMPER_IRREG[inf]) return IMPER_IRREG[inf];
+  return GRAM.conjugar(inf,"el","presente") || inf;
+}
+
+/* El vocabulario se guarda sin tildes para poder buscar. Para hablar
+   hay que devolvérselas: "En el cajon" delata la máquina. */
+var TILDES={cajon:"cajón",salon:"salón",bano:"baño",armario:"armario",
+  botiquin:"botiquín",buhardilla:"buhardilla",desvan:"desván",
+  jardin:"jardín",balcon:"balcón",habitacion:"habitación",
+  cocina:"cocina",despensa:"despensa",nevera:"nevera",congelador:"congelador",
+  encimera:"encimera",fregadero:"fregadero",alacena:"alacena",
+  garaje:"garaje",trastero:"trastero",terraza:"terraza",lavadero:"lavadero",
+  cajonera:"cajonera",estanteria:"estantería",vitrina:"vitrina",
+  aparador:"aparador",comoda:"cómoda",bodega:"bodega",altillo:"altillo"};
+function conTilde(p){ return TILDES[p] || p; }
+
+var PLANTILLAS_SERIE = {
+  LUGAR:        "En {ART_SITIO} {SITIO}.",
+  LUGAR_ORDEN:  "En {ART_SITIO} {SITIO}.",
+  FALTA_NUCLEO: "¿El qué?",
+  MOMENTO:      "{MOMENTO}.",
+  PROCEDIMIENTO:"{VERBO_IMP} {ART_OBJ} {OBJETO}."
+};
+function plantilla(id){
+  return (datos.plantillas && datos.plantillas[id]) || PLANTILLAS_SERIE[id] || null;
+}
+
+/* Rellena una plantilla. Devuelve null si falta cualquier pieza: es
+   preferible callar a soltar una frase con un hueco dentro. */
+function rellenaPlantilla(txt, piezas){
+  var falta=false;
+  var out=txt.replace(/\{([A-Z_]+)\}/g, function(todo, k){
+    if(piezas[k]===undefined || piezas[k]===null || piezas[k]===""){ falta=true; return ""; }
+    return piezas[k];
+  }).replace(/\s+/g," ").replace(/\s+([.,;:!?])/g,"$1").trim();
+  return falta ? null : out;
+}
+
+function componer(a){
+  /* 1. Preguntas de sitio: el vocabulario sabe dónde vive cada cosa. */
+  if(a.tipo==="LUGAR"){
+    var conSitio=(a.entidades||[]).filter(function(e){
+      return e.sentido && e.sentido.sitio; })[0];
+    if(!conSitio){
+      /* "¿Dónde está?" a secas: no has dicho el qué, así que se
+         pregunta. Pero "¿dónde está el abono?" sí lo dice, aunque no
+         sepamos qué es el abono: ahí toca decir que no se sabe. */
+      if(!(a.claves||[]).filter(esPropia).length)
+        return {texto:plantilla("FALTA_NUCLEO"), motivo:"no has dicho el qué"};
+      return null;
+    }
+    var sitio=conTilde(conSitio.sentido.sitio);
+    var cc=GRAM.concordar(conSitio.sentido.sitio);
+    var verbo=verboDe(a.t.replace(/[^a-z0-9ñ ]/g," ").split(/\s+/).filter(Boolean));
+    /* "¿Dónde guardo X?" pide una orden; "¿dónde está X?" pide un sitio. */
+    var manda = verbo && /^(guardar|poner|meter|dejar|colocar)$/.test(verbo.inf);
+    var txt = manda
+      ? rellenaPlantilla(plantilla("LUGAR_ORDEN"),
+          {VERBO_IMP:may(imperativo(verbo.inf)), ART_SITIO:cc.articulo, SITIO:sitio})
+      : rellenaPlantilla(plantilla("LUGAR"),
+          {ART_SITIO:cc.articulo, SITIO:sitio});
+    if(txt) return {texto:txt, motivo:"vocabulario: "+conSitio.palabra+" vive en "+sitio};
+  }
+  return null;
+}
+
+/* =====================================================================
+   ALMACÉN DE HECHOS
+   Charla guardaba RÉPLICAS: "si me dices X, contesto Y". Esto guarda
+   DATOS: sujeto - relación - objeto. Así "va a cantar Miguel" deja de
+   ser una respuesta y pasa a ser algo que se puede consultar.
+
+   Regla que no se salta: si no hay una entidad marcada, NO se inventa
+   sujeto. Prefiere preguntar.
+   ===================================================================== */
+var AUX={ser:1,estar:1,haber:1,tener:1,ir:1,poder:1,querer:1,soler:1,deber:1};
+var SUJETABLE={PERSONA:1, ANIMAL:1, EQUIPO:1};
+var RESERVADO=/\b(medic|pastill|receta|analitic|diagnostic|enferm|hospital|dinero|euros|banco|nomina|deuda|hipoteca|sueldo|divorci|herencia)/;
+
+/* Devuelve {inf, pos} del primer verbo con contenido. */
+function verboDe(palabras){
+  var i, an, v, primero=null;
+  for(i=0;i<palabras.length;i++){
+    an=GRAM.analizarVerbo(palabras[i]);
+    if(!an || !an.length) continue;
+    v=(an.filter(function(x){return x.tiempo!=="infinitivo";})[0]||an[0]).inf;
+    if(!primero) primero={inf:v, pos:i};
+    if(!AUX[v]) return {inf:v, pos:i};       // "va a cantar" -> cantar
+  }
+  return primero;                            // solo había auxiliar: vale
+}
+
+/* Lo que queda después del verbo, quitando el sujeto y las palabras
+   de relleno. "Miguel canta el jueves" -> "el jueves". */
+function objetoDe(palabras, verbo, sujeto){
+  if(!verbo) return null;
+  var resto=palabras.slice(verbo.pos+1).filter(function(p){
+    if(p===sujeto) return false;
+    var c=GRAM.categoria(p);
+    return c!=="pronombre" && c!=="conjuncion" && p!=="que";
+  });
+  /* La preposición se queda: "a las ocho" es la respuesta, "las ocho"
+     está coja. */
+  return resto.length ? resto.join(" ") : null;
+}
+
+function extraerHechos(a){
+  if(a.modo==="pregunta") return [];
+  var suj=(a.entidades||[]).filter(function(e){return SUJETABLE[e.clase];})[0];
+  var palabras=a.t.replace(/[^a-z0-9ñ ]/g," ").split(/\s+/).filter(Boolean);
+  var verbo=verboDe(palabras);
+  if(!suj && !verbo) return [];
+  var h={ id:"h"+Date.now()+Math.floor(Math.random()*99),
+    sujeto: suj?suj.palabra:null,
+    clase:  suj?suj.clase:null,
+    relacion: verbo?verbo.inf:null,
+    objeto: suj?objetoDe(palabras, verbo, suj.palabra):null,
+    contexto:a.contexto, ambito: RESERVADO.test(a.t)?"reservado":"personal",
+    confirmado:true, t:Date.now() };
+  return [h];
+}
+
+/* "Apuntado: Miguel canta el jueves", no "Miguel cantar el jueves". */
+function frasear(h){
+  var v=GRAM.conjugar(h.relacion,"el","presente")||h.relacion;
+  return "Apuntado: "+may(h.sujeto)+" "+v+(h.objeto?" "+h.objeto:"")+".";
+}
+
+function completo(h){ return !!(h && h.sujeto && h.relacion); }
+
+function guardarHecho(h){
+  if(!completo(h)) return null;
+  datos.hechos=datos.hechos||[];
+  var igual=datos.hechos.filter(function(x){
+    return x.sujeto===h.sujeto && x.relacion===h.relacion && x.objeto===h.objeto;})[0];
+  if(igual){ igual.t=Date.now(); return igual; }
+  datos.hechos.push(h);
+  return h;
+}
+function olvidarHecho(id){
+  datos.hechos=(datos.hechos||[]).filter(function(h){return h.id!==id;});
+}
+function hechosDe(sujeto){
+  return (datos.hechos||[]).filter(function(h){return h.sujeto===sujeto;});
+}
+function may(p){ return String(p).charAt(0).toUpperCase()+String(p).slice(1); }
+
+function consultarHechos(a){
+  if(a.modo!=="pregunta" || !(datos.hechos||[]).length) return null;
+  var suj=(a.entidades||[]).filter(function(e){return SUJETABLE[e.clase];})[0];
+  var palabras=a.t.replace(/[^a-z0-9ñ ]/g," ").split(/\s+/).filter(Boolean);
+  var verbo=verboDe(palabras);
+  /* "¿Qué hace Miguel?" no pregunta por el verbo hacer: pide la lista
+     de todo lo que sé de él. Igual con "¿qué pasa con...?". */
+  var COMODIN={hacer:1, pasar:1, ocurrir:1, suceder:1, saber:1, contar:1, decir:1};
+  var rel=(verbo && !AUX[verbo.inf] && !COMODIN[verbo.inf]) ? verbo.inf : null;
+  if(!suj && !rel) return null;
+
+  var cae=datos.hechos.filter(function(h){
+    if(suj && h.sujeto!==suj.palabra) return false;
+    if(rel && h.relacion!==rel) return false;
+    return true;
+  }).sort(function(x,y){return y.t-x.t;});
+
+  /* Preguntan por el sujeto: "¿quién canta?" */
+  if((a.tipo==="PERSONA"||a.tipo==="ANIMAL") && rel && !suj){
+    if(!cae.length) return null;
+    /* Para listar nombres manda el orden en que te los contaron, no
+       lo reciente: "Miguel y Celia" suena a lista, no a novedad. */
+    var nombres=[];
+    cae.slice().sort(function(x,y){return x.t-y.t;})
+       .forEach(function(h){ if(nombres.indexOf(h.sujeto)<0) nombres.push(h.sujeto); });
+    return { texto: nombres.map(may).join(" y ")+".", hechos:cae };
+  }
+  if(!suj) return null;
+
+  /* Preguntan un detalle: "¿cuándo canta Miguel?" */
+  if(rel){
+    if(!cae.length){
+      var otros=hechosDe(suj.palabra);
+      if(!otros.length) return null;
+      /* Sabe quién es, pero no lo que le preguntas. Eso NO puede tapar
+         una ficha que sí tenga respuesta: se marca como flojo. */
+      return { texto:"De "+may(suj.palabra)+" no sé eso.", hechos:[], flojo:true };
+    }
+    var conObj=cae.filter(function(h){return h.objeto;});
+    if(conObj.length) return { texto: may(conObj[0].objeto)+".", hechos:conObj };
+    return { texto:"De "+may(suj.palabra)+" sé que "+cae[0].relacion+
+                   ", pero no "+(a.tipo==="MOMENTO"?"cuándo":"ese detalle")+".",
+             hechos:cae, flojo:true };
+  }
+
+  /* "¿Qué sabes de Miguel?" */
+  if(!cae.length) return null;
+  var dichos=[];
+  cae.forEach(function(h){
+    var v=GRAM.conjugar(h.relacion,"el","presente")||h.relacion;
+    var frase=v+(h.objeto?" "+h.objeto:"");
+    /* "canta el jueves" ya incluye "canta": no repetirlo suelto. */
+    var tapado=dichos.filter(function(x){return x.indexOf(v)===0;}).length>0;
+    if(!tapado && dichos.indexOf(frase)<0) dichos.push(frase);
+  });
+  return { texto: may(suj.palabra)+": "+dichos.slice(0,4).join(", ")+".", hechos:cae };
+}
+
+/* =====================================================================
+   SEGURIDAD ALIMENTARIA
+   Dominio cerrado: tablas y aritmética, nada de conversación.
+
+   Tres reglas que no se negocian:
+   1. Ante la duda, tirar. Los plazos se toman por el extremo CORTO
+      (si la tabla dice 3-4 días, se usa 3).
+   2. Si falta un dato y la respuesta cambia según cuál sea, PREGUNTA.
+      Si con cualquiera de las dos hay que tirarlo, no marea.
+   3. Esto orienta. Mirar, oler y decidir sigue siendo tuyo.
+   ===================================================================== */
+var CAT = {
+  BIVALVOS:    {nivel:1, dias:1,  fuera:0.5, nombre:"marisco de concha vivo",
+                ojo:"si están abiertos y no se cierran al tocarlos, fuera"},
+  CRUSTACEOS:  {nivel:1, dias:1,  fuera:1,  nombre:"marisco"},
+  CEFALOPODOS: {nivel:1, dias:1,  fuera:1,  nombre:"cefalópodo"},
+  PESCADO:     {nivel:1, dias:1,  fuera:1,  nombre:"pescado crudo"},
+  PICADA:      {nivel:1, dias:1,  fuera:1,  nombre:"carne picada"},
+  LACTEO_CRUDO:{nivel:1, dias:1,  fuera:2,  nombre:"preparado con huevo crudo"},
+  SOBRAS:      {nivel:2, dias:3,  fuera:2,  nombre:"comida ya cocinada"},
+  CARNE:       {nivel:2, dias:3,  fuera:2,  nombre:"carne fresca"},
+  LACTEO:      {nivel:2, dias:4,  fuera:3,  nombre:"lácteo"},
+  FIAMBRE:     {nivel:2, dias:3,  fuera:2,  nombre:"fiambre"},
+  PRECOCINADO: {nivel:2, dias:2,  fuera:2,  nombre:"precocinado"},
+  FRUTA_BLANDA:{nivel:3, dias:3,  fuera:24, nombre:"fruta delicada"},
+  FRUTA_CORTADA:{nivel:3,dias:3,  fuera:3,  nombre:"fruta cortada"},
+  FRUTA:       {nivel:3, dias:7,  fuera:72, nombre:"fruta"},
+  VERDURA:     {nivel:3, dias:7,  fuera:48, nombre:"verdura"},
+  CURADO:      {nivel:4, dias:21, fuera:72, nombre:"embutido curado"},
+  SALAZON:     {nivel:4, dias:30, fuera:72, nombre:"salazón"},
+  QUESO_CURADO:{nivel:4, dias:30, fuera:72, nombre:"queso curado"},
+  GRASA:       {nivel:4, dias:14, fuera:48, nombre:"grasa"},
+  SECO:        {nivel:5, dias:180,fuera:9999, nombre:"producto seco"},
+  BOLLERIA:    {nivel:5, dias:14, fuera:9999, nombre:"bollería"},
+  CONSERVA:    {nivel:5, dias:3,  fuera:4,  nombre:"conserva abierta"},
+  CONDIMENTO:  {nivel:5, dias:365,fuera:9999, nombre:"condimento"},
+  BRIK:        {nivel:5, dias:4,  fuera:6,  nombre:"envase abierto"},
+  BEBIDA_FRESCA:{nivel:2,dias:2,  fuera:3,  nombre:"bebida fresca"},
+  VINO:        {nivel:4, dias:3,  fuera:24, nombre:"vino abierto",
+                ojo:"tapado y en la nevera aguanta más"},
+  CERVEZA:     {nivel:4, dias:1,  fuera:6,  nombre:"cerveza abierta"},
+  INFUSION:    {nivel:2, dias:1,  fuera:8,  nombre:"café o infusión hecha"},
+  AGUA:        {nivel:5, dias:365,fuera:9999, nombre:"bebida embotellada"},
+  DESTILADO:   {nivel:5, dias:1825,fuera:9999, nombre:"destilado"}
+};
+
+var ALIM = {};
+function catalogar(cat, palabras){ palabras.split(" ").forEach(function(p){ ALIM[p]=cat; }); }
+
+catalogar("BIVALVOS","ostra ostras mejillon mejillones almeja almejas berberecho berberechos navaja navajas coquina coquinas");
+catalogar("CRUSTACEOS","gamba gambas langostino langostinos cigala cigalas carabinero carabineros necora necoras centollo centollos bogavante langosta marisco mariscos percebe percebes");
+catalogar("CEFALOPODOS","sepia sepias calamar calamares pulpo chipiron chipirones pota potas");
+catalogar("PESCADO","pescado pescados salmon merluza bacalao atun lubina dorada sardina sardinas boqueron boquerones trucha rodaballo rape emperador besugo caballa jurel lenguado");
+catalogar("PICADA","picada tartar albondiga albondigas hamburguesa hamburguesas");
+catalogar("LACTEO_CRUDO","mayonesa alioli tiramisu");
+catalogar("SOBRAS","arroz pasta macarrones espagueti espaguetis fideo fideos guiso caldo sopa potaje cocido lenteja lentejas garbanzo garbanzos judia judias ensaladilla tortilla croqueta croquetas empanada canelon canelones lasana paella pure crema revuelto huevo huevos");
+catalogar("CARNE","filete filetes pollo pechuga chuleta chuletas solomillo muslo muslos costilla costillas conejo ternera cerdo cordero pavo carne");
+catalogar("LACTEO","leche yogur yogures nata queso requeson burrata mozzarella kefir cuajada natilla natillas flan");
+catalogar("FIAMBRE","jamon york chopped mortadela salchicha salchichas fiambre lonchas bacon panceta");
+catalogar("PRECOCINADO","pizza gazpacho salmorejo hummus masa masas");
+catalogar("FRUTA_BLANDA","fresa fresas frambuesa frambuesas arandano arandanos mora moras cereza cerezas uva uvas higo higos");
+catalogar("FRUTA_CORTADA","sandia melon pina papaya");
+catalogar("FRUTA","platano aguacate manzana pera melocoton nectarina kiwi ciruela mango tomate naranja limon mandarina");
+catalogar("VERDURA","pimiento pepino calabacin berenjena zanahoria brocoli coliflor lechuga espinaca espinacas acelga acelgas puerro cebolla ajo patata patatas verdura verduras");
+catalogar("CURADO","chorizo salchichon lomo cecina fuet salami longaniza sobrasada embutido");
+catalogar("SALAZON","serrano iberico paleta mojama anchoa anchoas");
+catalogar("QUESO_CURADO","curado semicurado parmesano manchego cheddar grana");
+catalogar("GRASA","mantequilla margarina manteca");
+catalogar("SECO","harina avena cereales quinoa cuscus rallado");
+catalogar("BOLLERIA","galleta galletas magdalena magdalenas cruasan bizcocho biscote biscotes palmera sobao rosquilla bolleria");
+catalogar("CONSERVA","escabeche aceitunas esparragos maiz");
+catalogar("CONDIMENTO","azucar sal aceite vinagre cafe cacao especias miel mermelada");
+catalogar("BRIK","brik");
+catalogar("BEBIDA_FRESCA","horchata batido batidos zumo zumos smoothie gazpacho");
+catalogar("VINO","vino tinto blanco rosado cava champan sidra kombucha");
+catalogar("CERVEZA","cerveza cervezas birra caña");
+catalogar("INFUSION","cafe te infusion manzanilla poleo tila cortado espresso");
+catalogar("AGUA","agua refresco refrescos gaseosa isotonica tonica");
+catalogar("DESTILADO","whisky ginebra ron vodka licor coñac brandy orujo pacharan");
+
+/* Dos palabras juntas mandan sobre una sola: "jamón" a secas es fiambre
+   (3 días), pero "jamón serrano" es salazón (dos meses). Sin esto,
+   Charla te haría tirar un jamón que está perfecto. */
+var COMPUESTOS=[
+  [/\bjamon\s+(serrano|iberico|de bellota|de reserva)\b/,"SALAZON"],
+  [/\bjamon\s+(cocido|york|de york|dulce)\b/,"FIAMBRE"],
+  [/\bqueso\s+(curado|semicurado|viejo|anejo|de oveja)\b/,"QUESO_CURADO"],
+  [/\bqueso\s+(fresco|de burgos|batido)\b/,"LACTEO"],
+  [/\bleche\s+(uht|de brik|del brik)\b/,"BRIK"],
+  [/\bcarne\s+picada\b/,"PICADA"],
+  [/\b(atun|sardinas|mejillones|berberechos)\s+(en lata|de lata|en aceite|en escabeche|al natural)\b/,"CONSERVA"],
+  [/\bpollo\s+(asado|al horno|guisado|cocido)\b/,"SOBRAS"],
+  [/\bsopa\s+de\b|\bcaldo\s+de\b|\bguiso\s+de\b|\barroz\s+con\b|\bpaella\b/,"SOBRAS"],
+  [/\btortilla\s+de\b/,"SOBRAS"],
+  [/\bpan\s+(de molde|rallado|duro)\b/,"BOLLERIA"]
+];
+
+var CRUDOS = ["PESCADO","CARNE","CRUSTACEOS","CEFALOPODOS","PICADA","BIVALVOS"];
+var SECO_SI_CRUDO = "arroz pasta macarrones espagueti espaguetis fideo fideos lenteja lentejas garbanzo garbanzos".split(" ");
+
+var COCINADO = /\b(cocinad|cocid|hervid|asad|frit|guisad|planchad|horn|estofad|sobra|sobro|sobras|resto|restos)\w*/;
+var CRUDO    = /\b(crud|sin (hacer|cocinar)|recien comprad)\w*/;
+var CONGELADO= /\b(congelad|congelador|congelo)\w*/;
+var FUERA    = /\b(fuera|al sol|en la mesa|en la encimera|sin nevera|se me olvido guardar|a temperatura ambiente)\b/;
+var NEVERA   = /\b(nevera|frigo|frigorifico)\b/;
+
+var NUM = {un:1,una:1,uno:1,dos:2,tres:3,cuatro:4,cinco:5,seis:6,siete:7,ocho:8,
+  nueve:9,diez:10,once:11,doce:12,quince:15,veinte:20,treinta:30,media:0.5};
+
+function diasDe(t){
+  var m;
+  if(/\bhoy\b|\besta manana\b|\bahora mismo\b|\bacabo de\b/.test(t)) return 0;
+  if(/\banteayer\b|\bantes de ayer\b/.test(t)) return 2;
+  if(/\bayer\b/.test(t)) return 1;
+  if(/\b(?:del|el) otro dia\b/.test(t)) return 3;
+  if(/\bla semana pasada\b/.test(t)) return 7;
+  if(/\bel mes pasado\b/.test(t)) return 30;
+  /* Hace falta un espacio entre el número y la unidad. Sin él,
+     "serrano" se leía como "serr" + "ano" y daba una fecha absurda. */
+  var U="(dias?|semanas?|meses|mes|anos?|horas?|minutos?)";
+  m=t.match(new RegExp("\\b(\\d+|[a-z]+)\\s+"+U+"\\b")) ||
+    t.match(new RegExp("\\b(\\d+)\\s*"+U+"\\b"));
+  if(!m) return null;
+  var v = /^\d+$/.test(m[1]) ? parseInt(m[1],10) : NUM[m[1]];
+  if(v===undefined || isNaN(v)) return null;
+  if(/hora/.test(m[2]))   return v/24;
+  if(/minuto/.test(m[2])) return v/1440;
+  if(/semana/.test(m[2])) return v*7;
+  if(/mes/.test(m[2]))    return v*30;
+  if(/ano/.test(m[2]))    return v*365;
+  return v;
+}
+
+function alimentoDe(t){
+  var i, m;
+  for(i=0;i<COMPUESTOS.length;i++){
+    m=t.match(COMPUESTOS[i][0]);
+    if(m) return {palabra:m[0].trim(), cat:COMPUESTOS[i][1], compuesto:true};
+  }
+  var palabras=t.replace(/[^a-z0-9ñ ]/g," ").split(/\s+/), p, c, hallados=[];
+  for(i=0;i<palabras.length;i++){
+    p=palabras[i];
+    c=ALIM[p] || (p.length>3 ? ALIM[GRAM.singular(p)] : null);
+    if(c) hallados.push({palabra:p, cat:c});
+  }
+  if(!hallados.length) return null;
+  /* "Sopa de pescado" no es pescado crudo: si hay una palabra de plato
+     cocinado junto a un crudo, manda la cocinada. */
+  var cocina=hallados.filter(function(x){return x.cat==="SOBRAS";})[0];
+  if(cocina && hallados.filter(function(x){return CRUDOS.indexOf(x.cat)>=0;}).length)
+    return cocina;
+  /* Si no, manda el más delicado: ante la duda, el plazo corto. */
+  hallados.sort(function(x,y){return CAT[x.cat].dias-CAT[y.cat].dias;});
+  return hallados[0];
+}
+
+function redondea(d){
+  if(d<1){ var h=Math.round(d*24); return h+(h===1?" hora":" horas"); }
+  var v=Math.round(d);
+  return v+(v===1?" día":" días");
+}
+
+/* La cuenta pura, para poder probarla con dos hipótesis. */
+function dictamen(cat, dias, t){
+  var c=CAT[cat];
+  if(dias===null)
+    return {tipo:"preguntar", texto:"¿Cuántos días lleva? Con "+c.nombre+
+            " el límite está en "+c.dias+(c.dias===1?" día.":" días.")};
+  /* "cuatro horas fuera de la nevera" lleva dentro la palabra nevera.
+     Lo que cuenta es si está DENTRO, no si la nombra. */
+  if(FUERA.test(t) && !/\b(en|dentro de)\s+(la\s+)?(nevera|frigo|frigorifico)\b/.test(t)){
+    var horas=dias*24;
+    if(horas > c.fuera)
+      return {tipo:"tirar", texto:"Fuera de la nevera "+c.nombre+" aguanta "+
+              c.fuera+(c.fuera===1?" hora":" horas")+". Lleva "+redondea(dias)+". Tíralo."};
+    return {tipo:"bien", texto:"Aún está en plazo, pero mételo en la nevera ya."};
+  }
+  if(dias > c.dias){
+    /* En nivel 1 y 2 pasarse es un riesgo de salud: tirar. En nivel 4
+       y 5 es cuestión de que ya no está bueno, no de que enferme. */
+    if(c.nivel>=4)
+      return {tipo:"pasado", texto:may(c.nombre)+" aguanta unos "+c.dias+
+        " días y lleva "+redondea(dias)+". No es peligroso, pero habrá perdido. Pruébalo."};
+    return {tipo:"tirar", texto:"No. "+may(c.nombre)+" aguanta "+c.dias+
+            (c.dias===1?" día":" días")+" en nevera y lleva "+redondea(dias)+". Tíralo."};
+  }
+  if(dias === c.dias)
+    return {tipo:"limite", texto:"Está justo en el límite ("+c.dias+
+            (c.dias===1?" día":" días")+"). Si huele raro o tiene mala pinta, tíralo. Si no, hoy y ya."};
+  if(dias===0)
+    return {tipo:"bien", texto:"Recién hecho, sin problema"+(c.ojo?". Ojo: "+c.ojo:".")};
+  return {tipo:"bien", texto:"Va bien: "+redondea(dias)+" de "+c.dias+
+          (c.dias===1?" día":" días")+" que aguanta"+(c.ojo?". Ojo: "+c.ojo:".")};
+}
+
+/* "¿Los mejillones están crudos o cocinados?", no "¿El mejillones
+   está crudo?". El concordador ya estaba, solo había que usarlo. */
+function preguntaEstado(palabra){
+  var c=GRAM.concordar(palabra), pl=c.numero==="pl", fem=c.genero==="f";
+  return "¿"+may(c.articulo)+" "+palabra+" "+(pl?"están":"está")+" "+
+         (fem?(pl?"crudas o cocinadas":"cruda o cocinada")
+             :(pl?"crudos o cocinados":"crudo o cocinado"))+
+         "? Cambia mucho el plazo.";
+}
+
+
+/* =====================================================================
+   HERRAMIENTAS
+   Aquí no cuentan los días: cuenta con qué te puedes hacer daño.
+   Cuatro niveles y la protección de cada uno. Se dice ANTES, no
+   después. Y en lo eléctrico se avisa de lo único que importa de
+   verdad: cortar en el cuadro antes de tocar nada.
+   ===================================================================== */
+var RIESGO = {
+  bajo:   {aviso:"Nada especial. Cuidado con las manos y ya."},
+  medio:  {aviso:"Gafas de protección y ventila la habitación. El estaño salpica."},
+  alto:   {aviso:"Corta la luz en el cuadro ANTES de tocar nada. "+
+                 "Guantes aislantes y calzado con suela. Si hay que trabajar "+
+                 "con tensión, eso es de electricista."},
+  extremo:{aviso:"Gafas cerradas, protección de oídos, guantes gruesos y ropa "+
+                 "ceñida. Nada de mangas sueltas ni cordones colgando."}
+};
+var HERRAM = {};
+function herram(nivel, uso, palabras){
+  palabras.split(" ").forEach(function(p){ HERRAM[p]={nivel:nivel, uso:uso}; });
+}
+herram("bajo","montar muebles y apretar tornillos",
+  "destornillador destornilladores alicate alicates llave llaves allen inglesa "+
+  "martillo espatula metro cinta destornillar atornillar");
+herram("medio","reparar placas y empalmar cables",
+  "cuter cutter tijeras soldador estano flux pelacables pistola termorretractil "+
+  "soldar bridas");
+herram("alto","medir y diagnosticar corriente",
+  "multimetro buscapolos amperimetrica polimetro tester enchufe enchufes cuadro "+
+  "diferencial magnetotermico cableado voltaje corriente");
+herram("extremo","cortar, taladrar y demoler",
+  "amoladora radial taladro percutor sierra circular caladora rotaflex "+
+  "taladrar amolar esmeriladora ingletadora");
+
+function herramientaDe(t){
+  var palabras=t.replace(/[^a-z0-9ñ ]/g," ").split(/\s+/), i, p, hallada=null;
+  var orden={bajo:1, medio:2, alto:3, extremo:4};
+  for(i=0;i<palabras.length;i++){
+    p=palabras[i];
+    var h=HERRAM[p] || (p.length>3 ? HERRAM[GRAM.singular(p)] : null);
+    /* Si nombra varias, manda la más peligrosa. */
+    if(h && (!hallada || orden[h.nivel]>orden[hallada.nivel]))
+      hallada={palabra:p, nivel:h.nivel, uso:h.uso};
+  }
+  return hallada;
+}
+
+function veredictoHerramienta(a){
+  var t=a.t, h=herramientaDe(t);
+  if(!h) return null;
+  /* Solo entra si vas a usarla o preguntas cómo. */
+  if(!/\b(voy a|puedo|como|que necesito|hace falta|uso|usar|con que|cojo|coger|peligro|seguro|me pongo)\b/.test(t))
+    return null;
+  return {tipo:"herramienta", nivel:h.nivel, palabra:h.palabra,
+          texto: RIESGO[h.nivel].aviso};
+}
+
+/* ---------------------------------------------------------------
+   PREGUNTA PENDIENTE. Si Charla pregunta "¿cuántos días lleva?" y tú
+   contestas "3", ese 3 no significa nada por sí solo: hay que juntarlo
+   con lo que preguntaste antes. En tu conversación acertó de milagro,
+   con una ficha que no venía a cuento.
+   --------------------------------------------------------------- */
+function completaPendiente(frase){
+  var p=datos.pendiente;
+  if(!p) return null;
+  datos.pendiente=null;                 // solo vale para el turno siguiente
+  var r=n(frase), extra="";
+  if(/^\s*\d+\s*$/.test(r)) extra=r.trim()+" dias";        // "3"
+  else if(/^\s*(\d+|un|una|dos|tres|cuatro|cinco|seis|siete|ocho|nueve|diez)\s*(dias?|horas?|semanas?)?\s*$/.test(r))
+    extra=r.trim()+(/dia|hora|semana/.test(r)?"":" dias");    // "cinco", "dos dias"
+  else if(/\b(crud|cocinad|cocid|hervid|asad|frit|guisad|horn)/.test(r)) extra=r;
+  else if(/\b(ayer|anteayer|hoy|semana|mes)\b/.test(r)) extra=r;
+  else return null;                     // no contestaba a la pregunta
+  var juntas=analizar(p.texto+" "+extra);
+  var v=veredictoComida(juntas);
+  if(!v || v.tipo==="preguntar") return null;
+  return v;
+}
+
+function veredictoComida(a){
+  var t=a.t, al=alimentoDe(t);
+  if(!al) return null;
+  /* "¿Dónde guardo los garbanzos?" pregunta un SITIO, no si caducan.
+     La palabra "guardo" disparaba la tabla y tapaba la respuesta. */
+  if(a.tipo==="LUGAR") return null;
+  /* La tabla habla de PLAZOS. Solo entra si le preguntas por plazos o
+     si dices cuánto tiempo lleva. "¿Qué hago con la pasta?" es una
+     instrucción, no una fecha: ahí manda lo que tú le enseñaste. */
+  var dePlazo=/\b(caduc|estropea|malo|mala|pasad|huele|aguanta|dura|cuanto tiempo|se puede com|puedo com|me lo como|sirve todavia|esta bien|esta mal|tirar|tiro)/.test(t);
+  if(!dePlazo && diasDe(t)===null) return null;
+  /* "Me sobró pasta de ayer, ¿qué hago?" lleva fecha pero pide una
+     instrucción, no un dictamen. Se marca para que, si tienes una
+     ficha, hable ella. Salvo que haya que tirarlo: eso manda siempre. */
+  var esInstruccion = !dePlazo &&
+    (a.intencion==="PEDIR_INSTRUCCION" || /\bque (hago|preparo|cocino|le pongo)\b/.test(t));
+
+  /* Si ya dices que huele raro o tiene moho, la fecha da igual: eso
+     se tira. Preguntar "¿cuántos días lleva?" cuando acabas de decir
+     que huele mal es lo contrario de ayudar. */
+  if(/\bhuele\w*\s+(raro|mal|fatal|a rayos)|\bhuelen\w*\s+(raro|mal|fatal)|\bmal olor|\btiene moho|\bcon moho|\bmohos|\bverdoso|\bbaboso|\bviscoso|\bpinta rara|\bmala pinta|\bhinchad|\babombad/.test(t))
+    return {tipo:"tirar", instruccion:false,
+            texto:"Si huele raro o tiene moho, fuera. No merece la pena arriesgarse."};
+
+  var cat=al.cat, dias=diasDe(t);
+  var cocinado=COCINADO.test(t), crudo=CRUDO.test(t);
+
+  /* El arroz y las lentejas son dos cosas distintas según estén: en el
+     paquete aguantan meses, cocidos tres días. Si no lo dices, se
+     prueban las dos, y si la respuesta cambia, pregunta. Antes daba
+     por bueno "lentejas de hace seis días", que cocidas se tiran. */
+  if(!al.compuesto && SECO_SI_CRUDO.indexOf(al.palabra)>=0 && !cocinado){
+    if(crudo) cat="SECO";
+    else {
+      var vs=dictamen("SECO", dias, t), vh2=dictamen("SOBRAS", dias, t);
+      if(vs.tipo===vh2.tipo) cat="SOBRAS";
+      else return {tipo:"preguntar", alimento:al.palabra, texto:preguntaEstado(al.palabra)};
+    }
+  }
+  else if(!al.compuesto && CRUDOS.indexOf(cat)>=0 && cocinado) cat="SOBRAS";
+  else if(!al.compuesto && CRUDOS.indexOf(cat)>=0 && !crudo && !cocinado){
+    /* No sabemos cómo está: se prueban las dos. Solo pregunta si la
+       respuesta cambia; si con las dos hay que tirarlo, lo dice y ya. */
+    var vc=dictamen(cat, dias, t), vh=dictamen("SOBRAS", dias, t);
+    if(vc.tipo===vh.tipo) return CAT[cat].dias<=CAT.SOBRAS.dias ? vc : vh;
+    return {tipo:"preguntar", alimento:al.palabra, texto:preguntaEstado(al.palabra)};
+  }
+
+  if(CONGELADO.test(t))
+    return {tipo:"info", texto:"Congelado aguanta meses. Al descongelarlo, "+
+            "cuenta desde cero y no lo vuelvas a congelar."};
+
+  var v=dictamen(cat, dias, t);
+  if(v.tipo==="preguntar") v.alimento=al.palabra;
+  v.instruccion=esInstruccion;
+  return v;
+}
+
+/* Una ficha con hueco {PERSONA} solo vale si la frase trae una persona. */
+function rellenable(bloques,a){
+  var txt=bloques.join(" "), i, c;
+  for(i=0;i<CLASES.length;i++){ c=CLASES[i];
+    if(txt.indexOf("{"+c+"}")!==-1 && !a.entidades.filter(function(e){return e.clase===c;}).length) return false; }
+  return true;
+}
+function rellenar(bloques,a){
+  return bloques.map(function(b){
+    CLASES.forEach(function(c){
+      var e=a.entidades.filter(function(x){return x.clase===c;})[0];
+      if(!e) return;
+      /* Si delante del hueco hay artículo, se rehace: la plantilla
+         nació con "el pescado" y ahora entra "sopa". */
+      b=b.replace(new RegExp("\\b(el|la|los|las|un|una|unos|unas)\\s+\\{"+c+"\\}","gi"),
+        function(todo, art){
+          var cc=GRAM.concordar(e.palabra);
+          var def=/^(el|la|los|las)$/i.test(art);
+          var nuevo=def?cc.articulo:cc.indef;
+          if(/^[A-ZÁÉÍÓÚÑ]/.test(art)) nuevo=nuevo.charAt(0).toUpperCase()+nuevo.slice(1);
+          return nuevo+" "+e.palabra;
+        });
+      b=b.split("{"+c+"}").join(e.palabra);
+    });
+    return b;
+  }).filter(function(b){ return /[a-záéíóúüñ0-9]/i.test(b); });
+}
+
+/* ---------------------------------------------------------------
+   CAMINOS. La misma pregunta se puede resolver dando importancia a
+   cosas distintas: a las palabras, a la intención, al contexto o a
+   la costumbre. Cada reparto de pesos es un camino. No hay uno
+   verdadero: hay uno que acierta más contigo, y eso se mide.
+   --------------------------------------------------------------- */
+var PERFILES=[
+ {nombre:"equilibrado",        int:3, tipo:2, pasar:3, animo:1, modo:2, ctx:3, clave:3, hist:1},
+ {nombre:"por las palabras",   int:1, tipo:1, pasar:2, animo:0, modo:1, ctx:1, clave:6, hist:0},
+ {nombre:"por la intención",   int:6, tipo:4, pasar:2, animo:1, modo:5, ctx:1, clave:1, hist:0},
+ {nombre:"por el contexto",    int:2, tipo:1, pasar:1, animo:3, modo:1, ctx:8, clave:2, hist:0},
+ {nombre:"por la costumbre",   int:2, tipo:1, pasar:1, animo:1, modo:1, ctx:2, clave:2, hist:4}
+];
+var EJES=["int","tipo","pasar","animo","modo","ctx","clave","hist"];
+function perfilActual(){
+  if(datos.pesos) return datos.pesos;
+  return PERFILES[datos.perfil||0];
+}
+
+/* ---------------------------------------------------------------
+   ABANICO. En vez de un solo asistente, ocho. Cada uno usa los
+   pesos de ahora movidos un poco al azar, así que se va por un
+   camino distinto. Tú les pones nota de 0 a 100 y con las ocho
+   notas se corrigen los pesos: hacia donde puntuaste alto y
+   lejos de donde puntuaste bajo.
+   --------------------------------------------------------------- */
+function pesosBase(){
+  var w=perfilActual(), o={}, i;
+  for(i=0;i<EJES.length;i++) o[EJES[i]]=w[EJES[i]];
+  return o;
+}
+function desviar(w, radio){
+  var o={}, i;
+  for(i=0;i<EJES.length;i++)
+    o[EJES[i]]=Math.max(0, w[EJES[i]] + (Math.random()*2-1)*radio);
+  return o;
+}
+/* Devuelve las respuestas DISTINTAS, con qué pesos salió cada una.
+   Si ocho asistentes dicen lo mismo, tú solo puntúas una vez. */
+function abanico(a, animo, cuantos, radio){
+  var w=pesosBase(), i, r, txt, mapa={}, orden=[];
+  cuantos=cuantos||8; radio=radio===undefined?3:radio;
+  for(i=0;i<cuantos;i++){
+    var wv=desviar(w, radio);
+    var c=candidatos(a, animo, wv, 1, 3);
+    var bl = c.length ? rellenar(c[0].ficha.bloques.slice(),a) : ["(no sé)"];
+    txt = bl.join(" ");
+    if(!mapa[txt]){ mapa[txt]={texto:txt, bloques:bl, notasBl:bl.map(function(){return null;}),
+                               pesos:[], id:c.length?c[0].ficha.id:null,
+                               camino:c.length?c[0].camino:[], nota:null};
+                    orden.push(mapa[txt]); }
+    mapa[txt].pesos.push(wv);
+  }
+  return orden;
+}
+/* Con las notas por bloque se puede armar una respuesta que no dijo
+   ninguno de los ocho: el mejor primer bloque de uno con el mejor
+   segundo bloque de otro. Acertó el nombre pero no la acción, así
+   que nos quedamos con el nombre de aquí y la acción de allá. */
+function mejoresBloques(opciones){
+  var largo=0, i, j, out=[], mejorN, mejorB;
+  opciones.forEach(function(o){ if(o.bloques.length>largo) largo=o.bloques.length; });
+  for(j=0;j<largo;j++){
+    mejorN=-1; mejorB=null;
+    for(i=0;i<opciones.length;i++){
+      var o=opciones[i];
+      if(j>=o.bloques.length) continue;
+      var n=o.notasBl[j];
+      if(n===null||n===undefined) n=o.nota;          // sin nota de bloque, vale la general
+      if(n===null||n===undefined) continue;
+      if(n>mejorN){ mejorN=n; mejorB=o.bloques[j]; }
+    }
+    if(mejorB!==null && mejorN>=50) out.push(mejorB);
+  }
+  return out;
+}
+
+/* Regla de ajuste: cada peso se mueve según cuánto se desvió en las
+   variantes que puntuaste por encima de la media. Es la misma idea
+   del ±1 del entrenador, pero usando las ocho notas y no solo dos. */
+function ajustarPesos(opciones, radio, paso){
+  var todas=[], w=pesosBase(), i, j, med=0, des=0, g;
+  radio=radio===undefined?3:radio; paso=paso===undefined?1:paso;
+  opciones.forEach(function(o){
+    var n=o.nota, v=(o.notasBl||[]).filter(function(x){return x!==null&&x!==undefined;});
+    if((n===null||n===undefined) && v.length)
+      n=v.reduce(function(x,y){return x+y;},0)/v.length;   // media de los bloques
+    if(n===null||n===undefined) return;
+    o.pesos.forEach(function(p){ todas.push({p:p, n:+n}); });
+  });
+  if(todas.length<2) return null;
+  for(i=0;i<todas.length;i++) med+=todas[i].n; med/=todas.length;
+  for(i=0;i<todas.length;i++) des+=(todas[i].n-med)*(todas[i].n-med);
+  des=Math.sqrt(des/todas.length);
+  /* Si les has puesto la misma nota a todas, no hay nada que aprender.
+     Antes se quedaba callado sin mover nada; ahora lo dice. */
+  if(des<0.5) return null;
+  for(j=0;j<EJES.length;j++){
+    g=0;
+    for(i=0;i<todas.length;i++) g+=(todas[i].n-med)/des*(todas[i].p[EJES[j]]-w[EJES[j]]);
+    g=g/(todas.length*radio);
+    w[EJES[j]]=Math.max(0, Math.min(12, w[EJES[j]]+paso*g));
+  }
+  datos.pesos=w;
+  datos.ajustes=(datos.ajustes||0)+1;
+  return w;
+}
+
+/* Puntúa una ficha y devuelve además el camino: qué sumó y cuánto. */
+function esPropia(c){ return c.charAt(0)!=="@"; }
+function esRuta(c){ return c.charAt(0)==="#"; }
+
+/* Cuántos atributos comparten dos palabras. Es la medida de si son
+   intercambiables: el arroz y las lentejas viven en la despensa y se
+   cuecen las dos; Mourinho y Celia no comparten nada, y por eso lo que
+   dijiste de uno no vale para la otra. */
+function puenteAtributos(f, a){
+  var mejor=0;
+  entidadesDe(f.claves||[]).forEach(function(x){
+    var ax=atributosDe(x.palabra); if(!ax) return;
+    (a.entidades||[]).forEach(function(y){
+      if(y.palabra===x.palabra || y.clase!==x.clase) return;
+      var ay=atributosDe(y.palabra); if(!ay) return;
+      var n2=0, k;
+      for(k in ax) if(ay[k]===ax[k]) n2++;
+      if(n2>mejor) mejor=n2;
+    });
+  });
+  return mejor;
+}
+
+/* Entidades conocidas que aparecen en una lista de claves. */
+function entidadesDe(claves, t, ctx){
+  var e=datos.entidades||{}, out=[];
+  claves.forEach(function(c){
+    if(esRuta(c) || !e[c]) return;
+    var sen=elegirSentido(c, t||"", ctx||null);
+    out.push({palabra:c, clase:sen?sen.clase:e[c]});
+  });
+  return out;
+}
+function otroSujeto(f, a){
+  var ef=entidadesDe(f.claves||[], f.ida||"", f.contexto), ea=a.entidades||[];
+  if(!ef.length || !ea.length) return false;
+  if(/\{[A-Z]+\}/.test((f.bloques||[]).join(" "))) return false;   // es plantilla
+  /* Da igual la clase: lo que dijiste del Madrid tampoco vale para
+     Celia. Si la ficha habla de alguien o algo concreto y tú preguntas
+     por otro, no sirve. Solo pasa si comparten la misma entidad. */
+  var comparten=false, choca=false;
+  ef.forEach(function(x){
+    ea.forEach(function(y){
+      if(x.palabra!==y.palabra) return;
+      /* Misma palabra, distinto sentido: el perro que ladra y el perro
+         que le dices a un amigo no son el mismo perro. */
+      if(x.clase!==y.clase) choca=true; else comparten=true;
+    });
+  });
+  return choca || !comparten;
+}
+
+function puntuar(f, a, animo, w){
+  var p=0, camino=[], comunes;
+  if(f.intencion && a.intencion && f.intencion!==a.intencion) return null;
+  comunes=f.claves.filter(function(c){return a.claves.indexOf(c)!==-1;});
+  if(!comunes.length && f.claves.length && a.claves.length) return null;
+  /* "@PERSONA" en común no es tener algo en común: cualquier frase con
+     una persona lo cumple. Hace falta compartir una palabra de verdad,
+     salvo que ninguna de las dos tenga palabras propias. */
+  var propiasF=f.claves.filter(esPropia), propiasA=a.claves.filter(esPropia);
+  /* "¿Dónde está?" no dice de qué. Una ficha que habla del cuchillo no
+     puede contestarla: primero hay que preguntar el qué. */
+  if(!propiasA.length && propiasF.length) return null;
+  var puente=puenteAtributos(f, a);
+  /* Mismo tipo exigido y misma clase de cosa: "¿dónde están las
+     lentejas?" y "el arroz dónde está" preguntan lo mismo sobre dos
+     comidas. Eso basta para reconocerse sin compartir palabra. */
+  var mismoMarco = f.tipo && f.tipo===a.tipo &&
+                   comunes.filter(function(c){return !esPropia(c);}).length>0;
+  if(propiasF.length && propiasA.length && !comunes.filter(esPropia).length &&
+     puente<2 && !mismoMarco) return null;
+  /* Lo que opinaste de Mourinho no vale para Celia. Si la ficha se
+     aprendió hablando de alguien concreto y ahora preguntas por otro
+     de la misma clase, no sirve, salvo que la respuesta se guardara
+     como plantilla con hueco. */
+  if(otroSujeto(f, a) && puente<2) return null;
+  /* Preguntar dónde está algo es preguntar un SITIO. Una ficha de
+     cocción no puede contestarlo por compartir la palabra "lentejas".
+     Antes: "¿Dónde están las lentejas?" -> "Si están duras, más agua".
+     Con aplomo y falso, que es la peor combinación. */
+  if(a.tipo==="LUGAR" && f.tipo!=="LUGAR") return null;
+  /* Los saludos son fórmulas cortas: "Hola", "Buenas tardes" y "Buenos
+     días" no son la misma. Compartir la clave "@SALUDAR" no basta, hace
+     falta compartir la palabra de verdad. */
+  if(FORMULAS[a.intencion] && a.intencion===f.intencion){
+    /* La ficha no puede pedir más de lo que has dicho: "Buenas tardes"
+       no contesta a un "Hola" pelado, aunque compartan la raíz. */
+    var falta=f.claves.filter(esPropia).filter(function(c){
+      return a.claves.indexOf(c)===-1; });
+    if(falta.length) return null;
+  }
+  /* Contarme algo no es preguntarme algo. "Va a cantar Miguel" me lo
+     dijiste tú; "¿Y Miguel?" me lo preguntas. Una ficha nacida de una
+     afirmación no debe contestar preguntas: para eso hace falta el
+     almacén de hechos, no una réplica guardada. */
+  if(f.modo && a.modo &&
+     (f.modo==="afirmacion") !== (a.modo==="afirmacion")) return null;
+  /* "Abre la nevera" y "Cierra la nevera" comparten la nevera y son lo
+     contrario. En una orden, el verbo ES la instrucción. */
+  if(a.modo==="orden" && f.modo==="orden"){
+    var va=verboDe(a.t.replace(/[^a-z0-9ñ ]/g," ").split(/\s+/).filter(Boolean));
+    var vf=f.ida ? verboDe(n(f.ida).replace(/[^a-z0-9ñ ]/g," ").split(/\s+/).filter(Boolean)) : null;
+    if(va && vf && va.inf!==vf.inf) return null;
+  }
+  if(!rellenable(f.bloques,a)) return null;
+  function suma(n,pts){ if(pts>0){p+=pts; camino.push(n+" +"+pts);} }
+  if(f.intencion && f.intencion===a.intencion) suma("misma intención ("+f.intencion+")", w.int);
+  if(f.tipo && f.tipo===a.tipo)
+    suma("pide lo mismo ("+f.tipo+")", a.tipo==="LUGAR" ? w.tipo*2 : w.tipo);
+  if(f.pasar && f.pasar===a.pasar) suma("mismo sentido de pasar", w.pasar);
+  if(f.animo===animo)              suma("mismo ánimo", w.animo);
+  if(f.modo && f.modo===a.modo)    suma("misma forma ("+f.modo+")", w.modo);
+  if(f.contexto && a.contexto){
+    /* Lo aprendido dentro de un contexto NO sale en otro. Es la
+       diferencia entre el fondo del pozo y el fondo del restaurante:
+       misma palabra, dos cosas, y solo el contexto las separa. */
+    if(f.contexto!==a.contexto){
+      /* Nombres distintos, pero puede que compartan capas: la cena en
+         casa y el desayuno en casa comparten sitio y trato. Si no
+         comparten ninguna, son mundos separados. */
+      var com=capasComunes(f.contexto, a.contexto);
+      if(!com) return null;
+      suma("capas en común con "+f.contexto+" ("+com+")", Math.round(w.ctx*com/CAPAS.length));
+    } else suma("mismo contexto ("+f.contexto+")", w.ctx);
+  }
+  if(comunes.length){
+    var pes=0;
+    comunes.forEach(function(c){
+      pes += !esPropia(c) ? w.clave/2 : (esRuta(c) ? w.clave*0.8 : w.clave); });
+    suma("palabras en común ("+comunes.join(", ")+")", Math.round(pes));
+  }
+  /* Una ficha que nombra justo esa comida vale más que una plantilla
+     que sirve para cualquiera. Antes "me sobra bacon" contestaba con
+     la ficha de la sopa. */
+  var exacta=0;
+  (a.entidades||[]).forEach(function(e){
+    if((f.claves||[]).indexOf(e.palabra)>=0) exacta++;
+  });
+  if(exacta) suma("habla justo de eso ("+exacta+")", exacta*w.clave);
+  /* Dos palabras distintas que comparten atributos se parecen: el
+     arroz y las lentejas viven las dos en la despensa y las dos se
+     cuecen. Vale menos que nombrar la misma, pero vale. */
+  if(puente) suma("comparten "+puente+" atributos", Math.min(w.clave, puente));
+  var h=(Math.min(2,f.aciertos||0)-Math.min(3,f.fallos||0))*w.hist;
+  if(h>0) suma("ya te ha servido antes", h);
+  else if(h<0){ p+=h; camino.push("la has corregido "+h); }
+  return {ficha:f, punt:p, camino:camino};
+}
+
+/* Hasta tres respuestas distintas, ordenadas, cada una con su camino. */
+/* ---------------------------------------------------------------
+   ÍNDICE INVERTIDO. En vez de mirar las 200.000 fichas una a una,
+   se mira solo las que comparten alguna palabra con la pregunta.
+   Se reconstruye cuando cambia el número de fichas. Nada más.
+   --------------------------------------------------------------- */
+var IDX=null, IDX_N=-1, IDX_SIN=[], palAbierta=null;
+function indiceFichas(){
+  if(IDX && IDX_N===datos.fichas.length) return IDX;
+  IDX={}; IDX_SIN=[];
+  datos.fichas.forEach(function(f){
+    if(!f.claves || !f.claves.length){ IDX_SIN.push(f); return; }
+    f.claves.forEach(function(c){ (IDX[c]=IDX[c]||[]).push(f); });
+  });
+  IDX_N=datos.fichas.length;
+  return IDX;
+}
+function tirarIndice(){ IDX=null; IDX_N=-1; }
+
+/* Las fichas que merece la pena mirar para esta pregunta. */
+function aspirantes(a){
+  var ix=indiceFichas(), vistas={}, out=IDX_SIN.slice();
+  if(!a.claves.length) return datos.fichas;      // sin palabras, todas
+  a.claves.forEach(function(c){
+    (ix[c]||[]).forEach(function(f){ if(!vistas[f.id]){vistas[f.id]=1; out.push(f);} });
+  });
+  return out;
+}
+
+function candidatos(a, animo, w, tope, sacudida){
+  /* sacudida: solo la usa el abanico. Sin ella, dos fichas empatadas
+     salen siempre en el mismo orden y los ocho caminos acaban diciendo
+     lo mismo. Un empujoncito al azar hace que el abanico explore.
+     La respuesta normal NO lleva sacudida: es la misma siempre. */
+  var lista=[], i, r, vistos={}, cand;
+  w=w||perfilActual(); tope=tope||3; sacudida=sacudida||0;
+  cand=aspirantes(a);
+  for(i=0;i<cand.length;i++){
+    r=puntuar(cand[i], a, animo, w);
+    if(r){ if(sacudida) r.punt+=Math.random()*sacudida; if(r.punt>=5) lista.push(r); }
+  }
+  lista.sort(function(x,y){return y.punt-x.punt;});
+  return lista.filter(function(r){
+    var k=rellenar(r.ficha.bloques.slice(),a).join("|");
+    if(vistos[k]) return false; vistos[k]=1; return true;
+  }).slice(0,tope);
+}
+
+function buscar(a, animo){
+  var c=candidatos(a, animo, perfilActual(), 1);
+  return c.length ? {ficha:c[0].ficha, punt:c[0].punt, camino:c[0].camino} : null;
+}
+
+/* Repreguntar: ya sabemos cuál era la buena. Se prueban todos los
+   caminos y se anota cuáles la habrían puesto la primera. */
+function repreguntar(frase, buena){
+  var a=analizar(frase), animo=animoActual(), res=[];
+  PERFILES.forEach(function(w,i){
+    var c=candidatos(a, animo, w, 3);
+    var pos=-1, k;
+    for(k=0;k<c.length;k++)
+      if(rellenar(c[k].ficha.bloques.slice(),a).join(" ").trim()===buena.trim()){pos=k;break;}
+    res.push({perfil:w.nombre, i:i, puesto:pos, camino:pos>=0?c[pos].camino:[],
+              propone:c.length?rellenar(c[0].ficha.bloques.slice(),a).join(" "):"(nada)"});
+  });
+  return {a:a, res:res};
+}
+
+/* Anota el resultado y, si un camino destaca, lo adopta. */
+function anotarCamino(res){
+  datos.marcador=datos.marcador||[0,0,0,0,0];
+  res.forEach(function(r){ if(r.puesto===0) datos.marcador[r.i]++; });
+  var mejor=0, i;
+  for(i=1;i<datos.marcador.length;i++) if(datos.marcador[i]>datos.marcador[mejor]) mejor=i;
+  var total=datos.marcador.reduce(function(x,y){return x+y;},0);
+  if(total>=10 && datos.marcador[mejor]>datos.marcador[datos.perfil||0]) datos.perfil=mejor;
+  return {perfil:PERFILES[datos.perfil||0].nombre, marcador:datos.marcador.slice(), total:total};
+}
+
+function responder(frase){
+  var a=analizar(frase), animo=animoActual();
+  if(a.grave){
+    datos.grave++;
+    return {a:a, bloques:["Eso es serio y no soy quien para aconsejarte.",
+                          "Habla con alguien de confianza."], origen:"grave"};
+  }
+  /* Comida: si el veredicto es TIRAR manda por encima de todo lo
+     aprendido. En lo demás deja hablar a tus fichas, y solo contesta
+     él si no hay ninguna. */
+  /* ¿Estaba esperando un dato? Si esto lo completa, se contesta ya. */
+  var comp=completaPendiente(frase);
+  if(comp) return {a:a, bloques:[comp.texto], origen:"comida"};
+
+  /* La tabla manda SIEMPRE que tenga veredicto, no solo para tirar.
+     Una ficha que dice "Basura" no puede tapar un "va bien", ni un
+     "va bien" aprendido puede tapar un "tíralo", ni ninguna ficha
+     puede saltarse la pregunta de si está crudo o cocinado. Si había
+     una ficha, se ofrece debajo como alternativa. */
+  var vc=veredictoComida(a);
+  if(vc){
+    var alt=candidatos(a, animo, perfilActual(), 2);
+    /* Pediste una instrucción y tienes ficha propia: contesta la tuya.
+       El peligro es lo único que no cede. */
+    if(vc.instruccion && vc.tipo!=="tirar" && alt.length) vc=null;
+  }
+  if(vc){
+    if(vc.tipo==="preguntar") datos.pendiente={texto:a.texto, t:Date.now()};
+    /* Si hay peligro o falta un dato, la tabla habla sola: nada puede
+       taparlo. Si no lo hay, la tabla va DELANTE y tu respuesta detrás,
+       porque preguntaste qué hacer y eso lo sabes tú mejor. */
+    /* Seguridad alimentaria: el veredicto habla SOLO. Una ficha
+       aprendida no puede ir pegada detrás contradiciéndolo ni
+       matizándolo. Si tenías una, queda debajo como alternativa. */
+    return {a:a,
+      bloques: [vc.texto],
+      origen: vc.tipo==="preguntar" ? "comida-falta" : "comida",
+      camino:["tabla de conservación ("+vc.tipo+")"],
+      otras: alt.map(function(r2){
+        return {id:r2.ficha.id, texto:rellenar(r2.ficha.bloques.slice(),a).join(" "),
+                punt:r2.punt, camino:r2.camino};})};
+  }
+  /* La protección se dice antes de empezar, no después. Nivel alto y
+     extremo mandan por encima de lo aprendido. */
+  var vh3=veredictoHerramienta(a);
+  if(vh3 && (vh3.nivel==="alto"||vh3.nivel==="extremo"))
+    return {a:a, bloques:[vh3.texto], origen:"herramienta"};
+
+  var rh=null;
+  if(a.modo==="pregunta"){
+    rh=consultarHechos(a);
+    if(rh && !rh.flojo) return {a:a, bloques:[rh.texto], origen:"hecho", hechos:rh.hechos};
+  }
+  /* En una afirmación el hecho se guarda calladamente: la respuesta la
+     sigue dando la ficha si la hay. Contarle algo y que además conteste
+     no son cosas incompatibles. */
+  var nuevos=[];
+  if(a.modo!=="pregunta"){
+    nuevos=extraerHechos(a).map(guardarHecho).filter(Boolean);
+  }
+  var cs=candidatos(a, animo, perfilActual(), 3);
+  var h=cs.length ? {ficha:cs[0].ficha, punt:cs[0].punt, camino:cs[0].camino} : null;
+  if(h){ h.ficha.usos=(h.ficha.usos||0)+1;
+         return {a:a, bloques:rellenar(h.ficha.bloques.slice(),a), origen:"aprendido",
+                 id:h.ficha.id, punt:h.punt, camino:h.camino,
+                 hechos:nuevos,
+                 otras:cs.slice(1).map(function(r){
+                   return {id:r.ficha.id, texto:rellenar(r.ficha.bloques.slice(),a).join(" "),
+                           punt:r.punt, camino:r.camino};})}; }
+  if(vh3) return {a:a, bloques:[vh3.texto], origen:"herramienta"};
+  if(rh) return {a:a, bloques:[rh.texto], origen:"hecho", hechos:rh.hechos};
+  var comp=componer(a);
+  if(comp) return {a:a, bloques:[comp.texto], origen:"plantilla",
+                   camino:["compuesto — "+comp.motivo]};
+  if(nuevos.length)
+    return {a:a, origen:"hecho-nuevo", hechos:nuevos,
+      bloques:[frasear(nuevos[0])]};
+  /* Sabe de quién le hablas pero no qué le cuentas. Pregunta en vez
+     de suponer. */
+  var medio=extraerHechos(a)[0];
+  if(medio && medio.sujeto && !medio.relacion)
+    return {a:a, origen:"hecho-falta",
+            bloques:["¿Qué me cuentas de "+may(medio.sujeto)+"?"]};
+  return {a:a, bloques:[], origen:"no-se"};
+}
+
+/* Parte una respuesta en bloques por puntuación. */
+function partir(texto){
+  return String(texto).split(/(?<=[.!?])\s+|\s*\|\s*/).map(function(s){return s.trim();})
+    .filter(Boolean);
+}
+
+/* Si la respuesta repite una entidad que venía en la pregunta, se
+   guarda como hueco. Así una ficha cubre a Miguel, a Raúl y a quien
+   venga después. Se usa al enseñar Y al corregir: si no, corregir un
+   bloque dejaba dentro "pasta" y la plantilla se quedaba coja. */
+var CERRADAS={articulo:1, preposicion:1, pronombre:1, conjuncion:1,
+              adverbio:1, interrogativo:1};
+/* Un artículo jamás es un hueco. Si el vocabulario marcó "el" o "donde"
+   como entidad, "En el cajón" se convertía en "En {CUALIDAD} cajón" y
+   al rellenarlo salía "En donde cajón". El motor se protege solo,
+   aunque los datos vengan mal. */
+function huecable(palabra){
+  return palabra.length>2 && !CERRADAS[GRAM.categoria(palabra)];
+}
+function ponerHuecos(bloques, entidades){
+  return bloques.map(function(b){
+    (entidades||[]).forEach(function(e){
+      if(!huecable(e.palabra)) return;
+      b=b.replace(new RegExp("\\b"+escRe(e.palabra)+"\\b","gi"),"{"+e.clase+"}");
+    });
+    return b;
+  });
+}
+
+function aprender(a, bloques, animo){
+  bloques=ponerHuecos(bloques, a.entidades);
+  var f={ id:"f"+Date.now()+Math.floor(Math.random()*99),
+    ida:a.texto, claves:a.claves, intencion:a.intencion, tipo:a.tipo,
+    pasar:a.pasar, animo:animo, modo:a.modo, contexto:a.contexto,
+    bloques:bloques, aciertos:0, fallos:0, usos:0,
+    ambito:"personal", t:Date.now() };
+  datos.fichas.push(f);
+  tirarIndice();
+  return f;
+}
+
+/* =====================================================================
+   11. PINTAR
+   ===================================================================== */
+function htmlCharla(){
+  var h="";
+  if(aviso) h+='<div class="panel mal">'+esc(aviso)+"</div>";
+  if(!datos.charla.length)
+    h+='<p class="aviso">Escríbele algo. Al principio no sabrá nada: cuando falle, te dejará enseñarle.</p>';
+  datos.charla.forEach(function(m,i){
+    if(m.marca){ h+='<p class="marca">'+esc(m.marca)+"</p>"; return; }
+    h+='<div class="msg '+(m.quien==="yo"?"mio":"suyo")+'">'+esc(m.texto)+"</div>";
+    if(m.quien==="casa"){
+      if(m.meta) h+='<p class="meta">'+esc(m.meta)+"</p>";
+      if(m.origen==="hecho")
+        h+='<p class="meta">sale del almacén de hechos</p>';
+      if(m.hechos && m.hechos.length && m.origen!=="hecho")
+        h+='<div class="acc"><span class="meta">apuntado como dato</span>'+
+           '<button data-act="olvidar" data-id="'+esc(m.hechos[0].id)+'">Deshacer</button></div>';
+      if(m.origen==="hecho-nuevo"||m.origen==="hecho-falta")
+        h+='<div class="acc"><button data-act="ensename" data-i="'+i+'">'+
+           "Enséñame otra respuesta</button></div>";
+      if(m.origen==="aprendido"||m.origen==="ensenado"){
+        h+='<div class="acc"><button data-act="bien" data-i="'+i+'">Bien</button>'+
+           '<button data-act="corregir" data-i="'+i+'">Corregir entera</button></div>';
+        h+='<div class="bloques">';
+        m.bloques.forEach(function(b,j){
+          h+='<button data-act="bloque" data-i="'+i+'" data-j="'+j+'">'+esc(b)+"</button>";
+        });
+        h+='</div><p class="meta">Toca un bloque para cambiar solo esa parte.</p>';
+        if(m.camino && m.camino.length)
+          h+='<details class="pq"><summary>¿Por qué esta? ('+m.punt+' puntos)</summary><ul><li>'+
+             m.camino.map(esc).join("</li><li>")+"</li></ul></details>";
+        if(m.otras && m.otras.length){
+          h+='<p class="meta">También podría haber dicho:</p>';
+          m.otras.forEach(function(o,k){
+            h+='<div class="otra"><button data-act="prefiero" data-i="'+i+'" data-k="'+k+'">'+
+               esc(o.texto)+"</button>"+
+               '<details class="pq"><summary>por qué ('+o.punt+')</summary><ul><li>'+
+               o.camino.map(esc).join("</li><li>")+"</li></ul></details></div>";
+          });
+        }
+        if(m.pregunta)
+          h+='<div class="acc"><button data-act="repreguntar" data-i="'+i+'">Repreguntar</button>'+
+             '<button data-act="abanico" data-i="'+i+'">Ocho opciones</button></div>';
+        if(m.abanico){
+          h+='<div class="panel"><b>Ocho asistentes, ocho caminos</b>'+
+             '<p class="meta">Ponle nota a cada una: 0 nada que ver, 100 justo lo que dirías.</p>';
+          m.abanico.forEach(function(o,k){
+            var n=(o.nota===null||o.nota===undefined)?50:o.nota;
+            h+='<div class="opc"><div class="opct">'+esc(o.texto)+
+               ' <span class="meta">('+o.pesos.length+' de 8)</span></div>'+
+               '<div class="fila"><span class="et">todo</span>'+
+               '<input type="range" min="0" max="100" step="5" value="'+n+
+               '" data-act="nota" data-i="'+i+'" data-k="'+k+'">'+
+               '<b class="pc">'+n+'%</b></div>'+
+               '<div class="acc rapido">'+
+               [["nada",0],["poco",40],["casi",70],["eso es",100]].map(function(x){
+                 return '<button data-act="nota-fija" data-i="'+i+'" data-k="'+k+
+                        '" data-v="'+x[1]+'"'+(n===x[1]?' class="puesto"':'')+">"+
+                        x[0]+"</button>";
+               }).join("")+"</div>";
+            if(o.bloques.length>1) o.bloques.forEach(function(bq,j){
+              var nb=(o.notasBl[j]===null||o.notasBl[j]===undefined)?n:o.notasBl[j];
+              h+='<div class="fila sub"><span class="et">'+esc(bq)+"</span>"+
+                 '<input type="range" min="0" max="100" step="5" value="'+nb+
+                 '" data-act="notabl" data-i="'+i+'" data-k="'+k+'" data-j="'+j+'">'+
+                 '<b class="pc">'+nb+'%</b>'+
+                 '<button data-act="nota-fija" data-i="'+i+'" data-k="'+k+
+                 '" data-j="'+j+'" data-v="100">100</button></div>';
+            });
+            h+="</div>";
+          });
+          h+='<div class="acc"><button data-act="aplicar" data-i="'+i+'">Aplicar notas</button>'+
+             '<button data-act="montar" data-i="'+i+'">Montar la mejor</button></div>';
+          if(m.montada)
+            h+='<p class="meta">Con lo mejor de cada una saldría:</p>'+
+               '<div class="opct"><b>'+esc(m.montada)+"</b></div>";
+          if(m.ajuste){
+            h+='<p class="meta">Pesos después de ajustar ('+datos.ajustes+' ajustes):<br>';
+            h+=EJES.map(function(e){return e+" "+m.ajuste[e].toFixed(1);}).join(" · ")+"</p>";
+          }
+          h+="</div>";
+        }
+        if(m.informe){
+          h+='<div class="panel"><b>Caminos probados</b><ul>';
+          m.informe.forEach(function(r){
+            h+="<li>"+esc(r.perfil)+" — "+
+               (r.puesto===0?"la habría acertado":
+                r.puesto>0?"la pone en "+(r.puesto+1).toString()+"º lugar":
+                "no llega a ella; diría: "+esc(r.propone))+"</li>";
+          });
+          h+="</ul><p class=\'meta\'>Camino en uso: <b>"+esc(m.perfilAhora)+"</b></p></div>";
+        }
+      }
+    }
+  });
+  if(ense) h+=panelEnsenar();
+  if(corr) h+=panelCorregir();
+  return h;
+}
+
+function panelEnsenar(){
+  var a=ense.a, h='<div class="panel"><h2>No sé qué contestar</h2>';
+  h+='<p class="aviso">Tú dijiste: “'+esc(a.texto)+'”</p>';
+  h+='<p class="aviso">Lo he leído como: '+esc(a.intencion||"sin intención")+
+     (a.tipo?" · pide "+esc(a.tipo):"")+(a.pasar?" · pasar = "+esc(a.pasar):"")+"</p>";
+  var lista=sugerencias(a.intencion);
+  if(lista.length){
+    h+='<p class="aviso">De la base, estas podrían valer:</p><div class="sug">';
+    lista.forEach(function(s,k){h+='<button data-act="usar-sug" data-k="'+k+'">'+esc(s)+"</button>";});
+    h+="</div>";
+  }
+  h+='<input id="ens-txt" placeholder="Escribe qué debería haber dicho" value="'+esc(ense.borrador||"")+'">';
+  h+='<p class="aviso">Separa bloques con una barra: Hola. | ¿Qué tal?</p>';
+  var esp=GRAM.espejo(a.texto);
+  if(esp && esp!==a.texto)
+    h+='<p class="aviso">Dicho por él sería: <button data-act="usarespejo">'+esc(esp)+
+       "</button></p>";
+  h+='<p class="aviso">Toca una palabra para decirme qué es:</p><div class="pal">';
+  a.texto.split(/\s+/).forEach(function(p,k){
+    var limpia=n(p).replace(/[^a-z0-9]/g,"");
+    if(!limpia) return;
+    var cl=(datos.entidades||{})[limpia];
+    var gr=GRAM.categoria(limpia);
+    h+='<button data-act="abreclase" data-p="'+esc(limpia)+'"'+
+       (cl?' data-clase="'+esc(cl)+'"':'')+'>'+esc(p)+
+       '<small> '+esc(cl||gr)+"</small></button>";
+  });
+  h+="</div>";
+  if(palAbierta){
+    h+='<div class="pal elige"><span class="meta">'+esc(palAbierta)+" es…</span>";
+    CLASES.forEach(function(c){
+      h+='<button data-act="clase" data-p="'+esc(palAbierta)+'" data-c="'+c+'">'+c+"</button>";
+    });
+    h+='<button data-act="clase" data-p="'+esc(palAbierta)+'" data-c="">quitar</button>';
+    h+='<button data-act="nueva-clase" data-p="'+esc(palAbierta)+'">+ otra clase</button></div>';
+  }
+  h+='<select id="ens-modo">';
+  MODOS.forEach(function(m){h+='<option value="'+m+'"'+(m===a.modo?" selected":"")+">forma: "+esc(m)+"</option>";});
+  h+="</select>";
+  h+='<select id="ens-int">';
+  h+='<option value="">Intención: '+esc(a.intencion||"ninguna detectada")+' (dejar así)</option>';
+  INTENCIONES.forEach(function(i){h+='<option value="'+i+'">'+esc(i.replace(/_/g," ").toLowerCase())+"</option>";});
+  h+="</select>";
+  h+='<button class="principal" data-act="guardar-ens">Enséñaselo</button></div>';
+  return h;
+}
+function panelCorregir(){
+  var h='<div class="panel"><h2>'+(corr.j===null?"Corregir la respuesta":"Corregir este bloque")+"</h2>";
+  h+='<p class="aviso">Ahora dice: “'+esc(corr.actual)+'”</p>';
+  var m=datos.charla[corr.i];
+  var lista=sugerencias(m.intencion);
+  if(corr.j!==null && lista.length){
+    h+='<div class="sug">';
+    lista.forEach(function(s,k){h+='<button data-act="usar-corr" data-k="'+k+'">'+esc(s)+"</button>";});
+    h+="</div>";
+  }
+  h+='<input id="corr-txt" value="'+esc(corr.actual)+'">';
+  if(corr.j===null) h+='<p class="aviso">Separa bloques con una barra.</p>';
+  h+='<button class="principal" data-act="guardar-corr">Guardar corrección</button>';
+  if(corr.j!==null && datos.charla[corr.i].bloques.length>1)
+    h+='<button data-act="quitar-bloque">Quitar este bloque</button>';
+  h+="</div>";
+  return h;
+}
+
+function htmlAprendido(){
+  var h='<p class="aviso">'+datos.fichas.length+" fichas aprendidas.</p>";
+  if(!datos.fichas.length) return h+'<p class="aviso">Aún no le has enseñado nada.</p>';
+  h+="<table><tr><th>Le dices</th><th>Contesta</th><th>Aciertos</th></tr>";
+  datos.fichas.slice().reverse().forEach(function(f){
+    h+="<tr><td>"+esc(f.ida)+'<br><span class="aviso">'+esc(f.intencion||"—")+" · "+esc(f.animo)+"</span></td>"+
+       "<td>"+esc(f.bloques.join(" "))+"</td><td>"+(f.aciertos||0)+"/"+(f.fallos||0)+
+       ' <button data-act="borrar-ficha" data-id="'+f.id+'">Borrar</button></td></tr>';
+  });
+  return h+"</table>";
+}
+
+/* Las palabras se marcaban solo en el panel de enseñar, y ese panel
+   únicamente aparece cuando Charla no sabe qué decir. Si ya lo sabía,
+   no había manera de marcar nada. Aquí se marca cuando quieras. */
+/* Marcar una palabra tiene efecto hacia atrás: las fichas que la
+   nombran vuelven a calcular sus claves Y sus huecos. Si no, la
+   respuesta se quedaría con "Miguel" escrito a mano y no serviría
+   para Raúl. */
+function rehacer(f){
+  if(!f.ida) return;
+  f.claves=clavesCon(f.ida, f.intencion, f.contexto);
+  f.bloques=ponerHuecos(f.bloques, analizar(f.ida).entidades);
+}
+
+function htmlPalabras(){
+  var e=datos.entidades||{}, nombres=Object.keys(e).sort();
+  var h='<div class="panel"><h2>Palabras que conozco</h2>'+
+    '<p class="aviso">Marca aquí quién es persona, qué es comida, dónde es un '+
+    'sitio. Sin esto, Charla no sabe de quién le hablas.</p>';
+  h+='<input id="pal-nueva" placeholder="Escribe una palabra: miguel, arroz, madrid…">';
+  h+='<div class="pal">';
+  CLASES.forEach(function(c){
+    h+='<button data-act="anadir-pal" data-c="'+c+'">'+c+"</button>";
+  });
+  h+="</div>";
+  if(nombres.length){
+    h+='<p class="aviso">Ya marcadas (toca una para cambiarla):</p><div class="pal">';
+    nombres.forEach(function(p){
+      var sl=sentidosDe(p);
+      h+='<button data-act="abreclase" data-p="'+esc(p)+'" data-clase="'+esc(e[p])+'">'+
+         esc(p)+"<small> "+esc(e[p])+(sl.length>1?" +"+(sl.length-1):"")+"</small></button>";
+    });
+    h+="</div>";
+    /* Las palabras con varios sentidos se ven enteras: cuál es cuál y
+       en qué contexto vale cada uno. */
+    var multi=nombres.filter(function(p){return sentidosDe(p).length>1;});
+    if(multi.length){
+      h+='<p class="aviso">Palabras con varios sentidos:</p><table>';
+      multi.forEach(function(p){
+        sentidosDe(p).forEach(function(sen,k){
+          var det=[]; for(var kk in sen) if(kk!=="clase"&&kk!=="en") det.push(kk+": "+sen[kk]);
+          h+="<tr><td>"+(k===0?"<b>"+esc(p)+"</b>":"")+"</td><td>"+esc(sen.clase)+
+             (sen.en?' <span class="aviso">('+esc(sen.en)+")</span>":"")+
+             '<br><span class="aviso">'+esc(det.join(" · "))+"</span></td>"+
+             '<td><button data-act="quita-sentido" data-p="'+esc(p)+'" data-k="'+k+
+             '">Borrar</button></td></tr>';
+        });
+      });
+      h+="</table>";
+    }
+  } else h+='<p class="aviso">Todavía no has marcado ninguna.</p>';
+  if(palAbierta){
+    h+='<div class="pal elige"><span class="meta">'+esc(palAbierta)+" es…</span>";
+    CLASES.forEach(function(c){
+      h+='<button data-act="clase" data-p="'+esc(palAbierta)+'" data-c="'+c+'">'+c+"</button>";
+    });
+    h+='<button data-act="clase" data-p="'+esc(palAbierta)+'" data-c="">quitar</button>';
+    h+='<button data-act="nueva-clase" data-p="'+esc(palAbierta)+'">+ otra clase</button></div>';
+  }
+  /* Palabras que han salido en la charla y siguen sin marcar. */
+  var sueltas={}, i;
+  datos.charla.slice(-40).forEach(function(m){
+    if(m.quien!=="yo"||!m.texto) return;
+    n(m.texto).replace(/[^a-z0-9 ]/g," ").split(" ").forEach(function(p){
+      if(p.length>2 && !e[p] && !VACIAS[p] && !esGenerica(p) &&
+         GRAM.categoria(p)==="nombre") sueltas[p]=1;
+    });
+  });
+  var lista=Object.keys(sueltas).slice(0,24);
+  if(lista.length){
+    h+='<p class="aviso">Han salido en la charla y no están marcadas:</p><div class="pal">';
+    lista.forEach(function(p){ h+='<button data-act="abreclase" data-p="'+esc(p)+'">'+esc(p)+"</button>"; });
+    h+="</div>";
+  }
+  return h+"</div>";
+}
+
+function htmlHechos(){
+  var hs=datos.hechos||[];
+  var h=htmlPalabras();
+  h+='<p class="aviso">'+hs.length+" hechos guardados. Esto no son respuestas: "+
+     "son datos que puede consultar.</p>";
+  if(!hs.length) return h+'<p class="aviso">Cuéntale algo: "Va a cantar Miguel". '+
+    'Antes marca el nombre como PERSONA, o no sabrá de quién le hablas.</p>';
+  var por={}, orden=[];
+  hs.forEach(function(x){ if(!por[x.sujeto]){por[x.sujeto]=[];orden.push(x.sujeto);}
+                          por[x.sujeto].push(x); });
+  orden.forEach(function(s2){
+    h+='<div class="hecho-grupo"><div class="hecho-sujeto">'+esc(may(s2))+"</div><table>";
+    por[s2].forEach(function(x){
+      h+="<tr><td>"+esc(x.relacion)+(x.objeto?" "+esc(x.objeto):"")+
+         (x.contexto?' <span class="aviso">· '+esc(x.contexto)+"</span>":"")+
+         (x.ambito==="reservado"?' <span class="aviso">· reservado</span>':"")+
+         '</td><td><button data-act="olvidar" data-id="'+esc(x.id)+'">Borrar</button></td></tr>';
+    });
+    h+="</table></div>";
+  });
+  return h;
+}
+
+/* ---------------------------------------------------------------
+   RESUMEN. Números sobre lo aprendido, sin adornos. Las barras son
+   divs con un ancho en tanto por ciento: nada de librerías.
+   --------------------------------------------------------------- */
+function barra(etiqueta, valor, tope, extra){
+  var pct = tope>0 ? Math.round(100*valor/tope) : 0;
+  return '<div class="brow"><span class="bet">'+esc(etiqueta)+"</span>"+
+         '<span class="bar"><i style="width:'+Math.max(pct,2)+'%"></i></span>'+
+         '<span class="bnum">'+valor+(extra||"")+"</span></div>";
+}
+
+function htmlResumen(){
+  var f=datos.fichas, hs=datos.hechos||[], msg=datos.charla||[];
+  var ac=0, fa=0, us=0, conHueco=0, conContexto=0, i, k;
+  f.forEach(function(x){ ac+=x.aciertos||0; fa+=x.fallos||0; us+=x.usos||0;
+    if(/\{[A-Z_]+\}/.test(x.bloques.join(" "))) conHueco++;
+    if(x.contexto) conContexto++; });
+  var mios=msg.filter(function(m){return m.quien==="yo";}).length;
+  var noSe=msg.filter(function(m){return m.origen==="no-se";}).length;
+  var aciertoPct = mios ? Math.round(100*(mios-noSe)/mios) : 0;
+
+  var h='<div class="panel"><h2>De un vistazo</h2>';
+  h+="<table>";
+  h+="<tr><td>Fichas aprendidas</td><td><b>"+f.length+"</b></td></tr>";
+  h+="<tr><td>Hechos guardados</td><td><b>"+hs.length+"</b></td></tr>";
+  h+="<tr><td>Palabras marcadas</td><td><b>"+Object.keys(datos.entidades||{}).length+"</b></td></tr>";
+  h+="<tr><td>Clases propias</td><td><b>"+((datos.clases||[]).length)+"</b></td></tr>";
+  h+="<tr><td>Frases tuyas</td><td><b>"+mios+"</b></td></tr>";
+  h+="<tr><td>Contestó sin ayuda</td><td><b>"+aciertoPct+"%</b></td></tr>";
+  h+="<tr><td>Confirmadas / corregidas</td><td><b>"+ac+" / "+fa+"</b></td></tr>";
+  h+="<tr><td>Fichas con hueco</td><td><b>"+conHueco+"</b> de "+f.length+"</td></tr>";
+  h+="</table></div>";
+
+  /* Por intención */
+  var porInt={}, tope=0;
+  f.forEach(function(x){ var i2=x.intencion||"(sin intención)";
+    porInt[i2]=(porInt[i2]||0)+1; });
+  var ints=Object.keys(porInt).sort(function(a2,b2){return porInt[b2]-porInt[a2];});
+  ints.forEach(function(i2){ if(porInt[i2]>tope) tope=porInt[i2]; });
+  h+='<div class="panel"><h2>Qué le has enseñado</h2>';
+  if(!ints.length) h+='<p class="aviso">Nada todavía.</p>';
+  ints.forEach(function(i2){ h+=barra(i2.replace(/_/g," ").toLowerCase(), porInt[i2], tope); });
+  h+="</div>";
+
+  /* Intenciones del catálogo que siguen vacías */
+  var vacias=INTENCIONES.filter(function(i2){return !porInt[i2];});
+  if(vacias.length){
+    h+='<div class="panel"><h2>Lo que le falta</h2>'+
+       '<p class="aviso">Estas intenciones no tienen ni una ficha tuya. '+
+       'Son los huecos más grandes que tiene:</p><div class="pal">';
+    vacias.forEach(function(i2){ h+="<button disabled>"+esc(i2.replace(/_/g," ").toLowerCase())+"</button>"; });
+    h+="</div></div>";
+  }
+
+  /* Por clase de palabra */
+  var porClase={}, topeC=0;
+  for(k in (datos.entidades||{})) porClase[datos.entidades[k]]=(porClase[datos.entidades[k]]||0)+1;
+  var cls=Object.keys(porClase).sort(function(a2,b2){return porClase[b2]-porClase[a2];});
+  cls.forEach(function(c){ if(porClase[c]>topeC) topeC=porClase[c]; });
+  if(cls.length){
+    h+='<div class="panel"><h2>Palabras marcadas</h2>';
+    cls.forEach(function(c){ h+=barra(c.toLowerCase(), porClase[c], topeC); });
+    h+="</div>";
+  }
+
+  /* Las más usadas y las que nunca sirvieron */
+  var orden=f.slice().sort(function(a2,b2){return (b2.usos||0)-(a2.usos||0);});
+  var top=orden.filter(function(x){return (x.usos||0)>0;}).slice(0,8);
+  if(top.length){
+    h+='<div class="panel"><h2>Las que más usa</h2>';
+    top.forEach(function(x){ h+=barra(x.ida, x.usos||0, top[0].usos||1, " usos"); });
+    h+="</div>";
+  }
+  var nunca=f.filter(function(x){return !(x.usos||0);});
+  if(nunca.length){
+    h+='<div class="panel"><h2>Enseñadas y nunca usadas</h2>'+
+       '<p class="aviso">'+nunca.length+" de "+f.length+
+       ". No son malas: es que no ha vuelto a salir el tema.</p><div class=\"pal\">";
+    nunca.slice(0,15).forEach(function(x){ h+="<button disabled>"+esc(x.ida)+"</button>"; });
+    h+="</div></div>";
+  }
+
+  /* Actividad por día */
+  var dias={}, ordenD=[];
+  f.forEach(function(x){
+    var d2=new Date(x.t||Date.now()).toISOString().slice(0,10);
+    if(!dias[d2]){dias[d2]=0; ordenD.push(d2);}
+    dias[d2]++;
+  });
+  ordenD.sort();
+  if(ordenD.length>1){
+    var topeD=0; ordenD.forEach(function(d2){ if(dias[d2]>topeD) topeD=dias[d2]; });
+    h+='<div class="panel"><h2>Fichas por día</h2>';
+    ordenD.forEach(function(d2){ h+=barra(d2.slice(5), dias[d2], topeD); });
+    h+="</div>";
+  }
+  return h;
+}
+
+function htmlAjustes(){
+  var modos={indexeddb:"base de datos del navegador",localstorage:"almacenamiento del navegador",
+             memoria:"SOLO MEMORIA — se pierde al cerrar"};
+  var h='<div class="panel"><h2>Copia de seguridad</h2><p class="aviso">Guardando en: '+
+        esc(modos[alm.modo])+"</p>";
+  h+='<button class="principal" data-act="exportar">Exportar copia</button>';
+  h+='<p class="aviso" style="margin-top:10px">Restaurar: pega aquí una copia.</p>';
+  h+='<input id="imp" placeholder="{ … }">';
+  h+='<button class="principal" data-act="importar">Restaurar</button></div>';
+  var ns=0, ki; for(ki in (datos.sug||{})) ns+=datos.sug[ki].length;
+  h+='<div class="panel"><h2>Sugerencias</h2>'+
+     '<p class="aviso">Son las frases que te propone al enseñar. Pega aquí '+
+     'el contenido de sugerencias.js (o solo el JSON). Ahora tienes '+ns+
+     ' propias además de las de serie.</p>'+
+     '<textarea id="sug-txt" rows="4" placeholder=\'var SUG = { "SALUDAR": ["¡Buenas! | ¿Qué tal?"] };\'></textarea>'+
+     '<button class="principal" data-act="cargar-sug">Cargar sugerencias</button>';
+  if(ns) h+='<button data-act="borrar-sug">Quitar las mías</button>';
+  h+="</div>";
+  h+='<div class="panel"><h2>Vocabulario</h2>'+
+     '<p class="aviso">Pega aquí un paquete de palabras con su clase y sus '+
+     'atributos. Ahora conoce '+Object.keys(datos.entidades||{}).length+' palabras, '+
+     Object.keys(datos.atributos||{}).length+' con atributos y '+
+     ((datos.contextos||[]).length)+' contextos.</p>'+
+     '<textarea id="voc-txt" rows="4" placeholder=\'{ "palabras": { "arroz": {"clase":"COMIDA","contexto":"cocina","sitio":"despensa"} } }\'></textarea>'+
+     '<button class="principal" data-act="cargar-voc">Cargar vocabulario</button>'+
+     '<button data-act="ver-guia">¿Qué formato tiene?</button>'+
+     '<button data-act="purgar">Purgar palabras vacías</button></div>';
+  var pl=datos.plantillas||{}, pk;
+  h+='<div class="panel"><h2>Plantillas</h2>'+
+     '<p class="aviso">Con esto compone respuestas cuando no tiene ficha, '+
+     'usando el vocabulario. Deja el campo vacío para volver a la de serie.</p>';
+  Object.keys(PLANTILLAS_SERIE).forEach(function(id){
+    h+='<p class="aviso" style="margin-bottom:2px">'+esc(id)+"</p>"+
+       '<input data-act="plantilla" data-id="'+id+'" value="'+
+       esc(pl[id]||PLANTILLAS_SERIE[id])+'">';
+  });
+  h+='<p class="aviso">Piezas: {ART_SITIO} {SITIO} {VERBO_IMP} {ART_OBJ} {OBJETO} {MOMENTO}. '+
+     'Si falta cualquiera, Charla calla en vez de soltar la frase a medias.</p></div>';
+  h+='<div class="panel"><h2>Aspecto</h2><button class="principal" data-act="tema">Día / noche</button></div>';
+  h+='<div class="panel"><h2>Empezar de cero</h2><p class="aviso">Borra la charla y lo aprendido.</p>'+
+     '<button class="principal" style="background:#8b2f2f" data-act="reiniciar">Borrar todo</button></div>';
+  return h;
+}
+
+var VISTAS=[{id:"charla",t:"Charla",f:htmlCharla},
+            {id:"aprendido",t:"Aprendido",f:htmlAprendido},
+            {id:"hechos",t:"Lo que sé",f:htmlHechos},
+            {id:"resumen",t:"Resumen",f:htmlResumen},
+            {id:"examen",t:"Examen",f:htmlExamen},
+            {id:"ajustes",t:"Ajustes",f:htmlAjustes}];
+
+/* ---------------------------------------------------------------
+   EXAMEN. Pegas un montón de preguntas y Charla las contesta todas
+   de golpe SIN guardar nada. Sirve para ver el agujero: qué sabe
+   contestar y qué no. Las preguntas se las puede escribir una IA;
+   las respuestas NO, porque una IA no conoce tu manera de hablar.
+   --------------------------------------------------------------- */
+var examen=null;
+
+function pasarExamen(texto){
+  var lineas=texto.split(/\r?\n/).map(function(l){return l.trim();})
+                  .filter(function(l){return l.length>2;});
+  var bien=[], mal=[], vistas={};
+  lineas.forEach(function(q){
+    if(vistas[q.toLowerCase()]) return;
+    vistas[q.toLowerCase()]=1;
+    var a=analizar(q);
+    if(a.grave){ mal.push({q:q, motivo:"tema serio"}); return; }
+    var c=candidatos(a, animoActual(), perfilActual(), 1);
+    if(c.length) bien.push({q:q, r:rellenar(c[0].ficha.bloques.slice(),a).join(" "),
+                            punt:c[0].punt});
+    else mal.push({q:q, motivo:faltaPor(a)});
+  });
+  return {bien:bien, mal:mal, total:lineas.length};
+}
+
+/* Por qué no sabe: sirve más que un "no sé" a secas. */
+function faltaPor(a){
+  var propias=(a.claves||[]).filter(esPropia);
+  if(!propias.length) return "no reconozco ninguna palabra";
+  var sinMarcar=[];
+  propias.forEach(function(p){
+    if(!(datos.entidades||{})[p] && GRAM.categoria(p)==="nombre") sinMarcar.push(p);
+  });
+  if(sinMarcar.length) return "sin marcar: "+sinMarcar.join(", ");
+  return "no le he enseñado nada parecido";
+}
+
+function htmlExamen(){
+  var h='<div class="panel"><b>Examen</b>'+
+    '<p class="aviso">Pega preguntas, una por línea. Las contesta todas '+
+    'sin guardar nada y te dice cuáles no sabe y por qué.</p>'+
+    '<textarea id="ex-txt" rows="6" placeholder="¿Qué hago con las sobras de arroz?\n¿Me tomo el ibuprofeno?\n…">'+
+    esc(examen&&examen.texto||"")+"</textarea>"+
+    '<button class="principal" data-act="examinar">Pasar el examen</button></div>';
+  if(!examen||!examen.res) return h;
+  var r=examen.res, pct=r.total?Math.round(100*r.bien.length/(r.bien.length+r.mal.length)):0;
+  h+='<div class="panel"><b>Contesta '+r.bien.length+' de '+
+     (r.bien.length+r.mal.length)+"  ("+pct+"%)</b>";
+  if(r.mal.length){
+    h+='<p class="aviso">Estas no las sabe. Toca una para enseñársela:</p>';
+    r.mal.forEach(function(x,k){
+      h+='<div class="opc"><button data-act="ir-a-ensenar" data-k="'+k+'">'+esc(x.q)+"</button>"+
+         '<span class="meta"> '+esc(x.motivo)+"</span></div>";
+    });
+  }
+  if(r.bien.length){
+    h+='<p class="aviso">Estas sí:</p>';
+    r.bien.forEach(function(x,k){
+      h+='<div class="opc"><div class="opct">'+esc(x.q)+"</div>"+
+         '<div class="meta">→ '+esc(x.r)+"  ["+x.punt+"]</div>";
+      if(x.juicio) h+='<span class="meta">'+esc(x.juicio)+"</span>";
+      else h+='<div class="acc"><button data-act="ex-bien" data-k="'+k+'">Bien</button>'+
+              '<button data-act="ex-mal" data-k="'+k+'">Mal</button></div>';
+      h+="</div>";
+    });
+  }
+  return h+"</div>";
+}
+
+function pintar(){
+  document.getElementById("nav").innerHTML=VISTAS.map(function(v){
+    return '<button data-act="ir" data-v="'+v.id+'" aria-current="'+(v.id===vista)+'">'+esc(v.t)+"</button>";
+  }).join("");
+  var m=document.getElementById("main");
+  m.innerHTML=(VISTAS.filter(function(v){return v.id===vista;})[0]).f();
+  var barra;
+  if(datos.contexto){
+    barra='<div class="ctxbar">Contexto: <b>'+esc(datos.contexto)+'</b>'+
+          '<button data-act="cerrar-ctx">Cerrar</button></div>';
+  } else {
+    /* Los contextos usados se guardan y se reabren de un toque. Si hay
+       que teclearlos cada vez, "cocina" y "Cocina" acaban siendo dos
+       cosas distintas y lo aprendido se parte por la mitad. */
+    barra='<div class="ctxbar"><span class="aviso">Sin contexto</span>';
+    (datos.contextos||[]).slice(-6).forEach(function(c){
+      barra+='<button data-act="usar-ctx" data-c="'+esc(c)+'">'+esc(c)+"</button>";
+    });
+    barra+='<button data-act="abrir-ctx">+ nuevo</button></div>';
+  }
+  document.getElementById("pie").innerHTML = vista==="charla"
+    ? barra+'<div class="linea"><input id="entrada" placeholder="Escribe…" autocomplete="off">'+
+      '<button data-act="enviar">Enviar</button></div>' : "";
+  if(vista==="charla"){ m.scrollTop=m.scrollHeight;
+    var e=document.getElementById("entrada"); if(e && !ense && !corr) e.focus(); }
+}
+function guardar(){ return escribir(datos).then(function(){aviso="";},function(e){aviso=e.message;}); }
+
+/* =====================================================================
+   12. EVENTOS
+   ===================================================================== */
+function enviar(){
+  var e=document.getElementById("entrada"); if(!e) return;
+  var txt=e.value.trim(); if(!txt) return;
+  e.value="";
+  meter(txt);
+}
+
+/* Meter una frase en el hilo como si la hubieras escrito. Lo usa el
+   botón de enviar y también el examen. */
+function meter(txt){
+  var animo=animoActual();
+  var a=analizar(txt);
+  datos.charla.push({quien:"yo",texto:txt,t:Date.now(),animo:a.animo});
+  var r=responder(txt);
+  if(r.origen==="no-se"){
+    datos.charla.push({quien:"casa",texto:"No sé qué decir aquí. ¿Qué te habría gustado oír?",
+      t:Date.now(),origen:"no-se",bloques:[],intencion:r.a.intencion});
+    ense={a:r.a, animo:animo, borrador:""};
+  } else {
+    datos.charla.push({quien:"casa",texto:r.bloques.join(" "),bloques:r.bloques,t:Date.now(),
+      origen:r.origen, id:r.id, intencion:r.a.intencion,
+      pregunta:txt, camino:r.camino||null, otras:r.otras||null, punt:r.punt||0,
+      hechos:r.hechos||null,
+      meta:r.origen==="grave"?"tema delicado: no aconsejo":
+           (r.a.intencion? r.a.intencion.replace(/_/g," ").toLowerCase()+" · "+animo : animo)});
+  }
+  guardar().then(pintar);
+}
+
+document.addEventListener("click",function(ev){
+  var b=ev.target.closest("[data-act]"); if(!b) return;
+  var act=b.getAttribute("data-act"), i, j, m, f, k;
+
+  if(act==="prefiero"){
+    var m=datos.charla[+b.getAttribute("data-i")], o=m.otras[+b.getAttribute("data-k")];
+    var mala=datos.fichas.filter(function(f){return f.id===m.id;})[0];
+    var buena=datos.fichas.filter(function(f){return f.id===o.id;})[0];
+    if(mala) mala.fallos=(mala.fallos||0)+1;
+    if(buena){ buena.aciertos=(buena.aciertos||0)+1; buena.usos=(buena.usos||0)+1; }
+    m.texto=o.texto; m.bloques=[o.texto]; m.camino=o.camino; m.punt=o.punt; m.id=o.id;
+    m.otras=(m.otras||[]).filter(function(x){return x.id!==o.id;});
+    guardar().then(pintar); return;
+  }
+  if(act==="abanico"){
+    var ma=datos.charla[+b.getAttribute("data-i")];
+    if(!ma.pregunta) return;
+    ma.abanico=abanico(analizar(ma.pregunta), animoActual(), 8, 3);
+    ma.ajuste=null;
+    guardar().then(pintar); return;
+  }
+  if(act==="aplicar"){
+    var mp=datos.charla[+b.getAttribute("data-i")];
+    var w=ajustarPesos(mp.abanico, 3, 1);
+    if(!w){ aviso="Ponles notas distintas: si todas valen lo mismo, no hay nada que aprender."; pintar(); return; }
+    mp.ajuste=w;
+    guardar().then(pintar); return;
+  }
+  if(act==="montar"){
+    var mm=datos.charla[+b.getAttribute("data-i")];
+    var bl=mejoresBloques(mm.abanico);
+    if(!bl.length){ aviso="Ponle nota a algo por encima de 50 primero."; pintar(); return; }
+    mm.montada=bl.join(" ");
+    guardar().then(pintar); return;
+  }
+  if(act==="repreguntar"){
+    var m2=datos.charla[+b.getAttribute("data-i")];
+    if(!m2.pregunta) return;
+    var rp=repreguntar(m2.pregunta, m2.texto);
+    m2.informe=rp.res;
+    m2.perfilAhora=anotarCamino(rp.res).perfil;
+    guardar().then(pintar); return;
+  }
+  if(act==="usar-ctx"){
+    datos.contexto=b.getAttribute("data-c");
+    datos.charla.push({marca:"— empieza: "+datos.contexto+" —", t:Date.now()});
+    guardar().then(pintar); return;
+  }
+  if(act==="abrir-ctx"){
+    var nom=window.prompt("Nombre del contexto (p. ej. pozo, restaurante, cocina)");
+    if(!nom) return;
+    nom=n(nom).trim();
+    if(!nom) return;
+    datos.contextos=datos.contextos||[];
+    if(datos.contextos.indexOf(nom)<0) datos.contextos.push(nom);
+    datos.contexto=nom;
+    datos.charla.push({marca:"— empieza: "+datos.contexto+" —", t:Date.now()});
+    guardar().then(pintar); return;
+  }
+  if(act==="cerrar-ctx"){
+    datos.charla.push({marca:"— termina: "+datos.contexto+" —", t:Date.now()});
+    datos.contexto=null; guardar().then(pintar); return;
+  }
+  if(act==="usarespejo"){
+    var ce=document.getElementById("ens-txt");
+    if(ce){ ce.value=GRAM.espejo(ense.a.texto); ce.focus(); }
+    return;
+  }
+  if(act==="anadir-pal"){
+    var cn=document.getElementById("pal-nueva");
+    var pn=n(cn?cn.value:"").replace(/[^a-z0-9]/g,"");
+    if(!pn){ aviso="Escribe primero la palabra."; pintar(); return; }
+    if(esGenerica(pn)){
+      aviso='"'+pn+'" nombra una categoría, no una cosa concreta. '+
+            "Marca la palabra que dice CUÁL: pasta, arroz, Miguel…";
+      pintar(); return;
+    }
+    var pega2=pegaClase(pn, b.getAttribute("data-c"));
+    if(pega2){ aviso=pega2; pintar(); return; }
+    datos.entidades=datos.entidades||{};
+    datos.entidades[pn]=b.getAttribute("data-c");
+    datos.fichas.forEach(function(x){
+      if(x.ida && n(x.ida).indexOf(pn)!==-1) rehacer(x);
+    });
+    if(cn) cn.value="";
+    palAbierta=null; tirarIndice();
+    aviso=pn+" marcado como "+b.getAttribute("data-c")+".";
+    guardar().then(pintar); return;
+  }
+  if(act==="nota-fija"){
+    var mf=datos.charla[+b.getAttribute("data-i")];
+    var of=mf.abanico[+b.getAttribute("data-k")];
+    var jf=b.getAttribute("data-j"), vf=+b.getAttribute("data-v");
+    if(jf===null) of.nota=vf; else of.notasBl[+jf]=vf;
+    pintar(); return;
+  }
+  if(act==="quita-sentido"){
+    var ps=b.getAttribute("data-p"), ks=+b.getAttribute("data-k");
+    var ls=(datos.sentidos||{})[ps]||[];
+    if(ls.length<2){ aviso="Es el único sentido. Usa quitar para borrar la palabra."; pintar(); return; }
+    ls.splice(ks,1);
+    datos.sentidos[ps]=ls; datos.entidades[ps]=ls[0].clase;
+    tirarIndice(); guardar().then(pintar); return;
+  }
+  if(act==="nueva-clase"){
+    var nom=window.prompt("¿Qué clase falta? Una palabra, en singular.\n"+
+      "Por ejemplo: PLANTA, BROCA, LIBRO, PLANTA_INTERIOR");
+    if(!nom) return;
+    nom=n(nom).replace(/[^a-z0-9_ ]/g,"").trim().replace(/\s+/g,"_").toUpperCase();
+    if(nom.length<3){ aviso="El nombre es muy corto."; pintar(); return; }
+    datos.clases=datos.clases||[];
+    if(CLASES.indexOf(nom)<0){ datos.clases.push(nom); refrescarClases(); }
+    var pw2=b.getAttribute("data-p");
+    if(pw2 && !esGenerica(pw2) && !pegaClase(pw2,nom)){
+      datos.entidades[pw2]=nom;
+      datos.fichas.forEach(function(x){ if(x.ida && n(x.ida).indexOf(pw2)!==-1) rehacer(x); });
+      tirarIndice();
+      aviso=pw2+" marcado como "+nom+".";
+    } else aviso="Clase "+nom+" creada.";
+    palAbierta=null;
+    guardar().then(pintar); return;
+  }
+  if(act==="abreclase"){
+    var pw=b.getAttribute("data-p");
+    palAbierta = (palAbierta===pw) ? null : pw;
+    pintar(); return;
+  }
+  if(act==="clase"){
+    var pal=b.getAttribute("data-p"), nueva=b.getAttribute("data-c");
+    datos.entidades=datos.entidades||{};
+    var pega = nueva ? pegaClase(pal, nueva) : null;
+    if(nueva && esGenerica(pal)){
+      aviso='"'+pal+'" nombra una categoría, no una cosa concreta. '+
+            "Marca la palabra que dice CUÁL: pasta, arroz, sopa…";
+      palAbierta=null; pintar(); return;
+    }
+    if(pega){ aviso=pega; palAbierta=null; pintar(); return; }
+    if(nueva) datos.entidades[pal]=nueva; else delete datos.entidades[pal];
+    palAbierta=null;
+    /* Las fichas guardaron sus claves con las clases de entonces. Si
+       cambias una, hay que rehacerlas o la ficha deja de encontrarse. */
+    datos.fichas.forEach(function(x){
+      if(x.ida && n(x.ida).indexOf(pal)!==-1) rehacer(x);
+    });
+    if(ense) ense.a=analizar(ense.a.texto);
+    tirarIndice();
+    guardar().then(pintar); return;
+  }
+  if(act==="ir"){vista=b.getAttribute("data-v");ense=null;corr=null;pintar();return;}
+  if(act==="enviar"){enviar();return;}
+
+  if(act==="usar-sug"){
+    k=parseInt(b.getAttribute("data-k"),10);
+    ense.borrador=sugerencias(ense.a.intencion)[k]||"";
+    pintar(); var t=document.getElementById("ens-txt"); if(t){t.value=ense.borrador;t.focus();}
+    return;
+  }
+  if(act==="guardar-ens"){
+    var v=document.getElementById("ens-txt").value.trim();
+    if(!v){aviso="Escribe la respuesta antes de guardar.";pintar();return;}
+    var sel=document.getElementById("ens-int").value;
+    if(sel) ense.a.intencion=sel;
+    var md=document.getElementById("ens-modo");
+    if(md && md.value) ense.a.modo=md.value;
+    var bl=partir(v.indexOf("|")!==-1? v : v);
+    if(v.indexOf("|")!==-1) bl=v.split("|").map(function(s){return s.trim();}).filter(Boolean);
+    f=aprender(ense.a, bl, ense.animo);
+    // Sustituye el "no sé" por la respuesta enseñada.
+    m=datos.charla[datos.charla.length-1];
+    m.texto=bl.join(" "); m.bloques=bl; m.origen="ensenado"; m.id=f.id; m.meta="enseñado ahora";
+    ense=null; guardar().then(pintar); return;
+  }
+
+  if(act==="bien"){
+    i=parseInt(b.getAttribute("data-i"),10); m=datos.charla[i];
+    f=datos.fichas.filter(function(x){return x.id===m.id;})[0];
+    if(f){f.aciertos=(f.aciertos||0)+1; m.meta="confirmado";}
+    guardar().then(pintar); return;
+  }
+  if(act==="corregir"){
+    i=parseInt(b.getAttribute("data-i"),10);
+    corr={i:i,j:null,actual:datos.charla[i].bloques.join(" | ")}; pintar(); return;
+  }
+  if(act==="bloque"){
+    i=parseInt(b.getAttribute("data-i"),10); j=parseInt(b.getAttribute("data-j"),10);
+    corr={i:i,j:j,actual:datos.charla[i].bloques[j]}; pintar(); return;
+  }
+  if(act==="usar-corr"){
+    k=parseInt(b.getAttribute("data-k"),10);
+    var lst=sugerencias(datos.charla[corr.i].intencion);
+    var t2=document.getElementById("corr-txt"); if(t2){t2.value=lst[k]||"";t2.focus();}
+    return;
+  }
+  if(act==="ensename"){
+    i=parseInt(b.getAttribute("data-i"),10); m=datos.charla[i];
+    if(!m.pregunta) return;
+    ense={a:analizar(m.pregunta), animo:animoActual(), borrador:""};
+    pintar(); return;
+  }
+  if(act==="olvidar"){
+    olvidarHecho(b.getAttribute("data-id"));
+    datos.charla.forEach(function(x){
+      if(x.hechos) x.hechos=x.hechos.filter(function(y){return y.id!==b.getAttribute("data-id");});
+    });
+    guardar().then(pintar); return;
+  }
+  if(act==="purgar"){
+    var q=purgarVacias();
+    aviso = q.length ? "Fuera "+q.length+": "+q.slice(0,8).join(", ")+
+            (q.length>8?" y "+(q.length-8)+" más":"") : "No había ninguna palabra vacía.";
+    guardar().then(pintar); return;
+  }
+  if(act==="cargar-voc"){
+    var vt=document.getElementById("voc-txt").value.trim();
+    if(!vt){ aviso="Pega antes el paquete."; pintar(); return; }
+    var res=cargarVocabulario(vt);
+    if(res.error){ aviso=res.error; pintar(); return; }
+    aviso=res.puestas+" palabras, "+res.atrs+" atributos, "+res.ctxs+
+          " contextos y "+res.caps+" juegos de capas."+
+          (res.fuera.length? " Descartadas: "+res.fuera.slice(0,6).join(", ")+
+           (res.fuera.length>6?" y "+(res.fuera.length-6)+" más":"") : "");
+    document.getElementById("voc-txt").value="";
+    guardar().then(pintar); return;
+  }
+  if(act==="ver-guia"){
+    window.alert(
+      "PAQUETE DE VOCABULARIO\n\n"+
+      '{ "palabras": {\n'+
+      '    "arroz":   {"clase":"COMIDA","contexto":"cocina","sitio":"despensa"},\n'+
+      '    "taladro": {"clase":"HERRAMIENTA","contexto":"taller","riesgo":"extremo"}\n'+
+      "  },\n"+
+      '  "contextos": ["cocina","taller"],\n'+
+      '  "capas": { "cocina": {"sitio":"cocina","trato":"tu"} }\n'+
+      "}\n\n"+
+      "Clases: "+CLASES.join(", ")+"\n\n"+
+      "Capas: "+CAPAS.map(function(c){return c.id;}).join(", ")+"\n\n"+
+      "Las clases que no existan se crean solas. Lo que no cuadre se "+
+      "descarta y te digo qué.");
+    return;
+  }
+  if(act==="cargar-sug"){
+    var tx=document.getElementById("sug-txt").value.trim();
+    if(!tx){ aviso="Pega antes el archivo."; pintar(); return; }
+    try{
+      /* Admite el archivo entero ("var SUG = {...};") o solo el JSON. */
+      var limpio=tx.replace(/^[\s\S]*?var\s+SUG\s*=\s*/,"").replace(/;\s*$/,"").trim();
+      var obj=JSON.parse(limpio);
+      if(!obj || typeof obj!=="object" || Array.isArray(obj))
+        throw new Error("Eso no es una lista de intenciones.");
+      var puestas=0, malas=[];
+      Object.keys(obj).forEach(function(k){
+        if(INTENCIONES.indexOf(k)<0){ malas.push(k); return; }
+        if(!Array.isArray(obj[k])) { malas.push(k); return; }
+        var buenas=obj[k].filter(function(x){ return typeof x==="string" && /[a-záéíóúüñ]/i.test(x); });
+        if(buenas.length){ datos.sug[k]=buenas; puestas+=buenas.length; }
+      });
+      if(!puestas) throw new Error("No he encontrado ninguna frase aprovechable.");
+      aviso=puestas+" sugerencias cargadas"+
+            (malas.length? ". Descartadas por no ser intenciones del catálogo: "+malas.join(", ") : ".");
+      document.getElementById("sug-txt").value="";
+      guardar().then(pintar);
+    }catch(e){ aviso="No he podido leerlo: "+e.message; pintar(); }
+    return;
+  }
+  if(act==="borrar-sug"){
+    if(!window.confirm("¿Quitar tus sugerencias y dejar solo las de serie?")) return;
+    datos.sug={}; guardar().then(pintar); return;
+  }
+  if(act==="examinar"){
+    var tx=document.getElementById("ex-txt").value;
+    if(!tx.trim()){ aviso="Pega antes las preguntas."; pintar(); return; }
+    examen={texto:tx, res:pasarExamen(tx)};
+    pintar(); return;
+  }
+  if(act==="ex-bien" || act==="ex-mal"){
+    /* Contestar no es acertar. Solo tú puedes decir si está bien, y
+       por eso esto no lo puede hacer una IA por ti. */
+    var kb=parseInt(b.getAttribute("data-k"),10), x=examen.res.bien[kb];
+    var fb=datos.fichas.filter(function(y){return y.bloques.join(" ")===x.r ||
+      rellenar(y.bloques.slice(), analizar(x.q)).join(" ")===x.r;})[0];
+    if(fb){
+      if(act==="ex-bien"){ fb.aciertos=(fb.aciertos||0)+1; x.juicio="✓ apuntado como buena"; }
+      else { fb.fallos=(fb.fallos||0)+1; x.juicio="✗ apuntada como mala"; }
+    } else x.juicio="(no encuentro la ficha)";
+    guardar().then(pintar); return;
+  }
+  if(act==="ir-a-ensenar"){
+    var kk=parseInt(b.getAttribute("data-k"),10);
+    var pregunta=examen.res.mal[kk].q;
+    vista="charla";
+    meter(pregunta);
+    return;
+  }
+  if(act==="quitar-bloque"){
+    m=datos.charla[corr.i];
+    if(m.bloques.length<2){ aviso="Es el único bloque. Corrígelo o borra la ficha entera."; pintar(); return; }
+    m.bloques.splice(corr.j,1);
+    m.texto=m.bloques.join(" ");
+    f=datos.fichas.filter(function(x){return x.id===m.id;})[0];
+    if(f){ f.bloques=ponerHuecos(m.bloques.slice(), analizar(f.ida).entidades); tirarIndice(); }
+    m.meta="corregido"; corr=null; guardar().then(pintar); return;
+  }
+  if(act==="guardar-corr"){
+    var nv=document.getElementById("corr-txt").value.trim();
+    if(!nv){aviso="Escribe la corrección.";pintar();return;}
+    if(!/[a-záéíóúüñ0-9]/i.test(nv)){
+      aviso="Eso no dice nada. Si sobra el bloque, usa Quitar este bloque.";
+      pintar(); return;
+    }
+    m=datos.charla[corr.i];
+    if(corr.j===null) m.bloques=nv.split("|").map(function(s){return s.trim();}).filter(Boolean);
+    else m.bloques[corr.j]=nv;
+    m.texto=m.bloques.join(" ");
+    f=datos.fichas.filter(function(x){return x.id===m.id;})[0];
+    if(f){ f.bloques=ponerHuecos(m.bloques.slice(), analizar(f.ida).entidades);
+           f.fallos=(f.fallos||0)+1; tirarIndice(); }
+    m.meta="corregido"; corr=null; guardar().then(pintar); return;
+  }
+
+  if(act==="borrar-ficha"){
+    var id=b.getAttribute("data-id");
+    if(!window.confirm("¿Borrar esta ficha?")) return;
+    datos.fichas=datos.fichas.filter(function(x){return x.id!==id;});
+    guardar().then(pintar); return;
+  }
+  if(act==="exportar"){
+    var a2=document.createElement("a");
+    a2.href=URL.createObjectURL(new Blob([JSON.stringify(datos)],{type:"application/json"}));
+    a2.download="charla-casa-"+new Date().toISOString().slice(0,10)+".json"; a2.click();
+    setTimeout(function(){URL.revokeObjectURL(a2.href);},2000); return;
+  }
+  if(act==="importar"){
+    try{ var d=JSON.parse(document.getElementById("imp").value.trim());
+      if(!d||!d.fichas) throw new Error("Esa copia no es de Charla.");
+      datos=d; guardar().then(function(){vista="charla";pintar();});
+    }catch(e2){aviso="No se pudo restaurar: "+e2.message;pintar();}
+    return;
+  }
+  if(act==="tema"){var hh=document.documentElement;
+    hh.setAttribute("data-tema",hh.getAttribute("data-tema")==="noche"?"dia":"noche");return;}
+  if(act==="reiniciar"){
+    if(!window.confirm("¿Borrar la charla y todo lo aprendido?")) return;
+    datos=nuevo(); ense=null; corr=null; guardar().then(pintar); return;
+  }
+});
+document.addEventListener("keydown",function(ev){
+  if(ev.key==="Enter" && ev.target.id==="entrada"){ ev.preventDefault(); enviar(); }
+  if(ev.key==="Enter" && ev.target.id==="ens-txt"){ ev.preventDefault();
+    var b=document.querySelector('[data-act="guardar-ens"]'); if(b) b.click(); }
+  if(ev.key==="Enter" && ev.target.id==="corr-txt"){ ev.preventDefault();
+    var c=document.querySelector('[data-act="guardar-corr"]'); if(c) c.click(); }
+});
+
+/* =====================================================================
+   13. ARRANQUE
+   ===================================================================== */
+abrir().then(leer).then(function(g){
+  datos = (g && g.fichas) ? g : nuevo();
+  if(!datos.entidades) datos.entidades={};      // copias de la versión 1
+  if(datos.contexto===undefined) datos.contexto=null;
+  if(datos.perfil===undefined) datos.perfil=0;
+  if(!datos.marcador) datos.marcador=[0,0,0,0,0];
+  if(datos.pesos===undefined) datos.pesos=null;
+  if(datos.ajustes===undefined) datos.ajustes=0;
+  if(!datos.sug) datos.sug={};
+  if(!datos.hechos) datos.hechos=[];
+  if(datos.pendiente===undefined) datos.pendiente=null;
+  if(!datos.clases) datos.clases=[];
+  if(!datos.atributos) datos.atributos={};
+  if(!datos.capas) datos.capas={};
+  if(!datos.sentidos) datos.sentidos={};
+  if(!datos.plantillas) datos.plantillas={};
+  if(!datos.contextos){        // recoger los que ya usaste
+    datos.contextos=[];
+    datos.fichas.forEach(function(f){
+      if(f.contexto && datos.contextos.indexOf(f.contexto)<0) datos.contextos.push(f.contexto);
+    });
+  }
+  refrescarClases();
+  if((datos.version||1) < 7){
+    Object.keys(datos.entidades||{}).forEach(function(p){
+      if(esGenerica(p)) delete datos.entidades[p];
+    });
+    /* Bloques que quedaron en "." de alguna corrección mal guardada:
+       fuera. Un bloque sin ninguna letra no dice nada. */
+    datos.fichas.forEach(function(f){
+      var l=(f.bloques||[]).filter(function(b){return /[a-záéíóúüñ0-9]/i.test(b);});
+      if(l.length && l.length!==f.bloques.length) f.bloques=l;
+    });
+  }
+  if((datos.version||1) < 5){        // claves antiguas: infinitivo y clase añadida
+    datos.fichas.forEach(function(f){ if(f.ida) f.claves=clavesCon(f.ida, f.intencion, f.contexto); });
+    datos.version=7; tirarIndice();
+  }
+  if(alm.modo==="memoria") aviso="Este navegador no deja guardar. Exporta antes de cerrar.";
+  pintar();
+},function(){ datos=nuevo(); aviso="No se pudo abrir el almacenamiento."; pintar(); });
+
+/* Sólo para las pruebas automáticas. */
+window.__charla={ analizar:analizar, extraerHechos:extraerHechos,
+  consultarHechos:consultarHechos, guardarHecho:guardarHecho, olvidarHecho:olvidarHecho,
+  hechosDe:hechosDe, frasear:frasear, veredictoComida:veredictoComida,
+  diasDe:diasDe, alimentoDe:alimentoDe, completaPendiente:completaPendiente, veredictoHerramienta:veredictoHerramienta,
+  herramientaDe:herramientaDe, rehacer:rehacer, sugerencias:sugerencias, pasarExamen:pasarExamen, meter:meter, faltaPor:faltaPor, ponerHuecos:ponerHuecos, rellenar:rellenar, esGenerica:esGenerica, pegaClase:pegaClase, refrescarClases:refrescarClases, htmlResumen:htmlResumen,
+  atributosDe:atributosDe, ponerAtributo:ponerAtributo, cargarVocabulario:cargarVocabulario,
+  sentidosDe:sentidosDe, elegirSentido:elegirSentido, entidadesEn:entidadesEn,
+  componer:componer, imperativo:imperativo, PLANTILLAS_SERIE:PLANTILLAS_SERIE,
+  conTilde:conTilde, plantilla:plantilla, purgarVacias:purgarVacias, limpiaHuecos:limpiaHuecos,
+  arreglaInterrogativos:arreglaInterrogativos, unaLetra:unaLetra,
+  contextoImplicito:contextoImplicito, capasDe:capasDe, capasComunes:capasComunes,
+  CONTEXTOS_SERIE:CONTEXTOS_SERIE, CAPAS:CAPAS, ATRIBUTOS_GUIA:ATRIBUTOS_GUIA,
+  CLASES_SERIE:CLASES_SERIE, GRAM:GRAM, aspirantes:aspirantes,
+  tirarIndice:tirarIndice, claves:claves, clavesCon:clavesCon, candidatos:candidatos, abanico:abanico,
+  ajustarPesos:ajustarPesos, mejoresBloques:mejoresBloques, pesosBase:pesosBase, EJES:EJES, repreguntar:repreguntar,
+  anotarCamino:anotarCamino, PERFILES:PERFILES, modoDe:modoDe, entidadesEn:entidadesEn, get CLASES(){return CLASES;}, responder:responder, aprender:aprender, partir:partir,
+  intencionDe:intencionDe, tipoDe:tipoDe, sentidoPasar:sentidoPasar, pesoPrevio:pesoPrevio,
+  animoDe:animoDe, esGrave:esGrave, nuevo:nuevo, fijar:function(d){datos=d;}, ver:function(){return datos;} };
+
+})();
+</script>
+</body>
+</html>
