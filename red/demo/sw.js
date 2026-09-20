@@ -4,12 +4,12 @@
  */
 const CACHE = "valladolid-shell-v5160";
 const SHELL = [
-  "/",
-  "/index.html",
-  "/css/app.css",
-  "/js/app.js",
-  "/manifest.webmanifest",
-  "/icons/icon.svg",
+  "./",
+  "./index.html",
+  "./css/app.css",
+  "./js/app.js",
+  "./manifest.webmanifest",
+  "./icons/icon.svg",
 ];
 
 self.addEventListener("install", (event) => {
@@ -46,6 +46,6 @@ self.addEventListener("fetch", (event) => {
       const copy = res.clone();
       caches.open(CACHE).then((c) => c.put(req, copy));
       return res;
-    }).catch(() => caches.match("/index.html")))
+    }).catch(() => caches.match("./index.html")))
   );
 });
