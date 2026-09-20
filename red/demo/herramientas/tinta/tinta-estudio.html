@@ -1,0 +1,1923 @@
+<!DOCTYPE html>
+<!--
+  Tinta — estudio de ilustración de Jorge de Prado.
+  Ábrelo con doble clic. No necesita internet ni instalación.
+  Licencia MIT: ver LICENCIA.txt en el mismo ZIP.
+-->
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="dark">
+<title>Tinta — Jorge de Prado</title>
+<style>
+:root {
+  --fondo: #141310;
+  --superficie: #1e1c18;
+  --elevada: #2a2722;
+  --tinta: #efe7d8;
+  --suave: #b7ad9c;
+  --apaga: #7a7368;
+  --linea: #3c3832;
+  --acento: #c45c3e;
+  --acento-texto: #fff4ea;
+  --papel: #f3eee4;
+  --peligro: #c44b3a;
+  --ok: #6f8f5a;
+  --radio: 12px;
+  --dedo: 44px;
+  --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Ubuntu, Helvetica, Arial, sans-serif;
+  --serif: Georgia, "Times New Roman", serif;
+}
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+html, body {
+  margin: 0; height: 100%; background: var(--fondo); color: var(--tinta);
+  font-family: var(--sans); overflow: hidden;
+}
+button, [role="button"] { cursor: pointer; font-family: inherit; }
+button:disabled { cursor: default; opacity: .4; }
+#app { height: 100%; display: flex; flex-direction: column; }
+
+.barra {
+  display: flex; align-items: center; gap: 8px;
+  min-height: 52px; padding: 6px 10px 6px max(10px, env(safe-area-inset-left));
+  padding-right: max(10px, env(safe-area-inset-right));
+  background: var(--superficie); border-bottom: 1px solid var(--linea); flex-shrink: 0;
+}
+.marca { display: flex; flex-direction: column; line-height: 1.05; margin-right: 8px; min-width: 0; }
+.marca b { font-family: var(--serif); font-size: 20px; letter-spacing: .08em; font-weight: 700; }
+.marca span { font-size: 10px; color: var(--apaga); letter-spacing: .12em; text-transform: uppercase; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.crece { flex: 1; }
+.btn {
+  min-height: var(--dedo); min-width: var(--dedo); padding: 0 14px;
+  border: 1px solid var(--linea); background: var(--elevada); color: var(--tinta);
+  border-radius: 10px; font-size: 13px; font-weight: 600; display: inline-flex;
+  align-items: center; justify-content: center; gap: 6px;
+}
+.btn:hover { border-color: #5a544c; }
+.btn.primario { background: var(--acento); border-color: #a34b33; color: var(--acento-texto); }
+.btn.fantasma { background: transparent; }
+.btn.ico { padding: 0; width: var(--dedo); }
+.btn.ico svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+
+.pantalla { flex: 1; min-height: 0; display: none; }
+.pantalla.activa { display: flex; flex-direction: column; }
+
+.galeria {
+  flex: 1; min-height: 0; overflow: auto; padding: 20px 20px 40px;
+  padding-left: max(20px, env(safe-area-inset-left));
+  padding-right: max(20px, env(safe-area-inset-right));
+}
+.hero { max-width: 720px; margin: 12px auto 28px; }
+.hero h1 { font-family: var(--serif); font-size: 42px; margin: 0 0 8px; letter-spacing: .04em; }
+.hero p { margin: 0; color: var(--suave); line-height: 1.5; max-width: 42em; }
+.acciones { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 20px; }
+.rejilla { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 14px; max-width: 1100px; margin: 0 auto; }
+.tarjeta {
+  background: var(--superficie); border: 1px solid var(--linea); border-radius: var(--radio);
+  overflow: hidden; display: flex; flex-direction: column; min-height: 220px;
+}
+.tarjeta .mini { height: 150px; background: #0c0b0a; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+.tarjeta .mini canvas, .tarjeta .mini img { max-width: 100%; max-height: 100%; }
+.tarjeta .meta { padding: 10px 12px 12px; display: flex; align-items: center; gap: 8px; }
+.tarjeta .meta strong { flex: 1; font-size: 13px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.vacio { color: var(--apaga); text-align: center; padding: 40px 12px; }
+
+.estudio { flex: 1; min-height: 0; display: grid; grid-template-columns: 56px 1fr 280px; grid-template-rows: 1fr 28px; }
+.rail {
+  grid-row: 1; background: var(--superficie); border-right: 1px solid var(--linea);
+  display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 8px 6px;
+  overflow: auto;
+}
+.escena { position: relative; background: #0c0b0a; overflow: hidden; touch-action: none; }
+.escena canvas { position: absolute; inset: 0; width: 100%; height: 100%; cursor: crosshair; }
+.panel {
+  background: var(--superficie); border-left: 1px solid var(--linea);
+  display: flex; flex-direction: column; min-height: 0;
+}
+.tabs { display: flex; border-bottom: 1px solid var(--linea); flex-shrink: 0; }
+.tabs button {
+  flex: 1; min-height: var(--dedo); border: 0; background: transparent; color: var(--apaga);
+  font-size: 11px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase;
+}
+.tabs button.activa { color: var(--tinta); box-shadow: inset 0 -2px 0 var(--acento); }
+.cuerpo-panel { flex: 1; min-height: 0; overflow: auto; padding: 12px; }
+.estado {
+  grid-column: 1 / -1; display: flex; align-items: center; gap: 12px;
+  padding: 0 12px; font-size: 11px; color: var(--apaga); background: #100f0d;
+  border-top: 1px solid var(--linea); white-space: nowrap; overflow: hidden;
+}
+
+.grupo { margin-bottom: 16px; }
+.grupo h3 {
+  margin: 0 0 8px; font-size: 10px; letter-spacing: .14em; text-transform: uppercase;
+  color: var(--apaga); font-weight: 700;
+}
+.fila { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+.fila label { font-size: 12px; color: var(--suave); min-width: 72px; }
+.fila input[type="range"] { flex: 1; accent-color: var(--acento); height: 24px; }
+.valor { font-size: 11px; color: var(--apaga); width: 36px; text-align: right; font-variant-numeric: tabular-nums; }
+.swatches { display: flex; flex-wrap: wrap; gap: 6px; }
+.swatch {
+  width: 44px; height: 44px; min-width: 44px; border-radius: 8px; border: 2px solid transparent;
+  padding: 0; background: center/cover;
+}
+.swatch.activa { border-color: var(--tinta); }
+.rejilla-btn { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+.rejilla-btn .btn { width: 100%; font-size: 12px; padding: 0 8px; }
+.lista-herramientas { display: flex; flex-direction: column; gap: 4px; width: 100%; }
+.herramienta {
+  width: 44px; height: 44px; border: 1px solid transparent; background: transparent;
+  color: var(--suave); border-radius: 10px; padding: 0; display: grid; place-items: center;
+}
+.herramienta.activa { background: var(--elevada); color: var(--tinta); border-color: var(--linea); }
+.herramienta svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
+
+.capa {
+  display: flex; align-items: center; gap: 8px; padding: 6px; border-radius: 8px;
+  border: 1px solid transparent; margin-bottom: 6px; background: var(--elevada);
+}
+.capa.activa { border-color: var(--acento); }
+.capa button.ico { width: 44px; min-width: 44px; min-height: 44px; height: 44px; }
+.capa input[type="text"] {
+  flex: 1; min-width: 0; background: transparent; border: 0; color: var(--tinta);
+  font: 12px/1.2 var(--sans); min-height: 36px;
+}
+
+.aviso {
+  font-size: 12px; line-height: 1.45; color: var(--suave);
+  background: #181612; border: 1px solid var(--linea); border-radius: 10px; padding: 10px 12px;
+}
+
+.modal {
+  position: fixed; inset: 0; background: rgba(8,7,6,.72); display: none;
+  align-items: center; justify-content: center; padding: 16px; z-index: 20;
+}
+.modal.abierto { display: flex; }
+.caja {
+  background: var(--superficie); border: 1px solid var(--linea); border-radius: 16px;
+  padding: 20px; width: min(440px, 100%); max-height: min(90vh, 640px); overflow: auto;
+}
+.caja h2 { font-family: var(--serif); margin: 0 0 12px; font-size: 24px; }
+.tallas { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.talla {
+  min-height: var(--dedo); border: 1px solid var(--linea); background: var(--elevada);
+  color: var(--tinta); border-radius: 10px; text-align: left; padding: 8px 12px;
+}
+.talla b { display: block; font-size: 13px; }
+.talla span { font-size: 11px; color: var(--apaga); }
+
+.muelle {
+  display: none; border-top: 1px solid var(--linea); background: var(--superficie);
+  padding: 6px max(8px, env(safe-area-inset-right)) calc(6px + env(safe-area-inset-bottom)) max(8px, env(safe-area-inset-left));
+  justify-content: flex-start; gap: 4px; overflow-x: auto; flex-shrink: 0;
+}
+.muelle .herramienta { flex: 0 0 44px; }
+
+@media (max-width: 820px) {
+  .estudio { grid-template-columns: 1fr; grid-template-rows: 1fr auto auto; }
+  .rail { display: none; }
+  .panel { border-left: 0; border-top: 1px solid var(--linea); max-height: 38vh; }
+  .muelle { display: flex; }
+  .btn.texto-largo span { display: none; }
+  .marca span { display: none; }
+  .hero h1 { font-size: 32px; }
+}
+input[type="color"] {
+  width: 44px; height: 44px; border: 1px solid var(--linea); border-radius: 10px;
+  background: transparent; padding: 0;
+}
+select, input[type="text"].campo {
+  min-height: var(--dedo); background: var(--elevada); color: var(--tinta);
+  border: 1px solid var(--linea); border-radius: 10px; padding: 0 10px; font: 13px var(--sans); width: 100%;
+}
+.pieles { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; }
+.piel { height: 44px; border-radius: 8px; border: 2px solid transparent; padding: 0; }
+.piel.activa { border-color: var(--tinta); }
+</style>
+</head>
+<body>
+<div id="app">
+  <header class="barra">
+    <div class="marca">
+      <b>TINTA</b>
+      <span>Jorge de Prado</span>
+    </div>
+    <div class="crece"><input type="text" class="campo" id="nombre-lamina" placeholder="" style="background:transparent;border:0;min-height:36px;padding:0;width:min(240px,30vw)"></div>
+    <button class="btn" id="btn-galeria" type="button" title="Galería">Galería</button>
+    <button class="btn" id="btn-guardar" type="button">Guardar</button>
+    <button class="btn" id="btn-copia" type="button">Copia</button>
+    <button class="btn" id="btn-png" type="button">PNG</button>
+    <button class="btn primario" id="btn-nueva" type="button">Nueva</button>
+  </header>
+
+  <section class="pantalla activa" id="pantalla-galeria">
+    <div class="galeria">
+      <div class="hero">
+        <h1>Tinta</h1>
+        <p>Estudio de ilustración de Jorge de Prado. Dibuja, pinta, abre una foto, cambia color de pelo y piel, moldea la figura y aplica cómic, óleo o lápiz. Todo ocurre en este archivo: no llama a ninguna red.</p>
+        <div class="acciones">
+          <button class="btn primario" id="btn-nueva-2" type="button">Nueva lámina</button>
+          <button class="btn" id="btn-foto" type="button">Abrir foto</button>
+          <button class="btn fantasma" id="btn-copia-in" type="button">Restaurar copia</button>
+        </div>
+      </div>
+      <div class="rejilla" id="rejilla"></div>
+    </div>
+  </section>
+
+  <section class="pantalla" id="pantalla-estudio">
+    <div class="estudio">
+      <aside class="rail" id="rail"></aside>
+      <div class="escena" id="escena"><canvas id="vista"></canvas></div>
+      <aside class="panel">
+        <div class="tabs" id="tabs">
+          <button type="button" data-tab="trazo" class="activa">Trazo</button>
+          <button type="button" data-tab="color">Color</button>
+          <button type="button" data-tab="capas">Capas</button>
+          <button type="button" data-tab="fx">FX</button>
+          <button type="button" data-tab="foto">Foto</button>
+        </div>
+        <div class="cuerpo-panel" id="cuerpo-panel"></div>
+      </aside>
+      <div class="estado" id="estado">Listo</div>
+    </div>
+    <nav class="muelle" id="muelle"></nav>
+  </section>
+</div>
+
+<input type="file" id="entrada-foto" accept="image/png,image/jpeg,image/webp,image/gif" hidden>
+<input type="file" id="entrada-copia" accept=".json,application/json" hidden>
+
+<div class="modal" id="modal-nueva">
+  <div class="caja">
+    <h2>Nueva lámina</h2>
+    <p class="aviso" style="margin-top:0">Elige el tamaño. Luego puedes abrir una foto encima o dibujar sobre el papel.</p>
+    <div class="tallas" id="tallas"></div>
+    <div class="fila" style="margin-top:14px">
+      <button class="btn" type="button" id="cerrar-nueva">Cancelar</button>
+    </div>
+  </div>
+</div>
+
+<script>
+(function () {
+  "use strict";
+
+  /* Por qué un solo archivo: así Tinta cabe en un USB y se abre con doble clic,
+     sin carpeta de scripts ni servidor. IndexedDB vive en el navegador, no en disco ajeno. */
+
+  var BD_NOMBRE = "tinta-jorge-de-prado";
+  var BD_STORE = "laminas";
+  var HISTORIAL_MAX = 24;
+
+  function limitar(n, a, b) { return n < a ? a : n > b ? b : n; }
+  function nuevoId(prefijo) {
+    return prefijo + "-" + Date.now().toString(36) + Math.floor(Math.random() * 1e6).toString(36);
+  }
+  function hexARgb(hex) {
+    var crudo = String(hex || "").replace("#", "");
+    if (crudo.length === 3) crudo = crudo.charAt(0) + crudo.charAt(0) + crudo.charAt(1) + crudo.charAt(1) + crudo.charAt(2) + crudo.charAt(2);
+    var v = parseInt(crudo.slice(0, 6), 16);
+    if (!isFinite(v)) return [26, 25, 22];
+    return [(v >> 16) & 255, (v >> 8) & 255, v & 255];
+  }
+  function rgbAHex(r, g, b) {
+    function pedazo(n) {
+      var t = limitar(n | 0, 0, 255).toString(16);
+      return t.length === 1 ? "0" + t : t;
+    }
+    return "#" + pedazo(r) + pedazo(g) + pedazo(b);
+  }
+  function mezclarByte(a, b, t) { return limitar(a + (b - a) * t, 0, 255) | 0; }
+  function rgbAHsl(r, g, b) {
+    var rr = r / 255, gg = g / 255, bb = b / 255;
+    var max = Math.max(rr, gg, bb), min = Math.min(rr, gg, bb);
+    var l = (max + min) / 2, d = max - min, h = 0, s = 0;
+    if (d !== 0) {
+      s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+      if (max === rr) h = (gg - bb) / d + (gg < bb ? 6 : 0);
+      else if (max === gg) h = (bb - rr) / d + 2;
+      else h = (rr - gg) / d + 4;
+      h /= 6;
+    }
+    return [h, s, l];
+  }
+  function matizARgb(p, q, t) {
+    var tt = t;
+    if (tt < 0) tt += 1;
+    if (tt > 1) tt -= 1;
+    if (tt < 1 / 6) return p + (q - p) * 6 * tt;
+    if (tt < 1 / 2) return q;
+    if (tt < 2 / 3) return p + (q - p) * (2 / 3 - tt) * 6;
+    return p;
+  }
+  function hslARgb(h, s, l) {
+    if (s <= 0) {
+      var v = limitar(l * 255, 0, 255) | 0;
+      return [v, v, v];
+    }
+    var q = l < 0.5 ? l * (1 + s) : l + s - l * s;
+    var p = 2 * l - q;
+    return [
+      limitar(matizARgb(p, q, h + 1 / 3) * 255, 0, 255) | 0,
+      limitar(matizARgb(p, q, h) * 255, 0, 255) | 0,
+      limitar(matizARgb(p, q, h - 1 / 3) * 255, 0, 255) | 0
+    ];
+  }
+  function hash(x, y) {
+    var n = Math.sin(x * 127.1 + y * 311.7) * 43758.5453;
+    return n - Math.floor(n);
+  }
+
+  var HERRAMIENTAS = [
+    { id: "pincel", nombre: "Pincel" },
+    { id: "goma", nombre: "Goma" },
+    { id: "relleno", nombre: "Relleno" },
+    { id: "gotero", nombre: "Gotero" },
+    { id: "recolor", nombre: "Recolor" },
+    { id: "moldear", nombre: "Moldear" },
+    { id: "emborronar", nombre: "Fundido" },
+    { id: "linea", nombre: "Línea" },
+    { id: "rect", nombre: "Rectángulo" },
+    { id: "elipse", nombre: "Elipse" },
+    { id: "mano", nombre: "Mano" }
+  ];
+  var PINCELES = [
+    { id: "lapiz", nombre: "Lápiz HB" },
+    { id: "grafito", nombre: "Grafito 6B" },
+    { id: "tinta", nombre: "Tinta" },
+    { id: "pincel", nombre: "Pincel húmedo" },
+    { id: "carbon", nombre: "Carboncillo" },
+    { id: "seco", nombre: "Pincel seco" },
+    { id: "rotulador", nombre: "Rotulador" },
+    { id: "aero", nombre: "Aerógrafo" },
+    { id: "trama", nombre: "Trama" },
+    { id: "puntos", nombre: "Puntillismo" }
+  ];
+  var TALLAS = [
+    { id: "lamina", nombre: "Lámina", w: 1200, h: 1600 },
+    { id: "cuadrado", nombre: "Cuadrado", w: 1080, h: 1080 },
+    { id: "poster", nombre: "Póster", w: 1600, h: 2200 },
+    { id: "paisaje", nombre: "Paisaje", w: 1920, h: 1080 },
+    { id: "historia", nombre: "Historia", w: 1080, h: 1920 },
+    { id: "vineta", nombre: "Viñeta", w: 1600, h: 1200 }
+  ];
+  var PAPELES = [
+    { id: "marfil", nombre: "Marfil", color: "#f3eee4" },
+    { id: "blanco", nombre: "Blanco", color: "#f7f7f4" },
+    { id: "periodico", nombre: "Periódico", color: "#e7e1d0" },
+    { id: "gris", nombre: "Gris", color: "#c8c6c0" },
+    { id: "negro", nombre: "Negro", color: "#161513" }
+  ];
+  var PALETA = ["#1a1916","#3b3832","#7a7368","#c4baa8","#efe7d8","#c45c3e","#8b1e1e","#2c4c6e","#3d6b4f","#c9a227","#5b3a29","#d9c2a0"];
+  var PIELES = [
+    { nombre: "Porcelana", hex: "#f3d7c4" },
+    { nombre: "Clara", hex: "#e8c4a8" },
+    { nombre: "Melocotón", hex: "#d9a078" },
+    { nombre: "Oliva", hex: "#c48a5a" },
+    { nombre: "Trigueña", hex: "#a86b3c" },
+    { nombre: "Morena", hex: "#8a4f28" },
+    { nombre: "Cacao", hex: "#6b3a1e" },
+    { nombre: "Ébano", hex: "#3e2416" },
+    { nombre: "Dorada", hex: "#d4a574" },
+    { nombre: "Rosada", hex: "#e8b9b0" }
+  ];
+  var PELOS = ["#1a1410","#3b2314","#6b3a18","#c45c28","#d4b06a","#8a2a1a","#4a5560","#efe7d8","#2a1c3a","#1e3a2a"];
+  var ROPAS = [
+    { nombre: "Pantalón deporte", hex: "#1f2933" },
+    { nombre: "Pantalón gris", hex: "#6b7280" },
+    { nombre: "Top blanco", hex: "#f3f1ea" },
+    { nombre: "Top negro", hex: "#1a1916" },
+    { nombre: "Camiseta", hex: "#c45c3e" },
+    { nombre: "Sudadera", hex: "#2c4c6e" },
+    { nombre: "Chándal", hex: "#1e3a2a" },
+    { nombre: "Vaqueros", hex: "#314e75" },
+    { nombre: "Camisa", hex: "#f7f4ee" },
+    { nombre: "Jersey", hex: "#6b3a2a" },
+    { nombre: "Vestido negro", hex: "#161513" },
+    { nombre: "Chaqueta", hex: "#3b3832" }
+  ];
+  var FILTROS = [
+    { id: "comic", nombre: "Cómic" },
+    { id: "oleo", nombre: "Óleo" },
+    { id: "dibujo", nombre: "Dibujo" },
+    { id: "umbral", nombre: "Umbral" },
+    { id: "gris", nombre: "Gris" },
+    { id: "contraste", nombre: "Contraste" },
+    { id: "saturar", nombre: "Saturar" },
+    { id: "desaturar", nombre: "Gris suave" },
+    { id: "vintage", nombre: "Vintage" },
+    { id: "sepia", nombre: "Sepia" },
+    { id: "duotono", nombre: "Duotono" },
+    { id: "nitidez", nombre: "Nitidez" },
+    { id: "viñeta", nombre: "Viñeta" },
+    { id: "invertir", nombre: "Invertir" },
+    { id: "poster", nombre: "Póster" },
+    { id: "ruido", nombre: "Grano" }
+  ];
+
+  var estado = {
+    pantalla: "galeria",
+    pestana: "trazo",
+    herramienta: "pincel",
+    pincelId: "tinta",
+    color: "#1a1916",
+    tamano: 14,
+    opacidad: 1,
+    dureza: 0.72,
+    flujo: 0.9,
+    moldear: 0.22,
+    tolerancia: 28,
+    filtroCantidad: 0.55,
+    zoom: 1,
+    panX: 0,
+    panY: 0,
+    proyecto: null,
+    capaActiva: 0,
+    dibujando: false,
+    ultimo: null,
+    formaInicio: null,
+    sucio: false
+  };
+  var capas = [];
+  var historial = [];
+  var futuro = [];
+  var selloCache = null;
+  var selloClave = "";
+
+  var vista = document.getElementById("vista");
+  var ctxVista = vista.getContext("2d", { alpha: false });
+  var escena = document.getElementById("escena");
+  var cuerpoPanel = document.getElementById("cuerpo-panel");
+  var estadoEl = document.getElementById("estado");
+
+  function decir(msg) { estadoEl.textContent = msg; }
+
+  function papelColor() {
+    var id = estado.proyecto && estado.proyecto.papel ? estado.proyecto.papel : "marfil";
+    var i;
+    for (i = 0; i < PAPELES.length; i++) if (PAPELES[i].id === id) return PAPELES[i].color;
+    return "#f3eee4";
+  }
+
+  function capaActual() {
+    if (!capas.length) return null;
+    var i = limitar(estado.capaActiva, 0, capas.length - 1);
+    return capas[i];
+  }
+
+  function contextoCapa() {
+    var c = capaActual();
+    return c ? c.lienzo.getContext("2d") : null;
+  }
+
+  function iconoSvg(id) {
+    var d = {
+      pincel: '<path d="M4 20l4-1 9-9-3-3-9 9-1 4z"/><path d="M13 7l3 3"/>',
+      goma: '<path d="M5 15l8-8 5 5-8 8H5v-5z"/>',
+      relleno: '<path d="M7 3v6l8 8-4 4-8-8 4-4h6"/><path d="M16 4h4"/>',
+      gotero: '<path d="M14 4l5 5-9 9H5v-5z"/>',
+      recolor: '<circle cx="8" cy="12" r="3"/><circle cx="16" cy="12" r="3"/>',
+      moldear: '<path d="M5 12c2-6 12-6 14 0-2 6-12 6-14 0z"/>',
+      emborronar: '<path d="M4 16c4-8 12-8 16 0"/><path d="M6 12c3-4 9-4 12 0"/>',
+      linea: '<path d="M5 19L19 5"/>',
+      rect: '<rect x="5" y="6" width="14" height="12" rx="1"/>',
+      elipse: '<ellipse cx="12" cy="12" rx="8" ry="6"/>',
+      mano: '<path d="M8 11V7m3 5V5m3 7V6m3 8v-4M7 11c-1 0-2 1-2 3v3c0 3 3 5 7 5s7-2 7-5v-5"/>'
+    };
+    return '<svg viewBox="0 0 24 24">' + (d[id] || d.pincel) + "</svg>";
+  }
+
+  function pintarRail() {
+    var rail = document.getElementById("rail");
+    var muelle = document.getElementById("muelle");
+    var html = "";
+    var i;
+    for (i = 0; i < HERRAMIENTAS.length; i++) {
+      var h = HERRAMIENTAS[i];
+      html += '<button type="button" class="herramienta' + (estado.herramienta === h.id ? " activa" : "") + '" data-h="' + h.id + '" title="' + h.nombre + '">' + iconoSvg(h.id) + "</button>";
+    }
+    rail.innerHTML = html;
+    muelle.innerHTML = html;
+  }
+
+  function pintarPanel() {
+    var t = estado.pestana;
+    if (t === "trazo") pintarTrazo();
+    else if (t === "color") pintarColor();
+    else if (t === "capas") pintarCapas();
+    else if (t === "fx") pintarFx();
+    else pintarFoto();
+  }
+
+  function pintarTrazo() {
+    var i, html = '<div class="grupo"><h3>Pincel</h3><div class="rejilla-btn">';
+    for (i = 0; i < PINCELES.length; i++) {
+      var p = PINCELES[i];
+      html += '<button type="button" class="btn' + (estado.pincelId === p.id ? " primario" : "") + '" data-pincel="' + p.id + '">' + p.nombre + "</button>";
+    }
+    html += "</div></div>";
+    html += bloqueRango("Tamaño", "tamano", estado.tamano, 1, 80, 1);
+    html += bloqueRango("Opacidad", "opacidad", Math.round(estado.opacidad * 100), 5, 100, 1);
+    html += bloqueRango("Dureza", "dureza", Math.round(estado.dureza * 100), 0, 100, 1);
+    html += '<div class="fila"><button type="button" class="btn" id="deshacer">Deshacer</button>';
+    html += '<button type="button" class="btn" id="rehacer">Rehacer</button></div>';
+    cuerpoPanel.innerHTML = html;
+  }
+
+  function bloqueRango(etiqueta, clave, valor, min, max, step) {
+    return '<div class="grupo"><div class="fila"><label>' + etiqueta + '</label>' +
+      '<input type="range" data-rango="' + clave + '" min="' + min + '" max="' + max + '" step="' + step + '" value="' + valor + '">' +
+      '<span class="valor" data-valor="' + clave + '">' + valor + "</span></div></div>";
+  }
+
+  function pintarColor() {
+    var i, html = '<div class="grupo"><h3>Color activo</h3><div class="fila">';
+    html += '<input type="color" id="color-hex" value="' + estado.color + '">';
+    html += '<button type="button" class="btn" id="bn">Blanco y negro</button></div>';
+    html += '<div class="swatches">';
+    for (i = 0; i < PALETA.length; i++) {
+      html += '<button type="button" class="swatch' + (estado.color.toLowerCase() === PALETA[i] ? " activa" : "") + '" data-sw="' + PALETA[i] + '" style="background:' + PALETA[i] + '"></button>';
+    }
+    html += "</div></div>";
+    html += '<div class="grupo"><h3>Papel</h3><div class="rejilla-btn">';
+    for (i = 0; i < PAPELES.length; i++) {
+      var pa = PAPELES[i];
+      var act = estado.proyecto && estado.proyecto.papel === pa.id;
+      html += '<button type="button" class="btn' + (act ? " primario" : "") + '" data-papel="' + pa.id + '">' + pa.nombre + "</button>";
+    }
+    html += "</div></div>";
+    cuerpoPanel.innerHTML = html;
+  }
+
+  function pintarCapas() {
+    var i, html = '<div class="grupo"><h3>Capas</h3>';
+    for (i = capas.length - 1; i >= 0; i--) {
+      var c = capas[i];
+      html += '<div class="capa' + (i === estado.capaActiva ? " activa" : "") + '" data-capa="' + i + '">';
+      html += '<button type="button" class="btn ico" data-vis="' + i + '" title="Visibilidad">' + (c.visible ? "●" : "○") + "</button>";
+      html += '<input type="text" value="' + c.nombre.replace(/"/g, "") + '" data-nom="' + i + '">';
+      html += "</div>";
+    }
+    html += '<div class="fila"><button type="button" class="btn" id="capa-mas">Añadir</button>';
+    html += '<button type="button" class="btn" id="capa-dup">Duplicar</button>';
+    html += '<button type="button" class="btn" id="capa-del">Quitar</button></div></div>';
+    html += bloqueRango("Opacidad capa", "opacidadCapa", Math.round((capaActual() ? capaActual().opacidad : 1) * 100), 5, 100, 1);
+    cuerpoPanel.innerHTML = html;
+  }
+
+  function pintarFx() {
+    var i, html = '<div class="grupo"><h3>Estilo sobre la capa activa</h3>';
+    html += '<p class="aviso">Cómic, óleo y dibujo son filtros locales: no salen de este archivo.</p>';
+    html += '<div class="rejilla-btn">';
+    for (i = 0; i < FILTROS.length; i++) {
+      html += '<button type="button" class="btn" data-fx="' + FILTROS[i].id + '">' + FILTROS[i].nombre + "</button>";
+    }
+    html += "</div></div>";
+    html += bloqueRango("Intensidad", "filtroCantidad", Math.round(estado.filtroCantidad * 100), 5, 100, 1);
+    cuerpoPanel.innerHTML = html;
+  }
+
+  function pintarFoto() {
+    var i, html = '<div class="grupo"><h3>Foto</h3>';
+    html += '<p class="aviso">Este archivo no usa internet. No hay cambio mágico de prenda: recolorea ropa, pelo y piel, y moldea altura o forma sobre la foto.</p>';
+    html += '<button type="button" class="btn primario" id="foto-abrir" style="width:100%">Abrir foto en la capa</button></div>';
+
+    html += '<div class="grupo"><h3>Color de piel</h3><div class="pieles">';
+    for (i = 0; i < PIELES.length; i++) {
+      html += '<button type="button" class="piel" data-piel="' + PIELES[i].hex + '" title="' + PIELES[i].nombre + '" style="background:' + PIELES[i].hex + '"></button>';
+    }
+    html += "</div></div>";
+
+    html += '<div class="grupo"><h3>Color de pelo</h3><div class="swatches">';
+    for (i = 0; i < PELOS.length; i++) {
+      html += '<button type="button" class="swatch" data-pelo="' + PELOS[i] + '" style="background:' + PELOS[i] + '"></button>';
+    }
+    html += "</div></div>";
+
+    html += '<div class="grupo"><h3>Ropa (recolorear)</h3><p class="aviso">Elige un color, pulsa la prenda en la foto. Recolorea tonos parecidos, ropa de diario y vestir.</p><div class="rejilla-btn">';
+    for (i = 0; i < ROPAS.length; i++) {
+      html += '<button type="button" class="btn" data-ropa="' + ROPAS[i].hex + '" title="' + ROPAS[i].hex + '">' + ROPAS[i].nombre + "</button>";
+    }
+    html += "</div></div>";
+
+    html += '<div class="grupo"><h3>Figura</h3><div class="rejilla-btn">';
+    html += '<button type="button" class="btn" data-figura="alto">Más alto</button>';
+    html += '<button type="button" class="btn" data-figura="bajo">Más bajo</button>';
+    html += '<button type="button" class="btn" data-figura="forma">Más en forma</button>';
+    html += '<button type="button" class="btn" data-figura="noforma">Menos en forma</button>';
+    html += "</div></div>";
+
+    html += bloqueRango("Radio moldear", "tamano", estado.tamano, 8, 120, 1);
+    cuerpoPanel.innerHTML = html;
+  }
+
+  function ajustarVista() {
+    var r = escena.getBoundingClientRect();
+    var dpr = window.devicePixelRatio || 1;
+    vista.width = Math.max(1, Math.floor(r.width * dpr));
+    vista.height = Math.max(1, Math.floor(r.height * dpr));
+    vista.style.width = r.width + "px";
+    vista.style.height = r.height + "px";
+    componer();
+  }
+
+  function medidasProyecto() {
+    if (!estado.proyecto) return { w: 1200, h: 1600 };
+    return { w: estado.proyecto.ancho, h: estado.proyecto.alto };
+  }
+
+  function componer() {
+    if (!estado.proyecto) return;
+    var m = medidasProyecto();
+    var dpr = window.devicePixelRatio || 1;
+    var r = escena.getBoundingClientRect();
+    if (r.width < 2 || r.height < 2) return;
+    var zoomAuto = Math.min(r.width / m.w, r.height / m.h);
+    var z = zoomAuto * estado.zoom;
+    var ox = (r.width - m.w * z) / 2 + estado.panX;
+    var oy = (r.height - m.h * z) / 2 + estado.panY;
+    ctxVista.setTransform(dpr, 0, 0, dpr, 0, 0);
+    ctxVista.fillStyle = "#0c0b0a";
+    ctxVista.fillRect(0, 0, r.width, r.height);
+    ctxVista.save();
+    ctxVista.translate(ox, oy);
+    ctxVista.scale(z, z);
+    ctxVista.fillStyle = papelColor();
+    ctxVista.fillRect(0, 0, m.w, m.h);
+    var i;
+    for (i = 0; i < capas.length; i++) {
+      if (!capas[i].visible) continue;
+      ctxVista.globalAlpha = capas[i].opacidad;
+      ctxVista.drawImage(capas[i].lienzo, 0, 0);
+    }
+    ctxVista.globalAlpha = 1;
+    ctxVista.restore();
+    estado._z = z;
+    estado._ox = ox;
+    estado._oy = oy;
+    estado._dpr = dpr;
+  }
+
+  function puntoEnLienzo(ev) {
+    var r = escena.getBoundingClientRect();
+    var x = ev.clientX - r.left;
+    var y = ev.clientY - r.top;
+    var z = estado._z || 1;
+    return { x: (x - (estado._ox || 0)) / z, y: (y - (estado._oy || 0)) / z, p: ev.pressure || 0.6 };
+  }
+
+  function dentro(p) {
+    var m = medidasProyecto();
+    return p.x >= 0 && p.y >= 0 && p.x < m.w && p.y < m.h;
+  }
+
+  function snapshotCapa() {
+    var c = capaActual();
+    if (!c) return null;
+    return c.lienzo.getContext("2d").getImageData(0, 0, c.lienzo.width, c.lienzo.height);
+  }
+
+  function empujarHistorial() {
+    var snap = snapshotCapa();
+    if (!snap) return;
+    historial.push({ capa: estado.capaActiva, datos: snap });
+    if (historial.length > HISTORIAL_MAX) historial.shift();
+    futuro = [];
+    estado.sucio = true;
+  }
+
+  function deshacer() {
+    if (!historial.length) return;
+    var actual = snapshotCapa();
+    var paso = historial.pop();
+    futuro.push({ capa: estado.capaActiva, datos: actual });
+    estado.capaActiva = limitar(paso.capa, 0, capas.length - 1);
+    var c = capaActual();
+    if (c) c.lienzo.getContext("2d").putImageData(paso.datos, 0, 0);
+    componer();
+    decir("Deshecho");
+  }
+
+  function rehacer() {
+    if (!futuro.length) return;
+    var actual = snapshotCapa();
+    var paso = futuro.pop();
+    historial.push({ capa: estado.capaActiva, datos: actual });
+    estado.capaActiva = limitar(paso.capa, 0, capas.length - 1);
+    var c = capaActual();
+    if (c) c.lienzo.getContext("2d").putImageData(paso.datos, 0, 0);
+    componer();
+    decir("Rehecho");
+  }
+
+  function hacerSello() {
+    var clave = estado.pincelId + "|" + estado.tamano + "|" + estado.dureza;
+    if (selloCache && selloClave === clave) return selloCache;
+    var size = Math.max(2, estado.tamano);
+    var s = Math.ceil(size) + 4;
+    var c = document.createElement("canvas");
+    c.width = s; c.height = s;
+    var g = c.getContext("2d");
+    var cx = s / 2, cy = s / 2, r = size / 2;
+    var hard = limitar(estado.dureza, 0, 1);
+    if (estado.pincelId === "rotulador") {
+      g.save(); g.translate(cx, cy); g.rotate(-0.4);
+      g.fillStyle = "#000";
+      g.fillRect(-r * 0.95, -r * 0.38, r * 1.9, r * 0.76);
+      g.restore();
+    } else {
+      var inner = r * hard;
+      var grad = g.createRadialGradient(cx, cy, inner, cx, cy, r);
+      if (estado.pincelId === "aero") {
+        grad.addColorStop(0, "rgba(0,0,0,0.55)");
+        grad.addColorStop(1, "rgba(0,0,0,0)");
+      } else {
+        grad.addColorStop(0, "rgba(0,0,0,1)");
+        grad.addColorStop(Math.min(0.9, hard * 0.7 + 0.2), "rgba(0,0,0,0.85)");
+        grad.addColorStop(1, "rgba(0,0,0,0)");
+      }
+      g.fillStyle = grad;
+      g.beginPath(); g.arc(cx, cy, r, 0, Math.PI * 2); g.fill();
+      if (estado.pincelId === "lapiz" || estado.pincelId === "grafito" || estado.pincelId === "carbon" || estado.pincelId === "seco") {
+        var img = g.getImageData(0, 0, s, s);
+        var d = img.data, y, x, i, n;
+        for (y = 0; y < s; y++) for (x = 0; x < s; x++) {
+          i = (y * s + x) * 4;
+          if (d[i + 3] === 0) continue;
+          n = hash(x * 0.7 + size, y * 1.3);
+          if (n > 0.74) d[i + 3] = d[i + 3] * 0.2;
+        }
+        g.putImageData(img, 0, 0);
+      }
+    }
+    selloCache = c; selloClave = clave;
+    return c;
+  }
+
+  function estampar(ctx, p) {
+    var rgb = hexARgb(estado.color);
+    var sello = hacerSello();
+    var off = document.createElement("canvas");
+    off.width = sello.width; off.height = sello.height;
+    var o = off.getContext("2d");
+    o.fillStyle = "rgb(" + rgb[0] + "," + rgb[1] + "," + rgb[2] + ")";
+    o.fillRect(0, 0, off.width, off.height);
+    o.globalCompositeOperation = "destination-in";
+    o.drawImage(sello, 0, 0);
+    ctx.save();
+    ctx.globalAlpha = limitar(estado.opacidad * estado.flujo, 0.04, 1);
+    if (estado.herramienta === "goma") ctx.globalCompositeOperation = "destination-out";
+    if (estado.pincelId === "trama") {
+      ctx.strokeStyle = estado.color;
+      ctx.lineWidth = Math.max(0.6, estado.tamano * 0.08);
+      ctx.globalAlpha = estado.opacidad;
+      var n = 3 + Math.round(estado.tamano / 10), i, ang = 0.7;
+      for (i = 0; i < n; i++) {
+        var jx = (hash(p.x + i, p.y) - 0.5) * estado.tamano;
+        var jy = (hash(p.y + i, p.x) - 0.5) * estado.tamano;
+        var len = estado.tamano * 0.5;
+        ctx.beginPath();
+        ctx.moveTo(p.x + jx - Math.cos(ang) * len, p.y + jy - Math.sin(ang) * len);
+        ctx.lineTo(p.x + jx + Math.cos(ang) * len, p.y + jy + Math.sin(ang) * len);
+        ctx.stroke();
+      }
+      ctx.restore();
+      return;
+    }
+    if (estado.pincelId === "puntos") {
+      ctx.fillStyle = estado.color;
+      var k, nn = 4 + Math.round(estado.tamano / 4);
+      for (k = 0; k < nn; k++) {
+        var rad = hash(p.x + k * 3, p.y) * estado.tamano * 0.5;
+        var a = hash(p.y, p.x + k * 7) * Math.PI * 2;
+        ctx.globalAlpha = estado.opacidad * (0.5 + hash(k, p.y) * 0.5);
+        ctx.beginPath();
+        ctx.arc(p.x + Math.cos(a) * rad, p.y + Math.sin(a) * rad, 0.6 + hash(k, p.x) * 1.4, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      ctx.restore();
+      return;
+    }
+    ctx.drawImage(off, p.x - off.width / 2, p.y - off.height / 2);
+    ctx.restore();
+  }
+
+  function interpolar(a, b, fn) {
+    var dx = b.x - a.x, dy = b.y - a.y;
+    var dist = Math.hypot(dx, dy);
+    var paso = Math.max(1, estado.tamano * 0.28);
+    var n = Math.ceil(dist / paso), i;
+    for (i = 1; i <= n; i++) {
+      var t = i / n;
+      fn({ x: a.x + dx * t, y: a.y + dy * t, p: a.p + (b.p - a.p) * t });
+    }
+  }
+
+  function coloresCerca(r1, g1, b1, a1, r2, g2, b2, a2, tol) {
+    return Math.abs(r1 - r2) <= tol && Math.abs(g1 - g2) <= tol && Math.abs(b1 - b2) <= tol && Math.abs(a1 - a2) <= tol + 4;
+  }
+
+  function rellenar(sx, sy, color, tol) {
+    var c = capaActual();
+    if (!c) return;
+    var ctx = c.lienzo.getContext("2d");
+    var img = ctx.getImageData(0, 0, c.lienzo.width, c.lienzo.height);
+    var w = img.width, h = img.height, data = img.data;
+    var x0 = Math.floor(sx), y0 = Math.floor(sy);
+    if (x0 < 0 || y0 < 0 || x0 >= w || y0 >= h) return;
+    var i0 = (y0 * w + x0) * 4;
+    var tr = data[i0], tg = data[i0 + 1], tb = data[i0 + 2], ta = data[i0 + 3];
+    var nr = color[0], ng = color[1], nb = color[2], na = color[3];
+    if (coloresCerca(tr, tg, tb, ta, nr, ng, nb, na, 2)) return;
+    var visto = new Uint8Array(w * h);
+    var pila = [x0, y0];
+    function match(x, y) {
+      var i = (y * w + x) * 4;
+      return coloresCerca(data[i], data[i + 1], data[i + 2], data[i + 3], tr, tg, tb, ta, tol);
+    }
+    while (pila.length) {
+      var y = pila.pop();
+      var x = pila.pop();
+      var lx = x;
+      while (lx >= 0 && match(lx, y) && !visto[y * w + lx]) lx--;
+      lx++;
+      var up = false, down = false;
+      while (lx < w && match(lx, y) && !visto[y * w + lx]) {
+        var i = (y * w + lx) * 4;
+        data[i] = nr; data[i + 1] = ng; data[i + 2] = nb; data[i + 3] = na;
+        visto[y * w + lx] = 1;
+        if (y > 0) {
+          var u = match(lx, y - 1) && !visto[(y - 1) * w + lx];
+          if (u && !up) { pila.push(lx, y - 1); up = true; } else if (!u) up = false;
+        }
+        if (y < h - 1) {
+          var dv = match(lx, y + 1) && !visto[(y + 1) * w + lx];
+          if (dv && !down) { pila.push(lx, y + 1); down = true; } else if (!dv) down = false;
+        }
+        lx++;
+      }
+    }
+    ctx.putImageData(img, 0, 0);
+  }
+
+  function muestrear(src, w, h, x, y) {
+    var xx = limitar(x, 0, w - 1), yy = limitar(y, 0, h - 1);
+    var x0 = Math.floor(xx), y0 = Math.floor(yy);
+    var x1 = x0 + 1 < w ? x0 + 1 : x0, y1 = y0 + 1 < h ? y0 + 1 : y0;
+    var fx = xx - x0, fy = yy - y0;
+    var i00 = (y0 * w + x0) * 4, i10 = (y0 * w + x1) * 4, i01 = (y1 * w + x0) * 4, i11 = (y1 * w + x1) * 4;
+    var out = [0, 0, 0, 0], c, v0, v1;
+    for (c = 0; c < 4; c++) {
+      v0 = src[i00 + c] * (1 - fx) + src[i10 + c] * fx;
+      v1 = src[i01 + c] * (1 - fx) + src[i11 + c] * fx;
+      out[c] = v0 * (1 - fy) + v1 * fy;
+    }
+    return out;
+  }
+
+  function parcheRecolor(img, cx, cy, radio, hex, flujo, dureza) {
+    var w = img.width, h = img.height, data = img.data;
+    var hsl = rgbAHsl.apply(null, hexARgb(hex));
+    var th = hsl[0], ts = hsl[1];
+    var r = Math.max(2, radio), hard = limitar(dureza, 0, 1), inner = r * hard;
+    var amount = limitar(flujo, 0.04, 1);
+    var x0 = Math.max(0, Math.floor(cx - r - 1));
+    var y0 = Math.max(0, Math.floor(cy - r - 1));
+    var x1 = Math.min(w, Math.ceil(cx + r + 1));
+    var y1 = Math.min(h, Math.ceil(cy + r + 1));
+    var x, y, i, dx, dy, dist, t, a, sr, sg, sb, sa, l, dest;
+    for (y = y0; y < y1; y++) for (x = x0; x < x1; x++) {
+      dx = x + 0.5 - cx; dy = y + 0.5 - cy; dist = Math.hypot(dx, dy);
+      if (dist > r) continue;
+      t = dist <= inner ? 1 : 1 - (dist - inner) / Math.max(0.001, r - inner);
+      a = t * t * amount;
+      if (a < 0.01) continue;
+      i = (y * w + x) * 4;
+      sr = data[i]; sg = data[i + 1]; sb = data[i + 2]; sa = data[i + 3];
+      if (sa < 8) continue;
+      l = rgbAHsl(sr, sg, sb)[2];
+      dest = hslARgb(th, ts, l);
+      data[i] = mezclarByte(sr, dest[0], a);
+      data[i + 1] = mezclarByte(sg, dest[1], a);
+      data[i + 2] = mezclarByte(sb, dest[2], a);
+    }
+  }
+
+  function parcheMoldear(img, cx, cy, radio, fuerza) {
+    var w = img.width, h = img.height, data = img.data;
+    var src = new Uint8ClampedArray(data);
+    var r = Math.max(4, radio), k = limitar(fuerza, -0.45, 0.45);
+    var x0 = Math.max(0, Math.floor(cx - r - 1));
+    var y0 = Math.max(0, Math.floor(cy - r - 1));
+    var x1 = Math.min(w, Math.ceil(cx + r + 1));
+    var y1 = Math.min(h, Math.ceil(cy + r + 1));
+    var x, y, i, dx, dy, dist, t, factor, muestra;
+    for (y = y0; y < y1; y++) for (x = x0; x < x1; x++) {
+      dx = x + 0.5 - cx; dy = y + 0.5 - cy; dist = Math.hypot(dx, dy);
+      if (dist > r || dist < 0.001) continue;
+      t = 1 - dist / r; factor = 1 - k * t * t;
+      muestra = muestrear(src, w, h, cx + dx * factor, cy + dy * factor);
+      i = (y * w + x) * 4;
+      data[i] = muestra[0]; data[i + 1] = muestra[1]; data[i + 2] = muestra[2]; data[i + 3] = muestra[3];
+    }
+  }
+
+  function parcheEmborronar(img, cx, cy, radio) {
+    var w = img.width, h = img.height, data = img.data;
+    var src = new Uint8ClampedArray(data);
+    var r = Math.max(3, radio);
+    var x0 = Math.max(0, Math.floor(cx - r));
+    var y0 = Math.max(0, Math.floor(cy - r));
+    var x1 = Math.min(w, Math.ceil(cx + r));
+    var y1 = Math.min(h, Math.ceil(cy + r));
+    var x, y, i, dx, dy, dist, muestra, a;
+    for (y = y0; y < y1; y++) for (x = x0; x < x1; x++) {
+      dx = x + 0.5 - cx; dy = y + 0.5 - cy; dist = Math.hypot(dx, dy);
+      if (dist > r) continue;
+      a = (1 - dist / r) * 0.35 * estado.flujo;
+      muestra = muestrear(src, w, h, x - dx * 0.15, y - dy * 0.15);
+      i = (y * w + x) * 4;
+      data[i] = mezclarByte(data[i], muestra[0], a);
+      data[i + 1] = mezclarByte(data[i + 1], muestra[1], a);
+      data[i + 2] = mezclarByte(data[i + 2], muestra[2], a);
+    }
+  }
+
+  function aplicarSobreCapa(fn) {
+    var c = capaActual();
+    if (!c) return;
+    empujarHistorial();
+    var ctx = c.lienzo.getContext("2d");
+    var img = ctx.getImageData(0, 0, c.lienzo.width, c.lienzo.height);
+    fn(img);
+    ctx.putImageData(img, 0, 0);
+    componer();
+    estado.sucio = true;
+  }
+
+  function aGris(img) {
+    var d = img.data, i, y;
+    for (i = 0; i < d.length; i += 4) {
+      y = 0.2126 * d[i] + 0.7152 * d[i + 1] + 0.0722 * d[i + 2];
+      d[i] = d[i + 1] = d[i + 2] = y;
+    }
+  }
+  function invertir(img) {
+    var d = img.data, i;
+    for (i = 0; i < d.length; i += 4) {
+      if (!d[i + 3]) continue;
+      d[i] = 255 - d[i]; d[i + 1] = 255 - d[i + 1]; d[i + 2] = 255 - d[i + 2];
+    }
+  }
+  function luminanciaEn(src, w, h, x, y) {
+    var xx = x < 0 ? 0 : x >= w ? w - 1 : x;
+    var yy = y < 0 ? 0 : y >= h ? h - 1 : y;
+    var i = (yy * w + xx) * 4;
+    return 0.2126 * src[i] + 0.7152 * src[i + 1] + 0.0722 * src[i + 2];
+  }
+  function posterizar(img, niveles) {
+    var n = Math.max(2, Math.round(niveles));
+    var step = 255 / (n - 1);
+    var d = img.data, i, k;
+    for (i = 0; i < d.length; i += 4) {
+      if (!d[i + 3]) continue;
+      for (k = 0; k < 3; k++) d[i + k] = Math.round(d[i + k] / step) * step;
+    }
+  }
+  function saturar(img, factor) {
+    var d = img.data, i, hsl, rgb;
+    for (i = 0; i < d.length; i += 4) {
+      if (!d[i + 3]) continue;
+      hsl = rgbAHsl(d[i], d[i + 1], d[i + 2]);
+      rgb = hslARgb(hsl[0], limitar(hsl[1] * factor, 0, 1), hsl[2]);
+      d[i] = rgb[0]; d[i + 1] = rgb[1]; d[i + 2] = rgb[2];
+    }
+  }
+  function contrasteBrillo(img, brillo, contraste) {
+    var d = img.data, b = brillo * 255, c = contraste;
+    var factor = (259 * (c * 255 + 255)) / (255 * (259 - c * 255));
+    var i, k, v;
+    for (i = 0; i < d.length; i += 4) {
+      if (!d[i + 3]) continue;
+      for (k = 0; k < 3; k++) {
+        v = factor * (d[i + k] + b - 128) + 128;
+        d[i + k] = limitar(v, 0, 255);
+      }
+    }
+  }
+  function umbral(img, corte) {
+    var d = img.data, i, y, v;
+    for (i = 0; i < d.length; i += 4) {
+      if (!d[i + 3]) continue;
+      y = 0.2126 * d[i] + 0.7152 * d[i + 1] + 0.0722 * d[i + 2];
+      v = y < corte ? 16 : 245;
+      d[i] = d[i + 1] = d[i + 2] = v;
+    }
+  }
+  function sepia(img, a) {
+    var d = img.data, i, r, g, b;
+    for (i = 0; i < d.length; i += 4) {
+      if (!d[i + 3]) continue;
+      r = d[i]; g = d[i + 1]; b = d[i + 2];
+      d[i] = mezclarByte(r, limitar(r * 0.393 + g * 0.769 + b * 0.189, 0, 255), a);
+      d[i + 1] = mezclarByte(g, limitar(r * 0.349 + g * 0.686 + b * 0.168, 0, 255), a);
+      d[i + 2] = mezclarByte(b, limitar(r * 0.272 + g * 0.534 + b * 0.131, 0, 255), a);
+    }
+  }
+  function viñeta(img, a) {
+    var w = img.width, h = img.height, d = img.data;
+    var cx = w / 2, cy = h / 2, max = Math.hypot(cx, cy);
+    var x, y, i, t;
+    for (y = 0; y < h; y++) for (x = 0; x < w; x++) {
+      i = (y * w + x) * 4;
+      t = Math.hypot(x - cx, y - cy) / max;
+      t = limitar((t - 0.35) / 0.65, 0, 1) * a;
+      d[i] = d[i] * (1 - t); d[i + 1] = d[i + 1] * (1 - t); d[i + 2] = d[i + 2] * (1 - t);
+    }
+  }
+  function ruido(img, a) {
+    var d = img.data, i, n;
+    for (i = 0; i < d.length; i += 4) {
+      if (!d[i + 3]) continue;
+      n = (Math.random() - 0.5) * 2 * a * 40;
+      d[i] = limitar(d[i] + n, 0, 255);
+      d[i + 1] = limitar(d[i + 1] + n, 0, 255);
+      d[i + 2] = limitar(d[i + 2] + n, 0, 255);
+    }
+  }
+  function nitidez(img) {
+    var w = img.width, h = img.height, data = img.data;
+    var src = new Uint8ClampedArray(data);
+    var k = [0, -1, 0, -1, 5, -1, 0, -1, 0];
+    var y, x, c, acc, ki, ky, kx;
+    for (y = 1; y < h - 1; y++) for (x = 1; x < w - 1; x++) for (c = 0; c < 3; c++) {
+      acc = 0; ki = 0;
+      for (ky = -1; ky <= 1; ky++) for (kx = -1; kx <= 1; kx++) {
+        acc += src[((y + ky) * w + (x + kx)) * 4 + c] * k[ki];
+        ki++;
+      }
+      data[(y * w + x) * 4 + c] = limitar(acc, 0, 255);
+    }
+  }
+  function boxBlur(img, radio) {
+    var r = Math.max(1, Math.round(radio));
+    var w = img.width, h = img.height, data = img.data;
+    var src = new Uint8ClampedArray(data);
+    var tmp = new Uint8ClampedArray(data.length);
+    var x, y, k, xx, yy, i, o, rs, gs, bs, as, n;
+    for (y = 0; y < h; y++) for (x = 0; x < w; x++) {
+      rs = gs = bs = as = n = 0;
+      for (k = -r; k <= r; k++) {
+        xx = x + k; if (xx < 0 || xx >= w) continue;
+        i = (y * w + xx) * 4;
+        rs += src[i]; gs += src[i + 1]; bs += src[i + 2]; as += src[i + 3]; n++;
+      }
+      o = (y * w + x) * 4;
+      tmp[o] = rs / n; tmp[o + 1] = gs / n; tmp[o + 2] = bs / n; tmp[o + 3] = as / n;
+    }
+    for (y = 0; y < h; y++) for (x = 0; x < w; x++) {
+      rs = gs = bs = as = n = 0;
+      for (k = -r; k <= r; k++) {
+        yy = y + k; if (yy < 0 || yy >= h) continue;
+        i = (yy * w + x) * 4;
+        rs += tmp[i]; gs += tmp[i + 1]; bs += tmp[i + 2]; as += tmp[i + 3]; n++;
+      }
+      o = (y * w + x) * 4;
+      data[o] = rs / n; data[o + 1] = gs / n; data[o + 2] = bs / n; data[o + 3] = as / n;
+    }
+  }
+  function filtroComic(img, amount) {
+    var w = img.width, h = img.height, data = img.data;
+    var src = new Uint8ClampedArray(data);
+    saturar(img, 1.15 + amount * 0.55);
+    posterizar(img, 4 + Math.round(amount * 3));
+    var edgeCut = 38 + amount * 70, x, y, i, gx, gy;
+    for (y = 0; y < h; y++) for (x = 0; x < w; x++) {
+      i = (y * w + x) * 4;
+      if (src[i + 3] < 8) continue;
+      gx = -luminanciaEn(src, w, h, x - 1, y - 1) + luminanciaEn(src, w, h, x + 1, y - 1)
+        - 2 * luminanciaEn(src, w, h, x - 1, y) + 2 * luminanciaEn(src, w, h, x + 1, y)
+        - luminanciaEn(src, w, h, x - 1, y + 1) + luminanciaEn(src, w, h, x + 1, y + 1);
+      gy = -luminanciaEn(src, w, h, x - 1, y - 1) - 2 * luminanciaEn(src, w, h, x, y - 1) - luminanciaEn(src, w, h, x + 1, y - 1)
+        + luminanciaEn(src, w, h, x - 1, y + 1) + 2 * luminanciaEn(src, w, h, x, y + 1) + luminanciaEn(src, w, h, x + 1, y + 1);
+      if (Math.hypot(gx, gy) > edgeCut) { data[i] = 18; data[i + 1] = 16; data[i + 2] = 14; }
+    }
+  }
+  function filtroOleo(img, amount) {
+    /* Por qué reducimos: el óleo mira vecinos por cada píxel; a 4K se queda tieso en un teléfono. */
+    var w = img.width, h = img.height;
+    var trabajo = img;
+    var escala = 1;
+    if (w * h > 900 * 900) {
+      escala = Math.sqrt((900 * 900) / (w * h));
+      var cw = Math.max(2, Math.round(w * escala)), ch = Math.max(2, Math.round(h * escala));
+      var mini = document.createElement("canvas");
+      mini.width = cw; mini.height = ch;
+      var mctx = mini.getContext("2d");
+      var full = document.createElement("canvas");
+      full.width = w; full.height = h;
+      full.getContext("2d").putImageData(img, 0, 0);
+      mctx.drawImage(full, 0, 0, cw, ch);
+      trabajo = mctx.getImageData(0, 0, cw, ch);
+    }
+    var tw = trabajo.width, th = trabajo.height, data = trabajo.data;
+    var src = new Uint8ClampedArray(data);
+    var radius = amount < 0.55 ? 2 : 3;
+    var levels = 6 + Math.round(amount * 6);
+    var hist = new Int32Array(levels);
+    var rs = new Float64Array(levels);
+    var gs = new Float64Array(levels);
+    var bs = new Float64Array(levels);
+    var x, y, o, x0, x1, y0, y1, yy, xx, i, yv, bin, best, bestN, b;
+    for (y = 0; y < th; y++) for (x = 0; x < tw; x++) {
+      o = (y * tw + x) * 4;
+      if (src[o + 3] < 8) continue;
+      hist.fill(0); rs.fill(0); gs.fill(0); bs.fill(0);
+      x0 = x - radius < 0 ? 0 : x - radius;
+      x1 = x + radius >= tw ? tw - 1 : x + radius;
+      y0 = y - radius < 0 ? 0 : y - radius;
+      y1 = y + radius >= th ? th - 1 : y + radius;
+      for (yy = y0; yy <= y1; yy++) for (xx = x0; xx <= x1; xx++) {
+        i = (yy * tw + xx) * 4;
+        if (src[i + 3] < 8) continue;
+        yv = 0.2126 * src[i] + 0.7152 * src[i + 1] + 0.0722 * src[i + 2];
+        bin = Math.floor((yv / 256) * levels);
+        if (bin >= levels) bin = levels - 1;
+        hist[bin] += 1; rs[bin] += src[i]; gs[bin] += src[i + 1]; bs[bin] += src[i + 2];
+      }
+      best = 0; bestN = 0;
+      for (b = 0; b < levels; b++) if (hist[b] > bestN) { bestN = hist[b]; best = b; }
+      if (!bestN) continue;
+      data[o] = rs[best] / bestN; data[o + 1] = gs[best] / bestN; data[o + 2] = bs[best] / bestN;
+    }
+    if (escala !== 1) {
+      var mini2 = document.createElement("canvas");
+      mini2.width = tw; mini2.height = th;
+      mini2.getContext("2d").putImageData(trabajo, 0, 0);
+      var dest = document.createElement("canvas");
+      dest.width = w; dest.height = h;
+      dest.getContext("2d").drawImage(mini2, 0, 0, w, h);
+      img.data.set(dest.getContext("2d").getImageData(0, 0, w, h).data);
+    }
+  }
+  function filtroDibujo(img, amount) {
+    var w = img.width, h = img.height;
+    var gray = new ImageData(w, h);
+    gray.data.set(img.data);
+    aGris(gray);
+    var inv = new ImageData(w, h);
+    inv.data.set(gray.data);
+    invertir(inv);
+    boxBlur(inv, 2 + Math.round(amount * 4));
+    var g = gray.data, b = inv.data, d = img.data, i, dodge, v, mix = 0.55 + amount * 0.4;
+    for (i = 0; i < d.length; i += 4) {
+      if (d[i + 3] < 8) continue;
+      dodge = Math.min(255, (g[i] * 255) / Math.max(1, 255 - b[i]));
+      v = mezclarByte(g[i], dodge, mix);
+      d[i] = mezclarByte(v, 236, 0.08);
+      d[i + 1] = mezclarByte(v, 230, 0.08);
+      d[i + 2] = mezclarByte(v, 218, 0.08);
+    }
+  }
+  function duotono(img, hex) {
+    var rgb = hexARgb(hex);
+    var d = img.data, i, y;
+    for (i = 0; i < d.length; i += 4) {
+      if (!d[i + 3]) continue;
+      y = (0.2126 * d[i] + 0.7152 * d[i + 1] + 0.0722 * d[i + 2]) / 255;
+      d[i] = mezclarByte(20, rgb[0], y);
+      d[i + 1] = mezclarByte(16, rgb[1], y);
+      d[i + 2] = mezclarByte(14, rgb[2], y);
+    }
+  }
+
+  function aplicarFiltro(id) {
+    var v = estado.filtroCantidad;
+    aplicarSobreCapa(function (img) {
+      if (id === "comic") filtroComic(img, v);
+      else if (id === "oleo") filtroOleo(img, v);
+      else if (id === "dibujo") filtroDibujo(img, v);
+      else if (id === "umbral") umbral(img, 40 + v * 180);
+      else if (id === "gris") aGris(img);
+      else if (id === "contraste") contrasteBrillo(img, 0, v * 0.7 - 0.1);
+      else if (id === "saturar") saturar(img, 1 + v * 1.4);
+      else if (id === "desaturar") saturar(img, 1 - v);
+      else if (id === "vintage") { sepia(img, 0.45); viñeta(img, 0.4); ruido(img, 0.2); }
+      else if (id === "sepia") sepia(img, 0.35 + v * 0.65);
+      else if (id === "duotono") duotono(img, estado.color);
+      else if (id === "nitidez") nitidez(img);
+      else if (id === "viñeta") viñeta(img, 0.25 + v * 0.7);
+      else if (id === "invertir") invertir(img);
+      else if (id === "poster") posterizar(img, 2 + Math.round(v * 6));
+      else if (id === "ruido") ruido(img, 0.2 + v * 0.8);
+    });
+    decir("Filtro " + id);
+  }
+
+  function parecePiel(h, s, l) {
+    var g = h * 360;
+    return (g < 52 || g > 338) && s > 0.1 && s < 0.68 && l > 0.16 && l < 0.88;
+  }
+
+  function aplicarPiel(hex) {
+    var dest = rgbAHsl.apply(null, hexARgb(hex));
+    aplicarSobreCapa(function (img) {
+      var d = img.data, i, hsl, rgb, a;
+      for (i = 0; i < d.length; i += 4) {
+        if (d[i + 3] < 8) continue;
+        hsl = rgbAHsl(d[i], d[i + 1], d[i + 2]);
+        if (!parecePiel(hsl[0], hsl[1], hsl[2])) continue;
+        a = 0.72;
+        rgb = hslARgb(dest[0], dest[1], hsl[2] * 0.35 + dest[2] * 0.65);
+        d[i] = mezclarByte(d[i], rgb[0], a);
+        d[i + 1] = mezclarByte(d[i + 1], rgb[1], a);
+        d[i + 2] = mezclarByte(d[i + 2], rgb[2], a);
+      }
+    });
+    decir("Piel aplicada. Si pinta ropa, Deshacer y usa Recolor en la piel.");
+  }
+
+  function recolorearSimilares(sx, sy, hex) {
+    var c = capaActual();
+    if (!c) return;
+    empujarHistorial();
+    var ctx = c.lienzo.getContext("2d");
+    var img = ctx.getImageData(0, 0, c.lienzo.width, c.lienzo.height);
+    var w = img.width, h = img.height, data = img.data;
+    var x0 = limitar(Math.floor(sx), 0, w - 1);
+    var y0 = limitar(Math.floor(sy), 0, h - 1);
+    var i0 = (y0 * w + x0) * 4;
+    var tr = data[i0], tg = data[i0 + 1], tb = data[i0 + 2];
+    var destH = rgbAHsl.apply(null, hexARgb(hex));
+    var i, hsl, rgb, dist;
+    for (i = 0; i < data.length; i += 4) {
+      if (data[i + 3] < 8) continue;
+      dist = Math.abs(data[i] - tr) + Math.abs(data[i + 1] - tg) + Math.abs(data[i + 2] - tb);
+      if (dist > 95) continue;
+      hsl = rgbAHsl(data[i], data[i + 1], data[i + 2]);
+      rgb = hslARgb(destH[0], destH[1], hsl[2]);
+      data[i] = rgb[0]; data[i + 1] = rgb[1]; data[i + 2] = rgb[2];
+    }
+    ctx.putImageData(img, 0, 0);
+    componer();
+    decir("Recolor de tonos parecidos");
+  }
+
+  function deformarFigura(modo) {
+    /* Por qué muestrear y no estirar el canvas: así el papel no cambia de tamaño
+       y el sujeto se alarga o se estrecha dentro del mismo marco. */
+    aplicarSobreCapa(function (img) {
+      var w = img.width, h = img.height, data = img.data;
+      var src = new Uint8ClampedArray(data);
+      var cx = w / 2, cy = h / 2;
+      var x, y, i, sx, sy, muestra, nx, ny, t, fall;
+      for (y = 0; y < h; y++) for (x = 0; x < w; x++) {
+        sx = x; sy = y;
+        if (modo === "alto") sy = cy + (y - cy) / 1.08;
+        else if (modo === "bajo") sy = cy + (y - cy) / 0.93;
+        else {
+          ny = (y - cy) / (h / 2);
+          t = 1 - Math.min(1, Math.abs(ny));
+          fall = t * t;
+          if (modo === "forma") sx = cx + (x - cx) * (1 + 0.12 * fall);
+          else sx = cx + (x - cx) * (1 - 0.1 * fall);
+        }
+        muestra = muestrear(src, w, h, sx, sy);
+        i = (y * w + x) * 4;
+        data[i] = muestra[0]; data[i + 1] = muestra[1]; data[i + 2] = muestra[2]; data[i + 3] = muestra[3];
+      }
+    });
+    decir("Figura: " + modo);
+  }
+
+  function nuevaCapa(nombre, w, h) {
+    var lienzo = document.createElement("canvas");
+    lienzo.width = w; lienzo.height = h;
+    return { id: nuevoId("capa"), nombre: nombre || "Capa", visible: true, opacidad: 1, lienzo: lienzo };
+  }
+
+  function proyectoVacio(talla, papelId) {
+    var p = {
+      id: nuevoId("lamina"),
+      nombre: "Lámina",
+      ancho: talla.w,
+      alto: talla.h,
+      papel: papelId || "marfil",
+      creado: Date.now(),
+      actualizado: Date.now()
+    };
+    estado.proyecto = p;
+    estado.capaActiva = 0;
+    estado.zoom = 1;
+    estado.panX = 0;
+    estado.panY = 0;
+    capas = [nuevaCapa("Tinta", p.ancho, p.alto)];
+    historial = []; futuro = [];
+    estado.sucio = false;
+    document.getElementById("nombre-lamina").value = p.nombre;
+    mostrarEstudio();
+    ajustarVista();
+    decir(talla.nombre + " · " + talla.w + "×" + talla.h);
+  }
+
+  function mostrarGaleria() {
+    estado.pantalla = "galeria";
+    document.getElementById("pantalla-galeria").classList.add("activa");
+    document.getElementById("pantalla-estudio").classList.remove("activa");
+    document.getElementById("nombre-lamina").value = "";
+    cargarGaleria();
+  }
+
+  function mostrarEstudio() {
+    estado.pantalla = "estudio";
+    document.getElementById("pantalla-galeria").classList.remove("activa");
+    document.getElementById("pantalla-estudio").classList.add("activa");
+    pintarRail();
+    pintarPanel();
+    requestAnimationFrame(function () {
+      requestAnimationFrame(ajustarVista);
+    });
+  }
+
+  function abrirBd() {
+    return new Promise(function (ok, mal) {
+      if (!window.indexedDB) { mal(new Error("sin bd")); return; }
+      var req = indexedDB.open(BD_NOMBRE, 1);
+      req.onupgradeneeded = function () {
+        var db = req.result;
+        if (!db.objectStoreNames.contains(BD_STORE)) db.createObjectStore(BD_STORE, { keyPath: "id" });
+      };
+      req.onsuccess = function () { ok(req.result); };
+      req.onerror = function () { mal(req.error); };
+    });
+  }
+
+  function capasAPng() {
+    return capas.map(function (c) {
+      return { nombre: c.nombre, visible: c.visible, opacidad: c.opacidad, png: c.lienzo.toDataURL("image/png") };
+    });
+  }
+
+  function pngACapas(lista, w, h) {
+    return Promise.all(lista.map(function (item) {
+      return new Promise(function (ok) {
+        var capa = nuevaCapa(item.nombre, w, h);
+        capa.visible = item.visible !== false;
+        capa.opacidad = item.opacidad || 1;
+        var im = new Image();
+        im.onload = function () {
+          capa.lienzo.getContext("2d").drawImage(im, 0, 0);
+          ok(capa);
+        };
+        im.onerror = function () { ok(capa); };
+        im.src = item.png;
+      });
+    }));
+  }
+
+  function guardarProyecto() {
+    if (!estado.proyecto) return Promise.resolve();
+    estado.proyecto.actualizado = Date.now();
+    var mini = document.createElement("canvas");
+    mini.width = 240; mini.height = 180;
+    var g = mini.getContext("2d");
+    g.fillStyle = papelColor();
+    g.fillRect(0, 0, 240, 180);
+    var m = medidasProyecto();
+    var z = Math.min(240 / m.w, 180 / m.h);
+    g.drawImage(componerFuera(), (240 - m.w * z) / 2, (180 - m.h * z) / 2, m.w * z, m.h * z);
+    var registro = {
+      id: estado.proyecto.id,
+      nombre: estado.proyecto.nombre,
+      ancho: estado.proyecto.ancho,
+      alto: estado.proyecto.alto,
+      papel: estado.proyecto.papel,
+      creado: estado.proyecto.creado,
+      actualizado: estado.proyecto.actualizado,
+      capas: capasAPng(),
+      mini: mini.toDataURL("image/jpeg", 0.7)
+    };
+    return abrirBd().then(function (db) {
+      return new Promise(function (ok, mal) {
+        var tx = db.transaction(BD_STORE, "readwrite");
+        tx.objectStore(BD_STORE).put(registro);
+        tx.oncomplete = function () { estado.sucio = false; decir("Guardado en este navegador"); ok(); };
+        tx.onerror = function () { mal(tx.error); };
+      });
+    }).catch(function () {
+      decir("No se pudo guardar aquí. Exporta una Copia o un PNG.");
+    });
+  }
+
+  function componerFuera() {
+    var m = medidasProyecto();
+    var c = document.createElement("canvas");
+    c.width = m.w; c.height = m.h;
+    var g = c.getContext("2d");
+    g.fillStyle = papelColor();
+    g.fillRect(0, 0, m.w, m.h);
+    var i;
+    for (i = 0; i < capas.length; i++) {
+      if (!capas[i].visible) continue;
+      g.globalAlpha = capas[i].opacidad;
+      g.drawImage(capas[i].lienzo, 0, 0);
+    }
+    g.globalAlpha = 1;
+    return c;
+  }
+
+  function listarLaminas() {
+    return abrirBd().then(function (db) {
+      return new Promise(function (ok, mal) {
+        var tx = db.transaction(BD_STORE, "readonly");
+        var req = tx.objectStore(BD_STORE).getAll();
+        req.onsuccess = function () { ok(req.result || []); };
+        req.onerror = function () { mal(req.error); };
+      });
+    }).catch(function () { return []; });
+  }
+
+  function borrarLamina(id) {
+    return abrirBd().then(function (db) {
+      return new Promise(function (ok) {
+        var tx = db.transaction(BD_STORE, "readwrite");
+        tx.objectStore(BD_STORE).delete(id);
+        tx.oncomplete = function () { ok(); };
+      });
+    });
+  }
+
+  function abrirLamina(reg) {
+    estado.proyecto = {
+      id: reg.id, nombre: reg.nombre, ancho: reg.ancho, alto: reg.alto,
+      papel: reg.papel, creado: reg.creado, actualizado: reg.actualizado
+    };
+    document.getElementById("nombre-lamina").value = reg.nombre;
+    pngACapas(reg.capas || [], reg.ancho, reg.alto).then(function (cs) {
+      capas = cs.length ? cs : [nuevaCapa("Tinta", reg.ancho, reg.alto)];
+      estado.capaActiva = capas.length - 1;
+      historial = []; futuro = [];
+      mostrarEstudio();
+      decir(reg.nombre);
+    });
+  }
+
+  function cargarGaleria() {
+    var rejilla = document.getElementById("rejilla");
+    listarLaminas().then(function (lista) {
+      lista.sort(function (a, b) { return (b.actualizado || 0) - (a.actualizado || 0); });
+      if (!lista.length) {
+        rejilla.innerHTML = '<p class="vacio">Aún no hay láminas. Crea una o abre una foto.</p>';
+        return;
+      }
+      var html = "", i;
+      for (i = 0; i < lista.length; i++) {
+        var l = lista[i];
+        html += '<article class="tarjeta" data-id="' + l.id + '">';
+        html += '<div class="mini" data-abrir="' + l.id + '"><img alt="" src="' + (l.mini || "") + '"></div>';
+        html += '<div class="meta"><strong>' + (l.nombre || "Lámina") + "</strong>";
+        html += '<button type="button" class="btn ico" data-del="' + l.id + '" title="Borrar">✕</button></div></article>';
+      }
+      rejilla.innerHTML = html;
+    });
+  }
+
+  function exportarPng() {
+    if (!estado.proyecto) return;
+    var a = document.createElement("a");
+    a.href = componerFuera().toDataURL("image/png");
+    a.download = (estado.proyecto.nombre || "tinta") + ".png";
+    document.body.appendChild(a); a.click(); a.remove();
+    decir("PNG guardado");
+  }
+
+  function exportarCopia() {
+    if (!estado.proyecto) return;
+    var paquete = {
+      tinta: 1,
+      proyecto: estado.proyecto,
+      capas: capasAPng()
+    };
+    var blob = new Blob([JSON.stringify(paquete)], { type: "application/json" });
+    var a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = (estado.proyecto.nombre || "tinta") + ".tinta.json";
+    document.body.appendChild(a); a.click(); a.remove();
+    decir("Copia exportada");
+  }
+
+  function importarCopia(archivo) {
+    var lector = new FileReader();
+    lector.onload = function () {
+      try {
+        var paquete = JSON.parse(String(lector.result || ""));
+        if (!paquete || !paquete.proyecto) throw new Error("archivo");
+        abrirLamina({
+          id: paquete.proyecto.id || nuevoId("lamina"),
+          nombre: paquete.proyecto.nombre || "Copia",
+          ancho: paquete.proyecto.ancho,
+          alto: paquete.proyecto.alto,
+          papel: paquete.proyecto.papel,
+          creado: paquete.proyecto.creado || Date.now(),
+          actualizado: Date.now(),
+          capas: paquete.capas || []
+        });
+      } catch (e) {
+        decir("Esa copia no se entiende");
+      }
+    };
+    lector.readAsText(archivo);
+  }
+
+  function abrirFotoArchivo(archivo) {
+    var lector = new FileReader();
+    lector.onload = function () {
+      var im = new Image();
+      im.onload = function () {
+        var w = im.naturalWidth, h = im.naturalHeight;
+        var maxLado = 2048;
+        if (Math.max(w, h) > maxLado) {
+          var f = maxLado / Math.max(w, h);
+          w = Math.round(w * f); h = Math.round(h * f);
+        }
+        if (!estado.proyecto || estado.pantalla !== "estudio") {
+          proyectoVacio({ id: "foto", nombre: "Foto", w: w, h: h }, "blanco");
+        }
+        var capa = nuevaCapa("Foto", estado.proyecto.ancho, estado.proyecto.alto);
+        var g = capa.lienzo.getContext("2d");
+        var z = Math.min(estado.proyecto.ancho / w, estado.proyecto.alto / h);
+        var dw = w * z, dh = h * z;
+        g.drawImage(im, (estado.proyecto.ancho - dw) / 2, (estado.proyecto.alto - dh) / 2, dw, dh);
+        capas.push(capa);
+        estado.capaActiva = capas.length - 1;
+        mostrarEstudio();
+        pintarPanel();
+        componer();
+        estado.sucio = true;
+        decir("Foto en capa nueva");
+      };
+      im.src = String(lector.result || "");
+    };
+    lector.readAsDataURL(archivo);
+  }
+
+  function trazoForma(ctx, a, b) {
+    ctx.save();
+    ctx.strokeStyle = estado.color;
+    ctx.fillStyle = estado.color;
+    ctx.globalAlpha = estado.opacidad;
+    ctx.lineWidth = Math.max(1, estado.tamano * 0.35);
+    ctx.lineCap = "round";
+    if (estado.herramienta === "linea") {
+      ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y); ctx.stroke();
+    } else if (estado.herramienta === "rect") {
+      ctx.strokeRect(Math.min(a.x, b.x), Math.min(a.y, b.y), Math.abs(b.x - a.x), Math.abs(b.y - a.y));
+    } else {
+      ctx.beginPath();
+      ctx.ellipse((a.x + b.x) / 2, (a.y + b.y) / 2, Math.abs(b.x - a.x) / 2, Math.abs(b.y - a.y) / 2, 0, 0, Math.PI * 2);
+      ctx.stroke();
+    }
+    ctx.restore();
+  }
+
+  var borradorForma = null;
+
+  function enPunteroAbajo(ev) {
+    if (estado.pantalla !== "estudio" || !estado.proyecto) return;
+    if (ev.button === 1 || estado.herramienta === "mano" || ev.buttons === 4) {
+      estado.dibujando = "pan";
+      estado.ultimo = { x: ev.clientX, y: ev.clientY };
+      escena.setPointerCapture(ev.pointerId);
+      return;
+    }
+    var p = puntoEnLienzo(ev);
+    if (estado.herramienta === "gotero") {
+      var comp = componerFuera().getContext("2d").getImageData(limitar(p.x | 0, 0, estado.proyecto.ancho - 1), limitar(p.y | 0, 0, estado.proyecto.alto - 1), 1, 1).data;
+      estado.color = rgbAHex(comp[0], comp[1], comp[2]);
+      pintarPanel();
+      decir("Color " + estado.color);
+      return;
+    }
+    if (!capaActual()) return;
+    if (estado.herramienta === "relleno") {
+      empujarHistorial();
+      var rgb = hexARgb(estado.color);
+      rellenar(p.x, p.y, [rgb[0], rgb[1], rgb[2], Math.round(estado.opacidad * 255)], estado.tolerancia);
+      componer();
+      return;
+    }
+    empujarHistorial();
+    estado.dibujando = estado.herramienta;
+    estado.ultimo = p;
+    estado.formaInicio = p;
+    escena.setPointerCapture(ev.pointerId);
+    if (estado.herramienta === "pincel" || estado.herramienta === "goma") {
+      estampar(contextoCapa(), p);
+      componer();
+    } else if (estado.herramienta === "recolor") {
+      var ctx = contextoCapa();
+      var img = ctx.getImageData(0, 0, capaActual().lienzo.width, capaActual().lienzo.height);
+      parcheRecolor(img, p.x, p.y, estado.tamano, estado.color, estado.flujo, estado.dureza);
+      ctx.putImageData(img, 0, 0);
+      componer();
+    } else if (estado.herramienta === "moldear") {
+      var ctx2 = contextoCapa();
+      var img2 = ctx2.getImageData(0, 0, capaActual().lienzo.width, capaActual().lienzo.height);
+      parcheMoldear(img2, p.x, p.y, estado.tamano, ev.shiftKey ? -estado.moldear : estado.moldear);
+      ctx2.putImageData(img2, 0, 0);
+      componer();
+    }
+  }
+
+  function enPunteroMueve(ev) {
+    if (!estado.dibujando) return;
+    if (estado.dibujando === "pan") {
+      estado.panX += ev.clientX - estado.ultimo.x;
+      estado.panY += ev.clientY - estado.ultimo.y;
+      estado.ultimo = { x: ev.clientX, y: ev.clientY };
+      componer();
+      return;
+    }
+    var p = puntoEnLienzo(ev);
+    if (estado.dibujando === "pincel" || estado.dibujando === "goma") {
+      interpolar(estado.ultimo, p, function (q) { estampar(contextoCapa(), q); });
+      estado.ultimo = p;
+      componer();
+    } else if (estado.dibujando === "recolor") {
+      var ctx = contextoCapa();
+      var img = ctx.getImageData(0, 0, capaActual().lienzo.width, capaActual().lienzo.height);
+      interpolar(estado.ultimo, p, function (q) {
+        parcheRecolor(img, q.x, q.y, estado.tamano, estado.color, estado.flujo, estado.dureza);
+      });
+      ctx.putImageData(img, 0, 0);
+      estado.ultimo = p;
+      componer();
+    } else if (estado.dibujando === "moldear") {
+      var ctx2 = contextoCapa();
+      var img2 = ctx2.getImageData(0, 0, capaActual().lienzo.width, capaActual().lienzo.height);
+      parcheMoldear(img2, p.x, p.y, estado.tamano, ev.shiftKey ? -estado.moldear : estado.moldear);
+      ctx2.putImageData(img2, 0, 0);
+      estado.ultimo = p;
+      componer();
+    } else if (estado.dibujando === "emborronar") {
+      var ctx3 = contextoCapa();
+      var img3 = ctx3.getImageData(0, 0, capaActual().lienzo.width, capaActual().lienzo.height);
+      parcheEmborronar(img3, p.x, p.y, estado.tamano);
+      ctx3.putImageData(img3, 0, 0);
+      estado.ultimo = p;
+      componer();
+    } else if (estado.dibujando === "linea" || estado.dibujando === "rect" || estado.dibujando === "elipse") {
+      if (borradorForma) contextoCapa().putImageData(borradorForma, 0, 0);
+      else borradorForma = snapshotCapa();
+      trazoForma(contextoCapa(), estado.formaInicio, p);
+      componer();
+    }
+  }
+
+  function enPunteroArriba() {
+    estado.dibujando = false;
+    borradorForma = null;
+  }
+
+  escena.addEventListener("pointerdown", enPunteroAbajo);
+  escena.addEventListener("pointermove", enPunteroMueve);
+  escena.addEventListener("pointerup", enPunteroArriba);
+  escena.addEventListener("pointercancel", enPunteroArriba);
+  escena.addEventListener("wheel", function (ev) {
+    if (estado.pantalla !== "estudio") return;
+    ev.preventDefault();
+    var f = ev.deltaY < 0 ? 1.08 : 0.92;
+    estado.zoom = limitar(estado.zoom * f, 0.2, 8);
+    componer();
+  }, { passive: false });
+
+  document.getElementById("rail").addEventListener("click", function (ev) {
+    var b = ev.target.closest("[data-h]");
+    if (!b) return;
+    estado.herramienta = b.getAttribute("data-h");
+    pintarRail();
+    decir(b.getAttribute("title"));
+  });
+  document.getElementById("muelle").addEventListener("click", function (ev) {
+    var b = ev.target.closest("[data-h]");
+    if (!b) return;
+    estado.herramienta = b.getAttribute("data-h");
+    pintarRail();
+    decir(b.getAttribute("title"));
+  });
+
+  document.getElementById("tabs").addEventListener("click", function (ev) {
+    var b = ev.target.closest("[data-tab]");
+    if (!b) return;
+    estado.pestana = b.getAttribute("data-tab");
+    var tabs = document.querySelectorAll("#tabs button");
+    var i;
+    for (i = 0; i < tabs.length; i++) tabs[i].classList.toggle("activa", tabs[i] === b);
+    pintarPanel();
+  });
+
+  cuerpoPanel.addEventListener("input", function (ev) {
+    var r = ev.target.getAttribute("data-rango");
+    if (!r) return;
+    var v = Number(ev.target.value);
+    if (r === "tamano") estado.tamano = v;
+    else if (r === "opacidad") estado.opacidad = v / 100;
+    else if (r === "dureza") estado.dureza = v / 100;
+    else if (r === "filtroCantidad") estado.filtroCantidad = v / 100;
+    else if (r === "opacidadCapa" && capaActual()) {
+      capaActual().opacidad = v / 100;
+      componer();
+    }
+    var lab = cuerpoPanel.querySelector('[data-valor="' + r + '"]');
+    if (lab) lab.textContent = String(v | 0);
+    selloCache = null;
+  });
+
+  cuerpoPanel.addEventListener("click", function (ev) {
+    var capaEl = ev.target.closest(".capa");
+    var t = ev.target.closest("button, .piel, .swatch");
+    if (!t) {
+      if (capaEl) {
+        estado.capaActiva = Number(capaEl.getAttribute("data-capa"));
+        pintarCapas();
+      }
+      return;
+    }
+    if (t.id === "deshacer") { deshacer(); return; }
+    if (t.id === "rehacer") { rehacer(); return; }
+    if (t.id === "bn") { estado.color = "#1a1916"; pintarPanel(); return; }
+    if (t.id === "capa-mas") {
+      capas.push(nuevaCapa("Capa " + (capas.length + 1), estado.proyecto.ancho, estado.proyecto.alto));
+      estado.capaActiva = capas.length - 1;
+      pintarCapas(); componer(); return;
+    }
+    if (t.id === "capa-dup" && capaActual()) {
+      var orig = capaActual();
+      var n = nuevaCapa(orig.nombre + " copia", orig.lienzo.width, orig.lienzo.height);
+      n.lienzo.getContext("2d").drawImage(orig.lienzo, 0, 0);
+      n.opacidad = orig.opacidad;
+      capas.splice(estado.capaActiva + 1, 0, n);
+      estado.capaActiva += 1;
+      pintarCapas(); componer(); return;
+    }
+    if (t.id === "capa-del" && capas.length > 1) {
+      capas.splice(estado.capaActiva, 1);
+      estado.capaActiva = limitar(estado.capaActiva, 0, capas.length - 1);
+      pintarCapas(); componer(); return;
+    }
+    if (t.id === "foto-abrir") { document.getElementById("entrada-foto").click(); return; }
+    if (t.getAttribute("data-pincel")) { estado.pincelId = t.getAttribute("data-pincel"); selloCache = null; pintarTrazo(); return; }
+    if (t.getAttribute("data-sw")) { estado.color = t.getAttribute("data-sw"); pintarColor(); return; }
+    if (t.getAttribute("data-papel") && estado.proyecto) {
+      estado.proyecto.papel = t.getAttribute("data-papel");
+      pintarColor(); componer(); return;
+    }
+    if (t.getAttribute("data-capa")) { estado.capaActiva = Number(t.getAttribute("data-capa")); pintarCapas(); return; }
+    if (t.getAttribute("data-vis")) {
+      var i = Number(t.getAttribute("data-vis"));
+      capas[i].visible = !capas[i].visible;
+      pintarCapas(); componer(); return;
+    }
+    if (t.getAttribute("data-fx")) { aplicarFiltro(t.getAttribute("data-fx")); return; }
+    if (t.getAttribute("data-piel")) { aplicarPiel(t.getAttribute("data-piel")); return; }
+    if (t.getAttribute("data-pelo")) {
+      estado.color = t.getAttribute("data-pelo");
+      estado.herramienta = "recolor";
+      pintarRail();
+      decir("Pelo: pinta con Recolor o pulsa el pelo (clic derecho no hace falta). Un clic con Relleno no; usa el pincel Recolor.");
+      return;
+    }
+    if (t.getAttribute("data-ropa")) {
+      estado.color = t.getAttribute("data-ropa");
+      estado.herramienta = "recolor";
+      estado.pestana = "foto";
+      pintarRail();
+      decir("Ropa lista. Pinta la prenda o haz clic en ella para tonos parecidos (doble clic).");
+      return;
+    }
+    if (t.getAttribute("data-figura")) { deformarFigura(t.getAttribute("data-figura")); return; }
+  });
+
+  cuerpoPanel.addEventListener("dblclick", function (ev) {
+    /* Doble clic en Foto no; el doble clic vive en el lienzo para ropa/pelo similares. */
+  });
+
+  escena.addEventListener("dblclick", function (ev) {
+    if (estado.herramienta !== "recolor") return;
+    var p = puntoEnLienzo(ev);
+    recolorearSimilares(p.x, p.y, estado.color);
+  });
+
+  cuerpoPanel.addEventListener("change", function (ev) {
+    if (ev.target.id === "color-hex") estado.color = ev.target.value;
+    if (ev.target.getAttribute("data-nom")) {
+      var i = Number(ev.target.getAttribute("data-nom"));
+      if (capas[i]) capas[i].nombre = ev.target.value || capas[i].nombre;
+    }
+  });
+
+  document.getElementById("rejilla").addEventListener("click", function (ev) {
+    var abrir = ev.target.closest("[data-abrir]");
+    var del = ev.target.closest("[data-del]");
+    if (del) {
+      var id = del.getAttribute("data-del");
+      if (window.confirm("¿Borrar esta lámina de este navegador?")) {
+        borrarLamina(id).then(cargarGaleria);
+      }
+      return;
+    }
+    if (abrir) {
+      var ida = abrir.getAttribute("data-abrir");
+      listarLaminas().then(function (lista) {
+        var i, hallada = null;
+        for (i = 0; i < lista.length; i++) if (lista[i].id === ida) hallada = lista[i];
+        if (hallada) abrirLamina(hallada);
+      });
+    }
+  });
+
+  function abrirModalNueva() { document.getElementById("modal-nueva").classList.add("abierto"); }
+  function cerrarModalNueva() { document.getElementById("modal-nueva").classList.remove("abierto"); }
+
+  document.getElementById("nombre-lamina").addEventListener("change", function (ev) {
+    if (estado.proyecto) estado.proyecto.nombre = ev.target.value || "Lámina";
+  });
+  document.getElementById("btn-nueva").addEventListener("click", abrirModalNueva);
+  document.getElementById("btn-nueva-2").addEventListener("click", abrirModalNueva);
+  document.getElementById("cerrar-nueva").addEventListener("click", cerrarModalNueva);
+  document.getElementById("tallas").addEventListener("click", function (ev) {
+    var b = ev.target.closest("[data-talla]");
+    if (!b) return;
+    var id = b.getAttribute("data-talla");
+    var i, t = TALLAS[0];
+    for (i = 0; i < TALLAS.length; i++) if (TALLAS[i].id === id) t = TALLAS[i];
+    cerrarModalNueva();
+    proyectoVacio(t, "marfil");
+  });
+
+  document.getElementById("btn-galeria").addEventListener("click", function () {
+    if (estado.sucio) guardarProyecto();
+    mostrarGaleria();
+  });
+  document.getElementById("btn-guardar").addEventListener("click", function () {
+    if (!estado.proyecto) { abrirModalNueva(); return; }
+    guardarProyecto();
+  });
+  document.getElementById("btn-png").addEventListener("click", exportarPng);
+  document.getElementById("btn-copia").addEventListener("click", function () {
+    if (!estado.proyecto) { abrirModalNueva(); return; }
+    exportarCopia();
+  });
+  document.getElementById("btn-foto").addEventListener("click", function () {
+    document.getElementById("entrada-foto").click();
+  });
+  document.getElementById("btn-copia-in").addEventListener("click", function () {
+    document.getElementById("entrada-copia").click();
+  });
+  document.getElementById("entrada-foto").addEventListener("change", function (ev) {
+    var f = ev.target.files && ev.target.files[0];
+    ev.target.value = "";
+    if (f) abrirFotoArchivo(f);
+  });
+  document.getElementById("entrada-copia").addEventListener("change", function (ev) {
+    var f = ev.target.files && ev.target.files[0];
+    ev.target.value = "";
+    if (f) importarCopia(f);
+  });
+
+  document.addEventListener("keydown", function (ev) {
+    var tag = (ev.target && ev.target.tagName) || "";
+    if (tag === "INPUT" || tag === "TEXTAREA") return;
+    var k = ev.key.toLowerCase();
+    if ((ev.ctrlKey || ev.metaKey) && k === "z") { ev.preventDefault(); deshacer(); }
+    else if ((ev.ctrlKey || ev.metaKey) && (k === "y" || (ev.shiftKey && k === "z"))) { ev.preventDefault(); rehacer(); }
+    else if ((ev.ctrlKey || ev.metaKey) && k === "s") { ev.preventDefault(); guardarProyecto(); }
+    else if (k === "b") { estado.herramienta = "pincel"; pintarRail(); }
+    else if (k === "e") { estado.herramienta = "goma"; pintarRail(); }
+    else if (k === "g") { estado.herramienta = "relleno"; pintarRail(); }
+    else if (k === "i") { estado.herramienta = "gotero"; pintarRail(); }
+    else if (k === "h") { estado.herramienta = "mano"; pintarRail(); }
+    else if (k === "[") { estado.tamano = limitar(estado.tamano - 2, 1, 120); pintarPanel(); }
+    else if (k === "]") { estado.tamano = limitar(estado.tamano + 2, 1, 120); pintarPanel(); }
+  });
+
+  window.addEventListener("resize", ajustarVista);
+
+  (function pintarTallas() {
+    var el = document.getElementById("tallas"), i, html = "";
+    for (i = 0; i < TALLAS.length; i++) {
+      var t = TALLAS[i];
+      html += '<button type="button" class="talla" data-talla="' + t.id + '"><b>' + t.nombre + "</b><span>" + t.w + " × " + t.h + "</span></button>";
+    }
+    el.innerHTML = html;
+  })();
+
+  pintarRail();
+  cargarGaleria();
+  decir("Tinta · Jorge de Prado · sin red");
+})();
+</script>
+</body>
+</html>

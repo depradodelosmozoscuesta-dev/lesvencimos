@@ -1,0 +1,1651 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Gimnasio · Virginia</title>
+<meta name="description" content="Ejercicios suaves con Virginia. Offline, sin internet, con repeticiones y voz.">
+<style>
+  :root{
+    --ink:#5a4334; --line:#e3d4c0; --teal:#2bb5ae; --teal-d:#1d938c;
+    --orange:#e07a1e; --card:#fffaf2; --muted:#9a8468;
+    --bg1:#fdebd2; --bg2:#e7f3e9; --bien:#2f6b4f;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+  html,body{height:100%}
+  body{
+    background:linear-gradient(180deg,var(--bg1),var(--bg2));
+    font-family:ui-sans-serif,system-ui,"Segoe UI",Roboto,sans-serif;
+    color:var(--ink); display:flex; flex-direction:column; align-items:center;
+    padding:10px 10px 16px; min-height:100%; overflow-x:hidden;
+  }
+  h1{font-size:1.05rem;font-weight:700;letter-spacing:-.01em;text-align:center}
+  .sub{font-size:.7rem;color:var(--muted);text-align:center;margin:2px 0 8px;/* ancho: lo pone la maqueta de abajo */line-height:1.35}
+
+  /* El muñeco crece con la pantalla: a 3 metros en la tele del salón,
+     360px era un sello de correos. El dibujo usa coordenadas de 360 y se
+     escala por programa, así que no pierde nitidez al agrandarse. */
+  .stage{
+    /* Sin vh ni proporción fija: dentro de un iframe vh miente y la
+       proporción fija impide que se encoja. La maqueta de más abajo le
+       da el hueco y el dibujo se escala solo. */
+    width:100%; position:relative;
+    border:1px solid var(--line); border-radius:18px; overflow:hidden;
+    box-shadow:0 10px 26px rgba(120,90,50,.18), inset 0 1px 0 rgba(255,255,255,.7);
+    background:#fff;
+  }
+  canvas{width:100%;height:100%;display:block}
+  .badge{
+    position:absolute; top:8px; left:8px; font-size:.66rem; font-weight:700;
+    background:rgba(255,250,242,.92); border:1px solid var(--line); border-radius:9px;
+    padding:5px 8px; color:var(--muted);
+  }
+  .view-badge{
+    position:absolute; top:8px; right:8px; font-size:.66rem; font-weight:700;
+    background:rgba(43,181,174,.15); border:1px solid var(--teal); border-radius:9px;
+    padding:5px 8px; color:var(--teal-d);
+  }
+
+  /* contador de repeticiones: FUERA del dibujo, no tapa los pies */
+  .rep-hud{
+    position:static; left:auto; bottom:auto; transform:none;
+    display:flex; flex-direction:row; align-items:center; justify-content:center;
+    gap:10px; pointer-events:none; min-width:0; padding:2px 0;
+  }
+  .rep-num{
+    font-size:2.1rem; font-weight:800; line-height:1; letter-spacing:-.04em;
+    color:var(--ink); text-shadow:0 2px 0 rgba(255,255,255,.8);
+    font-variant-numeric:tabular-nums;
+  }
+  .rep-num.flash{color:var(--teal-d); transform:scale(1.12); transition:transform .12s,color .12s}
+  .rep-label{font-size:.68rem; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:.06em}
+  .rep-bar{
+    width:110px; height:6px; border-radius:999px; background:rgba(90,67,52,.12);
+    overflow:hidden; margin-top:0;
+  }
+  .rep-bar > i{
+    display:block; height:100%; width:0%; background:var(--teal);
+    border-radius:999px; transition:width .2s ease-out;
+  }
+
+  .state{font-size:.82rem; color:var(--orange); font-weight:700; margin:8px 0 2px; text-align:center; min-height:1.2em}
+  .desc{font-size:.76rem; color:var(--ink); text-align:center; /* ancho: lo pone la maqueta de abajo */ line-height:1.4; min-height:2.5em; padding:0 4px; margin-bottom:6px}
+  .cue{font-size:.78rem; font-weight:700; color:var(--teal-d); text-align:center; min-height:1.2em; margin-bottom:6px}
+
+  .list{
+    width:100%; /* ancho: lo pone la maqueta de abajo */ display:flex; flex-direction:column; gap:6px;
+    max-height:168px; overflow-y:auto; padding:2px; margin-bottom:8px;
+  }
+  .ex{
+    display:flex; align-items:center; gap:10px; padding:9px 11px;
+    background:var(--card); border:1px solid var(--line); border-radius:12px;
+    cursor:pointer; text-align:left; width:100%; font:inherit; color:inherit;
+  }
+  .ex.on{border-color:var(--teal); background:#e8f8f6; box-shadow:0 0 0 1px var(--teal)}
+  .ex .n{
+    width:26px; height:26px; border-radius:8px; background:#f0e6d8;
+    display:flex; align-items:center; justify-content:center;
+    font-size:.7rem; font-weight:700; flex-shrink:0;
+  }
+  .ex.on .n{background:var(--teal); color:#fff}
+  .ex .meta{flex:1; min-width:0}
+  .ex .t{font-size:.8rem; font-weight:700; line-height:1.15}
+  .ex .d{font-size:.66rem; color:var(--muted); margin-top:1px}
+  .ex .tag{font-size:.6rem; font-weight:700; padding:3px 7px; border-radius:999px; background:#f0e6d8; color:#7a6548; flex-shrink:0}
+  .ex .tag.abs{background:#ffe8dc; color:#c45a20}
+  .ex .tag.fuerza{background:#e0f0ff; color:#2D468C}
+  .ex .tag.mov{background:#e8f5e9; color:#2e7d4f}
+  .ex .tag.eq{background:#f3e8ff; color:#6b3fa0}
+
+  .row{width:100%; /* ancho: lo pone la maqueta de abajo */ display:flex; gap:8px; margin-bottom:8px}
+  .btn{
+    flex:1; height:46px; border:1px solid var(--line); border-radius:13px;
+    background:var(--card); font-size:.78rem; font-weight:700; color:var(--ink);
+    display:flex; align-items:center; justify-content:center; gap:6px;
+    cursor:pointer; user-select:none; box-shadow:0 2px 0 rgba(150,110,70,.15);
+  }
+  .btn.primary{background:var(--teal); color:#fff; border-color:var(--teal-d)}
+  .btn.ghost.on{background:#e07a1e; color:#fff; border-color:#c45a20}
+  .btn:active{transform:translateY(1px); box-shadow:none}
+  .btn:disabled{opacity:.45; pointer-events:none}
+
+  .settings{
+    width:100%; /* ancho: lo pone la maqueta de abajo */ display:flex; gap:8px; align-items:center;
+    margin-bottom:8px; font-size:.72rem; font-weight:600; color:var(--muted);
+  }
+  .settings label{display:flex; align-items:center; gap:6px; flex:1}
+  .settings select, .settings input[type=range]{
+    flex:1; border:1px solid var(--line); border-radius:8px; background:var(--card);
+    padding:6px 8px; color:var(--ink); font:inherit;
+  }
+
+  .disclaimer{
+    font-size:.64rem; color:var(--muted); text-align:center; /* ancho: lo pone la maqueta de abajo */
+    line-height:1.35; margin-top:6px; padding:0 6px;
+  }
+  /* Pantallas grandes (la tele del salón, la vertical de la entrada):
+     todo más grande, porque se mira de lejos o de pie. */
+  @media (min-width:700px){
+    /* (el tamaño lo reparte la maqueta de flexbox, más abajo) */
+    h1{font-size:1.5rem} .sub{font-size:.85rem;max-width:560px}
+    .desc,.list,.settings,.row{max-width:560px}
+    .desc{font-size:1rem} .state{font-size:1.1rem} .cue{font-size:1.05rem}
+    .rep-num{font-size:2.6rem} .rep-bar{width:140px}
+    .btn{font-size:.95rem;padding:14px 16px}
+  }
+
+  /* Quien tenga las animaciones desactivadas sigue viendo el ejercicio
+     —es el contenido, no un adorno—, pero sin los brincos decorativos
+     del contador, que ahí sí molestan. */
+  @media (prefers-reduced-motion: reduce){
+    .rep-num.flash{transform:none;transition:none}
+    .rep-bar > i{transition:none}
+    .btn{transition:none}
+  }
+
+  .offline{
+    font-size:.62rem; font-weight:700; color:var(--bien); text-align:center;
+    margin-top:4px; letter-spacing:.04em; text-transform:uppercase;
+  }
+
+  /* ------------------------------------------------------------
+     LA MAQUETA — Virginia en el centro y grande.
+
+     Historia, para no repetirla:
+       1) Se usaba «100vh», pero esto va DENTRO DE UN IFRAME: ahí
+          vh es la altura del marco, no de la pantalla. Por eso al
+          cambiar el zoom «se ajustaba» por casualidad.
+       2) Todo estaba limitado a 360 px de ancho: nació para el móvil.
+       3) Y luego: se veía entero pero mal repartido. La figura, que es
+          a lo único que se viene, quedaba en una franja estrecha con
+          media pantalla en blanco a los lados.
+
+     Ahora en pantalla ancha son TRES columnas: los ejercicios a la
+     izquierda, Virginia en el centro ocupando todo lo que hay, y los
+     mandos a la derecha. Se mira al centro y las manos van a los lados,
+     que es como se usa de pie.
+     ------------------------------------------------------------ */
+  body{
+    display:flex; flex-direction:column; align-items:center;
+    height:100%; max-height:100%; overflow:hidden;
+    padding:8px 12px 10px; gap:8px;
+  }
+
+  h1{ font-size:1.05rem; margin:0; flex:0 0 auto }
+  .sub, .disclaimer, .offline, .desc { display:none }
+
+  .stage{
+    flex:1 1 auto; min-height:0;
+    width:auto; max-width:none; aspect-ratio:auto;
+    align-self:stretch; margin:0;
+    background:#fffdf7;
+    border:1px solid rgba(0,0,0,.10);
+    border-radius:20px;
+    box-shadow:0 2px 10px rgba(60,45,20,.10);
+    padding:6px;
+  }
+
+  .zona-mandos{
+    flex:0 0 auto; width:100%;
+    display:flex; flex-direction:column; align-items:center; gap:8px;
+    padding:10px 12px 8px;
+    background:rgba(255,255,255,.55);
+    border:1px solid rgba(0,0,0,.07);
+    border-radius:18px;
+  }
+  .state, .cue, .row, .settings, .list{ flex:0 0 auto; width:100% }
+  .state{ font-size:1.05rem; margin:0; text-align:center; max-width:none }
+  .cue{ font-size:.95rem; margin:0; min-height:1.2em; text-align:center }
+
+  .row, .settings{
+    max-width:none;
+    display:flex; gap:10px; justify-content:center; flex-wrap:wrap; margin:0;
+  }
+  .row .btn{
+    min-height:54px; min-width:112px;
+    font-size:1.02rem; font-weight:700; flex:0 1 auto;
+  }
+  .row .btn.primary{ min-width:176px; font-size:1.15rem }
+  .row.secundaria{ gap:8px }
+  .row.secundaria .btn{
+    min-height:40px; min-width:auto; font-size:.86rem;
+    font-weight:600; opacity:.85; padding:0 14px;
+  }
+  .settings{ gap:16px }
+  .settings select{ min-height:40px }
+
+  .list{
+    display:flex; flex-direction:row; gap:8px;
+    max-height:none; height:auto; max-width:none;
+    overflow-x:auto; overflow-y:hidden;
+    padding:2px; margin:0; justify-content:flex-start;
+  }
+  /* El foco, bien visible: esto se mira desde el sofá, a tres metros. */
+  :focus-visible{ outline:3px solid #d97706 !important; outline-offset:3px }
+
+  .list .item{
+    flex:0 0 auto; min-width:132px; max-width:170px;
+    margin:0; padding:8px 10px;
+  }
+  .list .item .nm{ font-size:.84rem }
+  .list .item .meta, .list .item .tag{ font-size:.68rem }
+
+  /* ---- PANTALLA ANCHA: tres columnas ----
+     Virginia en el centro, todo lo grande que quepa; los ejercicios a
+     un lado y los mandos al otro. Se mira al centro y las manos van a
+     los lados. */
+  /* En pantalla ancha, «Movilidad» y «De lado» se van a la columna de
+     los mandos. Flotando sobre el marco de Virginia se comían dos
+     esquinas enteras para dos palabras. */
+  @media (min-width: 900px) and (min-height: 480px) {
+    .badge, .view-badge {
+      position: static; margin: 0;
+      display: inline-block; align-self: center;
+    }
+  }
+
+  @media (min-width: 900px) and (min-height: 480px) {
+    body{
+      display:grid;
+      grid-template-columns: minmax(150px, 190px) 1fr minmax(200px, 250px);
+      grid-template-rows: auto 1fr;
+      gap:10px 14px; align-items:stretch;
+      padding:8px 14px 12px;
+    }
+    h1{ grid-column:1 / -1; text-align:center }
+
+    /* La lista, en columna a la izquierda: un ejercicio debajo de otro
+       se lee mejor que un carrete que hay que arrastrar. */
+    .list{
+      grid-column:1; grid-row:2;
+      flex-direction:column; width:auto;
+      overflow-y:auto; overflow-x:hidden;
+      align-content:start;
+    }
+    /* Los ejercicios, apretados para que quepan los diez sin
+       desplazar: es una lista para elegir, no para leerla entera. */
+    .list{ gap:4px }
+    .list .item{
+      min-width:0; max-width:none; width:100%;
+      padding:5px 8px; line-height:1.15;
+    }
+    .list .item .nm{ font-size:.78rem }
+    .list .item .meta{ display:none }   /* «lado · 2,0s» no hace falta aquí */
+    .list .item .tag{ font-size:.62rem }
+    /* Si algún día son muchos más, dos columnas antes que una barra:
+       la idea es verlos todos de un vistazo y elegir. */
+    .list.muchos {
+      display:grid; grid-template-columns:1fr 1fr; gap:4px;
+      align-content:start;
+    }
+
+    .stage{ grid-column:2; grid-row:2; padding:10px }
+
+    .zona-mandos{
+      grid-column:3; grid-row:2;
+      width:auto; justify-content:center; gap:10px;
+      max-width:none; overflow-y:auto;
+    }
+    /* En columna estrecha, los botones a lo ancho y en vertical: se
+       apuntan con el dedo sin buscar. */
+    .row{ flex-direction:column; width:100% }
+    .row .btn, .row .btn.primary{ width:100%; min-width:0 }
+    .row .btn.primary{ min-height:64px }
+    .settings{ flex-direction:column; align-items:stretch; gap:8px }
+    .settings label{ display:flex; justify-content:space-between; gap:8px }
+    .settings select{ flex:1 }
+  }
+
+  /* Pantallas bajas: fuera la lista. Lo esencial es ver a Virginia y
+     poder darle a Empezar. */
+  @media (max-height: 480px) {
+    .list{ display:none }
+    h1{ font-size:.9rem }
+    .row .btn{ min-height:44px }
+  }
+
+</style>
+</head>
+<body>
+  <h1>Gimnasio · Virginia</h1>
+  <p class="sub">Movimientos suaves · marca el ritmo y cuenta en voz alta · 100% offline</p>
+
+  <div class="stage">
+    <canvas id="c" width="360" height="360" role="img" aria-label="Figura haciendo el ejercicio"></canvas>
+    <div class="badge" id="badge">—</div>
+    <div class="view-badge" id="viewBadge">De lado</div>
+  </div>
+
+  <div class="zona-mandos">
+  <div class="state" id="state">Elige un ejercicio</div>
+  <p class="desc" id="desc">Pulsa Empezar. Virginia marca el ritmo y va cantando el número en voz alta: tú la sigues.</p>
+  <div class="cue" id="cue"></div>
+  <div class="rep-hud">
+    <div class="rep-num" id="repNum">0</div>
+    <div class="rep-label" id="repLabel">de 8</div>
+    <div class="rep-bar"><i id="repBar"></i></div>
+  </div>
+
+  <div class="row">
+    <button class="btn" id="btnPrev" type="button">← Ant.</button>
+    <button class="btn primary" id="btnPlay" type="button">▶ Empezar</button>
+    <button class="btn" id="btnNext" type="button">Sig. →</button>
+  </div>
+  <div class="list" id="list"></div>
+
+  <div class="settings ajustes-de-una-vez">
+    <label>Meta
+      <select id="targetReps" aria-label="Repeticiones objetivo">
+        <option value="5">5 reps</option>
+        <option value="8" selected>8 reps</option>
+        <option value="10">10 reps</option>
+        <option value="12">12 reps</option>
+        <option value="15">15 reps</option>
+      </select>
+    </label>
+    <label>Ritmo
+      <select id="speed" aria-label="Velocidad">
+        <option value="1.25">Lento</option>
+        <option value="1" selected>Normal</option>
+        <option value="0.8">Rápido</option>
+      </select>
+    </label>
+  </div>
+  <div class="row secundaria">
+    <button class="btn ghost on" id="btnSonido" type="button" title="Pitido en cada repetición">🔔 Pitido: sí</button>
+    <button class="btn ghost on" id="btnVoice" type="button" title="Activar o silenciar la voz">Voz: sí</button>
+    <button class="btn" id="btnReset" type="button">Reiniciar serie</button>
+  </div>
+  </div>
+
+  <p class="disclaimer">
+    Solo sugerencias de movimiento. Ante molestia o dolencia, consulta a un médico.
+    No son planes de entrenamiento ni objetivos de peso o calorías.
+  </p>
+  <p class="offline">Offline · un solo archivo · listo para el instalador</p>
+  <p class="sub" style="margin-top:6px">El pitido marca cada repetición y suena siempre; la voz canta el número si el equipo tiene voz en español instalada.<br>Mando de diapositivas: adelante y atrás cambian de ejercicio · el botón de pantalla en negro empieza y pausa</p>
+
+<script>
+/* ═══════════════════════════════════════════════════════════
+   Gimnasio Virginia — archivo único offline
+   Canvas articulado + contador de reps + speechSynthesis
+   ═══════════════════════════════════════════════════════════ */
+(function () {
+  "use strict";
+
+  const g = document.getElementById("c").getContext("2d");
+  const stateEl = document.getElementById("state");
+  const descEl = document.getElementById("desc");
+  const cueEl = document.getElementById("cue");
+  const badgeEl = document.getElementById("badge");
+  const viewBadge = document.getElementById("viewBadge");
+  const listEl = document.getElementById("list");
+  const repNumEl = document.getElementById("repNum");
+  const repLabelEl = document.getElementById("repLabel");
+  const repBarEl = document.getElementById("repBar");
+  const btnPlay = document.getElementById("btnPlay");
+  const btnPrev = document.getElementById("btnPrev");
+  const btnNext = document.getElementById("btnNext");
+  const btnVoice = document.getElementById("btnVoice");
+  const btnSonido = document.getElementById("btnSonido");
+  const btnReset = document.getElementById("btnReset");
+  const targetSel = document.getElementById("targetReps");
+  const speedSel = document.getElementById("speed");
+
+  const W = 360, H = 360, GROUND = 316;
+  // Cuánto se agranda a Virginia. Con 1 ocupaba el 53% del cuadro; con
+  // 1.4 pasa del 70% y se ve desde el sofá.
+  const Z = 1.4;
+  // La cadera se sube lo justo para que los pies sigan tocando el suelo:
+  // pierna completa = (muslo + gemelo) x Z.
+  const BASEHIP = GROUND - (44 + 44) * Z;
+  const THIGH = 44, CALF = 44, UPARM = 32, FOARM = 30, NECK = 52, HEADR = 22;
+  // SKIN_B es la piel del lado de atrás. Bajar la opacidad no bastaba:
+  // sobre fondo claro apenas se nota y, al cruzarse los brazos, parecían
+  // uno solo y gordo. Un tono más oscuro se distingue desde el sofá.
+  const SKIN = "#e8b889", SKIN_B = "#c48a60", INK = "#5a3f2e",
+        HAIR = "#f2871e", HAIRD = "#d9700f",
+        SUIT = "#2bb5ae", SUITD = "#1d938c", BLUSH = "#ff9d8a";
+
+  const NUMS = ["cero","uno","dos","tres","cuatro","cinco","seis","siete","ocho","nueve","diez",
+    "once","doce","trece","catorce","quince","dieciséis","diecisiete","dieciocho","diecinueve","veinte"];
+
+  const EXERCISES = [
+    {
+      id: "marcha", name: "Marcha en el sitio", tag: "mov", tagLabel: "Movilidad", view: "side", cycle: 1.4,
+      desc: "Levanta una rodilla y luego la otra, como si caminaras sin avanzar.",
+      cueUp: "rodilla", cueDown: "cambia",
+      intro: "Marcha en el sitio. Sube una rodilla y luego la otra.",
+      frames: [
+        { t:0,   hipDelta:0, torso:0.04, head:0.02, legF:{t:0.55,k:0.9}, legB:{t:-0.05,k:0.1}, armF:{s:-0.5,e:0.3}, armB:{s:0.45,e:0.35} },
+        { t:0.5, hipDelta:0, torso:0.04, head:-0.02,legF:{t:-0.05,k:0.1}, legB:{t:0.55,k:0.9}, armF:{s:0.45,e:0.35}, armB:{s:-0.5,e:0.3} },
+        { t:1,   hipDelta:0, torso:0.04, head:0.02, legF:{t:0.55,k:0.9}, legB:{t:-0.05,k:0.1}, armF:{s:-0.5,e:0.3}, armB:{s:0.45,e:0.35} },
+      ],
+    },
+    {
+      id: "abd-pie", name: "Abdominal de pie", tag: "abs", tagLabel: "Abdomen", view: "side", cycle: 2.2,
+      desc: "Sube una rodilla hacia el pecho un poco. Baja y cambia de pierna.",
+      cueUp: "sube", cueDown: "baja",
+      intro: "Abdominal de pie. Rodilla hacia el pecho, sin forzar.",
+      frames: [
+        { t:0,   hipDelta:4, torso:0.08, head:0.05, legF:{t:0.08,k:0.1}, legB:{t:-0.06,k:0.08}, armF:{s:0.2,e:0.4}, armB:{s:0.15,e:0.35} },
+        { t:0.35,hipDelta:8, torso:0.18, head:0.1,  legF:{t:0.85,k:1.1}, legB:{t:-0.08,k:0.1}, armF:{s:0.5,e:0.7}, armB:{s:0.2,e:0.3} },
+        { t:0.5, hipDelta:4, torso:0.08, head:0.05, legF:{t:0.08,k:0.1}, legB:{t:-0.06,k:0.08}, armF:{s:0.2,e:0.4}, armB:{s:0.15,e:0.35} },
+        { t:0.85,hipDelta:8, torso:0.18, head:0.1,  legF:{t:-0.08,k:0.1}, legB:{t:0.85,k:1.1}, armF:{s:0.2,e:0.3}, armB:{s:0.5,e:0.7} },
+        { t:1,   hipDelta:4, torso:0.08, head:0.05, legF:{t:0.08,k:0.1}, legB:{t:-0.06,k:0.08}, armF:{s:0.2,e:0.4}, armB:{s:0.15,e:0.35} },
+      ],
+    },
+    {
+      id: "elev-brazos", name: "Elevación de brazos", tag: "fuerza", tagLabel: "Fuerza", view: "front", cycle: 2.4,
+      desc: "Brazos a los lados. Súbelos por delante hasta arriba y bájalo despacio.",
+      cueUp: "arriba", cueDown: "abajo",
+      intro: "Elevación de brazos. Sube despacio y baja controlando.",
+      frames: [
+        { t:0,   hipDelta:0, torso:0, head:0, legF:{t:0.04,k:0.06}, legB:{t:-0.04,k:0.06}, armF:{s:0.25,e:0.18}, armB:{s:-0.25,e:0.18} },
+        { t:0.45,hipDelta:0, torso:-0.05, head:-0.08, legF:{t:0.04,k:0.06}, legB:{t:-0.04,k:0.06}, armF:{s:-2.85,e:0.12}, armB:{s:2.85,e:0.12} },
+        { t:0.55,hipDelta:0, torso:-0.05, head:-0.08, legF:{t:0.04,k:0.06}, legB:{t:-0.04,k:0.06}, armF:{s:-2.85,e:0.12}, armB:{s:2.85,e:0.12} },
+        { t:1,   hipDelta:0, torso:0, head:0, legF:{t:0.04,k:0.06}, legB:{t:-0.04,k:0.06}, armF:{s:0.25,e:0.18}, armB:{s:-0.25,e:0.18} },
+      ],
+    },
+    {
+      id: "sentadilla", name: "Sentadilla suave", tag: "fuerza", tagLabel: "Fuerza", view: "side", cycle: 2.6,
+      desc: "Baja un poco doblando rodillas. Sube sin bloquear las rodillas.",
+      cueUp: "baja", cueDown: "sube",
+      intro: "Sentadilla suave. Baja como hacia un taburete bajo.",
+      frames: [
+        { t:0,   hipDelta:0,  torso:0.06, head:0, legF:{t:0.08,k:0.12}, legB:{t:0.02,k:0.12}, armF:{s:0.35,e:0.45}, armB:{s:0.28,e:0.4} },
+        { t:0.45,hipDelta:30, torso:0.28, head:0.08, legF:{t:0.68,k:1.08}, legB:{t:0.55,k:1.02}, armF:{s:0.85,e:0.42}, armB:{s:0.76,e:0.38} },
+        { t:0.55,hipDelta:30, torso:0.28, head:0.08, legF:{t:0.68,k:1.08}, legB:{t:0.55,k:1.02}, armF:{s:0.85,e:0.42}, armB:{s:0.76,e:0.38} },
+        { t:1,   hipDelta:0,  torso:0.06, head:0, legF:{t:0.08,k:0.12}, legB:{t:0.02,k:0.12}, armF:{s:0.35,e:0.45}, armB:{s:0.28,e:0.4} },
+      ],
+    },
+    {
+      id: "lateral", name: "Estiramiento lateral", tag: "mov", tagLabel: "Movilidad", view: "front", cycle: 3.0,
+      desc: "Un brazo arriba, inclínate suavemente hacia el otro lado. Cambia de lado.",
+      cueUp: "inclina", cueDown: "centro",
+      intro: "Estiramiento lateral. Inclínate despacio, sin rebotes.",
+      frames: [
+        { t:0,   hipDelta:0, torso:0, head:0, legF:{t:0.05,k:0.06}, legB:{t:-0.05,k:0.06}, armF:{s:-1.2,e:0.2}, armB:{s:0.2,e:0.25} },
+        { t:0.2, hipDelta:2, torso:0.25, head:0.15, legF:{t:0.08,k:0.08}, legB:{t:-0.08,k:0.08}, armF:{s:-1.35,e:0.15}, armB:{s:0.4,e:0.3} },
+        { t:0.35,hipDelta:0, torso:0, head:0, legF:{t:0.05,k:0.06}, legB:{t:-0.05,k:0.06}, armF:{s:-0.2,e:0.2}, armB:{s:-0.2,e:0.2} },
+        { t:0.55,hipDelta:2, torso:-0.25, head:-0.15, legF:{t:0.08,k:0.08}, legB:{t:-0.08,k:0.08}, armF:{s:0.4,e:0.3}, armB:{s:-1.35,e:0.15} },
+        { t:0.7, hipDelta:0, torso:0, head:0, legF:{t:0.05,k:0.06}, legB:{t:-0.05,k:0.06}, armF:{s:-0.2,e:0.2}, armB:{s:-0.2,e:0.2} },
+        { t:1,   hipDelta:0, torso:0, head:0, legF:{t:0.05,k:0.06}, legB:{t:-0.05,k:0.06}, armF:{s:-1.2,e:0.2}, armB:{s:0.2,e:0.25} },
+      ],
+    },
+    {
+      id: "hombros", name: "Rotación de hombros", tag: "mov", tagLabel: "Movilidad", view: "side", cycle: 2.0,
+      desc: "Rueda los hombros hacia atrás en círculos amplios y lentos.",
+      cueUp: "atrás", cueDown: "vuelta",
+      intro: "Rotación de hombros. Círculos amplios, cuello relajado.",
+      frames: [
+        { t:0,   hipDelta:0, torso:0.02, head:0, legF:{t:0.04,k:0.06}, legB:{t:-0.04,k:0.06}, armF:{s:0.1,e:0.3}, armB:{s:-0.1,e:0.3} },
+        { t:0.25,hipDelta:0, torso:-0.08, head:-0.05, legF:{t:0.04,k:0.06}, legB:{t:-0.04,k:0.06}, armF:{s:-0.9,e:0.4}, armB:{s:-0.85,e:0.4} },
+        { t:0.5, hipDelta:0, torso:0.02, head:0, legF:{t:0.04,k:0.06}, legB:{t:-0.04,k:0.06}, armF:{s:-0.3,e:0.8}, armB:{s:-0.25,e:0.8} },
+        { t:0.75,hipDelta:0, torso:0.1, head:0.05, legF:{t:0.04,k:0.06}, legB:{t:-0.04,k:0.06}, armF:{s:0.5,e:0.5}, armB:{s:0.45,e:0.5} },
+        { t:1,   hipDelta:0, torso:0.02, head:0, legF:{t:0.04,k:0.06}, legB:{t:-0.04,k:0.06}, armF:{s:0.1,e:0.3}, armB:{s:-0.1,e:0.3} },
+      ],
+    },
+    {
+      id: "equilibrio", name: "Equilibrio de una pierna", tag: "eq", tagLabel: "Equilibrio", view: "side", cycle: 3.2,
+      desc: "Apóyate en una pierna y levanta la otra un poco. Usa una silla si hace falta.",
+      cueUp: "sostiene", cueDown: "cambia",
+      intro: "Equilibrio. Una pierna. Si te tambaleas, sujétate a una silla.",
+      frames: [
+        { t:0,   hipDelta:2, torso:0.05, head:0, legF:{t:0.1,k:0.1}, legB:{t:-0.05,k:0.08}, armF:{s:0.4,e:0.5}, armB:{s:0.35,e:0.45} },
+        { t:0.2, hipDelta:4, torso:0.08, head:0.05, legF:{t:0.7,k:0.95}, legB:{t:-0.05,k:0.1}, armF:{s:0.6,e:0.6}, armB:{s:0.5,e:0.5} },
+        { t:0.45,hipDelta:4, torso:0.08, head:0.05, legF:{t:0.7,k:0.95}, legB:{t:-0.05,k:0.1}, armF:{s:0.6,e:0.6}, armB:{s:0.5,e:0.5} },
+        { t:0.55,hipDelta:2, torso:0.05, head:0, legF:{t:0.1,k:0.1}, legB:{t:-0.05,k:0.08}, armF:{s:0.4,e:0.5}, armB:{s:0.35,e:0.45} },
+        { t:0.75,hipDelta:4, torso:0.08, head:0.05, legF:{t:-0.05,k:0.1}, legB:{t:0.7,k:0.95}, armF:{s:0.5,e:0.5}, armB:{s:0.6,e:0.6} },
+        { t:1,   hipDelta:2, torso:0.05, head:0, legF:{t:0.1,k:0.1}, legB:{t:-0.05,k:0.08}, armF:{s:0.4,e:0.5}, armB:{s:0.35,e:0.45} },
+      ],
+    },
+    {
+      id: "puente", name: "Puente suave", tag: "fuerza", tagLabel: "Fuerza", view: "side", cycle: 2.8,
+      desc: "Rodillas flexionadas, sube la cadera un poco y baja. Sin forzar la espalda.",
+      cueUp: "cadera arriba", cueDown: "baja",
+      intro: "Puente suave. Sube la cadera y baja con control.",
+      frames: [
+        { t:0,   hipDelta:18, torso:0.35, head:0.2, legF:{t:0.9,k:1.5}, legB:{t:0.85,k:1.45}, armF:{s:1.1,e:0.3}, armB:{s:1.0,e:0.25} },
+        { t:0.4, hipDelta:-8, torso:0.55, head:0.25, legF:{t:0.95,k:1.55}, legB:{t:0.9,k:1.5}, armF:{s:1.15,e:0.25}, armB:{s:1.05,e:0.2} },
+        { t:0.55,hipDelta:-8, torso:0.55, head:0.25, legF:{t:0.95,k:1.55}, legB:{t:0.9,k:1.5}, armF:{s:1.15,e:0.25}, armB:{s:1.05,e:0.2} },
+        { t:1,   hipDelta:18, torso:0.35, head:0.2, legF:{t:0.9,k:1.5}, legB:{t:0.85,k:1.45}, armF:{s:1.1,e:0.3}, armB:{s:1.0,e:0.25} },
+      ],
+    },
+    {
+      id: "curl-brazo", name: "Flexión de brazos", tag: "fuerza", tagLabel: "Fuerza", view: "side", cycle: 2.0,
+      desc: "Codos pegados al cuerpo. Sube las manos hacia los hombros y baja despacio.",
+      cueUp: "flexiona", cueDown: "estira",
+      intro: "Flexión de brazos sin peso. Codos fijos, manos a los hombros.",
+      frames: [
+        { t:0,   hipDelta:0, torso:0.02, head:0, legF:{t:0.04,k:0.06}, legB:{t:-0.04,k:0.06}, armF:{s:0.15,e:0.15}, armB:{s:0.1,e:0.15} },
+        { t:0.4, hipDelta:0, torso:0.02, head:0, legF:{t:0.04,k:0.06}, legB:{t:-0.04,k:0.06}, armF:{s:0.2,e:1.5}, armB:{s:0.15,e:1.45} },
+        { t:0.55,hipDelta:0, torso:0.02, head:0, legF:{t:0.04,k:0.06}, legB:{t:-0.04,k:0.06}, armF:{s:0.2,e:1.5}, armB:{s:0.15,e:1.45} },
+        { t:1,   hipDelta:0, torso:0.02, head:0, legF:{t:0.04,k:0.06}, legB:{t:-0.04,k:0.06}, armF:{s:0.15,e:0.15}, armB:{s:0.1,e:0.15} },
+      ],
+    },
+    {
+      id: "tobillos", name: "Círculos de tobillo", tag: "mov", tagLabel: "Movilidad", view: "side", cycle: 1.8,
+      desc: "Apóyate en una pierna y dibuja círculos lentos con el otro pie.",
+      cueUp: "círculo", cueDown: "",
+      intro: "Círculos de tobillo. Lentos, amplios.",
+      frames: [
+        { t:0,   hipDelta:2, torso:0.04, head:0, legF:{t:0.35,k:0.2}, legB:{t:-0.05,k:0.08}, armF:{s:0.35,e:0.4}, armB:{s:0.3,e:0.35} },
+        { t:0.25,hipDelta:2, torso:0.04, head:0, legF:{t:0.45,k:0.55}, legB:{t:-0.05,k:0.08}, armF:{s:0.35,e:0.4}, armB:{s:0.3,e:0.35} },
+        { t:0.5, hipDelta:2, torso:0.04, head:0, legF:{t:0.25,k:0.7}, legB:{t:-0.05,k:0.08}, armF:{s:0.35,e:0.4}, armB:{s:0.3,e:0.35} },
+        { t:0.75,hipDelta:2, torso:0.04, head:0, legF:{t:0.15,k:0.35}, legB:{t:-0.05,k:0.08}, armF:{s:0.35,e:0.4}, armB:{s:0.3,e:0.35} },
+        { t:1,   hipDelta:2, torso:0.04, head:0, legF:{t:0.35,k:0.2}, legB:{t:-0.05,k:0.08}, armF:{s:0.35,e:0.4}, armB:{s:0.3,e:0.35} },
+      ],
+    },
+    {
+      id: "cuello", name: "Mirar arriba y abajo", tag: "mov", tagLabel: "Movilidad", view: "side", cycle: 2.4,
+      desc: "Mira al techo despacio, al frente, al suelo y vuelve. Sin forzar.",
+      cueUp: "arriba", cueDown: "abajo",
+      intro: "Cuello. Arriba y abajo, muy despacio.",
+      frames: [
+        { t:0,   hipDelta:0, torso:0, head:0, legF:{t:0.04,k:0.06}, legB:{t:-0.04,k:0.06}, armF:{s:0.1,e:0.2}, armB:{s:-0.1,e:0.2} },
+        { t:0.25,hipDelta:0, torso:-0.08, head:-0.55, legF:{t:0.04,k:0.06}, legB:{t:-0.04,k:0.06}, armF:{s:0.1,e:0.2}, armB:{s:-0.1,e:0.2} },
+        { t:0.4, hipDelta:0, torso:0, head:0, legF:{t:0.04,k:0.06}, legB:{t:-0.04,k:0.06}, armF:{s:0.1,e:0.2}, armB:{s:-0.1,e:0.2} },
+        { t:0.65,hipDelta:0, torso:0.1, head:0.4, legF:{t:0.04,k:0.06}, legB:{t:-0.04,k:0.06}, armF:{s:0.1,e:0.2}, armB:{s:-0.1,e:0.2} },
+        { t:0.8, hipDelta:0, torso:0, head:0, legF:{t:0.04,k:0.06}, legB:{t:-0.04,k:0.06}, armF:{s:0.1,e:0.2}, armB:{s:-0.1,e:0.2} },
+        { t:1,   hipDelta:0, torso:0, head:0, legF:{t:0.04,k:0.06}, legB:{t:-0.04,k:0.06}, armF:{s:0.1,e:0.2}, armB:{s:-0.1,e:0.2} },
+      ],
+    },
+    {
+      id: "apertura", name: "Apertura de pecho", tag: "mov", tagLabel: "Movilidad", view: "front", cycle: 2.5,
+      desc: "Brazos abiertos, lleva los codos atrás abriendo el pecho. Suelta y repite.",
+      cueUp: "abre", cueDown: "suelta",
+      intro: "Apertura de pecho. Codos atrás, pecho abierto.",
+      frames: [
+        { t:0,   hipDelta:0, torso:0, head:0, legF:{t:0.04,k:0.06}, legB:{t:-0.04,k:0.06}, armF:{s:0.05,e:0.9}, armB:{s:-0.05,e:0.9} },
+        { t:0.4, hipDelta:0, torso:-0.12, head:-0.05, legF:{t:0.04,k:0.06}, legB:{t:-0.04,k:0.06}, armF:{s:-0.35,e:1.1}, armB:{s:0.35,e:1.1} },
+        { t:0.55,hipDelta:0, torso:-0.12, head:-0.05, legF:{t:0.04,k:0.06}, legB:{t:-0.04,k:0.06}, armF:{s:-0.35,e:1.1}, armB:{s:0.35,e:1.1} },
+        { t:1,   hipDelta:0, torso:0, head:0, legF:{t:0.04,k:0.06}, legB:{t:-0.04,k:0.06}, armF:{s:0.05,e:0.9}, armB:{s:-0.05,e:0.9} },
+      ],
+    },
+  ];
+
+  /* ——— la bocina: pitido en cada repetición ———
+     La voz depende de que el equipo tenga instalada una voz en español;
+     si no la hay, todo se queda mudo. Este pitido lo genera el propio
+     navegador: no necesita voces, ni archivos de sonido, ni internet.
+     Es el metrónomo de verdad, y la voz es el adorno. */
+  let pitidoOn = true;
+  let audio = null;
+
+  function abrirAudio() {
+    // El navegador no deja hacer ruido hasta que el usuario toca algo:
+    // por eso esto se llama desde el botón de Empezar, no al cargar.
+    try {
+      if (!audio) audio = new (window.AudioContext || window.webkitAudioContext)();
+      if (audio.state === "suspended") audio.resume();
+    } catch (e) { audio = null; }
+  }
+
+  function pitar(hz, ms, volumen) {
+    if (!pitidoOn || !audio) return;
+    try {
+      const t = audio.currentTime;
+      const osc = audio.createOscillator();
+      const vol = audio.createGain();
+      osc.type = "sine";
+      osc.frequency.value = hz;
+      // Subida y bajada suaves: un tono que arranca en seco hace "clac".
+      vol.gain.setValueAtTime(0.0001, t);
+      vol.gain.exponentialRampToValueAtTime(volumen, t + 0.012);
+      vol.gain.exponentialRampToValueAtTime(0.0001, t + ms / 1000);
+      osc.connect(vol); vol.connect(audio.destination);
+      osc.start(t); osc.stop(t + ms / 1000 + 0.02);
+    } catch (e) { /* sin sonido, pero nada se rompe */ }
+  }
+
+  const pitidoRep = () => pitar(880, 120, 0.22);        // una repetición
+  const pitidoMedio = () => pitar(660, 90, 0.12);       // mitad del ciclo
+  function pitidoFinal() {                              // serie completa
+    pitar(660, 140, 0.22);
+    setTimeout(() => pitar(880, 140, 0.22), 150);
+    setTimeout(() => pitar(1175, 260, 0.24), 300);
+  }
+
+  /* ——— voz (Web Speech API, sin red) ——— */
+  let voiceOn = true;
+  let esVoice = null;
+  let speaking = false;
+
+  function pickVoice() {
+    if (!window.speechSynthesis) return;
+    const voices = speechSynthesis.getVoices();
+    esVoice =
+      voices.find((v) => /^es(-|_)/i.test(v.lang) && /female|mujer|paulina|monica|helena|sabina/i.test(v.name)) ||
+      voices.find((v) => /^es-ES/i.test(v.lang)) ||
+      voices.find((v) => /^es/i.test(v.lang)) ||
+      null;
+  }
+  function avisarSiNoHayVoz() {
+    if (!btnVoice) return;
+    if (!window.speechSynthesis) {
+      btnVoice.textContent = "Voz: no disponible";
+      btnVoice.classList.remove("on");
+      voiceOn = false;
+      return;
+    }
+    const alguna = speechSynthesis.getVoices().length > 0;
+    if (!alguna) return;   // aún no han cargado: se reintenta al llegar
+    if (!esVoice) {
+      // Hay voces pero ninguna en español: se avisa en vez de quedarse
+      // mudo. El pitido sigue funcionando, que es lo importante.
+      btnVoice.title = "No hay voz en español instalada en este equipo. " +
+        "El pitido sí funciona.";
+      btnVoice.textContent = "Voz: sin español";
+    }
+  }
+  if (window.speechSynthesis) {
+    pickVoice();
+    speechSynthesis.onvoiceschanged = () => { pickVoice(); avisarSiNoHayVoz(); };
+  }
+
+  function speak(text, opts) {
+    if (!voiceOn || !window.speechSynthesis || !text) return;
+    const u = new SpeechSynthesisUtterance(text);
+    u.lang = (esVoice && esVoice.lang) || "es-ES";
+    if (esVoice) u.voice = esVoice;
+    u.rate = (opts && opts.rate) || 1.0;
+    u.pitch = 1.05;
+    u.volume = 1;
+    speaking = true;
+    u.onend = () => { speaking = false; };
+    u.onerror = () => { speaking = false; };
+    // Antes se cancelaba en CADA repetición. Con ciclos de 1,4 segundos
+    // eso corta el número por la mitad y suena a tartamudeo. Ahora solo
+    // se corta si de verdad hay algo largo sonando (una explicación),
+    // y los números se encolan y salen seguidos.
+    if (opts && opts.interrupt && speaking && !(opts && opts.corto)) {
+      speechSynthesis.cancel();
+    }
+    speechSynthesis.speak(u);
+  }
+
+  function sayNumber(n) {
+    if (n >= 0 && n < NUMS.length) return NUMS[n];
+    return String(n);
+  }
+
+  /* ——— estado de sesión ——— */
+  let current = 0;
+  let playing = false;
+  let animT = 0;
+  let last = performance.now();
+  let reps = 0;
+  let target = 8;
+  let speedMul = 1; // 1 = normal, >1 = más lento (cycle * speedMul)
+  let lastCross = 0; // para detectar cierre de ciclo
+  let sessionDone = false;
+  let announcedIntro = false;
+
+  function getTarget() { return parseInt(targetSel.value, 10) || 8; }
+  function getSpeed() { return parseFloat(speedSel.value) || 1; }
+
+  function updateRepHud() {
+    target = getTarget();
+    repNumEl.textContent = String(reps);
+    // "marcadas", no "hechas": el programa cuenta ciclos de la animación,
+    // no movimientos del usuario. Sin cámara no hay forma de saberlo, y
+    // dar por buenas repeticiones que nadie ha hecho es mentir en salud.
+    repLabelEl.textContent = "de " + target + " marcadas";
+    const pct = Math.min(100, (reps / target) * 100);
+    repBarEl.style.width = pct + "%";
+  }
+
+  function flashRep() {
+    repNumEl.classList.remove("flash");
+    void repNumEl.offsetWidth;
+    repNumEl.classList.add("flash");
+    setTimeout(() => repNumEl.classList.remove("flash"), 180);
+  }
+
+  function onRepComplete() {
+    if (!playing || sessionDone) return;
+    reps += 1;
+    updateRepHud();
+    flashRep();
+    const ex = EXERCISES[current];
+    if (reps < target) {
+      pitidoRep();
+      speak(sayNumber(reps), { interrupt: true, corto: true, rate: 1.05 });
+      cueEl.textContent = sayNumber(reps).toUpperCase();
+    } else {
+      pitidoFinal();
+      sessionDone = true;
+      playing = false;
+      syncPlay();
+      cueEl.textContent = "Serie completa";
+      speak("Serie completa. " + target + " repeticiones de " + ex.name + ".", { interrupt: true, rate: 0.98 });
+      stateEl.textContent = "¡Serie completa!";
+    }
+  }
+
+  /* ——— interpolación de poses ——— */
+  function lerpNum(a, b, t) { return a + (b - a) * t; }
+  function lerpPose(a, b, t) {
+    const L = (x, y) => lerpNum(x, y, t);
+    return {
+      hipDelta: L(a.hipDelta, b.hipDelta),
+      torso: L(a.torso, b.torso),
+      head: L(a.head, b.head),
+      legF: { t: L(a.legF.t, b.legF.t), k: L(a.legF.k, b.legF.k) },
+      legB: { t: L(a.legB.t, b.legB.t), k: L(a.legB.k, b.legB.k) },
+      armF: { s: L(a.armF.s, b.armF.s), e: L(a.armF.e, b.armF.e) },
+      armB: { s: L(a.armB.s, b.armB.s), e: L(a.armB.e, b.armB.e) },
+    };
+  }
+  function samplePose(ex, u) {
+    const fr = ex.frames;
+    if (u <= fr[0].t) return Object.assign({}, fr[0]);
+    for (let i = 0; i < fr.length - 1; i++) {
+      if (u >= fr[i].t && u <= fr[i + 1].t) {
+        const span = fr[i + 1].t - fr[i].t || 1e-6;
+        const tt = (u - fr[i].t) / span;
+        const e = tt * tt * (3 - 2 * tt);
+        return lerpPose(fr[i], fr[i + 1], e);
+      }
+    }
+    return Object.assign({}, fr[fr.length - 1]);
+  }
+
+
+  /* ——— dibujo Virginia ———
+     Cuerpo con volumen (cápsulas ahusadas + torso de verdad),
+     halo en lo que se mueve, flecha de dirección y una sala
+     casera. Se mira a tres metros: contraste y silueta, no
+     costuras. */
+  const FOCUS = {
+    marcha:        { parts:"leg",  dir:"up" },
+    "abd-pie":     { parts:"leg",  dir:"up" },
+    "elev-brazos": { parts:"arm",  dir:"up" },
+    sentadilla:    { parts:"leg",  dir:"down", align:true },
+    lateral:       { parts:"arm",  dir:"side" },
+    hombros:       { parts:"arm",  dir:"circle" },
+    equilibrio:    { parts:"leg",  dir:"up", align:true },
+    puente:        { parts:"hip",  dir:"up" },
+    "curl-brazo":  { parts:"arm",  dir:"up" },
+    tobillos:      { parts:"foot", dir:"circle" },
+    cuello:        { parts:"head", dir:"up" },
+    apertura:      { parts:"arm",  dir:"side" },
+  };
+  const HALO = "rgba(224,122,30,.48)";
+  const HALO2 = "#e07a1e";
+
+  function nrm(p, q) {
+    const dx = q.x - p.x, dy = q.y - p.y, L = Math.hypot(dx, dy) || 1;
+    return { x: -dy / L, y: dx / L };
+  }
+  function capsule(a, b, r0, r1, fill, edge, lite) {
+    const dx = b.x - a.x, dy = b.y - a.y;
+    const len = Math.hypot(dx, dy) || 1;
+    const nx = -dy / len, ny = dx / len;
+    const a0 = Math.atan2(ny, nx);
+    g.beginPath();
+    g.moveTo(a.x + nx * r0, a.y + ny * r0);
+    g.lineTo(b.x + nx * r1, b.y + ny * r1);
+    g.arc(b.x, b.y, r1, a0, a0 + Math.PI);
+    g.lineTo(a.x - nx * r0, a.y - ny * r0);
+    g.arc(a.x, a.y, r0, a0 + Math.PI, a0);
+    g.closePath();
+    g.fillStyle = fill;
+    g.fill();
+    if (edge) {
+      g.strokeStyle = edge;
+      g.lineWidth = 1.5;
+      g.lineJoin = "round";
+      g.stroke();
+    }
+    if (lite) {
+      g.save();
+      g.globalAlpha = 0.28;
+      g.strokeStyle = lite;
+      g.lineWidth = Math.max(2, Math.min(r0, r1) * 0.35);
+      g.lineCap = "round";
+      g.beginPath();
+      g.moveTo(a.x + nx * r0 * 0.35, a.y + ny * r0 * 0.35);
+      g.lineTo(b.x + nx * r1 * 0.35, b.y + ny * r1 * 0.35);
+      g.stroke();
+      g.restore();
+    }
+  }
+  function ball(p, r, fill, edge) {
+    g.beginPath(); g.arc(p.x, p.y, r, 0, 7); g.fillStyle = fill; g.fill();
+    if (edge) { g.strokeStyle = edge; g.lineWidth = 2; g.stroke(); }
+  }
+  /* Una pierna o un brazo de una pieza: sin corte ni bola en la junta. */
+  function bendLimb(a, b, c, ra, rb, rc, fill, stroke) {
+    const n1 = nrm(a, b), n2 = nrm(b, c);
+    const aL = { x: a.x + n1.x * ra, y: a.y + n1.y * ra };
+    const aR = { x: a.x - n1.x * ra, y: a.y - n1.y * ra };
+    const b1L = { x: b.x + n1.x * rb, y: b.y + n1.y * rb };
+    const b1R = { x: b.x - n1.x * rb, y: b.y - n1.y * rb };
+    const b2L = { x: b.x + n2.x * rb, y: b.y + n2.y * rb };
+    const b2R = { x: b.x - n2.x * rb, y: b.y - n2.y * rb };
+    const cL = { x: c.x + n2.x * rc, y: c.y + n2.y * rc };
+    const cR = { x: c.x - n2.x * rc, y: c.y - n2.y * rc };
+    const ae = Math.atan2(n1.y, n1.x);
+    const ce = Math.atan2(n2.y, n2.x);
+    g.beginPath();
+    g.moveTo(aL.x, aL.y);
+    g.lineTo(b1L.x, b1L.y);
+    g.quadraticCurveTo(b.x + (n1.x + n2.x) * rb * 0.55, b.y + (n1.y + n2.y) * rb * 0.55, b2L.x, b2L.y);
+    g.lineTo(cL.x, cL.y);
+    g.arc(c.x, c.y, rc, ce, ce + Math.PI);
+    g.lineTo(b2R.x, b2R.y);
+    g.quadraticCurveTo(b.x - (n1.x + n2.x) * rb * 0.55, b.y - (n1.y + n2.y) * rb * 0.55, b1R.x, b1R.y);
+    g.lineTo(aR.x, aR.y);
+    g.arc(a.x, a.y, ra, ae + Math.PI, ae);
+    g.closePath();
+    g.fillStyle = fill;
+    g.fill();
+    if (stroke) {
+      g.strokeStyle = stroke;
+      g.lineWidth = 1.5;
+      g.lineJoin = "round";
+      g.lineCap = "round";
+      g.stroke();
+    }
+  }
+  function seg(rx, ry, L1, L2, a1, a2) {
+    const kx = rx + L1 * Math.sin(a1), ky = ry + L1 * Math.cos(a1), fa = a1 - a2;
+    return {
+      root: { x: rx, y: ry },
+      mid: { x: kx, y: ky },
+      end: { x: kx + L2 * Math.sin(fa), y: ky + L2 * Math.cos(fa) },
+      endAng: fa,
+    };
+  }
+  function lerpP(a, b, t) { return { x: a.x + (b.x - a.x) * t, y: a.y + (b.y - a.y) * t }; }
+
+  function hand(p, ang, atras) {
+    g.save();
+    g.translate(p.x, p.y);
+    g.rotate(ang + 0.15);
+    const col = atras ? SKIN_B : SKIN;
+    g.fillStyle = col;
+    g.strokeStyle = INK;
+    g.lineWidth = 1.25;
+    g.beginPath();
+    g.ellipse(0, 2, 4.2, 5.4, 0, 0, 7);
+    g.fill(); g.stroke();
+    g.beginPath();
+    g.ellipse(-3.8, 0.2, 2.2, 3.4, -0.7, 0, 7);
+    g.fill(); g.stroke();
+    g.restore();
+  }
+
+  function foot(p, ang, atras) {
+    g.save();
+    g.translate(p.x, p.y);
+    g.rotate(-ang * 0.4 + 0.22);
+    const top = atras ? "#7d9aa8" : "#9eb8c4";
+    const sole = atras ? "#4a5d66" : "#5d7380";
+    g.fillStyle = sole;
+    g.beginPath(); g.ellipse(6, 4.2, 13, 4.2, 0.05, 0, 7); g.fill();
+    g.fillStyle = top;
+    g.beginPath(); g.ellipse(5, 0.2, 12, 6.2, 0.08, 0, 7); g.fill();
+    g.fillStyle = atras ? SKIN_B : SKIN;
+    g.beginPath(); g.ellipse(-4, -0.4, 4.2, 3.6, 0, 0, 7); g.fill();
+    g.fillStyle = "rgba(255,255,255,.28)";
+    g.beginPath(); g.ellipse(3, -2, 5, 2, 0.1, 0, 7); g.fill();
+    g.restore();
+  }
+
+  function drawBody(hip, shoulder, view) {
+    const front = view === "front";
+    const top = lerpP(hip, shoulder, 0.98);
+    const chest = lerpP(hip, shoulder, 0.62);
+    const waist = lerpP(hip, shoulder, 0.34);
+    g.beginPath();
+    if (front) {
+      g.moveTo(top.x - 18, top.y + 4);
+      g.quadraticCurveTo(top.x, top.y - 2, top.x + 18, top.y + 4);
+      g.quadraticCurveTo(chest.x + 16, chest.y, waist.x + 11, waist.y);
+      g.quadraticCurveTo(hip.x + 17, hip.y + 1, hip.x + 8, hip.y + 11);
+      g.quadraticCurveTo(hip.x, hip.y + 15, hip.x - 8, hip.y + 11);
+      g.quadraticCurveTo(hip.x - 17, hip.y + 1, waist.x - 11, waist.y);
+      g.quadraticCurveTo(chest.x - 16, chest.y, top.x - 18, top.y + 4);
+    } else {
+      // perfil CONVEXO: pecho +16, espalda -14, glúteo -18
+      g.moveTo(top.x - 8, top.y + 2);
+      g.quadraticCurveTo(top.x + 4, top.y - 1, top.x + 10, top.y + 6);
+      g.quadraticCurveTo(chest.x + 16, chest.y - 2, waist.x + 12, waist.y);
+      g.quadraticCurveTo(hip.x + 10, hip.y + 2, hip.x + 6, hip.y + 12);
+      g.quadraticCurveTo(hip.x - 4, hip.y + 16, hip.x - 18, hip.y + 6);
+      g.quadraticCurveTo(hip.x - 16, hip.y - 6, waist.x - 12, waist.y - 2);
+      g.quadraticCurveTo(chest.x - 14, chest.y, top.x - 8, top.y + 2);
+    }
+    g.closePath();
+    g.fillStyle = SKIN;
+    g.fill();
+    g.strokeStyle = INK;
+    g.lineWidth = 1.45;
+    g.lineJoin = "round";
+    g.stroke();
+  }
+
+  function drawTank(hip, shoulder, view) {
+    const front = view === "front";
+    const top = lerpP(hip, shoulder, 0.80);
+    const chest = lerpP(hip, shoulder, 0.56);
+    const hem = lerpP(hip, shoulder, 0.10);
+    const grad = g.createLinearGradient(top.x - 14, top.y, hem.x + 14, hem.y + 8);
+    grad.addColorStop(0, "#4fd0c8");
+    grad.addColorStop(0.55, SUIT);
+    grad.addColorStop(1, SUITD);
+    g.beginPath();
+    if (front) {
+      g.moveTo(top.x - 9, top.y + 3);
+      g.quadraticCurveTo(top.x, top.y + 12, top.x + 9, top.y + 3);
+      g.quadraticCurveTo(chest.x + 15, chest.y, hem.x + 16, hem.y + 2);
+      g.quadraticCurveTo(hem.x, hem.y + 8, hem.x - 16, hem.y + 2);
+      g.quadraticCurveTo(chest.x - 15, chest.y, top.x - 9, top.y + 3);
+    } else {
+      g.moveTo(top.x - 2, top.y + 2);
+      g.quadraticCurveTo(top.x + 8, top.y + 6, chest.x + 14, chest.y);
+      g.quadraticCurveTo(hem.x + 9, hem.y + 2, hem.x + 4, hem.y + 6);
+      g.quadraticCurveTo(hem.x - 8, hem.y + 4, hem.x - 10, hem.y - 2);
+      g.quadraticCurveTo(chest.x - 10, chest.y, top.x - 2, top.y + 2);
+    }
+    g.closePath();
+    g.fillStyle = grad;
+    g.fill();
+    g.strokeStyle = INK;
+    g.lineWidth = 1.35;
+    g.lineJoin = "round";
+    g.stroke();
+  }
+
+  function moodOf(ex) {
+    const id = (ex && ex.id) || "";
+    if (id === "sentadilla" || id === "puente" || id === "abd-pie" || id === "curl-brazo") return "esfuerzo";
+    if (id === "equilibrio" || id === "tobillos") return "foco";
+    if (id === "cuello" || id === "lateral" || id === "hombros") return "suave";
+    return "sonrisa";
+  }
+
+  function drawHead(hc, ha, view, mood, phase) {
+    const mid = phase > 0.32 && phase < 0.62;
+    const effort = mood === "esfuerzo" ? (mid ? 1 : 0.55) : 0;
+    const focus = mood === "foco" ? 1 : 0;
+    const smile = mood === "sonrisa" ? 1 : mood === "suave" ? 0.45 : 0;
+    g.save();
+    g.translate(hc.x, hc.y);
+    g.rotate(ha);
+    // cráneo, trazo fino
+    g.beginPath(); g.arc(0, 0, HEADR + 1.2, 0, 7);
+    g.fillStyle = INK; g.fill();
+    g.beginPath(); g.arc(0, 0, HEADR, 0, 7);
+    g.fillStyle = SKIN; g.fill();
+    g.strokeStyle = INK; g.lineWidth = 1.4; g.stroke();
+    const sway = Math.sin((phase || 0) * Math.PI * 2) * 3.2;
+    // pelo: casco + flequillo + coleta (3 manchas, no un casco rígido)
+    g.fillStyle = HAIRD;
+    g.beginPath();
+    g.ellipse(-2, -6, HEADR + 4, HEADR + 1, -0.08, Math.PI * 1.02, Math.PI * 2.05);
+    g.fill();
+    g.fillStyle = HAIR;
+    g.beginPath();
+    g.ellipse(-1, -7, HEADR + 2.2, HEADR - 0.2, -0.06, Math.PI * 1.0, Math.PI * 2.08);
+    g.fill();
+    g.fillStyle = "#ffa24a";
+    g.beginPath(); g.ellipse(-6, -10, 5, 3.2, -0.4, 0, 7); g.fill();
+    if (view === "front") {
+      g.fillStyle = HAIR;
+      g.beginPath();
+      g.moveTo(-HEADR - 2, -4);
+      g.quadraticCurveTo(-HEADR - 6, 6 + sway * 0.2, -10, 10);
+      g.quadraticCurveTo(-4, 2, -8, -5);
+      g.fill();
+      g.beginPath();
+      g.moveTo(HEADR + 2, -4);
+      g.quadraticCurveTo(HEADR + 6, 6 - sway * 0.2, 10, 10);
+      g.quadraticCurveTo(4, 2, 8, -5);
+      g.fill();
+      g.fillStyle = HAIRD;
+      g.beginPath(); g.ellipse(sway * 0.3, 12 + Math.abs(sway) * 0.15, 6.5, 11, 0.08 * sway, 0, 7); g.fill();
+      g.fillStyle = HAIR;
+      g.beginPath(); g.ellipse(sway * 0.3, 11 + Math.abs(sway) * 0.15, 5, 9.5, 0.08 * sway, 0, 7); g.fill();
+      g.fillStyle = HAIRD;
+      g.beginPath();
+      g.moveTo(-11, -5); g.quadraticCurveTo(0, 3, 11, -5);
+      g.quadraticCurveTo(0, -8, -11, -5);
+      g.fill();
+      g.fillStyle = SKIN;
+      g.beginPath(); g.ellipse(0, 5.2, 13.8, 13.6, 0, 0, 7); g.fill();
+      // sombra cel en un lado de la cara
+      g.fillStyle = "rgba(180,90,60,.14)";
+      g.beginPath(); g.ellipse(6.5, 6, 6.2, 9, 0.2, 0, 7); g.fill();
+
+      const browDrop = effort * 2.2 + focus * 1.2;
+      const browIn = effort * 1.6 + focus * 1.1;
+      const eyeH = 3.4 - effort * 0.7 - focus * 0.9;
+      const lookY = effort * 0.7 + focus * 0.35;
+      // ojos + párpado
+      function ojo(ox) {
+        g.fillStyle = "#fff";
+        g.beginPath(); g.ellipse(ox, 1.2, 3.1, eyeH, 0, 0, 7); g.fill();
+        g.fillStyle = INK;
+        g.beginPath(); g.arc(ox + 0.2, 1.5 + lookY, 1.65, 0, 7); g.fill();
+        g.fillStyle = "#fff";
+        g.beginPath(); g.arc(ox + 0.85, 0.85 + lookY, 0.55, 0, 7); g.fill();
+        g.strokeStyle = HAIRD; g.lineWidth = 1.5; g.lineCap = "round";
+        g.beginPath();
+        g.moveTo(ox - 3.1, 1.2 - eyeH * 0.15);
+        g.quadraticCurveTo(ox, 1.2 - eyeH - 0.6, ox + 3.1, 1.2 - eyeH * 0.15);
+        g.stroke();
+      }
+      ojo(-5.2); ojo(5.2);
+      // cejas
+      g.strokeStyle = HAIRD; g.lineWidth = 2; g.lineCap = "round";
+      g.beginPath();
+      g.moveTo(-8.6 + browIn, -3.4 + browDrop);
+      g.quadraticCurveTo(-5, -5.4 + browDrop * 0.3, -2.1 - browIn * 0.3, -3.5 + browDrop * 0.4);
+      g.stroke();
+      g.beginPath();
+      g.moveTo(2.1 + browIn * 0.3, -3.5 + browDrop * 0.4);
+      g.quadraticCurveTo(5, -5.4 + browDrop * 0.3, 8.6 - browIn, -3.4 + browDrop);
+      g.stroke();
+      // mejillas: empujan si sonríe
+      const cheek = 3.1 + smile * 1.1;
+      g.fillStyle = BLUSH; g.globalAlpha = 0.5 + smile * 0.2 + effort * 0.15;
+      g.beginPath(); g.arc(-7.8, 7.6, cheek, 0, 7); g.fill();
+      g.beginPath(); g.arc(7.8, 7.6, cheek, 0, 7); g.fill();
+      g.globalAlpha = 1;
+      // nariz
+      g.strokeStyle = "rgba(107,79,58,.55)"; g.lineWidth = 1.2;
+      g.beginPath(); g.moveTo(0, 3.4); g.lineTo(-1.2, 6.2); g.lineTo(1.2, 6.2); g.stroke();
+      // boca
+      g.strokeStyle = INK; g.lineWidth = 1.6; g.lineCap = "round";
+      if (smile > 0.6) {
+        g.beginPath(); g.arc(0, 7.0, 4.6, 0.12 * Math.PI, 0.88 * Math.PI); g.stroke();
+      } else if (smile > 0.2) {
+        g.beginPath(); g.arc(0, 7.4, 3.6, 0.18 * Math.PI, 0.82 * Math.PI); g.stroke();
+      } else if (effort > 0.5) {
+        g.beginPath(); g.moveTo(-3.2, 8.4); g.quadraticCurveTo(0, 7.4, 3.2, 8.4); g.stroke();
+      } else {
+        g.beginPath(); g.moveTo(-2.8, 8.1); g.quadraticCurveTo(0, 8.6, 2.8, 8.1); g.stroke();
+      }
+    } else {
+      g.fillStyle = SKIN;
+      g.beginPath(); g.ellipse(7.2, 4.2, 12.2, 13, 0, 0, 7); g.fill();
+      g.fillStyle = HAIR;
+      g.beginPath();
+      g.moveTo(-HEADR - 2, -2);
+      g.quadraticCurveTo(-2, -20, HEADR + 3, -6);
+      g.lineTo(HEADR + 2, -2);
+      g.quadraticCurveTo(0, -8, -HEADR, -1);
+      g.closePath();
+      g.fill();
+      g.fillStyle = HAIRD;
+      g.beginPath();
+      g.ellipse(-HEADR - 5 + sway * 0.4, 7 + Math.abs(sway) * 0.2, 6.2, 10, -0.4 + sway * 0.04, 0, 7);
+      g.fill();
+      g.fillStyle = HAIR;
+      g.beginPath();
+      g.ellipse(-HEADR - 4 + sway * 0.4, 6 + Math.abs(sway) * 0.2, 4.8, 8.2, -0.4 + sway * 0.04, 0, 7);
+      g.fill();
+      g.fillStyle = "#ffa24a";
+      g.beginPath(); g.ellipse(2, -11, 4.5, 2.4, -0.3, 0, 7); g.fill();
+      const eyeH = 3.0 - effort * 0.6 - focus * 0.7;
+      const lookY = effort * 0.55;
+      g.fillStyle = "#fff";
+      g.beginPath(); g.ellipse(6.6, 1.4, 2.8, eyeH, 0, 0, 7); g.fill();
+      g.fillStyle = INK;
+      g.beginPath(); g.arc(7.1, 1.6 + lookY, 1.55, 0, 7); g.fill();
+      g.fillStyle = "#fff";
+      g.beginPath(); g.arc(7.7, 1.0 + lookY, 0.5, 0, 7); g.fill();
+      g.strokeStyle = HAIRD; g.lineWidth = 1.5; g.lineCap = "round";
+      g.beginPath();
+      g.moveTo(4.0, 1.3 - eyeH * 0.2);
+      g.quadraticCurveTo(6.6, 1.3 - eyeH - 0.5, 9.4, 1.3 - eyeH * 0.2);
+      g.stroke();
+      const browY = -3.6 + effort * 2.0 + focus * 1.0;
+      g.strokeStyle = HAIRD; g.lineWidth = 1.9;
+      g.beginPath(); g.moveTo(3.4, browY); g.quadraticCurveTo(7.2, browY - 1.6, 11.2, browY + 0.2); g.stroke();
+      g.fillStyle = BLUSH; g.globalAlpha = 0.45 + effort * 0.25;
+      g.beginPath(); g.arc(4, 8, 3, 0, 7); g.fill();
+      g.beginPath(); g.arc(12, 8, 2.6, 0, 7); g.fill();
+      g.globalAlpha = 1;
+      g.strokeStyle = INK; g.lineWidth = 1.5;
+      if (smile > 0.6) {
+        g.beginPath(); g.arc(8.2, 7.3, 3.8, 0.12 * Math.PI, 0.82 * Math.PI); g.stroke();
+      } else if (smile > 0.2) {
+        g.beginPath(); g.arc(8.2, 7.6, 3.2, 0.18 * Math.PI, 0.78 * Math.PI); g.stroke();
+      } else if (effort > 0.5) {
+        g.beginPath(); g.moveTo(6.2, 8.6); g.quadraticCurveTo(8.4, 7.6, 11.2, 8.5); g.stroke();
+      } else {
+        g.beginPath(); g.moveTo(6.4, 8.2); g.quadraticCurveTo(8.6, 8.6, 11.0, 8.2); g.stroke();
+      }
+      g.beginPath(); g.moveTo(14, 2); g.lineTo(16.5, 5.5); g.lineTo(13.5, 6.2); g.stroke();
+    }
+    g.restore();
+  }
+
+  function drawArrow(x, y, ang, len) {
+    g.save();
+    g.translate(x, y);
+    g.rotate(ang);
+    g.strokeStyle = HALO2;
+    g.fillStyle = HALO2;
+    g.lineWidth = 5;
+    g.lineCap = "round";
+    g.lineJoin = "round";
+    g.beginPath();
+    g.moveTo(0, 0);
+    g.lineTo(len - 12, 0);
+    g.stroke();
+    g.beginPath();
+    g.moveTo(len, 0);
+    g.lineTo(len - 16, -8);
+    g.lineTo(len - 16, 8);
+    g.closePath();
+    g.fill();
+    g.strokeStyle = INK;
+    g.lineWidth = 1.6;
+    g.stroke();
+    g.restore();
+  }
+
+  function haloSeg(a, b, w) {
+    g.save();
+    g.strokeStyle = HALO;
+    g.lineWidth = w + 12;
+    g.lineCap = "round";
+    g.beginPath();
+    g.moveTo(a.x, a.y);
+    g.lineTo(b.x, b.y);
+    g.stroke();
+    g.restore();
+  }
+
+  function drawAlign(ankle, knee, hip) {
+    g.save();
+    g.strokeStyle = "rgba(45,70,140,.45)";
+    g.lineWidth = 2.2;
+    g.setLineDash([5, 5]);
+    g.beginPath();
+    g.moveTo(ankle.x, ankle.y);
+    g.lineTo(knee.x, knee.y);
+    g.lineTo(hip.x, hip.y);
+    g.stroke();
+    g.setLineDash([]);
+    g.restore();
+    g.fillStyle = "rgba(45,70,140,.4)";
+    g.beginPath(); g.arc(knee.x, knee.y, 3.2, 0, 7); g.fill();
+  }
+
+  function drawBackground(view) {
+    // pared cálida de casa, no cielo infantil
+    const wall = g.createLinearGradient(0, 0, 0, GROUND);
+    wall.addColorStop(0, "#f6e4c8");
+    wall.addColorStop(0.55, "#f3d7b0");
+    wall.addColorStop(1, "#ead0a8");
+    g.fillStyle = wall;
+    g.fillRect(0, 0, W, GROUND);
+    // ventana a la derecha: luz, sin cristales recargados
+    g.fillStyle = "rgba(255,255,255,.55)";
+    g.fillRect(268, 28, 72, 86);
+    g.strokeStyle = "rgba(107,79,58,.35)";
+    g.lineWidth = 3;
+    g.strokeRect(268, 28, 72, 86);
+    g.beginPath(); g.moveTo(304, 28); g.lineTo(304, 114); g.moveTo(268, 71); g.lineTo(340, 71); g.stroke();
+    g.fillStyle = "rgba(255,236,190,.7)";
+    g.fillRect(272, 32, 28, 35);
+    g.fillRect(308, 32, 28, 35);
+    g.fillRect(272, 75, 28, 35);
+    g.fillRect(308, 75, 28, 35);
+    // mancha de sol en el suelo, sin vetas
+    g.fillStyle = "rgba(255,210,140,.16)";
+    g.beginPath();
+    g.moveTo(268, 114);
+    g.lineTo(360, 200);
+    g.lineTo(360, GROUND);
+    g.lineTo(250, GROUND);
+    g.closePath();
+    g.fill();
+    // planta a la izquierda, mancha grande
+    g.fillStyle = "#6fa36a";
+    g.beginPath(); g.ellipse(42, 210, 16, 28, -0.3, 0, 7); g.fill();
+    g.beginPath(); g.ellipse(62, 200, 14, 26, 0.35, 0, 7); g.fill();
+    g.beginPath(); g.ellipse(50, 186, 12, 22, 0, 0, 7); g.fill();
+    g.fillStyle = "#c48a4a";
+    g.fillRect(44, 230, 16, 22);
+    // zócalo
+    g.fillStyle = "#d9b888";
+    g.fillRect(0, GROUND - 14, W, 14);
+    g.strokeStyle = "rgba(107,79,58,.25)";
+    g.beginPath(); g.moveTo(0, GROUND - 14); g.lineTo(W, GROUND - 14); g.stroke();
+    // suelo
+    const floor = g.createLinearGradient(0, GROUND, 0, H);
+    floor.addColorStop(0, "#d7b48a");
+    floor.addColorStop(1, "#c49a6a");
+    g.fillStyle = floor;
+    g.fillRect(0, GROUND, W, H - GROUND);
+    // 4 líneas de perspectiva, gruesas
+    g.strokeStyle = "rgba(107,79,58,.22)";
+    g.lineWidth = 2;
+    [28, 72, 120, 175].forEach((x) => {
+      g.beginPath(); g.moveTo(W / 2, GROUND - 2); g.lineTo(x, H); g.stroke();
+      g.beginPath(); g.moveTo(W / 2, GROUND - 2); g.lineTo(W - x, H); g.stroke();
+    });
+    // esterilla teal
+    g.fillStyle = "rgba(29,147,140,.55)";
+    g.beginPath();
+    g.ellipse(W / 2, GROUND + 18, 86, 16, 0, 0, 7);
+    g.fill();
+    g.strokeStyle = SUITD;
+    g.lineWidth = 2;
+    g.stroke();
+    if (view === "front") {
+      g.strokeStyle = "rgba(150,120,70,.16)";
+      g.setLineDash([4, 6]);
+      g.beginPath(); g.moveTo(W / 2, 36); g.lineTo(W / 2, GROUND - 4); g.stroke();
+      g.setLineDash([]);
+    }
+  }
+
+  function drawChar(sk, view, ex, phase) {
+    const charX = W / 2;
+    const hipY = BASEHIP;
+    const focus = FOCUS[ex && ex.id] || { parts:"", dir:"up" };
+    const goingUp = phase < 0.48;
+
+    g.save();
+    g.translate(charX, hipY + sk.hipDelta * Z);
+    g.scale(Z, Z);
+
+    const sh = (GROUND - (hipY + sk.hipDelta * Z)) / Z;
+    const hipW = view === "front" ? 11 : 5.5;
+    const shW = view === "front" ? 14 : 5.0;
+
+    const hip = { x: 0, y: 0 };
+    const shoulder = { x: NECK * Math.sin(sk.torso), y: -NECK * Math.cos(sk.torso) };
+    const lF = seg(-hipW, 0, THIGH, CALF, sk.legF.t, sk.legF.k);
+    const lB = seg( hipW, 0, THIGH, CALF, sk.legB.t, sk.legB.k);
+    const aF = seg(shoulder.x - shW, shoulder.y + 2, UPARM, FOARM, sk.armF.s, -sk.armF.e);
+    const aB = seg(shoulder.x + shW, shoulder.y + 2, UPARM, FOARM, sk.armB.s, -sk.armB.e);
+
+    // sombras, una por pie — bajo el pie de verdad, no a un tercio
+    g.save();
+    const liftB = Math.max(0, sh - lB.end.y);
+    const liftF = Math.max(0, sh - lF.end.y);
+    g.fillStyle = "rgba(90,60,30," + (0.26 * Math.max(0.22, 1 - liftB / 55)) + ")";
+    g.beginPath(); g.ellipse(lB.end.x, sh + 1, 15, 5.2, 0, 0, 7); g.fill();
+    g.fillStyle = "rgba(90,60,30," + (0.30 * Math.max(0.22, 1 - liftF / 55)) + ")";
+    g.beginPath(); g.ellipse(lF.end.x, sh + 1, 17, 5.6, 0, 0, 7); g.fill();
+    g.restore();
+
+    const skinF = SKIN, skinB = SKIN_B;
+    const edge = INK;
+
+    function drawLeg(L, atras, lit) {
+      if (lit) { haloSeg(L.root, L.mid, 14); haloSeg(L.mid, L.end, 11); }
+      bendLimb(
+        L.root, L.mid, L.end,
+        atras ? 13.0 : 15.0,
+        atras ? 9.4 : 11.0,
+        atras ? 6.6 : 7.6,
+        atras ? "#d4a57c" : skinF,
+        edge
+      );
+      foot(L.end, L.endAng, atras);
+    }
+    function drawArm(A, atras, lit) {
+      if (lit) { haloSeg(A.root, A.mid, 9); haloSeg(A.mid, A.end, 7); }
+      bendLimb(
+        A.root, A.mid, A.end,
+        atras ? 9.2 : 11.0,
+        atras ? 6.2 : 7.0,
+        atras ? 4.2 : 4.8,
+        atras ? skinB : skinF,
+        edge
+      );
+      hand(A.end, A.endAng, atras);
+    }
+
+    const litLeg = focus.parts === "leg" || focus.parts === "foot" || focus.parts === "hip";
+    const litArm = focus.parts === "arm";
+    const litHead = focus.parts === "head";
+
+    // orden: atrás → cuerpo → camiseta → cabeza → delante
+    drawArm(aB, true, litArm);
+    drawLeg(lB, true, litLeg);
+    drawBody(hip, shoulder, view);
+    drawTank(hip, shoulder, view);
+
+    const ha = sk.torso + sk.head;
+    const hc = { x: shoulder.x + Math.sin(ha) * HEADR * 1.55, y: shoulder.y - Math.cos(ha) * HEADR * 1.55 };
+    capsule(shoulder, hc, 6.2, 7.2, SKIN, null, null);
+    if (litHead) {
+      g.save();
+      g.strokeStyle = HALO;
+      g.lineWidth = 14;
+      g.beginPath(); g.arc(hc.x, hc.y, HEADR + 4, 0, 7); g.stroke();
+      g.restore();
+    }
+    drawHead(hc, ha, view, moodOf(ex), phase);
+
+    drawLeg(lF, false, litLeg);
+    drawArm(aF, false, litArm);
+
+    if (focus.parts === "hip") {
+      haloSeg(hip, shoulder, 18);
+    }
+
+    // flecha de dirección junto al miembro activo
+    if (playing) {
+      let tip = aF.end;
+      if (focus.parts === "leg" || focus.parts === "foot") tip = lF.end;
+      if (focus.parts === "head") tip = { x: hc.x + 22, y: hc.y };
+      if (focus.parts === "hip") tip = { x: hip.x + 26, y: hip.y - 8 };
+      let ang = goingUp ? -Math.PI / 2 : Math.PI / 2;
+      if (focus.dir === "side") ang = goingUp ? Math.PI : 0;
+      if (focus.dir === "circle") ang = phase * Math.PI * 2 - Math.PI / 2;
+      if (focus.dir === "down") ang = goingUp ? Math.PI / 2 : -Math.PI / 2;
+      // Fuera de la silueta: si no, en sentadilla se come el muslo.
+      const ox = (focus.parts === "leg" || focus.parts === "foot" || focus.parts === "hip") ? 22 : 18;
+      const oy = (focus.parts === "leg" || focus.parts === "foot" || focus.parts === "hip") ? 8 : -16;
+      drawArrow(tip.x + ox, tip.y + oy, ang, 34);
+    }
+    if (focus.align) {
+      drawAlign(lF.end, lF.mid, hip);
+    }
+
+    g.restore();
+  }
+
+  function draw() {
+    const ex = EXERCISES[current];
+    g.clearRect(0, 0, W, H);
+    drawBackground(ex.view);
+    const sk = samplePose(ex, animT);
+    sk.torso += Math.sin(performance.now() / 1000 * 2.2) * 0.02;
+    drawChar(sk, ex.view, ex, animT);
+  }
+
+  /* ——— bucle ——— */
+  let midCueFired = false;
+  function frame(now) {
+    let dt = (now - last) / 1000; last = now;
+    if (dt > 0.05) dt = 0.05;
+    if (playing && !sessionDone) {
+      const ex = EXERCISES[current];
+      const cycle = ex.cycle * getSpeed();
+      const prev = animT;
+      animT += dt / cycle;
+      // mid-cycle cue (halfway)
+      if (!midCueFired && prev < 0.45 && animT >= 0.45) {
+        midCueFired = true;
+        pitidoMedio();
+        if (ex.cueUp) cueEl.textContent = ex.cueUp;
+      }
+      if (animT >= 1) {
+        animT -= 1;
+        midCueFired = false;
+        if (ex.cueDown) cueEl.textContent = ex.cueDown;
+        onRepComplete();
+      }
+    }
+    draw();
+    if (!playing || sessionDone || document.hidden) { rafId = null; return; }
+    rafId = requestAnimationFrame(frame);
+  }
+
+  // El bucle original repintaba 60 veces por segundo SIEMPRE: en pausa,
+  // con la serie terminada y con la pestaña en otra ventana. Repintar el
+  // fondo, el suelo y el personaje sin que nadie mire es CPU quemada, y
+  // en el HP de 4 GB que ya va a 8 fps con los gestos eso se nota.
+  // Ahora: si no hay movimiento, se dibuja UN fotograma y el bucle para.
+  let rafId = null;
+  function arrancarBucle() {
+    if (rafId !== null) return;
+    last = performance.now();
+    rafId = requestAnimationFrame(frame);
+  }
+  function pararBucle() {
+    if (rafId !== null) { cancelAnimationFrame(rafId); rafId = null; }
+    draw();
+  }
+  // Si se cambia de pestaña o se apaga la pantalla, ni se dibuja ni se
+  // habla. Una voz contando sola en segundo plano es lo peor que hay.
+  document.addEventListener("visibilitychange", () => {
+    if (document.hidden) {
+      if (window.speechSynthesis) speechSynthesis.cancel();
+      if (rafId !== null) { cancelAnimationFrame(rafId); rafId = null; }
+    } else if (playing && !sessionDone) {
+      arrancarBucle();
+    }
+  });
+
+  // ═══ EL LIENZO SE ADAPTA A LA PANTALLA ═══
+  // Antes era 360x360 fijo y el navegador lo estiraba: en la tele del
+  // salón se veía borroso. Ahora se dibuja a la resolución real del
+  // aparato (hasta 2x) y todo el dibujo sigue usando coordenadas de 360,
+  // así que no hubo que tocar ni una línea de las de pintar.
+  const lienzo = document.getElementById("c");
+  function ajustarLienzo() {
+    const caja = lienzo.getBoundingClientRect();
+    // Se comprueban LAS DOS: ahora el alto lo reparte flexbox y puede
+    // llegar a cero un instante mientras la maqueta se coloca. Con alto
+    // cero, la escala sale cero y no se dibuja nada — que es
+    // exactamente el «no veo a Virginia» de todo este rato.
+    if (!caja.width || !caja.height) return;
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    lienzo.width = Math.round(caja.width * dpr);
+    lienzo.height = Math.round(caja.height * dpr);
+    // El MENOR de los dos: si se escala solo por el ancho, en una caja
+    // apaisada la figura se sale por abajo y se ve a medias.
+    // El MENOR de los dos: en dos columnas el lienzo ya no es cuadrado,
+    // y escalando solo por el ancho la figura se saldría por abajo.
+    const escala = Math.min((caja.width * dpr) / W, (caja.height * dpr) / H);
+    // Y centrada en el hueco que sobre, que si no queda pegada a un lado.
+    const sobraX = (caja.width * dpr - W * escala) / 2;
+    const sobraY = (caja.height * dpr - H * escala) / 2;
+    g.setTransform(escala, 0, 0, escala, sobraX, sobraY);
+    draw();
+  }
+  addEventListener("resize", ajustarLienzo);
+  // Vigilante de tamaño: si el gimnasio está dentro de una pestaña
+  // oculta, al cargar mide cero y no se dibujaría jamás. En cuanto se
+  // abre la pestaña y coge tamaño, esto lo pinta.
+  if (window.ResizeObserver) {
+    new ResizeObserver(() => ajustarLienzo()).observe(lienzo);
+  } else {
+    // Navegador viejo: se reintenta unas cuantas veces y se deja.
+    let intentos = 0;
+    const reintentar = setInterval(() => {
+      ajustarLienzo();
+      if (++intentos > 20 || lienzo.getBoundingClientRect().width) clearInterval(reintentar);
+    }, 250);
+  }
+
+  /* ——— UI ——— */
+  function select(i, opts) {
+    current = (i + EXERCISES.length) % EXERCISES.length;
+    animT = 0;
+    midCueFired = false;
+    reps = 0;
+    sessionDone = false;
+    announcedIntro = false;
+    updateRepHud();
+    const ex = EXERCISES[current];
+    stateEl.textContent = ex.name;
+    descEl.textContent = ex.desc;
+    badgeEl.textContent = ex.tagLabel;
+    viewBadge.textContent = ex.view === "front" ? "Frente" : "De lado";
+    cueEl.textContent = "";
+    if (!playing) pararBucle();   // repinta la nueva pose aunque esté parado [...listEl.children].forEach((el, idx) => el.classList.toggle("on", idx === current));
+    listEl.children[current] && listEl.children[current].scrollIntoView({ block: "nearest", behavior: "smooth" });
+    if (opts && opts.announce) {
+      speak(ex.intro + " Vamos a hacer " + getTarget() + " repeticiones.", { interrupt: true });
+      announcedIntro = true;
+    }
+  }
+
+  function buildList() {
+    listEl.innerHTML = "";
+    // Con más de 16 no caben en una columna ni apretados: se parten en
+    // dos antes que sacar barra de desplazamiento.
+    listEl.classList.toggle("muchos", (EXERCISES || []).length > 16);
+    EXERCISES.forEach((ex, i) => {
+      const b = document.createElement("button");
+      b.type = "button";
+      b.className = "ex" + (i === current ? " on" : "");
+      b.innerHTML =
+        '<span class="n">' + (i + 1) + "</span>" +
+        '<span class="meta"><span class="t">' + ex.name + "</span>" +
+        '<span class="d">' + (ex.view === "front" ? "Frente" : "De lado") +
+        " · " + ex.cycle.toFixed(1) + "s</span></span>" +
+        '<span class="tag ' + ex.tag + '">' + ex.tagLabel + "</span>";
+      b.onclick = () => {
+        if (window.speechSynthesis) speechSynthesis.cancel();
+        select(i, { announce: true });
+        playing = true;
+        syncPlay();
+      };
+      listEl.appendChild(b);
+    });
+  }
+
+  function syncPlay() {
+    btnPlay.textContent = playing ? "⏸ Pausar" : sessionDone ? "▶ Otra serie" : "▶ Empezar";
+    btnPlay.setAttribute("aria-pressed", playing ? "true" : "false");
+    if (playing && !sessionDone) arrancarBucle(); else pararBucle();
+  }
+
+  btnPlay.onclick = () => {
+    abrirAudio();   // el navegador solo deja sonar tras tocar un botón
+    if (sessionDone) {
+      reps = 0;
+      sessionDone = false;
+      animT = 0;
+      updateRepHud();
+      playing = true;
+      const ex = EXERCISES[current];
+      speak("Otra serie de " + ex.name + ". " + getTarget() + " repeticiones.", { interrupt: true });
+      syncPlay();
+      return;
+    }
+    playing = !playing;
+    if (playing && !announcedIntro) {
+      const ex = EXERCISES[current];
+      speak(ex.intro + " " + getTarget() + " repeticiones.", { interrupt: true });
+      announcedIntro = true;
+    } else if (!playing && window.speechSynthesis) {
+      speechSynthesis.cancel();
+    }
+    syncPlay();
+  };
+
+  function cambiarEjercicio(paso) {
+    if (window.speechSynthesis) speechSynthesis.cancel();
+    // Se conserva si estaba en marcha: si estabas entrenando, sigues
+    // entrenando; si estabas mirando, sigues mirando.
+    const seguia = playing;
+    select(current + paso, { announce: true });
+    playing = seguia;
+    syncPlay();
+  }
+  btnPrev.onclick = () => cambiarEjercicio(-1);
+  btnNext.onclick = () => cambiarEjercicio(1);
+  btnReset.onclick = () => {
+    reps = 0;
+    sessionDone = false;
+    animT = 0;
+    midCueFired = false;
+    updateRepHud();
+    cueEl.textContent = "";
+    stateEl.textContent = EXERCISES[current].name;
+    if (window.speechSynthesis) speechSynthesis.cancel();
+    speak("Serie reiniciada.", { interrupt: true });
+    syncPlay();
+  };
+  btnSonido.onclick = () => {
+    abrirAudio();
+    pitidoOn = !pitidoOn;
+    btnSonido.classList.toggle("on", pitidoOn);
+    btnSonido.textContent = pitidoOn ? "🔔 Pitido: sí" : "🔕 Pitido: no";
+    if (pitidoOn) pitidoRep();   // se oye al momento: así se prueba solo
+  };
+
+  btnVoice.onclick = () => {
+    voiceOn = !voiceOn;
+    btnVoice.textContent = voiceOn ? "Voz: sí" : "Voz: no";
+    btnVoice.classList.toggle("on", voiceOn);
+    if (!voiceOn && window.speechSynthesis) speechSynthesis.cancel();
+    else speak(voiceOn ? "Voz activada." : "", { interrupt: true });
+  };
+  targetSel.onchange = () => {
+    updateRepHud();
+    if (reps >= getTarget() && !sessionDone) {
+      /* no auto-complete mid-set */
+    }
+  };
+
+  // ═══ MANDO A DISTANCIA ═══
+  // Este es el módulo que más lo necesita: haciendo sentadillas en medio
+  // del salón no se llega al ratón. Se cubren los tres repertorios que
+  // usan los mandos de diapositivas (AvPág/RePág, flechas, y b/./F5 para
+  // el botón de pantalla en negro), igual que en el resto del asistente.
+  const MANDO = {
+    PageDown: "siguiente", ArrowRight: "siguiente",
+    PageUp: "anterior", ArrowLeft: "anterior",
+    " ": "marcha", Enter: "marcha", b: "marcha", B: "marcha",
+    ".": "marcha", F5: "marcha",
+    Escape: "reiniciar",
+  };
+  addEventListener("keydown", (ev) => {
+    // Si se está eligiendo meta o ritmo en un desplegable, el mando calla.
+    const foco = document.activeElement;
+    if (foco && ["select", "input", "textarea"].includes((foco.tagName || "").toLowerCase())) return;
+    if (ev.ctrlKey || ev.altKey || ev.metaKey) return;
+
+    // El mando de la tele no tiene rueda: sin esto, los ejercicios de
+    // abajo de la lista eran inalcanzables. Las flechas mueven el foco
+    // y la lista se desplaza sola.
+    if (ev.key === "ArrowDown" || ev.key === "ArrowUp") {
+      const cosas = [...document.querySelectorAll(
+        "button, select, [tabindex]")].filter(e => !e.disabled && e.offsetParent !== null);
+      const donde = cosas.indexOf(document.activeElement);
+      const nuevo = donde < 0 ? 0 : donde + (ev.key === "ArrowDown" ? 1 : -1);
+      if (nuevo >= 0 && nuevo < cosas.length) {
+        ev.preventDefault();
+        cosas[nuevo].focus();
+        if (cosas[nuevo].scrollIntoView) {
+          cosas[nuevo].scrollIntoView({ block: "nearest", behavior: "smooth" });
+        }
+        return;
+      }
+    }
+
+    const orden = MANDO[ev.key];
+    if (!orden) return;
+    // Siempre se cancela: F5 recargaría la página entera a mitad de serie.
+    ev.preventDefault();
+    if (orden === "siguiente") btnNext.click();
+    else if (orden === "anterior") btnPrev.click();
+    else if (orden === "marcha") btnPlay.click();
+    else if (orden === "reiniciar") btnReset.click();
+  });
+
+  avisarSiNoHayVoz();
+  buildList();
+  select(0, { announce: false });
+  try {
+    const q = new URLSearchParams(location.search);
+    if (q.has("ex")) select(parseInt(q.get("ex"), 10) || 0, { announce: false });
+    if (q.has("t")) animT = Math.min(0.99, Math.max(0, parseFloat(q.get("t")) || 0));
+    if (q.get("play") === "1") { playing = true; }
+  } catch (e) {}
+  updateRepHud();
+  syncPlay();
+  ajustarLienzo();
+})();
+</script>
+</body>
+</html>

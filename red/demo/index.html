@@ -1,0 +1,1863 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#1a5f4a">
+  <meta name="description" content="Red ciudadana local de Valladolid — clima, nombres de calle, día de mercado, bici, misiones, viñetas, día/noche, sellos y eventos; privacidad de chat, campana, lugares, mostrador, prensa .pucela, federación, mensajes E2E, depósito, casa privada.">
+  <title>Red Ciudadano Valladolid</title>
+  <link rel="manifest" href="/manifest.webmanifest">
+  <link rel="icon" href="/icons/icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="/icons/icon-192.png">
+  <link rel="stylesheet" href="/css/app.css">
+</head>
+<body>
+  <div id="app">
+    <header class="topbar">
+      <button type="button" id="btn-back" class="btn-icon hidden" aria-label="Volver">←</button>
+      <div class="brand">
+        <span class="brand-mark" aria-hidden="true">🌿</span>
+        <div>
+          <h1 id="title">Valladolid</h1>
+          <p class="subtitle" id="subtitle">Lugares de la ciudad</p>
+        </div>
+      </div>
+      <button type="button" id="btn-campana" class="btn-campana" aria-label="Campana de avisos" aria-haspopup="dialog" aria-expanded="false" title="Avisos">
+        <span aria-hidden="true">🔔</span>
+        <span id="campana-badge" class="campana-badge hidden" aria-live="polite">0</span>
+      </button>
+    </header>
+
+    <div id="campana-sheet" class="campana-sheet hidden" role="dialog" aria-modal="true" aria-labelledby="campana-title">
+      <div class="campana-backdrop" id="campana-backdrop" tabindex="-1"></div>
+      <div class="campana-panel">
+        <div class="campana-head">
+          <h2 id="campana-title">Avisos</h2>
+          <button type="button" id="btn-campana-leer" class="btn-secondary btn-sm">Marcar leídos</button>
+          <button type="button" id="btn-campana-cerrar" class="btn-icon" aria-label="Cerrar">✕</button>
+        </div>
+        <p class="hint campana-hint">Derivados de casa, federación y mostrador · solo en este nodo</p>
+        <div id="campana-list" class="campana-list" role="list"></div>
+        <p id="campana-empty" class="empty hidden">Sin avisos por ahora.</p>
+      </div>
+    </div>
+
+    <nav class="main-nav" id="main-nav" aria-label="Secciones">
+      <button type="button" class="nav-btn active" data-nav="lugares">📍 Lugares</button>
+      <button type="button" class="nav-btn" data-nav="mensajes">💬 Mensajes</button>
+      <button type="button" class="nav-btn" data-nav="archivos">📎 Archivos</button>
+      <button type="button" class="nav-btn" data-nav="envios">📦 Envíos</button>
+      <button type="button" class="nav-btn" data-nav="casa">🏠 Mi casa</button>
+      <button type="button" class="nav-btn" data-nav="pucela">📄 Pucela</button>
+      <button type="button" class="nav-btn" data-nav="federacion">🔗 Federación</button>
+    </nav>
+
+    <main id="view-home" class="view">
+      <label class="search-wrap" for="search">
+        <span class="search-icon" aria-hidden="true">🔍</span>
+        <input id="search" type="search" enterkeyhint="search" autocomplete="off"
+               placeholder="Buscar lugar (comisaría, mercado, iglesia…)"
+               aria-label="Buscar lugar">
+      </label>
+      <div class="home-toolbar">
+        <p class="hint home-hint" id="home-hint">Calles · brújula · capas · VitaInk opcional · sin Google</p>
+        <div class="view-toggle" role="group" aria-label="Vista del directorio">
+          <button type="button" class="toggle-btn active" id="btn-view-calles" data-view="calles">🕹️ Calles</button>
+          <button type="button" class="toggle-btn" id="btn-view-mapa" data-view="mapa">🗺️ Mapa</button>
+          <button type="button" class="toggle-btn" id="btn-view-lista" data-view="lista">📋 Lista</button>
+        </div>
+      </div>
+
+      <div id="city-hud" class="city-hud" aria-label="Estado de la ciudad">
+        <button type="button" id="hud-tod" class="hud-chip hud-primary" title="Hora del día" aria-label="Hora del día">☀️ Día</button>
+        <button type="button" id="hud-clima" class="hud-chip hud-primary" title="Clima ambient" aria-label="Clima">☀️ Sol</button>
+        <button type="button" id="hud-bike" class="hud-chip hud-primary" title="Modo bici / andar" aria-label="Modo bici" aria-pressed="false">🚶 Andar</button>
+        <button type="button" id="hud-capas" class="hud-chip hud-primary" title="Capas cívicas" aria-label="Capas">🗂️ Capas</button>
+        <button type="button" id="hud-vitaink" class="hud-chip vitaink-chip hud-primary hidden" title="Capa VitaInk (juego, OFF por defecto)" aria-pressed="false" aria-label="VitaInk">🎮 VitaInk</button>
+        <button type="button" id="hud-juego-limpio" class="hud-chip vitaink-chip hud-primary hidden" title="Ocultar ruido cívico y compactar HUD (modo juego)" aria-pressed="false" aria-label="Ocultar cívico">👁️ Ocultar cívico</button>
+        <div id="hud-more-wrap" class="hud-more-wrap">
+          <button type="button" id="hud-more" class="hud-chip hud-more-btn" title="Más controles" aria-label="Más" aria-expanded="false" aria-controls="hud-more-menu">⋯ Más</button>
+          <div id="hud-more-menu" class="hud-more-menu hidden" role="menu" aria-label="Más controles del HUD">
+            <button type="button" id="hud-vista" class="hud-chip hud-secondary" title="Vista del mapa" aria-label="Vista" role="menuitem">👁️ Planta</button>
+            <button type="button" id="hud-ruta" class="hud-chip hud-secondary" title="Ruta a pie" aria-label="Ruta a pie" role="menuitem">🧭 Ruta</button>
+            <button type="button" id="hud-brujula" class="hud-chip hud-brujula hud-secondary" title="Brújula / orientación" aria-label="Brújula" aria-pressed="false" role="menuitem">
+              <span class="brujula-dial" id="brujula-dial" aria-hidden="true">
+                <span class="brujula-needle"></span>
+                <span class="brujula-n">N</span>
+              </span>
+              <span id="hud-brujula-label">N</span>
+            </button>
+            <button type="button" id="hud-favoritos" class="hud-chip hud-secondary" title="Favoritos locales" aria-label="Favoritos" role="menuitem">★ Favoritos</button>
+            <button type="button" id="hud-stamps" class="hud-chip hud-secondary" title="Libro de sellos" aria-label="Libro de sellos" role="menuitem">🔖 <span id="hud-stamps-count">0</span></button>
+            <button type="button" id="hud-missions" class="hud-chip hud-secondary" title="Misiones cívicas" aria-label="Misiones cívicas" role="menuitem">🎯 <span id="hud-missions-count">0/0</span></button>
+            <button type="button" id="hud-paradas" class="hud-chip hud-secondary" title="Paradas cívicas" aria-label="Paradas cívicas" role="menuitem">🚏 Línea</button>
+            <button type="button" id="hud-vitaink-pj" class="hud-chip vitaink-chip hud-secondary hidden" title="Personaje VitaInk" aria-label="Personaje VitaInk" role="menuitem">🧍 Personaje</button>
+            <button type="button" id="hud-vitaink-ranking" class="hud-chip vitaink-chip hud-secondary hidden" title="Ranking VitaInk" aria-label="Ranking VitaInk" role="menuitem">🏆 Ranking</button>
+            <button type="button" id="hud-vitaink-tesoros" class="hud-chip vitaink-chip hud-secondary hidden" title="Tesoros VitaInk" aria-label="Tesoros VitaInk" role="menuitem">💎 <span id="hud-vitaink-tesoros-count">0/0</span></button>
+            <button type="button" id="hud-vitaink-misiones" class="hud-chip vitaink-chip hud-secondary hidden" title="Misiones VitaInk" aria-label="Misiones VitaInk" role="menuitem">🗺️ <span id="hud-vitaink-misiones-count">0/0</span></button>
+            <button type="button" id="hud-vitaink-dios" class="hud-chip vitaink-chip hud-secondary hidden" title="Panel Dios (PIN operador)" aria-label="Dios VitaInk" role="menuitem">⚡ Dios</button>
+            <button type="button" id="hud-vitaink-maestros" class="hud-chip vitaink-chip hud-secondary hidden" title="Maestros VitaInk (códice, voto, diálogo, lecciones, diario, prueba, reliquias, sínodo)" aria-label="Maestros VitaInk" role="menuitem">🧭 Maestros</button>
+            <button type="button" id="hud-vitaink-reliquias" class="hud-chip vitaink-chip hud-secondary hidden" title="Reliquias de la senda VitaInk" aria-label="Reliquias VitaInk" role="menuitem">🕯️ Reliquias</button>
+            <button type="button" id="hud-vitaink-sinodo" class="hud-chip vitaink-chip hud-secondary hidden" title="Sínodo entre maestros VitaInk" aria-label="Sínodo VitaInk" role="menuitem">⚖️ Sínodo</button>
+            <button type="button" id="hud-vitaink-rito" class="hud-chip vitaink-chip hud-secondary hidden" title="Rito diario VitaInk" aria-label="Rito diario VitaInk" role="menuitem">🌅 Rito</button>
+            <button type="button" id="hud-vitaink-peregrinacion" class="hud-chip vitaink-chip hud-secondary hidden" title="Peregrinación VitaInk" aria-label="Peregrinación VitaInk" role="menuitem">🚶 Peregrinación</button>
+            <button type="button" id="hud-vitaink-codice" class="hud-chip vitaink-chip hud-secondary hidden" title="Códice de la senda VitaInk" aria-label="Códice VitaInk" role="menuitem">📖 Códice</button>
+            <button type="button" id="hud-vitaink-cronica" class="hud-chip vitaink-chip hud-secondary hidden" title="Crónica VitaInk" aria-label="Crónica VitaInk" role="menuitem">📜 Crónica</button>
+          </div>
+        </div>
+      </div>
+      <!-- v5.18 HUD aventura VitaInk (lote 1 iconos) · solo con VitaInk ON -->
+      <div id="vitaink-adventure-hud" class="vitaink-adventure-hud hidden" aria-label="HUD aventura VitaInk" hidden>
+        <div class="vah-vitals" aria-label="Vitales">
+          <div class="vah-hearts" id="vah-hearts" role="img" aria-label="Salud"></div>
+          <div class="vah-stamina" id="vah-stamina" role="img" aria-label="Resistencia"></div>
+          <div class="vah-coins" title="Monedas virtuales">
+            <img class="vah-icon" id="vah-coin-icon" src="/vitaink/sprites/hud/svg/coin.svg" width="40" height="40" alt="" aria-hidden="true" data-hud-icon="coin">
+            <span class="vah-coin-count" id="vah-coin-count">—</span>
+          </div>
+        </div>
+        <div class="vah-actions" role="toolbar" aria-label="Atajos aventura">
+          <button type="button" id="vah-btn-quest" class="vah-btn" title="Misiones VitaInk" aria-label="Misiones">
+            <img class="vah-icon" src="/vitaink/sprites/hud/svg/quest.svg" width="44" height="44" alt="" aria-hidden="true" data-hud-icon="quest">
+          </button>
+          <button type="button" id="vah-btn-tower" class="vah-btn" title="Mirador / ranking" aria-label="Mirador">
+            <img class="vah-icon" src="/vitaink/sprites/hud/svg/tower_eye.svg" width="44" height="44" alt="" aria-hidden="true" data-hud-icon="tower_eye">
+          </button>
+          <button type="button" id="vah-btn-inventory" class="vah-btn" title="Personaje e inventario" aria-label="Inventario">
+            <img class="vah-icon" src="/vitaink/sprites/hud/svg/inventory.svg" width="44" height="44" alt="" aria-hidden="true" data-hud-icon="inventory">
+          </button>
+        </div>
+      </div>
+      <div id="event-toast" class="event-toast hidden" role="status" aria-live="polite">
+        <div class="event-toast-inner">
+          <strong id="event-toast-title"></strong>
+          <p id="event-toast-body"></p>
+          <div class="event-toast-actions">
+            <button type="button" id="event-toast-place" class="btn-secondary btn-sm hidden">Ir al lugar</button>
+            <button type="button" id="event-toast-dismiss" class="btn-primary btn-sm">Entendido</button>
+          </div>
+        </div>
+      </div>
+      <div id="city-streets" class="city-streets vista-planta" role="application" aria-label="Calles jugables de Valladolid">
+        <!-- Controles Calles: zoom + pantalla completa (también útiles sin VitaInk) -->
+        <div id="calles-tools" class="calles-tools" aria-label="Zoom y pantalla completa">
+          <button type="button" id="hud-zoom-out" class="calles-tool-btn" title="Alejar" aria-label="Alejar">−</button>
+          <button type="button" id="hud-zoom-in" class="calles-tool-btn" title="Acercar" aria-label="Acercar">+</button>
+          <button type="button" id="hud-fullscreen" class="calles-tool-btn" title="Pantalla completa" aria-label="Pantalla completa" aria-pressed="false">⛶</button>
+        </div>
+        <button type="button" id="calles-fs-exit" class="calles-fs-exit hidden" title="Salir de pantalla completa" aria-label="Salir de pantalla completa">✕ Salir</button>
+        <div id="streets-stage" class="streets-stage">
+          <div class="map-bg" aria-hidden="true">
+            <span class="map-river"></span>
+            <span class="map-zone z-norte">Norte</span>
+            <span class="map-zone z-centro">Centro</span>
+            <span class="map-zone z-sur">Sur</span>
+            <span class="map-zone z-oeste">Oeste</span>
+            <span class="map-zone z-este">Este</span>
+          </div>
+          <div id="clima-sky" class="clima-sky" aria-hidden="true">
+            <span class="clima-sun"></span>
+            <span class="clima-cloud c1"></span>
+            <span class="clima-cloud c2"></span>
+            <span class="clima-cloud c3"></span>
+          </div>
+          <div id="street-windows" class="street-windows" aria-hidden="true"></div>
+          <svg id="streets-svg" class="streets-svg" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"></svg>
+          <div id="street-buildings" class="street-buildings"></div>
+          <div id="street-vitaink-casas" class="street-vitaink-casas" aria-label="Casas VitaInk"></div>
+          <div id="street-vitaink-tesoros" class="street-vitaink-tesoros" aria-label="Tesoros VitaInk"></div>
+          <div id="street-vitaink-bots" class="street-vitaink-bots" aria-label="PNJ VitaInk"></div>
+          <div id="street-vitaink-ermitas" class="street-vitaink-ermitas" aria-label="Ermitas VitaInk"></div>
+          <div id="street-vitaink-peregrinacion" class="street-vitaink-peregrinacion" aria-label="Paradas de peregrinación VitaInk"></div>
+          <div id="street-pois" class="street-pois" aria-hidden="true"></div>
+          <div id="player-avatar" class="player-avatar" aria-hidden="true" title="Tú">
+            <img id="player-mari" class="player-mari hidden" src="" alt="" width="38" height="56" decoding="async" aria-hidden="true">
+            <!-- v5.16: capas on-body (512×768 front / 1280×720 top) sobre el sprite cuerpo -->
+            <canvas id="player-face-on-body" class="player-face-on-body hidden" width="512" height="768" aria-hidden="true" title="Rostro en avatar"></canvas>
+            <canvas id="player-face-badge" class="player-face-badge hidden" width="64" height="64" aria-hidden="true" title="Tu rostro"></canvas>
+            <span class="player-emoji" id="player-emoji">🚶</span>
+            <span class="player-facing" aria-hidden="true"></span>
+          </div>
+          <div id="clima-rain" class="clima-rain" aria-hidden="true"></div>
+        </div>
+        <button type="button" id="mini-mapa" class="mini-mapa hidden" title="Abrir Mirador" aria-label="Mini-mapa: tocar para Mirador">
+          <svg id="mini-mapa-svg" class="mini-mapa-svg" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid meet" aria-hidden="true"></svg>
+          <span class="mini-mapa-label">Mapa</span>
+        </button>
+        <p id="street-name-chip" class="street-name-chip" aria-live="polite"></p>
+        <p id="street-label" class="street-label" aria-live="polite"></p>
+        <div id="route-banner" class="route-banner hidden" aria-live="polite">
+          <p id="route-tip" class="route-tip"></p>
+          <p id="route-meta" class="route-meta"></p>
+          <div class="route-banner-actions">
+            <button type="button" id="route-start" class="btn-primary btn-sm">Iniciar</button>
+            <button type="button" id="route-pasos" class="btn-secondary btn-sm">Pasos</button>
+            <button type="button" id="route-cancel" class="btn-secondary btn-sm">Cancelar ruta</button>
+            <label class="route-follow-label"><input type="checkbox" id="route-follow"> Seguir</label>
+          </div>
+        </div>
+        <div id="pasos-sheet" class="pasos-sheet hidden" role="dialog" aria-label="Pasos de la ruta">
+          <div class="pasos-handle" id="pasos-handle" aria-hidden="true"></div>
+          <div class="pasos-head">
+            <h3 id="pasos-title">Indicaciones</h3>
+            <button type="button" id="pasos-close" class="btn-secondary btn-sm" aria-label="Cerrar pasos">Cerrar</button>
+          </div>
+          <ol id="pasos-list" class="pasos-list"></ol>
+        </div>
+        <button type="button" id="civic-action" class="civic-action hidden" aria-live="polite"></button>
+        <div id="vita-encuentro-toast" class="vita-encuentro-toast hidden" role="status" aria-live="polite">
+          <img id="vita-encuentro-alma" class="vita-alma-thumb" src="" alt="" width="36" height="36">
+          <div>
+            <strong id="vita-encuentro-title">Encuentro</strong>
+            <p id="vita-encuentro-body"></p>
+          </div>
+          <button type="button" id="vita-encuentro-close" class="btn-secondary btn-sm" aria-label="Cerrar encuentro">✕</button>
+        </div>
+        <div id="dpad" class="dpad" aria-label="Mandos de movimiento">
+          <button type="button" class="dpad-btn dpad-up" data-dir="up" aria-label="Arriba">▲</button>
+          <button type="button" class="dpad-btn dpad-left" data-dir="left" aria-label="Izquierda">◀</button>
+          <button type="button" class="dpad-btn dpad-center" data-dir="enter" aria-label="Entrar al edificio">⏎</button>
+          <button type="button" class="dpad-btn dpad-right" data-dir="right" aria-label="Derecha">▶</button>
+          <button type="button" class="dpad-btn dpad-down" data-dir="down" aria-label="Abajo">▼</button>
+        </div>
+      </div>
+      <div id="civic-map" class="civic-map hidden" role="list" aria-label="Mapa esquemático de Valladolid">
+        <div class="map-bg" aria-hidden="true">
+          <span class="map-river"></span>
+          <span class="map-zone z-norte">Norte</span>
+          <span class="map-zone z-centro">Centro</span>
+          <span class="map-zone z-sur">Sur</span>
+          <span class="map-zone z-oeste">Oeste</span>
+          <span class="map-zone z-este">Este</span>
+        </div>
+        <div id="map-windows" class="street-windows map-windows" aria-hidden="true"></div>
+        <div id="map-pins" class="map-pins"></div>
+      </div>
+      <div id="places-grid" class="places-grid hidden" role="list"></div>
+      <p id="empty" class="empty hidden">Ningún lugar coincide con la búsqueda.</p>
+    </main>
+
+
+    
+    <div id="line-picker" class="line-picker hidden" role="dialog" aria-modal="true" aria-labelledby="line-picker-title">
+      <div class="line-picker-card">
+        <h2 id="line-picker-title">Tomar línea</h2>
+        <p class="stub-note">Elige una parada. Esquema cívico — no es GPS ni horarios reales.</p>
+        <div id="line-picker-list" class="line-picker-list" role="list"></div>
+        <button type="button" id="line-picker-cancel" class="btn-secondary">Cancelar</button>
+      </div>
+    </div>
+
+
+    <div id="vista-panel" class="civic-sheet hidden" role="dialog" aria-modal="true" aria-labelledby="vista-panel-title">
+      <div class="civic-sheet-card">
+        <h2 id="vista-panel-title">Vista</h2>
+        <p class="stub-note">Inspiración peatonera local — sin satélite ni Street View.</p>
+        <div class="vista-choices" role="group" aria-label="Elegir vista">
+          <button type="button" class="vista-choice" data-vista="planta">🗺️ Planta</button>
+          <button type="button" class="vista-choice" data-vista="inclinada">📐 Inclinada</button>
+          <button type="button" class="vista-choice" data-vista="mirador">🔭 Mirador</button>
+        </div>
+        <p class="field-label" style="margin-top:12px">Orientación del mapa</p>
+        <div class="vista-choices orient-choices" role="group" aria-label="Orientación">
+          <button type="button" class="orient-choice active" data-orient="norte" id="orient-norte">⬆️ Norte arriba</button>
+          <button type="button" class="orient-choice" data-orient="rumbo" id="orient-rumbo">🧭 Rumbo arriba</button>
+        </div>
+        <label class="route-follow-label" style="margin:10px 0 12px;display:flex">
+          <input type="checkbox" id="minimapa-always"> Mini-mapa siempre visible
+        </label>
+        <button type="button" id="vista-panel-close" class="btn-secondary">Cerrar</button>
+      </div>
+    </div>
+
+    <div id="ruta-panel" class="civic-sheet hidden" role="dialog" aria-modal="true" aria-labelledby="ruta-panel-title">
+      <div class="civic-sheet-card ruta-sheet-card">
+        <h2 id="ruta-panel-title">Ruta a pie</h2>
+        <p class="stub-note">Camino por el grafo de calles (esquema). No es GPS ni Google.</p>
+        <div class="ruta-panel-tabs">
+          <button type="button" class="toggle-btn active" id="ruta-tab-dest" data-tab="dest">Destino</button>
+          <button type="button" class="toggle-btn" id="ruta-tab-cerca" data-tab="cerca">Cerca de ti</button>
+        </div>
+        <div id="ruta-dest-pane">
+          <label class="field-label" for="ruta-dest-search">Buscar lugar</label>
+          <input type="search" id="ruta-dest-search" class="field-input" placeholder="Biblioteca, hospital…" autocomplete="off">
+          <div id="ruta-dest-list" class="ruta-list" role="list"></div>
+        </div>
+        <div id="ruta-cerca-pane" class="hidden">
+          <div id="ruta-cerca-list" class="ruta-list" role="list"></div>
+        </div>
+        <button type="button" id="ruta-panel-close" class="btn-secondary">Cerrar</button>
+      </div>
+    </div>
+
+    <div id="capas-panel" class="civic-sheet hidden" role="dialog" aria-modal="true" aria-labelledby="capas-panel-title">
+      <div class="civic-sheet-card">
+        <h2 id="capas-panel-title">Capas</h2>
+        <p class="stub-note">Como capas de un mapa, solo cívicas — sin tráfico ni anuncios.</p>
+        <ul class="capas-list">
+          <li><label><input type="checkbox" id="capa-paradas" checked> 🚏 Paradas</label></li>
+          <li><label><input type="checkbox" id="capa-bancos" checked> 🪑 Bancos</label></li>
+          <li><label><input type="checkbox" id="capa-sellos" checked> 🔖 Sellos visitados</label></li>
+          <li><label><input type="checkbox" id="capa-misiones" checked> 🎯 Misiones activas</label></li>
+          <li><label><input type="checkbox" id="capa-clima" checked> ☁️ Clima overlay</label></li>
+          <li><label><input type="checkbox" id="capa-vitaink"> 🎮 VitaInk (juego virtual)</label></li>
+          <li class="capas-note" id="capa-vitaink-note">VitaInk OFF = red ciudadana pura. ON = LARP virtual (personaje, tesoros, misiones de juego, sedes, casas · sin plata). Si el plugin no está, este interruptor no hace nada.</li>
+        </ul>
+        <button type="button" id="capas-panel-close" class="btn-secondary">Cerrar</button>
+      </div>
+    </div>
+
+
+    <div id="vitaink-pj-panel" class="civic-sheet hidden" role="dialog" aria-modal="true" aria-labelledby="vitaink-pj-title">
+      <div class="civic-sheet-card vitaink-pj-card">
+        <h2 id="vitaink-pj-title">Personaje VitaInk</h2>
+        <p class="stub-note">Capa de juego opcional · solo virtual · sin plata. El directorio cívico no cambia.</p>
+
+        <!-- v5.15–v5.17: rostros Mari lote1 + body-shapes pecho/cadera + cara en cuerpo Calles -->
+        <div class="vitaink-face-kit" id="vitaink-face-kit">
+          <div class="vitaink-face-preview-wrap">
+            <canvas id="vitaink-face-canvas" width="512" height="768" aria-label="Vista previa rostro y silueta"></canvas>
+            <p id="vitaink-face-combo" class="vitaink-face-combo muted small">24576 rostros · 36 siluetas</p>
+          </div>
+          <div class="vitaink-face-controls" id="vitaink-face-controls">
+            <label class="field face-field"><span>Forma</span>
+              <select id="vitaink-face-shape" aria-label="Forma del rostro"></select>
+            </label>
+            <label class="field face-field"><span>Piel</span>
+              <select id="vitaink-face-skin" aria-label="Tono de piel"></select>
+            </label>
+            <label class="field face-field"><span>Ojos</span>
+              <select id="vitaink-face-eyes" aria-label="Ojos"></select>
+            </label>
+            <label class="field face-field"><span>Cejas</span>
+              <select id="vitaink-face-brows" aria-label="Cejas"></select>
+            </label>
+            <label class="field face-field"><span>Nariz</span>
+              <select id="vitaink-face-nose" aria-label="Nariz"></select>
+            </label>
+            <label class="field face-field"><span>Boca</span>
+              <select id="vitaink-face-mouth" aria-label="Boca"></select>
+            </label>
+            <label class="field face-field face-field-hair"><span>Pelo</span>
+              <select id="vitaink-face-hair" aria-label="Pelo (próximamente)" disabled>
+                <option value="">(próximamente)</option>
+              </select>
+            </label>
+            <label class="field face-field"><span>Pecho</span>
+              <select id="vitaink-body-bust" aria-label="Forma de pecho"></select>
+            </label>
+            <label class="field face-field"><span>Cadera-muslos</span>
+              <select id="vitaink-body-hips" aria-label="Forma de cadera y muslos"></select>
+            </label>
+          </div>
+          <p class="puppet-note">Rostro + silueta Dibujar Mari · receta JSON (IDs) · body-shapes 6×6 · pelo en lote futuro</p>
+        </div>
+
+        <div class="vitaink-puppet vitaink-puppet-mini" id="vitaink-puppet" aria-hidden="true" title="Marioneta cuerpo (stub)">
+          <div class="puppet-slot head has-face" data-slot="head">
+            <canvas id="vitaink-puppet-face" width="128" height="128" aria-hidden="true"></canvas>
+          </div>
+          <div class="puppet-row">
+            <div class="puppet-slot arm" data-slot="arm_l"><span>brazo I</span></div>
+            <div class="puppet-slot torso" data-slot="torso"><span>torso</span></div>
+            <div class="puppet-slot arm" data-slot="arm_r"><span>brazo D</span></div>
+          </div>
+          <div class="puppet-row">
+            <div class="puppet-slot leg" data-slot="leg_l"><span>pierna I</span></div>
+            <div class="puppet-slot leg" data-slot="leg_r"><span>pierna D</span></div>
+          </div>
+        </div>
+
+        <label class="field">
+          <span>Nombre (estilo linaje)</span>
+          <input id="vitaink-pj-nombre" type="text" maxlength="64" placeholder="ej. de Prado del Río" autocomplete="nickname">
+        </label>
+        <label class="field">
+          <span>Profesión / facción</span>
+          <select id="vitaink-pj-faccion" aria-label="Facción del personaje">
+            <option value="guerrero">⚔️ Guerrero</option>
+            <option value="ladron">🗡️ Ladrón</option>
+            <option value="eclesiastico">✝️ Eclesiástico</option>
+            <option value="bardo">🎵 Bardo</option>
+            <option value="politico">📜 Político</option>
+            <option value="herrero">🔨 Herrero</option>
+            <option value="mercader">🪙 Mercader</option>
+            <option value="explorador" selected>🧭 Explorador</option>
+          </select>
+        </label>
+        <p id="vitaink-pj-monedas" class="vitaink-coins">Monedas virtuales: —</p>
+        <p id="vitaink-pj-rep" class="vitaink-rep">Reputación: —</p>
+        <span id="vitaink-pj-rep-badge" class="vitaink-rep-badge hidden"></span>
+        <label class="field checkbox-row" id="vitaink-pj-naturalista-wrap">
+          <input type="checkbox" id="vitaink-pj-naturalista" aria-describedby="vitaink-pj-naturalista-note">
+          <span>Modo naturalista</span>
+        </label>
+        <p id="vitaink-pj-naturalista-note" class="muted small">Opción de juego adulto · pack nudist (cubierta vegetal / hoja naturalista, no desnudo total) · no sexualiza · por defecto vestida. Preferencia local.</p>
+
+        <button type="button" id="btn-vitaink-pj-save" class="btn-primary">Guardar personaje</button>
+        <p id="vitaink-pj-feedback" class="feedback muted" aria-live="polite"></p>
+
+        <h3 class="section-title">Reliquias de la senda</h3>
+        <p class="muted small">Sabor filosófico al confirmar grados · no monetizables</p>
+        <div id="vitaink-pj-reliquias" class="reliquias-list" role="list"></div>
+        <p id="vitaink-pj-reliquias-empty" class="empty muted small">Aún sin reliquias · confirma una prueba de grado en Maestros.</p>
+
+        <h3 class="section-title">Historial</h3>
+        <div id="vitaink-historial" class="vitaink-historial" role="list"></div>
+        <p id="vitaink-historial-empty" class="empty hidden">Sin movimientos aún.</p>
+
+        <label class="field">
+          <span>Transferencia stub (solo log local)</span>
+          <div class="vitaink-transfer-row">
+            <input id="vitaink-tr-to" type="text" maxlength="48" placeholder="Etiqueta destino">
+            <input id="vitaink-tr-amt" type="number" min="1" max="1000" value="10" aria-label="Cantidad">
+            <button type="button" id="btn-vitaink-transfer" class="btn-secondary btn-sm">Enviar</button>
+          </div>
+        </label>
+
+        <button type="button" id="vitaink-pj-close" class="btn-secondary">Cerrar</button>
+      </div>
+    </div>
+
+    <div id="vitaink-casa-sheet" class="civic-sheet hidden" role="dialog" aria-modal="true" aria-labelledby="vitaink-casa-title">
+      <div class="civic-sheet-card vitaink-sede-card" style="margin:0">
+        <h2 id="vitaink-casa-title">Casa VitaInk</h2>
+        <p class="stub-note">Casa virtual de la capa · no es «Mi casa» (timbre/dirección privada).</p>
+        <p id="vitaink-casa-owner" class="vitaink-owner"></p>
+        <p id="vitaink-casa-coins" class="vitaink-coins"></p>
+        <p id="vitaink-casa-note" class="stub-note"></p>
+        <div class="vitaink-claim-row" id="vitaink-casa-claim-row">
+          <select id="vitaink-casa-faction" aria-label="Facción casa">
+            <option value="guerrero">⚔️ Guerrero</option>
+            <option value="ladron">🗡️ Ladrón</option>
+            <option value="eclesiastico">✝️ Eclesiástico</option>
+            <option value="bardo">🎵 Bardo</option>
+            <option value="politico">📜 Político</option>
+            <option value="herrero">🔨 Herrero</option>
+            <option value="mercader">🪙 Mercader</option>
+            <option value="explorador" selected>🧭 Explorador</option>
+          </select>
+          <input type="password" id="vitaink-casa-pin" inputmode="numeric" maxlength="8" placeholder="PIN demo (≥4)" aria-label="PIN demo casa">
+          <button type="button" id="btn-vitaink-casa-claim" class="btn-secondary btn-sm">Reclamar casa</button>
+        </div>
+        <button type="button" id="vitaink-casa-close" class="btn-secondary">Cerrar</button>
+      </div>
+    </div>
+
+    <div id="vitaink-misiones-panel" class="civic-sheet hidden" role="dialog" aria-modal="true" aria-labelledby="vitaink-misiones-title">
+      <div class="civic-sheet-card">
+        <h2 id="vitaink-misiones-title">Misiones VitaInk</h2>
+        <p class="stub-note">Quests de juego · distintas de las misiones cívicas · solo virtual · recompensa en monedas.</p>
+        <p class="muted small">Completadas: <strong id="vitaink-misiones-progress">0 / 0</strong></p>
+        <div id="vitaink-misiones-album" class="misiones-album sellos-album" role="list"></div>
+        <button type="button" id="vitaink-misiones-close" class="btn-secondary">Cerrar</button>
+      </div>
+    </div>
+
+
+    
+    <div id="vitaink-dios-panel" class="civic-sheet hidden" role="dialog" aria-modal="true" aria-labelledby="vitaink-dios-title">
+      <div class="civic-sheet-card vitaink-dios-card">
+        <h2 id="vitaink-dios-title">⚡ Panel Dios</h2>
+        <p class="muted small">Organizador VitaInk · mismo PIN de operador del nodo · solo puntos virtuales (sin plata).</p>
+        <div id="vitaink-dios-auth" class="vitaink-dios-auth">
+          <label>PIN operador <input type="password" id="vitaink-dios-pin" inputmode="numeric" autocomplete="off" placeholder="PIN" aria-label="PIN operador Dios"></label>
+          <button type="button" id="btn-vitaink-dios-auth" class="btn-primary btn-sm">Entrar</button>
+          <p id="vitaink-dios-auth-fb" class="feedback muted" aria-live="polite"></p>
+        </div>
+        <div id="vitaink-dios-body" class="vitaink-dios-body hidden">
+          <div id="vitaink-dios-overview" class="vitaink-dios-overview" aria-live="polite"></div>
+
+          <h3>Ajustar monedas / reputación</h3>
+          <div class="vitaink-dios-row">
+            <select id="vitaink-dios-target" aria-label="Objetivo">
+              <option value="local">Personaje local</option>
+            </select>
+            <input id="vitaink-dios-delta-mon" type="number" value="10" aria-label="Delta monedas">
+            <input id="vitaink-dios-delta-rep" type="number" value="0" aria-label="Delta reputación">
+            <button type="button" id="btn-vitaink-dios-ajustar" class="btn-secondary btn-sm">Ajustar</button>
+          </div>
+
+          <h3>Personaje local</h3>
+          <div class="vitaink-dios-row">
+            <button type="button" id="btn-vitaink-dios-suspender" class="btn-secondary btn-sm">⛔ Suspender</button>
+            <button type="button" id="btn-vitaink-dios-rehabilitar" class="btn-secondary btn-sm">✅ Rehabilitar</button>
+          </div>
+
+          <h3>Evento divino</h3>
+          <div class="vitaink-dios-row">
+            <select id="vitaink-dios-evento-mode" aria-label="Modo evento">
+              <option value="otorgar">Otorgar al local</option>
+              <option value="redistribuir">Redistribuir a sedes</option>
+              <option value="lluvia">🌧️ Lluvia monedas</option>
+              <option value="plaga">☠️ Plaga (% monedas)</option>
+              <option value="bendicion_reputacion">✨ Bendición reputación</option>
+              <option value="reset_tesoros">💎 Reset tesoros</option>
+            </select>
+            <select id="vitaink-dios-evento-target" aria-label="Objetivo evento">
+              <option value="local">Local</option>
+              <option value="demos">Rivales demo</option>
+              <option value="todos" selected>Todos</option>
+            </select>
+            <input id="vitaink-dios-evento-amt" type="number" min="1" value="25" aria-label="Cantidad o %">
+            <button type="button" id="btn-vitaink-dios-evento" class="btn-secondary btn-sm">Lanzar</button>
+          </div>
+
+          <h3>Liberar sede</h3>
+          <div class="vitaink-dios-row">
+            <input id="vitaink-dios-liberar-id" type="text" placeholder="place_id (ej. ayuntamiento)" aria-label="Place id">
+            <button type="button" id="btn-vitaink-dios-liberar" class="btn-secondary btn-sm">Liberar</button>
+          </div>
+
+          <h3>Bots PNJ + intensidad</h3>
+          <div id="vitaink-dios-bots" class="vitaink-dios-bots"></div>
+
+          <h3>Mensaje divino → crónica</h3>
+          <div class="vitaink-dios-row">
+            <input id="vitaink-dios-msg-title" type="text" placeholder="Título (opcional)" aria-label="Título mensaje" maxlength="80">
+            <input id="vitaink-dios-msg-body" type="text" placeholder="Mensaje para jugadores" aria-label="Cuerpo mensaje" maxlength="500">
+            <button type="button" id="btn-vitaink-dios-mensaje" class="btn-secondary btn-sm">Publicar</button>
+          </div>
+
+          <h3>Auditoría</h3>
+          <div class="vitaink-dios-row">
+            <button type="button" id="btn-vitaink-dios-auditoria" class="btn-secondary btn-sm">Ver auditoría</button>
+          </div>
+          <div id="vitaink-dios-auditoria" class="vitaink-dios-auditoria hidden" role="list"></div>
+
+          <p id="vitaink-dios-fb" class="feedback muted" aria-live="polite"></p>
+        </div>
+        <button type="button" id="vitaink-dios-close" class="btn-secondary">Cerrar</button>
+      </div>
+    </div>
+
+
+    <div id="vitaink-maestros-panel" class="civic-sheet hidden" role="dialog" aria-modal="true" aria-labelledby="vitaink-maestros-title">
+      <div class="civic-sheet-card vitaink-maestros-card">
+        <h2 id="vitaink-maestros-title">🧭 Maestros</h2>
+        <p class="stub-note">Guías filosóficas · códice · voto · diálogo · encuentro · lecciones · diario · prueba · reliquias · sínodo · roles · maestrías · solo virtual. Puedes cambiar de maestro y de rol cuando el juicio lo pida.</p>
+        <div id="vitaink-maestros-list" class="vitaink-maestros-list" role="list"></div>
+        <div id="vitaink-maestro-detail" class="vitaink-maestro-detail hidden" aria-live="polite">
+          <div class="maestro-head">
+            <img id="vitaink-maestro-alma" class="vita-alma-thumb maestro-alma" src="" alt="" width="64" height="64">
+            <div>
+              <h3 id="vitaink-maestro-name">—</h3>
+              <p id="vitaink-maestro-lema" class="maestro-lema"></p>
+              <p id="vitaink-maestro-bio" class="maestro-bio muted small"></p>
+              <p id="vitaink-maestro-voz" class="maestro-ficha muted small"></p>
+              <p id="vitaink-maestro-mantra" class="maestro-ficha muted small"></p>
+              <p id="vitaink-maestro-temperamento" class="maestro-ficha muted small"></p>
+              <span id="vitaink-maestro-rol-chip" class="rol-chip hidden" aria-label="Rol de aprendizaje"></span>
+            </div>
+          </div>
+          <div class="maestro-hablar-row">
+            <button type="button" id="btn-vitaink-hablar-ahora" class="btn-primary btn-hablar-ahora">💬 Hablar ahora</button>
+            <button type="button" id="btn-vitaink-encarnar-diablo" class="btn-secondary btn-sm hidden">👹 Encarnar (tinte discípulo)</button>
+            <p class="muted small maestro-hablar-hint">Encuentro breve sin necesidad de caminar hasta el alma. Encarnar = avatar day/ + tinte si eres discípulo de un maestro con pack (Ángel, Hada, Gnomo, Duende, Sabio, Satán, El Diablo; demonio→demon/).</p>
+          </div>
+                    <p class="muted small">Alineación</p>
+          <div class="maestro-align-bar" aria-label="Alineación">
+            <div id="vitaink-maestro-align-fill" class="maestro-align-fill" style="width:0%"></div>
+          </div>
+          <p id="vitaink-maestro-align-label" class="maestro-align-label">0 / 100</p>
+          <p class="muted small">Maestría</p>
+          <div class="maestro-align-bar maestria-bar" aria-label="Progreso de maestría">
+            <div id="vitaink-maestro-maestria-fill" class="maestro-align-fill maestria-fill" style="width:0%"></div>
+          </div>
+          <p id="vitaink-maestro-maestria-label" class="maestro-align-label">Novicio</p>
+          <blockquote id="vitaink-maestro-privilegio" class="maestro-privilegio">Privilegio filosófico al avanzar de grado (no es paywall).</blockquote>
+          <h4>Rol de aprendizaje</h4>
+          <div id="vitaink-maestro-roles" class="maestro-roles" role="listbox" aria-label="Elegir rol"></div>
+          <h4>Valores</h4>
+          <div id="vitaink-maestro-valores" class="maestro-valores"></div>
+          <p class="muted small" id="vitaink-maestro-sabor-hint" hidden>Interrogante: puedes meditar con sabor «duda» (mantén pulsado un valor o usa el botón).</p>
+          <button type="button" id="btn-vitaink-meditar-duda" class="btn-secondary btn-sm hidden">Meditar con duda</button>
+          <h4>Voto / compromiso</h4>
+          <p class="muted small">Un solo voto activo con el maestro primario · atado a un valor. Cumplir refuerza; sabor opuesto (polo contrario) tensa suave. Renunciar deja huella en el diario.</p>
+          <div id="vitaink-maestro-voto" class="maestro-voto" aria-live="polite">
+            <p id="vitaink-voto-estado" class="maestro-voto-estado muted">Sin voto activo.</p>
+            <label class="sr-only" for="vitaink-voto-texto">Texto del voto</label>
+            <input type="text" id="vitaink-voto-texto" maxlength="160" placeholder="Texto del compromiso (opcional)…" autocomplete="off">
+            <div class="vitaink-dios-row">
+              <button type="button" id="btn-vitaink-voto" class="btn-primary btn-sm">Tomar voto (valor elegido)</button>
+              <button type="button" id="btn-vitaink-voto-renunciar" class="btn-secondary btn-sm">Renunciar</button>
+            </div>
+          </div>
+          <h4>Diálogo</h4>
+          <p class="muted small">Preguntas sugeridas o texto libre (emparejado por temas). Responde en su voz · sin LLM · rate-limit suave.</p>
+          <div id="vitaink-maestro-dialogo" class="maestro-dialogo" role="list"></div>
+          <div class="maestro-dialogo-libre">
+            <label class="sr-only" for="vitaink-dialogo-libre">Pregunta libre</label>
+            <input type="text" id="vitaink-dialogo-libre" maxlength="160" placeholder="Pregunta libre al maestro…" autocomplete="off">
+            <button type="button" id="btn-vitaink-dialogo-libre" class="btn-secondary btn-sm">Preguntar</button>
+          </div>
+          <blockquote id="vitaink-dialogo-respuesta" class="maestro-dialogo-respuesta muted">Aún no has dialogado con este maestro.</blockquote>
+          <h4>Enseñanzas</h4>
+          <ul id="vitaink-maestro-ensenanzas" class="maestro-ensenanzas"></ul>
+          <h4>Lecciones</h4>
+          <p class="muted small">Se abren al meditar o al completar la anterior. Toca una abierta para leerla.</p>
+          <ol id="vitaink-maestro-lecciones" class="maestro-lecciones"></ol>
+          <div id="vitaink-maestro-prueba" class="maestro-prueba hidden" aria-live="polite">
+            <h4>Prueba disponible</h4>
+            <p id="vitaink-prueba-meta" class="muted small"></p>
+            <p id="vitaink-prueba-pregunta" class="maestro-prueba-q"></p>
+            <div id="vitaink-prueba-opciones" class="maestro-prueba-ops"></div>
+            <p id="vitaink-prueba-fb" class="feedback muted" aria-live="polite"></p>
+          </div>
+          <h4>Reliquias de este maestro</h4>
+          <p class="muted small">Se otorgan al confirmar la prueba de grado · sabor, no moneda.</p>
+          <div id="vitaink-maestro-reliquias" class="reliquias-list" role="list"></div>
+          <h4>Diario de la senda</h4>
+          <div class="vitaink-dios-row" style="margin-bottom:0.5rem">
+            <button type="button" id="btn-vitaink-export-diario" class="btn-secondary btn-sm">Exportar diario</button>
+          </div>
+          <div id="vitaink-maestro-diario" class="maestro-diario" role="list"></div>
+          <h4>Última conclusión filosófica</h4>
+          <blockquote id="vitaink-maestro-conclusion" class="maestro-conclusion">Aún no has meditado con este maestro.</blockquote>
+          <div class="vitaink-dios-row">
+            <button type="button" id="btn-vitaink-seguir" class="btn-primary btn-sm">Seguir maestro</button>
+            <button type="button" id="btn-vitaink-seguir-sec" class="btn-secondary btn-sm">Afinidad secundaria</button>
+            <button type="button" id="btn-vitaink-dejar" class="btn-secondary btn-sm">Dejar</button>
+          </div>
+          <p id="vitaink-maestros-fb" class="feedback muted" aria-live="polite"></p>
+        </div>
+        <button type="button" id="vitaink-maestros-close" class="btn-secondary">Cerrar</button>
+      </div>
+    </div>
+
+    <div id="vitaink-reliquias-panel" class="civic-sheet hidden" role="dialog" aria-modal="true" aria-labelledby="vitaink-reliquias-title">
+      <div class="civic-sheet-card vitaink-reliquias-card">
+        <h2 id="vitaink-reliquias-title">🕯️ Reliquias de la senda</h2>
+        <p class="stub-note">Fragmentos filosóficos al confirmar un grado · solo virtual · no monetizables. Cada reliquia deja eco en el diario.</p>
+        <div id="vitaink-reliquias-list" class="reliquias-list reliquias-panel-list" role="list"></div>
+        <p id="vitaink-reliquias-empty" class="empty">Aún sin reliquias. Sigue a un maestro, cruza un umbral y confirma la prueba.</p>
+        <button type="button" id="vitaink-reliquias-close" class="btn-secondary">Cerrar</button>
+      </div>
+    </div>
+
+    <div id="vitaink-sinodo-panel" class="civic-sheet hidden" role="dialog" aria-modal="true" aria-labelledby="vitaink-sinodo-title">
+      <div class="civic-sheet-card vitaink-sinodo-card">
+        <h2 id="vitaink-sinodo-title">⚖️ Sínodo</h2>
+        <p class="stub-note">Panorama de alineación entre los siete maestros · barras simples · tensión creativa si polos opuestos altos · solo virtual.</p>
+        <div id="vitaink-sinodo-tension" class="sinodo-tension hidden" aria-live="polite"></div>
+        <div id="vitaink-sinodo-list" class="sinodo-list" role="list"></div>
+        <button type="button" id="vitaink-sinodo-close" class="btn-secondary">Cerrar</button>
+      </div>
+    </div>
+
+    <div id="vitaink-rito-panel" class="civic-sheet hidden" role="dialog" aria-modal="true" aria-labelledby="vitaink-rito-title">
+      <div class="civic-sheet-card vitaink-rito-card">
+        <h2 id="vitaink-rito-title">🌅 Rito diario</h2>
+        <p class="stub-note">Una reflexión breve alineada a tu maestro primario · 1× por día local · pequeña alineación + diario + crónica · solo virtual.</p>
+        <p id="vitaink-rito-meta" class="muted small"></p>
+        <div id="vitaink-rito-list" class="rito-list" role="list"></div>
+        <p id="vitaink-rito-fb" class="feedback muted" aria-live="polite"></p>
+        <button type="button" id="vitaink-rito-close" class="btn-secondary">Cerrar</button>
+      </div>
+    </div>
+
+    <div id="vitaink-peregrinacion-panel" class="civic-sheet hidden" role="dialog" aria-modal="true" aria-labelledby="vitaink-peregrinacion-title">
+      <div class="civic-sheet-card vitaink-peregrinacion-card">
+        <h2 id="vitaink-peregrinacion-title">🚶 Peregrinación</h2>
+        <p class="stub-note">Senda multi-parada en Calles · plaza → ermita → alma del maestro → pin → retorno · diario + alineación · título suave al terminar · solo virtual.</p>
+        <p id="vitaink-peregrinacion-meta" class="muted small"></p>
+        <div id="vitaink-peregrinacion-activa" class="peregrinacion-activa hidden" aria-live="polite"></div>
+        <div class="peregrinacion-actions">
+          <button type="button" id="vitaink-peregrinacion-etapa" class="btn-primary btn-sm hidden">Completar etapa</button>
+        </div>
+        <h3 class="small">Rutas disponibles</h3>
+        <div id="vitaink-peregrinacion-list" class="peregrinacion-list" role="list"></div>
+        <h3 class="small">Títulos de senda</h3>
+        <div id="vitaink-peregrinacion-titulos" class="peregrinacion-titulos muted small"></div>
+        <p id="vitaink-peregrinacion-fb" class="feedback muted" aria-live="polite"></p>
+        <button type="button" id="vitaink-peregrinacion-close" class="btn-secondary">Cerrar</button>
+      </div>
+    </div>
+
+    <div id="vitaink-codice-panel" class="civic-sheet hidden" role="dialog" aria-modal="true" aria-labelledby="vitaink-codice-title">
+      <div class="civic-sheet-card vitaink-codice-card">
+        <h2 id="vitaink-codice-title">📖 Códice de la senda</h2>
+        <p class="stub-note">Archivo de lo desbloqueado · lecciones, conclusiones, enseñanzas, títulos, reliquias · regenerable · solo virtual.</p>
+        <label class="sr-only" for="vitaink-codice-q">Buscar en el códice</label>
+        <div class="codice-search-row">
+          <input type="search" id="vitaink-codice-q" maxlength="80" placeholder="Buscar en el códice…" autocomplete="off">
+          <button type="button" id="btn-vitaink-codice-buscar" class="btn-secondary btn-sm">Buscar</button>
+        </div>
+        <p id="vitaink-codice-meta" class="muted small"></p>
+        <div id="vitaink-codice-list" class="codice-list" role="list"></div>
+        <p id="vitaink-codice-empty" class="empty">Aún vacío. Medita, lee lecciones, dialoga, confirma pruebas o termina una peregrinación.</p>
+        <div class="vitaink-dios-row">
+          <button type="button" id="btn-vitaink-codice-export" class="btn-primary btn-sm">Exportar diario</button>
+          <button type="button" id="vitaink-codice-close" class="btn-secondary">Cerrar</button>
+        </div>
+        <p id="vitaink-codice-fb" class="feedback muted" aria-live="polite"></p>
+      </div>
+    </div>
+
+    <div id="vitaink-cronica-panel" class="civic-sheet hidden" role="dialog" aria-modal="true" aria-labelledby="vitaink-cronica-title">
+      <div class="civic-sheet-card">
+        <h2 id="vitaink-cronica-title">📜 Crónica VitaInk</h2>
+        <p class="muted small">Acciones de Dios y PNJ · solo virtual · regenerable</p>
+        <div id="vitaink-cronica-list" class="vitaink-cronica-list" role="list"></div>
+        <p id="vitaink-cronica-empty" class="empty hidden">Sin eventos aún.</p>
+        <button type="button" id="vitaink-cronica-close" class="btn-secondary">Cerrar</button>
+      </div>
+    </div>
+
+    <div id="vitaink-ranking-panel" class="civic-sheet hidden" role="dialog" aria-modal="true" aria-labelledby="vitaink-ranking-title">
+      <div class="civic-sheet-card vitaink-ranking-card">
+        <h2 id="vitaink-ranking-title">Ranking VitaInk</h2>
+        <p class="stub-note">Solo virtual · rivales demo regenerables · no altera el directorio cívico.</p>
+        <div class="vitaink-ranking-tabs" role="tablist">
+          <button type="button" id="vitaink-rank-tab-monedas" class="btn-secondary btn-sm active" role="tab" aria-selected="true">🪙 Monedas</button>
+          <button type="button" id="vitaink-rank-tab-rep" class="btn-secondary btn-sm" role="tab" aria-selected="false">⭐ Reputación</button>
+        </div>
+        <ol id="vitaink-ranking-list" class="vitaink-ranking-list" role="list"></ol>
+        <p id="vitaink-ranking-empty" class="empty hidden">Sin datos de ranking.</p>
+        <button type="button" id="vitaink-ranking-close" class="btn-secondary">Cerrar</button>
+      </div>
+    </div>
+
+    <div id="favoritos-panel" class="civic-sheet hidden" role="dialog" aria-modal="true" aria-labelledby="favoritos-panel-title">
+      <div class="civic-sheet-card ruta-sheet-card">
+        <h2 id="favoritos-panel-title">★ Favoritos</h2>
+        <p class="stub-note">Guardados en este dispositivo (localStorage). Sin nube ni sincronización.</p>
+        <div id="favoritos-list" class="ruta-list" role="list"></div>
+        <button type="button" id="favoritos-panel-close" class="btn-secondary">Cerrar</button>
+      </div>
+    </div>
+
+    <div id="place-vignette" class="place-vignette hidden" role="dialog" aria-modal="true" aria-labelledby="vignette-name">
+      <div id="vignette-card" class="vignette-card">
+        <div id="vignette-emoji" class="vignette-emoji" aria-hidden="true">📍</div>
+        <h2 id="vignette-name">Lugar</h2>
+        <p id="vignette-flavor" class="vignette-flavor"></p>
+        <button type="button" id="vignette-enter" class="btn-primary">Entrar</button>
+        <button type="button" id="vignette-skip-once" class="btn-secondary btn-sm">Saltar</button>
+        <label class="vignette-skip-label">
+          <input type="checkbox" id="vignette-dont-show"> No mostrar viñetas
+        </label>
+      </div>
+    </div>
+
+    <div id="onboarding" class="onboarding hidden" role="dialog" aria-modal="true" aria-labelledby="onb-title">
+      <div class="onboarding-sheet">
+        <h2 id="onb-title">Bienvenido a la red ciudadana</h2>
+        <p class="onb-lead">Valladolid en tu nodo local. Sin nube comercial.</p>
+        <ul class="onb-tips">
+          <li><strong>Sin URLs.</strong> Navegas tocando lugares, no escribiendo direcciones.</li>
+          <li><strong>Calles = ciudad jugable.</strong> Camina o ve en bici; brújula y mini-mapa; ruta con panel de pasos; favoritos locales; vistas y capas. Sin Google Maps ni Street View.</li>
+          <li><strong>VitaInk = capa de juego opcional (plugin).</strong> OFF = red ciudadana pura e igualitaria. ON = LARP virtual (personaje, reputación, tesoros, misiones, sedes, casas, PNJ Ángel/El Diablo/Hada/Gnomo/Duende/Sabio/Satán, panel Dios con PIN). Sin plata ni ranking de pago. Si el plugin no está, no aparece UI de juego.</li>
+          <li><strong>Casa ≠ lugares.</strong> <em>Mi casa</em> es privada (timbre, alarmas). Los lugares son el directorio público.</li>
+          <li><strong>Herramientas.</strong> Tinta, wiki offline, 3D y asistente cuelgan en el lugar Herramientas.</li>
+          <li><strong>Federación.</strong> Otros nodos conocidos pueden compartir avisos, índices y ediciones .pucela de prensa — sin chat privado ni casas.</li>
+        </ul>
+        <button type="button" id="btn-onboarding-novedades" class="btn-secondary">Qué hay de nuevo</button>
+        <button type="button" id="btn-onboarding-ok" class="btn-primary">Entendido</button>
+        <p class="onb-foot muted small">Puedes volver a ver esto borrando datos del sitio en el navegador.</p>
+      </div>
+    </div>
+
+    <div id="kiosk-fs-hint" class="kiosk-fs-hint hidden" role="status">
+      <p>Para kiosko en tablet: instala la PWA («Añadir a pantalla de inicio») y usa pantalla completa del sistema.</p>
+      <button type="button" id="btn-kiosk-fs-dismiss" class="btn-secondary btn-sm">Entendido</button>
+    </div>
+
+    <main id="view-place" class="view hidden">
+      <article class="place-hero">
+        <!-- v5.8: capas ambient (polvo, hojas…) — JS rellena motas según theme -->
+        <div class="place-ambient" aria-hidden="true"></div>
+        <!-- Banner de tema visual (v4.7): rellenado por JS si page.theme está definido -->
+        <p id="place-theme-banner" class="place-theme-banner hidden" aria-live="polite"></p>
+        <div id="place-emoji" class="place-emoji-lg" aria-hidden="true"></div>
+        <h2 id="place-name"></h2>
+        <p id="place-category" class="chip"></p>
+        <p id="place-desc" class="place-desc"></p>
+        <div class="place-nav-actions">
+          <button type="button" id="btn-ir-aqui" class="btn-secondary btn-sm">🧭 Ir aquí</button>
+          <button type="button" id="btn-favorito" class="btn-secondary btn-sm" aria-pressed="false" title="Añadir a favoritos">☆ Favorito</button>
+        </div>
+        <aside id="place-vitaink" class="vitaink-sede-card hidden" aria-label="Sede VitaInk">
+          <header>
+            <span class="vitaink-badge" id="vitaink-sede-badge" aria-hidden="true">🎮</span>
+            <strong>Sede VitaInk</strong>
+            <span class="vitaink-virtual">solo virtual</span>
+          </header>
+          <p id="vitaink-sede-owner" class="vitaink-owner"></p>
+          <p id="vitaink-sede-coins" class="vitaink-coins"></p>
+          <p id="vitaink-sede-note" class="stub-note"></p>
+          <div class="vitaink-claim-row hidden" id="vitaink-claim-row">
+            <select id="vitaink-claim-faction" aria-label="Facción">
+              <option value="guerrero">⚔️ Guerrero</option>
+              <option value="ladron">🗡️ Ladrón</option>
+              <option value="eclesiastico">✝️ Eclesiástico</option>
+              <option value="bardo">🎵 Bardo</option>
+              <option value="politico">📜 Político</option>
+              <option value="herrero">🔨 Herrero</option>
+              <option value="mercader">🪙 Mercader</option>
+              <option value="explorador" selected>🧭 Explorador</option>
+            </select>
+            <input type="password" id="vitaink-claim-pin" inputmode="numeric" maxlength="8" placeholder="PIN demo (≥4)" aria-label="PIN demo">
+            <button type="button" id="btn-vitaink-claim" class="btn-secondary btn-sm">Reclamar (demo)</button>
+          </div>
+        </aside>
+        <div id="place-assistant" class="assistant-panel hidden">
+          <p id="place-assistant-label" class="assistant-label"></p>
+          <p id="place-assistant-note" class="stub-note"></p>
+          <button type="button" id="btn-place-assistant" class="btn-secondary">Preguntar al asistente local</button>
+        </div>
+      </article>
+      <nav id="place-tabs" class="tabs" aria-label="Secciones del lugar">
+        <button type="button" class="tab active" data-tab="info">Info</button>
+        <button type="button" class="tab" data-tab="avisos">Avisos</button>
+        <button type="button" class="tab" data-tab="contacto">Contacto</button>
+        <button type="button" class="tab hidden" data-tab="servicios" id="tab-btn-servicios">Servicios</button>
+      </nav>
+      <section id="tab-info" class="tab-panel">
+        <p id="tab-info-body"></p>
+        <ul id="tab-info-items" class="stub-list"></ul>
+        <p class="stub-note">Página regenerable del lugar · no es un sitio HTML.</p>
+      </section>
+      <section id="tab-avisos" class="tab-panel hidden">
+        <ul id="tab-avisos-items" class="stub-list"></ul>
+      </section>
+      <section id="tab-contacto" class="tab-panel hidden">
+        <ul id="tab-contacto-items" class="stub-list"></ul>
+      </section>
+      <section id="tab-servicios" class="tab-panel hidden">
+        <ul id="tab-servicios-items" class="stub-list"></ul>
+      </section>
+      <section id="place-mostrador" class="stalls-panel mostrador-panel hidden" aria-label="Mostrador de gestiones">
+        <h3 class="stalls-title" id="mostrador-title">Mostrador de gestiones</h3>
+        <p class="stub-note" id="mostrador-note">Cola local · trámites stub · sin nube</p>
+        <div class="mostrador-desk" aria-hidden="true">
+          <div class="desk-counter">
+            <span class="desk-lamp">💡</span>
+            <span class="desk-label">MOSTRADOR</span>
+            <span class="desk-ticket-slot">🎫</span>
+          </div>
+        </div>
+        <div id="mostrador-step-catalog" class="mostrador-step">
+          <p class="hint">Elige un trámite en el mostrador:</p>
+          <ul id="mostrador-tramites" class="tramite-list" role="list"></ul>
+          <p id="mostrador-catalog-empty" class="empty hidden">No hay trámites en este mostrador.</p>
+        </div>
+        <div id="mostrador-step-form" class="mostrador-step hidden">
+          <button type="button" id="btn-mostrador-back-catalog" class="btn-secondary btn-compact">← Volver a trámites</button>
+          <h4 id="mostrador-form-title" class="mostrador-form-title"></h4>
+          <p id="mostrador-form-summary" class="hint"></p>
+          <form id="mostrador-form" class="mostrador-form"></form>
+          <ul id="mostrador-form-tips" class="stub-list tip-list"></ul>
+          <button type="button" id="btn-mostrador-submit" class="btn-primary">Sacar ticket</button>
+          <p id="mostrador-form-feedback" class="feedback muted" aria-live="polite"></p>
+        </div>
+        <div id="mostrador-step-ticket" class="mostrador-step hidden">
+          <div class="ticket-card" id="mostrador-ticket-card">
+            <p class="ticket-stamp">TICKET LOCAL</p>
+            <p class="ticket-id" id="mostrador-ticket-id"></p>
+            <p class="ticket-title" id="mostrador-ticket-title"></p>
+            <p class="ticket-status" id="mostrador-ticket-status"></p>
+            <p class="ticket-note" id="mostrador-ticket-note"></p>
+          </div>
+          <div class="row-actions">
+            <button type="button" id="btn-mostrador-recibo" class="btn-secondary">Exportar recibo .pucela</button>
+            <button type="button" id="btn-mostrador-otra" class="btn-primary">Otra gestión</button>
+          </div>
+          <p id="mostrador-ticket-feedback" class="feedback muted" aria-live="polite"></p>
+        </div>
+        <div id="mostrador-queue" class="mostrador-queue">
+          <h4 class="queue-title">Mis solicitudes en este mostrador</h4>
+          <ul id="mostrador-solicitudes" class="stub-list equal-list"></ul>
+          <p id="mostrador-queue-empty" class="empty">Aún no hay solicitudes. Elige un trámite arriba.</p>
+        </div>
+      </section>
+
+      <section id="place-stalls" class="stalls-panel hidden">
+        <h3 id="stalls-title" class="stalls-title">Listado</h3>
+        <ul id="stalls-list" class="stub-list equal-list"></ul>
+        <p class="stub-note">Todos iguales · sin pago por prominencia.</p>
+        <div id="stall-create" class="card create-card hidden" aria-label="Crear entrada">
+          <h3 class="card-title" id="stall-create-title">Crear</h3>
+          <label class="field">
+            <span id="stall-create-name-label">Nombre</span>
+            <input id="stall-create-name" type="text" maxlength="80" autocomplete="off">
+          </label>
+          <label class="field" id="stall-create-bio-wrap">
+            <span>Info / bio</span>
+            <textarea id="stall-create-bio" rows="2" maxlength="800"></textarea>
+          </label>
+          <label class="field checkbox-row hidden" id="stall-create-timbre-wrap">
+            <input type="checkbox" id="stall-create-timbre">
+            <span>Permitir tocar el timbre de mi casa (opt-in)</span>
+          </label>
+          <button type="button" id="btn-stall-create" class="btn-primary">Crear (igual rango)</button>
+          <p id="stall-create-feedback" class="feedback muted" aria-live="polite"></p>
+        </div>
+      </section>
+
+      <section id="prensa-publish" class="stalls-panel hidden">
+        <h3 class="stalls-title">Publicar edición</h3>
+        <p class="stub-note">Se sella como .pucela. Separa hojas con una línea <code>---</code>. Lectura gratuita.</p>
+        <label class="field">
+          <span>Título</span>
+          <input id="prensa-title" type="text" maxlength="200" autocomplete="off" placeholder="Aviso del barrio">
+        </label>
+        <label class="field">
+          <span>Hojas (texto)</span>
+          <textarea id="prensa-text" rows="5" maxlength="20000" placeholder="Hoja 1&#10;---&#10;Hoja 2"></textarea>
+        </label>
+        <button type="button" id="btn-prensa-publish" class="btn-primary">Publicar y sellar</button>
+        <p id="prensa-publish-feedback" class="feedback muted" aria-live="polite"></p>
+      </section>
+
+      <section id="place-taller" class="stalls-panel taller-panel hidden" aria-label="Taller comunitario">
+        <h3 class="stalls-title">Taller comunitario</h3>
+        <p class="stub-note" id="taller-nota">Procesá en tu máquina; después compartí el resultado. Sin nube Big Tech · sin ranking de pago.</p>
+        <p class="hint">Igualdad de visibilidad: todos los proyectos se listan igual. La red solo comparte índices públicos (nunca tareas/claims/aportes).</p>
+
+        <div id="taller-view-list" class="taller-step">
+          <div class="row-actions taller-filters">
+            <label class="field compact">
+              <span>Estado</span>
+              <select id="taller-filter-estado" aria-label="Filtrar por estado">
+                <option value="">Todos</option>
+                <option value="abierto">Abierto</option>
+                <option value="en_curso">En curso</option>
+                <option value="cerrado">Cerrado</option>
+              </select>
+            </label>
+            <label class="field compact">
+              <span>Categoría</span>
+              <select id="taller-filter-categoria" aria-label="Filtrar por categoría">
+                <option value="">Todas</option>
+                <option value="asistente">Asistente</option>
+                <option value="educacion">Educación</option>
+                <option value="herramienta">Herramienta</option>
+                <option value="otro">Otro</option>
+              </select>
+            </label>
+            <label class="field compact">
+              <span>Ámbito</span>
+              <select id="taller-filter-ambito" aria-label="En este nodo o en esta red">
+                <option value="nodo" selected>En este nodo</option>
+                <option value="red">En esta red</option>
+              </select>
+            </label>
+            <button type="button" id="btn-taller-sync" class="btn-secondary btn-sm" title="Traer índices públicos de peers">Actualizar red</button>
+            <button type="button" id="btn-taller-mis-claims" class="btn-secondary btn-sm" title="Claims remotos de este nodo">Mis claims</button>
+            <button type="button" id="btn-taller-mis-leases" class="btn-secondary btn-sm" title="Leases de cola remota">Mis leases</button>
+            <button type="button" id="btn-taller-nuevo" class="btn-primary">Nuevo proyecto</button>
+          </div>
+          <ul id="taller-proyectos" class="stub-list equal-list" role="list"></ul>
+          <p id="taller-list-empty" class="empty hidden">Aún no hay proyectos. Creá uno con una idea.</p>
+        </div>
+
+        <div id="taller-view-form" class="taller-step hidden">
+          <button type="button" id="btn-taller-cancel-form" class="btn-secondary btn-compact">← Volver</button>
+          <h4 class="mostrador-form-title">Nuevo proyecto</h4>
+          <label class="field">
+            <span>Título</span>
+            <input id="taller-form-titulo" type="text" maxlength="160" autocomplete="off" placeholder="Ej. Asistente de voz vecinal">
+          </label>
+          <label class="field">
+            <span>Descripción</span>
+            <textarea id="taller-form-desc" rows="3" maxlength="4000" placeholder="Qué queréis construir entre vecinos…"></textarea>
+          </label>
+          <label class="field">
+            <span>Categoría</span>
+            <select id="taller-form-categoria">
+              <option value="asistente">Asistente</option>
+              <option value="educacion">Educación</option>
+              <option value="herramienta">Herramienta</option>
+              <option value="otro" selected>Otro</option>
+            </select>
+          </label>
+          <button type="button" id="btn-taller-crear" class="btn-primary">Crear proyecto</button>
+          <p id="taller-form-feedback" class="feedback muted" aria-live="polite"></p>
+        </div>
+
+        <div id="taller-view-detail" class="taller-step hidden">
+          <button type="button" id="btn-taller-back-list" class="btn-secondary btn-compact">← Proyectos</button>
+          <h4 id="taller-detail-titulo" class="mostrador-form-title"></h4>
+          <p id="taller-detail-meta" class="hint"></p>
+          <p id="taller-detail-desc" class="place-desc"></p>
+          <div class="row-actions">
+            <label class="field compact">
+              <span>Estado del proyecto</span>
+              <select id="taller-detail-estado" aria-label="Estado del proyecto">
+                <option value="abierto">Abierto</option>
+                <option value="en_curso">En curso</option>
+                <option value="cerrado">Cerrado</option>
+              </select>
+            </label>
+            <button type="button" id="btn-taller-guardar-estado" class="btn-secondary btn-sm">Guardar estado</button>
+          </div>
+
+          <h4 class="queue-title">Tareas</h4>
+          <ul id="taller-tareas" class="stub-list equal-list"></ul>
+          <p id="taller-tareas-empty" class="empty hidden">Sin tareas. Añadí una para partir el trabajo.</p>
+          <div class="card create-card">
+            <label class="field">
+              <span>Nueva tarea</span>
+              <input id="taller-tarea-titulo" type="text" maxlength="160" placeholder="Ej. Limpiar dataset">
+            </label>
+            <label class="field">
+              <span>Notas</span>
+              <textarea id="taller-tarea-notas" rows="2" maxlength="2000" placeholder="Qué hay que hacer en local…"></textarea>
+            </label>
+            <button type="button" id="btn-taller-add-tarea" class="btn-primary">Añadir tarea</button>
+          </div>
+
+
+          <h4 class="queue-title">Cola de trabajo (jobs)</h4>
+          <p class="stub-note">Publicá slices para que peers allowlist los arrienden (lease 15 min). Complementario a las tareas.</p>
+          <ul id="taller-cola" class="stub-list equal-list"></ul>
+          <p id="taller-cola-empty" class="empty hidden">Sin jobs en cola.</p>
+          <div class="card create-card">
+            <label class="field">
+              <span>Título del job</span>
+              <input id="taller-job-titulo" type="text" maxlength="160" placeholder="Ej. Filas 1-100">
+            </label>
+            <label class="field">
+              <span>Blurb / payload (≤4 KiB)</span>
+              <textarea id="taller-job-payload" rows="2" maxlength="4000" placeholder='{"from":1,"to":100}'></textarea>
+            </label>
+            <button type="button" id="btn-taller-add-job" class="btn-primary">Añadir a la cola</button>
+          </div>
+
+          <h4 class="queue-title">Aportes</h4>
+          <p class="stub-note">Metadatos del resultado + referencia opcional a fichero ligero o .pucela.</p>
+          <ul id="taller-aportes" class="stub-list equal-list"></ul>
+          <p id="taller-aportes-empty" class="empty hidden">Aún no hay aportes compartidos.</p>
+          <div class="card create-card">
+            <label class="field">
+              <span>Título del aporte</span>
+              <input id="taller-aporte-titulo" type="text" maxlength="160" placeholder="Dataset limpio v1">
+            </label>
+            <label class="field">
+              <span>Notas</span>
+              <textarea id="taller-aporte-notas" rows="2" maxlength="2000" placeholder="Procesado en mi portátil…"></textarea>
+            </label>
+            <label class="field">
+              <span>file_id (opcional)</span>
+              <input id="taller-aporte-file" type="text" maxlength="64" placeholder="id de /api/files">
+            </label>
+            <label class="field">
+              <span>pucela_id (opcional)</span>
+              <input id="taller-aporte-pucela" type="text" maxlength="64" placeholder="id .pucela">
+            </label>
+            <button type="button" id="btn-taller-add-aporte" class="btn-primary">Compartir aporte</button>
+            <p id="taller-detail-feedback" class="feedback muted" aria-live="polite"></p>
+          </div>
+        </div>
+
+        <div id="taller-view-remoto" class="taller-step hidden">
+          <button type="button" id="btn-taller-back-remoto" class="btn-secondary btn-compact">← Proyectos</button>
+          <h4 id="taller-remoto-titulo" class="mostrador-form-title"></h4>
+          <p id="taller-remoto-meta" class="hint"></p>
+          <p id="taller-remoto-blurb" class="place-desc"></p>
+          <h5 class="mostrador-form-title">Tareas reclamables en el origen</h5>
+          <ul id="taller-remoto-tareas" class="stub-list equal-list"></ul>
+          <p id="taller-remoto-tareas-empty" class="empty hidden">Sin tareas abiertas en el origen.</p>
+          <h5 class="mostrador-form-title">Mis claims en este proyecto</h5>
+          <ul id="taller-remoto-mis" class="stub-list equal-list"></ul>
+          <p id="taller-remoto-mis-empty" class="empty hidden">Aún no reclamaste tareas aquí.</p>
+
+          <h5 class="stub-subtitle">Cola remota</h5>
+          <ul id="taller-remoto-cola" class="stub-list equal-list"></ul>
+          <p id="taller-remoto-cola-empty" class="empty hidden">Sin jobs en cola en el origen.</p>
+          <ul id="taller-remoto-mis-leases" class="stub-list equal-list"></ul>
+          <p id="taller-remoto-mis-leases-empty" class="empty hidden">Sin leases de cola aquí.</p>
+          <div class="form-block taller-remoto-job-complete hidden" id="taller-remoto-job-complete-box">
+            <h5 class="stub-subtitle">Entregar resultado de job</h5>
+            <label class="field">
+              <span>Notas del resultado</span>
+              <textarea id="taller-remoto-job-notas" rows="2" maxlength="2000" placeholder="Procesado en mi máquina…"></textarea>
+            </label>
+            <label class="field">
+              <span>Fichero ligero (opcional, ≤8 MiB)</span>
+              <input id="taller-remoto-job-file" type="file" accept=".txt,.md,.csv,.json,.pdf,.png,.jpg,.jpeg,.gif,.webp,text/plain,image/*,application/pdf,application/json">
+            </label>
+            <p id="taller-remoto-job-progress" class="feedback muted" aria-live="polite"></p>
+            <button type="button" id="btn-taller-remoto-job-entregar" class="btn-primary">Entregar job</button>
+            <button type="button" id="btn-taller-remoto-job-fail" class="btn-secondary">Marcar fallido</button>
+          </div>
+
+          <div class="form-block taller-remoto-complete hidden" id="taller-remoto-complete-box">
+            <h5 class="mostrador-form-title">Entregar aporte</h5>
+            <label class="field">
+              <span>Título</span>
+              <input id="taller-remoto-aporte-titulo" type="text" maxlength="160" placeholder="Resultado v1">
+            </label>
+            <label class="field">
+              <span>Notas</span>
+              <textarea id="taller-remoto-aporte-notas" rows="2" maxlength="2000" placeholder="Procesado en mi máquina…"></textarea>
+            </label>
+            <label class="field">
+              <span>Fichero ligero (opcional, máx ~8 MiB)</span>
+              <input id="taller-remoto-aporte-file" type="file" accept=".txt,.md,.csv,.json,.pdf,.png,.jpg,.jpeg,.gif,.webp,text/plain,image/*,application/pdf,application/json">
+            </label>
+            <label class="field">
+              <span>Paquete .pucela (opcional, máx ~8 MiB)</span>
+              <input id="taller-remoto-aporte-pucela" type="file" accept=".pucela,application/octet-stream">
+            </label>
+            <p id="taller-remoto-upload-hint" class="hint">Al Entregar se sube el artefacto al origen y luego se completa el claim. Si es demasiado grande verás un error.</p>
+            <p id="taller-remoto-upload-progress" class="feedback muted" aria-live="polite"></p>
+            <button type="button" id="btn-taller-remoto-entregar" class="btn-primary">Completar y entregar</button>
+          </div>
+          <p id="taller-remoto-feedback" class="feedback muted" aria-live="polite"></p>
+        </div>
+      </section>
+
+      <section id="place-tools" class="stalls-panel hidden">
+        <h3 class="stalls-title">Herramientas colgables</h3>
+        <ul id="tools-list" class="stub-list equal-list"></ul>
+        <p class="stub-note">Slots iguales · apps locales / .pucela · sin pago por prominencia.</p>
+      </section>
+    </main>
+
+    <main id="view-messages" class="view hidden">
+      <p class="hint">Mensajes cifrados de extremo a extremo en la LAN. El nodo solo retransmite sobres opacos.</p>
+
+      <section class="card privacy-card" aria-label="Privacidad de chat">
+        <h2 class="card-title">Privacidad y ubicación</h2>
+        <p class="hint">Cómo te encuentran al chatear. Sin GPS: solo zona cívica y pistas que rotan, como la dirección de casa.</p>
+        <p id="privacy-status" class="privacy-status" aria-live="polite"></p>
+        <div id="privacy-modes" class="privacy-modes" role="radiogroup" aria-label="Modo de presencia"></div>
+        <label class="field">
+          <span>Zona preferida (opcional)</span>
+          <select id="privacy-zone" aria-label="Zona preferida">
+            <option value="">Automática (rota)</option>
+            <option value="centro">Centro</option>
+            <option value="norte">Norte</option>
+            <option value="sur">Sur</option>
+            <option value="este">Este</option>
+            <option value="oeste">Oeste</option>
+            <option value="red">Red</option>
+          </select>
+        </label>
+        <label class="field" id="privacy-ttl-wrap">
+          <span>Duración de la pista precisa</span>
+          <select id="privacy-ttl" aria-label="Duración pista precisa">
+            <option value="900">15 minutos</option>
+            <option value="1800" selected>30 minutos</option>
+            <option value="3600">60 minutos</option>
+          </select>
+        </label>
+        <button type="button" id="btn-privacy-rotate" class="btn-secondary">Rotar pista de chat</button>
+        <p id="privacy-feedback" class="feedback muted" aria-live="polite"></p>
+      </section>
+
+      <div id="threads-list" class="threads-list" role="list"></div>
+      <p id="threads-empty" class="empty hidden">Sin conversaciones aún. Añade un contacto y escribe.</p>
+
+      <section class="card" aria-label="Contactos">
+        <h2 class="card-title">Contactos</h2>
+        <p class="muted small">Calidad de alcance: <em>fresca</em> / <em>caducada</em> / <em>desconocida</em> (derivada de la última pista).</p>
+        <div id="contacts-list" class="contacts-list" role="list"></div>
+        <p id="contacts-empty" class="empty hidden">Sin contactos aún.</p>
+      </section>
+
+      <section class="card contact-form" aria-label="Añadir contacto">
+        <h2 class="card-title">Añadir contacto</h2>
+        <label class="field">
+          <span>URL del nodo peer (ej. http://127.0.0.1:8081)</span>
+          <input id="contact-peer-url" type="url" inputmode="url" autocomplete="off"
+                 placeholder="http://127.0.0.1:8081">
+        </label>
+        <label class="field">
+          <span>Nombre (opcional)</span>
+          <input id="contact-name" type="text" autocomplete="off" placeholder="Vecino">
+        </label>
+        <button type="button" id="btn-add-contact" class="btn-primary">Registrar contacto</button>
+        <p id="contact-feedback" class="feedback muted" aria-live="polite"></p>
+      </section>
+    </main>
+
+    <main id="view-thread" class="view hidden">
+      <div id="thread-messages" class="thread-messages" role="log" aria-live="polite"></div>
+      <form id="compose" class="compose" autocomplete="off">
+        <input id="compose-body" type="text" enterkeyhint="send" maxlength="2000"
+               placeholder="Escribe un mensaje…" aria-label="Mensaje" required>
+        <button type="submit" class="btn-primary btn-send" aria-label="Enviar">Enviar</button>
+      </form>
+    </main>
+
+
+
+    <main id="view-envios" class="view hidden">
+      <p class="hint">Depósito excepcional cifrado (cita/cuota). Hasta <strong id="dep-max-label">256 MiB</strong> por envío — distinto de Archivos ligeros (8 MiB). El nodo solo guarda cifrado; se borra al canjear o al caducar. Sin ranking de pago de lugares.</p>
+
+      <section class="card" aria-label="Solicitar cita">
+        <h2 class="card-title">1 · Solicitar cita</h2>
+        <label class="field">
+          <span>Nombre del fichero (opcional)</span>
+          <input id="dep-name" type="text" maxlength="180" autocomplete="off" placeholder="paquete.bin">
+        </label>
+        <label class="field">
+          <span>Cuota (MiB, opcional)</span>
+          <input id="dep-mib" type="number" min="1" step="1" placeholder="por defecto = tope del nodo">
+        </label>
+        <button type="button" id="btn-dep-reservar" class="btn-primary">Reservar cita</button>
+        <p id="dep-reservar-feedback" class="feedback muted" aria-live="polite"></p>
+        <div id="dep-code-box" class="dep-code-box hidden">
+          <p class="small muted">Código de canje (guárdalo; solo se muestra una vez):</p>
+          <p id="dep-code-show" class="casa-address mono"></p>
+          <p id="dep-id-show" class="muted small"></p>
+        </div>
+      </section>
+
+      <section class="card" aria-label="Subir depósito">
+        <h2 class="card-title">2 · Subir cifrado</h2>
+        <label class="field">
+          <span>ID de cita</span>
+          <input id="dep-upload-id" type="text" autocomplete="off" spellcheck="false">
+        </label>
+        <label class="field">
+          <span>Código</span>
+          <input id="dep-upload-code" type="text" autocomplete="off" spellcheck="false">
+        </label>
+        <label class="field file-pick">
+          <span>Fichero</span>
+          <input id="dep-file" type="file" aria-label="Elegir fichero para depósito">
+        </label>
+        <button type="button" id="btn-dep-upload" class="btn-primary">Cifrar y depositar</button>
+        <p id="dep-upload-feedback" class="feedback muted" aria-live="polite"></p>
+      </section>
+
+      <section class="card" aria-label="Canjear código">
+        <h2 class="card-title">3 · Canjear y descargar</h2>
+        <label class="field">
+          <span>ID de depósito</span>
+          <input id="dep-redeem-id" type="text" autocomplete="off" spellcheck="false">
+        </label>
+        <label class="field">
+          <span>Código</span>
+          <input id="dep-redeem-code" type="text" autocomplete="off" spellcheck="false">
+        </label>
+        <button type="button" id="btn-dep-redeem" class="btn-primary">Descargar y borrar</button>
+        <p id="dep-redeem-feedback" class="feedback muted" aria-live="polite"></p>
+      </section>
+
+      <section class="card" aria-label="Reservas activas">
+        <h2 class="card-title">Reservas activas (operador)</h2>
+        <button type="button" id="btn-dep-refresh" class="btn-secondary">Actualizar / barrer caducados</button>
+        <div id="dep-list" class="files-list" role="list"></div>
+        <p id="dep-empty" class="empty hidden">Sin citas activas.</p>
+      </section>
+    </main>
+
+
+    <main id="view-federacion" class="view hidden">
+      <p class="hint">Cada pueblo/nodo es autónomo. Se comparte: avisos críticos, índices y <strong>blobs .pucela de prensa</strong> (sellados), pistas de directorio. Sin chat, sin casas, sin depósitos, sin PIN ni claves.</p>
+
+      <section class="card" aria-label="Sincronizar">
+        <h2 class="card-title">Peers y sync</h2>
+        <button type="button" id="btn-fed-sync" class="btn-primary">Sincronizar ahora</button>
+        <button type="button" id="btn-fed-sync-prensa" class="btn-secondary">Sincronizar prensa</button>
+        <p id="fed-sync-feedback" class="feedback muted" aria-live="polite"></p>
+        <p id="fed-last-sync" class="muted small"></p>
+      </section>
+
+      <section class="card" aria-label="Prensa federada">
+        <h2 class="card-title">Ediciones .pucela traídas</h2>
+        <div id="fed-prensa-list" class="files-list" role="list"></div>
+        <p id="fed-prensa-empty" class="empty hidden">Aún no se ha traído ninguna edición de prensa.</p>
+      </section>
+
+      <section class="card" aria-label="Añadir peer">
+        <h2 class="card-title">Añadir peer (allowlist)</h2>
+        <label class="field">
+          <span>URL del nodo peer</span>
+          <input id="fed-peer-url" type="url" inputmode="url" autocomplete="off"
+                 placeholder="http://127.0.0.1:8081" aria-label="URL del peer">
+        </label>
+        <button type="button" id="btn-fed-add-peer" class="btn-secondary">Añadir a la lista</button>
+        <p id="fed-peer-feedback" class="feedback muted" aria-live="polite"></p>
+        <div id="fed-peers-list" class="files-list" role="list"></div>
+        <p id="fed-peers-empty" class="empty hidden">Sin peers en allowlist. Añade una URL o usa mDNS en LAN.</p>
+      </section>
+
+      <section class="card" aria-label="Publicar aviso federado">
+        <h2 class="card-title">Publicar aviso crítico</h2>
+        <label class="field">
+          <span>Título</span>
+          <input id="fed-aviso-title" type="text" maxlength="200" autocomplete="off" placeholder="Corte de agua en el barrio">
+        </label>
+        <label class="field">
+          <span>Detalle</span>
+          <textarea id="fed-aviso-body" rows="3" maxlength="800" placeholder="Solo lo esencial para otros nodos…"></textarea>
+        </label>
+        <label class="field">
+          <span>Severidad</span>
+          <select id="fed-aviso-severity">
+            <option value="critical">Crítico</option>
+            <option value="important" selected>Importante</option>
+          </select>
+        </label>
+        <button type="button" id="btn-fed-aviso" class="btn-primary">Publicar para federar</button>
+        <p id="fed-aviso-feedback" class="feedback muted" aria-live="polite"></p>
+      </section>
+
+      <section class="card" aria-label="Feed compartido">
+        <h2 class="card-title">Avisos / prensa recibidos</h2>
+        <div id="fed-inbox-list" class="files-list" role="list"></div>
+        <p id="fed-inbox-empty" class="empty hidden">Aún no hay ítems federados.</p>
+      </section>
+
+      <section class="card" aria-label="mDNS">
+        <h2 class="card-title">Descubiertos por mDNS</h2>
+        <div id="fed-mdns-list" class="files-list" role="list"></div>
+        <p id="fed-mdns-empty" class="empty hidden">Ningún vecino mDNS (normal en contenedores).</p>
+      </section>
+    </main>
+
+    <main id="view-files" class="view hidden">
+      <p class="hint">Ficheros ligeros cifrados de extremo a extremo (hasta 8&nbsp;MiB). El nodo solo retransmite el sobre opaco.</p>
+
+      <section class="card file-send" aria-label="Enviar fichero">
+        <h2 class="card-title">Enviar fichero</h2>
+        <label class="field">
+          <span>Contacto</span>
+          <select id="file-contact" aria-label="Contacto destinatario">
+            <option value="">— Elige un contacto —</option>
+          </select>
+        </label>
+        <label class="field file-pick">
+          <span>Fichero (máx. 8 MiB)</span>
+          <input id="file-input" type="file" aria-label="Elegir fichero">
+        </label>
+        <button type="button" id="btn-send-file" class="btn-primary">Cifrar y enviar</button>
+        <p id="file-send-feedback" class="feedback muted" aria-live="polite"></p>
+      </section>
+
+      <h2 class="section-title">Recibidos y enviados</h2>
+      <div id="files-list" class="files-list" role="list"></div>
+      <p id="files-empty" class="empty hidden">Sin transferencias aún.</p>
+    </main>
+
+
+    <main id="view-casa" class="view hidden view-casa-bolson puerta-cerrada tod-dia" data-estancia="recibidor">
+      <!-- v5.0: Cocina + despensa real + ventanas redondas día/noche (sobre huerto/chimenea v4.9).
+           Inventario/comida en localStorage; visitas en API /api/casa/visitas; TOD reutiliza fase Calles. -->
+      <header class="casa-bolson-door" id="casa-puerta-header">
+        <!-- v5.8: humo de chimenea sobre la fachada cuando hay lumbre -->
+        <div class="casa-fachada-humo" aria-hidden="true">
+          <span class="humo h1"></span><span class="humo h2"></span><span class="humo h3"></span>
+        </div>
+        <button type="button" id="btn-casa-puerta" class="casa-puerta-btn" aria-pressed="true" aria-label="Abrir o cerrar la puerta redonda">
+          <div class="casa-bolson-arch" aria-hidden="true">
+            <div class="casa-bolson-round-door">
+              <span class="casa-bolson-knob"></span>
+              <span class="casa-bolson-window"></span>
+              <span class="casa-puerta-gap" aria-hidden="true"></span>
+            </div>
+          </div>
+        </button>
+        <p class="casa-bolson-caption" id="casa-puerta-caption">Puerta cerrada · bolsón</p>
+        <p class="casa-puerta-privacy" id="casa-puerta-privacy">Privacidad activa: dirección oculta; el timbre sigue funcionando.</p>
+        <button type="button" id="btn-casa-puerta-toggle" class="btn-secondary btn-sm casa-puerta-toggle">Abrir puerta</button>
+      </header>
+      <p class="hint casa-bolson-hint">Tu casa es privada (no es un pin del mapa cívico). Ambiente de madriguera: puerta redonda, ventanas al ritmo del día/noche, huerto, cocina y despensa. Las estancias organizan timbre, visitas, notas, cultivos, recetas, inventario y la dirección efímera.</p>
+
+      <nav class="casa-estancias tabs tabs-6" role="tablist" aria-label="Estancias de la madriguera">
+        <button type="button" class="tab casa-estancia-tab active" role="tab" aria-selected="true" data-estancia="recibidor" id="tab-estancia-recibidor">🔔 Recibidor</button>
+        <button type="button" class="tab casa-estancia-tab" role="tab" aria-selected="false" data-estancia="salon" id="tab-estancia-salon">🛋️ Salón</button>
+        <button type="button" class="tab casa-estancia-tab" role="tab" aria-selected="false" data-estancia="huerto" id="tab-estancia-huerto">🌱 Huerto</button>
+        <button type="button" class="tab casa-estancia-tab" role="tab" aria-selected="false" data-estancia="cocina" id="tab-estancia-cocina">🍳 Cocina</button>
+        <button type="button" class="tab casa-estancia-tab" role="tab" aria-selected="false" data-estancia="despensa" id="tab-estancia-despensa">🧺 Despensa</button>
+        <button type="button" class="tab casa-estancia-tab" role="tab" aria-selected="false" data-estancia="mirador" id="tab-estancia-mirador">🔭 Mirador</button>
+      </nav>
+
+      <!-- Recibidor: cola del timbre + tocar remoto + alarmas -->
+      <div id="estancia-recibidor" class="casa-estancia" role="tabpanel" aria-labelledby="tab-estancia-recibidor" data-estancia="recibidor">
+        <div class="casa-ventana-bar" aria-hidden="true"><span class="casa-ventana-redonda"></span><span class="casa-ventana-redonda"></span></div>
+        <section class="card casa-bolson-panel casa-timbre-vivo" aria-label="Timbre — pendientes">
+          <h2 class="card-title">Timbre vivo</h2>
+          <p class="hint">Visitantes a la puerta. Aceptar revela tu dirección vigente; rechazar no da acceso. Con la puerta «cerrada» el timbre sigue sonando.</p>
+          <div id="timbre-pending" class="timbre-list timbre-vivo-list" role="list"></div>
+          <p id="timbre-empty" class="empty hidden">Nadie ha tocado el timbre. La madriguera está en calma.</p>
+        </section>
+
+        <section class="card casa-bolson-panel" aria-label="Tocar timbre remoto">
+          <h2 class="card-title">Tocar timbre de otra casa</h2>
+          <label class="field">
+            <span>URL del nodo (ej. http://127.0.0.1:8081)</span>
+            <input id="timbre-peer-url" type="url" inputmode="url" autocomplete="off"
+                   placeholder="http://127.0.0.1:8081">
+          </label>
+          <label class="field">
+            <span>Mensaje (opcional)</span>
+            <input id="timbre-message" type="text" maxlength="280" placeholder="Hola, soy tu vecino…">
+          </label>
+          <button type="button" id="btn-timbre-remote" class="btn-primary">Tocar timbre</button>
+          <p id="timbre-remote-feedback" class="feedback muted" aria-live="polite"></p>
+          <div id="timbre-reveal" class="reveal-box hidden" aria-live="polite"></div>
+        </section>
+
+        <section class="card casa-bolson-panel casa-libro-visitas" aria-label="Libro de visitas">
+          <h2 class="card-title">📖 Libro de visitas</h2>
+          <p class="hint">Quienes aceptas en el timbre dejan una línea firmada (nombre + nota del mensaje). Persistido en el nodo.</p>
+          <div id="visitas-list" class="visitas-list" role="list"></div>
+          <p id="visitas-empty" class="empty hidden">El libro está en blanco. Acepta un timbre para la primera firma.</p>
+        </section>
+
+        <section class="card casa-bolson-panel casa-alarmas-timbre" aria-label="Alarmas del timbre">
+          <h2 class="card-title">🔔 Alarmas del timbre</h2>
+          <p class="hint">Avisos locales (campana de casa). Elige cuándo quieres que suene.</p>
+          <div class="casa-alarmas-toggles" role="group" aria-label="Preferencias de alarma">
+            <label class="field checkbox-row">
+              <input type="checkbox" id="alarm-timbre-toggle">
+              <span>Notificar al sonar el timbre</span>
+            </label>
+            <label class="field checkbox-row">
+              <input type="checkbox" id="alarm-rechazo-toggle">
+              <span>Notificar al rechazar</span>
+            </label>
+            <label class="field checkbox-row">
+              <input type="checkbox" id="alarm-rechazos-toggle">
+              <span>Notificar tras 2+ rechazos del mismo visitante</span>
+            </label>
+          </div>
+          <label class="field">
+            <span>Marcar contacto (user_id) — aviso al tocar</span>
+            <input id="alarm-contact-id" type="text" autocomplete="off" placeholder="user_id del contacto">
+          </label>
+          <button type="button" id="btn-alarm-contact" class="btn-secondary">Armar alarma de contacto</button>
+          <h3 class="section-title">Alarmas armadas</h3>
+          <div id="alarms-list" class="alarms-list" role="list"></div>
+          <p id="alarms-empty" class="empty hidden">Ninguna alarma armada aún.</p>
+          <h3 class="section-title">Avisos recientes</h3>
+          <div id="avisos-list" class="avisos-list" role="list"></div>
+          <p id="avisos-empty" class="empty hidden">Sin avisos.</p>
+        </section>
+      </div>
+
+      <!-- Salón: notas/estado locales + privacidad de chat -->
+      <div id="estancia-salon" class="casa-estancia hidden" role="tabpanel" aria-labelledby="tab-estancia-salon" data-estancia="salon" hidden>
+        <div class="casa-ventana-bar" aria-hidden="true"><span class="casa-ventana-redonda"></span><span class="casa-ventana-redonda"></span></div>
+        <p id="casa-comida-status" class="casa-comida-status hidden" aria-live="polite"></p>
+        <section class="card casa-bolson-panel casa-chimenea-panel" id="casa-chimenea-panel" aria-label="Chimenea">
+          <h2 class="card-title">🔥 Chimenea</h2>
+          <p class="hint">Lumbre de la madriguera (solo en este dispositivo).</p>
+          <div class="casa-chimenea-visual" aria-hidden="true">
+            <div class="casa-chimenea-humo">
+              <span class="humo h1"></span><span class="humo h2"></span><span class="humo h3"></span>
+            </div>
+            <div class="casa-chimenea-hearth">
+              <span class="casa-chimenea-flame"></span>
+              <span class="casa-chimenea-flame f2"></span>
+              <span class="casa-chimenea-flame f3"></span>
+            </div>
+          </div>
+          <p id="casa-chimenea-status" class="casa-chimenea-status" aria-live="polite">Chimenea apagada · el salón espera la lumbre.</p>
+          <button type="button" id="btn-casa-chimenea" class="btn-primary" aria-pressed="false">Encender chimenea</button>
+        </section>
+
+        <section class="card casa-bolson-panel" aria-label="Estado del salón">
+          <h2 class="card-title">Salón · estado y notas</h2>
+          <p class="hint">Solo en este dispositivo (localStorage). No se federan ni salen del nodo.</p>
+          <label class="field">
+            <span>Estado breve</span>
+            <input id="casa-salon-estado" type="text" maxlength="80" placeholder="En casa · leyendo · no molestar…" autocomplete="off">
+          </label>
+          <label class="field">
+            <span>Notas del salón</span>
+            <textarea id="casa-salon-notas" rows="4" maxlength="2000" placeholder="Recordatorios domésticos, lista corta…"></textarea>
+          </label>
+          <button type="button" id="btn-casa-salon-guardar" class="btn-primary">Guardar en el salón</button>
+          <p id="casa-salon-feedback" class="feedback muted" aria-live="polite"></p>
+        </section>
+
+        <section class="card privacy-card casa-bolson-panel" aria-label="Privacidad de chat">
+          <h2 class="card-title">Privacidad al chatear</h2>
+          <p class="hint">Misma lógica que en Mensajes: la pista de chat rota aparte de esta dirección de casa.</p>
+          <p id="casa-privacy-status" class="privacy-status" aria-live="polite"></p>
+          <div id="casa-privacy-modes" class="privacy-modes" role="radiogroup" aria-label="Modo de presencia"></div>
+          <label class="field">
+            <span>Zona preferida (opcional)</span>
+            <select id="casa-privacy-zone" aria-label="Zona preferida casa">
+              <option value="">Automática (rota)</option>
+              <option value="centro">Centro</option>
+              <option value="norte">Norte</option>
+              <option value="sur">Sur</option>
+              <option value="este">Este</option>
+              <option value="oeste">Oeste</option>
+              <option value="red">Red</option>
+            </select>
+          </label>
+          <label class="field" id="casa-privacy-ttl-wrap">
+            <span>Duración de la pista precisa</span>
+            <select id="casa-privacy-ttl" aria-label="Duración pista precisa casa">
+              <option value="900">15 minutos</option>
+              <option value="1800" selected>30 minutos</option>
+              <option value="3600">60 minutos</option>
+            </select>
+          </label>
+          <button type="button" id="casa-privacy-rotate" class="btn-secondary">Rotar pista de chat</button>
+          <p id="casa-privacy-feedback" class="feedback muted" aria-live="polite"></p>
+        </section>
+      </div>
+
+      <!-- Huerto: parcelas locales (v4.9) -->
+      <div id="estancia-huerto" class="casa-estancia hidden" role="tabpanel" aria-labelledby="tab-estancia-huerto" data-estancia="huerto" hidden>
+        <div class="casa-ventana-bar" aria-hidden="true"><span class="casa-ventana-redonda"></span></div>
+        <section class="card casa-bolson-panel casa-huerto-panel" aria-label="Huerto de la madriguera">
+          <h2 class="card-title">🌱 Huerto</h2>
+          <p class="hint">Cuatro parcelas junto a la puerta redonda. Crece con el paso del día (o un tick suave). Solo en este dispositivo.</p>
+          <p id="casa-huerto-day" class="muted small casa-huerto-day" aria-live="polite">Día del huerto: —</p>
+          <div id="casa-huerto-plots" class="casa-huerto-plots" role="list"></div>
+          <p id="casa-huerto-flavor" class="casa-huerto-flavor" aria-live="polite"></p>
+          <button type="button" id="btn-casa-huerto-tick" class="btn-secondary btn-sm">Pasar un rato (tick)</button>
+        </section>
+      </div>
+
+      <!-- Cocina: recetas con cosechas (v5.0) -->
+      <div id="estancia-cocina" class="casa-estancia hidden" role="tabpanel" aria-labelledby="tab-estancia-cocina" data-estancia="cocina" hidden>
+        <div class="casa-ventana-bar" aria-hidden="true"><span class="casa-ventana-redonda"></span><span class="casa-ventana-redonda"></span></div>
+        <section class="card casa-bolson-panel casa-cocina-panel" aria-label="Cocina de la madriguera">
+          <h2 class="card-title">🍳 Cocina</h2>
+          <p class="hint">Recetas simples con lo cosechado. Cocinar consume de la despensa (solo este dispositivo). Sin nutrición real: es sabor hogareño.</p>
+          <div id="casa-cocina-recetas" class="casa-cocina-recetas" role="list"></div>
+          <p id="casa-cocina-flavor" class="casa-cocina-flavor" aria-live="polite"></p>
+        </section>
+      </div>
+
+      <!-- Despensa real: inventario de cosechas + atajo Archivos (v5.0) -->
+      <div id="estancia-despensa" class="casa-estancia hidden" role="tabpanel" aria-labelledby="tab-estancia-despensa" data-estancia="despensa" hidden>
+        <div class="casa-ventana-bar" aria-hidden="true"><span class="casa-ventana-redonda"></span></div>
+        <section class="card casa-bolson-panel casa-despensa-panel" aria-label="Despensa de la madriguera">
+          <h2 class="card-title">🧺 Despensa</h2>
+          <p class="hint">Inventario real de cosechas del huerto (contadores en este dispositivo). La cocina consume de aquí.</p>
+          <div id="casa-despensa-stock" class="casa-despensa-stock" role="list"></div>
+          <p id="casa-despensa-empty" class="empty hidden">La despensa está vacía. Cosecha en el Huerto para llenar los tarros.</p>
+          <p class="casa-despensa-flavor">Cestas y tarros: lo que cabe en el bolsillo de la madriguera.</p>
+        </section>
+        <section class="card casa-bolson-panel" aria-label="Despensa de ficheros">
+          <h2 class="card-title">También · ficheros ligeros</h2>
+          <p class="hint">Atajo a la bandeja de Archivos del nodo (envíos E2E ligeros). No es el depósito excepcional.</p>
+          <button type="button" id="btn-casa-despensa-archivos" class="btn-primary">Abrir Archivos</button>
+          <p class="muted small" style="margin-top:10px">También desde la barra: 📁 Archivos.</p>
+        </section>
+      </div>
+
+      <!-- Mirador: chip de dirección efímera -->
+      <div id="estancia-mirador" class="casa-estancia hidden" role="tabpanel" aria-labelledby="tab-estancia-mirador" data-estancia="mirador" hidden>
+        <div class="casa-ventana-bar" aria-hidden="true"><span class="casa-ventana-redonda"></span><span class="casa-ventana-redonda"></span></div>
+        <section class="card casa-bolson-panel" aria-label="Dirección privada">
+          <h2 class="card-title">Mirador · dirección efímera</h2>
+          <p class="hint">Solo tú ves este token. Rota cuando quieras; al aceptar un timbre se revela la dirección vigente al visitante.</p>
+          <div class="casa-mirador-chip-wrap">
+            <p id="casa-address" class="casa-address mono casa-mirador-chip">—</p>
+          </div>
+          <p id="casa-address-meta" class="muted small"></p>
+          <button type="button" id="btn-rotar" class="btn-primary">Rotar dirección</button>
+          <p id="casa-rotate-feedback" class="feedback muted" aria-live="polite"></p>
+        </section>
+      </div>
+    </main>
+
+
+    <main id="view-pucela" class="view hidden">
+      <p class="hint">Documento ciudadano <strong>.pucela</strong> v6 (no HTML ni zip): texto, imagen fija y sonido + <em>canal audio</em> codificado. Las fotos grandes se ajustan solas; el vídeo no entra. Cerrojo NaCl: solo se abre en este nodo.</p>
+
+      <section class="card" aria-label="Crear documento pucela">
+        <h2 class="card-title">Crear .pucela</h2>
+        <label class="field">
+          <span>Título</span>
+          <input id="pucela-title" type="text" maxlength="200" placeholder="Carta al barrio" autocomplete="off">
+        </label>
+        <label class="field">
+          <span>Texto / carta</span>
+          <textarea id="pucela-text" rows="5" maxlength="200000" placeholder="Escribe aquí…"></textarea>
+        </label>
+        <label class="field file-pick">
+          <span>Imagen (opcional — si es grande, se comprime sola)</span>
+          <input id="pucela-image" type="file" accept="image/*" aria-label="Elegir imagen">
+        </label>
+        <label class="field file-pick">
+          <span>Sonido (opcional, máx. ~1&nbsp;MiB)</span>
+          <input id="pucela-sound" type="file" accept="audio/*" aria-label="Elegir sonido">
+        </label>
+        <button type="button" id="btn-pucela-create" class="btn-primary">Crear y sellar</button>
+        <p id="pucela-create-feedback" class="feedback muted" aria-live="polite"></p>
+      </section>
+
+      <h2 class="section-title">Documentos en este nodo</h2>
+      <div id="pucela-list" class="pucela-list" role="list"></div>
+      <p id="pucela-empty" class="empty hidden">Aún no hay documentos .pucela.</p>
+
+      <section class="card hidden" id="pucela-open-card" aria-label="Documento abierto">
+        <h2 class="card-title" id="pucela-open-title">Documento</h2>
+        <div id="pucela-open-body" class="pucela-open-body"></div>
+        <button type="button" id="btn-pucela-close" class="btn-secondary">Cerrar</button>
+      </section>
+    </main>
+
+
+
+    <main id="view-prensa" class="view hidden">
+      <p class="hint">Edición en <strong>hojas</strong> .pucela — pasa página. Gratis · sin paywall · anuncios solo estáticos.</p>
+      <div class="hojas-toolbar">
+        <button type="button" id="btn-hoja-prev" class="btn-secondary">← Anterior</button>
+        <span id="hoja-counter" class="hoja-counter" aria-live="polite">1 / 1</span>
+        <button type="button" id="btn-hoja-next" class="btn-primary">Siguiente →</button>
+      </div>
+      <article id="hoja-stage" class="hoja-stage" tabindex="0" aria-label="Hoja actual">
+        <p id="hoja-role" class="chip hoja-role hidden"></p>
+        <div id="hoja-body" class="hoja-body"></div>
+      </article>
+      <p id="prensa-ads-note" class="stub-note"></p>
+    </main>
+
+    <main id="view-shop" class="view hidden">
+      <article class="place-hero">
+        <div id="shop-emoji" class="place-emoji-lg" aria-hidden="true">🧺</div>
+        <h2 id="shop-name"></h2>
+        <p id="shop-kind" class="chip"></p>
+        <p id="shop-info" class="place-desc"></p>
+        <div id="shop-assistant" class="assistant-panel">
+          <p id="shop-assistant-label" class="assistant-label"></p>
+          <button type="button" id="btn-shop-assistant" class="btn-secondary">Preguntar al asistente local</button>
+        </div>
+      </article>
+      <nav class="tabs tabs-3" aria-label="Secciones del puesto">
+        <button type="button" class="tab active" data-shoptab="info">Info</button>
+        <button type="button" class="tab" data-shoptab="avisos">Avisos</button>
+        <button type="button" class="tab" data-shoptab="contacto">Contacto</button>
+      </nav>
+      <section id="shop-tab-info" class="tab-panel">
+        <p id="shop-tab-info-body"></p>
+        <ul id="shop-tab-info-items" class="stub-list"></ul>
+      </section>
+      <section id="shop-tab-avisos" class="tab-panel hidden">
+        <ul id="shop-tab-avisos-items" class="stub-list"></ul>
+      </section>
+      <section id="shop-tab-contacto" class="tab-panel hidden">
+        <p id="shop-tab-contacto-body"></p>
+        <ul id="shop-tab-contacto-items" class="stub-list"></ul>
+      </section>
+      <section id="shop-pucela" class="stalls-panel hidden">
+        <h3 class="stalls-title">Documentos .pucela</h3>
+        <ul id="shop-pucela-list" class="stub-list"></ul>
+      </section>
+    </main>
+
+    <main id="view-persona" class="view hidden">
+      <article class="place-hero">
+        <img id="persona-image" class="persona-image hidden" alt="">
+        <div id="persona-emoji" class="place-emoji-lg" aria-hidden="true">👤</div>
+        <h2 id="persona-name"></h2>
+        <p class="chip">Tarjeta pública · no es la casa</p>
+        <p id="persona-bio" class="place-desc"></p>
+        <div id="persona-assistant" class="assistant-panel">
+          <p id="persona-assistant-label" class="assistant-label"></p>
+          <button type="button" id="btn-persona-assistant" class="btn-secondary">Preguntar al asistente local</button>
+        </div>
+        <div id="persona-timbre" class="timbre-opt hidden">
+          <p id="persona-timbre-hint" class="muted small"></p>
+          <button type="button" id="btn-persona-timbre" class="btn-primary">Ir a tocar el timbre</button>
+        </div>
+      </article>
+    </main>
+
+
+    <main id="view-nodo" class="view hidden">
+      <p class="hint">Panel del operador · estado en vivo · sin secretos en pantalla. La copia de seguridad <strong>sí incluye claves</strong>: trátala como secreto.</p>
+
+      <section class="card" aria-label="Estado del nodo">
+        <h2 class="card-title">Estado</h2>
+        <dl id="nodo-status-dl" class="nodo-dl">
+          <div><dt>Versión</dt><dd id="nodo-version">—</dd></div>
+          <div><dt>Node ID</dt><dd id="nodo-id-short">—</dd></div>
+          <div><dt>Uptime</dt><dd id="nodo-uptime">—</dd></div>
+          <div><dt>Data-dir</dt><dd id="nodo-datadir">—</dd></div>
+          <div><dt>Peers</dt><dd id="nodo-peers">—</dd></div>
+          <div><dt>Lugares</dt><dd id="nodo-places">—</dd></div>
+          <div><dt>Salud</dt><dd id="nodo-health">—</dd></div>
+        </dl>
+        <button type="button" id="btn-nodo-refresh" class="btn-secondary">Actualizar</button>
+        <p id="nodo-status-feedback" class="feedback muted" aria-live="polite"></p>
+      </section>
+
+      <section class="card" aria-label="Modo kiosko">
+        <h2 class="card-title">Modo kiosko</h2>
+        <p class="stub-note">Tablet en mostrador o muro: toques grandes, mapa preferido, oculta backup/restore. No es bloqueo del SO.</p>
+        <label class="field check-row">
+          <input id="nodo-kiosk-toggle" type="checkbox">
+          <span>Activar modo kiosko</span>
+        </label>
+        <label class="field">
+          <span>Volver al mapa tras inactividad (minutos)</span>
+          <select id="nodo-kiosk-idle" aria-label="Minutos de inactividad">
+            <option value="1">1</option>
+            <option value="2" selected>2</option>
+            <option value="3">3</option>
+            <option value="4">4</option>
+            <option value="5">5</option>
+          </select>
+        </label>
+        <button type="button" id="btn-kiosk-exit-hold" class="btn-secondary btn-hold kiosk-only hidden" aria-describedby="kiosk-hold-hint">Mantén pulsado para salir</button>
+        <p id="kiosk-hold-hint" class="feedback muted small">Sin PIN · ~2 s</p>
+        <p id="nodo-kiosk-feedback" class="feedback muted" aria-live="polite"></p>
+        <button type="button" id="btn-nodo-novedades" class="btn-secondary">Qué hay de nuevo</button>
+      </section>
+
+      <section class="card" aria-label="Día y noche (demo)">
+        <h2 class="card-title">Día / noche</h2>
+        <p class="stub-note">Ciclo visual suave en Calles y Mapa. Por defecto sigue el reloj local. En <strong>noche</strong>, luces de ventana en edificios. Demo acelerada solo en este dispositivo.</p>
+        <label class="field check-row">
+          <input id="nodo-tod-demo" type="checkbox">
+          <span>Demo acelerada (ciclo rápido)</span>
+        </label>
+        <label class="field">
+          <span>Forzar fase (demo / prueba)</span>
+          <select id="nodo-tod-force" aria-label="Forzar fase del día">
+            <option value="">Automático (reloj)</option>
+            <option value="dia">☀️ Día</option>
+            <option value="atardecer">🌇 Atardecer</option>
+            <option value="noche">🌙 Noche</option>
+          </select>
+        </label>
+        <p id="nodo-tod-feedback" class="feedback muted" aria-live="polite"></p>
+      </section>
+
+      <section class="card" aria-label="Clima y mercado (demo)">
+        <h2 class="card-title">Clima / mercado</h2>
+        <p class="stub-note">Clima cosmético (sin API meteorológica) y día de mercado cívico. Preferencias solo en este dispositivo.</p>
+        <label class="field">
+          <span>Forzar clima</span>
+          <select id="nodo-clima-force" aria-label="Forzar clima">
+            <option value="">Automático (ciclo sembrado)</option>
+            <option value="sol">☀️ Sol</option>
+            <option value="nubes">☁️ Nubes</option>
+            <option value="lluvia">🌧️ Lluvia ligera</option>
+          </select>
+        </label>
+        <label class="field check-row">
+          <input id="nodo-mercado-force" type="checkbox">
+          <span>Forzar día de mercado (demo)</span>
+        </label>
+        <p id="nodo-clima-feedback" class="feedback muted" aria-live="polite"></p>
+      </section>
+
+      <section class="card kiosk-operator" aria-label="PIN de operador">
+        <h2 class="card-title">PIN de operador</h2>
+        <p id="nodo-pin-warning" class="stub-note warn-secret hidden" role="status"></p>
+        <p id="nodo-pin-hint" class="muted small">Si el nodo tiene PIN, introdúcelo antes de backup o restore.</p>
+        <label class="field">
+          <span>PIN</span>
+          <input id="nodo-operator-pin" type="password" autocomplete="current-password" inputmode="numeric" placeholder="••••" aria-label="PIN de operador">
+        </label>
+      </section>
+
+      <section class="card kiosk-operator" aria-label="Copia de seguridad">
+        <h2 class="card-title">Copia de seguridad</h2>
+        <p class="stub-note warn-secret">⚠️ El archivo incluye <strong>claves privadas</strong> (identidad). Guárdalo fuera de la red pública.</p>
+        <button type="button" id="btn-nodo-backup" class="btn-primary">Descargar backup (.tar.gz)</button>
+        <p id="nodo-backup-feedback" class="feedback muted" aria-live="polite"></p>
+      </section>
+
+      <section class="card kiosk-operator" aria-label="Restaurar">
+        <h2 class="card-title">Restaurar (sustituir)</h2>
+        <p class="stub-note">Quieta el nodo (sin tráfico). La restauración <strong>borra</strong> el data-dir actual y lo sustituye. Después <strong>reinicia</strong> el proceso.</p>
+        <label class="field file-pick">
+          <span>Archivo (.tar.gz o .zip)</span>
+          <input id="nodo-restore-file" type="file" accept=".tar.gz,.tgz,.zip,application/gzip,application/zip" aria-label="Archivo de backup">
+        </label>
+        <label class="field check-row">
+          <input id="nodo-restore-confirm" type="checkbox">
+          <span>Confirmo REPLACE: sustituir todo el data-dir</span>
+        </label>
+        <button type="button" id="btn-nodo-restore" class="btn-primary btn-danger">Restaurar y pedir reinicio</button>
+        <p id="nodo-restore-feedback" class="feedback muted" aria-live="polite"></p>
+      </section>
+    </main>
+
+
+    <main id="view-sellos" class="view hidden">
+      <p class="hint">Libro de sellos · visita lugares en Calles o abre su página · todos iguales · sin desbloqueos de pago.</p>
+      <p class="muted small">Sellos: <strong id="sellos-progress">0 / 0</strong></p>
+      <div id="sellos-album" class="sellos-album" role="list"></div>
+    </main>
+
+
+    <main id="view-misiones" class="view hidden">
+      <p class="hint">Misiones cívicas · progreso desde el libro de sellos · sin paywall ni nube.</p>
+      <p class="muted small">Completadas: <strong id="misiones-progress">0 / 0</strong></p>
+      <div id="misiones-album" class="misiones-album sellos-album" role="list"></div>
+      <p id="misiones-badges" class="misiones-badges muted small" aria-live="polite"></p>
+    </main>
+
+    <main id="view-novedades" class="view hidden">
+      <p class="hint">Historial corto del nodo · regenerable · no es un sitio de marketing.</p>
+      <p class="muted small">Versión en curso: <strong id="novedades-current">—</strong></p>
+      <div id="novedades-list" class="novedades-list" role="list"></div>
+    </main>
+
+    <main id="view-tool-frame" class="view hidden tool-frame-view">
+      <iframe id="tool-iframe" title="Herramienta" class="tool-iframe" sandbox="allow-scripts allow-same-origin allow-downloads allow-forms"></iframe>
+    </main>
+
+    <main id="view-tool-wiki" class="view hidden">
+      <p class="hint">Wikipedia offline: cuelga un <strong>.zim</strong> (Kiwix) o abre el artículo de muestra. Sin dump multi‑GB en el nodo.</p>
+      <section class="card" id="wiki-empty-card" aria-label="Estado del paquete">
+        <h2 class="card-title">Paquete ZIM / local</h2>
+        <p id="wiki-status-hint" class="muted"></p>
+        <p id="wiki-instructions" class="stub-note"></p>
+        <p class="muted">Guía: docs/WIKIPEDIA-OFFLINE.md · kiwix-serve en :8081</p>
+        <a id="wiki-open-kiwix" class="btn-primary hidden" href="http://127.0.0.1:8081/" target="_blank" rel="noopener">Abrir Kiwix</a>
+      </section>
+      <h2 class="section-title">Ficheros ZIM</h2>
+      <div id="wiki-zims" class="threads-list" role="list"></div>
+      <h2 class="section-title">Artículos locales</h2>
+      <div id="wiki-articles" class="threads-list" role="list"></div>
+      <section class="card hidden" id="wiki-open-card" aria-label="Artículo">
+        <h2 class="card-title" id="wiki-open-title">Artículo</h2>
+        <pre id="wiki-open-body" class="pucela-text"></pre>
+        <button type="button" id="btn-wiki-close" class="btn-secondary">Cerrar artículo</button>
+      </section>
+    </main>
+
+    <main id="view-tool-3d" class="view hidden">
+      <p class="hint">Hueco <strong>colgable</strong> para tu creador de números 3D. Esto no es CAD: solo una vista previa mínima.</p>
+      <section class="card" aria-label="Preview 3D">
+        <h2 class="card-title">Texto / número</h2>
+        <label class="field">
+          <span>Texto</span>
+          <input id="n3d-texto" type="text" maxlength="32" value="123" autocomplete="off">
+        </label>
+        <button type="button" id="btn-n3d-preview" class="btn-primary">Vista previa</button>
+        <p id="n3d-note" class="feedback muted" aria-live="polite"></p>
+        <div id="n3d-preview" class="n3d-preview" aria-live="polite"></div>
+      </section>
+    </main>
+
+    <main id="view-tool-asistente" class="view hidden">
+      <p class="hint">Asistente <strong>local</strong> — FAQ fijo offline (lugar / puesto / persona / nodo). No es IA en la nube.</p>
+      <section class="card" aria-label="Chat local">
+        <h2 class="card-title">Pregunta</h2>
+        <div id="asistente-log" class="thread-messages asistente-log" role="log" aria-live="polite"></div>
+        <form id="asistente-form" class="compose" autocomplete="off">
+          <input id="asistente-q" type="text" maxlength="400" placeholder="¿Qué es un .pucela?" aria-label="Pregunta" required>
+          <button type="submit" class="btn-primary btn-send">Preguntar</button>
+        </form>
+      </section>
+      <section class="card" aria-label="FAQ">
+        <h2 class="card-title">Temas del FAQ</h2>
+        <ul id="asistente-faq" class="stub-list"></ul>
+      </section>
+    </main>
+
+    <footer class="status" id="status">
+      <button type="button" id="btn-panel-nodo" class="footer-link" title="Panel del nodo">⚙ Panel</button>
+      <button type="button" id="btn-footer-sellos" class="footer-link" title="Libro de sellos">🔖 Sellos</button>
+      <button type="button" id="btn-footer-misiones" class="footer-link" title="Misiones cívicas">🎯 Misiones</button>
+      <button type="button" id="btn-footer-novedades" class="footer-link" title="Qué hay de nuevo">✨ Novedades</button>
+      <button type="button" id="btn-kiosk-exit-fab" class="footer-link kiosk-only hidden" title="Mantén pulsado para salir del kiosko">🔓 Salir</button>
+      <span id="status-text">Conectando al nodo…</span>
+    </footer>
+  </div>
+  <script src="/js/app.js" defer></script>
+</body>
+</html>
