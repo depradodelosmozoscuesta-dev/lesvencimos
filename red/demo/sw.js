@@ -1,13 +1,14 @@
-/* Service worker — cachea el app shell para uso offline en LAN.
- * Qué es: install/activate/fetch del PWA (shell cache-first; /api network-first).
- * Por qué versionar CACHE: al subir de versión se limpia el shell viejo.
+/* Service worker — demo Pages en /red/demo/
+ * Shell cache-first con rutas relativas al scope del SW.
+ * /api/* no se cachea: la página usa mock-api.js (fixtures).
  */
-const CACHE = "valladolid-shell-v5160";
+const CACHE = "valladolid-pages-demo-v1";
 const SHELL = [
   "./",
   "./index.html",
   "./css/app.css",
   "./js/app.js",
+  "./js/mock-api.js",
   "./manifest.webmanifest",
   "./icons/icon.svg",
 ];
@@ -29,11 +30,11 @@ self.addEventListener("activate", (event) => {
 self.addEventListener("fetch", (event) => {
   const req = event.request;
   const url = new URL(req.url);
-  // Network-first for API; cache-first for shell.
-  if (url.pathname.startsWith("/api/")) {
+  if (url.pathname.includes("/api/")) {
+    // Dejar pasar / fallar: el mock vive en la página (fetch parchado).
     event.respondWith(
       fetch(req).catch(() =>
-        new Response(JSON.stringify({ error: "sin red local" }), {
+        new Response(JSON.stringify({ error: "demo pages · sin red", demo: true }), {
           status: 503,
           headers: { "Content-Type": "application/json" },
         })

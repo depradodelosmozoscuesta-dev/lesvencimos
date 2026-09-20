@@ -34,7 +34,7 @@
   const viewHome = $("#view-home");
   const onboarding = $("#onboarding");
   const ONBOARDING_KEY = "rcv_onboarding_v13_done";
-  let homeViewMode = "calles"; // calles | mapa | lista
+  let homeViewMode = "mapa"; // demo Pages: mapa primero (calles|mapa|lista)
   const viewPlace = $("#view-place");
   const viewMessages = $("#view-messages");
   const viewThread = $("#view-thread");
@@ -435,7 +435,7 @@
      y opcional cycle/; masters/{id}/nudist|naturalist/pin.png.
      Alternativa solo con toggle ON: from-mari-gym/sintop/{idle,walk-L,walk-R}.png
      o pose/frames/idle-sintop.png. Si falta el pack → vestida. Default OFF. */
-  const MARI_BASE = "/vitaink/sprites/mari";
+  const MARI_BASE = "vitaink/sprites/mari";
   /* Cuerpo vestido: skin-01 (ángulos completos). Naturalista: skin-01..04 según FaceRecipe. */
   const MARI_SKIN_DEFAULT = "skin-01";
   /* inventory faces.face_skin_align invertido: face-kit skin → base/{id} naturalista */
@@ -10861,7 +10861,11 @@
       loadCityEvents().catch(() => {});
       refreshStamps().catch(() => {});
       loadCityPois().catch(() => {});
-      const path = location.pathname;
+      const path = (function () {
+        let p = location.pathname || "/";
+        if (p.startsWith("/red/demo")) p = p.slice("/red/demo".length) || "/";
+        return p;
+      })();
       const m = path.match(/^\/lugar\/([^/]+)\/?$/);
       const mShop = path.match(/^\/puesto\/([^/]+)\/?$/);
       const mPerson = path.match(/^\/persona\/([^/]+)\/?$/);
@@ -10913,7 +10917,7 @@
 
   if ("serviceWorker" in navigator) {
     window.addEventListener("load", () => {
-      navigator.serviceWorker.register("/sw.js").catch(() => {});
+      navigator.serviceWorker.register(new URL("./sw.js", document.baseURI).href).catch(() => {});
     });
   }
 
@@ -11065,9 +11069,8 @@
   startClimaLoop();
   refreshMarketDay().catch(() => {});
   try {
-    const saved = localStorage.getItem("rcv_home_view_v24") || localStorage.getItem("rcv_home_view_v13");
-    if (saved === "lista" || saved === "mapa" || saved === "calles") setHomeViewMode(saved);
-    else setHomeViewMode("calles");
+    /* Demo Pages: forzar mapa (home/lugares/mapa), no asistente ni calles-first */
+    setHomeViewMode("mapa");
   } catch (_) {
     setHomeViewMode("calles");
   }
