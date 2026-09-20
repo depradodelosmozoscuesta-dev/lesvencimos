@@ -1,4 +1,4 @@
-const CACHE = "vitaink-juego-good-2026-09-20c";
+const CACHE = "vitaink-juego-v5-alpha-cutout";
 const PRECACHE = [
   "./_bundle/index-DafhLu3u.js",
   "./assets/hud/png/128/heart-empty.png",
