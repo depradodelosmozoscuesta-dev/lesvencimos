@@ -1,9 +1,9 @@
 /* VitaInk offline service worker — relative scope (works at /juego/ and unzip root) */
-const CACHE = 'vitaink-juego-offline-v2-2026-09-20';
+const CACHE = 'vitaink-juego-offline-v3-2026-09-20';
 const PRECACHE = [
   "./",
   "./README-DESCARGA.md",
-  "./_bundle/index-BEAQ8_kv.js",
+  "./_bundle/index-C2nWW-GZ.js",
   "./assets/hud/COPY-TO-RCV.sh",
   "./assets/hud/README.md",
   "./assets/hud/catalog.json",
