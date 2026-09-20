@@ -2,19 +2,113 @@
 <html lang="es">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>VitaInk Juego — motor de anclajes</title>
-    <style>*{box-sizing:border-box;margin:0;padding:0}html,body{color:#e8ecd8;background:#1a1f16;width:100%;height:100%;font-family:system-ui,sans-serif;overflow:hidden}#app{width:100%;height:100%;position:relative}canvas#game{cursor:crosshair;background:#2a3528;width:100%;height:100%;display:block}#hud{pointer-events:none;background:#0c100ab8;border:1px solid #b4c88c59;border-radius:8px;max-width:min(360px,90vw);padding:10px 14px;font-size:13px;line-height:1.45;position:absolute;top:12px;left:12px}#hud kbd{background:#2e3828;border-radius:3px;padding:1px 5px;font-size:12px}#hud .title{color:#c8e090;margin-bottom:4px;font-weight:700}</style>
-    <script type="module" crossorigin src="/juego/_bundle/index-DH3RTdl_.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no" />
+    <meta name="theme-color" content="#1a1f16" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-title" content="VitaInk" />
+    <meta name="description" content="VitaInk — juego Canvas2D offline (Mari + Berlín/Atenas)." />
+    <link rel="manifest" href="./manifest.webmanifest" />
+    <link rel="icon" href="./favicon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="./icons/icon-192.png" />
+    <title>VitaInk</title>
+    <style>
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{color:#e8ecd8;background:#1a1f16;width:100%;height:100%;font-family:system-ui,sans-serif;overflow:hidden;touch-action:none}
+#app{width:100%;height:100%;position:relative}
+canvas#game{cursor:crosshair;background:#2a3528;width:100%;height:100%;display:block;touch-action:none}
+#hud{pointer-events:none;background:#0c100ab8;border:1px solid #b4c88c59;border-radius:8px;max-width:min(360px,90vw);padding:10px 14px;font-size:13px;line-height:1.45;position:absolute;top:12px;left:12px;z-index:2}
+#hud kbd{background:#2e3828;border-radius:3px;padding:1px 5px;font-size:12px}
+#hud .title{color:#c8e090;margin-bottom:4px;font-weight:700}
+#touch-controls{display:none;position:absolute;inset:0;z-index:5;pointer-events:none}
+#touch-controls .pad{pointer-events:auto;position:absolute;bottom:max(16px,env(safe-area-inset-bottom));left:max(12px,env(safe-area-inset-left));width:168px;height:168px;user-select:none;-webkit-user-select:none}
+#touch-controls .action{pointer-events:auto;position:absolute;bottom:max(28px,env(safe-area-inset-bottom));right:max(16px,env(safe-area-inset-right));display:flex;flex-direction:column;gap:10px}
+#touch-controls button{
+  appearance:none;border:2px solid #c8e09099;background:#0c100acc;color:#e8ecd8;
+  font:700 16px/1 system-ui,sans-serif;border-radius:16px;
+  width:56px;height:56px;touch-action:none;-webkit-tap-highlight-color:transparent;
+}
+#touch-controls button:active,#touch-controls button.held{background:#c8e09055;border-color:#c8e090}
+#touch-controls .pad button{position:absolute}
+#btn-up{left:56px;top:0}
+#btn-down{left:56px;bottom:0}
+#btn-left{left:0;top:56px}
+#btn-right{right:0;top:56px}
+#btn-e,#btn-t{width:64px;height:48px;font-size:14px;border-radius:24px}
+@media (pointer:coarse),(max-width:900px){
+  #touch-controls{display:block}
+  #hud{font-size:12px;max-width:min(280px,70vw)}
+}
+    </style>
+    <script type="module" crossorigin src="./_bundle/index-DH3RTdl_.js"></script>
   </head>
   <body>
     <div id="app">
       <canvas id="game" width="1280" height="720"></canvas>
       <div id="hud">
-        <div class="title">VitaInk Juego</div>
-        <div>Mover: <kbd>WASD</kbd> / flechas · Debug huesos: <kbd>B</kbd></div>
+        <div class="title">VitaInk</div>
+        <div>Mover: <kbd>WASD</kbd> / flechas · Etapa: <kbd>E</kbd> · Estilo: <kbd>T</kbd></div>
         <div id="status">Cargando…</div>
       </div>
+      <div id="touch-controls" aria-label="Controles táctiles">
+        <div class="pad">
+          <button type="button" id="btn-up" data-code="KeyW" aria-label="Arriba">▲</button>
+          <button type="button" id="btn-left" data-code="KeyA" aria-label="Izquierda">◀</button>
+          <button type="button" id="btn-right" data-code="KeyD" aria-label="Derecha">▶</button>
+          <button type="button" id="btn-down" data-code="KeyS" aria-label="Abajo">▼</button>
+        </div>
+        <div class="action">
+          <button type="button" id="btn-e" data-code="KeyE" data-tap="1" aria-label="Cambiar etapa">E</button>
+          <button type="button" id="btn-t" data-code="KeyT" data-tap="1" aria-label="Cambiar estilo">T</button>
+        </div>
+      </div>
     </div>
+    <script>
+(function () {
+  // Touch / pointer → KeyboardEvent (e.code) for the existing Input engine
+  function fire(type, code) {
+    window.dispatchEvent(new KeyboardEvent(type, { code: code, key: code, bubbles: true, cancelable: true }));
+  }
+  function bindHold(btn) {
+    var code = btn.getAttribute('data-code');
+    var tap = btn.getAttribute('data-tap') === '1';
+    var down = false;
+    function start(ev) {
+      ev.preventDefault();
+      if (tap) {
+        fire('keydown', code);
+        setTimeout(function () { fire('keyup', code); }, 40);
+        return;
+      }
+      if (down) return;
+      down = true;
+      btn.classList.add('held');
+      fire('keydown', code);
+    }
+    function end(ev) {
+      if (ev) ev.preventDefault();
+      if (tap) return;
+      if (!down) return;
+      down = false;
+      btn.classList.remove('held');
+      fire('keyup', code);
+    }
+    btn.addEventListener('pointerdown', start);
+    btn.addEventListener('pointerup', end);
+    btn.addEventListener('pointercancel', end);
+    btn.addEventListener('pointerleave', end);
+    btn.addEventListener('lostpointercapture', end);
+  }
+  document.querySelectorAll('#touch-controls button').forEach(bindHold);
+
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', function () {
+      navigator.serviceWorker.register('./sw.js').catch(function (err) {
+        console.warn('SW register failed', err);
+      });
+    });
+  }
+})();
+    </script>
   </body>
 </html>
