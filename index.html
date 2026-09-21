@@ -69,6 +69,17 @@
     #gate{display:block}
     body.unlocked #hub{display:block}
     body.unlocked #gate{display:none}
+    
+    .choices{display:flex;flex-direction:column;gap:.45rem;margin:0 0 .5rem}
+    .choice{
+      appearance:none; text-align:left; cursor:pointer;
+      padding:.7rem .9rem; border-radius:12px; font:650 .95rem system-ui;
+      border:1px solid var(--linea); background:#0d1524; color:var(--tinta);
+      transition:border-color .15s ease, background .15s ease, transform .15s ease;
+    }
+    .choice:hover,.choice:focus-visible{border-color:rgba(199,210,254,.45); transform:translateY(-1px)}
+    .choice.sel{border-color:var(--acento); background:rgba(199,210,254,.12); box-shadow:0 0 0 2px rgba(199,210,254,.2)}
+
     footer{margin-top:2rem;padding-top:1rem;border-top:1px solid var(--linea);color:var(--suave);font-size:.85rem;text-align:center}
   </style>
 </head>
@@ -91,9 +102,18 @@
         <label for="ans1">Beatles · la palabra que falta</label>
         <input id="ans1" type="text" autocomplete="off" autocapitalize="none" spellcheck="false" placeholder="una palabra">
 
-        <p class="lyric">2) «Death cannot stop <em>…</em>»</p>
-        <label for="ans2">La princesa prometida · Westley (también vale en castellano)</label>
-        <input id="ans2" type="text" autocomplete="off" autocapitalize="none" spellcheck="false" placeholder="…">
+        <p class="lyric">2) La princesa prometida</p>
+        <p style="color:var(--suave);margin:0 0 .65rem;font-size:.95rem">
+          Cuando Buttercup le pide algo a Westley (el chico de la granja), ¿qué responde él siempre?
+        </p>
+        <div class="choices" id="ans2" role="group" aria-label="Respuesta de Westley">
+          <button type="button" class="choice" data-v="0">Como ordenes, mi señora</button>
+          <button type="button" class="choice" data-v="0">Hasta el final del mundo</button>
+          <button type="button" class="choice" data-v="1">Como desees</button>
+          <button type="button" class="choice" data-v="0">Con mucho gusto</button>
+          <button type="button" class="choice" data-v="1">As you wish</button>
+        </div>
+        <p class="hint" style="margin:.35rem 0 .85rem">En inglés: <em>As you wish</em>. En el doblaje suele ser <em>Como desees</em>.</p>
 
         <p class="lyric">3) ¿Cuántos eran los Beatles?</p>
         <label for="ans3">Un número</label>
@@ -103,8 +123,7 @@
         <div class="row">
           <button type="button" class="primary" id="go">Entrar</button>
         </div>
-        <p class="hint">Cita exacta de la película: «Death cannot stop true love. All it can do is delay it for a while.»</p>
-        <p class="hint">Pestillo cultural, no candado bancario: basta con una respuesta buena.</p>
+        <p class="hint">Pestillo cultural: basta con una respuesta buena.</p>
       </section>
     </div>
 
@@ -149,32 +168,35 @@
     }
     function digits(s){
       return String(s||'').trim().toLowerCase()
-        .normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+        .normalize('NFD').replace(/[\u0300-\u036f]/g,'')
+        .replace(/[^a-z0-9]/g,'');
     }
     var LOVE=new Set(['love','amor']);
-    var TRUELOVE=new Set(['truelove','amorverdadero','trueloveall','true love'.replace(/\s/g,'')]);
-    // also accept spaced true love via letters()
-    TRUELOVE.add(letters('true love'));
-    TRUELOVE.add(letters('amor verdadero'));
     var BEATLES=new Set(['4','cuatro','four']);
     var btn=document.getElementById('go');
     var a1=document.getElementById('ans1');
-    var a2=document.getElementById('ans2');
     var a3=document.getElementById('ans3');
     var err=document.getElementById('err');
+    var wishOk=false;
+    document.querySelectorAll('#ans2 .choice').forEach(function(b){
+      b.addEventListener('click', function(){
+        document.querySelectorAll('#ans2 .choice').forEach(function(x){ x.classList.remove('sel'); });
+        b.classList.add('sel');
+        wishOk = b.getAttribute('data-v')==='1';
+      });
+    });
     function tryEnter(){
       var ok1=LOVE.has(letters(a1.value));
-      var ok2=TRUELOVE.has(letters(a2.value));
-      var n=digits(a3.value).replace(/[^a-z0-9]/g,'');
-      var ok3=BEATLES.has(n);
+      var ok2=wishOk;
+      var ok3=BEATLES.has(digits(a3.value));
       if(ok1||ok2||ok3){ err.textContent=''; unlock(); return; }
       err.textContent='Ninguna encaja aún. Prueba otra puerta.';
     }
     btn.addEventListener('click', tryEnter);
-    [a1,a2,a3].forEach(function(el){
+    [a1,a3].forEach(function(el){
       el.addEventListener('keydown', function(e){ if(e.key==='Enter') tryEnter(); });
     });
-  })();
+})();
   </script>
 </body>
 </html>
