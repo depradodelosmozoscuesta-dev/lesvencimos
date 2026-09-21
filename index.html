@@ -80,21 +80,31 @@
 
     <div id="gate">
       <h1>Les vencimos</h1>
-      <p class="lead">Antes de entrar, una prueba pequeña. Como una canción a medias.</p>
+      <p class="lead">Antes de entrar, elige <strong>una</strong> de estas tres pruebas. Con acertar una basta.</p>
       <figure class="hero">
         <img src="/brand/hero/hero.png" width="1920" height="1080" alt="">
       </figure>
       <section class="panel" aria-labelledby="prueba">
-        <h2 id="prueba">Completa la letra</h2>
-        <p class="lyric">All you need is <em>…</em></p>
-        <label for="ans">La palabra que falta</label>
-        <input id="ans" type="text" autocomplete="off" autocapitalize="none" spellcheck="false" placeholder="una palabra">
+        <h2 id="prueba">Tres puertas · una llave</h2>
+
+        <p class="lyric" style="margin-top:.25rem">1) All you need is <em>…</em></p>
+        <label for="ans1">Beatles · la palabra que falta</label>
+        <input id="ans1" type="text" autocomplete="off" autocapitalize="none" spellcheck="false" placeholder="una palabra">
+
+        <p class="lyric">2) «Death cannot stop <em>…</em>»</p>
+        <label for="ans2">La princesa prometida · Westley (también vale en castellano)</label>
+        <input id="ans2" type="text" autocomplete="off" autocapitalize="none" spellcheck="false" placeholder="…">
+
+        <p class="lyric">3) ¿Cuántos eran los Beatles?</p>
+        <label for="ans3">Un número</label>
+        <input id="ans3" type="text" inputmode="numeric" autocomplete="off" placeholder="…">
+
         <p class="err" id="err" aria-live="polite"></p>
         <div class="row">
           <button type="button" class="primary" id="go">Entrar</button>
         </div>
-        <p class="hint">Pista: The Beatles · 1967. En inglés, una sola palabra.</p>
-        <p class="hint">Es un pestillo cultural, no un candado bancario: quien quiera puede mirar el código. Sirve para que entren quienes vienen con intención.</p>
+        <p class="hint">Cita exacta de la película: «Death cannot stop true love. All it can do is delay it for a while.»</p>
+        <p class="hint">Pestillo cultural, no candado bancario: basta con una respuesta buena.</p>
       </section>
     </div>
 
@@ -132,23 +142,38 @@
       }
     }
     if(ok) unlock();
-    function norm(s){
+    function letters(s){
       return String(s||'').trim().toLowerCase()
         .normalize('NFD').replace(/[\u0300-\u036f]/g,'')
         .replace(/[^a-z]/g,'');
     }
-    var ANS=new Set(['love','amor']);
+    function digits(s){
+      return String(s||'').trim().toLowerCase()
+        .normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+    }
+    var LOVE=new Set(['love','amor']);
+    var TRUELOVE=new Set(['truelove','amorverdadero','trueloveall','true love'.replace(/\s/g,'')]);
+    // also accept spaced true love via letters()
+    TRUELOVE.add(letters('true love'));
+    TRUELOVE.add(letters('amor verdadero'));
+    var BEATLES=new Set(['4','cuatro','four']);
     var btn=document.getElementById('go');
-    var input=document.getElementById('ans');
+    var a1=document.getElementById('ans1');
+    var a2=document.getElementById('ans2');
+    var a3=document.getElementById('ans3');
     var err=document.getElementById('err');
     function tryEnter(){
-      var a=norm(input.value);
-      if(ANS.has(a)){ err.textContent=''; unlock(); return; }
-      err.textContent='Casi. Escucha la canción otra vez.';
-      input.focus(); input.select();
+      var ok1=LOVE.has(letters(a1.value));
+      var ok2=TRUELOVE.has(letters(a2.value));
+      var n=digits(a3.value).replace(/[^a-z0-9]/g,'');
+      var ok3=BEATLES.has(n);
+      if(ok1||ok2||ok3){ err.textContent=''; unlock(); return; }
+      err.textContent='Ninguna encaja aún. Prueba otra puerta.';
     }
     btn.addEventListener('click', tryEnter);
-    input.addEventListener('keydown', function(e){ if(e.key==='Enter') tryEnter(); });
+    [a1,a2,a3].forEach(function(el){
+      el.addEventListener('keydown', function(e){ if(e.key==='Enter') tryEnter(); });
+    });
   })();
   </script>
 </body>
