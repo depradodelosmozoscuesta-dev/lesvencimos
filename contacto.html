@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <meta name="robots" content="noindex">
+  <meta name="description" content="Sugerencias anónimas — Les vencimos">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; object-src 'none'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; connect-src 'self' https://formsubmit.co; form-action 'self' mailto: https://formsubmit.co; upgrade-insecure-requests">
+  <title>Sugerencias — Les vencimos</title>
+  <link rel="icon" href="/brand/favicon/favicon.svg" type="image/svg+xml">
+  <style>
+    :root {
+      --fondo:#0B1220; --fondo-2:#121A2B; --tinta:#E8EEF8; --suave:#8B9BB8;
+      --acento:#C7D2FE; --linea:rgba(232,238,248,.12); --ok:#34D399; --radio:12px; --max:36rem;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0; min-height:100%; color:var(--tinta);
+      font-family:"Segoe UI",system-ui,-apple-system,sans-serif;
+      background:url("/brand/patterns/lluvia-tile.svg") repeat, linear-gradient(180deg,var(--fondo),var(--fondo-2));
+      background-size:120px 120px,auto; background-blend-mode:soft-light,normal; line-height:1.55;
+    }
+    .wrap{max-width:var(--max);margin:0 auto;padding:1.5rem 1.25rem 3rem}
+    h1{margin:0 0 .65rem;font-size:clamp(1.7rem,5vw,2.2rem);font-weight:800;letter-spacing:-.03em}
+    p{color:var(--suave)}
+    .card{background:var(--fondo-2);border:1px solid var(--linea);border-radius:16px;padding:1.2rem}
+    label{display:block;font-weight:650;margin:0 0 .35rem;font-size:.92rem}
+    textarea,input{
+      width:100%; border-radius:var(--radio); border:1px solid var(--linea);
+      background:#0d1524; color:var(--tinta); padding:.75rem .85rem; font:inherit; margin:0 0 1rem;
+    }
+    textarea{min-height:9rem; resize:vertical}
+    .hint{font-size:.85rem;color:var(--suave);margin:-.55rem 0 1rem}
+    button{
+      appearance:none; border:none; border-radius:var(--radio); padding:.75rem 1.15rem;
+      background:var(--acento); color:#0B1220; font-weight:800; font-size:1rem; cursor:pointer;
+    }
+    .pill{
+      display:inline-flex; padding:.4rem .85rem; border-radius:999px; border:1px solid var(--linea);
+      text-decoration:none; color:var(--acento); font-weight:650; font-size:.88rem;
+    }
+    #ok{display:none;margin-top:1rem;padding:.9rem 1rem;border-radius:12px;background:rgba(52,211,153,.12);border:1px solid rgba(52,211,153,.35);color:var(--tinta)}
+    #ok.show{display:block}
+  </style>
+  <script>
+  (function(){var K='lv-gate-v1';if(sessionStorage.getItem(K)!=='ok'){location.replace('/?next='+encodeURIComponent('/contacto.html'));}})();
+  </script>
+</head>
+<body>
+  <div class="wrap">
+    <p><a class="pill" href="/">← Portada</a></p>
+    <h1>Sugerencias anónimas</h1>
+    <p>Sin cuenta. No pedimos nombre ni correo. Escribe lo que quieras mejorar o contar.</p>
+    <div class="card">
+      <form id="f">
+        <label for="msg">Tu mensaje</label>
+        <textarea id="msg" name="message" required maxlength="4000" placeholder="Una idea, un fallo, una canción…"></textarea>
+        <p class="hint">Se envía sin datos de perfil. No hace falta identificarte.</p>
+        <input type="text" name="_gotcha" id="hp" tabindex="-1" autocomplete="off" style="position:absolute;left:-9999px" aria-hidden="true">
+        <button type="submit">Enviar sugerencia</button>
+      </form>
+      <div id="ok" role="status">Gracias. Si el correo del sitio está activo, ya ha salido. Si no, el texto se ha copiado: puedes pegarlo donde quieras.</div>
+    </div>
+  </div>
+  <script>
+  (function(){
+    var form=document.getElementById('f');
+    var ok=document.getElementById('ok');
+    form.addEventListener('submit', async function(e){
+      e.preventDefault();
+      if(document.getElementById('hp').value) return;
+      var msg=(document.getElementById('msg').value||'').trim();
+      if(!msg) return;
+      var body='Sugerencia anónima Les vencimos%0A%0A'+encodeURIComponent(msg);
+      var mail='mailto:depradodelosmozoscuesta@gmail.com?subject='+encodeURIComponent('Sugerencia anónima — lesvencimos')+'&body='+body;
+      try{ await navigator.clipboard.writeText(msg); }catch(_){}
+      try{
+        var fd=new FormData();
+        fd.append('message', msg);
+        fd.append('_subject','Sugerencia anónima — lesvencimos');
+        fd.append('_template','table');
+        fd.append('_captcha','false');
+        var r=await fetch('https://formsubmit.co/ajax/depradodelosmozoscuesta@gmail.com',{
+          method:'POST', body:fd, headers:{'Accept':'application/json'}
+        });
+        if(!r.ok) throw new Error('fs');
+      }catch(_){
+        location.href=mail;
+      }
+      ok.classList.add('show');
+      form.reset();
+    });
+  })();
+  </script>
+</body>
+</html>
