@@ -1,0 +1,993 @@
+<!DOCTYPE html>
+<html lang="es" class="lv-locked">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; object-src 'none'; img-src 'self' data: blob:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; font-src 'self' data:; connect-src 'self'; form-action 'self' mailto:; media-src 'self' blob:; frame-src 'self' blob:; upgrade-insecure-requests">
+  <meta name="description" content="Estantería — escritorio libre para módulos Les vencimos.">
+  <meta name="theme-color" content="#0E0E0C">
+  <title>Estantería — Les vencimos</title>
+  <link rel="icon" href="/brand/favicon/favicon.svg" type="image/svg+xml">
+  <link rel="icon" href="/brand/favicon/favicon-32.png" sizes="32x32" type="image/png">
+  <link rel="apple-touch-icon" href="/brand/favicon/apple-touch-icon.png">
+  <link rel="stylesheet" href="/brand/site.css">
+  <style>
+  :root {
+    --fondo: #0E0E0C;
+    --fondo-2: #161512;
+    --fondo-3: #1C1A16;
+    --tinta: #E6E1D6;
+    --suave: #9A9488;
+    --acento: #C4A15A;
+    --acento-texto: #1A160E;
+    --linea: rgba(230, 225, 214, 0.14);
+    --peligro: #C46A4A;
+    --ok: #8F9A72;
+    --serif: "Iowan Old Style", "Palatino Linotype", Palatino, "Times New Roman", Georgia, serif;
+    --sans: "Segoe UI", system-ui, -apple-system, sans-serif;
+    --radio: 2px;
+    --max: 44rem;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; min-height: 100%; }
+  body {
+    color: var(--tinta);
+    background: var(--fondo);
+    font-family: var(--sans);
+    font-size: 1.05rem;
+    line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+    touch-action: manipulation;
+  }
+  .wrap {
+    max-width: min(72rem, 100%);
+    margin: 0 auto;
+    padding: 1.25rem 1rem 3rem;
+  }
+  @media (min-width: 880px) {
+    .wrap { padding: 2rem 1.5rem 4rem 2rem; }
+  }
+  header.top {
+    display: flex; align-items: baseline; justify-content: space-between;
+    gap: 1rem; flex-wrap: wrap; padding-bottom: 1rem;
+    border-bottom: 1px solid var(--linea); margin-bottom: 1.25rem;
+  }
+  .brand { display: inline-flex; align-items: center; gap: 0.7rem; color: var(--tinta); text-decoration: none; }
+  .brand img { width: 28px; height: 28px; display: block; }
+  .wordmark { font-family: var(--serif); font-size: 1.15rem; font-weight: 600; }
+  .nav a { color: var(--suave); margin-left: 0.85rem; text-decoration: none; font-size: 0.9rem; }
+  .nav a:hover { color: var(--acento); }
+  h1 { font-family: var(--serif); font-size: 1.75rem; font-weight: 600; margin: 0 0 0.4rem; letter-spacing: -0.02em; }
+  .lead { color: var(--suave); margin: 0 0 1rem; font-size: 1rem; max-width: 40rem; }
+  .lead strong { color: var(--tinta); }
+  html.lv-locked #lv-protected { display: none !important; }
+  html:not(.lv-locked) #lv-gate { display: none !important; }
+  .panel {
+    background: var(--fondo-2); border: 1px solid var(--linea);
+    border-radius: var(--radio); padding: 1.25rem 1.15rem 1.35rem; margin: 0 0 1rem;
+    max-width: 40rem;
+  }
+  .panel h2 { font-family: var(--serif); font-size: 1.25rem; font-weight: 600; margin: 0 0 0.75rem; }
+  label { display: block; font-size: 0.82rem; color: var(--suave); margin: 0.55rem 0 0.25rem; }
+  input[type=text] {
+    width: 100%; max-width: 22rem; padding: 0.65rem 0.75rem; border-radius: var(--radio);
+    border: 1px solid var(--linea); background: var(--fondo-3); color: var(--tinta); font-size: 1rem;
+  }
+  .lyric { margin: 1rem 0 0.35rem; font-family: var(--serif); color: var(--tinta); }
+  .choices { display: flex; flex-direction: column; gap: 0.4rem; margin: 0.35rem 0 0.5rem; }
+  .choice {
+    text-align: left; padding: 0.7rem 0.85rem; min-height: 44px;
+    background: var(--fondo-3); border: 1px solid var(--linea); color: var(--tinta);
+    border-radius: var(--radio); cursor: pointer; font-size: 0.95rem;
+  }
+  .choice[aria-pressed="true"] { border-color: var(--acento); color: var(--acento); }
+  .row { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.85rem; }
+  button.primary {
+    background: var(--acento); color: var(--acento-texto); border: 1px solid var(--acento);
+    border-radius: var(--radio); padding: 0.7rem 1.1rem; min-height: 44px;
+    font: 700 0.95rem var(--sans); cursor: pointer;
+  }
+  .err { color: var(--peligro); font-size: 0.9rem; min-height: 1.2em; }
+  .hint { color: var(--suave); font-size: 0.82rem; margin: 0.45rem 0 0; }
+  footer.site-foot {
+    margin-top: 1.75rem; padding-top: 1rem; border-top: 1px solid var(--linea);
+    color: var(--suave); font-size: 0.78rem; letter-spacing: 0.08em; text-transform: uppercase;
+  }
+
+  /* —— Desktop —— */
+  .desk-toolbar {
+    display: flex; flex-wrap: wrap; gap: 0.45rem; align-items: center;
+    margin: 0 0 0.75rem; padding: 0.65rem 0.7rem;
+    background: var(--fondo-2); border: 1px solid var(--linea); border-radius: var(--radio);
+  }
+  .desk-toolbar .lbl {
+    font-size: 0.72rem; letter-spacing: 0.12em; text-transform: uppercase;
+    color: var(--suave); font-weight: 700; margin-right: 0.25rem;
+  }
+  .desk-toolbar button, .desk-toolbar label.file-btn {
+    min-height: 44px; padding: 0.45rem 0.75rem;
+    background: var(--fondo-3); color: var(--tinta); border: 1px solid var(--linea);
+    border-radius: var(--radio); font: 600 0.85rem var(--sans); cursor: pointer;
+  }
+  .desk-toolbar button:hover, .desk-toolbar label.file-btn:hover {
+    border-color: rgba(196,161,90,.55); color: var(--acento);
+  }
+  .desk-toolbar button.on {
+    border-color: var(--acento); color: var(--acento);
+  }
+  .desk-toolbar input[type=file] {
+    position: absolute; width: 1px; height: 1px; opacity: 0; overflow: hidden;
+  }
+  .desk-toolbar .spacer { flex: 1; min-width: 0.5rem; }
+
+  .desktop {
+    position: relative;
+    width: 100%;
+    min-height: min(72vh, 640px);
+    height: min(78vh, 720px);
+    background:
+      radial-gradient(ellipse at 20% 10%, rgba(196,161,90,0.06), transparent 45%),
+      var(--fondo-2);
+    border: 1px solid var(--linea);
+    border-radius: var(--radio);
+    overflow: hidden;
+    touch-action: none;
+    user-select: none;
+    -webkit-user-select: none;
+  }
+  .desktop.empty-hint {
+    /* class toggled via JS on empty */
+  }
+  .desktop-empty {
+    position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+    pointer-events: none; color: var(--suave); font-size: 0.98rem; text-align: center;
+    padding: 1.5rem; max-width: 22rem; margin: auto; line-height: 1.45;
+  }
+  .desktop.has-items .desktop-empty { display: none; }
+
+  .desk-item {
+    position: absolute;
+    display: flex; flex-direction: column;
+    background: var(--fondo-3);
+    border: 1px solid var(--linea);
+    color: var(--tinta);
+    overflow: hidden;
+    min-width: 72px; min-height: 72px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.35);
+    z-index: 1;
+  }
+  .desk-item.shape-tile {
+    border-radius: 6px;
+  }
+  .desk-item.shape-button {
+    border-radius: 50%;
+    aspect-ratio: 1 / 1;
+  }
+  .desk-item.shape-button .item-body { align-items: center; justify-content: center; text-align: center; }
+  .desk-item.shape-button .item-title { font-size: clamp(0.75rem, 12%, 1.05rem); }
+  .desk-item.shape-button .item-chrome .act:not(.drag-hint) { display: none; }
+  .desk-item.selected {
+    border-color: var(--acento);
+    box-shadow: 0 0 0 1px var(--acento), 0 4px 18px rgba(0,0,0,0.45);
+    z-index: 20;
+  }
+  .desk-item.dragging { opacity: 0.92; z-index: 40; }
+  .desk-item.widget-kind { background: #1a1814; }
+
+  .item-chrome {
+    display: flex; align-items: center; gap: 0.2rem;
+    padding: 0.25rem 0.3rem;
+    background: rgba(0,0,0,0.28);
+    cursor: grab;
+    touch-action: none;
+    min-height: 36px;
+    flex-shrink: 0;
+  }
+  .desk-item.shape-button .item-chrome {
+    position: absolute; top: 4px; left: 50%; transform: translateX(-50%);
+    background: transparent; min-height: 28px; z-index: 2; padding: 0;
+  }
+  .item-chrome:active { cursor: grabbing; }
+  .item-chrome .act {
+    border: 0; background: transparent; color: var(--suave);
+    min-width: 36px; min-height: 36px; border-radius: 4px;
+    font: 700 0.78rem var(--sans); cursor: pointer; padding: 0 0.3rem;
+  }
+  .item-chrome .act:hover { color: var(--acento); background: rgba(196,161,90,0.12); }
+  .item-chrome .act.danger:hover { color: var(--peligro); }
+  .item-title {
+    flex: 1; font-family: var(--serif); font-weight: 600; font-size: 0.92rem;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    padding: 0 0.25rem; pointer-events: none;
+  }
+  .item-body {
+    flex: 1; display: flex; flex-direction: column; padding: 0.55rem 0.65rem 0.7rem;
+    overflow: hidden; cursor: grab; touch-action: none; gap: 0.35rem;
+  }
+  .item-body:active { cursor: grabbing; }
+  .item-blurb { color: var(--suave); font-size: 0.78rem; margin: 0; line-height: 1.35; }
+  .item-open {
+    margin-top: auto; align-self: flex-start;
+    min-height: 40px; padding: 0.35rem 0.75rem;
+    background: var(--acento); color: var(--acento-texto); border: 0;
+    border-radius: var(--radio); font: 700 0.82rem var(--sans);
+    text-decoration: none; display: inline-flex; align-items: center; cursor: pointer;
+  }
+  .desk-item.shape-button .item-open {
+    align-self: center; border-radius: 999px; min-width: 64%; justify-content: center;
+  }
+
+  .resize-handle {
+    position: absolute; right: 0; bottom: 0; width: 28px; height: 28px;
+    cursor: nwse-resize; touch-action: none;
+    background:
+      linear-gradient(135deg, transparent 55%, rgba(196,161,90,0.55) 55%, rgba(196,161,90,0.55) 70%, transparent 70%),
+      linear-gradient(135deg, transparent 70%, rgba(196,161,90,0.35) 70%, rgba(196,161,90,0.35) 82%, transparent 82%);
+  }
+  .desk-item.shape-button .resize-handle { border-radius: 0 0 50% 0; }
+
+  /* Widgets */
+  .w-clock {
+    font-family: var(--serif); font-weight: 600; letter-spacing: 0.02em;
+    font-size: clamp(1.4rem, 28%, 3.2rem); line-height: 1.1; color: var(--acento);
+  }
+  .w-clock.large { font-size: clamp(2rem, 42%, 4.5rem); }
+  .w-date { font-size: clamp(0.95rem, 14%, 1.35rem); color: var(--tinta); }
+  .w-dia {
+    font-family: var(--serif); font-size: clamp(1.15rem, 22%, 2rem);
+    font-weight: 600; color: var(--tinta); line-height: 1.25;
+  }
+  .w-cal { font-size: 0.78rem; width: 100%; border-collapse: collapse; text-align: center; }
+  .w-cal th { color: var(--suave); font-weight: 600; padding: 0.15rem; }
+  .w-cal td { padding: 0.2rem; color: var(--tinta); }
+  .w-cal td.today {
+    background: var(--acento); color: var(--acento-texto); border-radius: 3px; font-weight: 700;
+  }
+  .w-cal .month { font-family: var(--serif); font-size: 0.95rem; color: var(--acento); margin-bottom: 0.35rem; }
+  .w-tip { color: var(--suave); font-size: clamp(0.85rem, 12%, 1.05rem); line-height: 1.4; margin: 0; }
+  .w-pill {
+    font-size: clamp(0.9rem, 13%, 1.15rem); color: var(--tinta); line-height: 1.35;
+  }
+  .w-pill strong { color: var(--acento); display: block; font-family: var(--serif); font-size: 1.1em; }
+
+  /* Add panels */
+  .add-panel {
+    display: none; margin: 0.75rem 0 0; padding: 0.85rem 0.9rem;
+    background: var(--fondo-2); border: 1px solid var(--linea); border-radius: var(--radio);
+  }
+  .add-panel.open { display: block; }
+  .add-panel h2 {
+    margin: 0 0 0.55rem; font-family: var(--serif); font-size: 1.1rem; font-weight: 600;
+  }
+  .chip-list { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+  .chip-list button {
+    min-height: 44px; padding: 0.4rem 0.75rem;
+    background: var(--fondo-3); border: 1px solid var(--linea); color: var(--tinta);
+    border-radius: var(--radio); font: 600 0.85rem var(--sans); cursor: pointer;
+  }
+  .chip-list button:hover { border-color: rgba(196,161,90,.55); color: var(--acento); }
+  .chip-list button.disabled { opacity: 0.45; pointer-events: none; }
+  .file-err { color: var(--peligro); font-size: 0.85rem; margin: 0.5rem 0 0; min-height: 1.1em; }
+  </style>
+  <script>
+  (function(){
+    try {
+      if (location.protocol === 'file:' || sessionStorage.getItem('lv-gate-v1') === 'ok') {
+        document.documentElement.classList.remove('lv-locked');
+      }
+    } catch (e) {}
+  })();
+  </script>
+</head>
+<body>
+  <div class="wrap">
+    <header class="top">
+      <a class="brand" href="/" aria-label="Les vencimos">
+        <img src="/brand/mark.svg" width="28" height="28" alt="" onerror="this.style.display='none'">
+        <span class="wordmark">Les vencimos</span>
+      </a>
+      <nav class="nav" aria-label="Secciones">
+        <a href="/">Inicio</a>
+        <a href="/descargas.html">Descargas</a>
+      </nav>
+    </header>
+
+    <div id="lv-gate">
+      <h1>Les vencimos</h1>
+      <p class="lead">Antes de ver la estantería, elige <strong>una</strong> de estas tres pruebas. Con acertar una basta.</p>
+      <section class="panel" aria-labelledby="prueba">
+        <h2 id="prueba">Tres puertas · una llave</h2>
+        <p class="lyric">1) All you need is <em>…</em></p>
+        <label for="ans1">Beatles · la palabra que falta</label>
+        <input id="ans1" type="text" autocomplete="off" autocapitalize="none" spellcheck="false" placeholder="una palabra">
+        <p class="lyric">2) La princesa prometida</p>
+        <p class="hint" style="margin:0 0 .55rem">Cuando Buttercup le pide algo a Westley, ¿qué responde él siempre?</p>
+        <div class="choices" id="ans2" role="group" aria-label="Respuesta de Westley">
+          <button type="button" class="choice" data-v="0">Como ordenes, mi señora</button>
+          <button type="button" class="choice" data-v="0">Hasta el final del mundo</button>
+          <button type="button" class="choice" data-v="1">Como desees</button>
+          <button type="button" class="choice" data-v="0">Con mucho gusto</button>
+          <button type="button" class="choice" data-v="1">As you wish</button>
+        </div>
+        <p class="lyric">3) ¿Cuántos eran los Beatles?</p>
+        <label for="ans3">Un número</label>
+        <input id="ans3" type="text" inputmode="numeric" autocomplete="off" placeholder="…">
+        <p class="err" id="err" aria-live="polite"></p>
+        <div class="row">
+          <button type="button" class="primary" id="go">Entrar</button>
+        </div>
+        <p class="hint">Pestillo cultural: basta con una respuesta buena.</p>
+      </section>
+    </div>
+
+    <div id="lv-protected">
+      <h1>Estantería</h1>
+      <p class="lead">
+        Un <strong>escritorio</strong> en este aparato: coloca módulos donde quieras, cámbiales el tamaño,
+        azulejo o botón. Añade reloj, fecha, calendario y ayudas claras.
+        <strong>No hace falta llevarlo todo en el móvil.</strong>
+      </p>
+
+      <div class="desk-toolbar" role="toolbar" aria-label="Herramientas del escritorio">
+        <span class="lbl">Añadir</span>
+        <button type="button" id="btn-modulos" aria-expanded="false">Módulos</button>
+        <button type="button" id="btn-widgets" aria-expanded="false">Widgets</button>
+        <label class="file-btn" for="local-file">Archivo local…</label>
+        <input id="local-file" type="file" accept=".html,.htm,text/html">
+        <span class="spacer"></span>
+        <button type="button" id="btn-clear" title="Vaciar escritorio">Vaciar</button>
+      </div>
+
+      <div id="panel-modulos" class="add-panel" hidden>
+        <h2>Módulos del catálogo</h2>
+        <div id="mod-chips" class="chip-list"></div>
+        <p class="hint">Solo guarda el enlace en este dispositivo. Descarga el zip desde Descargas si lo quieres en el móvil.</p>
+      </div>
+      <div id="panel-widgets" class="add-panel" hidden>
+        <h2>Widgets</h2>
+        <div id="wid-chips" class="chip-list"></div>
+      </div>
+      <p class="file-err" id="file-err" aria-live="polite"></p>
+
+      <div id="desktop" class="desktop" aria-label="Escritorio de la estantería">
+        <div class="desktop-empty">Escritorio vacío.<br>Añade un módulo o un widget y arrástralo donde quieras.</div>
+      </div>
+      <p class="hint">Arrastra para mover · esquina inferior derecha para redimensionar · ◯/▭ cambia forma · ✕ quita.</p>
+    </div>
+
+    <footer class="site-foot">lesvencimos.com · estantería</footer>
+  </div>
+
+  <script>
+  (function () {
+    if (location.protocol === 'file:') {
+      document.documentElement.classList.remove('lv-locked');
+      return;
+    }
+    var s = document.createElement('script');
+    s.src = '/brand/gate.js';
+    document.body.appendChild(s);
+  })();
+  </script>
+  <script>
+  (function () {
+    var LS_KEY = 'lv-estanteria-v1';
+    var IDB_NAME = 'lv-estanteria';
+    var IDB_STORE = 'files';
+    var IDB_VER = 1;
+    var Z = 10;
+
+    var CATALOG = [
+      { id: 'profesor', titulo: 'Profesor', href: '/profesor.html', blurb: '37 materias' },
+      { id: 'informatica', titulo: 'Informática', href: '/modulos/informatica.html', blurb: 'Linux, Python, Central' },
+      { id: 'primeros-auxilios', titulo: 'Primeros auxilios', href: '/modulos/primeros-auxilios.html', blurb: 'RCP y cuidados' },
+      { id: 'calculadora', titulo: 'Calculadora', href: '/modulos/calculadora.html', blurb: 'Operaciones' },
+      { id: 'tinta-escritura', titulo: 'Tinta escritura', href: '/modulos/tinta-escritura.html', blurb: 'Texto offline' },
+      { id: 'tinta-estudio', titulo: 'Tinta estudio', href: '/modulos/tinta-estudio.html', blurb: 'Dibujo' },
+      { id: 'gimnasio', titulo: 'Gimnasio', href: '/modulos/gimnasio.html', blurb: 'Movimiento suave' },
+      { id: 'medicacion', titulo: 'Medicación', href: '/modulos/medicacion.html', blurb: 'Recordatorio local' },
+      { id: 'alarma-cuba', titulo: 'Alarma Cuba', href: '/alarma-cuba.html', blurb: 'Guía apagones' },
+      { id: 'central-cuba', titulo: 'Central Cuba', href: '/profesor.html', blurb: 'Lecciones / zip en Descargas' }
+    ];
+
+    var WIDGETS = [
+      { id: 'w-clock', widget: 'clock', titulo: 'Reloj', w: 200, h: 120 },
+      { id: 'w-clock-lg', widget: 'clock-large', titulo: 'Reloj grande', w: 280, h: 160 },
+      { id: 'w-date', widget: 'date', titulo: 'Fecha', w: 220, h: 100 },
+      { id: 'w-dia', widget: 'dia', titulo: '¿Qué día es?', w: 260, h: 140 },
+      { id: 'w-cal', widget: 'calendar', titulo: 'Calendario', w: 260, h: 240 },
+      { id: 'w-ori', widget: 'orientacion', titulo: 'Orientación', w: 260, h: 140 },
+      { id: 'w-pill', widget: 'pastilla', titulo: 'Próxima pastilla', w: 240, h: 130 }
+    ];
+
+    var urlCache = {};
+    var state = { version: 2, items: [] };
+    var selectedId = null;
+    var clockTimer = null;
+
+    function loadState() {
+      try {
+        var raw = localStorage.getItem(LS_KEY);
+        if (!raw) return { version: 2, items: [] };
+        var data = JSON.parse(raw);
+        if (Array.isArray(data)) {
+          /* migrate v1 list → desktop cascade */
+          return {
+            version: 2,
+            items: data.map(function (it, i) {
+              return {
+                id: it.id,
+                type: it.kind === 'local' ? 'module' : 'module',
+                kind: it.kind || 'catalog',
+                titulo: it.titulo,
+                href: it.href || '',
+                blurb: '',
+                x: 24 + (i % 4) * 28,
+                y: 24 + (i % 4) * 28 + Math.floor(i / 4) * 100,
+                w: 180,
+                h: 140,
+                shape: 'tile',
+                addedAt: it.addedAt || new Date().toISOString()
+              };
+            })
+          };
+        }
+        if (data && Array.isArray(data.items)) {
+          data.version = 2;
+          return data;
+        }
+      } catch (e) {}
+      return { version: 2, items: [] };
+    }
+
+    function saveState() {
+      try {
+        localStorage.setItem(LS_KEY, JSON.stringify(state));
+      } catch (e) {}
+    }
+
+    function openDb() {
+      return new Promise(function (resolve, reject) {
+        if (!window.indexedDB) { reject(new Error('Sin IndexedDB')); return; }
+        var req = indexedDB.open(IDB_NAME, IDB_VER);
+        req.onupgradeneeded = function () {
+          var db = req.result;
+          if (!db.objectStoreNames.contains(IDB_STORE)) {
+            db.createObjectStore(IDB_STORE, { keyPath: 'id' });
+          }
+        };
+        req.onsuccess = function () { resolve(req.result); };
+        req.onerror = function () { reject(req.error || new Error('IDB')); };
+      });
+    }
+    function idbPut(rec) {
+      return openDb().then(function (db) {
+        return new Promise(function (resolve, reject) {
+          var tx = db.transaction(IDB_STORE, 'readwrite');
+          tx.objectStore(IDB_STORE).put(rec);
+          tx.oncomplete = function () { resolve(); };
+          tx.onerror = function () { reject(tx.error); };
+        });
+      });
+    }
+    function idbGet(id) {
+      return openDb().then(function (db) {
+        return new Promise(function (resolve, reject) {
+          var tx = db.transaction(IDB_STORE, 'readonly');
+          var req = tx.objectStore(IDB_STORE).get(id);
+          req.onsuccess = function () { resolve(req.result || null); };
+          req.onerror = function () { reject(req.error); };
+        });
+      });
+    }
+    function idbDel(id) {
+      return openDb().then(function (db) {
+        return new Promise(function (resolve, reject) {
+          var tx = db.transaction(IDB_STORE, 'readwrite');
+          tx.objectStore(IDB_STORE).delete(id);
+          tx.oncomplete = function () { resolve(); };
+          tx.onerror = function () { reject(tx.error); };
+        });
+      });
+    }
+
+    function findItem(id) {
+      for (var i = 0; i < state.items.length; i++) {
+        if (state.items[i].id === id) return state.items[i];
+      }
+      return null;
+    }
+    function hasModule(id) {
+      return state.items.some(function (it) { return it.id === id; });
+    }
+
+    function nextSlot() {
+      var desk = document.getElementById('desktop');
+      var n = state.items.length;
+      var pad = 20;
+      var col = n % 3;
+      var row = Math.floor(n / 3);
+      var x = pad + col * 36 + (n % 5) * 8;
+      var y = pad + row * 28 + (n % 4) * 10;
+      var maxX = Math.max(40, (desk ? desk.clientWidth : 600) - 200);
+      var maxY = Math.max(40, (desk ? desk.clientHeight : 400) - 160);
+      return { x: Math.min(x, maxX), y: Math.min(y, maxY) };
+    }
+
+    function diasSemana() {
+      return ['domingo', 'lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado'];
+    }
+    function meses() {
+      return ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio',
+        'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
+    }
+
+    function widgetHtml(it) {
+      var now = new Date();
+      var w = it.widget;
+      if (w === 'clock' || w === 'clock-large') {
+        var hh = String(now.getHours()).padStart(2, '0');
+        var mm = String(now.getMinutes()).padStart(2, '0');
+        var cls = w === 'clock-large' ? 'w-clock large' : 'w-clock';
+        return '<div class="' + cls + '" data-live="clock">' + hh + ':' + mm + '</div>';
+      }
+      if (w === 'date') {
+        var txt = now.getDate() + ' de ' + meses()[now.getMonth()] + ' de ' + now.getFullYear();
+        return '<div class="w-date" data-live="date">' + txt + '</div>';
+      }
+      if (w === 'dia') {
+        var d = diasSemana()[now.getDay()];
+        var full = 'Hoy es <strong>' + d + '</strong><br>' +
+          now.getDate() + ' de ' + meses()[now.getMonth()];
+        return '<div class="w-dia" data-live="dia">' + full + '</div>';
+      }
+      if (w === 'calendar') {
+        return buildCalendar(now);
+      }
+      if (w === 'orientacion') {
+        var tips = [
+          'Estás en tu Estantería Les vencimos. Los módulos son archivos en este aparato.',
+          'Si te pierdes: mira el reloj y la fecha. Luego abre solo lo que necesites.',
+          'No hace falta internet. Todo lo de esta pantalla está en tu dispositivo.'
+        ];
+        var tip = tips[(it.tipIndex || 0) % tips.length];
+        return '<p class="w-tip">' + tip + '</p>';
+      }
+      if (w === 'pastilla') {
+        var stub = it.pillText || 'Aún no configurado. Ábrelo Medicación o escribe aquí tu hora.';
+        return '<div class="w-pill"><strong>Próxima toma</strong>' + stub + '</div>';
+      }
+      return '';
+    }
+
+    function buildCalendar(now) {
+      var y = now.getFullYear(), m = now.getMonth();
+      var first = new Date(y, m, 1);
+      var start = first.getDay(); /* 0=dom */
+      var days = new Date(y, m + 1, 0).getDate();
+      var html = '<div class="w-cal"><div class="month">' + meses()[m] + ' ' + y + '</div>';
+      html += '<table class="w-cal" aria-label="Calendario"><thead><tr>';
+      var heads = ['D', 'L', 'M', 'X', 'J', 'V', 'S'];
+      for (var i = 0; i < 7; i++) html += '<th>' + heads[i] + '</th>';
+      html += '</tr></thead><tbody><tr>';
+      for (var e = 0; e < start; e++) html += '<td></td>';
+      for (var d = 1; d <= days; d++) {
+        var cell = (start + d - 1) % 7;
+        var cls = d === now.getDate() ? ' class="today"' : '';
+        html += '<td' + cls + '>' + d + '</td>';
+        if (cell === 6 && d !== days) html += '</tr><tr>';
+      }
+      html += '</tr></tbody></table></div>';
+      return html;
+    }
+
+    function renderDesktop() {
+      var desk = document.getElementById('desktop');
+      if (!desk) return;
+      desk.classList.toggle('has-items', state.items.length > 0);
+      /* keep empty hint node */
+      var empty = desk.querySelector('.desktop-empty');
+      desk.querySelectorAll('.desk-item').forEach(function (n) { n.remove(); });
+
+      state.items.forEach(function (it) {
+        var el = document.createElement('article');
+        el.className = 'desk-item shape-' + (it.shape || 'tile') +
+          (it.type === 'widget' ? ' widget-kind' : '') +
+          (it.id === selectedId ? ' selected' : '');
+        el.dataset.id = it.id;
+        el.style.left = (it.x || 0) + 'px';
+        el.style.top = (it.y || 0) + 'px';
+        el.style.width = (it.w || 160) + 'px';
+        el.style.height = (it.h || 120) + 'px';
+        el.style.zIndex = String(it.z || 1);
+
+        var chrome = document.createElement('div');
+        chrome.className = 'item-chrome';
+        chrome.innerHTML =
+          '<span class="item-title"></span>' +
+          '<button type="button" class="act shape-tog" title="Forma: azulejo o botón">◯</button>' +
+          '<button type="button" class="act danger rm" title="Quitar">✕</button>';
+        chrome.querySelector('.item-title').textContent = it.titulo || it.id;
+
+        var body = document.createElement('div');
+        body.className = 'item-body';
+
+        if (it.type === 'widget') {
+          body.innerHTML = widgetHtml(it);
+          if (it.widget === 'orientacion') {
+            body.addEventListener('dblclick', function () {
+              it.tipIndex = ((it.tipIndex || 0) + 1) % 3;
+              saveState();
+              renderDesktop();
+            });
+          }
+          if (it.widget === 'pastilla') {
+            body.addEventListener('dblclick', function () {
+              var v = prompt('Texto de próxima pastilla (hora / nombre):', it.pillText || '');
+              if (v !== null) {
+                it.pillText = v.trim() || 'Sin hora anotada.';
+                saveState();
+                renderDesktop();
+              }
+            });
+          }
+        } else {
+          if (it.blurb) {
+            var p = document.createElement('p');
+            p.className = 'item-blurb';
+            p.textContent = it.blurb;
+            body.appendChild(p);
+          }
+          var openBtn = document.createElement(it.kind === 'local' ? 'button' : 'a');
+          openBtn.className = 'item-open';
+          openBtn.textContent = 'Abrir';
+          if (it.kind === 'local') {
+            openBtn.type = 'button';
+            openBtn.addEventListener('click', function (e) {
+              e.stopPropagation();
+              openLocal(it.id);
+            });
+          } else {
+            openBtn.href = it.href || '#';
+            openBtn.addEventListener('click', function (e) { e.stopPropagation(); });
+          }
+          body.appendChild(openBtn);
+        }
+
+        var handle = document.createElement('div');
+        handle.className = 'resize-handle';
+        handle.title = 'Redimensionar';
+
+        el.appendChild(chrome);
+        el.appendChild(body);
+        el.appendChild(handle);
+        desk.appendChild(el);
+
+        chrome.querySelector('.rm').addEventListener('click', function (e) {
+          e.stopPropagation();
+          removeItem(it.id);
+        });
+        chrome.querySelector('.shape-tog').addEventListener('click', function (e) {
+          e.stopPropagation();
+          toggleShape(it.id);
+        });
+
+        bindDrag(el, it, chrome, body);
+        bindResize(el, it, handle);
+        el.addEventListener('pointerdown', function () {
+          bringFront(it);
+          selectedId = it.id;
+          desk.querySelectorAll('.desk-item').forEach(function (n) {
+            n.classList.toggle('selected', n.dataset.id === selectedId);
+          });
+        });
+      });
+
+      if (empty && !desk.contains(empty)) desk.appendChild(empty);
+      renderChips();
+      tickClocks();
+    }
+
+    function bringFront(it) {
+      Z += 1;
+      it.z = Z;
+      saveState();
+      var el = document.querySelector('.desk-item[data-id="' + CSS.escape(it.id) + '"]');
+      if (el) el.style.zIndex = String(Z);
+    }
+
+    function toggleShape(id) {
+      var it = findItem(id);
+      if (!it) return;
+      it.shape = it.shape === 'button' ? 'tile' : 'button';
+      if (it.shape === 'button') {
+        var side = Math.min(Math.max(it.w, it.h), 220);
+        side = Math.max(88, side);
+        it.w = side;
+        it.h = side;
+      }
+      saveState();
+      renderDesktop();
+    }
+
+    function removeItem(id) {
+      state.items = state.items.filter(function (x) { return x.id !== id; });
+      saveState();
+      if (urlCache[id]) {
+        try { URL.revokeObjectURL(urlCache[id]); } catch (e) {}
+        delete urlCache[id];
+      }
+      if (String(id).indexOf('local:') === 0) idbDel(id).catch(function () {});
+      if (selectedId === id) selectedId = null;
+      renderDesktop();
+    }
+
+    function clampItem(it, desk) {
+      var dw = desk.clientWidth, dh = desk.clientHeight;
+      it.w = Math.max(72, Math.min(it.w, dw - 8));
+      it.h = Math.max(72, Math.min(it.h, dh - 8));
+      it.x = Math.max(0, Math.min(it.x, dw - it.w));
+      it.y = Math.max(0, Math.min(it.y, dh - it.h));
+    }
+
+    function bindDrag(el, it, chrome, body) {
+      var desk = document.getElementById('desktop');
+      function start(e, from) {
+        if (e.button != null && e.button !== 0) return;
+        if (e.target.closest && e.target.closest('.act, .item-open, .resize-handle, a, button.item-open')) return;
+        e.preventDefault();
+        el.classList.add('dragging');
+        bringFront(it);
+        selectedId = it.id;
+        var startX = e.clientX, startY = e.clientY;
+        var origX = it.x, origY = it.y;
+        var pid = e.pointerId;
+        try { from.setPointerCapture(pid); } catch (err) {}
+
+        function move(ev) {
+          it.x = origX + (ev.clientX - startX);
+          it.y = origY + (ev.clientY - startY);
+          clampItem(it, desk);
+          el.style.left = it.x + 'px';
+          el.style.top = it.y + 'px';
+        }
+        function end(ev) {
+          try { from.releasePointerCapture(pid); } catch (err) {}
+          from.removeEventListener('pointermove', move);
+          from.removeEventListener('pointerup', end);
+          from.removeEventListener('pointercancel', end);
+          el.classList.remove('dragging');
+          saveState();
+        }
+        from.addEventListener('pointermove', move);
+        from.addEventListener('pointerup', end);
+        from.addEventListener('pointercancel', end);
+      }
+      chrome.addEventListener('pointerdown', function (e) { start(e, chrome); });
+      body.addEventListener('pointerdown', function (e) { start(e, body); });
+    }
+
+    function bindResize(el, it, handle) {
+      var desk = document.getElementById('desktop');
+      handle.addEventListener('pointerdown', function (e) {
+        if (e.button != null && e.button !== 0) return;
+        e.preventDefault();
+        e.stopPropagation();
+        bringFront(it);
+        var startX = e.clientX, startY = e.clientY;
+        var origW = it.w, origH = it.h;
+        var pid = e.pointerId;
+        try { handle.setPointerCapture(pid); } catch (err) {}
+        function move(ev) {
+          it.w = origW + (ev.clientX - startX);
+          it.h = origH + (ev.clientY - startY);
+          if (it.shape === 'button') {
+            var side = Math.max(it.w, it.h);
+            it.w = side; it.h = side;
+          }
+          clampItem(it, desk);
+          el.style.width = it.w + 'px';
+          el.style.height = it.h + 'px';
+          el.style.left = it.x + 'px';
+          el.style.top = it.y + 'px';
+        }
+        function end() {
+          try { handle.releasePointerCapture(pid); } catch (err) {}
+          handle.removeEventListener('pointermove', move);
+          handle.removeEventListener('pointerup', end);
+          handle.removeEventListener('pointercancel', end);
+          saveState();
+        }
+        handle.addEventListener('pointermove', move);
+        handle.addEventListener('pointerup', end);
+        handle.addEventListener('pointercancel', end);
+      });
+    }
+
+    function openLocal(id) {
+      idbGet(id).then(function (rec) {
+        if (!rec || !rec.blob) { alert('No está el archivo en este navegador.'); return; }
+        try { if (urlCache[id]) URL.revokeObjectURL(urlCache[id]); } catch (e) {}
+        var url = URL.createObjectURL(rec.blob);
+        urlCache[id] = url;
+        window.open(url, '_blank', 'noopener');
+      }).catch(function () { alert('No se pudo abrir el archivo local.'); });
+    }
+
+    function addModule(mod) {
+      if (hasModule(mod.id)) return;
+      var slot = nextSlot();
+      state.items.push({
+        id: mod.id,
+        type: 'module',
+        kind: 'catalog',
+        titulo: mod.titulo,
+        href: mod.href,
+        blurb: mod.blurb || '',
+        x: slot.x, y: slot.y, w: 180, h: 140,
+        shape: 'tile',
+        z: ++Z,
+        addedAt: new Date().toISOString()
+      });
+      saveState();
+      renderDesktop();
+    }
+
+    function addWidget(def) {
+      var id = def.widget + '-' + Date.now().toString(36);
+      var slot = nextSlot();
+      state.items.push({
+        id: id,
+        type: 'widget',
+        widget: def.widget,
+        titulo: def.titulo,
+        x: slot.x, y: slot.y,
+        w: def.w || 200, h: def.h || 120,
+        shape: 'tile',
+        tipIndex: 0,
+        pillText: '',
+        z: ++Z,
+        addedAt: new Date().toISOString()
+      });
+      saveState();
+      renderDesktop();
+    }
+
+    function titleFromName(name) {
+      var base = String(name || 'modulo').replace(/\.(html?|HTML?)$/, '');
+      base = base.replace(/[-_]+/g, ' ').trim();
+      if (!base) return 'Módulo local';
+      return base.charAt(0).toUpperCase() + base.slice(1);
+    }
+
+    function onFile(e) {
+      var err = document.getElementById('file-err');
+      if (err) err.textContent = '';
+      var f = e.target.files && e.target.files[0];
+      e.target.value = '';
+      if (!f) return;
+      var low = (f.name || '').toLowerCase();
+      if (!/\.html?$/.test(low) && f.type !== 'text/html') {
+        if (err) err.textContent = 'Solo archivos .html / .htm';
+        return;
+      }
+      var id = 'local:' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 8);
+      var titulo = titleFromName(f.name);
+      var slot = nextSlot();
+      idbPut({ id: id, name: f.name, blob: f, mime: f.type || 'text/html' })
+        .then(function () {
+          state.items.push({
+            id: id, type: 'module', kind: 'local', titulo: titulo, href: '',
+            blurb: 'Archivo local',
+            x: slot.x, y: slot.y, w: 180, h: 140, shape: 'tile', z: ++Z,
+            addedAt: new Date().toISOString()
+          });
+          saveState();
+          renderDesktop();
+        })
+        .catch(function () {
+          if (err) err.textContent = 'No se pudo guardar en IndexedDB.';
+        });
+    }
+
+    function renderChips() {
+      var mc = document.getElementById('mod-chips');
+      if (mc) {
+        mc.innerHTML = '';
+        CATALOG.forEach(function (mod) {
+          var b = document.createElement('button');
+          b.type = 'button';
+          b.textContent = mod.titulo;
+          if (hasModule(mod.id)) {
+            b.className = 'disabled';
+            b.title = 'Ya está en el escritorio';
+          } else {
+            b.addEventListener('click', function () { addModule(mod); });
+          }
+          mc.appendChild(b);
+        });
+      }
+      var wc = document.getElementById('wid-chips');
+      if (wc && !wc.dataset.ready) {
+        WIDGETS.forEach(function (def) {
+          var b = document.createElement('button');
+          b.type = 'button';
+          b.textContent = def.titulo;
+          b.addEventListener('click', function () { addWidget(def); });
+          wc.appendChild(b);
+        });
+        wc.dataset.ready = '1';
+      }
+    }
+
+    function tickClocks() {
+      var now = new Date();
+      document.querySelectorAll('[data-live="clock"]').forEach(function (n) {
+        n.textContent = String(now.getHours()).padStart(2, '0') + ':' +
+          String(now.getMinutes()).padStart(2, '0');
+      });
+      document.querySelectorAll('[data-live="date"]').forEach(function (n) {
+        n.textContent = now.getDate() + ' de ' + meses()[now.getMonth()] + ' de ' + now.getFullYear();
+      });
+      document.querySelectorAll('[data-live="dia"]').forEach(function (n) {
+        n.innerHTML = 'Hoy es <strong>' + diasSemana()[now.getDay()] + '</strong><br>' +
+          now.getDate() + ' de ' + meses()[now.getMonth()];
+      });
+    }
+
+    function togglePanel(which) {
+      var pm = document.getElementById('panel-modulos');
+      var pw = document.getElementById('panel-widgets');
+      var bm = document.getElementById('btn-modulos');
+      var bw = document.getElementById('btn-widgets');
+      var openM = which === 'm' && pm.hidden;
+      var openW = which === 'w' && pw.hidden;
+      pm.hidden = !openM;
+      pw.hidden = !openW;
+      pm.classList.toggle('open', openM);
+      pw.classList.toggle('open', openW);
+      bm.classList.toggle('on', openM);
+      bw.classList.toggle('on', openW);
+      bm.setAttribute('aria-expanded', openM ? 'true' : 'false');
+      bw.setAttribute('aria-expanded', openW ? 'true' : 'false');
+    }
+
+    function init() {
+      state = loadState();
+      state.items.forEach(function (it) {
+        if (it.z && it.z > Z) Z = it.z;
+      });
+      document.getElementById('btn-modulos').addEventListener('click', function () { togglePanel('m'); });
+      document.getElementById('btn-widgets').addEventListener('click', function () { togglePanel('w'); });
+      document.getElementById('local-file').addEventListener('change', onFile);
+      document.getElementById('btn-clear').addEventListener('click', function () {
+        if (!state.items.length) return;
+        if (!confirm('¿Vaciar todo el escritorio?')) return;
+        state.items.filter(function (it) { return String(it.id).indexOf('local:') === 0; })
+          .forEach(function (it) { idbDel(it.id).catch(function () {}); });
+        state.items = [];
+        selectedId = null;
+        saveState();
+        renderDesktop();
+      });
+      renderDesktop();
+      if (clockTimer) clearInterval(clockTimer);
+      clockTimer = setInterval(tickClocks, 15000);
+      window.addEventListener('resize', function () {
+        var desk = document.getElementById('desktop');
+        state.items.forEach(function (it) { clampItem(it, desk); });
+        saveState();
+        renderDesktop();
+      });
+    }
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', init);
+    } else {
+      init();
+    }
+  })();
+  </script>
+</body>
+</html>
