@@ -1,1695 +1,398 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Gimnasio — Les vencimos</title>
-<meta name="description" content="Ejercicios suaves con Mari. Offline, sin internet, con repeticiones y voz.">
-<style>
-  :root{
-    --ink:#5a4334; --line:#e3d4c0; --teal:#2bb5ae; --teal-d:#1d938c;
-    --orange:#e07a1e; --card:#fffaf2; --muted:#9a8468;
-    --bg1:#fdebd2; --bg2:#e7f3e9; --bien:#2f6b4f;
-  }
-  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
-  html,body{height:100%}
-  body{
-    background:linear-gradient(180deg,var(--bg1),var(--bg2));
-    font-family:ui-sans-serif,system-ui,"Segoe UI",Roboto,sans-serif;
-    color:var(--ink); display:flex; flex-direction:column; align-items:center;
-    padding:10px 10px 16px; min-height:100%; overflow-x:hidden;
-  }
-  h1{font-size:1.05rem;font-weight:700;letter-spacing:-.01em;text-align:center}
-  .sub{font-size:.7rem;color:var(--muted);text-align:center;margin:2px 0 8px;/* ancho: lo pone la maqueta de abajo */line-height:1.35}
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="description" content="Gimnasio Les vencimos — movimiento suave offline, como en el Asistente.">
+  <title>Gimnasio — Les vencimos</title>
+  <style>
 
-  /* El muñeco crece con la pantalla: a 3 metros en la tele del salón,
-     360px era un sello de correos. El dibujo usa coordenadas de 360 y se
-     escala por programa, así que no pierde nitidez al agrandarse. */
-  .stage{
-    /* Sin vh ni proporción fija: dentro de un iframe vh miente y la
-       proporción fija impide que se encoja. La maqueta de más abajo le
-       da el hueco y el dibujo se escala solo. */
-    width:100%; position:relative;
-    border:1px solid var(--line); border-radius:18px; overflow:hidden;
-    box-shadow:0 10px 26px rgba(120,90,50,.18), inset 0 1px 0 rgba(255,255,255,.7);
-    background:#fff;
-  }
-  canvas{width:100%;height:100%;display:block}
-  .badge{
-    position:absolute; top:8px; left:8px; font-size:.66rem; font-weight:700;
-    background:rgba(255,250,242,.92); border:1px solid var(--line); border-radius:9px;
-    padding:5px 8px; color:var(--muted);
-  }
-  .view-badge{
-    position:absolute; top:8px; right:8px; font-size:.66rem; font-weight:700;
-    background:rgba(43,181,174,.15); border:1px solid var(--teal); border-radius:9px;
-    padding:5px 8px; color:var(--teal-d);
-  }
+:root {
+  --fondo: #f4efe6; --tinta: #2a2118; --suave: #7a6a58; --acento: #c45c26;
+  --acento-texto: #fff8f0; --linea: rgba(42,33,24,.14);
+  --font-display: "Iowan Old Style", Palatino, Georgia, serif;
+  --font-sans: "Segoe UI", system-ui, sans-serif;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; height: 100%; background: var(--fondo); color: var(--tinta);
+  font-family: var(--font-sans); }
+.wrap { min-height: 100%; display: flex; flex-direction: column; max-width: 28rem; margin: 0 auto; }
+header.app {
+  display: flex; align-items: center; gap: .6rem; padding: .65rem .85rem;
+  border-bottom: 1px solid var(--linea); background: #efe8dc;
+}
+header.app h1 { margin: 0; font-family: var(--font-display); font-size: 1.25rem; flex: 1; }
+header.app .brand { font-size: .72rem; letter-spacing: .04em; color: var(--suave); text-transform: uppercase; }
+.cab-extra { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+button, .btn {
+  font: 700 .9rem var(--font-sans); min-height: 44px; padding: .45rem .8rem;
+  border-radius: 999px; border: 1px solid color-mix(in srgb, var(--acento) 45%, transparent);
+  background: #fffaf3; color: var(--tinta); cursor: pointer;
+}
+button.sexo, .sexo { min-width: 5.5rem; }
+button.btn-acento, .btn-acento { background: var(--acento); color: var(--acento-texto); border-color: var(--acento); }
+main { flex: 1; padding: .85rem; display: flex; flex-direction: column; gap: .75rem; }
+.gym-modos { display: flex; gap: 8px; flex-shrink: 0; }
+.gym-modos .btn { flex: 1; }
+.grid-2.gym-hub { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.hub-tile {
+  appearance: none; border: 1px solid var(--linea); border-radius: 18px;
+  background: linear-gradient(165deg, #fffaf2, #f0e6d6); min-height: 6.2rem;
+  padding: 1rem; text-align: left; display: flex; flex-direction: column; justify-content: flex-end;
+  cursor: pointer; color: inherit;
+}
+.hub-tile:last-child { grid-column: 1 / -1; }
+.hub-tile strong { font-family: var(--font-display); font-size: 1.25rem; display: block; }
+.hub-tile em { font-style: normal; color: var(--suave); font-size: .9rem; }
+.gim-escena { display: flex; flex-direction: column; gap: .65rem; flex: 1; }
+.gim-lienzo {
+  position: relative; background: #ebe3d4; border-radius: 22px; overflow: hidden;
+  aspect-ratio: 1; width: 100%; max-width: 360px; margin: 0 auto;
+}
+.gim-lienzo canvas { display: block; width: 100%; height: 100%; }
+.gim-hud { position: absolute; bottom: 10px; left: 50%; transform: translateX(-50%); text-align: center; pointer-events: none; }
+.gim-rep { color: #5a4334; margin: 0; font-size: 3rem; font-weight: 800; line-height: .9; }
+.gim-de { letter-spacing: .06em; text-transform: uppercase; color: #9a8468; margin: 0; font-size: .72rem; font-weight: 800; }
+.gim-cue { text-align: center; color: var(--acento); min-height: 2.4em; margin: 0; font-weight: 800; }
+.gim-mandos { display: flex; gap: 8px; flex-wrap: wrap; }
+.gim-mandos .btn, .gim-mandos button { flex: 1; min-width: 5rem; }
+.aviso {
+  margin: 0; padding: .65rem .75rem; border-radius: 12px; background: #efe6d8;
+  color: var(--suave); font-size: .82rem; line-height: 1.35;
+}
+.hidden { display: none !important; }
+footer { padding: .75rem; text-align: center; color: var(--suave); font-size: .78rem; }
 
-  /* contador de repeticiones: FUERA del dibujo, no tapa los pies */
-  .rep-hud{
-    position:static; left:auto; bottom:auto; transform:none;
-    display:flex; flex-direction:row; align-items:center; justify-content:center;
-    gap:10px; pointer-events:none; min-width:0; padding:2px 0;
-  }
-  .rep-num{
-    font-size:2.1rem; font-weight:800; line-height:1; letter-spacing:-.04em;
-    color:var(--ink); text-shadow:0 2px 0 rgba(255,255,255,.8);
-    font-variant-numeric:tabular-nums;
-  }
-  .rep-num.flash{color:var(--teal-d); transform:scale(1.12); transition:transform .12s,color .12s}
-  .rep-label{font-size:.68rem; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:.06em}
-  .rep-bar{
-    width:110px; height:6px; border-radius:999px; background:rgba(90,67,52,.12);
-    overflow:hidden; margin-top:0;
-  }
-  .rep-bar > i{
-    display:block; height:100%; width:0%; background:var(--teal);
-    border-radius:999px; transition:width .2s ease-out;
-  }
+.gym-modos{flex-shrink:0;gap:8px;display:flex}
+.gym-modos .btn{flex:1;min-height:48px}
+.gym-cab-extra{align-items:center;gap:6px;display:flex}
+.gim-escena{flex-direction:column;flex:1;gap:8px;min-height:0;display:flex}
+.gim-lienzo{min-height:0;box-shadow:var(--luz), var(--sombra);background:#efe4d4;border-radius:22px;flex:1;position:relative;overflow:hidden}
+.gim-lienzo canvas{width:100%;height:100%;display:block}
+.gim-hud{text-align:center;pointer-events:none;position:absolute;bottom:10px;left:50%;transform:translate(-50%)}
+.gim-rep{color:#5a4334;margin:0;font-size:3rem;font-weight:800;line-height:.9}
+.gim-de{letter-spacing:.06em;text-transform:uppercase;color:#9a8468;margin:0;font-size:.72rem;font-weight:800}
+.gim-cue{text-align:center;color:var(--acento);min-height:2.4em;margin:0;font-weight:800}
+.gim-mandos{gap:8px;display:flex}
+.gim-mandos .pastilla{flex:1;justify-content:center;align-items:center;gap:8px;width:auto;display:flex}
+.gym-hub .hub-tile:last-child{grid-column:1/-1}
+.gim-mandos{flex-wrap:wrap}
+.gim-mandos .btn{flex:30%}
+.icono,.btn,.fila,.esq,.mini,.flecha,.pastilla,.sexo,.tecla,.dia-cal,.swatch,.chat-campo,.chat-mic,.chip-vivo,.tecla-aho,.domo-chip,.panel-aviso,.panel-obra,.domo-luz{appearance:none;background:var(--panel);color:var(--tinta);box-shadow:var(--luz), var(--sombra);border:none}
+.btn-acento{background:var(--acento);color:var(--acento2)}
+.btn:active:not(:disabled),.icono:active,.fila:active,.esq:active,.mini:active,.tecla:active,.dia-cal:active,.pastilla:active,.hub-tile:active,.franja-card:active,.radio-card:active{box-shadow:var(--hundida);transform:scale(.97)}
+.lista:has(.hub-tile){grid-template-rows:1fr 1fr;grid-template-columns:1fr 1fr;height:100%;display:grid}
+.lista:has(.hub-tile) .hub-tile{height:100%;min-height:0}
+.hogar-hub .hub-tile:last-child{grid-column:1/-1}
+.sexo{border-radius:999px;min-height:44px;padding:0 14px;font-weight:800}
+.gym-hub .hub-tile:last-child{grid-column:1/-1}
+.grid-2{flex:1;grid-template-columns:1fr 1fr;gap:14px;min-height:0;display:grid}
+.grid-2 .fila{height:100%}
+.hub-tile{height:100%;min-height:0;box-shadow:var(--luz), var(--sombra);color:#faf6ef;text-align:left;border:none;border-radius:22px;padding:0;position:relative;overflow:hidden}
+.hub-tile img{object-fit:cover;width:100%;height:100%;display:block}
+.hub-tile .lab{background:linear-gradient(#0000,#12100ec7);padding:16px 16px 14px;position:absolute;bottom:0;left:0;right:0}
+.hub-tile .lab strong{font-size:1.2rem;font-weight:800;display:block}
+.hub-tile .lab em{opacity:.85;font-style:normal}
+.hogar-hub .hub-tile .lab strong{font-family:var(--font-display);letter-spacing:-.03em;font-size:clamp(1.5rem,3.8vh,2.05rem);font-weight:600}
+.hogar-hub .hub-tile .lab em{font-size:1.05rem}
+.hogar-hub .hub-tile .lab{padding:22px 20px 20px}
+html[data-pantalla=movil] .escena-movil .hub-tile,html[data-pantalla=movil] .escena-movil .fila{flex:none}
+html[data-pantalla=movil] .escena-movil .hub-tile{height:7.4rem;min-height:7.4rem}
+html[data-pantalla=movil] .hogar-hub .hub-tile:last-child,html[data-pantalla=movil] .salud-hub .esq:last-child{grid-column:1/-1}
 
-  .state{font-size:.82rem; color:var(--orange); font-weight:700; margin:8px 0 2px; text-align:center; min-height:1.2em}
-  .desc{font-size:.76rem; color:var(--ink); text-align:center; /* ancho: lo pone la maqueta de abajo */ line-height:1.4; min-height:2.5em; padding:0 4px; margin-bottom:6px}
-  .cue{font-size:.78rem; font-weight:700; color:var(--teal-d); text-align:center; min-height:1.2em; margin-bottom:6px}
-
-  .list{
-    width:100%; /* ancho: lo pone la maqueta de abajo */ display:flex; flex-direction:column; gap:6px;
-    max-height:168px; overflow-y:auto; padding:2px; margin-bottom:8px;
-  }
-  .ex{
-    display:flex; align-items:center; gap:10px; padding:9px 11px;
-    background:var(--card); border:1px solid var(--line); border-radius:12px;
-    cursor:pointer; text-align:left; width:100%; font:inherit; color:inherit;
-  }
-  .ex.on{border-color:var(--teal); background:#e8f8f6; box-shadow:0 0 0 1px var(--teal)}
-  .ex .n{
-    width:26px; height:26px; border-radius:8px; background:#f0e6d8;
-    display:flex; align-items:center; justify-content:center;
-    font-size:.7rem; font-weight:700; flex-shrink:0;
-  }
-  .ex.on .n{background:var(--teal); color:#fff}
-  .ex .meta{flex:1; min-width:0}
-  .ex .t{font-size:.8rem; font-weight:700; line-height:1.15}
-  .ex .d{font-size:.66rem; color:var(--muted); margin-top:1px}
-  .ex .tag{font-size:.6rem; font-weight:700; padding:3px 7px; border-radius:999px; background:#f0e6d8; color:#7a6548; flex-shrink:0}
-  .ex .tag.abs{background:#ffe8dc; color:#c45a20}
-  .ex .tag.fuerza{background:#e0f0ff; color:#2D468C}
-  .ex .tag.mov{background:#e8f5e9; color:#2e7d4f}
-  .ex .tag.eq{background:#f3e8ff; color:#6b3fa0}
-
-  .row{width:100%; /* ancho: lo pone la maqueta de abajo */ display:flex; gap:8px; margin-bottom:8px}
-  .btn{
-    flex:1; height:46px; border:1px solid var(--line); border-radius:13px;
-    background:var(--card); font-size:.78rem; font-weight:700; color:var(--ink);
-    display:flex; align-items:center; justify-content:center; gap:6px;
-    cursor:pointer; user-select:none; box-shadow:0 2px 0 rgba(150,110,70,.15);
-  }
-  .btn.primary{background:var(--teal); color:#fff; border-color:var(--teal-d)}
-  .btn.ghost.on{background:#e07a1e; color:#fff; border-color:#c45a20}
-  .btn:active{transform:translateY(1px); box-shadow:none}
-  .btn:disabled{opacity:.45; pointer-events:none}
-
-  .settings{
-    width:100%; /* ancho: lo pone la maqueta de abajo */ display:flex; gap:8px; align-items:center;
-    margin-bottom:8px; font-size:.72rem; font-weight:600; color:var(--muted);
-  }
-  .settings label{display:flex; align-items:center; gap:6px; flex:1}
-  .settings select, .settings input[type=range]{
-    flex:1; border:1px solid var(--line); border-radius:8px; background:var(--card);
-    padding:6px 8px; color:var(--ink); font:inherit;
-  }
-
-  .disclaimer{
-    font-size:.64rem; color:var(--muted); text-align:center; /* ancho: lo pone la maqueta de abajo */
-    line-height:1.35; margin-top:6px; padding:0 6px;
-  }
-  /* Pantallas grandes (la tele del salón, la vertical de la entrada):
-     todo más grande, porque se mira de lejos o de pie. */
-  @media (min-width:700px){
-    /* (el tamaño lo reparte la maqueta de flexbox, más abajo) */
-    h1{font-size:1.5rem} .sub{font-size:.85rem;max-width:560px}
-    .desc,.list,.settings,.row{max-width:560px}
-    .desc{font-size:1rem} .state{font-size:1.1rem} .cue{font-size:1.05rem}
-    .rep-num{font-size:2.6rem} .rep-bar{width:140px}
-    .btn{font-size:.95rem;padding:14px 16px}
-  }
-
-  /* Quien tenga las animaciones desactivadas sigue viendo el ejercicio
-     —es el contenido, no un adorno—, pero sin los brincos decorativos
-     del contador, que ahí sí molestan. */
-  @media (prefers-reduced-motion: reduce){
-    .rep-num.flash{transform:none;transition:none}
-    .rep-bar > i{transition:none}
-    .btn{transition:none}
-  }
-
-  .offline{
-    font-size:.62rem; font-weight:700; color:var(--bien); text-align:center;
-    margin-top:4px; letter-spacing:.04em; text-transform:uppercase;
-  }
-
-  /* ------------------------------------------------------------
-     LA MAQUETA — Mari en el centro y grande.
-
-     Historia, para no repetirla:
-       1) Se usaba «100vh», pero esto va DENTRO DE UN IFRAME: ahí
-          vh es la altura del marco, no de la pantalla. Por eso al
-          cambiar el zoom «se ajustaba» por casualidad.
-       2) Todo estaba limitado a 360 px de ancho: nació para el móvil.
-       3) Y luego: se veía entero pero mal repartido. La figura, que es
-          a lo único que se viene, quedaba en una franja estrecha con
-          media pantalla en blanco a los lados.
-
-     Ahora en pantalla ancha son TRES columnas: los ejercicios a la
-     izquierda, Mari en el centro ocupando todo lo que hay, y los
-     mandos a la derecha. Se mira al centro y las manos van a los lados,
-     que es como se usa de pie.
-     ------------------------------------------------------------ */
-  body{
-    display:flex; flex-direction:column; align-items:center;
-    height:100%; max-height:100%; overflow:hidden;
-    padding:8px 12px 10px; gap:8px;
-  }
-
-  h1{ font-size:1.05rem; margin:0; flex:0 0 auto }
-  .sub, .disclaimer, .offline, .desc { display:none }
-
-  .stage{
-    flex:1 1 auto; min-height:0;
-    width:auto; max-width:none; aspect-ratio:auto;
-    align-self:stretch; margin:0;
-    background:#fffdf7;
-    border:1px solid rgba(0,0,0,.10);
-    border-radius:20px;
-    box-shadow:0 2px 10px rgba(60,45,20,.10);
-    padding:6px;
-  }
-
-  .zona-mandos{
-    flex:0 0 auto; width:100%;
-    display:flex; flex-direction:column; align-items:center; gap:8px;
-    padding:10px 12px 8px;
-    background:rgba(255,255,255,.55);
-    border:1px solid rgba(0,0,0,.07);
-    border-radius:18px;
-  }
-  .state, .cue, .row, .settings, .list{ flex:0 0 auto; width:100% }
-  .state{ font-size:1.05rem; margin:0; text-align:center; max-width:none }
-  .cue{ font-size:.95rem; margin:0; min-height:1.2em; text-align:center }
-
-  .row, .settings{
-    max-width:none;
-    display:flex; gap:10px; justify-content:center; flex-wrap:wrap; margin:0;
-  }
-  .row .btn{
-    min-height:54px; min-width:112px;
-    font-size:1.02rem; font-weight:700; flex:0 1 auto;
-  }
-  .row .btn.primary{ min-width:176px; font-size:1.15rem }
-  .row.secundaria{ gap:8px }
-  .row.secundaria .btn{
-    min-height:40px; min-width:auto; font-size:.86rem;
-    font-weight:600; opacity:.85; padding:0 14px;
-  }
-  .settings{ gap:16px }
-  .settings select{ min-height:40px }
-
-  .list{
-    display:flex; flex-direction:row; gap:8px;
-    max-height:none; height:auto; max-width:none;
-    overflow-x:auto; overflow-y:hidden;
-    padding:2px; margin:0; justify-content:flex-start;
-  }
-  /* El foco, bien visible: esto se mira desde el sofá, a tres metros. */
-  :focus-visible{ outline:3px solid #d97706 !important; outline-offset:3px }
-
-  .list .item{
-    flex:0 0 auto; min-width:132px; max-width:170px;
-    margin:0; padding:8px 10px;
-  }
-  .list .item .nm{ font-size:.84rem }
-  .list .item .meta, .list .item .tag{ font-size:.68rem }
-
-  /* ---- PANTALLA ANCHA: tres columnas ----
-     Mari en el centro, todo lo grande que quepa; los ejercicios a
-     un lado y los mandos al otro. Se mira al centro y las manos van a
-     los lados. */
-  /* En pantalla ancha, «Movilidad» y «De lado» se van a la columna de
-     los mandos. Flotando sobre el marco de Mari se comían dos
-     esquinas enteras para dos palabras. */
-  @media (min-width: 900px) and (min-height: 480px) {
-    .badge, .view-badge {
-      position: static; margin: 0;
-      display: inline-block; align-self: center;
-    }
-  }
-
-  @media (min-width: 900px) and (min-height: 480px) {
-    body{
-      display:grid;
-      grid-template-columns: minmax(150px, 190px) 1fr minmax(200px, 250px);
-      grid-template-rows: auto 1fr;
-      gap:10px 14px; align-items:stretch;
-      padding:8px 14px 12px;
-    }
-    h1{ grid-column:1 / -1; text-align:center }
-
-    /* La lista, en columna a la izquierda: un ejercicio debajo de otro
-       se lee mejor que un carrete que hay que arrastrar. */
-    .list{
-      grid-column:1; grid-row:2;
-      flex-direction:column; width:auto;
-      overflow-y:auto; overflow-x:hidden;
-      align-content:start;
-    }
-    /* Los ejercicios, apretados para que quepan los diez sin
-       desplazar: es una lista para elegir, no para leerla entera. */
-    .list{ gap:4px }
-    .list .item{
-      min-width:0; max-width:none; width:100%;
-      padding:5px 8px; line-height:1.15;
-    }
-    .list .item .nm{ font-size:.78rem }
-    .list .item .meta{ display:none }   /* «lado · 2,0s» no hace falta aquí */
-    .list .item .tag{ font-size:.62rem }
-    /* Si algún día son muchos más, dos columnas antes que una barra:
-       la idea es verlos todos de un vistazo y elegir. */
-    .list.muchos {
-      display:grid; grid-template-columns:1fr 1fr; gap:4px;
-      align-content:start;
-    }
-
-    .stage{ grid-column:2; grid-row:2; padding:10px }
-
-    .zona-mandos{
-      grid-column:3; grid-row:2;
-      width:auto; justify-content:center; gap:10px;
-      max-width:none; overflow-y:auto;
-    }
-    /* En columna estrecha, los botones a lo ancho y en vertical: se
-       apuntan con el dedo sin buscar. */
-    .row{ flex-direction:column; width:100% }
-    .row .btn, .row .btn.primary{ width:100%; min-width:0 }
-    .row .btn.primary{ min-height:64px }
-    .settings{ flex-direction:column; align-items:stretch; gap:8px }
-    .settings label{ display:flex; justify-content:space-between; gap:8px }
-    .settings select{ flex:1 }
-  }
-
-  /* Pantallas bajas: fuera la lista. Lo esencial es ver a Mari y
-     poder darle a Empezar. */
-  @media (max-height: 480px) {
-    .list{ display:none }
-    h1{ font-size:.9rem }
-    .row .btn{ min-height:44px }
-  }
-
-</style>
+/*$vite$:1*/
+.hub-tile img,.esq img,.centro-casa img{display:none!important}
+.hub-tile,.esq{background:linear-gradient(165deg,#2a3348,#1a2234)!important}
+.hub-tile .lab,.esq span{position:relative;z-index:2}
+  </style>
 </head>
 <body>
-  <h1>Gimnasio · Mari</h1>
-  <p class="sub">Movimientos suaves · marca el ritmo y cuenta en voz alta · 100% offline</p>
-
-  <div class="stage">
-    <canvas id="c" width="360" height="360" role="img" aria-label="Figura haciendo el ejercicio"></canvas>
-    <div class="badge" id="badge">—</div>
-    <div class="view-badge" id="viewBadge">De lado</div>
+  <div class="wrap">
+    <header class="app">
+      <button type="button" id="btnBack" class="hidden" aria-label="Volver">←</button>
+      <div>
+        <div class="brand">Les vencimos · offline</div>
+        <h1 id="title">Gimnasio</h1>
+      </div>
+      <div class="cab-extra">
+        <button type="button" class="sexo" id="btnFigura" title="Quién entrena">Chica</button>
+      </div>
+    </header>
+    <main>
+      <p class="aviso">Movimiento suave en este aparato. Ante molestia, para y consulta. No es plan de peso ni de gimnasio comercial.</p>
+      <div id="view-hub">
+        <div class="gym-modos" aria-hidden="true"></div>
+        <div id="hub-tiles" class="grid-2 gym-hub"></div>
+        <div id="lista-wrap" class="hidden">
+          <div id="lista" class="grid-2 gym-hub"></div>
+        </div>
+      </div>
+      <div id="view-ex" class="gim-escena hidden">
+        <div class="gim-lienzo">
+          <canvas id="gimCanvas" width="360" height="360"></canvas>
+          <div class="gim-hud">
+            <p class="gim-rep" id="repN">0</p>
+            <p class="gim-de" id="repDe">de 8</p>
+          </div>
+        </div>
+        <p class="gim-cue" id="cue"></p>
+        <div class="gim-mandos">
+          <button type="button" class="btn btn-acento" id="btnVoz">Voz sí</button>
+          <button type="button" class="btn" id="btnLento">Ritmo</button>
+          <button type="button" class="btn btn-acento" id="btnPlay">Empezar</button>
+        </div>
+      </div>
+    </main>
+    <footer>lesvencimos.com · gimnasio (como el Asistente)</footer>
   </div>
+  <script>
 
-  <div class="zona-mandos">
-  <div class="state" id="state">Elige un ejercicio</div>
-  <p class="desc" id="desc">Pulsa Empezar. Mari marca el ritmo y va cantando el número en voz alta: tú la sigues.</p>
-  <div class="cue" id="cue"></div>
-  <div class="rep-hud">
-    <div class="rep-num" id="repNum">0</div>
-    <div class="rep-label" id="repLabel">de 8</div>
-    <div class="rep-bar"><i id="repBar"></i></div>
-  </div>
-
-  <div class="row">
-    <button class="btn" id="btnPrev" type="button">← Ant.</button>
-    <button class="btn primary" id="btnPlay" type="button">▶ Empezar</button>
-    <button class="btn" id="btnNext" type="button">Sig. →</button>
-  </div>
-  <div class="list" id="list"></div>
-
-  <div class="settings ajustes-de-una-vez">
-    <label>Meta
-      <select id="targetReps" aria-label="Repeticiones objetivo">
-        <option value="5">5 reps</option>
-        <option value="8" selected>8 reps</option>
-        <option value="10">10 reps</option>
-        <option value="12">12 reps</option>
-        <option value="15">15 reps</option>
-      </select>
-    </label>
-    <label>Ritmo
-      <select id="speed" aria-label="Velocidad">
-        <option value="1.25">Lento</option>
-        <option value="1" selected>Normal</option>
-        <option value="0.8">Rápido</option>
-      </select>
-    </label>
-  </div>
-  <div class="row secundaria">
-    <button class="btn ghost on" id="btnSonido" type="button" title="Pitido en cada repetición">🔔 Pitido: sí</button>
-    <button class="btn ghost on" id="btnVoice" type="button" title="Activar o silenciar la voz">Voz: sí</button>
-    <button class="btn" id="btnReset" type="button">Reiniciar serie</button>
-  </div>
-  </div>
-
-
-  <div class="row secundaria" style="margin-top:6px">
-    <span style="font-size:.72rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;align-self:center">Avatar</span>
-    <button class="btn ghost on" id="btnAvatar" type="button" title="Cambia la etiqueta Chico/Chica. La figura dibujada es la misma Mari.">Chica</button>
-  </div>
-
-  <p class="disclaimer">
-    Solo sugerencias de movimiento. Ante molestia o dolencia, consulta a un médico.
-    No son planes de entrenamiento ni objetivos de peso o calorías.
-  </p>
-  <p class="offline">Les vencimos · offline · un solo archivo</p>
-  <p class="sub" style="margin-top:6px">El pitido marca cada repetición y suena siempre; la voz canta el número si el equipo tiene voz en español instalada.<br>Mando de diapositivas: adelante y atrás cambian de ejercicio · el botón de pantalla en negro empieza y pausa</p>
-
-<script>
-/* ═══════════════════════════════════════════════════════════
-   Gimnasio Mari — archivo único offline
-   Canvas articulado (puntos de anclaje) · Mari · reps + speechSynthesis
-   ═══════════════════════════════════════════════════════════ */
 (function () {
-  "use strict";
+  
+window.__CASA_PACK = window.__CASA_PACK || {};
+function x(p){ return (window.__CASA_PACK && window.__CASA_PACK[p]) || ''; }
+var na = { chico: null, chica: null };
 
-  const g = document.getElementById("c").getContext("2d");
-  const stateEl = document.getElementById("state");
-  const descEl = document.getElementById("desc");
-  const cueEl = document.getElementById("cue");
-  const badgeEl = document.getElementById("badge");
-  const viewBadge = document.getElementById("viewBadge");
-  const listEl = document.getElementById("list");
-  const repNumEl = document.getElementById("repNum");
-  const repLabelEl = document.getElementById("repLabel");
-  const repBarEl = document.getElementById("repBar");
-  const btnPlay = document.getElementById("btnPlay");
-  const btnPrev = document.getElementById("btnPrev");
-  const btnNext = document.getElementById("btnNext");
-  const btnVoice = document.getElementById("btnVoice");
-  const btnSonido = document.getElementById("btnSonido");
-  const btnReset = document.getElementById("btnReset");
-  const targetSel = document.getElementById("targetReps");
-  const speedSel = document.getElementById("speed");
+  function br(e,t){if(typeof window==='undefined'||!window.speechSynthesis||!e)return;window.speechSynthesis.cancel();var n=new SpeechSynthesisUtterance(e);n.lang='es-ES';n.rate=t&&t.lento?0.85:1;window.speechSynthesis.speak(n)}
+function xr(){if(typeof window!=='undefined'&&window.speechSynthesis)window.speechSynthesis.cancel()}
 
-  const W = 360, H = 360, GROUND = 316;
-  // Cuánto se agranda a Mari. Con 1 ocupaba el 53% del cuadro; con
-  // 1.4 pasa del 70% y se ve desde el sofá.
-  const Z = 1.4;
-  // La cadera se sube lo justo para que los pies sigan tocando el suelo:
-  // pierna completa = (muslo + gemelo) x Z.
-  const BASEHIP = GROUND - (44 + 44) * Z;
-  const THIGH = 44, CALF = 44, UPARM = 32, FOARM = 30, NECK = 52, HEADR = 22;
-  // SKIN_B es la piel del lado de atrás. Bajar la opacidad no bastaba:
-  // sobre fondo claro apenas se nota y, al cruzarse los brazos, parecían
-  // uno solo y gordo. Un tono más oscuro se distingue desde el sofá.
-  const SKIN = "#e8d2bc", SKIN_B = "#c9a88a", INK = "#3d2a1f",
-        HAIR = "#3a2418", HAIRD = "#2a1810",
-        SUIT = "#d4c4a8", SUITD = "#a89070", BLUSH = "rgba(200,160,140,.25)",
-        HOSE = "#c4a882", HOSED = "#9a7d5c", SHOE = "#5c4030", SHOED = "#3d2a1f";
+  var Ni=360,Pi=360,R=316,z=1.38,Fi=R-90*z,Ii=46,Li=44,Ri=34,zi=30,Bi=56,Vi=18.5,Hi=[`cero`,`uno`,`dos`,`tres`,`cuatro`,`cinco`,`seis`,`siete`,`ocho`,`nueve`,`diez`,`once`,`doce`,`trece`,`catorce`,`quince`,`dieciséis`,`diecisiete`,`dieciocho`,`diecinueve`,`veinte`],Ui=[{id:`basico`,nom:`Básico`,meta:`Diez suaves, de pie`},{id:`medio`,nom:`Medio`,meta:`Diez con un poco más`},{id:`dificil`,nom:`Difícil`,meta:`Diez que piden fuelle`},{id:`mayores`,nom:`Mayores`,meta:`En silla, sin forzar`},{id:`abs`,nom:`Abdomen`,meta:`Diez para el vientre`}],Wi={basico:`Básico`,medio:`Medio`,dificil:`Difícil`,mayores:`Mayores`,abs:`Abdomen`};function B(e,t,n,r,i,a,o,s,c,l,u,d){return{t:e,hipDelta:t,torso:n,head:r,legF:{t:i,k:a},legB:{t:o,k:s},armF:{s:c,e:l},armB:{s:u,e:d}}}function V(e,t,n,r,i,a,o,s,c,l,u,d){return{id:e,name:t,corto:n,tag:r,tagLabel:Wi[r],grupo:r,view:i,cycle:a,desc:o,cueUp:s,cueDown:c,intro:l,frames:u,reps:d?.reps??(r===`mayores`?6:r===`dificil`?10:8),silla:d?.silla}}var Gi=[V(`marcha`,`Marcha en el sitio`,`Marcha`,`basico`,`side`,1.4,`Levanta una rodilla y luego la otra, como si caminaras sin avanzar.`,`rodilla`,`cambia`,`Marcha en el sitio. Sube una rodilla y luego la otra.`,[B(0,0,.04,.02,.55,.9,-.05,.1,-.5,.3,.45,.35),B(.5,0,.04,-.02,-.05,.1,.55,.9,.45,.35,-.5,.3),B(1,0,.04,.02,.55,.9,-.05,.1,-.5,.3,.45,.35)]),V(`elev-brazos`,`Elevación de brazos`,`Brazos`,`basico`,`front`,2.4,`Brazos a los lados. Súbelos por delante hasta arriba y bájalo despacio.`,`arriba`,`abajo`,`Elevación de brazos. Sube despacio y baja controlando.`,[B(0,0,0,0,.04,.06,-.04,.06,.15,.2,-.15,.2),B(.45,0,-.05,-.1,.04,.06,-.04,.06,-1.35,.15,-1.35,.15),B(.55,0,-.05,-.1,.04,.06,-.04,.06,-1.35,.15,-1.35,.15),B(1,0,0,0,.04,.06,-.04,.06,.15,.2,-.15,.2)]),V(`hombros`,`Rotación de hombros`,`Hombros`,`basico`,`side`,2,`Rueda los hombros hacia atrás en círculos amplios y lentos.`,`atrás`,`vuelta`,`Rotación de hombros. Círculos amplios, cuello relajado.`,[B(0,0,.02,0,.04,.06,-.04,.06,.1,.3,-.1,.3),B(.25,0,-.08,-.05,.04,.06,-.04,.06,-.9,.4,-.85,.4),B(.5,0,.02,0,.04,.06,-.04,.06,-.3,.8,-.25,.8),B(.75,0,.1,.05,.04,.06,-.04,.06,.5,.5,.45,.5),B(1,0,.02,0,.04,.06,-.04,.06,.1,.3,-.1,.3)]),V(`tobillos`,`Círculos de tobillo`,`Tobillos`,`basico`,`side`,1.8,`Apóyate en una pierna y dibuja círculos lentos con el otro pie.`,`círculo`,``,`Círculos de tobillo. Lentos, amplios.`,[B(0,2,.04,0,.35,.2,-.05,.08,.35,.4,.3,.35),B(.25,2,.04,0,.45,.55,-.05,.08,.35,.4,.3,.35),B(.5,2,.04,0,.25,.7,-.05,.08,.35,.4,.3,.35),B(.75,2,.04,0,.15,.35,-.05,.08,.35,.4,.3,.35),B(1,2,.04,0,.35,.2,-.05,.08,.35,.4,.3,.35)]),V(`cuello`,`Mirar arriba y abajo`,`Cuello`,`basico`,`side`,2.4,`Mira al techo despacio, al frente, al suelo y vuelve. Sin forzar.`,`arriba`,`abajo`,`Cuello. Arriba y abajo, muy despacio.`,[B(0,0,0,0,.04,.06,-.04,.06,.1,.2,-.1,.2),B(.25,0,-.08,-.55,.04,.06,-.04,.06,.1,.2,-.1,.2),B(.4,0,0,0,.04,.06,-.04,.06,.1,.2,-.1,.2),B(.65,0,.1,.4,.04,.06,-.04,.06,.1,.2,-.1,.2),B(.8,0,0,0,.04,.06,-.04,.06,.1,.2,-.1,.2),B(1,0,0,0,.04,.06,-.04,.06,.1,.2,-.1,.2)]),V(`pecho`,`Apertura de pecho`,`Pecho`,`basico`,`front`,2.5,`Brazos abiertos, lleva los codos atrás abriendo el pecho. Suelta y repite.`,`abre`,`suelta`,`Apertura de pecho. Codos atrás, pecho abierto.`,[B(0,0,0,0,.04,.06,-.04,.06,.05,.9,-.05,.9),B(.4,0,-.12,-.05,.04,.06,-.04,.06,-.35,1.1,.35,1.1),B(.55,0,-.12,-.05,.04,.06,-.04,.06,-.35,1.1,.35,1.1),B(1,0,0,0,.04,.06,-.04,.06,.05,.9,-.05,.9)]),V(`lateral`,`Estiramiento lateral`,`Lateral`,`basico`,`front`,3,`Un brazo arriba, inclínate suavemente hacia el otro lado. Cambia de lado.`,`inclina`,`centro`,`Estiramiento lateral. Inclínate despacio, sin rebotes.`,[B(0,0,0,0,.05,.06,-.05,.06,-1.2,.2,.2,.25),B(.2,2,.25,.15,.08,.08,-.08,.08,-1.35,.15,.4,.3),B(.35,0,0,0,.05,.06,-.05,.06,-.2,.2,-.2,.2),B(.55,2,-.25,-.15,.08,.08,-.08,.08,.4,.3,-1.35,.15),B(.7,0,0,0,.05,.06,-.05,.06,-.2,.2,-.2,.2),B(1,0,0,0,.05,.06,-.05,.06,-1.2,.2,.2,.25)]),V(`talones`,`Puntillas suaves`,`Puntillas`,`basico`,`side`,2.2,`Levántate un poco de puntillas y baja los talones despacio.`,`sube`,`baja`,`Puntillas. Sube y baja sin bloquear.`,[B(0,0,.02,0,.04,.06,-.04,.06,.2,.25,.15,.25),B(.45,-10,-.04,-.04,.02,.04,-.02,.04,-.15,.2,-.12,.2),B(.55,-10,-.04,-.04,.02,.04,-.02,.04,-.15,.2,-.12,.2),B(1,0,.02,0,.04,.06,-.04,.06,.2,.25,.15,.25)]),V(`balanceo`,`Balanceo de brazos`,`Balanceo`,`basico`,`side`,1.8,`Balancea los brazos adelante y atrás, como al caminar, sin mover los pies.`,`adelante`,`atrás`,`Balanceo de brazos. Amplio y flojo.`,[B(0,0,.03,.02,.06,.08,-.05,.08,-.7,.2,.55,.25),B(.5,0,.03,-.02,.06,.08,-.05,.08,.55,.25,-.7,.2),B(1,0,.03,.02,.06,.08,-.05,.08,-.7,.2,.55,.25)]),V(`respirar`,`Respirar con brazos`,`Respirar`,`basico`,`front`,3.4,`Inhala subiendo los brazos. Exhala bajándolos. Sin prisa.`,`inhala`,`exhala`,`Respirar con los brazos. Sube al inspirar, baja al soltar.`,[B(0,0,.04,.02,.04,.06,-.04,.06,.25,.3,-.25,.3),B(.45,-2,-.06,-.08,.04,.06,-.04,.06,-1.4,.12,-1.4,.12),B(.55,-2,-.06,-.08,.04,.06,-.04,.06,-1.4,.12,-1.4,.12),B(1,0,.04,.02,.04,.06,-.04,.06,.25,.3,-.25,.3)]),V(`sentadilla`,`Sentadilla suave`,`Sentadilla`,`medio`,`side`,2.6,`Baja un poco doblando rodillas. Sube sin bloquear las rodillas.`,`baja`,`sube`,`Sentadilla suave. Baja como hacia un taburete bajo.`,[B(0,0,.05,0,.06,.08,-.05,.08,.3,.5,.25,.45),B(.45,28,.18,.05,.55,1.35,-.48,1.4,.55,.7,.5,.65),B(.55,28,.18,.05,.55,1.35,-.48,1.4,.55,.7,.5,.65),B(1,0,.05,0,.06,.08,-.05,.08,.3,.5,.25,.45)]),V(`curl-brazo`,`Flexión de brazos`,`Flexión`,`medio`,`side`,2,`Codos pegados al cuerpo. Sube las manos hacia los hombros y baja despacio.`,`flexiona`,`estira`,`Flexión de brazos sin peso. Codos fijos, manos a los hombros.`,[B(0,0,.02,0,.04,.06,-.04,.06,.15,.15,.1,.15),B(.4,0,.02,0,.04,.06,-.04,.06,.2,1.5,.15,1.45),B(.55,0,.02,0,.04,.06,-.04,.06,.2,1.5,.15,1.45),B(1,0,.02,0,.04,.06,-.04,.06,.15,.15,.1,.15)]),V(`equilibrio`,`Equilibrio de una pierna`,`Equilibrio`,`medio`,`side`,3.2,`Apóyate en una pierna y levanta la otra un poco. Usa una silla si hace falta.`,`sostiene`,`cambia`,`Equilibrio. Una pierna. Si te tambaleas, sujétate a una silla.`,[B(0,2,.05,0,.1,.1,-.05,.08,.4,.5,.35,.45),B(.2,4,.08,.05,.7,.95,-.05,.1,.6,.6,.5,.5),B(.45,4,.08,.05,.7,.95,-.05,.1,.6,.6,.5,.5),B(.55,2,.05,0,.1,.1,-.05,.08,.4,.5,.35,.45),B(.75,4,.08,.05,-.05,.1,.7,.95,.5,.5,.6,.6),B(1,2,.05,0,.1,.1,-.05,.08,.4,.5,.35,.45)]),V(`abd-pie`,`Abdominal de pie`,`Abdomen pie`,`medio`,`side`,2.2,`Sube una rodilla hacia el pecho un poco. Baja y cambia de pierna.`,`sube`,`baja`,`Abdominal de pie. Rodilla hacia el pecho, sin forzar.`,[B(0,4,.08,.05,.08,.1,-.06,.08,.2,.4,.15,.35),B(.35,8,.18,.1,.85,1.1,-.08,.1,.5,.7,.2,.3),B(.5,4,.08,.05,.08,.1,-.06,.08,.2,.4,.15,.35),B(.85,8,.18,.1,-.08,.1,.85,1.1,.2,.3,.5,.7),B(1,4,.08,.05,.08,.1,-.06,.08,.2,.4,.15,.35)]),V(`zancada`,`Zancada corta`,`Zancada`,`medio`,`side`,2.6,`Un pie adelante, baja un poco. Sube y cambia de pierna. Pasos cortos.`,`baja`,`cambia`,`Zancada corta. El de atrás se dobla, sin tocar el suelo.`,[B(0,4,.06,0,.35,.55,-.35,.45,.25,.4,.2,.35),B(.4,18,.14,.04,.55,1.15,-.5,1.05,.45,.55,.35,.45),B(.5,4,.06,0,.08,.1,-.06,.08,.25,.35,.2,.3),B(.9,18,.14,.04,-.5,1.05,.55,1.15,.35,.45,.45,.55),B(1,4,.06,0,.35,.55,-.35,.45,.25,.4,.2,.35)]),V(`rodilla-alta`,`Rodilla al pecho`,`Rodilla`,`medio`,`side`,2,`Sube la rodilla más alta, hacia el pecho, y cambia.`,`alta`,`cambia`,`Rodilla al pecho. Súbela más que en la marcha.`,[B(0,2,.06,.02,.12,.12,-.06,.08,.15,.3,.1,.25),B(.4,6,.16,.08,1.05,1.25,-.08,.1,.55,.85,.15,.25),B(.5,2,.06,.02,.12,.12,-.06,.08,.15,.3,.1,.25),B(.9,6,.16,.08,-.08,.1,1.05,1.25,.15,.25,.55,.85),B(1,2,.06,.02,.12,.12,-.06,.08,.15,.3,.1,.25)]),V(`patada-atras`,`Patada atrás`,`Patada`,`medio`,`side`,2.2,`Lleva un talón hacia atrás, como a dar una patada suave. Cambia.`,`atrás`,`cambia`,`Patada atrás. El talón se aleja, rodilla suave.`,[B(0,2,.05,0,.08,.1,-.06,.08,.25,.35,.2,.3),B(.4,6,.12,.04,-.55,.35,-.04,.08,.45,.4,.2,.3),B(.5,2,.05,0,.08,.1,-.06,.08,.25,.35,.2,.3),B(.9,6,.12,.04,-.04,.08,-.55,.35,.2,.3,.45,.4),B(1,2,.05,0,.08,.1,-.06,.08,.25,.35,.2,.3)]),V(`giros-tronco`,`Giros de cintura`,`Giros`,`medio`,`front`,2.8,`Manos a la cintura. Gira el tronco a un lado y al otro, despacio.`,`gira`,`otro`,`Giros de cintura. Hombros se mueven, cadera quieta.`,[B(0,0,0,0,.06,.08,-.06,.08,.45,1.1,-.45,1.1),B(.25,1,.28,.18,.08,.1,-.08,.1,.2,1.05,-.55,1.15),B(.5,0,0,0,.06,.08,-.06,.08,.45,1.1,-.45,1.1),B(.75,1,-.28,-.18,.08,.1,-.08,.1,.55,1.15,-.2,1.05),B(1,0,0,0,.06,.08,-.06,.08,.45,1.1,-.45,1.1)]),V(`gemelos`,`Gemelos`,`Gemelos`,`medio`,`side`,2,`Sube más de puntillas y aguanta un segundo. Baja controlando.`,`aguanta`,`baja`,`Gemelos. Más alto que las puntillas suaves.`,[B(0,0,.02,0,.03,.05,-.03,.05,.3,.4,.25,.35),B(.4,-16,-.06,-.05,.01,.02,-.01,.02,-.2,.25,-.18,.25),B(.55,-16,-.06,-.05,.01,.02,-.01,.02,-.2,.25,-.18,.25),B(1,0,.02,0,.03,.05,-.03,.05,.3,.4,.25,.35)]),V(`puente`,`Puente suave`,`Puente`,`medio`,`side`,2.8,`Rodillas flexionadas, sube la cadera un poco y baja. Sin forzar la espalda.`,`cadera arriba`,`baja`,`Puente suave. Sube la cadera y baja con control.`,[B(0,18,.35,.2,.9,1.5,.85,1.45,1.1,.3,1,.25),B(.4,-8,.55,.25,.95,1.55,.9,1.5,1.15,.25,1.05,.2),B(.55,-8,.55,.25,.95,1.55,.9,1.5,1.15,.25,1.05,.2),B(1,18,.35,.2,.9,1.5,.85,1.45,1.1,.3,1,.25)]),V(`sentadilla-honda`,`Sentadilla honda`,`Honda`,`dificil`,`side`,2.8,`Baja más, como a sentarte en una silla baja. Sube empujando los talones.`,`fondo`,`sube`,`Sentadilla honda. Baja más que la suave.`,[B(0,0,.05,0,.06,.08,-.05,.08,.35,.45,.3,.4),B(.45,42,.28,.08,.75,1.55,-.62,1.58,.7,.85,.65,.8),B(.55,42,.28,.08,.75,1.55,-.62,1.58,.7,.85,.65,.8),B(1,0,.05,0,.06,.08,-.05,.08,.35,.45,.3,.4)]),V(`zancada-honda`,`Zancada honda`,`Zancada honda`,`dificil`,`side`,2.8,`Paso largo adelante. Baja hasta casi rozar con la rodilla de atrás.`,`fondo`,`cambia`,`Zancada honda. Paso largo, baja más.`,[B(0,4,.08,0,.45,.6,-.4,.5,.3,.4,.25,.35),B(.4,26,.2,.06,.7,1.4,-.65,1.35,.55,.6,.4,.5),B(.5,4,.08,0,.08,.1,-.06,.08,.3,.35,.25,.3),B(.9,26,.2,.06,-.65,1.35,.7,1.4,.4,.5,.55,.6),B(1,4,.08,0,.45,.6,-.4,.5,.3,.4,.25,.35)]),V(`jumping`,`Saltos abiertos`,`Saltos`,`dificil`,`front`,1.4,`Abre piernas y brazos a la vez, como una estrella. Cierra. Un salto suave.`,`abre`,`cierra`,`Saltos abiertos. Si no quieres saltar, da el paso.`,[B(0,0,0,0,.08,.1,-.08,.1,.2,.25,-.2,.25),B(.45,-14,-.04,-.04,.35,.15,-.35,.15,-1.2,.2,1.2,.2),B(.55,-8,-.02,-.02,.32,.12,-.32,.12,-1.1,.2,1.1,.2),B(1,0,0,0,.08,.1,-.08,.1,.2,.25,-.2,.25)]),V(`plancha`,`Plancha`,`Plancha`,`dificil`,`side`,3.4,`Cuerpo recto, apoyado en manos y puntas. Aguanta y suelta un poco.`,`aguanta`,`suelta`,`Plancha. Cuerpo en línea, sin hundir la cadera.`,[B(0,58,1.22,.15,-.15,.08,-.12,.06,.95,.15,.9,.12),B(.4,54,1.18,.12,-.12,.06,-.1,.05,.92,.12,.88,.1),B(.6,54,1.18,.12,-.12,.06,-.1,.05,.92,.12,.88,.1),B(1,58,1.22,.15,-.15,.08,-.12,.06,.95,.15,.9,.12)]),V(`flexiones-pared`,`Flexiones de pared`,`Pared`,`dificil`,`side`,2.4,`Manos a la pared, inclínate y empuja. Como una flexión de pie.`,`cerca`,`empuja`,`Flexiones de pared. Inclínate y empuja.`,[B(0,4,.35,.1,.15,.2,-.08,.12,-.85,.15,-.8,.12),B(.45,10,.55,.18,.22,.28,-.1,.16,-.55,.85,-.5,.8),B(.55,10,.55,.18,.22,.28,-.1,.16,-.55,.85,-.5,.8),B(1,4,.35,.1,.15,.2,-.08,.12,-.85,.15,-.8,.12)]),V(`escaladores`,`Escaladores`,`Escaladores`,`dificil`,`side`,1.2,`En plancha, lleva una rodilla al pecho y cambia rápido.`,`rodilla`,`cambia`,`Escaladores. Una rodilla y la otra, sin parar.`,[B(0,56,1.15,.12,.85,1.2,-.18,.1,.95,.15,.9,.12),B(.5,56,1.15,.12,-.18,.1,.85,1.2,.95,.15,.9,.12),B(1,56,1.15,.12,.85,1.2,-.18,.1,.95,.15,.9,.12)]),V(`sentadilla-salto`,`Sentadilla con salto`,`Con salto`,`dificil`,`side`,2,`Baja a sentadilla y sube con un saltito. Aterriza suave.`,`baja`,`salta`,`Sentadilla con salto. Aterriza en puntas, rodillas blandas.`,[B(0,0,.05,0,.06,.08,-.05,.08,.3,.4,.25,.35),B(.35,30,.2,.06,.58,1.38,-.5,1.4,.5,.65,.45,.6),B(.55,-18,-.08,-.06,.08,.15,-.06,.12,-.4,.25,-.35,.22),B(.7,8,.08,.02,.2,.4,-.16,.38,.2,.35,.15,.3),B(1,0,.05,0,.06,.08,-.05,.08,.3,.4,.25,.35)]),V(`fondos`,`Fondos de tríceps`,`Fondos`,`dificil`,`side`,2.4,`Manos atrás, como en el borde de una silla. Dobla los codos y estira.`,`dobla`,`estira`,`Fondos. Codos hacia atrás, pecho al frente.`,[B(0,22,.12,.04,.55,1.25,.5,1.2,1.15,.35,1.1,.3),B(.45,34,.18,.08,.7,1.45,.65,1.4,1.25,1.15,1.2,1.1),B(.55,34,.18,.08,.7,1.45,.65,1.4,1.25,1.15,1.2,1.1),B(1,22,.12,.04,.55,1.25,.5,1.2,1.15,.35,1.1,.3)],{silla:!0}),V(`rodillas-correr`,`Correr en el sitio`,`Correr`,`dificil`,`side`,1.1,`Rodillas altas, más rápido que la marcha. Como correr sin avanzar.`,`rápido`,`cambia`,`Correr en el sitio. Rodillas altas, brazos al ritmo.`,[B(0,2,.06,.03,.85,1.15,-.15,.2,-.7,.35,.6,.4),B(.5,2,.06,-.03,-.15,.2,.85,1.15,.6,.4,-.7,.35),B(1,2,.06,.03,.85,1.15,-.15,.2,-.7,.35,.6,.4)]),V(`burpee`,`Burpee suave`,`Burpee`,`dificil`,`side`,3.2,`Baja, manos al suelo, una pierna atrás y la otra, y vuelve a subir.`,`suelo`,`arriba`,`Burpee suave. Sin salto si no apetece.`,[B(0,0,.04,0,.06,.08,-.05,.08,.2,.25,.15,.22),B(.25,36,.45,.15,.7,1.4,.65,1.35,.85,.4,.8,.35),B(.5,54,1.1,.12,-.12,.1,.7,1.15,.95,.15,.9,.12),B(.7,36,.45,.15,.7,1.4,.65,1.35,.85,.4,.8,.35),B(1,0,.04,0,.06,.08,-.05,.08,.2,.25,.15,.22)]),V(`marcha-silla`,`Marcha sentada`,`Marcha silla`,`mayores`,`side`,1.8,`Sentada, sube una rodilla y luego la otra, sin levantarte.`,`rodilla`,`cambia`,`Marcha sentada. Una rodilla y la otra.`,[B(0,54,.06,.02,1.52,1.55,1.46,1.52,.35,.7,.3,.65),B(.45,54,.08,.04,1.22,1.25,1.48,1.54,.45,.75,.3,.6),B(1,54,.06,.02,1.52,1.55,1.46,1.52,.35,.7,.3,.65)],{silla:!0,reps:6}),V(`rodilla-silla`,`Estirar la rodilla`,`Rodilla silla`,`mayores`,`side`,2.6,`Sentada, estira una pierna al frente y dóblala. Cambia.`,`estira`,`dobla`,`Estirar la rodilla sentada. Punta al techo.`,[B(0,54,.06,.02,1.52,1.55,1.46,1.52,.3,.65,.28,.6),B(.4,54,.07,.04,1.55,.18,1.46,1.52,.35,.7,.28,.6),B(.55,54,.07,.04,1.55,.18,1.46,1.52,.35,.7,.28,.6),B(1,54,.06,.02,1.52,1.55,1.46,1.52,.3,.65,.28,.6)],{silla:!0,reps:6}),V(`brazos-silla`,`Brazos sentada`,`Brazos silla`,`mayores`,`front`,2.8,`Sentada, sube los brazos por delante y bájalo despacio.`,`arriba`,`abajo`,`Brazos sentada. Sube y baja sin encoger los hombros.`,[B(0,54,.04,0,1.5,1.52,1.46,1.5,.2,.35,-.2,.35),B(.45,54,-.04,-.08,1.5,1.52,1.46,1.5,-1.3,.15,-1.3,.15),B(.55,54,-.04,-.08,1.5,1.52,1.46,1.5,-1.3,.15,-1.3,.15),B(1,54,.04,0,1.5,1.52,1.46,1.5,.2,.35,-.2,.35)],{silla:!0,reps:6}),V(`tobillo-silla`,`Tobillos sentada`,`Tobillo silla`,`mayores`,`side`,2,`Sentada, punta y talón con un pie. Círculos si te apetece.`,`punta`,`talón`,`Tobillos sentada. Punta, talón, despacio.`,[B(0,54,.06,0,1.52,1.42,1.46,1.5,.3,.6,.28,.55),B(.45,54,.06,0,1.55,1.7,1.46,1.5,.3,.6,.28,.55),B(1,54,.06,0,1.52,1.42,1.46,1.5,.3,.6,.28,.55)],{silla:!0,reps:6}),V(`hombros-silla`,`Encoger hombros`,`Hombros silla`,`mayores`,`side`,2.4,`Sentada, sube los hombros a las orejas y suéltalos.`,`sube`,`suelta`,`Encoger hombros. Sube, suelta. Cuello largo.`,[B(0,54,.06,0,1.5,1.52,1.46,1.5,.15,.4,.1,.38),B(.4,54,-.12,-.08,1.5,1.52,1.46,1.5,-.25,.45,-.22,.42),B(.55,54,-.12,-.08,1.5,1.52,1.46,1.5,-.25,.45,-.22,.42),B(1,54,.06,0,1.5,1.52,1.46,1.5,.15,.4,.1,.38)],{silla:!0,reps:6}),V(`talon-silla`,`Talones sentada`,`Talón silla`,`mayores`,`side`,2.2,`Sentada, levanta los talones y apóyalos. Como caminar sin levantarte.`,`talón`,`apoya`,`Talones sentada. Sube y baja los talones.`,[B(0,54,.06,0,1.5,1.52,1.46,1.5,.3,.6,.28,.55),B(.45,54,.06,0,1.48,1.32,1.44,1.3,.3,.6,.28,.55),B(1,54,.06,0,1.5,1.52,1.46,1.5,.3,.6,.28,.55)],{silla:!0,reps:6}),V(`abrir-rodillas`,`Abrir rodillas`,`Abrir`,`mayores`,`front`,2.8,`Sentada, abre las rodillas un poco y júntalas. Sin forzar.`,`abre`,`junta`,`Abrir rodillas. Poco a poco, como un libro.`,[B(0,54,.04,0,1.48,1.5,1.44,1.48,.4,1,-.4,1),B(.45,54,.04,0,1.28,1.38,1.58,1.55,.35,.95,-.35,.95),B(.55,54,.04,0,1.28,1.38,1.58,1.55,.35,.95,-.35,.95),B(1,54,.04,0,1.48,1.5,1.44,1.48,.4,1,-.4,1)],{silla:!0,reps:6}),V(`cuello-silla`,`Cuello sentada`,`Cuello silla`,`mayores`,`side`,2.8,`Sentada, mira arriba y abajo muy despacio. Sin dar vueltas.`,`arriba`,`abajo`,`Cuello sentada. Arriba y abajo, nada de círculos fuertes.`,[B(0,54,.04,0,1.5,1.52,1.46,1.5,.2,.5,.15,.45),B(.3,54,-.06,-.45,1.5,1.52,1.46,1.5,.2,.5,.15,.45),B(.5,54,.04,0,1.5,1.52,1.46,1.5,.2,.5,.15,.45),B(.75,54,.08,.35,1.5,1.52,1.46,1.5,.2,.5,.15,.45),B(1,54,.04,0,1.5,1.52,1.46,1.5,.2,.5,.15,.45)],{silla:!0,reps:6}),V(`lateral-silla`,`Inclinar sentada`,`Lado silla`,`mayores`,`front`,3.2,`Sentada, un brazo baja hacia el suelo, el otro descansa. Cambia de lado.`,`inclina`,`centro`,`Inclinar sentada. Poco, sin levantarte.`,[B(0,54,.02,0,1.5,1.52,1.46,1.5,.2,.4,-.2,.4),B(.3,54,.22,.12,1.52,1.54,1.44,1.48,.55,.5,-.15,.35),B(.5,54,.02,0,1.5,1.52,1.46,1.5,.2,.4,-.2,.4),B(.8,54,-.22,-.12,1.52,1.54,1.44,1.48,.15,.35,-.55,.5),B(1,54,.02,0,1.5,1.52,1.46,1.5,.2,.4,-.2,.4)],{silla:!0,reps:6}),V(`respirar-silla`,`Respirar sentada`,`Aire silla`,`mayores`,`front`,3.6,`Sentada, inhala subiendo las manos al pecho. Exhala bajándolas.`,`inhala`,`exhala`,`Respirar sentada. El aire entra, las manos suben.`,[B(0,54,.06,.02,1.5,1.52,1.46,1.5,.35,.7,-.35,.7),B(.45,54,-.05,-.06,1.5,1.52,1.46,1.5,-.35,1.15,.35,1.15),B(.55,54,-.05,-.06,1.5,1.52,1.46,1.5,-.35,1.15,.35,1.15),B(1,54,.06,.02,1.5,1.52,1.46,1.5,.35,.7,-.35,.7)],{silla:!0,reps:6}),V(`crunch`,`Encogimiento`,`Crunch`,`abs`,`side`,2.6,`Tumbada, rodillas dobladas. Sube un poco los hombros y baja.`,`sube`,`baja`,`Encogimiento. Hombros del suelo, no el cuello.`,[B(0,58,1.22,.2,1.05,1.55,1,1.5,-.15,1.35,-.12,1.3),B(.4,50,.85,.05,1.08,1.55,1.02,1.5,-.45,1.45,-.4,1.4),B(.55,50,.85,.05,1.08,1.55,1.02,1.5,-.45,1.45,-.4,1.4),B(1,58,1.22,.2,1.05,1.55,1,1.5,-.15,1.35,-.12,1.3)]),V(`bicicleta`,`Bicicleta`,`Bicicleta`,`abs`,`side`,1.6,`Tumbada, pedalea en el aire. Codo al contrario si puedes.`,`pedalea`,`cambia`,`Bicicleta. Pedalea despacio, vientre metido.`,[B(0,54,.95,.08,1.15,1.45,.45,.7,-.35,1.2,.15,.5),B(.5,54,.95,.08,.45,.7,1.15,1.45,.15,.5,-.35,1.2),B(1,54,.95,.08,1.15,1.45,.45,.7,-.35,1.2,.15,.5)]),V(`plancha-rodillas`,`Plancha de rodillas`,`Plancha suave`,`abs`,`side`,3.2,`De rodillas, cuerpo en línea hasta las manos. Aguanta.`,`aguanta`,`suelta`,`Plancha de rodillas. Más suave que la entera.`,[B(0,48,.95,.12,.85,1.35,.8,1.3,.9,.15,.85,.12),B(.45,46,.9,.1,.88,1.38,.82,1.32,.88,.12,.83,.1),B(.55,46,.9,.1,.88,1.38,.82,1.32,.88,.12,.83,.1),B(1,48,.95,.12,.85,1.35,.8,1.3,.9,.15,.85,.12)]),V(`piernas-arriba`,`Subir piernas`,`Piernas`,`abs`,`side`,2.6,`Tumbada, sube las piernas juntas un poco y bájalo sin tocar del todo.`,`sube`,`baja`,`Subir piernas. Lumbar pegada al suelo.`,[B(0,58,1.25,.18,.55,.2,.5,.18,1.05,.2,1,.18),B(.45,56,1.2,.15,1.15,.15,1.1,.12,1.05,.2,1,.18),B(.55,56,1.2,.15,1.15,.15,1.1,.12,1.05,.2,1,.18),B(1,58,1.25,.18,.55,.2,.5,.18,1.05,.2,1,.18)]),V(`giros-rusos`,`Giros rusos`,`Rusos`,`abs`,`front`,2.4,`Sentada, pies en el suelo. Gira el tronco a un lado y al otro.`,`gira`,`otro`,`Giros rusos. El pecho gira, no solo los brazos.`,[B(0,36,.15,.05,.85,1.4,.8,1.35,.35,.9,-.35,.9),B(.25,36,.35,.2,.88,1.42,.78,1.33,.15,.85,-.55,1.05),B(.5,36,.15,.05,.85,1.4,.8,1.35,.35,.9,-.35,.9),B(.75,36,-.35,-.2,.88,1.42,.78,1.33,.55,1.05,-.15,.85),B(1,36,.15,.05,.85,1.4,.8,1.35,.35,.9,-.35,.9)]),V(`bicho-muerto`,`Bicho muerto`,`Bicho`,`abs`,`side`,2.8,`Tumbada, brazo y pierna contrarios se alejan y vuelven. Cambia.`,`estira`,`cambia`,`Bicho muerto. Un brazo y la pierna de enfrente.`,[B(0,56,1.2,.15,.95,1.4,.9,1.35,-.4,.4,-.35,.35),B(.4,56,1.18,.12,.45,.25,.9,1.35,-1.15,.15,-.35,.35),B(.5,56,1.2,.15,.95,1.4,.9,1.35,-.4,.4,-.35,.35),B(.9,56,1.18,.12,.95,1.4,.45,.25,-.4,.4,-1.15,.15),B(1,56,1.2,.15,.95,1.4,.9,1.35,-.4,.4,-.35,.35)]),V(`oblicuos`,`Oblicuos de pie`,`Oblicuos`,`abs`,`front`,2.4,`De pie, mano a la sien. Inclina el tronco y vuelve. Cambia de lado.`,`inclina`,`sube`,`Oblicuos de pie. Costado, no el cuello.`,[B(0,0,.02,0,.06,.08,-.06,.08,-1.15,.5,.25,.3),B(.35,4,.32,.2,.1,.12,-.1,.12,-1.25,.55,.45,.4),B(.5,0,.02,0,.06,.08,-.06,.08,.25,.3,-1.15,.5),B(.85,4,-.32,-.2,.1,.12,-.1,.12,.45,.4,-1.25,.55),B(1,0,.02,0,.06,.08,-.06,.08,-1.15,.5,.25,.3)]),V(`puente-abs`,`Puente de abdomen`,`Puente vientre`,`abs`,`side`,2.8,`Igual que el puente, pero aprieta el vientre al subir.`,`aprieta`,`baja`,`Puente de abdomen. Cadera arriba, ombligo adentro.`,[B(0,20,.38,.2,.92,1.52,.88,1.48,1.12,.28,1.05,.24),B(.4,-10,.58,.26,.98,1.56,.92,1.52,1.16,.22,1.08,.18),B(.55,-10,.58,.26,.98,1.56,.92,1.52,1.16,.22,1.08,.18),B(1,20,.38,.2,.92,1.52,.88,1.48,1.12,.28,1.05,.24)]),V(`superhombre`,`Superhombre`,`Super`,`abs`,`side`,2.8,`Boca abajo, sube un poco brazos y piernas. Baja. Como volar.`,`vuela`,`baja`,`Superhombre. Poco, sin tirar del cuello.`,[B(0,62,1.35,.2,-.05,.08,.02,.08,1.15,.15,1.1,.12),B(.4,58,1.22,.05,-.28,.12,-.22,.1,-.85,.2,-.8,.18),B(.55,58,1.22,.05,-.28,.12,-.22,.1,-.85,.2,-.8,.18),B(1,62,1.35,.2,-.05,.08,.02,.08,1.15,.15,1.1,.12)]),V(`vientre`,`Vientre adentro`,`Vientre`,`abs`,`front`,3,`De pie, manos en la cintura. Mete el ombligo y suelta el aire.`,`mete`,`suelta`,`Vientre adentro. Ombligo hacia la espalda, sin aguantar la respiración.`,[B(0,0,.04,0,.06,.08,-.06,.08,.45,1.05,-.45,1.05),B(.4,2,-.08,-.04,.05,.07,-.05,.07,.4,1,-.4,1),B(.55,2,-.08,-.04,.05,.07,-.05,.07,.4,1,-.4,1),B(1,0,.04,0,.06,.08,-.06,.08,.45,1.05,-.45,1.05)])];function Ki(e){return e.reps??8}function qi(e,t,n){return e+(t-e)*n}function Ji(e,t,n){let r=(e,t)=>qi(e,t,n);return{t:r(e.t,t.t),hipDelta:r(e.hipDelta,t.hipDelta),torso:r(e.torso,t.torso),head:r(e.head,t.head),legF:{t:r(e.legF.t,t.legF.t),k:r(e.legF.k,t.legF.k)},legB:{t:r(e.legB.t,t.legB.t),k:r(e.legB.k,t.legB.k)},armF:{s:r(e.armF.s,t.armF.s),e:r(e.armF.e,t.armF.e)},armB:{s:r(e.armB.s,t.armB.s),e:r(e.armB.e,t.armB.e)}}}function Yi(e,t){let n=e.frames,r=n[0],i=n[n.length-1];if(!r||!i)return{t:0,hipDelta:0,torso:0,head:0,legF:{t:.04,k:.06},legB:{t:-.04,k:.06},armF:{s:.1,e:.2},armB:{s:-.1,e:.2}};if(t<=r.t)return Object.assign({},r);for(let e=0;e<n.length-1;e++){let r=n[e],i=n[e+1];if(r&&i&&t>=r.t&&t<=i.t){let e=i.t-r.t||1e-6,n=(t-r.t)/e;return Ji(r,i,n*n*(3-2*n))}}return Object.assign({},i)}var Xi={chica:{skin:`#f2c7a3`,skinD:`#d9a47c`,ink:`#6a4a34`,hair:`#c35620`,hairD:`#8d3910`,top:`#2bb5ae`,topD:`#1a8e88`,short:`#1b6864`,shoe:`#3a2b22`,sole:`#f3eadc`,blush:`#f09b88`,lip:`#c45e4c`,eye:`#4a3226`},chico:{skin:`#e7b790`,skinD:`#c9946a`,ink:`#5a3d2c`,hair:`#2a201a`,hairD:`#17120e`,top:`#2a9aa3`,topD:`#1c7880`,short:`#2a3a48`,shoe:`#1c1c1c`,sole:`#ececec`,blush:`#dc8a72`,lip:`#a06050`,eye:`#241910`}};function Zi(e,t,n,r,i,a){let o=e+n*Math.sin(i),s=t+n*Math.cos(i),c=i-a;return{root:{x:e,y:t},mid:{x:o,y:s},end:{x:o+r*Math.sin(c),y:s+r*Math.cos(c)},endAng:c}}function Qi(e,t,n){return{x:e.x+(t.x-e.x)*n,y:e.y+(t.y-e.y)*n}}function H(e,t,n,r,i,a,o){let s=n.x-t.x,c=n.y-t.y,l=Math.hypot(s,c)||1,u=-c/l,d=s/l;e.beginPath(),e.moveTo(t.x+u*r,t.y+d*r),e.lineTo(n.x+u*i,n.y+d*i),e.arc(n.x,n.y,i,Math.atan2(d,u),Math.atan2(-d,-u)),e.lineTo(t.x-u*r,t.y-d*r),e.arc(t.x,t.y,r,Math.atan2(-d,-u),Math.atan2(d,u)),e.closePath(),e.fillStyle=a,e.fill(),e.strokeStyle=o,e.lineWidth=1.35,e.stroke()}function $i(e,t,n,r,i){e.beginPath(),e.arc(t.x,t.y,n,0,Math.PI*2),e.fillStyle=r,e.fill(),i&&(e.strokeStyle=i,e.lineWidth=1.2,e.stroke())}function ea(e,t){let n=e.createLinearGradient(0,0,0,R);n.addColorStop(0,`#efe4d4`),n.addColorStop(.55,`#f6ece0`),n.addColorStop(1,`#eadcc8`),e.fillStyle=n,e.fillRect(0,0,Ni,R),e.fillStyle=`rgba(196,92,73,0.06)`,e.fillRect(0,0,18,R),e.fillRect(342,0,18,R);let r=e.createLinearGradient(0,R,0,Pi);r.addColorStop(0,`#c4a574`),r.addColorStop(.35,`#b08958`),r.addColorStop(1,`#8d6a40`),e.fillStyle=r,e.fillRect(0,R,Ni,44),e.strokeStyle=`rgba(90,60,30,0.18)`,e.lineWidth=1;for(let t=0;t<8;t++){let n=322+t*8;e.beginPath(),e.moveTo(0,n),e.lineTo(Ni,n+(t%2==0?2:-1)),e.stroke()}e.fillStyle=`#d7c4a4`,e.fillRect(0,R,Ni,3),e.fillStyle=`#c45c49`,e.beginPath(),e.roundRect(Ni/2-86,309,172,12,6),e.fill(),e.fillStyle=`#9a4036`,e.beginPath(),e.roundRect(Ni/2-86,321,172,4,2),e.fill(),t===`front`&&(e.strokeStyle=`rgba(120,90,50,.08)`,e.setLineDash([4,8]),e.beginPath(),e.moveTo(Ni/2,40),e.lineTo(Ni/2,304),e.stroke(),e.setLineDash([]))}function ta(e,t){let n=t+6;e.fillStyle=`#8b5a32`,e.beginPath(),e.roundRect(142,n,76,10,3),e.fill(),e.fillStyle=`#6e4526`,e.fillRect(146,n+10,7,R-n-10),e.fillRect(207,n+10,7,R-n-10),e.fillStyle=`#7a4e2b`,e.beginPath(),e.roundRect(202,n-52,10,54,3),e.fill(),e.fillStyle=`#c4a078`,e.beginPath(),e.roundRect(144,n+1,72,6,2),e.fill()}var na={};function ra(e,t){return x(`/casa/gym/${e}/${t}.png`)}var ia=[`head`,`torso`,`upperarm-L`,`upperarm-R`,`forearm-L`,`forearm-R`,`hand-L`,`hand-R`,`thigh-L`,`thigh-R`,`calf-L`,`calf-R`,`foot-bare-L`,`foot-bare-R`];function aa(e,t,n,r,i,a){if(!t||!t.naturalHeight)return!1;let o=r.x-n.x,s=r.y-n.y,c=Math.max(8,Math.hypot(o,s)||1),l=t.naturalWidth,u=t.naturalHeight,d=l>u*1.08;if(e.save(),e.translate(n.x,n.y),d){e.rotate(Math.atan2(s,o));let n=c*(i||1.12),r=Math.min(u/l*n,c*.46);a===`R`?(e.scale(-1,1),e.drawImage(t,-n,-r/2,n,r)):e.drawImage(t,0,-r/2,n,r)}else{e.rotate(Math.atan2(o,s));let n=c*(i||1.12),r=Math.min(l/u*n,c*.46);e.drawImage(t,-r/2,0,r,n)}return e.restore(),!0}function oa(e,t,n,r){if(!t||!t.naturalHeight)return!1;let i=r.x-n.x,a=r.y-n.y,o=Math.max(12,Math.hypot(i,a)||1),s=t.naturalWidth,c=t.naturalHeight,l=o*1.08,u=Math.min(s/Math.max(c,1)*l*.72,o*.95);return e.save(),e.translate(n.x,n.y),e.rotate(Math.atan2(i,a)),e.drawImage(t,-u/2,-6,u,l),e.restore(),!0}function sa(e,t,n,r){if(!t||!t.naturalHeight)return!1;let i=t.naturalHeight,a=t.naturalWidth,o=Vi*2.9,s=Math.min(a/i*o,Vi*3.2);return e.save(),e.translate(n.x,n.y),e.rotate(r),e.drawImage(t,-s/2,-45.65,s,o),e.restore(),!0}function ca(e){let t=e===`chico`?`chico`:`chica`;if(na[t]&&na[t].ok)return Promise.resolve(!0);if(na[t]&&na[t].pending)return na[t].pending;let n={ok:!1,parts:{},pending:null};return na[t]=n,n.pending=Promise.all(ia.map(e=>new Promise(r=>{let i=new Image;i.onload=()=>{n.parts[e]=i,r()},i.onerror=()=>r(),i.src=ra(t,e)}))).then(()=>(n.ok=!!(n.parts.head&&n.parts.torso),n.pending=null,n.ok)),n.pending}function la(e){let t=e===`chico`?`chico`:`chica`;return na[t]&&na[t].ok?na[t]:null}function ua(e,t,n,r){let i=la(n);if(!i)return!1;let a=i.parts,o=Fi+t.hipDelta*z;r&&ta(e,o),e.save(),e.translate(Ni/2,o),e.scale(z,z);let s=(R-o)/z;e.fillStyle=`rgba(90,70,40,${.22*Math.max(.3,1-s/180)})`,e.beginPath(),e.ellipse(0,s,36,9,0,0,7),e.fill();let c={x:0,y:0},l={x:Bi*Math.sin(t.torso),y:-56*Math.cos(t.torso)},u=Zi(0,0,Ii,Li,t.legF.t,t.legF.k),d=Zi(0,0,Ii,Li,t.legB.t,t.legB.k),f=Zi(l.x,l.y,Ri,zi,t.armF.s,-t.armF.e),p=Zi(l.x,l.y,Ri,zi,t.armB.s,-t.armB.e),m=t.torso+t.head,h={x:l.x+Math.sin(m)*8,y:l.y-Math.cos(m)*8},g=e=>({x:e.end.x+Math.sin(e.endAng)*16,y:e.end.y+Math.cos(e.endAng)*16}),_=e=>({x:e.end.x+Math.sin(e.endAng)*11,y:e.end.y+Math.cos(e.endAng)*11});return aa(e,a[`upperarm-L`],p.root,p.mid,1.18,`L`),aa(e,a[`forearm-L`],p.mid,p.end,1.16,`L`),aa(e,a[`hand-L`],p.end,_(p),1.28,`L`),aa(e,a[`thigh-L`],d.root,d.mid,1.18,`L`),aa(e,a[`calf-L`],d.mid,d.end,1.16,`L`),aa(e,a[`foot-bare-L`],d.end,g(d),1.22,`L`),oa(e,a.torso,l,c),sa(e,a.head,h,m),aa(e,a[`thigh-R`],u.root,u.mid,1.18,`R`),aa(e,a[`calf-R`],u.mid,u.end,1.16,`R`),aa(e,a[`foot-bare-R`],u.end,g(u),1.22,`R`),aa(e,a[`upperarm-R`],f.root,f.mid,1.18,`R`),aa(e,a[`forearm-R`],f.mid,f.end,1.16,`R`),aa(e,a[`hand-R`],f.end,_(f),1.28,`R`),e.restore(),!0}function da(e,t,n,r,i){e.save(),e.translate(t.x,t.y),e.rotate(-n*.45+.22),e.fillStyle=i?r.ink:r.shoe,e.beginPath(),e.roundRect(-6,-5,22,11,5),e.fill(),e.fillStyle=r.sole,e.beginPath(),e.roundRect(-5,3,20,4,2),e.fill(),e.restore()}function fa(e,t,n,r){$i(e,t,r?4.2:4.8,r?n.skinD:n.skin,n.ink)}function pa(e,t,n,r,i){let a=r===`chica`,o=a?15.5:13.5,s=a?10.5:12,c=a?13.5:16,l=a?14.5:17.5,u=Qi(t,n,.38),d=Qi(t,n,.68),f=n.x-t.x,p=n.y-t.y,m=Math.hypot(f,p)||1,h=-p/m,g=f/m,_=(e,t,n)=>({x:e.x+h*t*n,y:e.y+g*t*n});e.beginPath(),e.moveTo(_(t,o,1).x,_(t,o,1).y),e.lineTo(_(u,s,1).x,_(u,s,1).y),e.lineTo(_(d,c,1).x,_(d,c,1).y),e.lineTo(_(n,l,1).x,_(n,l,1).y),e.lineTo(_(n,l,-1).x,_(n,l,-1).y),e.lineTo(_(d,c,-1).x,_(d,c,-1).y),e.lineTo(_(u,s,-1).x,_(u,s,-1).y),e.lineTo(_(t,o,-1).x,_(t,o,-1).y),e.closePath(),e.fillStyle=i.skin,e.fill(),e.strokeStyle=i.ink,e.lineWidth=1.4,e.stroke();let v=Qi(t,n,a?.42:.32),y=Qi(t,n,.98);if(e.beginPath(),e.moveTo(_(v,a?12:13,1).x,_(v,a?12:13,1).y),e.lineTo(_(y,l-1,1).x,_(y,l-1,1).y),e.lineTo(_(y,l-1,-1).x,_(y,l-1,-1).y),e.lineTo(_(v,a?12:13,-1).x,_(v,a?12:13,-1).y),e.closePath(),e.fillStyle=i.top,e.fill(),e.strokeStyle=i.topD,e.lineWidth=1.1,e.stroke(),a){let r=Qi(t,n,.62);e.fillStyle=i.topD,e.beginPath(),e.ellipse(r.x+h*5.5,r.y+g*5.5,5.2,4.2,Math.atan2(p,f),0,7),e.fill(),e.beginPath(),e.ellipse(r.x-h*5.5,r.y-g*5.5,5.2,4.2,Math.atan2(p,f),0,7),e.fill()}e.fillStyle=i.short,e.beginPath(),e.ellipse(t.x,t.y+3,o+1.5,11,0,0,7),e.fill()}function ma(e,t,n,r,i,a,o){let s=i===`chica`,c=Math.sin(o/380)*.12;e.save(),e.translate(t.x,t.y),e.rotate(n),$i(e,{x:0,y:2},20.1,a.ink),$i(e,{x:0,y:2},Vi,a.skin),s?(e.fillStyle=a.hairD,e.beginPath(),e.arc(0,-1,22.7,Math.PI*1.05,Math.PI*1.95),e.fill(),e.fillStyle=a.hair,e.beginPath(),e.arc(0,-2.5,21.1,Math.PI*1.08,Math.PI*1.92),e.fill(),e.save(),e.rotate(.35+c),e.fillStyle=a.hairD,e.beginPath(),e.ellipse(-16.5,10,5.5,14,.2,0,7),e.fill(),e.fillStyle=a.hair,e.beginPath(),e.ellipse(-16.5,9,4.4,12.5,.2,0,7),e.fill(),e.restore(),e.fillStyle=a.hair,e.beginPath(),e.moveTo(-17.5,-4),e.quadraticCurveTo(0,2,16.5,-3),e.quadraticCurveTo(4,-20.5,-6,-19.5),e.closePath(),e.fill()):(e.fillStyle=a.hairD,e.beginPath(),e.arc(0,-1,20.9,Math.PI*1.12,Math.PI*1.88),e.fill(),e.fillStyle=a.hair,e.beginPath(),e.arc(0,-2,19.7,Math.PI*1.15,Math.PI*1.85),e.fill(),e.fillStyle=a.skin,e.beginPath(),e.ellipse(0,6,13,12,0,0,7),e.fill());let l=o%4200<110;r===`front`?(e.fillStyle=a.skin,e.beginPath(),e.ellipse(0,5,13.5,12.5,0,0,7),e.fill(),s&&(e.fillStyle=a.hair,e.beginPath(),e.moveTo(-12,-2),e.quadraticCurveTo(0,4,12,-2),e.lineTo(12,-10),e.lineTo(-12,-10),e.closePath(),e.fill()),e.fillStyle=a.ink,e.beginPath(),e.ellipse(-5.4,-1.5,3.2,1.1,-.15,0,7),e.ellipse(5.4,-1.5,3.2,1.1,.15,0,7),e.fill(),l?(e.strokeStyle=a.ink,e.lineWidth=1.4,e.beginPath(),e.moveTo(-8,1.2),e.lineTo(-2.4,1.2),e.moveTo(2.4,1.2),e.lineTo(8,1.2),e.stroke()):(e.fillStyle=`#f7f4ee`,e.beginPath(),e.ellipse(-5.2,1.2,3.1,2.5,0,0,7),e.ellipse(5.2,1.2,3.1,2.5,0,0,7),e.fill(),e.fillStyle=a.eye,e.beginPath(),e.ellipse(-5.2,1.4,1.7,1.7,0,0,7),e.ellipse(5.2,1.4,1.7,1.7,0,0,7),e.fill(),e.fillStyle=`#fff`,e.beginPath(),e.arc(-4.5,.7,.7,0,7),e.arc(5.9,.7,.7,0,7),e.fill()),e.fillStyle=a.blush,e.globalAlpha=s?.55:.28,e.beginPath(),e.ellipse(-8.2,7.2,3.4,2.2,0,0,7),e.ellipse(8.2,7.2,3.4,2.2,0,0,7),e.fill(),e.globalAlpha=1,e.fillStyle=a.skinD,e.beginPath(),e.moveTo(0,3.5),e.lineTo(-1.4,6.6),e.lineTo(1.4,6.6),e.closePath(),e.fill(),e.strokeStyle=a.lip,e.lineWidth=1.6,e.lineCap=`round`,e.beginPath(),e.arc(0,8.2,3.6,.12*Math.PI,.88*Math.PI),e.stroke()):(e.fillStyle=a.skin,e.beginPath(),e.ellipse(7,5,11.5,12.5,0,0,7),e.fill(),$i(e,{x:-6,y:3},3.4,a.skinD,a.ink),l?(e.strokeStyle=a.ink,e.lineWidth=1.4,e.beginPath(),e.moveTo(5,2),e.lineTo(10,2),e.stroke()):(e.fillStyle=`#f7f4ee`,e.beginPath(),e.ellipse(7.2,2,2.8,2.3,0,0,7),e.fill(),e.fillStyle=a.eye,e.beginPath(),e.ellipse(7.6,2.2,1.5,1.5,0,0,7),e.fill(),e.fillStyle=`#fff`,e.beginPath(),e.arc(8.2,1.5,.6,0,7),e.fill()),e.fillStyle=a.skinD,e.beginPath(),e.moveTo(12,3),e.lineTo(16.5,6.5),e.lineTo(12,7.2),e.closePath(),e.fill(),e.fillStyle=a.blush,e.globalAlpha=s?.5:.25,e.beginPath(),e.ellipse(6,8,3,2,0,0,7),e.fill(),e.globalAlpha=1,e.strokeStyle=a.lip,e.lineWidth=1.5,e.beginPath(),e.arc(9,8.4,3.2,.15*Math.PI,.85*Math.PI),e.stroke()),e.restore()}function ha(e,t,n,r,i,a,o){if(o!==`dibujo`&&ua(e,t,r,a))return;let s=Xi[r],c=r===`chica`,l=Fi+t.hipDelta*z;a&&ta(e,l),e.save(),e.translate(Ni/2,l),e.scale(z,z);let u=(R-l)/z;e.fillStyle=`rgba(90,70,40,${.16*Math.max(.3,1-u/180)})`,e.beginPath(),e.ellipse(0,u,28,7,0,0,7),e.fill();let d={x:0,y:0},f={x:Bi*Math.sin(t.torso),y:-56*Math.cos(t.torso)},p=Zi(0,0,Ii,Li,t.legF.t,t.legF.k),m=Zi(0,0,Ii,Li,t.legB.t,t.legB.k),h=Zi(f.x,f.y,Ri,zi,t.armF.s,-t.armF.e),g=Zi(f.x,f.y,Ri,zi,t.armB.s,-t.armB.e),_=c?6.2:7.2,v=c?5.2:6.1,y=c?5.4:6.4,b=c?4.2:4.8;H(e,g.root,g.mid,y-.6,b,s.skinD,s.ink),H(e,g.mid,g.end,b,3.4,s.skinD,s.ink),fa(e,g.end,s,!0),H(e,m.root,m.mid,_,v,s.skinD,s.ink),H(e,m.mid,m.end,v-.4,4.2,s.skinD,s.ink),$i(e,m.mid,5.2,s.skinD,s.ink),da(e,m.end,m.endAng,s,!0),H(e,m.root,Qi(m.root,m.mid,.42),_+1.5,_+.4,s.short,s.ink),pa(e,d,f,r,s);let x=t.torso+t.head,S={x:f.x+Math.sin(x)*10,y:f.y-Math.cos(x)*10};H(e,f,S,c?5.5:6.4,4.6,s.skin,s.ink),ma(e,{x:S.x+Math.sin(x)*Vi*.95,y:S.y-Math.cos(x)*Vi*.95},x,n,r,s,i),H(e,p.root,p.mid,_+.6,v+.4,s.skin,s.ink),H(e,p.mid,p.end,v,4.6,s.skin,s.ink),$i(e,p.mid,5.6,s.skin,s.ink),da(e,p.end,p.endAng,s),H(e,p.root,Qi(p.root,p.mid,.42),_+2,_+.6,s.short,s.ink),H(e,h.root,h.mid,y,b+.3,s.skin,s.ink),H(e,h.mid,h.end,b+.2,3.6,s.skin,s.ink),$i(e,h.mid,4.4,s.skin,s.ink),fa(e,h.end,s),e.restore()}function ga(e,t){return{t:e.t,hipDelta:e.hipDelta*t,torso:e.torso*t,head:e.head*t,legF:{t:e.legF.t*t,k:e.legF.k*t},legB:{t:e.legB.t*t,k:e.legB.k*t},armF:{s:e.armF.s*t,e:e.armF.e*t},armB:{s:e.armB.s*t,e:e.armB.e*t}}}function _a(e,t,n,r,i,a=`chica`,o=`dibujo`){e.clearRect(0,0,Ni,Pi),ea(e,t.view);let s=Yi(t,n);o===`real`&&(s=ga(s,.38)),i&&(s.torso+=Math.sin(r/1e3*2.2)*.02),ha(e,s,t.view,a,r,t.silla,o)}function va(e,t){let n=e.getBoundingClientRect();if(!n.width||!n.height)return!1;let r=Math.min(window.devicePixelRatio||1,2);e.width=Math.round(n.width*r),e.height=Math.round(n.height*r);let i=Math.min(n.width*r/Ni,n.height*r/Pi),a=(n.width*r-Ni*i)/2,o=(n.height*r-Pi*i)/2;return t.setTransform(i,0,0,i,a,o),!0}function ya(e){return Hi[e]??String(e)}var ba={playing:!1,done:!1,reps:0,animT:0,last:0,mid:!1,voz:!0,lento:!1},xa=[{id:`dibujo`,nom:`Dibujo`},{id:`virginia`,nom:`Virginia`},{id:`real`,nom:`Real`}];
 
-  const NUMS = ["cero","uno","dos","tres","cuatro","cinco","seis","siete","ocho","nueve","diez",
-    "once","doce","trece","catorce","quince","dieciséis","diecisiete","dieciocho","diecinueve","veinte"];
-
-  const EXERCISES = [
-    {
-      id: "marcha", name: "Marcha en el sitio", tag: "mov", tagLabel: "Movilidad", view: "side", cycle: 1.4,
-      desc: "Levanta una rodilla y luego la otra, como si caminaras sin avanzar.",
-      cueUp: "rodilla", cueDown: "cambia",
-      intro: "Marcha en el sitio. Sube una rodilla y luego la otra.",
-      frames: [
-        { t:0,   hipDelta:0, torso:0.04, head:0.02, legF:{t:0.55,k:0.9}, legB:{t:-0.05,k:0.1}, armF:{s:-0.5,e:0.3}, armB:{s:0.45,e:0.35} },
-        { t:0.5, hipDelta:0, torso:0.04, head:-0.02,legF:{t:-0.05,k:0.1}, legB:{t:0.55,k:0.9}, armF:{s:0.45,e:0.35}, armB:{s:-0.5,e:0.3} },
-        { t:1,   hipDelta:0, torso:0.04, head:0.02, legF:{t:0.55,k:0.9}, legB:{t:-0.05,k:0.1}, armF:{s:-0.5,e:0.3}, armB:{s:0.45,e:0.35} },
-      ],
-    },
-    {
-      id: "abd-pie", name: "Abdominal de pie", tag: "abs", tagLabel: "Abdomen", view: "side", cycle: 2.2,
-      desc: "Sube una rodilla hacia el pecho un poco. Baja y cambia de pierna.",
-      cueUp: "sube", cueDown: "baja",
-      intro: "Abdominal de pie. Rodilla hacia el pecho, sin forzar.",
-      frames: [
-        { t:0,   hipDelta:4, torso:0.08, head:0.05, legF:{t:0.08,k:0.1}, legB:{t:-0.06,k:0.08}, armF:{s:0.2,e:0.4}, armB:{s:0.15,e:0.35} },
-        { t:0.35,hipDelta:8, torso:0.18, head:0.1,  legF:{t:0.85,k:1.1}, legB:{t:-0.08,k:0.1}, armF:{s:0.5,e:0.7}, armB:{s:0.2,e:0.3} },
-        { t:0.5, hipDelta:4, torso:0.08, head:0.05, legF:{t:0.08,k:0.1}, legB:{t:-0.06,k:0.08}, armF:{s:0.2,e:0.4}, armB:{s:0.15,e:0.35} },
-        { t:0.85,hipDelta:8, torso:0.18, head:0.1,  legF:{t:-0.08,k:0.1}, legB:{t:0.85,k:1.1}, armF:{s:0.2,e:0.3}, armB:{s:0.5,e:0.7} },
-        { t:1,   hipDelta:4, torso:0.08, head:0.05, legF:{t:0.08,k:0.1}, legB:{t:-0.06,k:0.08}, armF:{s:0.2,e:0.4}, armB:{s:0.15,e:0.35} },
-      ],
-    },
-    {
-      id: "elev-brazos", name: "Elevación de brazos", tag: "fuerza", tagLabel: "Fuerza", view: "front", cycle: 2.4,
-      desc: "Brazos a los lados. Súbelos por delante hasta arriba y bájalo despacio.",
-      cueUp: "arriba", cueDown: "abajo",
-      intro: "Elevación de brazos. Sube despacio y baja controlando.",
-      frames: [
-        { t:0,   hipDelta:0, torso:0, head:0, legF:{t:0.04,k:0.06}, legB:{t:-0.04,k:0.06}, armF:{s:0.25,e:0.18}, armB:{s:-0.25,e:0.18} },
-        { t:0.45,hipDelta:0, torso:-0.05, head:-0.08, legF:{t:0.04,k:0.06}, legB:{t:-0.04,k:0.06}, armF:{s:-2.85,e:0.12}, armB:{s:2.85,e:0.12} },
-        { t:0.55,hipDelta:0, torso:-0.05, head:-0.08, legF:{t:0.04,k:0.06}, legB:{t:-0.04,k:0.06}, armF:{s:-2.85,e:0.12}, armB:{s:2.85,e:0.12} },
-        { t:1,   hipDelta:0, torso:0, head:0, legF:{t:0.04,k:0.06}, legB:{t:-0.04,k:0.06}, armF:{s:0.25,e:0.18}, armB:{s:-0.25,e:0.18} },
-      ],
-    },
-    {
-      id: "sentadilla", name: "Sentadilla suave", tag: "fuerza", tagLabel: "Fuerza", view: "side", cycle: 2.6,
-      desc: "Baja un poco doblando rodillas. Sube sin bloquear las rodillas.",
-      cueUp: "baja", cueDown: "sube",
-      intro: "Sentadilla suave. Baja como hacia un taburete bajo.",
-      frames: [
-        { t:0,   hipDelta:0,  torso:0.06, head:0, legF:{t:0.08,k:0.12}, legB:{t:0.02,k:0.12}, armF:{s:0.35,e:0.45}, armB:{s:0.28,e:0.4} },
-        { t:0.45,hipDelta:30, torso:0.28, head:0.08, legF:{t:0.68,k:1.08}, legB:{t:0.55,k:1.02}, armF:{s:0.85,e:0.42}, armB:{s:0.76,e:0.38} },
-        { t:0.55,hipDelta:30, torso:0.28, head:0.08, legF:{t:0.68,k:1.08}, legB:{t:0.55,k:1.02}, armF:{s:0.85,e:0.42}, armB:{s:0.76,e:0.38} },
-        { t:1,   hipDelta:0,  torso:0.06, head:0, legF:{t:0.08,k:0.12}, legB:{t:0.02,k:0.12}, armF:{s:0.35,e:0.45}, armB:{s:0.28,e:0.4} },
-      ],
-    },
-    {
-      id: "lateral", name: "Estiramiento lateral", tag: "mov", tagLabel: "Movilidad", view: "front", cycle: 3.0,
-      desc: "Un brazo arriba, inclínate suavemente hacia el otro lado. Cambia de lado.",
-      cueUp: "inclina", cueDown: "centro",
-      intro: "Estiramiento lateral. Inclínate despacio, sin rebotes.",
-      frames: [
-        { t:0,   hipDelta:0, torso:0, head:0, legF:{t:0.05,k:0.06}, legB:{t:-0.05,k:0.06}, armF:{s:-1.2,e:0.2}, armB:{s:0.2,e:0.25} },
-        { t:0.2, hipDelta:2, torso:0.25, head:0.15, legF:{t:0.08,k:0.08}, legB:{t:-0.08,k:0.08}, armF:{s:-1.35,e:0.15}, armB:{s:0.4,e:0.3} },
-        { t:0.35,hipDelta:0, torso:0, head:0, legF:{t:0.05,k:0.06}, legB:{t:-0.05,k:0.06}, armF:{s:-0.2,e:0.2}, armB:{s:-0.2,e:0.2} },
-        { t:0.55,hipDelta:2, torso:-0.25, head:-0.15, legF:{t:0.08,k:0.08}, legB:{t:-0.08,k:0.08}, armF:{s:0.4,e:0.3}, armB:{s:-1.35,e:0.15} },
-        { t:0.7, hipDelta:0, torso:0, head:0, legF:{t:0.05,k:0.06}, legB:{t:-0.05,k:0.06}, armF:{s:-0.2,e:0.2}, armB:{s:-0.2,e:0.2} },
-        { t:1,   hipDelta:0, torso:0, head:0, legF:{t:0.05,k:0.06}, legB:{t:-0.05,k:0.06}, armF:{s:-1.2,e:0.2}, armB:{s:0.2,e:0.25} },
-      ],
-    },
-    {
-      id: "hombros", name: "Rotación de hombros", tag: "mov", tagLabel: "Movilidad", view: "side", cycle: 2.0,
-      desc: "Rueda los hombros hacia atrás en círculos amplios y lentos.",
-      cueUp: "atrás", cueDown: "vuelta",
-      intro: "Rotación de hombros. Círculos amplios, cuello relajado.",
-      frames: [
-        { t:0,   hipDelta:0, torso:0.02, head:0, legF:{t:0.04,k:0.06}, legB:{t:-0.04,k:0.06}, armF:{s:0.1,e:0.3}, armB:{s:-0.1,e:0.3} },
-        { t:0.25,hipDelta:0, torso:-0.08, head:-0.05, legF:{t:0.04,k:0.06}, legB:{t:-0.04,k:0.06}, armF:{s:-0.9,e:0.4}, armB:{s:-0.85,e:0.4} },
-        { t:0.5, hipDelta:0, torso:0.02, head:0, legF:{t:0.04,k:0.06}, legB:{t:-0.04,k:0.06}, armF:{s:-0.3,e:0.8}, armB:{s:-0.25,e:0.8} },
-        { t:0.75,hipDelta:0, torso:0.1, head:0.05, legF:{t:0.04,k:0.06}, legB:{t:-0.04,k:0.06}, armF:{s:0.5,e:0.5}, armB:{s:0.45,e:0.5} },
-        { t:1,   hipDelta:0, torso:0.02, head:0, legF:{t:0.04,k:0.06}, legB:{t:-0.04,k:0.06}, armF:{s:0.1,e:0.3}, armB:{s:-0.1,e:0.3} },
-      ],
-    },
-    {
-      id: "equilibrio", name: "Equilibrio de una pierna", tag: "eq", tagLabel: "Equilibrio", view: "side", cycle: 3.2,
-      desc: "Apóyate en una pierna y levanta la otra un poco. Usa una silla si hace falta.",
-      cueUp: "sostiene", cueDown: "cambia",
-      intro: "Equilibrio. Una pierna. Si te tambaleas, sujétate a una silla.",
-      frames: [
-        { t:0,   hipDelta:2, torso:0.05, head:0, legF:{t:0.1,k:0.1}, legB:{t:-0.05,k:0.08}, armF:{s:0.4,e:0.5}, armB:{s:0.35,e:0.45} },
-        { t:0.2, hipDelta:4, torso:0.08, head:0.05, legF:{t:0.7,k:0.95}, legB:{t:-0.05,k:0.1}, armF:{s:0.6,e:0.6}, armB:{s:0.5,e:0.5} },
-        { t:0.45,hipDelta:4, torso:0.08, head:0.05, legF:{t:0.7,k:0.95}, legB:{t:-0.05,k:0.1}, armF:{s:0.6,e:0.6}, armB:{s:0.5,e:0.5} },
-        { t:0.55,hipDelta:2, torso:0.05, head:0, legF:{t:0.1,k:0.1}, legB:{t:-0.05,k:0.08}, armF:{s:0.4,e:0.5}, armB:{s:0.35,e:0.45} },
-        { t:0.75,hipDelta:4, torso:0.08, head:0.05, legF:{t:-0.05,k:0.1}, legB:{t:0.7,k:0.95}, armF:{s:0.5,e:0.5}, armB:{s:0.6,e:0.6} },
-        { t:1,   hipDelta:2, torso:0.05, head:0, legF:{t:0.1,k:0.1}, legB:{t:-0.05,k:0.08}, armF:{s:0.4,e:0.5}, armB:{s:0.35,e:0.45} },
-      ],
-    },
-    {
-      id: "puente", name: "Puente suave", tag: "fuerza", tagLabel: "Fuerza", view: "side", cycle: 2.8,
-      desc: "Rodillas flexionadas, sube la cadera un poco y baja. Sin forzar la espalda.",
-      cueUp: "cadera arriba", cueDown: "baja",
-      intro: "Puente suave. Sube la cadera y baja con control.",
-      frames: [
-        { t:0,   hipDelta:18, torso:0.35, head:0.2, legF:{t:0.9,k:1.5}, legB:{t:0.85,k:1.45}, armF:{s:1.1,e:0.3}, armB:{s:1.0,e:0.25} },
-        { t:0.4, hipDelta:-8, torso:0.55, head:0.25, legF:{t:0.95,k:1.55}, legB:{t:0.9,k:1.5}, armF:{s:1.15,e:0.25}, armB:{s:1.05,e:0.2} },
-        { t:0.55,hipDelta:-8, torso:0.55, head:0.25, legF:{t:0.95,k:1.55}, legB:{t:0.9,k:1.5}, armF:{s:1.15,e:0.25}, armB:{s:1.05,e:0.2} },
-        { t:1,   hipDelta:18, torso:0.35, head:0.2, legF:{t:0.9,k:1.5}, legB:{t:0.85,k:1.45}, armF:{s:1.1,e:0.3}, armB:{s:1.0,e:0.25} },
-      ],
-    },
-    {
-      id: "curl-brazo", name: "Flexión de brazos", tag: "fuerza", tagLabel: "Fuerza", view: "side", cycle: 2.0,
-      desc: "Codos pegados al cuerpo. Sube las manos hacia los hombros y baja despacio.",
-      cueUp: "flexiona", cueDown: "estira",
-      intro: "Flexión de brazos sin peso. Codos fijos, manos a los hombros.",
-      frames: [
-        { t:0,   hipDelta:0, torso:0.02, head:0, legF:{t:0.04,k:0.06}, legB:{t:-0.04,k:0.06}, armF:{s:0.15,e:0.15}, armB:{s:0.1,e:0.15} },
-        { t:0.4, hipDelta:0, torso:0.02, head:0, legF:{t:0.04,k:0.06}, legB:{t:-0.04,k:0.06}, armF:{s:0.2,e:1.5}, armB:{s:0.15,e:1.45} },
-        { t:0.55,hipDelta:0, torso:0.02, head:0, legF:{t:0.04,k:0.06}, legB:{t:-0.04,k:0.06}, armF:{s:0.2,e:1.5}, armB:{s:0.15,e:1.45} },
-        { t:1,   hipDelta:0, torso:0.02, head:0, legF:{t:0.04,k:0.06}, legB:{t:-0.04,k:0.06}, armF:{s:0.15,e:0.15}, armB:{s:0.1,e:0.15} },
-      ],
-    },
-    {
-      id: "tobillos", name: "Círculos de tobillo", tag: "mov", tagLabel: "Movilidad", view: "side", cycle: 1.8,
-      desc: "Apóyate en una pierna y dibuja círculos lentos con el otro pie.",
-      cueUp: "círculo", cueDown: "",
-      intro: "Círculos de tobillo. Lentos, amplios.",
-      frames: [
-        { t:0,   hipDelta:2, torso:0.04, head:0, legF:{t:0.35,k:0.2}, legB:{t:-0.05,k:0.08}, armF:{s:0.35,e:0.4}, armB:{s:0.3,e:0.35} },
-        { t:0.25,hipDelta:2, torso:0.04, head:0, legF:{t:0.45,k:0.55}, legB:{t:-0.05,k:0.08}, armF:{s:0.35,e:0.4}, armB:{s:0.3,e:0.35} },
-        { t:0.5, hipDelta:2, torso:0.04, head:0, legF:{t:0.25,k:0.7}, legB:{t:-0.05,k:0.08}, armF:{s:0.35,e:0.4}, armB:{s:0.3,e:0.35} },
-        { t:0.75,hipDelta:2, torso:0.04, head:0, legF:{t:0.15,k:0.35}, legB:{t:-0.05,k:0.08}, armF:{s:0.35,e:0.4}, armB:{s:0.3,e:0.35} },
-        { t:1,   hipDelta:2, torso:0.04, head:0, legF:{t:0.35,k:0.2}, legB:{t:-0.05,k:0.08}, armF:{s:0.35,e:0.4}, armB:{s:0.3,e:0.35} },
-      ],
-    },
-    {
-      id: "cuello", name: "Mirar arriba y abajo", tag: "mov", tagLabel: "Movilidad", view: "side", cycle: 2.4,
-      desc: "Mira al techo despacio, al frente, al suelo y vuelve. Sin forzar.",
-      cueUp: "arriba", cueDown: "abajo",
-      intro: "Cuello. Arriba y abajo, muy despacio.",
-      frames: [
-        { t:0,   hipDelta:0, torso:0, head:0, legF:{t:0.04,k:0.06}, legB:{t:-0.04,k:0.06}, armF:{s:0.1,e:0.2}, armB:{s:-0.1,e:0.2} },
-        { t:0.25,hipDelta:0, torso:-0.08, head:-0.55, legF:{t:0.04,k:0.06}, legB:{t:-0.04,k:0.06}, armF:{s:0.1,e:0.2}, armB:{s:-0.1,e:0.2} },
-        { t:0.4, hipDelta:0, torso:0, head:0, legF:{t:0.04,k:0.06}, legB:{t:-0.04,k:0.06}, armF:{s:0.1,e:0.2}, armB:{s:-0.1,e:0.2} },
-        { t:0.65,hipDelta:0, torso:0.1, head:0.4, legF:{t:0.04,k:0.06}, legB:{t:-0.04,k:0.06}, armF:{s:0.1,e:0.2}, armB:{s:-0.1,e:0.2} },
-        { t:0.8, hipDelta:0, torso:0, head:0, legF:{t:0.04,k:0.06}, legB:{t:-0.04,k:0.06}, armF:{s:0.1,e:0.2}, armB:{s:-0.1,e:0.2} },
-        { t:1,   hipDelta:0, torso:0, head:0, legF:{t:0.04,k:0.06}, legB:{t:-0.04,k:0.06}, armF:{s:0.1,e:0.2}, armB:{s:-0.1,e:0.2} },
-      ],
-    },
-    {
-      id: "apertura", name: "Apertura de pecho", tag: "mov", tagLabel: "Movilidad", view: "front", cycle: 2.5,
-      desc: "Brazos abiertos, lleva los codos atrás abriendo el pecho. Suelta y repite.",
-      cueUp: "abre", cueDown: "suelta",
-      intro: "Apertura de pecho. Codos atrás, pecho abierto.",
-      frames: [
-        { t:0,   hipDelta:0, torso:0, head:0, legF:{t:0.04,k:0.06}, legB:{t:-0.04,k:0.06}, armF:{s:0.05,e:0.9}, armB:{s:-0.05,e:0.9} },
-        { t:0.4, hipDelta:0, torso:-0.12, head:-0.05, legF:{t:0.04,k:0.06}, legB:{t:-0.04,k:0.06}, armF:{s:-0.35,e:1.1}, armB:{s:0.35,e:1.1} },
-        { t:0.55,hipDelta:0, torso:-0.12, head:-0.05, legF:{t:0.04,k:0.06}, legB:{t:-0.04,k:0.06}, armF:{s:-0.35,e:1.1}, armB:{s:0.35,e:1.1} },
-        { t:1,   hipDelta:0, torso:0, head:0, legF:{t:0.04,k:0.06}, legB:{t:-0.04,k:0.06}, armF:{s:0.05,e:0.9}, armB:{s:-0.05,e:0.9} },
-      ],
-    },
-  ];
-
-  /* ——— la bocina: pitido en cada repetición ———
-     La voz depende de que el equipo tenga instalada una voz en español;
-     si no la hay, todo se queda mudo. Este pitido lo genera el propio
-     navegador: no necesita voces, ni archivos de sonido, ni internet.
-     Es el metrónomo de verdad, y la voz es el adorno. */
-  let pitidoOn = true;
-  let audio = null;
-
-  function abrirAudio() {
-    // El navegador no deja hacer ruido hasta que el usuario toca algo:
-    // por eso esto se llama desde el botón de Empezar, no al cargar.
-    try {
-      if (!audio) audio = new (window.AudioContext || window.webkitAudioContext)();
-      if (audio.state === "suspended") audio.resume();
-    } catch (e) { audio = null; }
-  }
-
-  function pitar(hz, ms, volumen) {
-    if (!pitidoOn || !audio) return;
-    try {
-      const t = audio.currentTime;
-      const osc = audio.createOscillator();
-      const vol = audio.createGain();
-      osc.type = "sine";
-      osc.frequency.value = hz;
-      // Subida y bajada suaves: un tono que arranca en seco hace "clac".
-      vol.gain.setValueAtTime(0.0001, t);
-      vol.gain.exponentialRampToValueAtTime(volumen, t + 0.012);
-      vol.gain.exponentialRampToValueAtTime(0.0001, t + ms / 1000);
-      osc.connect(vol); vol.connect(audio.destination);
-      osc.start(t); osc.stop(t + ms / 1000 + 0.02);
-    } catch (e) { /* sin sonido, pero nada se rompe */ }
-  }
-
-  const pitidoRep = () => pitar(880, 120, 0.22);        // una repetición
-  const pitidoMedio = () => pitar(660, 90, 0.12);       // mitad del ciclo
-  function pitidoFinal() {                              // serie completa
-    pitar(660, 140, 0.22);
-    setTimeout(() => pitar(880, 140, 0.22), 150);
-    setTimeout(() => pitar(1175, 260, 0.24), 300);
-  }
-
-  /* ——— voz (Web Speech API, sin red) ——— */
-  let voiceOn = true;
-  let esVoice = null;
-  let speaking = false;
-
-  function pickVoice() {
-    if (!window.speechSynthesis) return;
-    const voices = speechSynthesis.getVoices();
-    esVoice =
-      voices.find((v) => /^es(-|_)/i.test(v.lang) && /female|mujer|paulina|monica|helena|sabina/i.test(v.name)) ||
-      voices.find((v) => /^es-ES/i.test(v.lang)) ||
-      voices.find((v) => /^es/i.test(v.lang)) ||
-      null;
-  }
-  function avisarSiNoHayVoz() {
-    if (!btnVoice) return;
-    if (!window.speechSynthesis) {
-      btnVoice.textContent = "Voz: no disponible";
-      btnVoice.classList.remove("on");
-      voiceOn = false;
-      return;
-    }
-    const alguna = speechSynthesis.getVoices().length > 0;
-    if (!alguna) return;   // aún no han cargado: se reintenta al llegar
-    if (!esVoice) {
-      // Hay voces pero ninguna en español: se avisa en vez de quedarse
-      // mudo. El pitido sigue funcionando, que es lo importante.
-      btnVoice.title = "No hay voz en español instalada en este equipo. " +
-        "El pitido sí funciona.";
-      btnVoice.textContent = "Voz: sin español";
-    }
-  }
-  if (window.speechSynthesis) {
-    pickVoice();
-    speechSynthesis.onvoiceschanged = () => { pickVoice(); avisarSiNoHayVoz(); };
-  }
-
-  function speak(text, opts) {
-    if (!voiceOn || !window.speechSynthesis || !text) return;
-    const u = new SpeechSynthesisUtterance(text);
-    u.lang = (esVoice && esVoice.lang) || "es-ES";
-    if (esVoice) u.voice = esVoice;
-    u.rate = (opts && opts.rate) || 1.0;
-    u.pitch = 1.05;
-    u.volume = 1;
-    speaking = true;
-    u.onend = () => { speaking = false; };
-    u.onerror = () => { speaking = false; };
-    // Antes se cancelaba en CADA repetición. Con ciclos de 1,4 segundos
-    // eso corta el número por la mitad y suena a tartamudeo. Ahora solo
-    // se corta si de verdad hay algo largo sonando (una explicación),
-    // y los números se encolan y salen seguidos.
-    if (opts && opts.interrupt && speaking && !(opts && opts.corto)) {
-      speechSynthesis.cancel();
-    }
-    speechSynthesis.speak(u);
-  }
-
-  function sayNumber(n) {
-    if (n >= 0 && n < NUMS.length) return NUMS[n];
-    return String(n);
-  }
-
-  /* ——— estado de sesión ——— */
-  let current = 0;
-  let playing = false;
-  let animT = 0;
-  let last = performance.now();
-  let reps = 0;
-  let target = 8;
-  let speedMul = 1; // 1 = normal, >1 = más lento (cycle * speedMul)
-  let lastCross = 0; // para detectar cierre de ciclo
-  let sessionDone = false;
-  let announcedIntro = false;
-
-  function getTarget() { return parseInt(targetSel.value, 10) || 8; }
-  function getSpeed() { return parseFloat(speedSel.value) || 1; }
-
-  function updateRepHud() {
-    target = getTarget();
-    repNumEl.textContent = String(reps);
-    // "marcadas", no "hechas": el programa cuenta ciclos de la animación,
-    // no movimientos del usuario. Sin cámara no hay forma de saberlo, y
-    // dar por buenas repeticiones que nadie ha hecho es mentir en salud.
-    repLabelEl.textContent = "de " + target + " marcadas";
-    const pct = Math.min(100, (reps / target) * 100);
-    repBarEl.style.width = pct + "%";
-  }
-
-  function flashRep() {
-    repNumEl.classList.remove("flash");
-    void repNumEl.offsetWidth;
-    repNumEl.classList.add("flash");
-    setTimeout(() => repNumEl.classList.remove("flash"), 180);
-  }
-
-  function onRepComplete() {
-    if (!playing || sessionDone) return;
-    reps += 1;
-    updateRepHud();
-    flashRep();
-    const ex = EXERCISES[current];
-    if (reps < target) {
-      pitidoRep();
-      speak(sayNumber(reps), { interrupt: true, corto: true, rate: 1.05 });
-      cueEl.textContent = sayNumber(reps).toUpperCase();
-    } else {
-      pitidoFinal();
-      sessionDone = true;
-      playing = false;
-      syncPlay();
-      cueEl.textContent = "Serie completa";
-      speak("Serie completa. " + target + " repeticiones de " + ex.name + ".", { interrupt: true, rate: 0.98 });
-      stateEl.textContent = "¡Serie completa!";
-    }
-  }
-
-  /* ——— interpolación de poses ——— */
-  function lerpNum(a, b, t) { return a + (b - a) * t; }
-  function lerpPose(a, b, t) {
-    const L = (x, y) => lerpNum(x, y, t);
-    return {
-      hipDelta: L(a.hipDelta, b.hipDelta),
-      torso: L(a.torso, b.torso),
-      head: L(a.head, b.head),
-      legF: { t: L(a.legF.t, b.legF.t), k: L(a.legF.k, b.legF.k) },
-      legB: { t: L(a.legB.t, b.legB.t), k: L(a.legB.k, b.legB.k) },
-      armF: { s: L(a.armF.s, b.armF.s), e: L(a.armF.e, b.armF.e) },
-      armB: { s: L(a.armB.s, b.armB.s), e: L(a.armB.e, b.armB.e) },
-    };
-  }
-  function samplePose(ex, u) {
-    const fr = ex.frames;
-    if (u <= fr[0].t) return Object.assign({}, fr[0]);
-    for (let i = 0; i < fr.length - 1; i++) {
-      if (u >= fr[i].t && u <= fr[i + 1].t) {
-        const span = fr[i + 1].t - fr[i].t || 1e-6;
-        const tt = (u - fr[i].t) / span;
-        const e = tt * tt * (3 - 2 * tt);
-        return lerpPose(fr[i], fr[i + 1], e);
-      }
-    }
-    return Object.assign({}, fr[fr.length - 1]);
-  }
-
-
-  /* ——— dibujo Mari ———
-     Cuerpo con volumen (cápsulas ahusadas + torso de verdad),
-     halo en lo que se mueve, flecha de dirección y una sala
-     casera. Se mira a tres metros: contraste y silueta, no
-     costuras. */
-  const FOCUS = {
-    marcha:        { parts:"leg",  dir:"up" },
-    "abd-pie":     { parts:"leg",  dir:"up" },
-    "elev-brazos": { parts:"arm",  dir:"up" },
-    sentadilla:    { parts:"leg",  dir:"down", align:true },
-    lateral:       { parts:"arm",  dir:"side" },
-    hombros:       { parts:"arm",  dir:"circle" },
-    equilibrio:    { parts:"leg",  dir:"up", align:true },
-    puente:        { parts:"hip",  dir:"up" },
-    "curl-brazo":  { parts:"arm",  dir:"up" },
-    tobillos:      { parts:"foot", dir:"circle" },
-    cuello:        { parts:"head", dir:"up" },
-    apertura:      { parts:"arm",  dir:"side" },
+  var state = {
+    screen: 'hub', // hub | ex
+    figura: localStorage.getItem('lv-gym-figura') || 'chica',
+    cuerpo: 'dibujo',
+    grupo: null,
+    ex: null
   };
-  const HALO = "rgba(224,122,30,.48)";
-  const HALO2 = "#e07a1e";
 
-  function nrm(p, q) {
-    const dx = q.x - p.x, dy = q.y - p.y, L = Math.hypot(dx, dy) || 1;
-    return { x: -dy / L, y: dx / L };
-  }
-  function capsule(a, b, r0, r1, fill, edge, lite) {
-    const dx = b.x - a.x, dy = b.y - a.y;
-    const len = Math.hypot(dx, dy) || 1;
-    const nx = -dy / len, ny = dx / len;
-    const a0 = Math.atan2(ny, nx);
-    g.beginPath();
-    g.moveTo(a.x + nx * r0, a.y + ny * r0);
-    g.lineTo(b.x + nx * r1, b.y + ny * r1);
-    g.arc(b.x, b.y, r1, a0, a0 + Math.PI);
-    g.lineTo(a.x - nx * r0, a.y - ny * r0);
-    g.arc(a.x, a.y, r0, a0 + Math.PI, a0);
-    g.closePath();
-    g.fillStyle = fill;
-    g.fill();
-    if (edge) {
-      g.strokeStyle = edge;
-      g.lineWidth = 1.5;
-      g.lineJoin = "round";
-      g.stroke();
-    }
-    if (lite) {
-      g.save();
-      g.globalAlpha = 0.28;
-      g.strokeStyle = lite;
-      g.lineWidth = Math.max(2, Math.min(r0, r1) * 0.35);
-      g.lineCap = "round";
-      g.beginPath();
-      g.moveTo(a.x + nx * r0 * 0.35, a.y + ny * r0 * 0.35);
-      g.lineTo(b.x + nx * r1 * 0.35, b.y + ny * r1 * 0.35);
-      g.stroke();
-      g.restore();
-    }
-  }
-  function ball(p, r, fill, edge) {
-    g.beginPath(); g.arc(p.x, p.y, r, 0, 7); g.fillStyle = fill; g.fill();
-    if (edge) { g.strokeStyle = edge; g.lineWidth = 2; g.stroke(); }
-  }
-  /* Una pierna o un brazo de una pieza: sin corte ni bola en la junta. */
-  function bendLimb(a, b, c, ra, rb, rc, fill, stroke) {
-    const n1 = nrm(a, b), n2 = nrm(b, c);
-    const aL = { x: a.x + n1.x * ra, y: a.y + n1.y * ra };
-    const aR = { x: a.x - n1.x * ra, y: a.y - n1.y * ra };
-    const b1L = { x: b.x + n1.x * rb, y: b.y + n1.y * rb };
-    const b1R = { x: b.x - n1.x * rb, y: b.y - n1.y * rb };
-    const b2L = { x: b.x + n2.x * rb, y: b.y + n2.y * rb };
-    const b2R = { x: b.x - n2.x * rb, y: b.y - n2.y * rb };
-    const cL = { x: c.x + n2.x * rc, y: c.y + n2.y * rc };
-    const cR = { x: c.x - n2.x * rc, y: c.y - n2.y * rc };
-    const ae = Math.atan2(n1.y, n1.x);
-    const ce = Math.atan2(n2.y, n2.x);
-    g.beginPath();
-    g.moveTo(aL.x, aL.y);
-    g.lineTo(b1L.x, b1L.y);
-    g.quadraticCurveTo(b.x + (n1.x + n2.x) * rb * 0.55, b.y + (n1.y + n2.y) * rb * 0.55, b2L.x, b2L.y);
-    g.lineTo(cL.x, cL.y);
-    g.arc(c.x, c.y, rc, ce, ce + Math.PI);
-    g.lineTo(b2R.x, b2R.y);
-    g.quadraticCurveTo(b.x - (n1.x + n2.x) * rb * 0.55, b.y - (n1.y + n2.y) * rb * 0.55, b1R.x, b1R.y);
-    g.lineTo(aR.x, aR.y);
-    g.arc(a.x, a.y, ra, ae + Math.PI, ae);
-    g.closePath();
-    g.fillStyle = fill;
-    g.fill();
-    if (stroke) {
-      g.strokeStyle = stroke;
-      g.lineWidth = 1.5;
-      g.lineJoin = "round";
-      g.lineCap = "round";
-      g.stroke();
-    }
-  }
-  function seg(rx, ry, L1, L2, a1, a2) {
-    const kx = rx + L1 * Math.sin(a1), ky = ry + L1 * Math.cos(a1), fa = a1 - a2;
-    return {
-      root: { x: rx, y: ry },
-      mid: { x: kx, y: ky },
-      end: { x: kx + L2 * Math.sin(fa), y: ky + L2 * Math.cos(fa) },
-      endAng: fa,
-    };
-  }
-  function lerpP(a, b, t) { return { x: a.x + (b.x - a.x) * t, y: a.y + (b.y - a.y) * t }; }
+  var ba = { playing: false, done: false, reps: 0, animT: 0, last: 0, mid: false, voz: true, lento: false };
+  var anim = Object.assign({}, ba);
+  var raf = 0;
+  var audioCtx = null;
+  var canvas, ctx;
 
-  function hand(p, ang, atras) {
-    g.save();
-    g.translate(p.x, p.y);
-    g.rotate(ang + 0.15);
-    const col = atras ? SKIN_B : SKIN;
-    g.fillStyle = col;
-    g.strokeStyle = INK;
-    g.lineWidth = 1.25;
-    g.beginPath();
-    g.ellipse(0, 2, 4.2, 5.4, 0, 0, 7);
-    g.fill(); g.stroke();
-    g.beginPath();
-    g.ellipse(-3.8, 0.2, 2.2, 3.4, -0.7, 0, 7);
-    g.fill(); g.stroke();
-    g.restore();
+  function $(id) { return document.getElementById(id); }
+
+  function setFigura(f) {
+    state.figura = f === 'chico' ? 'chico' : 'chica';
+    localStorage.setItem('lv-gym-figura', state.figura);
+    $('btnFigura').textContent = state.figura === 'chico' ? 'Chico' : 'Chica';
+    draw();
   }
 
-  function foot(p, ang, atras) {
-    g.save();
-    g.translate(p.x, p.y);
-    g.rotate(-ang * 0.4 + 0.22);
-    const top = atras ? SHOED : SHOE;
-    const sole = atras ? "#2a1c14" : "#3d2a1f";
-    g.fillStyle = sole;
-    g.beginPath(); g.ellipse(6, 4.2, 13, 4.2, 0.05, 0, 7); g.fill();
-    g.fillStyle = top;
-    g.beginPath(); g.ellipse(5, 0.2, 12, 6.2, 0.08, 0, 7); g.fill();
-    g.fillStyle = atras ? SKIN_B : SKIN;
-    g.beginPath(); g.ellipse(-4, -0.4, 4.2, 3.6, 0, 0, 7); g.fill();
-    g.fillStyle = "rgba(255,255,255,.28)";
-    g.beginPath(); g.ellipse(3, -2, 5, 2, 0.1, 0, 7); g.fill();
-    g.restore();
+  function beep(freq, ms, vol) {
+    try {
+      if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      var t0 = audioCtx.currentTime;
+      var o = audioCtx.createOscillator();
+      var g = audioCtx.createGain();
+      o.type = 'sine'; o.frequency.value = freq;
+      g.gain.setValueAtTime(1e-4, t0);
+      g.gain.exponentialRampToValueAtTime(vol, t0 + 0.012);
+      g.gain.exponentialRampToValueAtTime(1e-4, t0 + ms / 1000);
+      o.connect(g); g.connect(audioCtx.destination);
+      o.start(t0); o.stop(t0 + ms / 1000 + 0.02);
+    } catch (e) {}
   }
 
-  function drawBody(hip, shoulder, view) {
-    const front = view === "front";
-    const top = lerpP(hip, shoulder, 0.98);
-    const chest = lerpP(hip, shoulder, 0.62);
-    const waist = lerpP(hip, shoulder, 0.34);
-    g.beginPath();
-    if (front) {
-      g.moveTo(top.x - 14, top.y + 4);
-      g.quadraticCurveTo(top.x, top.y - 1, top.x + 14, top.y + 4);
-      g.quadraticCurveTo(chest.x + 11, chest.y, waist.x + 9, waist.y);
-      g.quadraticCurveTo(hip.x + 14, hip.y + 1, hip.x + 7, hip.y + 10);
-      g.quadraticCurveTo(hip.x, hip.y + 13, hip.x - 7, hip.y + 10);
-      g.quadraticCurveTo(hip.x - 14, hip.y + 1, waist.x - 9, waist.y);
-      g.quadraticCurveTo(chest.x - 11, chest.y, top.x - 14, top.y + 4);
-    } else {
-      // perfil plano Mari: pecho casi recto
-      g.moveTo(top.x - 7, top.y + 2);
-      g.quadraticCurveTo(top.x + 2, top.y - 1, top.x + 8, top.y + 5);
-      g.quadraticCurveTo(chest.x + 9, chest.y - 1, waist.x + 9, waist.y);
-      g.quadraticCurveTo(hip.x + 9, hip.y + 2, hip.x + 5, hip.y + 11);
-      g.quadraticCurveTo(hip.x - 3, hip.y + 14, hip.x - 14, hip.y + 5);
-      g.quadraticCurveTo(hip.x - 12, hip.y - 5, waist.x - 10, waist.y - 2);
-      g.quadraticCurveTo(chest.x - 10, chest.y, top.x - 7, top.y + 2);
-    }
-    g.closePath();
-    g.fillStyle = SKIN;
-    g.fill();
-    g.strokeStyle = INK;
-    g.lineWidth = 1.45;
-    g.lineJoin = "round";
-    g.stroke();
+  function speak(msg) {
+    if (anim.voz) br(msg, { lento: anim.lento });
   }
 
-  function drawTank(hip, shoulder, view) {
-    const front = view === "front";
-    const top = lerpP(hip, shoulder, 0.80);
-    const chest = lerpP(hip, shoulder, 0.56);
-    const hem = lerpP(hip, shoulder, -0.15); // túnica corta Mari
-    const grad = g.createLinearGradient(top.x - 14, top.y, hem.x + 14, hem.y + 8);
-    grad.addColorStop(0, "#e8dcc8");
-    grad.addColorStop(0.55, SUIT);
-    grad.addColorStop(1, SUITD);
-    g.beginPath();
-    if (front) {
-      g.moveTo(top.x - 10, top.y + 2);
-      g.quadraticCurveTo(top.x, top.y + 6, top.x + 10, top.y + 2);
-      g.quadraticCurveTo(chest.x + 12, chest.y, hem.x + 14, hem.y + 2);
-      g.quadraticCurveTo(hem.x, hem.y + 6, hem.x - 14, hem.y + 2);
-      g.quadraticCurveTo(chest.x - 12, chest.y, top.x - 10, top.y + 2);
-    } else {
-      g.moveTo(top.x - 2, top.y + 2);
-      g.quadraticCurveTo(top.x + 6, top.y + 4, chest.x + 9, chest.y);
-      g.quadraticCurveTo(hem.x + 8, hem.y + 2, hem.x + 4, hem.y + 5);
-      g.quadraticCurveTo(hem.x - 6, hem.y + 3, hem.x - 9, hem.y - 1);
-      g.quadraticCurveTo(chest.x - 8, chest.y, top.x - 2, top.y + 2);
-    }
-    g.closePath();
-    g.fillStyle = grad;
-    g.fill();
-    g.strokeStyle = INK;
-    g.lineWidth = 1.35;
-    g.lineJoin = "round";
-    g.stroke();
-  }
-
-  function moodOf(ex) {
-    const id = (ex && ex.id) || "";
-    if (id === "sentadilla" || id === "puente" || id === "abd-pie" || id === "curl-brazo") return "esfuerzo";
-    if (id === "equilibrio" || id === "tobillos") return "foco";
-    if (id === "cuello" || id === "lateral" || id === "hombros") return "suave";
-    return "sonrisa";
-  }
-
-  function drawHead(hc, ha, view, mood, phase) {
-    const mid = phase > 0.32 && phase < 0.62;
-    const effort = mood === "esfuerzo" ? (mid ? 1 : 0.55) : 0;
-    const focus = mood === "foco" ? 1 : 0;
-    const smile = mood === "sonrisa" ? 1 : mood === "suave" ? 0.45 : 0;
-    g.save();
-    g.translate(hc.x, hc.y);
-    g.rotate(ha);
-    // cráneo, trazo fino
-    g.beginPath(); g.arc(0, 0, HEADR + 1.2, 0, 7);
-    g.fillStyle = INK; g.fill();
-    g.beginPath(); g.arc(0, 0, HEADR, 0, 7);
-    g.fillStyle = SKIN; g.fill();
-    g.strokeStyle = INK; g.lineWidth = 1.4; g.stroke();
-    const sway = Math.sin((phase || 0) * Math.PI * 2) * 3.2;
-    // pelo: casco + flequillo + coleta (3 manchas, no un casco rígido)
-    g.fillStyle = HAIRD;
-    g.beginPath();
-    g.ellipse(-2, -6, HEADR + 4, HEADR + 1, -0.08, Math.PI * 1.02, Math.PI * 2.05);
-    g.fill();
-    g.fillStyle = HAIR;
-    g.beginPath();
-    g.ellipse(-1, -7, HEADR + 2.2, HEADR - 0.2, -0.06, Math.PI * 1.0, Math.PI * 2.08);
-    g.fill();
-    g.fillStyle = HAIRD;
-    g.beginPath(); g.ellipse(-6, -10, 5, 3.2, -0.4, 0, 7); g.fill();
-    if (view === "front") {
-      g.fillStyle = HAIR;
-      g.beginPath();
-      g.moveTo(-HEADR - 2, -4);
-      g.quadraticCurveTo(-HEADR - 6, 6 + sway * 0.2, -10, 10);
-      g.quadraticCurveTo(-4, 2, -8, -5);
-      g.fill();
-      g.beginPath();
-      g.moveTo(HEADR + 2, -4);
-      g.quadraticCurveTo(HEADR + 6, 6 - sway * 0.2, 10, 10);
-      g.quadraticCurveTo(4, 2, 8, -5);
-      g.fill();
-      // bob corto Mari: mechones a la mandíbula, sin coleta
-      g.fillStyle = HAIRD;
-      g.beginPath(); g.ellipse(-12 + sway * 0.15, 4, 5.2, 7.5, -0.25, 0, 7); g.fill();
-      g.beginPath(); g.ellipse(12 - sway * 0.15, 4, 5.2, 7.5, 0.25, 0, 7); g.fill();
-      g.fillStyle = HAIR;
-      g.beginPath(); g.ellipse(-11.5 + sway * 0.15, 3.5, 4.2, 6.2, -0.25, 0, 7); g.fill();
-      g.beginPath(); g.ellipse(11.5 - sway * 0.15, 3.5, 4.2, 6.2, 0.25, 0, 7); g.fill();
-      g.fillStyle = HAIRD;
-      g.beginPath();
-      g.moveTo(-11, -5); g.quadraticCurveTo(0, 3, 11, -5);
-      g.quadraticCurveTo(0, -8, -11, -5);
-      g.fill();
-      g.fillStyle = SKIN;
-      g.beginPath(); g.ellipse(0, 5.2, 13.8, 13.6, 0, 0, 7); g.fill();
-      // sombra cel en un lado de la cara
-      g.fillStyle = "rgba(180,90,60,.14)";
-      g.beginPath(); g.ellipse(6.5, 6, 6.2, 9, 0.2, 0, 7); g.fill();
-
-      const browDrop = effort * 2.2 + focus * 1.2;
-      const browIn = effort * 1.6 + focus * 1.1;
-      const eyeH = 3.4 - effort * 0.7 - focus * 0.9;
-      const lookY = effort * 0.7 + focus * 0.35;
-      // ojos + párpado
-      function ojo(ox) {
-        g.fillStyle = "#fff";
-        g.beginPath(); g.ellipse(ox, 1.2, 3.1, eyeH, 0, 0, 7); g.fill();
-        g.fillStyle = INK;
-        g.beginPath(); g.arc(ox + 0.2, 1.5 + lookY, 1.65, 0, 7); g.fill();
-        g.fillStyle = "#fff";
-        g.beginPath(); g.arc(ox + 0.85, 0.85 + lookY, 0.55, 0, 7); g.fill();
-        g.strokeStyle = HAIRD; g.lineWidth = 1.5; g.lineCap = "round";
-        g.beginPath();
-        g.moveTo(ox - 3.1, 1.2 - eyeH * 0.15);
-        g.quadraticCurveTo(ox, 1.2 - eyeH - 0.6, ox + 3.1, 1.2 - eyeH * 0.15);
-        g.stroke();
-      }
-      ojo(-5.2); ojo(5.2);
-      // cejas
-      g.strokeStyle = HAIRD; g.lineWidth = 2; g.lineCap = "round";
-      g.beginPath();
-      g.moveTo(-8.6 + browIn, -3.4 + browDrop);
-      g.quadraticCurveTo(-5, -5.4 + browDrop * 0.3, -2.1 - browIn * 0.3, -3.5 + browDrop * 0.4);
-      g.stroke();
-      g.beginPath();
-      g.moveTo(2.1 + browIn * 0.3, -3.5 + browDrop * 0.4);
-      g.quadraticCurveTo(5, -5.4 + browDrop * 0.3, 8.6 - browIn, -3.4 + browDrop);
-      g.stroke();
-      // mejillas: empujan si sonríe
-      const cheek = 3.1 + smile * 1.1;
-      g.fillStyle = BLUSH; g.globalAlpha = 0.18 + smile * 0.08 + effort * 0.08; // casi sin maquillaje
-      g.beginPath(); g.arc(-7.8, 7.6, cheek, 0, 7); g.fill();
-      g.beginPath(); g.arc(7.8, 7.6, cheek, 0, 7); g.fill();
-      g.globalAlpha = 1;
-      // nariz
-      g.strokeStyle = "rgba(107,79,58,.55)"; g.lineWidth = 1.2;
-      g.beginPath(); g.moveTo(0, 3.8); g.quadraticCurveTo(-0.6, 5.6, 0.8, 6.0); g.stroke();
-      // boca
-      g.strokeStyle = INK; g.lineWidth = 1.6; g.lineCap = "round";
-      if (smile > 0.6) {
-        g.beginPath(); g.arc(0, 7.0, 4.6, 0.12 * Math.PI, 0.88 * Math.PI); g.stroke();
-      } else if (smile > 0.2) {
-        g.beginPath(); g.arc(0, 7.4, 3.6, 0.18 * Math.PI, 0.82 * Math.PI); g.stroke();
-      } else if (effort > 0.5) {
-        g.beginPath(); g.moveTo(-3.2, 8.4); g.quadraticCurveTo(0, 7.4, 3.2, 8.4); g.stroke();
-      } else {
-        g.beginPath(); g.moveTo(-2.8, 8.1); g.quadraticCurveTo(0, 8.6, 2.8, 8.1); g.stroke();
-      }
-    } else {
-      g.fillStyle = SKIN;
-      g.beginPath(); g.ellipse(7.2, 4.2, 12.2, 13, 0, 0, 7); g.fill();
-      g.fillStyle = HAIR;
-      g.beginPath();
-      g.moveTo(-HEADR - 2, -2);
-      g.quadraticCurveTo(-2, -20, HEADR + 3, -6);
-      g.lineTo(HEADR + 2, -2);
-      g.quadraticCurveTo(0, -8, -HEADR, -1);
-      g.closePath();
-      g.fill();
-      g.fillStyle = HAIRD;
-      g.beginPath();
-      g.ellipse(-HEADR - 2 + sway * 0.3, 2 + Math.abs(sway) * 0.15, 5.5, 7.5, -0.25 + sway * 0.04, 0, 7);
-      g.fill();
-      g.fillStyle = HAIR;
-      g.beginPath();
-      g.ellipse(-HEADR - 1 + sway * 0.3, 1.5 + Math.abs(sway) * 0.15, 4.4, 6.2, -0.25 + sway * 0.04, 0, 7);
-      g.fill();
-      g.fillStyle = HAIRD;
-      g.beginPath(); g.ellipse(2, -11, 4.5, 2.4, -0.3, 0, 7); g.fill();
-      const eyeH = 3.0 - effort * 0.6 - focus * 0.7;
-      const lookY = effort * 0.55;
-      g.fillStyle = "#fff";
-      g.beginPath(); g.ellipse(6.6, 1.4, 2.8, eyeH, 0, 0, 7); g.fill();
-      g.fillStyle = INK;
-      g.beginPath(); g.arc(7.1, 1.6 + lookY, 1.55, 0, 7); g.fill();
-      g.fillStyle = "#fff";
-      g.beginPath(); g.arc(7.7, 1.0 + lookY, 0.5, 0, 7); g.fill();
-      g.strokeStyle = HAIRD; g.lineWidth = 1.5; g.lineCap = "round";
-      g.beginPath();
-      g.moveTo(4.0, 1.3 - eyeH * 0.2);
-      g.quadraticCurveTo(6.6, 1.3 - eyeH - 0.5, 9.4, 1.3 - eyeH * 0.2);
-      g.stroke();
-      const browY = -3.6 + effort * 2.0 + focus * 1.0;
-      g.strokeStyle = HAIRD; g.lineWidth = 1.9;
-      g.beginPath(); g.moveTo(3.4, browY); g.quadraticCurveTo(7.2, browY - 1.6, 11.2, browY + 0.2); g.stroke();
-      g.fillStyle = BLUSH; g.globalAlpha = 0.15 + effort * 0.1;
-      g.beginPath(); g.arc(4, 8, 3, 0, 7); g.fill();
-      g.beginPath(); g.arc(12, 8, 2.6, 0, 7); g.fill();
-      g.globalAlpha = 1;
-      g.strokeStyle = INK; g.lineWidth = 1.5;
-      if (smile > 0.6) {
-        g.beginPath(); g.arc(8.2, 7.3, 3.8, 0.12 * Math.PI, 0.82 * Math.PI); g.stroke();
-      } else if (smile > 0.2) {
-        g.beginPath(); g.arc(8.2, 7.6, 3.2, 0.18 * Math.PI, 0.78 * Math.PI); g.stroke();
-      } else if (effort > 0.5) {
-        g.beginPath(); g.moveTo(6.2, 8.6); g.quadraticCurveTo(8.4, 7.6, 11.2, 8.5); g.stroke();
-      } else {
-        g.beginPath(); g.moveTo(6.4, 8.2); g.quadraticCurveTo(8.6, 8.6, 11.0, 8.2); g.stroke();
-      }
-      g.beginPath(); g.moveTo(14, 2); g.lineTo(16.5, 5.5); g.lineTo(13.5, 6.2); g.stroke();
-    }
-    g.restore();
-  }
-
-  function drawArrow(x, y, ang, len) {
-    g.save();
-    g.translate(x, y);
-    g.rotate(ang);
-    g.strokeStyle = HALO2;
-    g.fillStyle = HALO2;
-    g.lineWidth = 5;
-    g.lineCap = "round";
-    g.lineJoin = "round";
-    g.beginPath();
-    g.moveTo(0, 0);
-    g.lineTo(len - 12, 0);
-    g.stroke();
-    g.beginPath();
-    g.moveTo(len, 0);
-    g.lineTo(len - 16, -8);
-    g.lineTo(len - 16, 8);
-    g.closePath();
-    g.fill();
-    g.strokeStyle = INK;
-    g.lineWidth = 1.6;
-    g.stroke();
-    g.restore();
-  }
-
-  function haloSeg(a, b, w) {
-    g.save();
-    g.strokeStyle = HALO;
-    g.lineWidth = w + 12;
-    g.lineCap = "round";
-    g.beginPath();
-    g.moveTo(a.x, a.y);
-    g.lineTo(b.x, b.y);
-    g.stroke();
-    g.restore();
-  }
-
-  function drawAlign(ankle, knee, hip) {
-    g.save();
-    g.strokeStyle = "rgba(45,70,140,.45)";
-    g.lineWidth = 2.2;
-    g.setLineDash([5, 5]);
-    g.beginPath();
-    g.moveTo(ankle.x, ankle.y);
-    g.lineTo(knee.x, knee.y);
-    g.lineTo(hip.x, hip.y);
-    g.stroke();
-    g.setLineDash([]);
-    g.restore();
-    g.fillStyle = "rgba(45,70,140,.4)";
-    g.beginPath(); g.arc(knee.x, knee.y, 3.2, 0, 7); g.fill();
-  }
-
-  function drawBackground(view) {
-    // pared cálida de casa, no cielo infantil
-    const wall = g.createLinearGradient(0, 0, 0, GROUND);
-    wall.addColorStop(0, "#f6e4c8");
-    wall.addColorStop(0.55, "#f3d7b0");
-    wall.addColorStop(1, "#ead0a8");
-    g.fillStyle = wall;
-    g.fillRect(0, 0, W, GROUND);
-    // ventana a la derecha: luz, sin cristales recargados
-    g.fillStyle = "rgba(255,255,255,.55)";
-    g.fillRect(268, 28, 72, 86);
-    g.strokeStyle = "rgba(107,79,58,.35)";
-    g.lineWidth = 3;
-    g.strokeRect(268, 28, 72, 86);
-    g.beginPath(); g.moveTo(304, 28); g.lineTo(304, 114); g.moveTo(268, 71); g.lineTo(340, 71); g.stroke();
-    g.fillStyle = "rgba(255,236,190,.7)";
-    g.fillRect(272, 32, 28, 35);
-    g.fillRect(308, 32, 28, 35);
-    g.fillRect(272, 75, 28, 35);
-    g.fillRect(308, 75, 28, 35);
-    // mancha de sol en el suelo, sin vetas
-    g.fillStyle = "rgba(255,210,140,.16)";
-    g.beginPath();
-    g.moveTo(268, 114);
-    g.lineTo(360, 200);
-    g.lineTo(360, GROUND);
-    g.lineTo(250, GROUND);
-    g.closePath();
-    g.fill();
-    // planta a la izquierda, mancha grande
-    g.fillStyle = "#6fa36a";
-    g.beginPath(); g.ellipse(42, 210, 16, 28, -0.3, 0, 7); g.fill();
-    g.beginPath(); g.ellipse(62, 200, 14, 26, 0.35, 0, 7); g.fill();
-    g.beginPath(); g.ellipse(50, 186, 12, 22, 0, 0, 7); g.fill();
-    g.fillStyle = "#c48a4a";
-    g.fillRect(44, 230, 16, 22);
-    // zócalo
-    g.fillStyle = "#d9b888";
-    g.fillRect(0, GROUND - 14, W, 14);
-    g.strokeStyle = "rgba(107,79,58,.25)";
-    g.beginPath(); g.moveTo(0, GROUND - 14); g.lineTo(W, GROUND - 14); g.stroke();
-    // suelo
-    const floor = g.createLinearGradient(0, GROUND, 0, H);
-    floor.addColorStop(0, "#d7b48a");
-    floor.addColorStop(1, "#c49a6a");
-    g.fillStyle = floor;
-    g.fillRect(0, GROUND, W, H - GROUND);
-    // 4 líneas de perspectiva, gruesas
-    g.strokeStyle = "rgba(107,79,58,.22)";
-    g.lineWidth = 2;
-    [28, 72, 120, 175].forEach((x) => {
-      g.beginPath(); g.moveTo(W / 2, GROUND - 2); g.lineTo(x, H); g.stroke();
-      g.beginPath(); g.moveTo(W / 2, GROUND - 2); g.lineTo(W - x, H); g.stroke();
-    });
-    // esterilla teal
-    g.fillStyle = "rgba(90,120,90,.40)"; // esterilla neutra con Mari
-    g.beginPath();
-    g.ellipse(W / 2, GROUND + 18, 86, 16, 0, 0, 7);
-    g.fill();
-    g.strokeStyle = SUITD;
-    g.lineWidth = 2;
-    g.stroke();
-    if (view === "front") {
-      g.strokeStyle = "rgba(150,120,70,.16)";
-      g.setLineDash([4, 6]);
-      g.beginPath(); g.moveTo(W / 2, 36); g.lineTo(W / 2, GROUND - 4); g.stroke();
-      g.setLineDash([]);
-    }
-  }
-
-  function drawChar(sk, view, ex, phase) {
-    const charX = W / 2;
-    const hipY = BASEHIP;
-    const focus = FOCUS[ex && ex.id] || { parts:"", dir:"up" };
-    const goingUp = phase < 0.48;
-
-    g.save();
-    g.translate(charX, hipY + sk.hipDelta * Z);
-    g.scale(Z, Z);
-
-    const sh = (GROUND - (hipY + sk.hipDelta * Z)) / Z;
-    const hipW = view === "front" ? 11 : 5.5;
-    const shW = view === "front" ? 14 : 5.0;
-
-    const hip = { x: 0, y: 0 };
-    const shoulder = { x: NECK * Math.sin(sk.torso), y: -NECK * Math.cos(sk.torso) };
-    const lF = seg(-hipW, 0, THIGH, CALF, sk.legF.t, sk.legF.k);
-    const lB = seg( hipW, 0, THIGH, CALF, sk.legB.t, sk.legB.k);
-    const aF = seg(shoulder.x - shW, shoulder.y + 2, UPARM, FOARM, sk.armF.s, -sk.armF.e);
-    const aB = seg(shoulder.x + shW, shoulder.y + 2, UPARM, FOARM, sk.armB.s, -sk.armB.e);
-
-    // sombras, una por pie — bajo el pie de verdad, no a un tercio
-    g.save();
-    const liftB = Math.max(0, sh - lB.end.y);
-    const liftF = Math.max(0, sh - lF.end.y);
-    g.fillStyle = "rgba(90,60,30," + (0.26 * Math.max(0.22, 1 - liftB / 55)) + ")";
-    g.beginPath(); g.ellipse(lB.end.x, sh + 1, 15, 5.2, 0, 0, 7); g.fill();
-    g.fillStyle = "rgba(90,60,30," + (0.30 * Math.max(0.22, 1 - liftF / 55)) + ")";
-    g.beginPath(); g.ellipse(lF.end.x, sh + 1, 17, 5.6, 0, 0, 7); g.fill();
-    g.restore();
-
-    const skinF = SKIN, skinB = SKIN_B;
-    const edge = INK;
-
-    function drawLeg(L, atras, lit) {
-      if (lit) { haloSeg(L.root, L.mid, 14); haloSeg(L.mid, L.end, 11); }
-      // calzas Mari: pierna entera en tono lino/marrón
-      bendLimb(
-        L.root, L.mid, L.end,
-        atras ? 13.0 : 15.0,
-        atras ? 9.4 : 11.0,
-        atras ? 6.6 : 7.6,
-        atras ? HOSED : HOSE,
-        edge
-      );
-      foot(L.end, L.endAng, atras);
-    }
-    function drawArm(A, atras, lit) {
-      if (lit) { haloSeg(A.root, A.mid, 9); haloSeg(A.mid, A.end, 7); }
-      bendLimb(
-        A.root, A.mid, A.end,
-        atras ? 9.2 : 11.0,
-        atras ? 6.2 : 7.0,
-        atras ? 4.2 : 4.8,
-        atras ? skinB : skinF,
-        edge
-      );
-      hand(A.end, A.endAng, atras);
-    }
-
-    const litLeg = focus.parts === "leg" || focus.parts === "foot" || focus.parts === "hip";
-    const litArm = focus.parts === "arm";
-    const litHead = focus.parts === "head";
-
-    // orden: atrás → cuerpo → túnica Mari → cabeza → delante
-    drawArm(aB, true, litArm);
-    drawLeg(lB, true, litLeg);
-    drawBody(hip, shoulder, view);
-    drawTank(hip, shoulder, view);
-
-    const ha = sk.torso + sk.head;
-    const hc = { x: shoulder.x + Math.sin(ha) * HEADR * 1.55, y: shoulder.y - Math.cos(ha) * HEADR * 1.55 };
-    capsule(shoulder, hc, 6.2, 7.2, SKIN, null, null);
-    if (litHead) {
-      g.save();
-      g.strokeStyle = HALO;
-      g.lineWidth = 14;
-      g.beginPath(); g.arc(hc.x, hc.y, HEADR + 4, 0, 7); g.stroke();
-      g.restore();
-    }
-    drawHead(hc, ha, view, moodOf(ex), phase);
-
-    drawLeg(lF, false, litLeg);
-    drawArm(aF, false, litArm);
-
-    if (focus.parts === "hip") {
-      haloSeg(hip, shoulder, 18);
-    }
-
-    // flecha de dirección junto al miembro activo
-    if (playing) {
-      let tip = aF.end;
-      if (focus.parts === "leg" || focus.parts === "foot") tip = lF.end;
-      if (focus.parts === "head") tip = { x: hc.x + 22, y: hc.y };
-      if (focus.parts === "hip") tip = { x: hip.x + 26, y: hip.y - 8 };
-      let ang = goingUp ? -Math.PI / 2 : Math.PI / 2;
-      if (focus.dir === "side") ang = goingUp ? Math.PI : 0;
-      if (focus.dir === "circle") ang = phase * Math.PI * 2 - Math.PI / 2;
-      if (focus.dir === "down") ang = goingUp ? Math.PI / 2 : -Math.PI / 2;
-      // Fuera de la silueta: si no, en sentadilla se come el muslo.
-      const ox = (focus.parts === "leg" || focus.parts === "foot" || focus.parts === "hip") ? 22 : 18;
-      const oy = (focus.parts === "leg" || focus.parts === "foot" || focus.parts === "hip") ? 8 : -16;
-      drawArrow(tip.x + ox, tip.y + oy, ang, 34);
-    }
-    if (focus.align) {
-      drawAlign(lF.end, lF.mid, hip);
-    }
-
-    g.restore();
+  function resize() {
+    if (!canvas) return;
+    va(canvas, ctx);
+    draw();
   }
 
   function draw() {
-    const ex = EXERCISES[current];
-    g.clearRect(0, 0, W, H);
-    drawBackground(ex.view);
-    const sk = samplePose(ex, animT);
-    sk.torso += Math.sin(performance.now() / 1000 * 2.2) * 0.02;
-    drawChar(sk, ex.view, ex, animT);
+    if (!canvas || !ctx || !state.ex) return;
+    _a(ctx, state.ex, anim.animT, performance.now(), anim.playing && !anim.done, state.figura, state.cuerpo);
   }
 
-  /* ——— bucle ——— */
-  let midCueFired = false;
-  function frame(now) {
-    let dt = (now - last) / 1000; last = now;
-    if (dt > 0.05) dt = 0.05;
-    if (playing && !sessionDone) {
-      const ex = EXERCISES[current];
-      const cycle = ex.cycle * getSpeed();
-      const prev = animT;
-      animT += dt / cycle;
-      // mid-cycle cue (halfway)
-      if (!midCueFired && prev < 0.45 && animT >= 0.45) {
-        midCueFired = true;
-        pitidoMedio();
-        if (ex.cueUp) cueEl.textContent = ex.cueUp;
+  function targetReps(ex) { return Ki(ex); }
+
+  function onRepComplete() {
+    anim.reps += 1;
+    $('repN').textContent = String(anim.reps);
+    var x = targetReps(state.ex);
+    if (anim.reps < x) {
+      beep(880, 120, 0.22);
+      var word = ya(anim.reps);
+      $('cue').textContent = String(word).toUpperCase();
+      speak(word);
+    } else {
+      anim.done = true;
+      anim.playing = false;
+      $('cue').textContent = 'Serie completa';
+      speak('Serie completa. ' + x + ' repeticiones de ' + state.ex.name + '.');
+      $('btnPlay').textContent = 'Otra vez';
+      updatePlayUi();
+    }
+  }
+
+  function tick(now) {
+    var r = (now - anim.last) / 1000;
+    anim.last = now;
+    if (r > 0.05) r = 0.05;
+    if (anim.playing && !anim.done) {
+      var cycle = state.ex.cycle * (anim.lento ? 1.6 : 1);
+      var prev = anim.animT;
+      anim.animT += r / cycle;
+      if (!anim.mid && prev < 0.45 && anim.animT >= 0.45) {
+        anim.mid = true;
+        beep(660, 90, 0.12);
+        if (state.ex.cueUp) $('cue').textContent = state.ex.cueUp;
       }
-      if (animT >= 1) {
-        animT -= 1;
-        midCueFired = false;
-        if (ex.cueDown) cueEl.textContent = ex.cueDown;
+      if (anim.animT >= 1) {
+        anim.animT -= 1;
+        anim.mid = false;
+        if (state.ex.cueDown) $('cue').textContent = state.ex.cueDown;
         onRepComplete();
       }
     }
     draw();
-    if (!playing || sessionDone || document.hidden) { rafId = null; return; }
-    rafId = requestAnimationFrame(frame);
+    if (!anim.playing || anim.done) { raf = 0; return; }
+    raf = requestAnimationFrame(tick);
   }
 
-  // El bucle original repintaba 60 veces por segundo SIEMPRE: en pausa,
-  // con la serie terminada y con la pestaña en otra ventana. Repintar el
-  // fondo, el suelo y el personaje sin que nadie mire es CPU quemada, y
-  // en el HP de 4 GB que ya va a 8 fps con los gestos eso se nota.
-  // Ahora: si no hay movimiento, se dibuja UN fotograma y el bucle para.
-  let rafId = null;
-  function arrancarBucle() {
-    if (rafId !== null) return;
-    last = performance.now();
-    rafId = requestAnimationFrame(frame);
-  }
-  function pararBucle() {
-    if (rafId !== null) { cancelAnimationFrame(rafId); rafId = null; }
-    draw();
-  }
-  // Si se cambia de pestaña o se apaga la pantalla, ni se dibuja ni se
-  // habla. Una voz contando sola en segundo plano es lo peor que hay.
-  document.addEventListener("visibilitychange", () => {
-    if (document.hidden) {
-      if (window.speechSynthesis) speechSynthesis.cancel();
-      if (rafId !== null) { cancelAnimationFrame(rafId); rafId = null; }
-    } else if (playing && !sessionDone) {
-      arrancarBucle();
+  function togglePlay() {
+    try {
+      if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      if (audioCtx.state === 'suspended') audioCtx.resume();
+    } catch (e) { audioCtx = null; }
+    if (anim.done) {
+      anim.reps = 0; anim.done = false; anim.animT = 0; anim.mid = false;
+      $('repN').textContent = '0';
+      $('cue').textContent = state.ex.desc;
     }
-  });
-
-  // ═══ EL LIENZO SE ADAPTA A LA PANTALLA ═══
-  // Antes era 360x360 fijo y el navegador lo estiraba: en la tele del
-  // salón se veía borroso. Ahora se dibuja a la resolución real del
-  // aparato (hasta 2x) y todo el dibujo sigue usando coordenadas de 360,
-  // así que no hubo que tocar ni una línea de las de pintar.
-  const lienzo = document.getElementById("c");
-  function ajustarLienzo() {
-    const caja = lienzo.getBoundingClientRect();
-    // Se comprueban LAS DOS: ahora el alto lo reparte flexbox y puede
-    // llegar a cero un instante mientras la maqueta se coloca. Con alto
-    // cero, la escala sale cero y no se dibuja nada — que es
-    // exactamente el «no veo a Mari» de todo este rato.
-    if (!caja.width || !caja.height) return;
-    const dpr = Math.min(window.devicePixelRatio || 1, 2);
-    lienzo.width = Math.round(caja.width * dpr);
-    lienzo.height = Math.round(caja.height * dpr);
-    // El MENOR de los dos: si se escala solo por el ancho, en una caja
-    // apaisada la figura se sale por abajo y se ve a medias.
-    // El MENOR de los dos: en dos columnas el lienzo ya no es cuadrado,
-    // y escalando solo por el ancho la figura se saldría por abajo.
-    const escala = Math.min((caja.width * dpr) / W, (caja.height * dpr) / H);
-    // Y centrada en el hueco que sobre, que si no queda pegada a un lado.
-    const sobraX = (caja.width * dpr - W * escala) / 2;
-    const sobraY = (caja.height * dpr - H * escala) / 2;
-    g.setTransform(escala, 0, 0, escala, sobraX, sobraY);
-    draw();
-  }
-  addEventListener("resize", ajustarLienzo);
-  // Vigilante de tamaño: si el gimnasio está dentro de una pestaña
-  // oculta, al cargar mide cero y no se dibujaría jamás. En cuanto se
-  // abre la pestaña y coge tamaño, esto lo pinta.
-  if (window.ResizeObserver) {
-    new ResizeObserver(() => ajustarLienzo()).observe(lienzo);
-  } else {
-    // Navegador viejo: se reintenta unas cuantas veces y se deja.
-    let intentos = 0;
-    const reintentar = setInterval(() => {
-      ajustarLienzo();
-      if (++intentos > 20 || lienzo.getBoundingClientRect().width) clearInterval(reintentar);
-    }, 250);
-  }
-
-  /* ——— UI ——— */
-  function select(i, opts) {
-    current = (i + EXERCISES.length) % EXERCISES.length;
-    animT = 0;
-    midCueFired = false;
-    reps = 0;
-    sessionDone = false;
-    announcedIntro = false;
-    updateRepHud();
-    const ex = EXERCISES[current];
-    stateEl.textContent = ex.name;
-    descEl.textContent = ex.desc;
-    badgeEl.textContent = ex.tagLabel;
-    viewBadge.textContent = ex.view === "front" ? "Frente" : "De lado";
-    cueEl.textContent = "";
-    if (!playing) pararBucle();   // repinta la nueva pose aunque esté parado [...listEl.children].forEach((el, idx) => el.classList.toggle("on", idx === current));
-    listEl.children[current] && listEl.children[current].scrollIntoView({ block: "nearest", behavior: "smooth" });
-    if (opts && opts.announce) {
-      speak(ex.intro + " Vamos a hacer " + getTarget() + " repeticiones.", { interrupt: true });
-      announcedIntro = true;
+    anim.playing = !anim.playing;
+    updatePlayUi();
+    if (anim.playing) {
+      anim.last = performance.now();
+      if (!anim.reps) speak(state.ex.intro || state.ex.name);
+      raf = requestAnimationFrame(tick);
+    } else {
+      cancelAnimationFrame(raf); raf = 0; xr();
     }
   }
 
-  function buildList() {
-    listEl.innerHTML = "";
-    // Con más de 16 no caben en una columna ni apretados: se parten en
-    // dos antes que sacar barra de desplazamiento.
-    listEl.classList.toggle("muchos", (EXERCISES || []).length > 16);
-    EXERCISES.forEach((ex, i) => {
-      const b = document.createElement("button");
-      b.type = "button";
-      b.className = "ex" + (i === current ? " on" : "");
-      b.innerHTML =
-        '<span class="n">' + (i + 1) + "</span>" +
-        '<span class="meta"><span class="t">' + ex.name + "</span>" +
-        '<span class="d">' + (ex.view === "front" ? "Frente" : "De lado") +
-        " · " + ex.cycle.toFixed(1) + "s</span></span>" +
-        '<span class="tag ' + ex.tag + '">' + ex.tagLabel + "</span>";
-      b.onclick = () => {
-        if (window.speechSynthesis) speechSynthesis.cancel();
-        select(i, { announce: true });
-        playing = true;
-        syncPlay();
-      };
-      listEl.appendChild(b);
+  function updatePlayUi() {
+    $('btnPlay').textContent = anim.done ? 'Otra vez' : (anim.playing ? 'Pausa' : 'Empezar');
+    $('btnPlay').classList.toggle('btn-acento', anim.playing || anim.done);
+  }
+
+  function showHub() {
+    state.screen = 'hub'; state.ex = null;
+    cancelAnimationFrame(raf); raf = 0; xr();
+    anim = Object.assign({}, ba);
+    $('view-hub').classList.remove('hidden');
+    $('view-ex').classList.add('hidden');
+    $('btnBack').classList.add('hidden');
+    $('title').textContent = 'Gimnasio';
+  }
+
+  function openGrupo(id) {
+    state.grupo = id;
+    renderLista();
+  }
+
+  function renderLista() {
+    var box = $('lista');
+    box.innerHTML = '';
+    var list = Gi.filter(function (e) { return e.grupo === state.grupo; });
+    list.forEach(function (ex) {
+      var b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'hub-tile';
+      b.innerHTML = '<strong></strong><em></em>';
+      b.querySelector('strong').textContent = ex.corto || ex.name;
+      b.querySelector('em').textContent = ex.desc;
+      b.addEventListener('click', function () { openEx(ex); });
+      box.appendChild(b);
+    });
+    $('hub-tiles').classList.add('hidden');
+    $('lista-wrap').classList.remove('hidden');
+    $('btnBack').classList.remove('hidden');
+    $('title').textContent = Wi[state.grupo] || 'Gimnasio';
+  }
+
+  function openEx(ex) {
+    state.screen = 'ex'; state.ex = ex;
+    anim = Object.assign({}, ba);
+    $('view-hub').classList.add('hidden');
+    $('view-ex').classList.remove('hidden');
+    $('btnBack').classList.remove('hidden');
+    $('title').textContent = ex.corto || ex.name;
+    $('cue').textContent = ex.desc;
+    $('repN').textContent = '0';
+    $('repDe').textContent = 'de ' + targetReps(ex);
+    $('btnPlay').textContent = 'Empezar';
+    $('btnPlay').classList.remove('btn-acento');
+    canvas = $('gimCanvas');
+    ctx = canvas.getContext('2d');
+    resize();
+    draw();
+  }
+
+  function back() {
+    if (state.screen === 'ex') {
+      showHub();
+      if (state.grupo) {
+        $('hub-tiles').classList.add('hidden');
+        $('lista-wrap').classList.remove('hidden');
+        $('btnBack').classList.remove('hidden');
+        $('title').textContent = Wi[state.grupo] || 'Gimnasio';
+        renderLista();
+      }
+      return;
+    }
+    // from lista to hub tiles
+    state.grupo = null;
+    $('lista-wrap').classList.add('hidden');
+    $('hub-tiles').classList.remove('hidden');
+    $('btnBack').classList.add('hidden');
+    $('title').textContent = 'Gimnasio';
+  }
+
+  function buildHub() {
+    var box = $('hub-tiles');
+    box.innerHTML = '';
+    Ui.forEach(function (g) {
+      var b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'hub-tile';
+      b.innerHTML = '<strong></strong><em></em>';
+      b.querySelector('strong').textContent = g.nom;
+      b.querySelector('em').textContent = g.meta;
+      b.addEventListener('click', function () { openGrupo(g.id); });
+      box.appendChild(b);
     });
   }
 
-  function syncPlay() {
-    btnPlay.textContent = playing ? "⏸ Pausar" : sessionDone ? "▶ Otra serie" : "▶ Empezar";
-    btnPlay.setAttribute("aria-pressed", playing ? "true" : "false");
-    if (playing && !sessionDone) arrancarBucle(); else pararBucle();
-  }
-
-  btnPlay.onclick = () => {
-    abrirAudio();   // el navegador solo deja sonar tras tocar un botón
-    if (sessionDone) {
-      reps = 0;
-      sessionDone = false;
-      animT = 0;
-      updateRepHud();
-      playing = true;
-      const ex = EXERCISES[current];
-      speak("Otra serie de " + ex.name + ". " + getTarget() + " repeticiones.", { interrupt: true });
-      syncPlay();
-      return;
-    }
-    playing = !playing;
-    if (playing && !announcedIntro) {
-      const ex = EXERCISES[current];
-      speak(ex.intro + " " + getTarget() + " repeticiones.", { interrupt: true });
-      announcedIntro = true;
-    } else if (!playing && window.speechSynthesis) {
-      speechSynthesis.cancel();
-    }
-    syncPlay();
-  };
-
-  function cambiarEjercicio(paso) {
-    if (window.speechSynthesis) speechSynthesis.cancel();
-    // Se conserva si estaba en marcha: si estabas entrenando, sigues
-    // entrenando; si estabas mirando, sigues mirando.
-    const seguia = playing;
-    select(current + paso, { announce: true });
-    playing = seguia;
-    syncPlay();
-  }
-  btnPrev.onclick = () => cambiarEjercicio(-1);
-  btnNext.onclick = () => cambiarEjercicio(1);
-  btnReset.onclick = () => {
-    reps = 0;
-    sessionDone = false;
-    animT = 0;
-    midCueFired = false;
-    updateRepHud();
-    cueEl.textContent = "";
-    stateEl.textContent = EXERCISES[current].name;
-    if (window.speechSynthesis) speechSynthesis.cancel();
-    speak("Serie reiniciada.", { interrupt: true });
-    syncPlay();
-  };
-  btnSonido.onclick = () => {
-    abrirAudio();
-    pitidoOn = !pitidoOn;
-    btnSonido.classList.toggle("on", pitidoOn);
-    btnSonido.textContent = pitidoOn ? "🔔 Pitido: sí" : "🔕 Pitido: no";
-    if (pitidoOn) pitidoRep();   // se oye al momento: así se prueba solo
-  };
-
-  btnVoice.onclick = () => {
-    voiceOn = !voiceOn;
-    btnVoice.textContent = voiceOn ? "Voz: sí" : "Voz: no";
-    btnVoice.classList.toggle("on", voiceOn);
-    if (!voiceOn && window.speechSynthesis) speechSynthesis.cancel();
-    else speak(voiceOn ? "Voz activada." : "", { interrupt: true });
-  };
-  targetSel.onchange = () => {
-    updateRepHud();
-    if (reps >= getTarget() && !sessionDone) {
-      /* no auto-complete mid-set */
-    }
-  };
-
-  // ═══ MANDO A DISTANCIA ═══
-  // Este es el módulo que más lo necesita: haciendo sentadillas en medio
-  // del salón no se llega al ratón. Se cubren los tres repertorios que
-  // usan los mandos de diapositivas (AvPág/RePág, flechas, y b/./F5 para
-  // el botón de pantalla en negro), igual que en el resto del asistente.
-  const MANDO = {
-    PageDown: "siguiente", ArrowRight: "siguiente",
-    PageUp: "anterior", ArrowLeft: "anterior",
-    " ": "marcha", Enter: "marcha", b: "marcha", B: "marcha",
-    ".": "marcha", F5: "marcha",
-    Escape: "reiniciar",
-  };
-  addEventListener("keydown", (ev) => {
-    // Si se está eligiendo meta o ritmo en un desplegable, el mando calla.
-    const foco = document.activeElement;
-    if (foco && ["select", "input", "textarea"].includes((foco.tagName || "").toLowerCase())) return;
-    if (ev.ctrlKey || ev.altKey || ev.metaKey) return;
-
-    // El mando de la tele no tiene rueda: sin esto, los ejercicios de
-    // abajo de la lista eran inalcanzables. Las flechas mueven el foco
-    // y la lista se desplaza sola.
-    if (ev.key === "ArrowDown" || ev.key === "ArrowUp") {
-      const cosas = [...document.querySelectorAll(
-        "button, select, [tabindex]")].filter(e => !e.disabled && e.offsetParent !== null);
-      const donde = cosas.indexOf(document.activeElement);
-      const nuevo = donde < 0 ? 0 : donde + (ev.key === "ArrowDown" ? 1 : -1);
-      if (nuevo >= 0 && nuevo < cosas.length) {
-        ev.preventDefault();
-        cosas[nuevo].focus();
-        if (cosas[nuevo].scrollIntoView) {
-          cosas[nuevo].scrollIntoView({ block: "nearest", behavior: "smooth" });
-        }
-        return;
-      }
-    }
-
-    const orden = MANDO[ev.key];
-    if (!orden) return;
-    // Siempre se cancela: F5 recargaría la página entera a mitad de serie.
-    ev.preventDefault();
-    if (orden === "siguiente") btnNext.click();
-    else if (orden === "anterior") btnPrev.click();
-    else if (orden === "marcha") btnPlay.click();
-    else if (orden === "reiniciar") btnReset.click();
+  document.addEventListener('DOMContentLoaded', function () {
+    buildHub();
+    setFigura(state.figura);
+    $('btnFigura').addEventListener('click', function () {
+      setFigura(state.figura === 'chica' ? 'chico' : 'chica');
+    });
+    $('btnBack').addEventListener('click', back);
+    $('btnPlay').addEventListener('click', togglePlay);
+    $('btnVoz').addEventListener('click', function () {
+      anim.voz = !anim.voz;
+      $('btnVoz').textContent = anim.voz ? 'Voz sí' : 'Voz no';
+      $('btnVoz').classList.toggle('btn-acento', anim.voz);
+    });
+    $('btnLento').addEventListener('click', function () {
+      anim.lento = !anim.lento;
+      $('btnLento').textContent = anim.lento ? 'Despacio' : 'Ritmo';
+      $('btnLento').classList.toggle('btn-acento', anim.lento);
+    });
+    window.addEventListener('resize', resize);
   });
-
-
-  
-  /* Avatar Chico/Chica: etiqueta honesta; la figura dibujada es la misma Mari */
-  const btnAvatar = document.getElementById("btnAvatar");
-  let avatarLabel = "Chica";
-  if (btnAvatar) {
-    try {
-      const saved = localStorage.getItem("lv-gym-avatar");
-      if (saved === "Chico" || saved === "Chica") avatarLabel = saved;
-    } catch (e) {}
-    function applyAvatar() {
-      btnAvatar.textContent = avatarLabel;
-      btnAvatar.classList.toggle("on", true);
-      document.body.classList.toggle("avatar-chico", avatarLabel === "Chico");
-      document.body.classList.toggle("avatar-chica", avatarLabel === "Chica");
-      const badge = document.querySelector(".view-badge");
-      if (badge) {
-        let base = badge.getAttribute("data-base");
-        if (!base) {
-          base = badge.textContent.replace(/\s·\sChi(co|ca)$/, "");
-          badge.setAttribute("data-base", base);
-        }
-        badge.textContent = base + " · " + avatarLabel;
-      }
-    }
-    applyAvatar();
-    btnAvatar.onclick = () => {
-      avatarLabel = avatarLabel === "Chica" ? "Chico" : "Chica";
-      try { localStorage.setItem("lv-gym-avatar", avatarLabel); } catch (e) {}
-      applyAvatar();
-    };
-  }
-
-avisarSiNoHayVoz();
-  buildList();
-  select(0, { announce: false });
-  try {
-    const q = new URLSearchParams(location.search);
-    if (q.has("ex")) select(parseInt(q.get("ex"), 10) || 0, { announce: false });
-    if (q.has("t")) animT = Math.min(0.99, Math.max(0, parseFloat(q.get("t")) || 0));
-    if (q.get("play") === "1") { playing = true; }
-  } catch (e) {}
-  updateRepHud();
-  syncPlay();
-  ajustarLienzo();
 })();
-</script>
+
+  </script>
 </body>
 </html>

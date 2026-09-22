@@ -248,7 +248,7 @@
     overflow: visible;
     min-width: 72px; min-height: 88px;
     container-type: size;
-    pointer-events: none; /* empty desk area passes through; only glyph hits */
+    pointer-events: auto; /* whole icon+label opens module */ /* empty desk area passes through; only glyph hits */
   }
   .desk-item.view-icon.selected {
     border: none;
@@ -280,7 +280,7 @@
     align-items: center; justify-content: flex-start; text-align: center;
     padding: 0.15rem 0.1rem 0.25rem; gap: 0.15rem;
     height: 100%; min-height: 0;
-    pointer-events: none;
+    pointer-events: auto;
     cursor: default;
   }
   /* Hit target = emoji glyph + pad only — no filled square plate */
@@ -322,7 +322,7 @@
   .desk-item.view-icon .mod-ico-label {
     font-size: clamp(0.48rem, 11cqmin, 0.78rem); font-weight: 600; color: var(--tinta);
     max-width: 96%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
-    line-height: 1.15; pointer-events: none;
+    line-height: 1.15; pointer-events: auto;
     text-shadow: 0 1px 2px rgba(0,0,0,0.45);
     opacity: 0.92;
   }
@@ -693,6 +693,16 @@
   body.mod-external #mod-frame { display: none; }
   #mod-external h2 { font-family: var(--serif); font-size: 1.35rem; margin: 0 0 0.75rem; }
   #mod-external p { color: var(--suave); line-height: 1.5; }
+
+  #est-toast {
+    position: fixed; left: 50%; bottom: 1.4rem; transform: translateX(-50%) translateY(120%);
+    z-index: 20000; max-width: min(92vw, 24rem);
+    padding: 0.75rem 1.1rem; border-radius: 8px;
+    background: #1a160e; color: #fff8ec; font: 700 0.95rem var(--sans);
+    box-shadow: 0 8px 28px rgba(0,0,0,.35); opacity: 0; pointer-events: none;
+    transition: transform .25s ease, opacity .25s ease;
+  }
+  #est-toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
   </style>
 </head>
 <body class="theme-ambar">
@@ -767,7 +777,7 @@
       </div>
     </div>
 
-    <footer class="site-foot">lesvencimos.com · estantería offline · <span id="est-build">v20260922j</span></footer>
+    <footer class="site-foot">lesvencimos.com · estantería offline · <span id="est-build">v20260922k</span></footer>
   </div>
 
   <div id="mod-viewer" role="dialog" aria-modal="true" aria-labelledby="mod-viewer-title" hidden>
@@ -1078,6 +1088,21 @@
     var modBlobUrl = null;
     var modLoadTimer = null;
 
+
+    function showToast(msg) {
+      var t = document.getElementById('est-toast');
+      if (!t) {
+        t = document.createElement('div');
+        t.id = 'est-toast';
+        t.setAttribute('role', 'status');
+        document.body.appendChild(t);
+      }
+      t.textContent = msg || 'No se pudo abrir';
+      t.classList.add('show');
+      clearTimeout(t._tm);
+      t._tm = setTimeout(function () { t.classList.remove('show'); }, 3200);
+    }
+
     function closeModuleViewer() {
       var viewer = document.getElementById('mod-viewer');
       var frame = document.getElementById('mod-frame');
@@ -1165,7 +1190,7 @@
         return;
       }
       if (!html) {
-        alert('Este módulo no tiene contenido embebido.');
+        showToast('No se pudo abrir');
         closeModuleViewer();
         return;
       }
@@ -1181,7 +1206,7 @@
           loadModuleViaBlob(frame, html);
         } catch (errBlob) {
           if (!loadModuleSameDocument(html)) {
-            alert('No se pudo abrir el módulo en esta página.');
+            showToast('No se pudo abrir');
             closeModuleViewer();
           } else {
             ok();
@@ -1194,7 +1219,7 @@
           /* iframe still empty → same-document inject */
           try { frame.src = 'about:blank'; } catch (e3) {}
           if (!loadModuleSameDocument(html)) {
-            alert('No se pudo abrir el módulo en esta página.');
+            showToast('No se pudo abrir');
             closeModuleViewer();
           } else {
             ok();
@@ -1232,13 +1257,16 @@
       return '/modulos/' + id + '.html';
     }
 
-    function showModuleViewerUrl(title, url) {
+    function showModuleViewerUrl(title, url, embedKeyFallback) {
       var viewer = document.getElementById('mod-viewer');
       var frame = document.getElementById('mod-frame');
       var ext = document.getElementById('mod-external');
       var host = document.getElementById('mod-host');
       var t = document.getElementById('mod-viewer-title');
-      if (!viewer || !frame) return;
+      if (!viewer || !frame) {
+        showToast('No se pudo abrir');
+        return;
+      }
       closeModuleViewer();
       if (t) t.textContent = title || 'Módulo';
       viewer.hidden = false;
@@ -1247,29 +1275,67 @@
       if (ext) ext.innerHTML = '';
       if (host) host.innerHTML = '';
       try { frame.removeAttribute('srcdoc'); } catch (e0) {}
-      frame.onload = function () {};
-      frame.src = url;
+      var settled = false;
+      function failToEmbedOrToast() {
+        if (settled) return;
+        settled = true;
+        if (modLoadTimer) { clearTimeout(modLoadTimer); modLoadTimer = null; }
+        if (embedKeyFallback && EMBEDDED && EMBEDDED[embedKeyFallback]) {
+          showModuleViewer(title, EMBEDDED[embedKeyFallback], null);
+          return;
+        }
+        showToast('No se pudo abrir');
+        closeModuleViewer();
+      }
+      function ok() {
+        settled = true;
+        if (modLoadTimer) { clearTimeout(modLoadTimer); modLoadTimer = null; }
+      }
+      frame.onload = function () {
+        if (settled) return;
+        /* cross-origin opaque is fine if src loaded; same-origin empty → fallback */
+        try {
+          if (frameLooksEmpty(frame) && frame.contentDocument) {
+            failToEmbedOrToast();
+            return;
+          }
+        } catch (eCross) { /* opaque = loaded OK */ }
+        ok();
+      };
+      frame.onerror = function () { failToEmbedOrToast(); };
+      modLoadTimer = setTimeout(function () {
+        if (settled) return;
+        try {
+          if (!frameLooksEmpty(frame)) { ok(); return; }
+        } catch (e2) { ok(); return; }
+        failToEmbedOrToast();
+      }, 2800);
+      try {
+        frame.src = url;
+      } catch (errSrc) {
+        failToEmbedOrToast();
+      }
     }
 
     var _openGuard = 0;
     function openModule(it) {
       if (!it) return;
       var now = Date.now();
-      if (now - _openGuard < 400) return;
+      if (now - _openGuard < 350) return;
       _openGuard = now;
+      try { closePanels(); } catch (eClose) {}
       if (it.kind === 'local') {
         openLocal(it.id);
         return;
       }
       var cat = catalogById(it.id) || it;
-      var embedKey = cat.embed || it.embed;
-      if (embedKey && EMBEDDED && EMBEDDED[embedKey]) {
-        showModuleViewer(cat.titulo || it.titulo, EMBEDDED[embedKey], null);
-        return;
-      }
+      var embedKey = cat.embed || it.embed || null;
+      var title = cat.titulo || it.titulo || 'Módulo';
+      var webPath = moduleWebPath(cat, it);
+      var isHttp = location.protocol === 'http:' || location.protocol === 'https:';
+
       if (cat.external || it.external) {
-        var name = cat.titulo || it.titulo || 'Módulo';
-        var tip = '<h2>' + escapeHtml(name) + '</h2>' +
+        var tip = '<h2>' + escapeHtml(title) + '</h2>' +
           '<p>Este módulo es grande y va en un ZIP aparte (no cabe cómodo en el HTML único).</p>' +
           '<p>Descárgalo desde <strong>lesvencimos.com/descargas.html</strong> → Profesor / Informática según corresponda, ' +
           'descomprime y ábrelo desde <strong>Mis archivos</strong>, o usa «Archivo local…» aquí para añadirlo a este escritorio.</p>' +
@@ -1278,35 +1344,40 @@
           tip += '<p><strong>Tip:</strong> aunque estés en content://, los módulos embebidos sí abren aquí. ' +
             'Para Profesor aparte, mejor file:// desde Archivos.</p>';
         }
-        showModuleViewer(name, null, tip);
+        showModuleViewer(title, null, tip);
         return;
       }
-      /* ONLINE (http/https): iframe to /modulos/… when not embedded */
-      var webPath = moduleWebPath(cat, it);
-      if (webPath && (location.protocol === 'http:' || location.protocol === 'https:')) {
-        showModuleViewerUrl(cat.titulo || it.titulo || 'Módulo', webPath);
+
+      /* ONLINE: prefer /modulos/<id>.html (reliable); embed srcdoc is backup */
+      if (isHttp && webPath) {
+        showModuleViewerUrl(title, webPath, embedKey);
         return;
       }
+
+      if (embedKey && EMBEDDED && EMBEDDED[embedKey]) {
+        showModuleViewer(title, EMBEDDED[embedKey], null);
+        return;
+      }
+
       /* file:// sibling href if present */
       if (it.href) {
         if (location.protocol === 'content:') {
-          alert('No hay módulo embebido y content:// no puede abrir archivos hermanos. Usa Mis archivos (file://) o Archivo local…');
+          showToast('No se pudo abrir');
           return;
         }
-        if (location.protocol === 'http:' || location.protocol === 'https:') {
-          showModuleViewerUrl(cat.titulo || it.titulo || 'Módulo', it.href);
+        if (isHttp) {
+          showModuleViewerUrl(title, it.href, embedKey);
           return;
         }
         window.location.assign(it.href);
         return;
       }
       if (webPath && location.protocol === 'file:') {
-        /* best-effort relative sibling */
         var leaf = webPath.split('/').pop();
-        showModuleViewerUrl(cat.titulo || it.titulo || 'Módulo', leaf);
+        showModuleViewerUrl(title, leaf, embedKey);
         return;
       }
-      alert('Este módulo no tiene contenido embebido en esta copia.');
+      showToast('No se pudo abrir');
     }
 
     function applyToolbarCollapsed() {
@@ -1660,8 +1731,8 @@
           var lab = document.createElement('span');
           lab.className = 'mod-ico-label';
           lab.textContent = it.titulo || it.id;
+          wrap.appendChild(lab);
           body.appendChild(wrap);
-          body.appendChild(lab);
         } else {
           var icoLine = document.createElement('div');
           icoLine.className = 'mod-ico ico';
@@ -1835,18 +1906,19 @@
         from.addEventListener('pointercancel', end);
       }
       chrome.addEventListener('pointerdown', function (e) { start(e, chrome, false); });
-      body.addEventListener('pointerdown', function (e) { start(e, body, it.view === 'tile' && it.type !== 'widget'); });
-      /* icon mode: body is pointer-events:none — bind glyph wrap and capture ON the wrap */
+      var iconMode = it.type !== 'widget' && it.view !== 'tile';
       var icoHit = body.querySelector('.mod-ico-wrap');
-      if (icoHit && it.type !== 'widget' && it.view !== 'tile') {
-        icoHit.addEventListener('pointerdown', function (e) { start(e, icoHit, true); });
-        /* also click as belt-and-suspenders (some WebViews drop pointerup) */
-        icoHit.addEventListener('click', function (e) {
-          if (e.defaultPrevented) return;
-          openModule(it);
+      /* Single hit target: wrap (icon+label) in icon mode, else body for tile */
+      if (iconMode && icoHit) {
+        icoHit.addEventListener('pointerdown', function (e) {
+          start(e, icoHit, true);
+        }, true);
+      } else {
+        body.addEventListener('pointerdown', function (e) {
+          start(e, body, it.type !== 'widget');
         });
       }
-      if (it.type !== 'widget' && it.view !== 'tile') {
+      if (iconMode) {
         var keyEl = icoHit || body;
         keyEl.addEventListener('keydown', function (e) {
           if (e.key === 'Enter' || e.key === ' ') {
@@ -2051,7 +2123,7 @@
       });
     }
 
-    var EST_BUILD = 'v20260922j';
+    var EST_BUILD = 'v20260922k';
 
     function layoutPanelSheet() {
       var tb = document.getElementById('desk-toolbar');
