@@ -3,7 +3,7 @@
 Todo el apartado de enseñanza del asistente, sacado entero para que
 puedas meterlo donde quieras.
 
-**49 materias · 372 lecciones · 1.116 preguntas.** Ninguna lección se
+**51 materias · 377 lecciones · 1.131 preguntas.** Ninguna lección se
 queda sin su quiz, y cada respuesta lleva su **porqué**: eso es lo que
 separa enseñar de examinar.
 
@@ -14,7 +14,7 @@ separa enseñar de examinar.
     montar.py              vuelve a armar Profesor.html desde las piezas
 
     piezas-sueltas/
-      temario.js           solo el contenido (49 materias)
+      temario.js           solo el contenido (51 materias)
       profesor.js          solo el programa
       cabecera.html        el envoltorio y los estilos
 
@@ -61,8 +61,8 @@ le pasas dos funciones más:
 ```
 
 Sin ellas se apaña solo. Para enseñar el tamaño en una pantalla de
-inicio: `Profesor.resumen()` → `{ materias: 49, lecciones: 372,
-preguntas: 1116 }`.
+inicio: `Profesor.resumen()` → `{ materias: 51, lecciones: 377,
+preguntas: 1131 }`.
 
 ## Dos decisiones que conviene no deshacer
 
@@ -92,7 +92,7 @@ por http ese problema no se ve.
     python prueba_profesor.py
 
 Abre un Chromium de verdad, con `file://`, y recorre: que el temario
-entero está (49/372/1.116), que un adulto ve las 49 materias y los
+entero está (51/377/1.131), que un adulto ve las 51 materias y los
 niveles salen en orden, que se abre una lección con su texto y su quiz,
 que al responder **se marca siempre cuál era la buena** —se acierte o
 no— y se explica el porqué, que las demás opciones se bloquean, que se
