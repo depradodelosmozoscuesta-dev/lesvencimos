@@ -512,17 +512,17 @@
       <div class="brand" aria-label="Les vencimos">
         <span class="wordmark">Les vencimos</span>
       </div>
-      <p class="nav" style="margin:0;color:var(--suave);font-size:0.85rem">Modo offline · file://</p>
+      <p class="nav" id="offline-mode-label" style="margin:0;color:var(--suave);font-size:0.85rem">Modo offline</p>
     </header>
 
     <div id="lv-protected">
       <div id="desk-chrome">
 
-      <p class="offline-tip" role="status">
+      <p class="offline-tip" id="offline-tip" role="status">
         <strong>Offline listo.</strong>
         Estás en el programa del ZIP (no en la web).
         Pulsa <strong>Módulos</strong> o <strong>Widgets</strong> para añadir cosas al escritorio.
-        Si llegaste aquí sin descomprimir el ZIP, vuelve a Archivos → descomprime → abre <strong>ABRE-AQUI.html</strong>.
+        Abre siempre desde <strong>Archivos / Mis archivos</strong> (debe verse <code>file://</code>), nunca desde la lista Descargas del navegador (<code>content://</code> falla al abrir módulos).
       </p>
         <h1>Estantería</h1>
         <p class="lead">
@@ -585,16 +585,16 @@
     var THEMES = ['ambar', 'verde', 'azul', 'papel'];
 
     var CATALOG = [
-      { id: 'profesor', titulo: 'Profesor', icon: '📖', href: 'profesor.html', blurb: '37 materias' },
-      { id: 'informatica', titulo: 'Informática', icon: '💻', href: 'modulos/informatica.html', blurb: 'Linux, Python, Central' },
-      { id: 'primeros-auxilios', titulo: 'Auxilios', icon: '❤️‍🩹', href: 'modulos/primeros-auxilios.html', blurb: 'RCP y cuidados' },
-      { id: 'calculadora', titulo: 'Calculadora', icon: '🔢', href: 'modulos/calculadora.html', blurb: 'Operaciones' },
-      { id: 'tinta-escritura', titulo: 'Escritura', icon: '📝', href: 'modulos/tinta-escritura.html', blurb: 'Hoja para escribir' },
-      { id: 'tinta-estudio', titulo: 'Dibujo', icon: '✏️', href: 'modulos/tinta-estudio.html', blurb: 'Hoja para pintar' },
-      { id: 'gimnasio', titulo: 'Gimnasio', icon: '💪', href: 'modulos/gimnasio.html', blurb: 'Movimiento suave' },
-      { id: 'medicacion', titulo: 'Medicación', icon: '💊', href: 'modulos/medicacion.html', blurb: 'Recordatorio local' },
-      { id: 'alarma-cuba', titulo: 'Alarma', icon: '🚨', href: 'alarma-cuba.html', blurb: 'Guía apagones' },
-      { id: 'central-cuba', titulo: 'Central', icon: '🏠', href: 'profesor.html', blurb: 'Lecciones locales' }
+      { id: 'profesor', titulo: 'Profesor', icon: '📖', href: 'profe.html', blurb: '37 materias' },
+      { id: 'informatica', titulo: 'Informática', icon: '💻', href: 'info.html', blurb: 'Linux, Python, Central' },
+      { id: 'primeros-auxilios', titulo: 'Auxilios', icon: '❤️‍🩹', href: 'auxilios.html', blurb: 'RCP y cuidados' },
+      { id: 'calculadora', titulo: 'Calculadora', icon: '🔢', href: 'calc.html', blurb: 'Operaciones' },
+      { id: 'tinta-escritura', titulo: 'Escritura', icon: '📝', href: 'escritura.html', blurb: 'Hoja para escribir' },
+      { id: 'tinta-estudio', titulo: 'Dibujo', icon: '✏️', href: 'dibujo.html', blurb: 'Hoja para pintar' },
+      { id: 'gimnasio', titulo: 'Gimnasio', icon: '💪', href: 'gym.html', blurb: 'Movimiento suave' },
+      { id: 'medicacion', titulo: 'Medicación', icon: '💊', href: 'medica.html', blurb: 'Recordatorio local' },
+      { id: 'alarma-cuba', titulo: 'Alarma', icon: '🚨', href: 'alarma.html', blurb: 'Guía apagones' },
+      { id: 'central-cuba', titulo: 'Central', icon: '🏠', href: 'profe.html', blurb: 'Lecciones locales' }
     ];
 
     var WIDGETS = [
@@ -789,7 +789,12 @@
         return;
       }
       if (it.href) {
-        window.location.href = it.href;
+        if (location.protocol === 'content:') {
+          alert('Android abrió esto como content:// (lista Descargas). Así no puede acceder a gym.html u otros archivos de la carpeta.\n\nCierra, abre Mis archivos / Archivos, entra en la carpeta descomprimida y toca ABRE-AQUI.html (debe verse file://).');
+          return;
+        }
+        /* same window, relative path — no iframe (siblings fail under content://) */
+        window.location.assign(it.href);
       }
     }
 
@@ -1542,6 +1547,8 @@
       var cat = catalogById(it.id);
       if (cat) {
         if (!it.icon) it.icon = cat.icon || '';
+        /* always refresh relative href (flat short names; drop nested paths) */
+        if (cat.href) it.href = cat.href;
         /* short catalog titles */
         var oldLong = {
           'tinta-escritura': ['Tinta escritura', 'Hoja de escritura'],
@@ -1596,6 +1603,22 @@
     }
 
     function init() {
+      (function showProtocolHint() {
+        var lab = document.getElementById('offline-mode-label');
+        var tip = document.getElementById('offline-tip');
+        var proto = location.protocol || '';
+        if (lab) {
+          if (proto === 'file:') lab.textContent = 'Modo offline · file://';
+          else if (proto === 'content:') lab.textContent = '¡Mal abierto · content://!';
+          else lab.textContent = 'Modo offline · ' + proto;
+        }
+        if (proto === 'content:' && tip) {
+          tip.innerHTML = '<strong style="color:var(--peligro)">No uses la lista Descargas.</strong> '
+            + 'Android abrió esto como <code>content://</code> y los módulos (Gimnasio, etc.) no abrirán. '
+            + 'Ve a <strong>Mis archivos / Archivos</strong> → carpeta descomprimida → toca <strong>ABRE-AQUI.html</strong> '
+            + '(Chrome o Samsung Internet desde el gestor). Debe verse <code>file://</code>.';
+        }
+      })();
       state = loadState();
       state.items.forEach(migrateItem);
       applyTheme(state.theme || 'ambar');
