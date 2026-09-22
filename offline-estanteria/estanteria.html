@@ -1,0 +1,1653 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self' blob: data:; base-uri 'self'; object-src 'none'; img-src 'self' data: blob:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; font-src 'self' data:; connect-src 'self'; form-action 'self'; media-src 'self' blob:; frame-src 'self' blob:">
+  <meta name="description" content="Estantería — escritorio libre para módulos Les vencimos.">
+  <meta name="theme-color" content="#0E0E0C">
+  <title>Estantería — Les vencimos</title>
+  <style>
+  :root {
+    --fondo: #0E0E0C;
+    --fondo-2: #161512;
+    --fondo-3: #1C1A16;
+    --tinta: #E6E1D6;
+    --suave: #9A9488;
+    --acento: #C4A15A;
+    --acento-texto: #1A160E;
+    --linea: rgba(230, 225, 214, 0.14);
+    --peligro: #C46A4A;
+    --ok: #8F9A72;
+    --serif: "Iowan Old Style", "Palatino Linotype", Palatino, "Times New Roman", Georgia, serif;
+    --sans: "Segoe UI", system-ui, -apple-system, sans-serif;
+    --radio: 2px;
+    --max: 44rem;
+    --desk-glow: rgba(196,161,90,0.06);
+  }
+  body.theme-ambar {
+    --fondo: #0E0E0C; --fondo-2: #161512; --fondo-3: #1C1A16;
+    --tinta: #E6E1D6; --suave: #9A9488; --acento: #C4A15A; --acento-texto: #1A160E;
+    --linea: rgba(230, 225, 214, 0.14); --desk-glow: rgba(196,161,90,0.06);
+  }
+  body.theme-verde {
+    --fondo: #0C100E; --fondo-2: #121814; --fondo-3: #18201A;
+    --tinta: #E2E8E0; --suave: #8A9688; --acento: #8F9A72; --acento-texto: #12180E;
+    --linea: rgba(226, 232, 224, 0.14); --desk-glow: rgba(143,154,114,0.08);
+  }
+  body.theme-azul {
+    --fondo: #0C0E12; --fondo-2: #12161C; --fondo-3: #181E26;
+    --tinta: #E0E4EA; --suave: #8A909A; --acento: #7A8FA8; --acento-texto: #0E1218;
+    --linea: rgba(224, 228, 234, 0.14); --desk-glow: rgba(122,143,168,0.08);
+  }
+  body.theme-papel {
+    --fondo: #EDE6D8; --fondo-2: #F5F0E6; --fondo-3: #FFFCF6;
+    --tinta: #2A261E; --suave: #6A6458; --acento: #A67C3A; --acento-texto: #FFF8EC;
+    --linea: rgba(42, 38, 30, 0.14); --desk-glow: rgba(166,124,58,0.08);
+    --peligro: #A04830; --ok: #5A6A48;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; min-height: 100%; }
+  body {
+    color: var(--tinta);
+    background: var(--fondo);
+    font-family: var(--sans);
+    font-size: 1.05rem;
+    line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+    touch-action: manipulation;
+  }
+  .wrap {
+    max-width: min(72rem, 100%);
+    margin: 0 auto;
+    padding: 1.25rem 1rem 3rem;
+  }
+  @media (min-width: 880px) {
+    .wrap { padding: 2rem 1.5rem 4rem 2rem; }
+  }
+  header.top {
+    display: flex; align-items: baseline; justify-content: space-between;
+    gap: 1rem; flex-wrap: wrap; padding-bottom: 1rem;
+    border-bottom: 1px solid var(--linea); margin-bottom: 1.25rem;
+  }
+  .brand { display: inline-flex; align-items: center; gap: 0.7rem; color: var(--tinta); text-decoration: none; }
+  .brand img { width: 28px; height: 28px; display: block; }
+  .wordmark { font-family: var(--serif); font-size: 1.15rem; font-weight: 600; }
+  .nav a { color: var(--suave); margin-left: 0.85rem; text-decoration: none; font-size: 0.9rem; }
+  .nav a:hover { color: var(--acento); }
+  h1 { font-family: var(--serif); font-size: 1.75rem; font-weight: 600; margin: 0 0 0.4rem; letter-spacing: -0.02em; }
+  .lead { color: var(--suave); margin: 0 0 1rem; font-size: 1rem; max-width: 40rem; }
+  .lead strong { color: var(--tinta); }
+  .panel {
+    background: var(--fondo-2); border: 1px solid var(--linea);
+    border-radius: var(--radio); padding: 1.25rem 1.15rem 1.35rem; margin: 0 0 1rem;
+    max-width: 40rem;
+  }
+  .panel h2 { font-family: var(--serif); font-size: 1.25rem; font-weight: 600; margin: 0 0 0.75rem; }
+  label { display: block; font-size: 0.82rem; color: var(--suave); margin: 0.55rem 0 0.25rem; }
+  input[type=text] {
+    width: 100%; max-width: 22rem; padding: 0.65rem 0.75rem; border-radius: var(--radio);
+    border: 1px solid var(--linea); background: var(--fondo-3); color: var(--tinta); font-size: 1rem;
+  }
+  .lyric { margin: 1rem 0 0.35rem; font-family: var(--serif); color: var(--tinta); }
+  .choices { display: flex; flex-direction: column; gap: 0.4rem; margin: 0.35rem 0 0.5rem; }
+  .choice {
+    text-align: left; padding: 0.7rem 0.85rem; min-height: 44px;
+    background: var(--fondo-3); border: 1px solid var(--linea); color: var(--tinta);
+    border-radius: var(--radio); cursor: pointer; font-size: 0.95rem;
+  }
+  .choice[aria-pressed="true"] { border-color: var(--acento); color: var(--acento); }
+  .row { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.85rem; }
+  button.primary {
+    background: var(--acento); color: var(--acento-texto); border: 1px solid var(--acento);
+    border-radius: var(--radio); padding: 0.7rem 1.1rem; min-height: 44px;
+    font: 700 0.95rem var(--sans); cursor: pointer;
+  }
+  .err { color: var(--peligro); font-size: 0.9rem; min-height: 1.2em; }
+  .hint { color: var(--suave); font-size: 0.82rem; margin: 0.45rem 0 0; }
+  footer.site-foot {
+    margin-top: 1.75rem; padding-top: 1rem; border-top: 1px solid var(--linea);
+    color: var(--suave); font-size: 0.78rem; letter-spacing: 0.08em; text-transform: uppercase;
+  }
+
+  /* —— Desktop —— */
+  .desk-toolbar {
+    display: flex; flex-wrap: wrap; gap: 0.45rem; align-items: center;
+    margin: 0 0 0.75rem; padding: 0.65rem 0.7rem;
+    background: var(--fondo-2); border: 1px solid var(--linea); border-radius: var(--radio);
+  }
+  .desk-toolbar.collapsed { display: none; }
+  .desk-toolbar .lbl {
+    font-size: 0.72rem; letter-spacing: 0.12em; text-transform: uppercase;
+    color: var(--suave); font-weight: 700; margin-right: 0.25rem;
+  }
+  .desk-toolbar button, .desk-toolbar label.file-btn, .desk-toolbar select.theme-sel {
+    min-height: 44px; padding: 0.45rem 0.75rem;
+    background: var(--fondo-3); color: var(--tinta); border: 1px solid var(--linea);
+    border-radius: var(--radio); font: 600 0.85rem var(--sans); cursor: pointer;
+  }
+  .desk-toolbar select.theme-sel { appearance: auto; max-width: 11rem; }
+  .desk-toolbar button:hover, .desk-toolbar label.file-btn:hover {
+    border-color: color-mix(in srgb, var(--acento) 55%, transparent); color: var(--acento);
+  }
+  .desk-toolbar button.on {
+    border-color: var(--acento); color: var(--acento);
+  }
+  .desk-toolbar input[type=file] {
+    position: absolute; width: 1px; height: 1px; opacity: 0; overflow: hidden;
+  }
+  .desk-toolbar .spacer { flex: 1; min-width: 0.5rem; }
+  .add-panel.collapsed-hide { display: none !important; }
+
+  /* Peek control — small floating tab (immersive only) */
+  .menu-peek {
+    display: none;
+    position: fixed;
+    z-index: 100;
+    bottom: max(0.85rem, env(safe-area-inset-bottom, 0px));
+    right: max(0.85rem, env(safe-area-inset-right, 0px));
+    width: 44px; height: 44px; min-width: 44px; min-height: 44px;
+    padding: 0;
+    align-items: center; justify-content: center;
+    background: color-mix(in srgb, var(--fondo-2) 92%, var(--acento));
+    color: var(--acento);
+    border: 1px solid var(--linea);
+    border-radius: 50%;
+    font: 700 1.05rem var(--sans);
+    cursor: pointer;
+    box-shadow: 0 2px 14px rgba(0,0,0,0.4);
+    line-height: 1;
+  }
+  .menu-peek:hover, .menu-peek:focus-visible {
+    border-color: var(--acento); outline: none;
+  }
+  .menu-peek .peek-label {
+    position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+    overflow: hidden; clip: rect(0,0,0,0); border: 0;
+  }
+
+  .desktop {
+    position: relative;
+    width: 100%;
+    min-height: min(72vh, 640px);
+    height: min(78vh, 720px);
+    background:
+      radial-gradient(ellipse at 20% 10%, var(--desk-glow), transparent 45%),
+      var(--fondo-2);
+    border: 1px solid var(--linea);
+    border-radius: var(--radio);
+    overflow: hidden;
+    touch-action: none;
+    user-select: none;
+    -webkit-user-select: none;
+  }
+
+  /* Immersive: only escritorio + peek */
+  html.desk-immersive, html.desk-immersive body {
+    overflow: hidden;
+    height: 100%;
+    min-height: 100dvh;
+  }
+  body.desk-immersive .wrap {
+    max-width: none; margin: 0; padding: 0;
+    min-height: 100dvh; height: 100%;
+  }
+  body.desk-immersive header.top,
+  body.desk-immersive footer.site-foot,
+  body.desk-immersive #desk-chrome {
+    display: none !important;
+  }
+  body.desk-immersive #lv-protected {
+    margin: 0; padding: 0; min-height: 100dvh; height: 100%;
+  }
+  body.desk-immersive #desktop {
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    min-height: 100%;
+    border: none;
+    border-radius: 0;
+    z-index: 1;
+  }
+  body.desk-immersive .menu-peek {
+    display: inline-flex;
+  }
+  .desktop-empty {
+    position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+    pointer-events: none; color: var(--suave); font-size: 0.98rem; text-align: center;
+    padding: 1.5rem; max-width: 22rem; margin: auto; line-height: 1.45;
+  }
+  .desktop.has-items .desktop-empty { display: none; }
+
+  .desk-item {
+    position: absolute;
+    display: flex; flex-direction: column;
+    background: var(--fondo-3);
+    border: 1px solid var(--linea);
+    color: var(--tinta);
+    overflow: hidden;
+    min-width: 72px; min-height: 72px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.35);
+    z-index: 1;
+  }
+  .desk-item.shape-tile { border-radius: 6px; }
+  .desk-item.shape-button {
+    border-radius: 50%;
+    aspect-ratio: 1 / 1;
+  }
+  .desk-item.shape-button .item-body { align-items: center; justify-content: center; text-align: center; }
+  .desk-item.shape-button .item-title { font-size: clamp(0.75rem, 12%, 1.05rem); }
+
+  /* Module icon view — home-screen style */
+  .desk-item.view-icon {
+    background: transparent;
+    border: none;
+    box-shadow: none;
+    min-width: 64px; min-height: 72px;
+  }
+  .desk-item.view-icon.selected {
+    border: none;
+    box-shadow: none;
+    outline: 1px dashed color-mix(in srgb, var(--acento) 50%, transparent);
+    outline-offset: 3px;
+  }
+  .desk-item.view-icon .item-chrome {
+    position: absolute; top: -2px; left: 50%; transform: translateX(-50%);
+    background: rgba(0,0,0,0.5); min-height: 28px; z-index: 3; padding: 0.1rem;
+    border-radius: 999px; gap: 0;
+    opacity: 0; pointer-events: none; transition: opacity 0.15s;
+  }
+  .desk-item.view-icon.selected .item-chrome,
+  .desk-item.view-icon:hover .item-chrome {
+    opacity: 1; pointer-events: auto;
+  }
+  .desk-item.view-icon .item-chrome .item-title { display: none; }
+  .desk-item.view-icon .item-chrome .act {
+    display: inline-flex; align-items: center; justify-content: center;
+    min-width: 32px; min-height: 32px;
+  }
+  .desk-item.view-icon .item-body {
+    align-items: center; justify-content: center; text-align: center;
+    padding: 0.2rem; gap: 0.2rem; cursor: grab;
+  }
+  .desk-item.view-icon .mod-ico-wrap {
+    display: flex; align-items: center; justify-content: center;
+    width: min(72%, 4.5rem); aspect-ratio: 1 / 1;
+    background: var(--fondo-3);
+    border: 1px solid var(--linea);
+    box-shadow: 0 2px 10px rgba(0,0,0,0.28);
+    flex-shrink: 0;
+  }
+  .desk-item.view-icon.shape-tile .mod-ico-wrap { border-radius: 18px; }
+  .desk-item.view-icon.shape-button .mod-ico-wrap { border-radius: 50%; }
+  .desk-item.view-icon .mod-ico {
+    font-size: clamp(1.55rem, 42%, 2.6rem); line-height: 1;
+    pointer-events: none;
+  }
+  .desk-item.view-icon .mod-ico-label {
+    font-size: 0.62rem; font-weight: 600; color: var(--tinta);
+    max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+    line-height: 1.2; pointer-events: none;
+  }
+  .desk-item.view-icon .item-blurb,
+  .desk-item.view-icon .item-open { display: none !important; }
+  .desk-item.view-icon .resize-handle {
+    opacity: 0; transition: opacity 0.15s;
+  }
+  .desk-item.view-icon.selected .resize-handle,
+  .desk-item.view-icon:hover .resize-handle { opacity: 1; }
+
+  .desk-item.selected {
+    border-color: var(--acento);
+    box-shadow: 0 0 0 1px var(--acento), 0 4px 18px rgba(0,0,0,0.45);
+    z-index: 20;
+  }
+  .desk-item.dragging { opacity: 0.92; z-index: 40; }
+
+  /* Modules in button shape: floating compact chrome (shape + close always available) */
+  .desk-item.shape-button .item-chrome {
+    position: absolute; top: 6px; left: 50%; transform: translateX(-50%);
+    background: rgba(0,0,0,0.45); min-height: 28px; z-index: 3; padding: 0.1rem;
+    border-radius: 999px; gap: 0;
+    opacity: 0; pointer-events: none; transition: opacity 0.15s;
+  }
+  .desk-item.shape-button.selected .item-chrome,
+  .desk-item.shape-button:hover .item-chrome {
+    opacity: 1; pointer-events: auto;
+  }
+  .desk-item.shape-button .item-chrome .item-title { display: none; }
+  .desk-item.shape-button .item-chrome .act {
+    display: inline-flex; align-items: center; justify-content: center;
+    min-width: 32px; min-height: 32px;
+  }
+
+  /* Frameless widgets */
+  .desk-item.widget-kind.frameless {
+    background: transparent;
+    border: none;
+    box-shadow: none;
+  }
+  .desk-item.widget-kind.frameless.selected {
+    border: none;
+    box-shadow: none;
+    outline: 1px dashed color-mix(in srgb, var(--acento) 45%, transparent);
+    outline-offset: 2px;
+  }
+  .desk-item.widget-kind.frameless .item-chrome {
+    position: absolute; top: 2px; right: 2px; left: auto; transform: none;
+    background: transparent; min-height: 28px; z-index: 3; padding: 0;
+    opacity: 0; pointer-events: none; transition: opacity 0.15s;
+  }
+  .desk-item.widget-kind.frameless.selected .item-chrome,
+  .desk-item.widget-kind.frameless:hover .item-chrome {
+    opacity: 1; pointer-events: auto;
+  }
+  .desk-item.widget-kind.frameless .item-title { display: none; }
+  .desk-item.widget-kind.frameless .item-body {
+    padding: 0.35rem 0.4rem; cursor: grab;
+  }
+  .desk-item.widget-kind.frameless .resize-handle {
+    opacity: 0; transition: opacity 0.15s;
+  }
+  .desk-item.widget-kind.frameless.selected .resize-handle,
+  .desk-item.widget-kind.frameless:hover .resize-handle {
+    opacity: 1;
+  }
+
+  .item-chrome {
+    display: flex; align-items: center; gap: 0.2rem;
+    padding: 0.25rem 0.3rem;
+    background: rgba(0,0,0,0.28);
+    cursor: grab;
+    touch-action: none;
+    min-height: 36px;
+    flex-shrink: 0;
+  }
+  body.theme-papel .item-chrome { background: rgba(42,38,30,0.08); }
+  .item-chrome:active { cursor: grabbing; }
+  .item-chrome .act {
+    border: 0; background: transparent; color: var(--suave);
+    min-width: 36px; min-height: 36px; border-radius: 4px;
+    font: 700 0.78rem var(--sans); cursor: pointer; padding: 0 0.3rem;
+    display: inline-flex; align-items: center; justify-content: center;
+  }
+  .item-chrome .act:hover { color: var(--acento); background: color-mix(in srgb, var(--acento) 12%, transparent); }
+  .item-chrome .act.danger:hover { color: var(--peligro); }
+  .item-title {
+    flex: 1; font-family: var(--serif); font-weight: 600; font-size: 0.92rem;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    padding: 0 0.25rem; pointer-events: none;
+  }
+  .item-body {
+    flex: 1; display: flex; flex-direction: column; padding: 0.55rem 0.65rem 0.7rem;
+    overflow: hidden; cursor: grab; touch-action: none; gap: 0.35rem;
+  }
+  .item-body:active { cursor: grabbing; }
+  .item-blurb { color: var(--suave); font-size: 0.78rem; margin: 0; line-height: 1.35; }
+  .item-open {
+    margin-top: auto; align-self: flex-start;
+    min-height: 40px; padding: 0.35rem 0.75rem;
+    background: var(--acento); color: var(--acento-texto); border: 0;
+    border-radius: var(--radio); font: 700 0.82rem var(--sans);
+    text-decoration: none; display: inline-flex; align-items: center; cursor: pointer;
+  }
+  .desk-item.shape-button .item-open {
+    align-self: center; border-radius: 999px; min-width: 64%; justify-content: center;
+  }
+
+  .resize-handle {
+    position: absolute; right: 0; bottom: 0; width: 28px; height: 28px;
+    cursor: nwse-resize; touch-action: none;
+    background:
+      linear-gradient(135deg, transparent 55%, color-mix(in srgb, var(--acento) 55%, transparent) 55%, color-mix(in srgb, var(--acento) 55%, transparent) 70%, transparent 70%),
+      linear-gradient(135deg, transparent 70%, color-mix(in srgb, var(--acento) 35%, transparent) 70%, color-mix(in srgb, var(--acento) 35%, transparent) 82%, transparent 82%);
+  }
+  .desk-item.shape-button .resize-handle { border-radius: 0 0 50% 0; }
+
+  /* Widgets typography */
+  .w-clock {
+    font-family: var(--serif); font-weight: 600; letter-spacing: 0.02em;
+    font-size: clamp(1.4rem, 28%, 3.2rem); line-height: 1.1; color: var(--acento);
+  }
+  .w-clock.large { font-size: clamp(2rem, 42%, 4.5rem); }
+  .w-date { font-size: clamp(0.95rem, 14%, 1.35rem); color: var(--tinta); }
+  .w-dia {
+    font-family: var(--serif); font-size: clamp(1.15rem, 22%, 2rem);
+    font-weight: 600; color: var(--tinta); line-height: 1.25;
+  }
+  .w-cal { font-size: 0.78rem; width: 100%; border-collapse: collapse; text-align: center; }
+  .w-cal th { color: var(--suave); font-weight: 600; padding: 0.15rem; }
+  .w-cal td { padding: 0.2rem; color: var(--tinta); }
+  .w-cal td.today {
+    background: var(--acento); color: var(--acento-texto); border-radius: 3px; font-weight: 700;
+  }
+  .w-cal .month { font-family: var(--serif); font-size: 0.95rem; color: var(--acento); margin-bottom: 0.35rem; }
+  .w-tip { color: var(--suave); font-size: clamp(0.85rem, 12%, 1.05rem); line-height: 1.4; margin: 0; }
+  .w-pill {
+    font-size: clamp(0.9rem, 13%, 1.15rem); color: var(--tinta); line-height: 1.35;
+  }
+  .w-pill strong { color: var(--acento); display: block; font-family: var(--serif); font-size: 1.1em; }
+
+  /* Hoja */
+  .hoja-preview {
+    flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: 0.35rem; cursor: pointer; touch-action: manipulation; user-select: none;
+  }
+  .hoja-preview .hoja-ico {
+    font-family: var(--serif); font-size: clamp(1.6rem, 28%, 2.6rem); color: var(--acento); line-height: 1;
+  }
+  .hoja-preview .hoja-label { font-size: 0.85rem; color: var(--tinta); font-weight: 600; }
+  .hoja-preview .hoja-snip {
+    font-size: 0.72rem; color: var(--suave); max-width: 100%;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap; padding: 0 0.25rem;
+  }
+  .desk-item.hoja-open {
+    min-width: 200px; min-height: 180px;
+  }
+  .hoja-chrome {
+    display: flex; flex-wrap: wrap; gap: 0.25rem; align-items: center;
+    padding: 0.2rem 0; flex-shrink: 0; cursor: default; touch-action: manipulation;
+  }
+  .hoja-chrome button {
+    min-height: 36px; padding: 0.25rem 0.55rem;
+    background: var(--fondo-2); color: var(--tinta); border: 1px solid var(--linea);
+    border-radius: var(--radio); font: 600 0.75rem var(--sans); cursor: pointer;
+  }
+  .hoja-chrome button.on { border-color: var(--acento); color: var(--acento); }
+  .hoja-surface {
+    flex: 1; min-height: 0; display: flex; flex-direction: column;
+    touch-action: manipulation; cursor: default; user-select: text; -webkit-user-select: text;
+  }
+  .hoja-surface textarea {
+    flex: 1; width: 100%; min-height: 80px; resize: none;
+    background: var(--fondo-2); color: var(--tinta); border: 1px solid var(--linea);
+    border-radius: var(--radio); padding: 0.55rem; font: 1rem/1.45 var(--serif);
+    touch-action: manipulation;
+  }
+  .hoja-surface canvas {
+    flex: 1; width: 100%; min-height: 80px; background: #fffef8;
+    border: 1px solid var(--linea); border-radius: var(--radio);
+    touch-action: none; cursor: crosshair;
+  }
+  body.theme-papel .hoja-surface canvas { background: #fff; }
+
+  /* Add panels */
+  .add-panel {
+    display: none; margin: 0.75rem 0 0; padding: 0.85rem 0.9rem;
+    background: var(--fondo-2); border: 1px solid var(--linea); border-radius: var(--radio);
+  }
+  .add-panel.open { display: block; }
+  .add-panel h2 {
+    margin: 0 0 0.55rem; font-family: var(--serif); font-size: 1.1rem; font-weight: 600;
+  }
+  .chip-list { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+  .chip-list button {
+    min-height: 44px; padding: 0.4rem 0.75rem;
+    background: var(--fondo-3); border: 1px solid var(--linea); color: var(--tinta);
+    border-radius: var(--radio); font: 600 0.85rem var(--sans); cursor: pointer;
+  }
+  .chip-list button:hover { border-color: color-mix(in srgb, var(--acento) 55%, transparent); color: var(--acento); }
+  .chip-list button.disabled { opacity: 0.45; pointer-events: none; }
+  .chip-list button .chip-ico { margin-right: 0.35rem; }
+
+  .offline-tip {
+    margin: 0 0 1rem;
+    padding: 0.85rem 1rem;
+    background: color-mix(in srgb, var(--acento) 18%, var(--fondo-2));
+    border: 1px solid color-mix(in srgb, var(--acento) 55%, var(--linea));
+    border-radius: var(--radio);
+    color: var(--tinta);
+    font-size: 0.95rem;
+    max-width: 40rem;
+  }
+  .offline-tip strong { color: var(--acento); }
+  .file-err { color: var(--peligro); font-size: 0.85rem; margin: 0.5rem 0 0; min-height: 1.1em; }
+  </style>
+</head>
+<body class="theme-ambar">
+  <div class="wrap">
+    <header class="top">
+      <div class="brand" aria-label="Les vencimos">
+        <span class="wordmark">Les vencimos</span>
+      </div>
+      <p class="nav" style="margin:0;color:var(--suave);font-size:0.85rem">Modo offline · file://</p>
+    </header>
+
+    <div id="lv-protected">
+      <div id="desk-chrome">
+
+      <p class="offline-tip" role="status">
+        <strong>Offline listo.</strong>
+        Estás en el programa del ZIP (no en la web).
+        Pulsa <strong>Módulos</strong> o <strong>Widgets</strong> para añadir cosas al escritorio.
+        Si llegaste aquí sin descomprimir el ZIP, vuelve a Archivos → descomprime → abre <strong>ABRE-AQUI.html</strong>.
+      </p>
+        <h1>Estantería</h1>
+        <p class="lead">
+          Un <strong>escritorio</strong> en este aparato: coloca módulos e iconos donde quieras.
+          Añade reloj, fecha, calendario, una <strong>Hoja</strong> para escribir o pintar.
+          Oculta el menú para usar toda la pantalla como en el móvil.
+        </p>
+
+        <div class="desk-toolbar" id="desk-toolbar" role="toolbar" aria-label="Herramientas del escritorio">
+          <span class="lbl">Añadir</span>
+          <button type="button" id="btn-modulos" aria-expanded="false">Módulos</button>
+          <button type="button" id="btn-widgets" aria-expanded="false">Widgets</button>
+          <label class="file-btn" for="local-file">Archivo local…</label>
+          <input id="local-file" type="file" accept=".html,.htm,text/html">
+          <span class="lbl">Color</span>
+          <select id="theme-sel" class="theme-sel" aria-label="Paleta de color" title="Color del escritorio">
+            <option value="ambar">Ámbar</option>
+            <option value="verde">Verde suave</option>
+            <option value="azul">Azul gris</option>
+            <option value="papel">Papel claro</option>
+          </select>
+          <span class="spacer"></span>
+          <button type="button" id="btn-clear" title="Vaciar escritorio">Vaciar</button>
+          <button type="button" id="btn-collapse-toolbar" title="Ocultar menú" aria-label="Ocultar menú">Ocultar menú</button>
+        </div>
+
+        <div id="panel-modulos" class="add-panel" hidden>
+          <h2>Módulos del catálogo</h2>
+          <div id="mod-chips" class="chip-list"></div>
+          <p class="hint">Los módulos de este zip están en la carpeta. También puedes añadir otro .html con «Archivo local…».</p>
+        </div>
+        <div id="panel-widgets" class="add-panel" hidden>
+          <h2>Widgets</h2>
+          <div id="wid-chips" class="chip-list"></div>
+        </div>
+        <p class="file-err" id="file-err" aria-live="polite"></p>
+        <p class="hint desk-hint">Arrastra para mover · icono abre al tocar · Icono/Ficha en el marco · ◯/▭ forma · ✕ quita. Mantén pulsado el escritorio vacío (menú oculto) para recuperar el menú.</p>
+      </div>
+
+      <button type="button" id="btn-show-toolbar" class="menu-peek" aria-label="Mostrar menú" title="Mostrar menú" hidden>
+        <span aria-hidden="true">☰</span>
+        <span class="peek-label">Menú</span>
+      </button>
+
+      <div id="desktop" class="desktop" aria-label="Escritorio de la estantería">
+        <div class="desktop-empty">Escritorio vacío.<br>Añade un módulo, un widget o una Hoja y arrástralo donde quieras.</div>
+      </div>
+    </div>
+
+    <footer class="site-foot">lesvencimos.com · estantería offline</footer>
+  </div>
+
+  <script>
+  (function () {
+    var LS_KEY = 'lv-estanteria-v1';
+    var IDB_NAME = 'lv-estanteria';
+    var IDB_STORE = 'files';
+    var IDB_VER = 1;
+    var Z = 10;
+    var THEMES = ['ambar', 'verde', 'azul', 'papel'];
+
+    var CATALOG = [
+      { id: 'profesor', titulo: 'Profesor', icon: '📖', href: 'profesor.html', blurb: '37 materias' },
+      { id: 'informatica', titulo: 'Informática', icon: '💻', href: 'modulos/informatica.html', blurb: 'Linux, Python, Central' },
+      { id: 'primeros-auxilios', titulo: 'Auxilios', icon: '❤️‍🩹', href: 'modulos/primeros-auxilios.html', blurb: 'RCP y cuidados' },
+      { id: 'calculadora', titulo: 'Calculadora', icon: '🔢', href: 'modulos/calculadora.html', blurb: 'Operaciones' },
+      { id: 'tinta-escritura', titulo: 'Escritura', icon: '📝', href: 'modulos/tinta-escritura.html', blurb: 'Hoja para escribir' },
+      { id: 'tinta-estudio', titulo: 'Dibujo', icon: '✏️', href: 'modulos/tinta-estudio.html', blurb: 'Hoja para pintar' },
+      { id: 'gimnasio', titulo: 'Gimnasio', icon: '💪', href: 'modulos/gimnasio.html', blurb: 'Movimiento suave' },
+      { id: 'medicacion', titulo: 'Medicación', icon: '💊', href: 'modulos/medicacion.html', blurb: 'Recordatorio local' },
+      { id: 'alarma-cuba', titulo: 'Alarma', icon: '🚨', href: 'alarma-cuba.html', blurb: 'Guía apagones' },
+      { id: 'central-cuba', titulo: 'Central', icon: '🏠', href: 'profesor.html', blurb: 'Lecciones locales' }
+    ];
+
+    var WIDGETS = [
+      { id: 'w-hoja', widget: 'hoja', titulo: 'Hoja', w: 200, h: 200 },
+      { id: 'w-clock', widget: 'clock', titulo: 'Reloj', w: 200, h: 120 },
+      { id: 'w-clock-lg', widget: 'clock-large', titulo: 'Reloj grande', w: 280, h: 160 },
+      { id: 'w-date', widget: 'date', titulo: 'Fecha', w: 220, h: 100 },
+      { id: 'w-dia', widget: 'dia', titulo: '¿Qué día es?', w: 260, h: 140 },
+      { id: 'w-cal', widget: 'calendar', titulo: 'Calendario', w: 260, h: 240 },
+      { id: 'w-ori', widget: 'orientacion', titulo: 'Orientación', w: 260, h: 140 },
+      { id: 'w-pill', widget: 'pastilla', titulo: 'Próxima pastilla', w: 240, h: 130 }
+    ];
+
+    var urlCache = {};
+    var state = { version: 2, items: [], toolbarCollapsed: false, theme: 'ambar' };
+    var selectedId = null;
+    var clockTimer = null;
+    var hojaPaint = {}; /* id -> { drawing, last } */
+
+    function loadState() {
+      try {
+        var raw = localStorage.getItem(LS_KEY);
+        if (!raw) return { version: 2, items: [], toolbarCollapsed: false, theme: 'ambar' };
+        var data = JSON.parse(raw);
+        if (Array.isArray(data)) {
+          return {
+            version: 2,
+            toolbarCollapsed: false,
+            theme: 'ambar',
+            items: data.map(function (it, i) {
+              return {
+                id: it.id,
+                type: 'module',
+                kind: it.kind || 'catalog',
+                titulo: it.titulo,
+                href: it.href || '',
+                icon: it.icon || '',
+                blurb: '',
+                x: 24 + (i % 4) * 28,
+                y: 24 + (i % 4) * 28 + Math.floor(i / 4) * 100,
+                w: 88,
+                h: 100,
+                shape: 'tile',
+                view: 'icon',
+                addedAt: it.addedAt || new Date().toISOString()
+              };
+            })
+          };
+        }
+        if (data && Array.isArray(data.items)) {
+          data.version = 2;
+          if (typeof data.toolbarCollapsed !== 'boolean') data.toolbarCollapsed = false;
+          if (!data.theme || THEMES.indexOf(data.theme) < 0) data.theme = 'ambar';
+          return data;
+        }
+      } catch (e) {}
+      return { version: 2, items: [], toolbarCollapsed: false, theme: 'ambar' };
+    }
+
+    function saveState() {
+      try {
+        localStorage.setItem(LS_KEY, JSON.stringify(state));
+      } catch (e) {
+        /* quota: strip large canvas from items and retry */
+        try {
+          var slim = JSON.parse(JSON.stringify(state));
+          slim.items.forEach(function (it) {
+            if (it.sheetCanvas && it.sheetCanvas.length > 80000) it.sheetCanvas = '';
+          });
+          localStorage.setItem(LS_KEY, JSON.stringify(slim));
+        } catch (e2) {}
+      }
+    }
+
+    function openDb() {
+      return new Promise(function (resolve, reject) {
+        if (!window.indexedDB) { reject(new Error('Sin IndexedDB')); return; }
+        var req = indexedDB.open(IDB_NAME, IDB_VER);
+        req.onupgradeneeded = function () {
+          var db = req.result;
+          if (!db.objectStoreNames.contains(IDB_STORE)) {
+            db.createObjectStore(IDB_STORE, { keyPath: 'id' });
+          }
+        };
+        req.onsuccess = function () { resolve(req.result); };
+        req.onerror = function () { reject(req.error || new Error('IDB')); };
+      });
+    }
+    function idbPut(rec) {
+      return openDb().then(function (db) {
+        return new Promise(function (resolve, reject) {
+          var tx = db.transaction(IDB_STORE, 'readwrite');
+          tx.objectStore(IDB_STORE).put(rec);
+          tx.oncomplete = function () { resolve(); };
+          tx.onerror = function () { reject(tx.error); };
+        });
+      });
+    }
+    function idbGet(id) {
+      return openDb().then(function (db) {
+        return new Promise(function (resolve, reject) {
+          var tx = db.transaction(IDB_STORE, 'readonly');
+          var req = tx.objectStore(IDB_STORE).get(id);
+          req.onsuccess = function () { resolve(req.result || null); };
+          req.onerror = function () { reject(req.error); };
+        });
+      });
+    }
+    function idbDel(id) {
+      return openDb().then(function (db) {
+        return new Promise(function (resolve, reject) {
+          var tx = db.transaction(IDB_STORE, 'readwrite');
+          tx.objectStore(IDB_STORE).delete(id);
+          tx.oncomplete = function () { resolve(); };
+          tx.onerror = function () { reject(tx.error); };
+        });
+      });
+    }
+
+    function sheetIdbKey(id) { return 'hoja:' + id; }
+
+    function persistHojaCanvas(it) {
+      if (!it || !it.sheetCanvas) return;
+      idbPut({ id: sheetIdbKey(it.id), name: 'hoja-canvas', blob: it.sheetCanvas, mime: 'text/plain' })
+        .catch(function () {});
+    }
+
+    function findItem(id) {
+      for (var i = 0; i < state.items.length; i++) {
+        if (state.items[i].id === id) return state.items[i];
+      }
+      return null;
+    }
+    function hasModule(id) {
+      return state.items.some(function (it) { return it.id === id; });
+    }
+
+    function nextSlot() {
+      var desk = document.getElementById('desktop');
+      var n = state.items.length;
+      var pad = 20;
+      var col = n % 3;
+      var row = Math.floor(n / 3);
+      var x = pad + col * 36 + (n % 5) * 8;
+      var y = pad + row * 28 + (n % 4) * 10;
+      var maxX = Math.max(40, (desk ? desk.clientWidth : 600) - 200);
+      var maxY = Math.max(40, (desk ? desk.clientHeight : 400) - 160);
+      return { x: Math.min(x, maxX), y: Math.min(y, maxY) };
+    }
+
+    function diasSemana() {
+      return ['domingo', 'lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado'];
+    }
+    function meses() {
+      return ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio',
+        'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
+    }
+
+    function applyTheme(name) {
+      if (THEMES.indexOf(name) < 0) name = 'ambar';
+      state.theme = name;
+      THEMES.forEach(function (t) { document.body.classList.remove('theme-' + t); });
+      document.body.classList.add('theme-' + name);
+      var sel = document.getElementById('theme-sel');
+      if (sel && sel.value !== name) sel.value = name;
+      var meta = document.querySelector('meta[name="theme-color"]');
+      if (meta) {
+        var bg = getComputedStyle(document.body).getPropertyValue('--fondo').trim() || '#0E0E0C';
+        meta.setAttribute('content', bg);
+      }
+    }
+
+    function catalogById(id) {
+      for (var i = 0; i < CATALOG.length; i++) {
+        if (CATALOG[i].id === id) return CATALOG[i];
+      }
+      return null;
+    }
+
+    function moduleIcon(it) {
+      if (it.icon) return it.icon;
+      var cat = catalogById(it.id);
+      if (cat && cat.icon) return cat.icon;
+      if (it.kind === 'local') return '📄';
+      return '📦';
+    }
+
+    function openModule(it) {
+      if (!it) return;
+      if (it.kind === 'local') {
+        openLocal(it.id);
+        return;
+      }
+      if (it.href) {
+        window.location.href = it.href;
+      }
+    }
+
+    function applyToolbarCollapsed() {
+      var tb = document.getElementById('desk-toolbar');
+      var tab = document.getElementById('btn-show-toolbar');
+      var pm = document.getElementById('panel-modulos');
+      var pw = document.getElementById('panel-widgets');
+      var collapsed = !!state.toolbarCollapsed;
+      document.body.classList.toggle('toolbar-collapsed', collapsed);
+      document.body.classList.toggle('desk-immersive', collapsed);
+      document.documentElement.classList.toggle('desk-immersive', collapsed);
+      if (tb) tb.classList.toggle('collapsed', collapsed);
+      if (tab) {
+        tab.hidden = !collapsed;
+        tab.setAttribute('aria-hidden', collapsed ? 'false' : 'true');
+      }
+      if (collapsed) {
+        if (pm) { pm.hidden = true; pm.classList.remove('open'); }
+        if (pw) { pw.hidden = true; pw.classList.remove('open'); }
+        var bm = document.getElementById('btn-modulos');
+        var bw = document.getElementById('btn-widgets');
+        if (bm) { bm.classList.remove('on'); bm.setAttribute('aria-expanded', 'false'); }
+        if (bw) { bw.classList.remove('on'); bw.setAttribute('aria-expanded', 'false'); }
+      }
+    }
+
+    function widgetHtml(it) {
+      var now = new Date();
+      var w = it.widget;
+      if (w === 'clock' || w === 'clock-large') {
+        var hh = String(now.getHours()).padStart(2, '0');
+        var mm = String(now.getMinutes()).padStart(2, '0');
+        var cls = w === 'clock-large' ? 'w-clock large' : 'w-clock';
+        return '<div class="' + cls + '" data-live="clock">' + hh + ':' + mm + '</div>';
+      }
+      if (w === 'date') {
+        var txt = now.getDate() + ' de ' + meses()[now.getMonth()] + ' de ' + now.getFullYear();
+        return '<div class="w-date" data-live="date">' + txt + '</div>';
+      }
+      if (w === 'dia') {
+        var d = diasSemana()[now.getDay()];
+        var full = 'Hoy es <strong>' + d + '</strong><br>' +
+          now.getDate() + ' de ' + meses()[now.getMonth()];
+        return '<div class="w-dia" data-live="dia">' + full + '</div>';
+      }
+      if (w === 'calendar') {
+        return buildCalendar(now);
+      }
+      if (w === 'orientacion') {
+        var tips = [
+          'Estás en tu Estantería Les vencimos. Los módulos son archivos en este aparato.',
+          'Si te pierdes: mira el reloj y la fecha. Luego abre solo lo que necesites.',
+          'No hace falta internet. Todo lo de esta pantalla está en tu dispositivo.'
+        ];
+        var tip = tips[(it.tipIndex || 0) % tips.length];
+        return '<p class="w-tip">' + tip + '</p>';
+      }
+      if (w === 'pastilla') {
+        var stub = it.pillText || 'Aún no configurado. Ábrelo Medicación o escribe aquí tu hora.';
+        return '<div class="w-pill"><strong>Próxima toma</strong>' + stub + '</div>';
+      }
+      return '';
+    }
+
+    function buildCalendar(now) {
+      var y = now.getFullYear(), m = now.getMonth();
+      var first = new Date(y, m, 1);
+      var start = first.getDay();
+      var days = new Date(y, m + 1, 0).getDate();
+      var html = '<div class="w-cal"><div class="month">' + meses()[m] + ' ' + y + '</div>';
+      html += '<table class="w-cal" aria-label="Calendario"><thead><tr>';
+      var heads = ['D', 'L', 'M', 'X', 'J', 'V', 'S'];
+      for (var i = 0; i < 7; i++) html += '<th>' + heads[i] + '</th>';
+      html += '</tr></thead><tbody><tr>';
+      for (var e = 0; e < start; e++) html += '<td></td>';
+      for (var d = 1; d <= days; d++) {
+        var cell = (start + d - 1) % 7;
+        var cls = d === now.getDate() ? ' class="today"' : '';
+        html += '<td' + cls + '>' + d + '</td>';
+        if (cell === 6 && d !== days) html += '</tr><tr>';
+      }
+      html += '</tr></tbody></table></div>';
+      return html;
+    }
+
+    function escapeHtml(s) {
+      return String(s || '').replace(/[&<>"']/g, function (c) {
+        return ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c];
+      });
+    }
+
+    function buildHojaBody(it, body, el) {
+      if (it.sheetOpen) {
+        el.classList.add('hoja-open');
+        var chrome = document.createElement('div');
+        chrome.className = 'hoja-chrome';
+        var mode = it.sheetMode === 'paint' ? 'paint' : 'write';
+        ['write', 'paint'].forEach(function (m) {
+          var b = document.createElement('button');
+          b.type = 'button';
+          b.className = 'hoja-mode' + (mode === m ? ' on' : '');
+          b.dataset.mode = m;
+          b.textContent = m === 'write' ? 'Escribir' : 'Pintar';
+          chrome.appendChild(b);
+        });
+        var closeB = document.createElement('button');
+        closeB.type = 'button';
+        closeB.className = 'hoja-close-sheet';
+        closeB.title = 'Minimizar hoja';
+        closeB.textContent = 'Cerrar';
+        chrome.appendChild(closeB);
+
+        var surface = document.createElement('div');
+        surface.className = 'hoja-surface';
+
+        if (mode === 'write') {
+          var ta = document.createElement('textarea');
+          ta.placeholder = 'Escribe aquí…';
+          ta.value = it.sheetText || '';
+          ta.addEventListener('pointerdown', function (e) { e.stopPropagation(); });
+          ta.addEventListener('input', function () {
+            it.sheetText = ta.value;
+            saveState();
+          });
+          surface.appendChild(ta);
+        } else {
+          var cv = document.createElement('canvas');
+          surface.appendChild(cv);
+          setupHojaCanvas(cv, it);
+        }
+
+        chrome.querySelectorAll('.hoja-mode').forEach(function (btn) {
+          btn.addEventListener('click', function (e) {
+            e.stopPropagation();
+            /* save canvas before switch */
+            flushHojaCanvas(it);
+            it.sheetMode = btn.dataset.mode;
+            saveState();
+            renderDesktop();
+          });
+        });
+        closeB.addEventListener('click', function (e) {
+          e.stopPropagation();
+          flushHojaCanvas(it);
+          it.sheetOpen = false;
+          saveState();
+          renderDesktop();
+        });
+
+        body.appendChild(chrome);
+        body.appendChild(surface);
+        body.style.cursor = 'default';
+        body.style.touchAction = 'manipulation';
+      } else {
+        var prev = document.createElement('div');
+        prev.className = 'hoja-preview';
+        prev.tabIndex = 0;
+        var snip = (it.sheetText || '').trim().slice(0, 40);
+        prev.innerHTML =
+          '<span class="hoja-ico" aria-hidden="true">▭</span>' +
+          '<span class="hoja-label">Hoja</span>' +
+          (snip ? '<span class="hoja-snip">' + escapeHtml(snip) + '</span>' : '<span class="hoja-snip">Escribir / pintar</span>');
+        function openSheet(e) {
+          if (e) e.stopPropagation();
+          it.sheetOpen = true;
+          if (!it.sheetMode) it.sheetMode = 'write';
+          /* enlarge a bit when opening */
+          it.w = Math.max(it.w || 200, 280);
+          it.h = Math.max(it.h || 200, 260);
+          saveState();
+          renderDesktop();
+        }
+        prev.addEventListener('click', openSheet);
+        prev.addEventListener('keydown', function (e) {
+          if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openSheet(e); }
+        });
+        body.appendChild(prev);
+      }
+    }
+
+    function flushHojaCanvas(it) {
+      var el = document.querySelector('.desk-item[data-id="' + CSS.escape(it.id) + '"] canvas');
+      if (el) {
+        try {
+          it.sheetCanvas = el.toDataURL('image/png');
+          persistHojaCanvas(it);
+        } catch (e) {}
+      }
+    }
+
+    function setupHojaCanvas(cv, it) {
+      var parent = cv.parentElement;
+      function size() {
+        var w = Math.max(80, parent.clientWidth || it.w - 24);
+        var h = Math.max(80, parent.clientHeight || it.h - 90);
+        if (cv.width !== w || cv.height !== h) {
+          var prev = null;
+          try { prev = cv.toDataURL('image/png'); } catch (e) {}
+          cv.width = w;
+          cv.height = h;
+          var ctx = cv.getContext('2d');
+          ctx.fillStyle = '#fffef8';
+          ctx.fillRect(0, 0, w, h);
+          function drawUrl(url) {
+            if (!url) return;
+            var img = new Image();
+            img.onload = function () { ctx.drawImage(img, 0, 0, w, h); };
+            img.src = url;
+          }
+          if (it.sheetCanvas) drawUrl(it.sheetCanvas);
+          else if (prev && prev.length > 100) drawUrl(prev);
+          else {
+            idbGet(sheetIdbKey(it.id)).then(function (rec) {
+              if (rec && typeof rec.blob === 'string' && rec.blob.indexOf('data:') === 0) {
+                it.sheetCanvas = rec.blob;
+                drawUrl(rec.blob);
+              }
+            }).catch(function () {});
+          }
+        }
+      }
+      size();
+      setTimeout(size, 30);
+
+      var ctx = cv.getContext('2d');
+      var st = hojaPaint[it.id] || (hojaPaint[it.id] = { drawing: false, last: null });
+
+      function pos(ev) {
+        var r = cv.getBoundingClientRect();
+        return {
+          x: (ev.clientX - r.left) * (cv.width / Math.max(1, r.width)),
+          y: (ev.clientY - r.top) * (cv.height / Math.max(1, r.height))
+        };
+      }
+      function start(ev) {
+        if (ev.button != null && ev.button !== 0) return;
+        ev.preventDefault();
+        ev.stopPropagation();
+        st.drawing = true;
+        st.last = pos(ev);
+        try { cv.setPointerCapture(ev.pointerId); } catch (e) {}
+      }
+      function move(ev) {
+        if (!st.drawing) return;
+        ev.preventDefault();
+        var p = pos(ev);
+        ctx.strokeStyle = '#2A261E';
+        ctx.lineWidth = 2.5;
+        ctx.lineCap = 'round';
+        ctx.lineJoin = 'round';
+        ctx.beginPath();
+        ctx.moveTo(st.last.x, st.last.y);
+        ctx.lineTo(p.x, p.y);
+        ctx.stroke();
+        st.last = p;
+      }
+      function end(ev) {
+        if (!st.drawing) return;
+        st.drawing = false;
+        try { cv.releasePointerCapture(ev.pointerId); } catch (e) {}
+        try {
+          it.sheetCanvas = cv.toDataURL('image/png');
+          persistHojaCanvas(it);
+          saveState();
+        } catch (e) {}
+      }
+      cv.addEventListener('pointerdown', start);
+      cv.addEventListener('pointermove', move);
+      cv.addEventListener('pointerup', end);
+      cv.addEventListener('pointercancel', end);
+    }
+
+    function isFramelessWidget(it) {
+      return it.type === 'widget' && it.widget !== 'hoja';
+    }
+
+    function renderDesktop() {
+      var desk = document.getElementById('desktop');
+      if (!desk) return;
+      desk.classList.toggle('has-items', state.items.length > 0);
+      var empty = desk.querySelector('.desktop-empty');
+      desk.querySelectorAll('.desk-item').forEach(function (n) { n.remove(); });
+
+      state.items.forEach(function (it) {
+        var el = document.createElement('article');
+        var shape = it.shape || 'tile';
+        var isMod = it.type !== 'widget';
+        var view = isMod ? (it.view === 'tile' ? 'tile' : 'icon') : 'tile';
+        if (isMod && !it.view) view = 'icon';
+        el.className = 'desk-item shape-' + shape +
+          (isMod ? ' view-' + view : '') +
+          (it.type === 'widget' ? ' widget-kind' : '') +
+          (isFramelessWidget(it) ? ' frameless' : '') +
+          (it.id === selectedId ? ' selected' : '');
+        el.dataset.id = it.id;
+        el.style.left = (it.x || 0) + 'px';
+        el.style.top = (it.y || 0) + 'px';
+        el.style.width = (it.w || 160) + 'px';
+        el.style.height = (it.h || 120) + 'px';
+        el.style.zIndex = String(it.z || 1);
+
+        var chrome = document.createElement('div');
+        chrome.className = 'item-chrome';
+        var shapeLabel = shape === 'button' ? '▭' : '◯';
+        var shapeTitle = shape === 'button' ? 'Volver a azulejo' : 'Forma botón';
+        var viewBtn = '';
+        if (isMod) {
+          var viewIsIcon = view === 'icon';
+          viewBtn =
+            '<button type="button" class="act view-tog" title="' +
+            (viewIsIcon ? 'Ver como ficha' : 'Ver como icono') + '">' +
+            (viewIsIcon ? 'Ficha' : 'Icono') + '</button>';
+        }
+        chrome.innerHTML =
+          '<span class="item-title"></span>' +
+          viewBtn +
+          '<button type="button" class="act shape-tog" title="' + shapeTitle + '">' + shapeLabel + '</button>' +
+          '<button type="button" class="act danger rm" title="Quitar">✕</button>';
+        chrome.querySelector('.item-title').textContent = it.titulo || it.id;
+
+        var body = document.createElement('div');
+        body.className = 'item-body';
+
+        if (it.type === 'widget' && it.widget === 'hoja') {
+          buildHojaBody(it, body, el);
+        } else if (it.type === 'widget') {
+          body.innerHTML = widgetHtml(it);
+          if (it.widget === 'orientacion') {
+            body.addEventListener('dblclick', function () {
+              it.tipIndex = ((it.tipIndex || 0) + 1) % 3;
+              saveState();
+              renderDesktop();
+            });
+          }
+          if (it.widget === 'pastilla') {
+            body.addEventListener('dblclick', function () {
+              var v = prompt('Texto de próxima pastilla (hora / nombre):', it.pillText || '');
+              if (v !== null) {
+                it.pillText = v.trim() || 'Sin hora anotada.';
+                saveState();
+                renderDesktop();
+              }
+            });
+          }
+        } else if (view === 'icon') {
+          var wrap = document.createElement('div');
+          wrap.className = 'mod-ico-wrap';
+          wrap.setAttribute('aria-hidden', 'true');
+          var ico = document.createElement('span');
+          ico.className = 'mod-ico';
+          ico.textContent = moduleIcon(it);
+          wrap.appendChild(ico);
+          var lab = document.createElement('span');
+          lab.className = 'mod-ico-label';
+          lab.textContent = it.titulo || it.id;
+          body.appendChild(wrap);
+          body.appendChild(lab);
+          body.setAttribute('role', 'button');
+          body.setAttribute('tabindex', '0');
+          body.setAttribute('aria-label', 'Abrir ' + (it.titulo || it.id));
+        } else {
+          var icoLine = document.createElement('div');
+          icoLine.className = 'mod-ico';
+          icoLine.style.fontSize = '1.4rem';
+          icoLine.textContent = moduleIcon(it);
+          body.appendChild(icoLine);
+          if (it.blurb) {
+            var p = document.createElement('p');
+            p.className = 'item-blurb';
+            p.textContent = it.blurb;
+            body.appendChild(p);
+          }
+          var openBtn = document.createElement(it.kind === 'local' ? 'button' : 'a');
+          openBtn.className = 'item-open';
+          openBtn.textContent = 'Abrir';
+          if (it.kind === 'local') {
+            openBtn.type = 'button';
+            openBtn.addEventListener('click', function (e) {
+              e.stopPropagation();
+              openLocal(it.id);
+            });
+          } else {
+            openBtn.href = it.href || '#';
+            openBtn.addEventListener('click', function (e) { e.stopPropagation(); });
+          }
+          body.appendChild(openBtn);
+        }
+
+        var handle = document.createElement('div');
+        handle.className = 'resize-handle';
+        handle.title = 'Redimensionar';
+
+        el.appendChild(chrome);
+        el.appendChild(body);
+        el.appendChild(handle);
+        desk.appendChild(el);
+
+        chrome.querySelector('.rm').addEventListener('click', function (e) {
+          e.stopPropagation();
+          removeItem(it.id);
+        });
+        chrome.querySelector('.shape-tog').addEventListener('click', function (e) {
+          e.stopPropagation();
+          toggleShape(it.id);
+        });
+        var vt = chrome.querySelector('.view-tog');
+        if (vt) {
+          vt.addEventListener('click', function (e) {
+            e.stopPropagation();
+            toggleView(it.id);
+          });
+        }
+
+        bindDrag(el, it, chrome, body);
+        bindResize(el, it, handle);
+        el.addEventListener('pointerdown', function () {
+          bringFront(it);
+          selectedId = it.id;
+          desk.querySelectorAll('.desk-item').forEach(function (n) {
+            n.classList.toggle('selected', n.dataset.id === selectedId);
+          });
+        });
+      });
+
+      if (empty && !desk.contains(empty)) desk.appendChild(empty);
+      renderChips();
+      tickClocks();
+    }
+
+    function bringFront(it) {
+      Z += 1;
+      it.z = Z;
+      saveState();
+      var el = document.querySelector('.desk-item[data-id="' + CSS.escape(it.id) + '"]');
+      if (el) el.style.zIndex = String(Z);
+    }
+
+    function toggleShape(id) {
+      var it = findItem(id);
+      if (!it) return;
+      it.shape = it.shape === 'button' ? 'tile' : 'button';
+      if (it.shape === 'button') {
+        var side = Math.min(Math.max(it.w, it.h), 220);
+        side = Math.max(88, side);
+        it.w = side;
+        it.h = side;
+      }
+      saveState();
+      renderDesktop();
+    }
+
+    function toggleView(id) {
+      var it = findItem(id);
+      if (!it || it.type === 'widget') return;
+      var next = (it.view === 'tile') ? 'icon' : 'tile';
+      it.view = next;
+      if (next === 'icon') {
+        var side = Math.max(76, Math.min(it.w || 88, 110));
+        it.w = side;
+        it.h = Math.round(side * 1.15);
+        if (it.shape === 'button') { it.w = side; it.h = side; }
+      } else {
+        it.w = Math.max(it.w || 0, 180);
+        it.h = Math.max(it.h || 0, 140);
+      }
+      saveState();
+      renderDesktop();
+    }
+
+    function removeItem(id) {
+      var it = findItem(id);
+      if (it && it.widget === 'hoja') flushHojaCanvas(it);
+      state.items = state.items.filter(function (x) { return x.id !== id; });
+      saveState();
+      if (urlCache[id]) {
+        try { URL.revokeObjectURL(urlCache[id]); } catch (e) {}
+        delete urlCache[id];
+      }
+      if (String(id).indexOf('local:') === 0) idbDel(id).catch(function () {});
+      idbDel(sheetIdbKey(id)).catch(function () {});
+      if (selectedId === id) selectedId = null;
+      delete hojaPaint[id];
+      renderDesktop();
+    }
+
+    function clampItem(it, desk) {
+      var dw = desk.clientWidth, dh = desk.clientHeight;
+      it.w = Math.max(72, Math.min(it.w, dw - 8));
+      it.h = Math.max(72, Math.min(it.h, dh - 8));
+      it.x = Math.max(0, Math.min(it.x, dw - it.w));
+      it.y = Math.max(0, Math.min(it.y, dh - it.h));
+    }
+
+    function bindDrag(el, it, chrome, body) {
+      var desk = document.getElementById('desktop');
+      function start(e, from) {
+        if (e.button != null && e.button !== 0) return;
+        if (e.target.closest && e.target.closest(
+          '.act, .item-open, .resize-handle, a, button.item-open, .hoja-chrome, .hoja-surface, .hoja-preview, textarea, canvas, button'
+        )) return;
+        /* for hoja open sheet, skip body drag entirely */
+        if (it.widget === 'hoja' && it.sheetOpen && from === body) return;
+        e.preventDefault();
+        el.classList.add('dragging');
+        bringFront(it);
+        selectedId = it.id;
+        var startX = e.clientX, startY = e.clientY;
+        var origX = it.x, origY = it.y;
+        var pid = e.pointerId;
+        var moved = false;
+        try { from.setPointerCapture(pid); } catch (err) {}
+
+        function move(ev) {
+          var dx = ev.clientX - startX, dy = ev.clientY - startY;
+          if (!moved && (dx * dx + dy * dy) > 64) moved = true;
+          it.x = origX + dx;
+          it.y = origY + dy;
+          clampItem(it, desk);
+          el.style.left = it.x + 'px';
+          el.style.top = it.y + 'px';
+        }
+        function end(ev) {
+          try { from.releasePointerCapture(pid); } catch (err) {}
+          from.removeEventListener('pointermove', move);
+          from.removeEventListener('pointerup', end);
+          from.removeEventListener('pointercancel', end);
+          el.classList.remove('dragging');
+          saveState();
+          /* tap on icon module → open */
+          if (!moved && from === body && it.type !== 'widget' && it.view !== 'tile') {
+            openModule(it);
+          }
+        }
+        from.addEventListener('pointermove', move);
+        from.addEventListener('pointerup', end);
+        from.addEventListener('pointercancel', end);
+      }
+      chrome.addEventListener('pointerdown', function (e) { start(e, chrome); });
+      body.addEventListener('pointerdown', function (e) { start(e, body); });
+      if (it.type !== 'widget' && it.view !== 'tile') {
+        body.addEventListener('keydown', function (e) {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            openModule(it);
+          }
+        });
+      }
+    }
+
+    function bindResize(el, it, handle) {
+      var desk = document.getElementById('desktop');
+      handle.addEventListener('pointerdown', function (e) {
+        if (e.button != null && e.button !== 0) return;
+        e.preventDefault();
+        e.stopPropagation();
+        bringFront(it);
+        var startX = e.clientX, startY = e.clientY;
+        var origW = it.w, origH = it.h;
+        var pid = e.pointerId;
+        try { handle.setPointerCapture(pid); } catch (err) {}
+        function move(ev) {
+          it.w = origW + (ev.clientX - startX);
+          it.h = origH + (ev.clientY - startY);
+          if (it.shape === 'button') {
+            var side = Math.max(it.w, it.h);
+            it.w = side; it.h = side;
+          }
+          clampItem(it, desk);
+          el.style.width = it.w + 'px';
+          el.style.height = it.h + 'px';
+          el.style.left = it.x + 'px';
+          el.style.top = it.y + 'px';
+        }
+        function end() {
+          try { handle.releasePointerCapture(pid); } catch (err) {}
+          handle.removeEventListener('pointermove', move);
+          handle.removeEventListener('pointerup', end);
+          handle.removeEventListener('pointercancel', end);
+          if (it.widget === 'hoja' && it.sheetOpen) flushHojaCanvas(it);
+          saveState();
+        }
+        handle.addEventListener('pointermove', move);
+        handle.addEventListener('pointerup', end);
+        handle.addEventListener('pointercancel', end);
+      });
+    }
+
+    function openLocal(id) {
+      idbGet(id).then(function (rec) {
+        if (!rec || !rec.blob) { alert('No está el archivo en este navegador.'); return; }
+        try { if (urlCache[id]) URL.revokeObjectURL(urlCache[id]); } catch (e) {}
+        var url = URL.createObjectURL(rec.blob);
+        urlCache[id] = url;
+        window.open(url, '_blank', 'noopener');
+      }).catch(function () { alert('No se pudo abrir el archivo local.'); });
+    }
+
+    function addModule(mod) {
+      if (hasModule(mod.id)) return;
+      var slot = nextSlot();
+      state.items.push({
+        id: mod.id,
+        type: 'module',
+        kind: 'catalog',
+        titulo: mod.titulo,
+        icon: mod.icon || '',
+        href: mod.href,
+        blurb: mod.blurb || '',
+        x: slot.x, y: slot.y, w: 88, h: 100,
+        shape: 'tile',
+        view: 'icon',
+        z: ++Z,
+        addedAt: new Date().toISOString()
+      });
+      saveState();
+      renderDesktop();
+    }
+
+    function addWidget(def) {
+      var id = def.widget + '-' + Date.now().toString(36);
+      var slot = nextSlot();
+      var item = {
+        id: id,
+        type: 'widget',
+        widget: def.widget,
+        titulo: def.titulo,
+        x: slot.x, y: slot.y,
+        w: def.w || 200, h: def.h || 120,
+        shape: 'tile',
+        tipIndex: 0,
+        pillText: '',
+        z: ++Z,
+        addedAt: new Date().toISOString()
+      };
+      if (def.widget === 'hoja') {
+        item.sheetText = '';
+        item.sheetCanvas = '';
+        item.sheetMode = 'write';
+        item.sheetOpen = false;
+        item.shape = 'tile';
+      }
+      state.items.push(item);
+      saveState();
+      renderDesktop();
+    }
+
+    function titleFromName(name) {
+      var base = String(name || 'modulo').replace(/\.(html?|HTML?)$/, '');
+      base = base.replace(/[-_]+/g, ' ').trim();
+      if (!base) return 'Módulo local';
+      return base.charAt(0).toUpperCase() + base.slice(1);
+    }
+
+    function onFile(e) {
+      var err = document.getElementById('file-err');
+      if (err) err.textContent = '';
+      var f = e.target.files && e.target.files[0];
+      e.target.value = '';
+      if (!f) return;
+      var low = (f.name || '').toLowerCase();
+      if (!/\.html?$/.test(low) && f.type !== 'text/html') {
+        if (err) err.textContent = 'Solo archivos .html / .htm';
+        return;
+      }
+      var id = 'local:' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 8);
+      var titulo = titleFromName(f.name);
+      var slot = nextSlot();
+      idbPut({ id: id, name: f.name, blob: f, mime: f.type || 'text/html' })
+        .then(function () {
+          state.items.push({
+            id: id, type: 'module', kind: 'local', titulo: titulo, href: '',
+            icon: '📄', blurb: 'Archivo local',
+            x: slot.x, y: slot.y, w: 88, h: 100, shape: 'tile', view: 'icon', z: ++Z,
+            addedAt: new Date().toISOString()
+          });
+          saveState();
+          renderDesktop();
+        })
+        .catch(function () {
+          if (err) err.textContent = 'No se pudo guardar en IndexedDB.';
+        });
+    }
+
+    function renderChips() {
+      var mc = document.getElementById('mod-chips');
+      if (mc) {
+        mc.innerHTML = '';
+        CATALOG.forEach(function (mod) {
+          var b = document.createElement('button');
+          b.type = 'button';
+          b.innerHTML = '<span class="chip-ico" aria-hidden="true">' +
+            (mod.icon || '') + '</span>' + escapeHtml(mod.titulo);
+          if (hasModule(mod.id)) {
+            b.className = 'disabled';
+            b.title = 'Ya está en el escritorio';
+          } else {
+            b.addEventListener('click', function () { addModule(mod); });
+          }
+          mc.appendChild(b);
+        });
+      }
+      var wc = document.getElementById('wid-chips');
+      if (wc && !wc.dataset.ready) {
+        WIDGETS.forEach(function (def) {
+          var b = document.createElement('button');
+          b.type = 'button';
+          b.textContent = def.titulo;
+          b.addEventListener('click', function () { addWidget(def); });
+          wc.appendChild(b);
+        });
+        wc.dataset.ready = '1';
+      }
+    }
+
+    function tickClocks() {
+      var now = new Date();
+      document.querySelectorAll('[data-live="clock"]').forEach(function (n) {
+        n.textContent = String(now.getHours()).padStart(2, '0') + ':' +
+          String(now.getMinutes()).padStart(2, '0');
+      });
+      document.querySelectorAll('[data-live="date"]').forEach(function (n) {
+        n.textContent = now.getDate() + ' de ' + meses()[now.getMonth()] + ' de ' + now.getFullYear();
+      });
+      document.querySelectorAll('[data-live="dia"]').forEach(function (n) {
+        n.innerHTML = 'Hoy es <strong>' + diasSemana()[now.getDay()] + '</strong><br>' +
+          now.getDate() + ' de ' + meses()[now.getMonth()];
+      });
+    }
+
+    function togglePanel(which) {
+      var pm = document.getElementById('panel-modulos');
+      var pw = document.getElementById('panel-widgets');
+      var bm = document.getElementById('btn-modulos');
+      var bw = document.getElementById('btn-widgets');
+      var openM = which === 'm' && pm.hidden;
+      var openW = which === 'w' && pw.hidden;
+      pm.hidden = !openM;
+      pw.hidden = !openW;
+      pm.classList.toggle('open', openM);
+      pw.classList.toggle('open', openW);
+      bm.classList.toggle('on', openM);
+      bw.classList.toggle('on', openW);
+      bm.setAttribute('aria-expanded', openM ? 'true' : 'false');
+      bw.setAttribute('aria-expanded', openW ? 'true' : 'false');
+    }
+
+    function migrateItem(it) {
+      if (it.z && it.z > Z) Z = it.z;
+      var cat = catalogById(it.id);
+      if (cat) {
+        if (!it.icon) it.icon = cat.icon || '';
+        /* short catalog titles */
+        var oldLong = {
+          'tinta-escritura': ['Tinta escritura', 'Hoja de escritura'],
+          'tinta-estudio': ['Tinta estudio', 'Hoja de dibujo'],
+          'primeros-auxilios': ['Primeros auxilios'],
+          'alarma-cuba': ['Alarma Cuba'],
+          'central-cuba': ['Central Cuba']
+        };
+        var longs = oldLong[it.id];
+        if (longs && longs.indexOf(it.titulo) >= 0) it.titulo = cat.titulo;
+        else if (!it.titulo) it.titulo = cat.titulo;
+      }
+      if (it.type !== 'widget') {
+        if (it.view !== 'icon' && it.view !== 'tile') {
+          /* existing modules keep ficha look unless already small icon-ish */
+          it.view = 'tile';
+        }
+      }
+    }
+
+    function bindDesktopLongPress() {
+      var desk = document.getElementById('desktop');
+      if (!desk || desk.dataset.lpBound) return;
+      desk.dataset.lpBound = '1';
+      var timer = null;
+      var sx = 0, sy = 0;
+      function clear() {
+        if (timer) { clearTimeout(timer); timer = null; }
+      }
+      desk.addEventListener('pointerdown', function (e) {
+        if (!state.toolbarCollapsed) return;
+        if (e.button != null && e.button !== 0) return;
+        var t = e.target;
+        if (t !== desk && !(t.classList && t.classList.contains('desktop-empty'))) return;
+        sx = e.clientX; sy = e.clientY;
+        clear();
+        timer = setTimeout(function () {
+          timer = null;
+          state.toolbarCollapsed = false;
+          saveState();
+          applyToolbarCollapsed();
+        }, 650);
+      });
+      desk.addEventListener('pointermove', function (e) {
+        if (!timer) return;
+        var dx = e.clientX - sx, dy = e.clientY - sy;
+        if (dx * dx + dy * dy > 36) clear();
+      });
+      desk.addEventListener('pointerup', clear);
+      desk.addEventListener('pointercancel', clear);
+      desk.addEventListener('pointerleave', clear);
+    }
+
+    function init() {
+      state = loadState();
+      state.items.forEach(migrateItem);
+      applyTheme(state.theme || 'ambar');
+      applyToolbarCollapsed();
+
+      document.getElementById('btn-modulos').addEventListener('click', function () { togglePanel('m'); });
+      document.getElementById('btn-widgets').addEventListener('click', function () { togglePanel('w'); });
+      document.getElementById('local-file').addEventListener('change', onFile);
+      document.getElementById('theme-sel').addEventListener('change', function () {
+        applyTheme(this.value);
+        saveState();
+      });
+      document.getElementById('btn-collapse-toolbar').addEventListener('click', function () {
+        state.toolbarCollapsed = true;
+        saveState();
+        applyToolbarCollapsed();
+      });
+      document.getElementById('btn-show-toolbar').addEventListener('click', function () {
+        state.toolbarCollapsed = false;
+        saveState();
+        applyToolbarCollapsed();
+      });
+      document.getElementById('btn-clear').addEventListener('click', function () {
+        if (!state.items.length) return;
+        if (!confirm('¿Vaciar todo el escritorio?')) return;
+        state.items.forEach(function (it) {
+          if (String(it.id).indexOf('local:') === 0) idbDel(it.id).catch(function () {});
+          if (it.widget === 'hoja') idbDel(sheetIdbKey(it.id)).catch(function () {});
+        });
+        state.items = [];
+        selectedId = null;
+        saveState();
+        renderDesktop();
+      });
+      bindDesktopLongPress();
+      renderDesktop();
+      if (clockTimer) clearInterval(clockTimer);
+      clockTimer = setInterval(tickClocks, 15000);
+      window.addEventListener('resize', function () {
+        var desk = document.getElementById('desktop');
+        state.items.forEach(function (it) { clampItem(it, desk); });
+        saveState();
+        renderDesktop();
+      });
+    }
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', init);
+    } else {
+      init();
+    }
+  })();
+  </script>
+</body>
+</html>
