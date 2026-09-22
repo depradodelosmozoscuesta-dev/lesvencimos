@@ -17,6 +17,10 @@ EMBED_SOURCES = {
     "radio": ROOT / "modulos" / "radio.html",
     "qr": ROOT / "modulos" / "qr.html",
     "electro": ROOT / "modulos" / "electricidad.html",
+    "brico": ROOT / "modulos" / "bricolaje.html",
+    "jardin": ROOT / "modulos" / "jardin.html",
+    "supervive": ROOT / "modulos" / "supervivencia.html",
+    "apagon": ROOT / "modulos" / "apagon.html",
     "caja": ROOT / "modulos" / "caja-fuerte.html",
     "calc": ROOT / "modulos" / "calculadora.html",
     "gym": ROOT / "modulos" / "gimnasio.html",
@@ -67,13 +71,23 @@ def build_embedded() -> dict[str, str]:
 
 def inject_embedded(shell: str, embedded: dict[str, str]) -> str:
     # Plain str.replace — do NOT use re.sub (it eats JSON backslash escapes).
-    payload = json.dumps(embedded, ensure_ascii=False)
+    # CRITICAL: escape "<" so embedded HTML "</script>" cannot close the outer
+    # <script> tag (HTML parser ignores JS string context). Without this,
+    # togglePanel / click handlers never run → Módulos/Widgets panels stay dead.
+    payload = json.dumps(embedded, ensure_ascii=False).replace("<", "\\u003c")
     needle = "var EMBEDDED = {/*__EMBEDDED_MODULES__*/};"
     if needle not in shell:
         raise SystemExit("EMBEDDED placeholder missing in shell")
     shell2 = shell.replace(needle, "var EMBEDDED = " + payload + ";", 1)
     if "__EMBEDDED_MODULES__" in shell2:
         raise SystemExit("placeholder still present")
+    # Verify EMBEDDED region has no raw script closer before CATALOG
+    try:
+        emb_body = shell2.split("var EMBEDDED = ", 1)[1].split("var CATALOG", 1)[0]
+    except IndexError:
+        emb_body = ""
+    if "</script>" in emb_body:
+        raise SystemExit("EMBEDDED payload still contains raw </script>")
     return shell2
 
 
@@ -89,8 +103,9 @@ Este ZIP lleva esencialmente UN archivo:
   LEEME.txt
 
 Los módulos (Hogar, Salud, Radio, QR, Electricidad,
-Calculadora, Gimnasio, Caja fuerte, Medicación, Meditación,
-Auxilios, Escritura, Dibujo, Informática, Alarma) van
+Bricolaje, Jardín, Resiliencia, Apagón, Calculadora,
+Gimnasio, Caja fuerte, Medicación, Meditación, Auxilios,
+Escritura, Dibujo, Informática, Alarma) van
 EMBEBIDOS dentro del HTML.
 Al tocar un icono se abren en la misma página
 (← Escritorio para volver). No hace falta gym.html
@@ -159,7 +174,7 @@ def main() -> None:
         raise SystemExit("shell missing EMBEDDED placeholder (need estanteria.shell.html)")
 
     embedded = build_embedded()
-    for need in ("hogar", "salud", "radio", "qr", "electro", "caja", "gym", "calc", "medica", "medita", "auxilios", "escritura", "dibujo", "info", "alarma"):
+    for need in ("hogar", "salud", "radio", "qr", "electro", "brico", "jardin", "supervive", "apagon", "caja", "gym", "calc", "medica", "medita", "auxilios", "escritura", "dibujo", "info", "alarma"):
         if need not in embedded:
             raise SystemExit(f"missing embed {need}")
 
@@ -185,6 +200,8 @@ def main() -> None:
             raise SystemExit("openModule does not use EMBEDDED")
 
     (SRC / "estanteria.html").write_text(final, encoding="utf-8")
+    # Live web shell at site root (same single-file build)
+    (ROOT / "estanteria.html").write_text(final, encoding="utf-8")
     leeme = write_leeme()
     (SRC / "LEEME.txt").write_text(leeme, encoding="utf-8")
 

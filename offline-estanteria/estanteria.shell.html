@@ -478,7 +478,7 @@
     display: none; margin: 0.75rem 0 0; padding: 0.85rem 0.9rem;
     background: var(--fondo-2); border: 1px solid var(--linea); border-radius: var(--radio);
   }
-  .add-panel.open { display: block; }
+  .add-panel.open { display: block !important; }
   .add-panel h2 {
     margin: 0 0 0.55rem; font-family: var(--serif); font-size: 1.1rem; font-weight: 600;
   }
@@ -582,7 +582,7 @@
         <strong>Offline listo.</strong>
         Estás en el programa del ZIP (no en la web).
         Pulsa <strong>Módulos</strong> o <strong>Widgets</strong> para añadir cosas al escritorio.
-        Un solo HTML: los módulos (Gimnasio, Caja fuerte…) se abren <strong>dentro de esta página</strong>. Preferible <code>file://</code> desde Archivos; con <code>content://</code> los embebidos también funcionan.
+        Un solo HTML: los módulos (Gimnasio, Bricolaje, Apagón…) se abren <strong>dentro de esta página</strong>. Preferible <code>file://</code> desde Archivos; con <code>content://</code> los embebidos también funcionan.
       </p>
         <h1>Estantería</h1>
         <p class="lead">
@@ -661,6 +661,10 @@
       { id: 'radio', titulo: 'Radio', icon: '📻', embed: 'radio', blurb: 'Emisoras' },
       { id: 'qr', titulo: 'QR', icon: '▣', embed: 'qr', blurb: 'Códigos e impresión' },
       { id: 'electricidad', titulo: 'Electricidad', icon: '⚡', embed: 'electro', blurb: 'Vida · bricolaje' },
+      { id: 'bricolaje', titulo: 'Bricolaje', icon: '🔧', embed: 'brico', blurb: 'DIY casa' },
+      { id: 'jardin', titulo: 'Jardín', icon: '🌱', embed: 'jardin', blurb: 'Plantas fáciles' },
+      { id: 'supervivencia', titulo: 'Resiliencia', icon: '🏕️', embed: 'supervive', blurb: 'Casa preparada' },
+      { id: 'apagon', titulo: 'Apagón', icon: '🔦', embed: 'apagon', blurb: 'Sin luz' },
       { id: 'caja-fuerte', titulo: 'Caja fuerte', icon: '🔐', embed: 'caja', blurb: 'Claves y documentos' },
       { id: 'calculadora', titulo: 'Calculadora', icon: '🔢', embed: 'calc', blurb: 'Operaciones' },
       { id: 'gimnasio', titulo: 'Gimnasio', icon: '💪', embed: 'gym', blurb: 'Movimiento suave' },
@@ -1683,16 +1687,26 @@
       var pw = document.getElementById('panel-widgets');
       var bm = document.getElementById('btn-modulos');
       var bw = document.getElementById('btn-widgets');
-      var openM = which === 'm' && pm.hidden;
-      var openW = which === 'w' && pw.hidden;
-      pm.hidden = !openM;
-      pw.hidden = !openW;
-      pm.classList.toggle('open', openM);
-      pw.classList.toggle('open', openW);
+      if (!pm || !pw || !bm || !bw) return;
+      /* open if currently closed (hidden attr OR missing .open) */
+      var mClosed = pm.hasAttribute('hidden') || !pm.classList.contains('open');
+      var wClosed = pw.hasAttribute('hidden') || !pw.classList.contains('open');
+      var openM = which === 'm' && mClosed;
+      var openW = which === 'w' && wClosed;
+      if (openM) { pm.removeAttribute('hidden'); pm.classList.add('open'); }
+      else { pm.setAttribute('hidden', ''); pm.classList.remove('open'); }
+      if (openW) { pw.removeAttribute('hidden'); pw.classList.add('open'); }
+      else { pw.setAttribute('hidden', ''); pw.classList.remove('open'); }
       bm.classList.toggle('on', openM);
       bw.classList.toggle('on', openW);
       bm.setAttribute('aria-expanded', openM ? 'true' : 'false');
       bw.setAttribute('aria-expanded', openW ? 'true' : 'false');
+      /* if immersive/collapsed somehow left panels unreachable, force toolbar visible when opening */
+      if ((openM || openW) && state.toolbarCollapsed) {
+        state.toolbarCollapsed = false;
+        saveState();
+        applyToolbarCollapsed();
+      }
     }
 
     function migrateItem(it) {
