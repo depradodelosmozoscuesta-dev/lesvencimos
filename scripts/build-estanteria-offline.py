@@ -1,24 +1,26 @@
 #!/usr/bin/env python3
-"""Rebuild downloads/estanteria-offline.zip (flat layout for Android file://)."""
+"""Rebuild single-file Estantería offline zip + Caja fuerte zip."""
 from __future__ import annotations
-import re, shutil, zipfile
+import json, re, shutil, zipfile
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 SRC = ROOT / "offline-estanteria"
 OUT = ROOT / "downloads" / "estanteria-offline.zip"
+CAJA_OUT = ROOT / "downloads" / "caja-fuerte-offline.zip"
 STAGING = ROOT / "downloads" / ".estanteria-staging"
 
-# Flat short names (same folder as estanteria.html). Avoids nested modulos/
-# and reduces MediaStore truncation pain if someone opens via content://.
-MODULE_MAP = {
-    "calculadora.html": "calc.html",
-    "gimnasio.html": "gym.html",
-    "informatica.html": "info.html",
-    "medicacion.html": "medica.html",
-    "primeros-auxilios.html": "auxilios.html",
-    "tinta-escritura.html": "escritura.html",
-    "tinta-estudio.html": "dibujo.html",
+# embed key -> source file
+EMBED_SOURCES = {
+    "caja": ROOT / "modulos" / "caja-fuerte.html",
+    "calc": ROOT / "modulos" / "calculadora.html",
+    "gym": ROOT / "modulos" / "gimnasio.html",
+    "medica": ROOT / "modulos" / "medicacion.html",
+    "auxilios": ROOT / "modulos" / "primeros-auxilios.html",
+    "escritura": ROOT / "modulos" / "tinta-escritura.html",
+    "dibujo": ROOT / "modulos" / "tinta-estudio.html",
+    "info": ROOT / "modulos" / "informatica.html",
+    "alarma": ROOT / "alarma-cuba.html",
 }
 
 
@@ -45,68 +47,164 @@ def ungate_alarma(text: str) -> str:
     return text
 
 
+def build_embedded() -> dict[str, str]:
+    out: dict[str, str] = {}
+    for key, path in EMBED_SOURCES.items():
+        if not path.exists():
+            raise SystemExit(f"missing embed source {path}")
+        html = path.read_text(encoding="utf-8")
+        if key == "alarma":
+            html = ungate_alarma(html)
+        out[key] = html
+    return out
+
+
+def inject_embedded(shell: str, embedded: dict[str, str]) -> str:
+    # Plain str.replace — do NOT use re.sub (it eats JSON backslash escapes).
+    payload = json.dumps(embedded, ensure_ascii=False)
+    needle = "var EMBEDDED = {/*__EMBEDDED_MODULES__*/};"
+    if needle not in shell:
+        raise SystemExit("EMBEDDED placeholder missing in shell")
+    shell2 = shell.replace(needle, "var EMBEDDED = " + payload + ";", 1)
+    if "__EMBEDDED_MODULES__" in shell2:
+        raise SystemExit("placeholder still present")
+    return shell2
+
+
+def write_leeme() -> str:
+    return """═══════════════════════════════════════
+  ESTANTERÍA OFFLINE — Les vencimos
+  UN SOLO HTML (módulos dentro)
+═══════════════════════════════════════
+
+Este ZIP lleva esencialmente UN archivo:
+  ABRE-AQUI.html  (= estanteria.html)
+  estanteria.html
+  LEEME.txt
+
+Los módulos (Calculadora, Gimnasio, Caja fuerte,
+Medicación, Auxilios, Escritura, Dibujo, Informática,
+Alarma) van EMBEBIDOS dentro del HTML.
+Al tocar un icono se abren en la misma página
+(← Escritorio para volver). No hace falta gym.html
+ni otros hermanos.
+
+Profesor es grande: descarga aparte en
+lesvencimos.com/descargas.html (o «Archivo local…»).
+
+─── Android — pasos ───
+
+1) Descarga el ZIP.
+2) Abre Mis archivos / Archivos (NO la lista
+   Descargas del navegador).
+3) Descomprime y entra en la carpeta.
+4) Toca ABRE-AQUI.html → Chrome / Samsung Internet.
+5) Debe verse «Modo offline · file://».
+6) Módulos → añade Gimnasio, Caja fuerte…
+
+Con content:// los embebidos también abren, pero
+file:// desde Archivos es lo más fiable.
+
+Sin pestillo cultural. Sin internet.
+lesvencimos.com
+"""
+
+
+def build_caja_zip() -> None:
+    staging = ROOT / "downloads" / ".caja-staging"
+    if staging.exists():
+        shutil.rmtree(staging)
+    staging.mkdir(parents=True)
+    src = ROOT / "modulos" / "caja-fuerte.html"
+    shutil.copy2(src, staging / "caja-fuerte.html")
+    shutil.copy2(src, staging / "caja.html")
+    (staging / "LEEME.txt").write_text(
+        "Caja fuerte — Les vencimos\n"
+        "Offline en este aparato. Cifrado Web Crypto (PBKDF2 + AES-GCM).\n"
+        "PIN olvidado = datos irrecuperables. No es banco ni nube.\n"
+        "Abre caja.html o caja-fuerte.html desde Archivos (file://).\n",
+        encoding="utf-8",
+    )
+    if CAJA_OUT.exists():
+        CAJA_OUT.unlink()
+    with zipfile.ZipFile(CAJA_OUT, "w", compression=zipfile.ZIP_DEFLATED) as z:
+        for name in ("LEEME.txt", "caja.html", "caja-fuerte.html"):
+            z.write(staging / name, arcname=name)
+    shutil.rmtree(staging)
+    print(f"Wrote {CAJA_OUT} ({CAJA_OUT.stat().st_size} bytes)")
+
+
 def main() -> None:
     if STAGING.exists():
         shutil.rmtree(STAGING)
     STAGING.mkdir(parents=True)
 
-    est = (SRC / "estanteria.html").read_text(encoding="utf-8")
-    for pat in ("lv-locked", "lv-gate", "gate.js", "/brand/"):
-        if pat in est:
-            raise SystemExit(f"offline estanteria.html still contains {pat!r}")
-    if "modulos/" in est and ("href: 'modulos/" in est or 'href: "modulos/' in est or "href: '/modulos/" in est):
-        raise SystemExit("offline estanteria.html still has nested modulos/ hrefs")
-    for need in ("gym.html", "profe.html", "calc.html", "file://"):
-        if need not in est:
-            raise SystemExit(f"offline estanteria.html missing expected {need!r}")
-
-    (STAGING / "estanteria.html").write_text(est, encoding="utf-8")
-    (STAGING / "ABRE-AQUI.html").write_text(est, encoding="utf-8")
-    shutil.copy2(SRC / "LEEME.txt", STAGING / "LEEME.txt")
-
-    if (ROOT / "profesor.html").exists():
-        shutil.copy2(ROOT / "profesor.html", STAGING / "profe.html")
-    elif (ROOT / "downloads" / "Profesor.html").exists():
-        shutil.copy2(ROOT / "downloads" / "Profesor.html", STAGING / "profe.html")
+    shell_tpl = SRC / "estanteria.shell.html"
+    if shell_tpl.exists():
+        shell = shell_tpl.read_text(encoding="utf-8")
     else:
-        raise SystemExit("profesor.html not found")
+        shell = (SRC / "estanteria.html").read_text(encoding="utf-8")
+    for pat in ("lv-locked", "lv-gate", "gate.js", "/brand/"):
+        if pat in shell:
+            raise SystemExit(f"offline shell still contains {pat!r}")
+    if "/*__EMBEDDED_MODULES__*/" not in shell:
+        raise SystemExit("shell missing EMBEDDED placeholder (need estanteria.shell.html)")
 
-    alarma = ungate_alarma((ROOT / "alarma-cuba.html").read_text(encoding="utf-8"))
-    (STAGING / "alarma.html").write_text(alarma, encoding="utf-8")
+    embedded = build_embedded()
+    for need in ("caja", "gym", "calc", "medica", "auxilios", "escritura", "dibujo", "info", "alarma"):
+        if need not in embedded:
+            raise SystemExit(f"missing embed {need}")
 
-    mods_src = ROOT / "modulos"
-    for src_name, dest_name in sorted(MODULE_MAP.items()):
-        src = mods_src / src_name
-        if not src.exists():
-            raise SystemExit(f"missing module {src}")
-        shutil.copy2(src, STAGING / dest_name)
+    final = inject_embedded(shell, embedded)
+
+    # Keep/update shell template with placeholder
+    if "/*__EMBEDDED_MODULES__*/" in shell:
+        (SRC / "estanteria.shell.html").write_text(shell, encoding="utf-8")
+
+    # Verify no required sibling hrefs for gym/caja
+    if re.search(r"href:\s*['\"]gym\.html['\"]", final):
+        raise SystemExit("built file still has gym.html href")
+    if re.search(r"href:\s*['\"]caja", final):
+        raise SystemExit("built file still has caja href")
+    if "location.assign(it.href)" in final and "EMBEDDED" not in final:
+        raise SystemExit("unexpected")
+    # openModule must prefer EMBEDDED
+    if "showModuleViewer" not in final:
+        raise SystemExit("missing in-page viewer")
+    if "EMBEDDED[embedKey]" not in final and "EMBEDDED[embedKey]" not in final:
+        # check alternate
+        if "EMBEDDED && EMBEDDED[embedKey]" not in final:
+            raise SystemExit("openModule does not use EMBEDDED")
+
+    (SRC / "estanteria.html").write_text(final, encoding="utf-8")
+    leeme = write_leeme()
+    (SRC / "LEEME.txt").write_text(leeme, encoding="utf-8")
+
+    (STAGING / "estanteria.html").write_text(final, encoding="utf-8")
+    (STAGING / "ABRE-AQUI.html").write_text(final, encoding="utf-8")
+    (STAGING / "LEEME.txt").write_text(leeme, encoding="utf-8")
 
     if OUT.exists():
         OUT.unlink()
-
-    order = [
-        "LEEME.txt",
-        "ABRE-AQUI.html",
-        "estanteria.html",
-        "profe.html",
-        "alarma.html",
-        "gym.html",
-        "calc.html",
-        "info.html",
-        "auxilios.html",
-        "escritura.html",
-        "dibujo.html",
-        "medica.html",
-    ]
     with zipfile.ZipFile(OUT, "w", compression=zipfile.ZIP_DEFLATED) as z:
-        for name in order:
+        for name in ("LEEME.txt", "ABRE-AQUI.html", "estanteria.html"):
             z.write(STAGING / name, arcname=name)
 
-    shutil.copy2(SRC / "LEEME.txt", ROOT / "downloads" / "LEEME-estanteria.txt")
+    shutil.copy2(STAGING / "LEEME.txt", ROOT / "downloads" / "LEEME-estanteria.txt")
     shutil.rmtree(STAGING)
+
     print(f"Wrote {OUT} ({OUT.stat().st_size} bytes)")
+    print(f"Built HTML size: {(SRC / 'estanteria.html').stat().st_size} bytes")
     with zipfile.ZipFile(OUT) as z:
-        print("Contents:", ", ".join(z.namelist()))
+        print("Estantería contents:", ", ".join(z.namelist()))
+
+    # sizes of embeds
+    for k, v in embedded.items():
+        print(f"  embed {k}: {len(v)} chars")
+
+    build_caja_zip()
+    with zipfile.ZipFile(CAJA_OUT) as z:
+        print("Caja contents:", ", ".join(z.namelist()))
 
 
 if __name__ == "__main__":

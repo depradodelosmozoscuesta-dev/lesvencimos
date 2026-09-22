@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0E0E0C">
+<meta name="referrer" content="no-referrer">
+<title>Caja fuerte — Les vencimos</title>
+<style>
+:root{
+  --fondo:#0E0E0C; --fondo-2:#161512; --fondo-3:#1C1A16;
+  --tinta:#E6E1D6; --suave:#9A9488;
+  --acento:#C4A15A; --acento-texto:#1A160E;
+  --linea:rgba(230,225,214,0.14);
+  --peligro:#C46A4A; --ok:#8F9A72;
+  --serif:"Iowan Old Style","Palatino Linotype",Palatino,"Times New Roman",Georgia,serif;
+  --sans:"Segoe UI",system-ui,-apple-system,sans-serif;
+  --radio:2px;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;min-height:100%;background:var(--fondo);color:var(--tinta);font-family:var(--sans)}
+body{padding:1.25rem 1rem 3rem;max-width:36rem;margin:0 auto}
+header{border-bottom:1px solid var(--linea);padding-bottom:.85rem;margin-bottom:1.1rem}
+header h1{margin:0;font-family:var(--serif);font-size:1.55rem;font-weight:600}
+header p{margin:.35rem 0 0;color:var(--suave);font-size:.78rem;letter-spacing:.1em;text-transform:uppercase}
+.disclaimer{background:var(--fondo-2);border:1px solid var(--linea);border-left:3px solid var(--peligro);padding:.85rem 1rem;margin:0 0 1.1rem;font-size:.9rem;color:var(--suave);border-radius:var(--radio);line-height:1.45}
+.disclaimer strong{color:var(--tinta)}
+.panel{background:var(--fondo-2);border:1px solid var(--linea);border-radius:var(--radio);padding:1rem;margin-bottom:1rem}
+h2{margin:0 0 .75rem;font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;color:var(--suave);font-weight:600}
+label.field{display:block;margin:0 0 .75rem}
+label.field span{display:block;font-size:.78rem;letter-spacing:.08em;text-transform:uppercase;color:var(--suave);margin-bottom:.3rem}
+input,select,textarea{width:100%;min-height:48px;padding:.55rem .75rem;font:inherit;background:var(--fondo-3);color:var(--tinta);border:1px solid var(--linea);border-radius:var(--radio)}
+textarea{min-height:88px;resize:vertical}
+button,.btn{min-height:48px;padding:0 1rem;font:600 .95rem var(--sans);border:1px solid var(--linea);border-radius:var(--radio);background:var(--fondo-3);color:var(--tinta);cursor:pointer}
+button.primary{background:var(--acento);color:var(--acento-texto);border-color:var(--acento)}
+button.danger{color:var(--peligro);border-color:color-mix(in srgb,var(--peligro) 45%,var(--linea))}
+button.ghost{background:transparent}
+.row{display:flex;flex-wrap:wrap;gap:.5rem;align-items:center;margin-top:.5rem}
+.err{color:var(--peligro);font-size:.9rem;min-height:1.2em;margin:.4rem 0 0}
+.ok{color:var(--ok);font-size:.9rem}
+.tags{display:flex;flex-wrap:wrap;gap:.4rem;margin:.35rem 0 .85rem}
+.tags button{min-height:40px;font-size:.85rem}
+.tags button.on{border-color:var(--acento);color:var(--acento)}
+.list{display:flex;flex-direction:column;gap:.55rem}
+.card{background:var(--fondo-2);border:1px solid var(--linea);border-radius:var(--radio);padding:.9rem 1rem}
+.card-top{display:flex;flex-wrap:wrap;align-items:baseline;gap:.45rem;margin-bottom:.35rem}
+.card-title{font-family:var(--serif);font-weight:600;font-size:1.1rem;flex:1 1 auto}
+.badge{font-size:.7rem;letter-spacing:.08em;text-transform:uppercase;color:var(--acento);border:1px solid color-mix(in srgb,var(--acento) 40%,var(--linea));padding:.15rem .45rem;border-radius:var(--radio)}
+.meta{color:var(--suave);font-size:.9rem;word-break:break-word}
+.secret-row{display:flex;flex-wrap:wrap;gap:.4rem;align-items:center;margin-top:.45rem}
+.secret{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.95rem;background:var(--fondo-3);border:1px solid var(--linea);padding:.45rem .65rem;border-radius:var(--radio);flex:1 1 10rem;min-height:44px;word-break:break-all}
+.secret.blur{filter:blur(5px);user-select:none}
+.card .actions{display:flex;flex-wrap:wrap;gap:.35rem;margin-top:.55rem}
+.card .actions button{min-height:40px;font-size:.82rem;padding:0 .7rem}
+.empty{color:var(--suave);font-size:.95rem;padding:.5rem 0}
+.foot{margin-top:1.5rem;color:var(--suave);font-size:.72rem;letter-spacing:.08em;text-transform:uppercase}
+.hidden{display:none !important}
+.lock-wrap{max-width:22rem;margin:2rem auto 0}
+.lock-wrap h1{text-align:center}
+.tiny{font-size:.82rem;color:var(--suave);margin:.5rem 0 0;line-height:1.4}
+</style>
+</head>
+<body>
+<div id="view-lock" class="lock-wrap">
+  <header style="border:0;text-align:center">
+    <h1>Caja fuerte</h1>
+    <p>Les vencimos · solo en este aparato</p>
+  </header>
+  <div class="disclaimer" role="note">
+    <strong>Aviso honesto:</strong> esto vive <strong>solo en este dispositivo</strong>, cifrado con tu PIN.
+    Si olvidas el PIN, <strong>los datos no se pueden recuperar</strong>.
+    No es una caja fuerte de banco ni hay copia en la nube.
+  </div>
+  <div class="panel" id="panel-setup">
+    <h2>Crear PIN maestro</h2>
+    <p class="tiny">Elige un PIN o frase. Mínimo 4 caracteres. Memoriza o anótalo en papel.</p>
+    <label class="field"><span>PIN / frase</span><input id="setup-pin" type="password" autocomplete="new-password" inputmode="text"></label>
+    <label class="field"><span>Repetir</span><input id="setup-pin2" type="password" autocomplete="new-password" inputmode="text"></label>
+    <button type="button" class="primary" id="btn-setup" style="width:100%">Crear caja fuerte</button>
+    <p class="err" id="setup-err" aria-live="polite"></p>
+  </div>
+  <div class="panel hidden" id="panel-unlock">
+    <h2>Desbloquear</h2>
+    <label class="field"><span>PIN / frase</span><input id="unlock-pin" type="password" autocomplete="current-password" inputmode="text"></label>
+    <button type="button" class="primary" id="btn-unlock" style="width:100%">Abrir</button>
+    <p class="err" id="unlock-err" aria-live="polite"></p>
+    <p class="tiny">¿Olvidaste el PIN? La única opción es <button type="button" class="ghost danger" id="btn-wipe" style="min-height:36px;padding:0 .5rem;font-size:.82rem">borrar toda la caja</button> (irreversible).</p>
+  </div>
+</div>
+
+<div id="view-app" class="hidden">
+  <header>
+    <h1>Caja fuerte</h1>
+    <p>Les vencimos · cifrado en este aparato</p>
+  </header>
+  <div class="disclaimer" role="note">
+    <strong>Offline en este aparato.</strong> PIN olvidado = datos irrecuperables. No es banco ni nube.
+  </div>
+  <div class="row" style="margin-bottom:1rem">
+    <button type="button" class="primary" id="btn-new">+ Nueva entrada</button>
+    <button type="button" id="btn-lock">Bloquear</button>
+    <button type="button" class="ghost" id="btn-change-pin">Cambiar PIN</button>
+  </div>
+
+  <div class="panel hidden" id="form-panel">
+    <h2 id="form-title">Nueva entrada</h2>
+    <input type="hidden" id="edit-id">
+    <div class="tags" id="type-tags" role="group" aria-label="Tipo">
+      <button type="button" data-type="wifi" class="on">Wi‑Fi</button>
+      <button type="button" data-type="documento">Documento (DNI)</button>
+      <button type="button" data-type="login">Inicio de sesión</button>
+      <button type="button" data-type="nota">Nota</button>
+    </div>
+    <label class="field"><span>Título</span><input id="f-titulo" autocomplete="off" placeholder="Ej. Router casa"></label>
+    <label class="field"><span id="lbl-user">Usuario / SSID</span><input id="f-user" autocomplete="off" placeholder="Nombre de red o usuario"></label>
+    <label class="field"><span id="lbl-secret">Secreto / contraseña</span><input id="f-secret" autocomplete="off" placeholder="Clave"></label>
+    <label class="field"><span>Notas</span><textarea id="f-notas" placeholder="Opcional"></textarea></label>
+    <div class="row">
+      <button type="button" class="primary" id="btn-save">Guardar</button>
+      <button type="button" id="btn-cancel">Cancelar</button>
+    </div>
+    <p class="err" id="form-err" aria-live="polite"></p>
+  </div>
+
+  <div class="panel hidden" id="pin-panel">
+    <h2>Cambiar PIN</h2>
+    <label class="field"><span>PIN actual</span><input id="pin-old" type="password" autocomplete="current-password"></label>
+    <label class="field"><span>PIN nuevo</span><input id="pin-new" type="password" autocomplete="new-password"></label>
+    <label class="field"><span>Repetir nuevo</span><input id="pin-new2" type="password" autocomplete="new-password"></label>
+    <div class="row">
+      <button type="button" class="primary" id="btn-pin-save">Guardar PIN</button>
+      <button type="button" id="btn-pin-cancel">Cancelar</button>
+    </div>
+    <p class="err" id="pin-err" aria-live="polite"></p>
+  </div>
+
+  <h2>Entradas</h2>
+  <div class="list" id="list"></div>
+  <p class="foot">lesvencimos.com · caja fuerte</p>
+</div>
+
+<script>
+(function () {
+  'use strict';
+  var LS_KEY = 'lv-caja-v1';
+  var ITER = 210000;
+  var TYPES = {
+    wifi: { label: 'Wi‑Fi', user: 'SSID / nombre de red', secret: 'Contraseña Wi‑Fi' },
+    documento: { label: 'Documento (DNI)', user: 'Número / titular', secret: 'Dato sensible' },
+    login: { label: 'Inicio de sesión', user: 'Usuario / correo', secret: 'Contraseña' },
+    nota: { label: 'Nota', user: 'Referencia', secret: 'Texto secreto' }
+  };
+
+  var masterKey = null;
+  var entries = [];
+  var currentType = 'wifi';
+  var cryptoOk = !!(window.crypto && crypto.subtle);
+
+  function b64enc(buf) {
+    var bytes = buf instanceof ArrayBuffer ? new Uint8Array(buf) : buf;
+    var s = '';
+    for (var i = 0; i < bytes.length; i++) s += String.fromCharCode(bytes[i]);
+    return btoa(s);
+  }
+  function b64dec(str) {
+    var bin = atob(str);
+    var out = new Uint8Array(bin.length);
+    for (var i = 0; i < bin.length; i++) out[i] = bin.charCodeAt(i);
+    return out;
+  }
+  function loadMeta() {
+    try {
+      var raw = localStorage.getItem(LS_KEY);
+      if (!raw) return null;
+      return JSON.parse(raw);
+    } catch (e) { return null; }
+  }
+  function saveMeta(obj) {
+    localStorage.setItem(LS_KEY, JSON.stringify(obj));
+  }
+
+  function deriveKey(pin, saltBytes) {
+    return crypto.subtle.importKey('raw', new TextEncoder().encode(pin), 'PBKDF2', false, ['deriveKey'])
+      .then(function (base) {
+        return crypto.subtle.deriveKey(
+          { name: 'PBKDF2', salt: saltBytes, iterations: ITER, hash: 'SHA-256' },
+          base,
+          { name: 'AES-GCM', length: 256 },
+          false,
+          ['encrypt', 'decrypt']
+        );
+      });
+  }
+
+  function encryptPayload(key, obj) {
+    var iv = crypto.getRandomValues(new Uint8Array(12));
+    var plain = new TextEncoder().encode(JSON.stringify(obj));
+    return crypto.subtle.encrypt({ name: 'AES-GCM', iv: iv }, key, plain).then(function (ct) {
+      return { iv: b64enc(iv), data: b64enc(ct) };
+    });
+  }
+
+  function decryptPayload(key, ivB64, dataB64) {
+    var iv = b64dec(ivB64);
+    var data = b64dec(dataB64);
+    return crypto.subtle.decrypt({ name: 'AES-GCM', iv: iv }, key, data).then(function (pt) {
+      return JSON.parse(new TextDecoder().decode(pt));
+    });
+  }
+
+  function persist() {
+    if (!masterKey) return Promise.reject(new Error('locked'));
+    return encryptPayload(masterKey, { entries: entries }).then(function (enc) {
+      var meta = loadMeta() || {};
+      meta.v = 1;
+      meta.iter = ITER;
+      meta.iv = enc.iv;
+      meta.data = enc.data;
+      if (!meta.salt) throw new Error('no salt');
+      saveMeta(meta);
+    });
+  }
+
+  function uid() {
+    return Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 8);
+  }
+
+  function showLock(hasVault) {
+    document.getElementById('view-lock').classList.remove('hidden');
+    document.getElementById('view-app').classList.add('hidden');
+    document.getElementById('panel-setup').classList.toggle('hidden', !!hasVault);
+    document.getElementById('panel-unlock').classList.toggle('hidden', !hasVault);
+    masterKey = null;
+    entries = [];
+  }
+
+  function showApp() {
+    document.getElementById('view-lock').classList.add('hidden');
+    document.getElementById('view-app').classList.remove('hidden');
+    document.getElementById('form-panel').classList.add('hidden');
+    document.getElementById('pin-panel').classList.add('hidden');
+    renderList();
+  }
+
+  function renderList() {
+    var list = document.getElementById('list');
+    list.innerHTML = '';
+    if (!entries.length) {
+      list.innerHTML = '<p class="empty">Aún no hay entradas. Pulsa «Nueva entrada».</p>';
+      return;
+    }
+    var sorted = entries.slice().sort(function (a, b) {
+      return String(a.titulo || '').localeCompare(String(b.titulo || ''), 'es');
+    });
+    sorted.forEach(function (en) {
+      var t = TYPES[en.type] || TYPES.nota;
+      var card = document.createElement('article');
+      card.className = 'card';
+      card.dataset.id = en.id;
+      var secretShown = false;
+      card.innerHTML =
+        '<div class="card-top">' +
+          '<span class="card-title"></span>' +
+          '<span class="badge"></span>' +
+        '</div>' +
+        '<div class="meta user"></div>' +
+        '<div class="secret-row">' +
+          '<div class="secret blur" aria-label="Secreto oculto"></div>' +
+          '<button type="button" class="btn-toggle">Ver</button>' +
+          '<button type="button" class="btn-copy">Copiar</button>' +
+        '</div>' +
+        '<div class="meta notes"></div>' +
+        '<div class="actions">' +
+          '<button type="button" class="btn-edit">Editar</button>' +
+          '<button type="button" class="danger btn-del">Borrar</button>' +
+        '</div>';
+      card.querySelector('.card-title').textContent = en.titulo || '(sin título)';
+      card.querySelector('.badge').textContent = t.label;
+      card.querySelector('.user').textContent = en.usuario ? en.usuario : '';
+      card.querySelector('.secret').textContent = en.secreto || '—';
+      var notesEl = card.querySelector('.notes');
+      if (en.notas) notesEl.textContent = en.notas;
+      else notesEl.style.display = 'none';
+
+      card.querySelector('.btn-toggle').addEventListener('click', function () {
+        secretShown = !secretShown;
+        var sec = card.querySelector('.secret');
+        sec.classList.toggle('blur', !secretShown);
+        this.textContent = secretShown ? 'Ocultar' : 'Ver';
+      });
+      card.querySelector('.btn-copy').addEventListener('click', function () {
+        var txt = en.secreto || '';
+        var btn = this;
+        function ok() {
+          btn.textContent = 'Copiado';
+          setTimeout(function () { btn.textContent = 'Copiar'; }, 1200);
+        }
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(txt).then(ok).catch(function () {
+            fallbackCopy(txt); ok();
+          });
+        } else { fallbackCopy(txt); ok(); }
+      });
+      card.querySelector('.btn-edit').addEventListener('click', function () { openForm(en); });
+      card.querySelector('.btn-del').addEventListener('click', function () {
+        if (!confirm('¿Borrar «' + (en.titulo || 'entrada') + '»?')) return;
+        entries = entries.filter(function (x) { return x.id !== en.id; });
+        persist().then(renderList).catch(function () { alert('No se pudo guardar.'); });
+      });
+      list.appendChild(card);
+    });
+  }
+
+  function fallbackCopy(txt) {
+    var ta = document.createElement('textarea');
+    ta.value = txt;
+    ta.style.position = 'fixed';
+    ta.style.left = '-9999px';
+    document.body.appendChild(ta);
+    ta.select();
+    try { document.execCommand('copy'); } catch (e) {}
+    document.body.removeChild(ta);
+  }
+
+  function setType(type) {
+    currentType = type;
+    var tags = document.querySelectorAll('#type-tags button');
+    tags.forEach(function (b) { b.classList.toggle('on', b.getAttribute('data-type') === type); });
+    var info = TYPES[type] || TYPES.nota;
+    document.getElementById('lbl-user').textContent = info.user;
+    document.getElementById('lbl-secret').textContent = info.secret;
+  }
+
+  function openForm(en) {
+    document.getElementById('form-panel').classList.remove('hidden');
+    document.getElementById('pin-panel').classList.add('hidden');
+    document.getElementById('form-err').textContent = '';
+    if (en) {
+      document.getElementById('form-title').textContent = 'Editar entrada';
+      document.getElementById('edit-id').value = en.id;
+      setType(en.type || 'nota');
+      document.getElementById('f-titulo').value = en.titulo || '';
+      document.getElementById('f-user').value = en.usuario || '';
+      document.getElementById('f-secret').value = en.secreto || '';
+      document.getElementById('f-notas').value = en.notas || '';
+    } else {
+      document.getElementById('form-title').textContent = 'Nueva entrada';
+      document.getElementById('edit-id').value = '';
+      setType('wifi');
+      document.getElementById('f-titulo').value = '';
+      document.getElementById('f-user').value = '';
+      document.getElementById('f-secret').value = '';
+      document.getElementById('f-notas').value = '';
+    }
+    document.getElementById('f-titulo').focus();
+  }
+
+  function init() {
+    if (!cryptoOk) {
+      document.getElementById('panel-setup').innerHTML =
+        '<p class="err">Este navegador no soporta Web Crypto. Prueba Chrome o Samsung Internet actualizado.</p>';
+      document.getElementById('panel-unlock').classList.add('hidden');
+      return;
+    }
+    var meta = loadMeta();
+    showLock(!!(meta && meta.salt && meta.data));
+
+    document.querySelectorAll('#type-tags button').forEach(function (b) {
+      b.addEventListener('click', function () { setType(b.getAttribute('data-type')); });
+    });
+
+    document.getElementById('btn-setup').addEventListener('click', function () {
+      var p1 = document.getElementById('setup-pin').value;
+      var p2 = document.getElementById('setup-pin2').value;
+      var err = document.getElementById('setup-err');
+      err.textContent = '';
+      if (!p1 || p1.length < 4) { err.textContent = 'Mínimo 4 caracteres.'; return; }
+      if (p1 !== p2) { err.textContent = 'No coinciden.'; return; }
+      var salt = crypto.getRandomValues(new Uint8Array(16));
+      deriveKey(p1, salt).then(function (key) {
+        masterKey = key;
+        entries = [];
+        return encryptPayload(key, { entries: [] }).then(function (enc) {
+          saveMeta({ v: 1, salt: b64enc(salt), iter: ITER, iv: enc.iv, data: enc.data });
+          document.getElementById('setup-pin').value = '';
+          document.getElementById('setup-pin2').value = '';
+          showApp();
+        });
+      }).catch(function () { err.textContent = 'No se pudo crear la caja.'; });
+    });
+
+    document.getElementById('btn-unlock').addEventListener('click', function () {
+      var pin = document.getElementById('unlock-pin').value;
+      var err = document.getElementById('unlock-err');
+      err.textContent = '';
+      var meta = loadMeta();
+      if (!meta || !meta.salt) { err.textContent = 'No hay caja.'; return; }
+      deriveKey(pin, b64dec(meta.salt)).then(function (key) {
+        return decryptPayload(key, meta.iv, meta.data).then(function (payload) {
+          masterKey = key;
+          entries = (payload && payload.entries) || [];
+          document.getElementById('unlock-pin').value = '';
+          showApp();
+        });
+      }).catch(function () { err.textContent = 'PIN incorrecto o datos dañados.'; });
+    });
+
+    document.getElementById('unlock-pin').addEventListener('keydown', function (e) {
+      if (e.key === 'Enter') document.getElementById('btn-unlock').click();
+    });
+
+    document.getElementById('btn-wipe').addEventListener('click', function () {
+      if (!confirm('¿Borrar TODA la caja fuerte de este aparato? No hay vuelta atrás.')) return;
+      if (!confirm('Última confirmación: se borran todas las entradas cifradas.')) return;
+      localStorage.removeItem(LS_KEY);
+      showLock(false);
+    });
+
+    document.getElementById('btn-new').addEventListener('click', function () { openForm(null); });
+    document.getElementById('btn-cancel').addEventListener('click', function () {
+      document.getElementById('form-panel').classList.add('hidden');
+    });
+    document.getElementById('btn-lock').addEventListener('click', function () {
+      masterKey = null;
+      entries = [];
+      showLock(true);
+    });
+
+    document.getElementById('btn-save').addEventListener('click', function () {
+      var err = document.getElementById('form-err');
+      err.textContent = '';
+      var titulo = document.getElementById('f-titulo').value.trim();
+      if (!titulo) { err.textContent = 'Pon un título.'; return; }
+      var id = document.getElementById('edit-id').value;
+      var obj = {
+        id: id || uid(),
+        type: currentType,
+        titulo: titulo,
+        usuario: document.getElementById('f-user').value.trim(),
+        secreto: document.getElementById('f-secret').value,
+        notas: document.getElementById('f-notas').value.trim()
+      };
+      if (id) {
+        entries = entries.map(function (x) { return x.id === id ? obj : x; });
+      } else {
+        entries.push(obj);
+      }
+      persist().then(function () {
+        document.getElementById('form-panel').classList.add('hidden');
+        renderList();
+      }).catch(function () { err.textContent = 'No se pudo cifrar / guardar.'; });
+    });
+
+    document.getElementById('btn-change-pin').addEventListener('click', function () {
+      document.getElementById('pin-panel').classList.remove('hidden');
+      document.getElementById('form-panel').classList.add('hidden');
+      document.getElementById('pin-err').textContent = '';
+      document.getElementById('pin-old').value = '';
+      document.getElementById('pin-new').value = '';
+      document.getElementById('pin-new2').value = '';
+    });
+    document.getElementById('btn-pin-cancel').addEventListener('click', function () {
+      document.getElementById('pin-panel').classList.add('hidden');
+    });
+    document.getElementById('btn-pin-save').addEventListener('click', function () {
+      var err = document.getElementById('pin-err');
+      err.textContent = '';
+      var oldP = document.getElementById('pin-old').value;
+      var n1 = document.getElementById('pin-new').value;
+      var n2 = document.getElementById('pin-new2').value;
+      if (!n1 || n1.length < 4) { err.textContent = 'Nuevo PIN: mínimo 4 caracteres.'; return; }
+      if (n1 !== n2) { err.textContent = 'Los nuevos no coinciden.'; return; }
+      var meta = loadMeta();
+      deriveKey(oldP, b64dec(meta.salt)).then(function (oldKey) {
+        return decryptPayload(oldKey, meta.iv, meta.data).then(function () {
+          var salt = crypto.getRandomValues(new Uint8Array(16));
+          return deriveKey(n1, salt).then(function (newKey) {
+            masterKey = newKey;
+            return encryptPayload(newKey, { entries: entries }).then(function (enc) {
+              saveMeta({ v: 1, salt: b64enc(salt), iter: ITER, iv: enc.iv, data: enc.data });
+              document.getElementById('pin-panel').classList.add('hidden');
+            });
+          });
+        });
+      }).catch(function () { err.textContent = 'PIN actual incorrecto.'; });
+    });
+  }
+
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
+  else init();
+})();
+</script>
+</body>
+</html>

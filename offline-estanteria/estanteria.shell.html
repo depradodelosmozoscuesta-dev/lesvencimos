@@ -1,17 +1,13 @@
 <!DOCTYPE html>
-<html lang="es" class="lv-locked">
+<html lang="es">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="referrer" content="strict-origin-when-cross-origin">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; object-src 'none'; img-src 'self' data: blob:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; font-src 'self' data:; connect-src 'self'; form-action 'self' mailto:; media-src 'self' blob:; frame-src 'self' blob:; upgrade-insecure-requests">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self' blob: data:; base-uri 'self'; object-src 'none'; img-src 'self' data: blob:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; font-src 'self' data:; connect-src 'self'; form-action 'self'; media-src 'self' blob:; frame-src 'self' blob:">
   <meta name="description" content="Estantería — escritorio libre para módulos Les vencimos.">
   <meta name="theme-color" content="#0E0E0C">
   <title>Estantería — Les vencimos</title>
-  <link rel="icon" href="/brand/favicon/favicon.svg" type="image/svg+xml">
-  <link rel="icon" href="/brand/favicon/favicon-32.png" sizes="32x32" type="image/png">
-  <link rel="apple-touch-icon" href="/brand/favicon/apple-touch-icon.png">
-  <link rel="stylesheet" href="/brand/site.css">
   <style>
   :root {
     --fondo: #0E0E0C;
@@ -83,8 +79,6 @@
   h1 { font-family: var(--serif); font-size: 1.75rem; font-weight: 600; margin: 0 0 0.4rem; letter-spacing: -0.02em; }
   .lead { color: var(--suave); margin: 0 0 1rem; font-size: 1rem; max-width: 40rem; }
   .lead strong { color: var(--tinta); }
-  html.lv-locked #lv-protected { display: none !important; }
-  html:not(.lv-locked) #lv-gate { display: none !important; }
   .panel {
     background: var(--fondo-2); border: 1px solid var(--linea);
     border-radius: var(--radio); padding: 1.25rem 1.15rem 1.35rem; margin: 0 0 1rem;
@@ -497,61 +491,99 @@
   .chip-list button:hover { border-color: color-mix(in srgb, var(--acento) 55%, transparent); color: var(--acento); }
   .chip-list button.disabled { opacity: 0.45; pointer-events: none; }
   .chip-list button .chip-ico { margin-right: 0.35rem; }
+
+  .offline-tip {
+    margin: 0 0 1rem;
+    padding: 0.85rem 1rem;
+    background: color-mix(in srgb, var(--acento) 18%, var(--fondo-2));
+    border: 1px solid color-mix(in srgb, var(--acento) 55%, var(--linea));
+    border-radius: var(--radio);
+    color: var(--tinta);
+    font-size: 0.95rem;
+    max-width: 40rem;
+  }
+  .offline-tip strong { color: var(--acento); }
   .file-err { color: var(--peligro); font-size: 0.85rem; margin: 0.5rem 0 0; min-height: 1.1em; }
+
+  /* In-page module viewer (no sibling navigation) */
+  #mod-viewer {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 10000;
+    background: var(--fondo);
+    flex-direction: column;
+  }
+  body.mod-open #mod-viewer { display: flex; }
+  body.mod-open .wrap { visibility: hidden; }
+  #mod-viewer-bar {
+    flex: 0 0 auto;
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+    padding: 0.55rem 0.75rem;
+    background: var(--fondo-2);
+    border-bottom: 1px solid var(--linea);
+  }
+  #mod-viewer-bar button {
+    min-height: 44px;
+    padding: 0 0.9rem;
+    background: var(--acento);
+    color: var(--acento-texto);
+    border: 1px solid var(--acento);
+    border-radius: var(--radio);
+    font: 700 0.9rem var(--sans);
+    cursor: pointer;
+  }
+  #mod-viewer-title {
+    flex: 1;
+    font-family: var(--serif);
+    font-weight: 600;
+    font-size: 1.05rem;
+    color: var(--tinta);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  #mod-frame {
+    flex: 1 1 auto;
+    width: 100%;
+    border: 0;
+    background: var(--fondo);
+  }
+  #mod-external {
+    display: none;
+    flex: 1;
+    padding: 1.5rem 1.1rem;
+    max-width: 36rem;
+    margin: 0 auto;
+    color: var(--tinta);
+    overflow: auto;
+  }
+  body.mod-external #mod-external { display: block; }
+  body.mod-external #mod-frame { display: none; }
+  #mod-external h2 { font-family: var(--serif); font-size: 1.35rem; margin: 0 0 0.75rem; }
+  #mod-external p { color: var(--suave); line-height: 1.5; }
   </style>
-  <script>
-  (function(){
-    try {
-      if (location.protocol === 'file:' || sessionStorage.getItem('lv-gate-v1') === 'ok') {
-        document.documentElement.classList.remove('lv-locked');
-      }
-    } catch (e) {}
-  })();
-  </script>
 </head>
 <body class="theme-ambar">
   <div class="wrap">
     <header class="top">
-      <a class="brand" href="/" aria-label="Les vencimos">
-        <img src="/brand/mark.svg" width="28" height="28" alt="" onerror="this.style.display='none'">
+      <div class="brand" aria-label="Les vencimos">
         <span class="wordmark">Les vencimos</span>
-      </a>
-      <nav class="nav" aria-label="Secciones">
-        <a href="/">Inicio</a>
-        <a href="/descargas.html">Descargas</a>
-      </nav>
+      </div>
+      <p class="nav" id="offline-mode-label" style="margin:0;color:var(--suave);font-size:0.85rem">Modo offline</p>
     </header>
-
-    <div id="lv-gate">
-      <h1>Les vencimos</h1>
-      <p class="lead">Antes de ver la estantería, elige <strong>una</strong> de estas tres pruebas. Con acertar una basta.</p>
-      <section class="panel" aria-labelledby="prueba">
-        <h2 id="prueba">Tres puertas · una llave</h2>
-        <p class="lyric">1) All you need is <em>…</em></p>
-        <label for="ans1">Beatles · la palabra que falta</label>
-        <input id="ans1" type="text" autocomplete="off" autocapitalize="none" spellcheck="false" placeholder="una palabra">
-        <p class="lyric">2) La princesa prometida</p>
-        <p class="hint" style="margin:0 0 .55rem">Cuando Buttercup le pide algo a Westley, ¿qué responde él siempre?</p>
-        <div class="choices" id="ans2" role="group" aria-label="Respuesta de Westley">
-          <button type="button" class="choice" data-v="0">Como ordenes, mi señora</button>
-          <button type="button" class="choice" data-v="0">Hasta el final del mundo</button>
-          <button type="button" class="choice" data-v="1">Como desees</button>
-          <button type="button" class="choice" data-v="0">Con mucho gusto</button>
-          <button type="button" class="choice" data-v="1">As you wish</button>
-        </div>
-        <p class="lyric">3) ¿Cuántos eran los Beatles?</p>
-        <label for="ans3">Un número</label>
-        <input id="ans3" type="text" inputmode="numeric" autocomplete="off" placeholder="…">
-        <p class="err" id="err" aria-live="polite"></p>
-        <div class="row">
-          <button type="button" class="primary" id="go">Entrar</button>
-        </div>
-        <p class="hint">Pestillo cultural: basta con una respuesta buena.</p>
-      </section>
-    </div>
 
     <div id="lv-protected">
       <div id="desk-chrome">
+
+      <p class="offline-tip" id="offline-tip" role="status">
+        <strong>Offline listo.</strong>
+        Estás en el programa del ZIP (no en la web).
+        Pulsa <strong>Módulos</strong> o <strong>Widgets</strong> para añadir cosas al escritorio.
+        Un solo HTML: los módulos (Gimnasio, Caja fuerte…) se abren <strong>dentro de esta página</strong>. Preferible <code>file://</code> desde Archivos; con <code>content://</code> los embebidos también funcionan.
+      </p>
         <h1>Estantería</h1>
         <p class="lead">
           Un <strong>escritorio</strong> en este aparato: coloca módulos e iconos donde quieras.
@@ -580,7 +612,7 @@
         <div id="panel-modulos" class="add-panel" hidden>
           <h2>Módulos del catálogo</h2>
           <div id="mod-chips" class="chip-list"></div>
-          <p class="hint">Solo guarda el enlace en este dispositivo. Descarga el zip desde Descargas si lo quieres en el móvil.</p>
+          <p class="hint">Los módulos van <strong>dentro de este HTML</strong> (sin archivos hermanos). Profesor es descarga aparte. También «Archivo local…».</p>
         </div>
         <div id="panel-widgets" class="add-panel" hidden>
           <h2>Widgets</h2>
@@ -600,20 +632,18 @@
       </div>
     </div>
 
-    <footer class="site-foot">lesvencimos.com · estantería</footer>
+
+  <div id="mod-viewer" role="dialog" aria-modal="true" aria-labelledby="mod-viewer-title" hidden>
+    <div id="mod-viewer-bar">
+      <button type="button" id="mod-back" aria-label="Volver al escritorio">← Escritorio</button>
+      <span id="mod-viewer-title">Módulo</span>
+    </div>
+    <iframe id="mod-frame" title="Módulo" sandbox="allow-scripts allow-same-origin allow-forms allow-modals allow-popups allow-downloads"></iframe>
+    <div id="mod-external" aria-live="polite"></div>
+  </div>
+    <footer class="site-foot">lesvencimos.com · estantería offline</footer>
   </div>
 
-  <script>
-  (function () {
-    if (location.protocol === 'file:') {
-      document.documentElement.classList.remove('lv-locked');
-      return;
-    }
-    var s = document.createElement('script');
-    s.src = '/brand/gate.js';
-    document.body.appendChild(s);
-  })();
-  </script>
   <script>
   (function () {
     var LS_KEY = 'lv-estanteria-v1';
@@ -623,18 +653,20 @@
     var Z = 10;
     var THEMES = ['ambar', 'verde', 'azul', 'papel'];
 
+    /* Bundled modules are in EMBEDDED (injected by build). No sibling .html needed. */
+    var EMBEDDED = {/*__EMBEDDED_MODULES__*/};
     var CATALOG = [
-      { id: 'caja-fuerte', titulo: 'Caja fuerte', icon: '🔐', href: '/modulos/caja-fuerte.html', blurb: 'Claves y documentos' },
-      { id: 'profesor', titulo: 'Profesor', icon: '📖', href: '/profesor.html', blurb: '37 materias' },
-      { id: 'informatica', titulo: 'Informática', icon: '💻', href: '/modulos/informatica.html', blurb: 'Linux, Python, Central' },
-      { id: 'primeros-auxilios', titulo: 'Auxilios', icon: '❤️‍🩹', href: '/modulos/primeros-auxilios.html', blurb: 'RCP y cuidados' },
-      { id: 'calculadora', titulo: 'Calculadora', icon: '🔢', href: '/modulos/calculadora.html', blurb: 'Operaciones' },
-      { id: 'tinta-escritura', titulo: 'Escritura', icon: '📝', href: '/modulos/tinta-escritura.html', blurb: 'Hoja para escribir' },
-      { id: 'tinta-estudio', titulo: 'Dibujo', icon: '✏️', href: '/modulos/tinta-estudio.html', blurb: 'Hoja para pintar' },
-      { id: 'gimnasio', titulo: 'Gimnasio', icon: '💪', href: '/modulos/gimnasio.html', blurb: 'Movimiento suave' },
-      { id: 'medicacion', titulo: 'Medicación', icon: '💊', href: '/modulos/medicacion.html', blurb: 'Recordatorio local' },
-      { id: 'alarma-cuba', titulo: 'Alarma', icon: '🚨', href: '/alarma-cuba.html', blurb: 'Guía apagones' },
-      { id: 'central-cuba', titulo: 'Central', icon: '🏠', href: '/profesor.html', blurb: 'Lecciones / zip en Descargas' }
+      { id: 'caja-fuerte', titulo: 'Caja fuerte', icon: '🔐', embed: 'caja', blurb: 'Claves y documentos' },
+      { id: 'calculadora', titulo: 'Calculadora', icon: '🔢', embed: 'calc', blurb: 'Operaciones' },
+      { id: 'gimnasio', titulo: 'Gimnasio', icon: '💪', embed: 'gym', blurb: 'Movimiento suave' },
+      { id: 'medicacion', titulo: 'Medicación', icon: '💊', embed: 'medica', blurb: 'Recordatorio local' },
+      { id: 'primeros-auxilios', titulo: 'Auxilios', icon: '❤️‍🩹', embed: 'auxilios', blurb: 'RCP y cuidados' },
+      { id: 'tinta-escritura', titulo: 'Escritura', icon: '📝', embed: 'escritura', blurb: 'Hoja para escribir' },
+      { id: 'tinta-estudio', titulo: 'Dibujo', icon: '✏️', embed: 'dibujo', blurb: 'Hoja para pintar' },
+      { id: 'informatica', titulo: 'Informática', icon: '💻', embed: 'info', blurb: 'Linux, Python, Central' },
+      { id: 'alarma-cuba', titulo: 'Alarma', icon: '🚨', embed: 'alarma', blurb: 'Guía apagones' },
+      { id: 'profesor', titulo: 'Profesor', icon: '📖', embed: null, external: 'profesor', blurb: 'Descarga aparte' },
+      { id: 'central-cuba', titulo: 'Central', icon: '🏠', embed: null, external: 'profesor', blurb: 'Lecciones · zip aparte' }
     ];
 
     var WIDGETS = [
@@ -822,14 +854,88 @@
       return '📦';
     }
 
+    var modBlobUrl = null;
+
+    function closeModuleViewer() {
+      var viewer = document.getElementById('mod-viewer');
+      var frame = document.getElementById('mod-frame');
+      var ext = document.getElementById('mod-external');
+      document.body.classList.remove('mod-open', 'mod-external');
+      if (viewer) viewer.hidden = true;
+      if (frame) {
+        try { frame.src = 'about:blank'; } catch (e) {}
+      }
+      if (ext) ext.innerHTML = '';
+      if (modBlobUrl) {
+        try { URL.revokeObjectURL(modBlobUrl); } catch (e2) {}
+        modBlobUrl = null;
+      }
+    }
+
+    function showModuleViewer(title, html, externalHtml) {
+      var viewer = document.getElementById('mod-viewer');
+      var frame = document.getElementById('mod-frame');
+      var ext = document.getElementById('mod-external');
+      var t = document.getElementById('mod-viewer-title');
+      if (!viewer || !frame) return;
+      if (t) t.textContent = title || 'Módulo';
+      closeModuleViewer();
+      viewer.hidden = false;
+      document.body.classList.add('mod-open');
+      if (externalHtml) {
+        document.body.classList.add('mod-external');
+        if (ext) ext.innerHTML = externalHtml;
+        return;
+      }
+      if (modBlobUrl) {
+        try { URL.revokeObjectURL(modBlobUrl); } catch (e) {}
+      }
+      try {
+        var blob = new Blob([html], { type: 'text/html;charset=utf-8' });
+        modBlobUrl = URL.createObjectURL(blob);
+        frame.src = modBlobUrl;
+      } catch (err) {
+        /* fallback srcdoc */
+        try { frame.srcdoc = html; } catch (e2) {
+          alert('No se pudo abrir el módulo en esta página.');
+          closeModuleViewer();
+        }
+      }
+    }
+
     function openModule(it) {
       if (!it) return;
       if (it.kind === 'local') {
         openLocal(it.id);
         return;
       }
+      var cat = catalogById(it.id) || it;
+      var embedKey = cat.embed || it.embed;
+      if (embedKey && EMBEDDED && EMBEDDED[embedKey]) {
+        showModuleViewer(cat.titulo || it.titulo, EMBEDDED[embedKey], null);
+        return;
+      }
+      if (cat.external || it.external) {
+        var name = cat.titulo || it.titulo || 'Módulo';
+        var tip = '<h2>' + escapeHtml(name) + '</h2>' +
+          '<p>Este módulo es grande y va en un ZIP aparte (no cabe cómodo en el HTML único).</p>' +
+          '<p>Descárgalo desde <strong>lesvencimos.com/descargas.html</strong> → Profesor / Informática según corresponda, ' +
+          'descomprime y ábrelo desde <strong>Mis archivos</strong>, o usa «Archivo local…» aquí para añadirlo a este escritorio.</p>' +
+          '<p>Los demás módulos (Gimnasio, Caja fuerte, Calculadora…) ya están <strong>dentro de este mismo archivo</strong>.</p>';
+        if (location.protocol === 'content:') {
+          tip += '<p><strong>Tip:</strong> aunque estés en content://, los módulos embebidos sí abren aquí. ' +
+            'Para Profesor aparte, mejor file:// desde Archivos.</p>';
+        }
+        showModuleViewer(name, null, tip);
+        return;
+      }
+      /* legacy href (should not be needed in single-file build) */
       if (it.href) {
-        window.location.href = it.href;
+        if (location.protocol === 'content:') {
+          alert('No hay módulo embebido y content:// no puede abrir archivos hermanos. Usa Mis archivos (file://) o Archivo local…');
+          return;
+        }
+        window.location.assign(it.href);
       }
     }
 
@@ -1421,10 +1527,14 @@
     function openLocal(id) {
       idbGet(id).then(function (rec) {
         if (!rec || !rec.blob) { alert('No está el archivo en este navegador.'); return; }
-        try { if (urlCache[id]) URL.revokeObjectURL(urlCache[id]); } catch (e) {}
-        var url = URL.createObjectURL(rec.blob);
-        urlCache[id] = url;
-        window.open(url, '_blank', 'noopener');
+        var it = findItem(id);
+        var title = (it && it.titulo) || (rec.name) || 'Archivo local';
+        var reader = new FileReader();
+        reader.onload = function () {
+          showModuleViewer(title, String(reader.result || ''), null);
+        };
+        reader.onerror = function () { alert('No se pudo leer el archivo local.'); };
+        reader.readAsText(rec.blob);
       }).catch(function () { alert('No se pudo abrir el archivo local.'); });
     }
 
@@ -1437,7 +1547,9 @@
         kind: 'catalog',
         titulo: mod.titulo,
         icon: mod.icon || '',
-        href: mod.href,
+        href: '',
+        embed: mod.embed || null,
+        external: mod.external || null,
         blurb: mod.blurb || '',
         x: slot.x, y: slot.y, w: 88, h: 100,
         shape: 'tile',
@@ -1582,13 +1694,18 @@
       var cat = catalogById(it.id);
       if (cat) {
         if (!it.icon) it.icon = cat.icon || '';
+        /* single-file: prefer embed; drop sibling hrefs for catalog modules */
+        it.embed = cat.embed || null;
+        it.external = cat.external || null;
+        it.href = '';
         /* short catalog titles */
         var oldLong = {
           'tinta-escritura': ['Tinta escritura', 'Hoja de escritura'],
           'tinta-estudio': ['Tinta estudio', 'Hoja de dibujo'],
           'primeros-auxilios': ['Primeros auxilios'],
           'alarma-cuba': ['Alarma Cuba'],
-          'central-cuba': ['Central Cuba']
+          'central-cuba': ['Central Cuba'],
+          'caja-fuerte': ['Caja fuerte']
         };
         var longs = oldLong[it.id];
         if (longs && longs.indexOf(it.titulo) >= 0) it.titulo = cat.titulo;
@@ -1636,11 +1753,28 @@
     }
 
     function init() {
+      (function showProtocolHint() {
+        var lab = document.getElementById('offline-mode-label');
+        var tip = document.getElementById('offline-tip');
+        var proto = location.protocol || '';
+        if (lab) {
+          if (proto === 'file:') lab.textContent = 'Modo offline · file://';
+          else if (proto === 'content:') lab.textContent = '¡Mal abierto · content://!';
+          else lab.textContent = 'Modo offline · ' + proto;
+        }
+        if (proto === 'content:' && tip) {
+          tip.innerHTML = '<strong>Abierto como <code>content://</code>.</strong> '
+            + 'Los módulos embebidos (Gimnasio, Caja fuerte…) <em>sí</em> abren aquí. '
+            + 'Aun así, lo más fiable: <strong>Mis archivos</strong> → carpeta → <strong>ABRE-AQUI.html</strong> (<code>file://</code>).';
+        }
+      })();
       state = loadState();
       state.items.forEach(migrateItem);
       applyTheme(state.theme || 'ambar');
       applyToolbarCollapsed();
 
+      var modBack = document.getElementById('mod-back');
+      if (modBack) modBack.addEventListener('click', closeModuleViewer);
       document.getElementById('btn-modulos').addEventListener('click', function () { togglePanel('m'); });
       document.getElementById('btn-widgets').addEventListener('click', function () { togglePanel('w'); });
       document.getElementById('local-file').addEventListener('change', onFile);
