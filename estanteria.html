@@ -28,6 +28,28 @@
     --sans: "Segoe UI", system-ui, -apple-system, sans-serif;
     --radio: 2px;
     --max: 44rem;
+    --desk-glow: rgba(196,161,90,0.06);
+  }
+  body.theme-ambar {
+    --fondo: #0E0E0C; --fondo-2: #161512; --fondo-3: #1C1A16;
+    --tinta: #E6E1D6; --suave: #9A9488; --acento: #C4A15A; --acento-texto: #1A160E;
+    --linea: rgba(230, 225, 214, 0.14); --desk-glow: rgba(196,161,90,0.06);
+  }
+  body.theme-verde {
+    --fondo: #0C100E; --fondo-2: #121814; --fondo-3: #18201A;
+    --tinta: #E2E8E0; --suave: #8A9688; --acento: #8F9A72; --acento-texto: #12180E;
+    --linea: rgba(226, 232, 224, 0.14); --desk-glow: rgba(143,154,114,0.08);
+  }
+  body.theme-azul {
+    --fondo: #0C0E12; --fondo-2: #12161C; --fondo-3: #181E26;
+    --tinta: #E0E4EA; --suave: #8A909A; --acento: #7A8FA8; --acento-texto: #0E1218;
+    --linea: rgba(224, 228, 234, 0.14); --desk-glow: rgba(122,143,168,0.08);
+  }
+  body.theme-papel {
+    --fondo: #EDE6D8; --fondo-2: #F5F0E6; --fondo-3: #FFFCF6;
+    --tinta: #2A261E; --suave: #6A6458; --acento: #A67C3A; --acento-texto: #FFF8EC;
+    --linea: rgba(42, 38, 30, 0.14); --desk-glow: rgba(166,124,58,0.08);
+    --peligro: #A04830; --ok: #5A6A48;
   }
   * { box-sizing: border-box; }
   html, body { margin: 0; min-height: 100%; }
@@ -101,17 +123,19 @@
     margin: 0 0 0.75rem; padding: 0.65rem 0.7rem;
     background: var(--fondo-2); border: 1px solid var(--linea); border-radius: var(--radio);
   }
+  .desk-toolbar.collapsed { display: none; }
   .desk-toolbar .lbl {
     font-size: 0.72rem; letter-spacing: 0.12em; text-transform: uppercase;
     color: var(--suave); font-weight: 700; margin-right: 0.25rem;
   }
-  .desk-toolbar button, .desk-toolbar label.file-btn {
+  .desk-toolbar button, .desk-toolbar label.file-btn, .desk-toolbar select.theme-sel {
     min-height: 44px; padding: 0.45rem 0.75rem;
     background: var(--fondo-3); color: var(--tinta); border: 1px solid var(--linea);
     border-radius: var(--radio); font: 600 0.85rem var(--sans); cursor: pointer;
   }
+  .desk-toolbar select.theme-sel { appearance: auto; max-width: 11rem; }
   .desk-toolbar button:hover, .desk-toolbar label.file-btn:hover {
-    border-color: rgba(196,161,90,.55); color: var(--acento);
+    border-color: color-mix(in srgb, var(--acento) 55%, transparent); color: var(--acento);
   }
   .desk-toolbar button.on {
     border-color: var(--acento); color: var(--acento);
@@ -120,6 +144,15 @@
     position: absolute; width: 1px; height: 1px; opacity: 0; overflow: hidden;
   }
   .desk-toolbar .spacer { flex: 1; min-width: 0.5rem; }
+  .menu-tab {
+    display: none; position: sticky; top: 0.5rem; z-index: 50;
+    margin: 0 0 0.65rem; min-height: 40px; padding: 0.4rem 0.85rem;
+    background: var(--fondo-2); color: var(--acento); border: 1px solid var(--linea);
+    border-radius: 999px; font: 700 0.82rem var(--sans); cursor: pointer;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.25);
+  }
+  .menu-tab.visible { display: inline-flex; align-items: center; }
+  .add-panel.collapsed-hide { display: none !important; }
 
   .desktop {
     position: relative;
@@ -127,7 +160,7 @@
     min-height: min(72vh, 640px);
     height: min(78vh, 720px);
     background:
-      radial-gradient(ellipse at 20% 10%, rgba(196,161,90,0.06), transparent 45%),
+      radial-gradient(ellipse at 20% 10%, var(--desk-glow), transparent 45%),
       var(--fondo-2);
     border: 1px solid var(--linea);
     border-radius: var(--radio);
@@ -136,8 +169,9 @@
     user-select: none;
     -webkit-user-select: none;
   }
-  .desktop.empty-hint {
-    /* class toggled via JS on empty */
+  body.toolbar-collapsed .desktop {
+    height: min(88vh, 860px);
+    min-height: min(80vh, 720px);
   }
   .desktop-empty {
     position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
@@ -157,23 +191,69 @@
     box-shadow: 0 2px 12px rgba(0,0,0,0.35);
     z-index: 1;
   }
-  .desk-item.shape-tile {
-    border-radius: 6px;
-  }
+  .desk-item.shape-tile { border-radius: 6px; }
   .desk-item.shape-button {
     border-radius: 50%;
     aspect-ratio: 1 / 1;
   }
   .desk-item.shape-button .item-body { align-items: center; justify-content: center; text-align: center; }
   .desk-item.shape-button .item-title { font-size: clamp(0.75rem, 12%, 1.05rem); }
-  .desk-item.shape-button .item-chrome .act:not(.drag-hint) { display: none; }
   .desk-item.selected {
     border-color: var(--acento);
     box-shadow: 0 0 0 1px var(--acento), 0 4px 18px rgba(0,0,0,0.45);
     z-index: 20;
   }
   .desk-item.dragging { opacity: 0.92; z-index: 40; }
-  .desk-item.widget-kind { background: #1a1814; }
+
+  /* Modules in button shape: floating compact chrome (shape + close always available) */
+  .desk-item.shape-button .item-chrome {
+    position: absolute; top: 6px; left: 50%; transform: translateX(-50%);
+    background: rgba(0,0,0,0.45); min-height: 28px; z-index: 3; padding: 0.1rem;
+    border-radius: 999px; gap: 0;
+    opacity: 0; pointer-events: none; transition: opacity 0.15s;
+  }
+  .desk-item.shape-button.selected .item-chrome,
+  .desk-item.shape-button:hover .item-chrome {
+    opacity: 1; pointer-events: auto;
+  }
+  .desk-item.shape-button .item-chrome .item-title { display: none; }
+  .desk-item.shape-button .item-chrome .act {
+    display: inline-flex; align-items: center; justify-content: center;
+    min-width: 32px; min-height: 32px;
+  }
+
+  /* Frameless widgets */
+  .desk-item.widget-kind.frameless {
+    background: transparent;
+    border: none;
+    box-shadow: none;
+  }
+  .desk-item.widget-kind.frameless.selected {
+    border: none;
+    box-shadow: none;
+    outline: 1px dashed color-mix(in srgb, var(--acento) 45%, transparent);
+    outline-offset: 2px;
+  }
+  .desk-item.widget-kind.frameless .item-chrome {
+    position: absolute; top: 2px; right: 2px; left: auto; transform: none;
+    background: transparent; min-height: 28px; z-index: 3; padding: 0;
+    opacity: 0; pointer-events: none; transition: opacity 0.15s;
+  }
+  .desk-item.widget-kind.frameless.selected .item-chrome,
+  .desk-item.widget-kind.frameless:hover .item-chrome {
+    opacity: 1; pointer-events: auto;
+  }
+  .desk-item.widget-kind.frameless .item-title { display: none; }
+  .desk-item.widget-kind.frameless .item-body {
+    padding: 0.35rem 0.4rem; cursor: grab;
+  }
+  .desk-item.widget-kind.frameless .resize-handle {
+    opacity: 0; transition: opacity 0.15s;
+  }
+  .desk-item.widget-kind.frameless.selected .resize-handle,
+  .desk-item.widget-kind.frameless:hover .resize-handle {
+    opacity: 1;
+  }
 
   .item-chrome {
     display: flex; align-items: center; gap: 0.2rem;
@@ -184,17 +264,15 @@
     min-height: 36px;
     flex-shrink: 0;
   }
-  .desk-item.shape-button .item-chrome {
-    position: absolute; top: 4px; left: 50%; transform: translateX(-50%);
-    background: transparent; min-height: 28px; z-index: 2; padding: 0;
-  }
+  body.theme-papel .item-chrome { background: rgba(42,38,30,0.08); }
   .item-chrome:active { cursor: grabbing; }
   .item-chrome .act {
     border: 0; background: transparent; color: var(--suave);
     min-width: 36px; min-height: 36px; border-radius: 4px;
     font: 700 0.78rem var(--sans); cursor: pointer; padding: 0 0.3rem;
+    display: inline-flex; align-items: center; justify-content: center;
   }
-  .item-chrome .act:hover { color: var(--acento); background: rgba(196,161,90,0.12); }
+  .item-chrome .act:hover { color: var(--acento); background: color-mix(in srgb, var(--acento) 12%, transparent); }
   .item-chrome .act.danger:hover { color: var(--peligro); }
   .item-title {
     flex: 1; font-family: var(--serif); font-weight: 600; font-size: 0.92rem;
@@ -222,12 +300,12 @@
     position: absolute; right: 0; bottom: 0; width: 28px; height: 28px;
     cursor: nwse-resize; touch-action: none;
     background:
-      linear-gradient(135deg, transparent 55%, rgba(196,161,90,0.55) 55%, rgba(196,161,90,0.55) 70%, transparent 70%),
-      linear-gradient(135deg, transparent 70%, rgba(196,161,90,0.35) 70%, rgba(196,161,90,0.35) 82%, transparent 82%);
+      linear-gradient(135deg, transparent 55%, color-mix(in srgb, var(--acento) 55%, transparent) 55%, color-mix(in srgb, var(--acento) 55%, transparent) 70%, transparent 70%),
+      linear-gradient(135deg, transparent 70%, color-mix(in srgb, var(--acento) 35%, transparent) 70%, color-mix(in srgb, var(--acento) 35%, transparent) 82%, transparent 82%);
   }
   .desk-item.shape-button .resize-handle { border-radius: 0 0 50% 0; }
 
-  /* Widgets */
+  /* Widgets typography */
   .w-clock {
     font-family: var(--serif); font-weight: 600; letter-spacing: 0.02em;
     font-size: clamp(1.4rem, 28%, 3.2rem); line-height: 1.1; color: var(--acento);
@@ -251,6 +329,49 @@
   }
   .w-pill strong { color: var(--acento); display: block; font-family: var(--serif); font-size: 1.1em; }
 
+  /* Hoja */
+  .hoja-preview {
+    flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: 0.35rem; cursor: pointer; touch-action: manipulation; user-select: none;
+  }
+  .hoja-preview .hoja-ico {
+    font-family: var(--serif); font-size: clamp(1.6rem, 28%, 2.6rem); color: var(--acento); line-height: 1;
+  }
+  .hoja-preview .hoja-label { font-size: 0.85rem; color: var(--tinta); font-weight: 600; }
+  .hoja-preview .hoja-snip {
+    font-size: 0.72rem; color: var(--suave); max-width: 100%;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap; padding: 0 0.25rem;
+  }
+  .desk-item.hoja-open {
+    min-width: 200px; min-height: 180px;
+  }
+  .hoja-chrome {
+    display: flex; flex-wrap: wrap; gap: 0.25rem; align-items: center;
+    padding: 0.2rem 0; flex-shrink: 0; cursor: default; touch-action: manipulation;
+  }
+  .hoja-chrome button {
+    min-height: 36px; padding: 0.25rem 0.55rem;
+    background: var(--fondo-2); color: var(--tinta); border: 1px solid var(--linea);
+    border-radius: var(--radio); font: 600 0.75rem var(--sans); cursor: pointer;
+  }
+  .hoja-chrome button.on { border-color: var(--acento); color: var(--acento); }
+  .hoja-surface {
+    flex: 1; min-height: 0; display: flex; flex-direction: column;
+    touch-action: manipulation; cursor: default; user-select: text; -webkit-user-select: text;
+  }
+  .hoja-surface textarea {
+    flex: 1; width: 100%; min-height: 80px; resize: none;
+    background: var(--fondo-2); color: var(--tinta); border: 1px solid var(--linea);
+    border-radius: var(--radio); padding: 0.55rem; font: 1rem/1.45 var(--serif);
+    touch-action: manipulation;
+  }
+  .hoja-surface canvas {
+    flex: 1; width: 100%; min-height: 80px; background: #fffef8;
+    border: 1px solid var(--linea); border-radius: var(--radio);
+    touch-action: none; cursor: crosshair;
+  }
+  body.theme-papel .hoja-surface canvas { background: #fff; }
+
   /* Add panels */
   .add-panel {
     display: none; margin: 0.75rem 0 0; padding: 0.85rem 0.9rem;
@@ -266,7 +387,7 @@
     background: var(--fondo-3); border: 1px solid var(--linea); color: var(--tinta);
     border-radius: var(--radio); font: 600 0.85rem var(--sans); cursor: pointer;
   }
-  .chip-list button:hover { border-color: rgba(196,161,90,.55); color: var(--acento); }
+  .chip-list button:hover { border-color: color-mix(in srgb, var(--acento) 55%, transparent); color: var(--acento); }
   .chip-list button.disabled { opacity: 0.45; pointer-events: none; }
   .file-err { color: var(--peligro); font-size: 0.85rem; margin: 0.5rem 0 0; min-height: 1.1em; }
   </style>
@@ -280,7 +401,7 @@
   })();
   </script>
 </head>
-<body>
+<body class="theme-ambar">
   <div class="wrap">
     <header class="top">
       <a class="brand" href="/" aria-label="Les vencimos">
@@ -325,18 +446,28 @@
       <h1>Estantería</h1>
       <p class="lead">
         Un <strong>escritorio</strong> en este aparato: coloca módulos donde quieras, cámbiales el tamaño,
-        azulejo o botón. Añade reloj, fecha, calendario y ayudas claras.
+        azulejo o botón. Añade reloj, fecha, calendario, una <strong>Hoja</strong> para escribir o pintar, y ayudas claras.
         <strong>No hace falta llevarlo todo en el móvil.</strong>
       </p>
 
-      <div class="desk-toolbar" role="toolbar" aria-label="Herramientas del escritorio">
+      <button type="button" id="btn-show-toolbar" class="menu-tab" aria-label="Mostrar menú">Mostrar menú</button>
+
+      <div class="desk-toolbar" id="desk-toolbar" role="toolbar" aria-label="Herramientas del escritorio">
         <span class="lbl">Añadir</span>
         <button type="button" id="btn-modulos" aria-expanded="false">Módulos</button>
         <button type="button" id="btn-widgets" aria-expanded="false">Widgets</button>
         <label class="file-btn" for="local-file">Archivo local…</label>
         <input id="local-file" type="file" accept=".html,.htm,text/html">
+        <span class="lbl">Color</span>
+        <select id="theme-sel" class="theme-sel" aria-label="Paleta de color" title="Color del escritorio">
+          <option value="ambar">Ámbar</option>
+          <option value="verde">Verde suave</option>
+          <option value="azul">Azul gris</option>
+          <option value="papel">Papel claro</option>
+        </select>
         <span class="spacer"></span>
         <button type="button" id="btn-clear" title="Vaciar escritorio">Vaciar</button>
+        <button type="button" id="btn-collapse-toolbar" title="Ocultar menú" aria-label="Ocultar menú">Ocultar menú</button>
       </div>
 
       <div id="panel-modulos" class="add-panel" hidden>
@@ -351,7 +482,7 @@
       <p class="file-err" id="file-err" aria-live="polite"></p>
 
       <div id="desktop" class="desktop" aria-label="Escritorio de la estantería">
-        <div class="desktop-empty">Escritorio vacío.<br>Añade un módulo o un widget y arrástralo donde quieras.</div>
+        <div class="desktop-empty">Escritorio vacío.<br>Añade un módulo, un widget o una Hoja y arrástralo donde quieras.</div>
       </div>
       <p class="hint">Arrastra para mover · esquina inferior derecha para redimensionar · ◯/▭ cambia forma · ✕ quita.</p>
     </div>
@@ -377,14 +508,15 @@
     var IDB_STORE = 'files';
     var IDB_VER = 1;
     var Z = 10;
+    var THEMES = ['ambar', 'verde', 'azul', 'papel'];
 
     var CATALOG = [
       { id: 'profesor', titulo: 'Profesor', href: '/profesor.html', blurb: '37 materias' },
       { id: 'informatica', titulo: 'Informática', href: '/modulos/informatica.html', blurb: 'Linux, Python, Central' },
       { id: 'primeros-auxilios', titulo: 'Primeros auxilios', href: '/modulos/primeros-auxilios.html', blurb: 'RCP y cuidados' },
       { id: 'calculadora', titulo: 'Calculadora', href: '/modulos/calculadora.html', blurb: 'Operaciones' },
-      { id: 'tinta-escritura', titulo: 'Tinta escritura', href: '/modulos/tinta-escritura.html', blurb: 'Texto offline' },
-      { id: 'tinta-estudio', titulo: 'Tinta estudio', href: '/modulos/tinta-estudio.html', blurb: 'Dibujo' },
+      { id: 'tinta-escritura', titulo: 'Hoja de escritura', href: '/modulos/tinta-escritura.html', blurb: 'Hoja para escribir' },
+      { id: 'tinta-estudio', titulo: 'Hoja de dibujo', href: '/modulos/tinta-estudio.html', blurb: 'Hoja para pintar' },
       { id: 'gimnasio', titulo: 'Gimnasio', href: '/modulos/gimnasio.html', blurb: 'Movimiento suave' },
       { id: 'medicacion', titulo: 'Medicación', href: '/modulos/medicacion.html', blurb: 'Recordatorio local' },
       { id: 'alarma-cuba', titulo: 'Alarma Cuba', href: '/alarma-cuba.html', blurb: 'Guía apagones' },
@@ -392,6 +524,7 @@
     ];
 
     var WIDGETS = [
+      { id: 'w-hoja', widget: 'hoja', titulo: 'Hoja', w: 200, h: 200 },
       { id: 'w-clock', widget: 'clock', titulo: 'Reloj', w: 200, h: 120 },
       { id: 'w-clock-lg', widget: 'clock-large', titulo: 'Reloj grande', w: 280, h: 160 },
       { id: 'w-date', widget: 'date', titulo: 'Fecha', w: 220, h: 100 },
@@ -402,23 +535,25 @@
     ];
 
     var urlCache = {};
-    var state = { version: 2, items: [] };
+    var state = { version: 2, items: [], toolbarCollapsed: false, theme: 'ambar' };
     var selectedId = null;
     var clockTimer = null;
+    var hojaPaint = {}; /* id -> { drawing, last } */
 
     function loadState() {
       try {
         var raw = localStorage.getItem(LS_KEY);
-        if (!raw) return { version: 2, items: [] };
+        if (!raw) return { version: 2, items: [], toolbarCollapsed: false, theme: 'ambar' };
         var data = JSON.parse(raw);
         if (Array.isArray(data)) {
-          /* migrate v1 list → desktop cascade */
           return {
             version: 2,
+            toolbarCollapsed: false,
+            theme: 'ambar',
             items: data.map(function (it, i) {
               return {
                 id: it.id,
-                type: it.kind === 'local' ? 'module' : 'module',
+                type: 'module',
                 kind: it.kind || 'catalog',
                 titulo: it.titulo,
                 href: it.href || '',
@@ -435,16 +570,27 @@
         }
         if (data && Array.isArray(data.items)) {
           data.version = 2;
+          if (typeof data.toolbarCollapsed !== 'boolean') data.toolbarCollapsed = false;
+          if (!data.theme || THEMES.indexOf(data.theme) < 0) data.theme = 'ambar';
           return data;
         }
       } catch (e) {}
-      return { version: 2, items: [] };
+      return { version: 2, items: [], toolbarCollapsed: false, theme: 'ambar' };
     }
 
     function saveState() {
       try {
         localStorage.setItem(LS_KEY, JSON.stringify(state));
-      } catch (e) {}
+      } catch (e) {
+        /* quota: strip large canvas from items and retry */
+        try {
+          var slim = JSON.parse(JSON.stringify(state));
+          slim.items.forEach(function (it) {
+            if (it.sheetCanvas && it.sheetCanvas.length > 80000) it.sheetCanvas = '';
+          });
+          localStorage.setItem(LS_KEY, JSON.stringify(slim));
+        } catch (e2) {}
+      }
     }
 
     function openDb() {
@@ -492,6 +638,14 @@
       });
     }
 
+    function sheetIdbKey(id) { return 'hoja:' + id; }
+
+    function persistHojaCanvas(it) {
+      if (!it || !it.sheetCanvas) return;
+      idbPut({ id: sheetIdbKey(it.id), name: 'hoja-canvas', blob: it.sheetCanvas, mime: 'text/plain' })
+        .catch(function () {});
+    }
+
     function findItem(id) {
       for (var i = 0; i < state.items.length; i++) {
         if (state.items[i].id === id) return state.items[i];
@@ -521,6 +675,39 @@
     function meses() {
       return ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio',
         'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
+    }
+
+    function applyTheme(name) {
+      if (THEMES.indexOf(name) < 0) name = 'ambar';
+      state.theme = name;
+      THEMES.forEach(function (t) { document.body.classList.remove('theme-' + t); });
+      document.body.classList.add('theme-' + name);
+      var sel = document.getElementById('theme-sel');
+      if (sel && sel.value !== name) sel.value = name;
+      var meta = document.querySelector('meta[name="theme-color"]');
+      if (meta) {
+        var bg = getComputedStyle(document.body).getPropertyValue('--fondo').trim() || '#0E0E0C';
+        meta.setAttribute('content', bg);
+      }
+    }
+
+    function applyToolbarCollapsed() {
+      var tb = document.getElementById('desk-toolbar');
+      var tab = document.getElementById('btn-show-toolbar');
+      var pm = document.getElementById('panel-modulos');
+      var pw = document.getElementById('panel-widgets');
+      var collapsed = !!state.toolbarCollapsed;
+      document.body.classList.toggle('toolbar-collapsed', collapsed);
+      if (tb) tb.classList.toggle('collapsed', collapsed);
+      if (tab) tab.classList.toggle('visible', collapsed);
+      if (collapsed) {
+        if (pm) { pm.hidden = true; pm.classList.remove('open'); }
+        if (pw) { pw.hidden = true; pw.classList.remove('open'); }
+        var bm = document.getElementById('btn-modulos');
+        var bw = document.getElementById('btn-widgets');
+        if (bm) { bm.classList.remove('on'); bm.setAttribute('aria-expanded', 'false'); }
+        if (bw) { bw.classList.remove('on'); bw.setAttribute('aria-expanded', 'false'); }
+      }
     }
 
     function widgetHtml(it) {
@@ -564,7 +751,7 @@
     function buildCalendar(now) {
       var y = now.getFullYear(), m = now.getMonth();
       var first = new Date(y, m, 1);
-      var start = first.getDay(); /* 0=dom */
+      var start = first.getDay();
       var days = new Date(y, m + 1, 0).getDate();
       var html = '<div class="w-cal"><div class="month">' + meses()[m] + ' ' + y + '</div>';
       html += '<table class="w-cal" aria-label="Calendario"><thead><tr>';
@@ -582,18 +769,210 @@
       return html;
     }
 
+    function escapeHtml(s) {
+      return String(s || '').replace(/[&<>"']/g, function (c) {
+        return ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c];
+      });
+    }
+
+    function buildHojaBody(it, body, el) {
+      if (it.sheetOpen) {
+        el.classList.add('hoja-open');
+        var chrome = document.createElement('div');
+        chrome.className = 'hoja-chrome';
+        var mode = it.sheetMode === 'paint' ? 'paint' : 'write';
+        ['write', 'paint'].forEach(function (m) {
+          var b = document.createElement('button');
+          b.type = 'button';
+          b.className = 'hoja-mode' + (mode === m ? ' on' : '');
+          b.dataset.mode = m;
+          b.textContent = m === 'write' ? 'Escribir' : 'Pintar';
+          chrome.appendChild(b);
+        });
+        var closeB = document.createElement('button');
+        closeB.type = 'button';
+        closeB.className = 'hoja-close-sheet';
+        closeB.title = 'Minimizar hoja';
+        closeB.textContent = 'Cerrar';
+        chrome.appendChild(closeB);
+
+        var surface = document.createElement('div');
+        surface.className = 'hoja-surface';
+
+        if (mode === 'write') {
+          var ta = document.createElement('textarea');
+          ta.placeholder = 'Escribe aquí…';
+          ta.value = it.sheetText || '';
+          ta.addEventListener('pointerdown', function (e) { e.stopPropagation(); });
+          ta.addEventListener('input', function () {
+            it.sheetText = ta.value;
+            saveState();
+          });
+          surface.appendChild(ta);
+        } else {
+          var cv = document.createElement('canvas');
+          surface.appendChild(cv);
+          setupHojaCanvas(cv, it);
+        }
+
+        chrome.querySelectorAll('.hoja-mode').forEach(function (btn) {
+          btn.addEventListener('click', function (e) {
+            e.stopPropagation();
+            /* save canvas before switch */
+            flushHojaCanvas(it);
+            it.sheetMode = btn.dataset.mode;
+            saveState();
+            renderDesktop();
+          });
+        });
+        closeB.addEventListener('click', function (e) {
+          e.stopPropagation();
+          flushHojaCanvas(it);
+          it.sheetOpen = false;
+          saveState();
+          renderDesktop();
+        });
+
+        body.appendChild(chrome);
+        body.appendChild(surface);
+        body.style.cursor = 'default';
+        body.style.touchAction = 'manipulation';
+      } else {
+        var prev = document.createElement('div');
+        prev.className = 'hoja-preview';
+        prev.tabIndex = 0;
+        var snip = (it.sheetText || '').trim().slice(0, 40);
+        prev.innerHTML =
+          '<span class="hoja-ico" aria-hidden="true">▭</span>' +
+          '<span class="hoja-label">Hoja</span>' +
+          (snip ? '<span class="hoja-snip">' + escapeHtml(snip) + '</span>' : '<span class="hoja-snip">Escribir / pintar</span>');
+        function openSheet(e) {
+          if (e) e.stopPropagation();
+          it.sheetOpen = true;
+          if (!it.sheetMode) it.sheetMode = 'write';
+          /* enlarge a bit when opening */
+          it.w = Math.max(it.w || 200, 280);
+          it.h = Math.max(it.h || 200, 260);
+          saveState();
+          renderDesktop();
+        }
+        prev.addEventListener('click', openSheet);
+        prev.addEventListener('keydown', function (e) {
+          if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openSheet(e); }
+        });
+        body.appendChild(prev);
+      }
+    }
+
+    function flushHojaCanvas(it) {
+      var el = document.querySelector('.desk-item[data-id="' + CSS.escape(it.id) + '"] canvas');
+      if (el) {
+        try {
+          it.sheetCanvas = el.toDataURL('image/png');
+          persistHojaCanvas(it);
+        } catch (e) {}
+      }
+    }
+
+    function setupHojaCanvas(cv, it) {
+      var parent = cv.parentElement;
+      function size() {
+        var w = Math.max(80, parent.clientWidth || it.w - 24);
+        var h = Math.max(80, parent.clientHeight || it.h - 90);
+        if (cv.width !== w || cv.height !== h) {
+          var prev = null;
+          try { prev = cv.toDataURL('image/png'); } catch (e) {}
+          cv.width = w;
+          cv.height = h;
+          var ctx = cv.getContext('2d');
+          ctx.fillStyle = '#fffef8';
+          ctx.fillRect(0, 0, w, h);
+          function drawUrl(url) {
+            if (!url) return;
+            var img = new Image();
+            img.onload = function () { ctx.drawImage(img, 0, 0, w, h); };
+            img.src = url;
+          }
+          if (it.sheetCanvas) drawUrl(it.sheetCanvas);
+          else if (prev && prev.length > 100) drawUrl(prev);
+          else {
+            idbGet(sheetIdbKey(it.id)).then(function (rec) {
+              if (rec && typeof rec.blob === 'string' && rec.blob.indexOf('data:') === 0) {
+                it.sheetCanvas = rec.blob;
+                drawUrl(rec.blob);
+              }
+            }).catch(function () {});
+          }
+        }
+      }
+      size();
+      setTimeout(size, 30);
+
+      var ctx = cv.getContext('2d');
+      var st = hojaPaint[it.id] || (hojaPaint[it.id] = { drawing: false, last: null });
+
+      function pos(ev) {
+        var r = cv.getBoundingClientRect();
+        return {
+          x: (ev.clientX - r.left) * (cv.width / Math.max(1, r.width)),
+          y: (ev.clientY - r.top) * (cv.height / Math.max(1, r.height))
+        };
+      }
+      function start(ev) {
+        if (ev.button != null && ev.button !== 0) return;
+        ev.preventDefault();
+        ev.stopPropagation();
+        st.drawing = true;
+        st.last = pos(ev);
+        try { cv.setPointerCapture(ev.pointerId); } catch (e) {}
+      }
+      function move(ev) {
+        if (!st.drawing) return;
+        ev.preventDefault();
+        var p = pos(ev);
+        ctx.strokeStyle = '#2A261E';
+        ctx.lineWidth = 2.5;
+        ctx.lineCap = 'round';
+        ctx.lineJoin = 'round';
+        ctx.beginPath();
+        ctx.moveTo(st.last.x, st.last.y);
+        ctx.lineTo(p.x, p.y);
+        ctx.stroke();
+        st.last = p;
+      }
+      function end(ev) {
+        if (!st.drawing) return;
+        st.drawing = false;
+        try { cv.releasePointerCapture(ev.pointerId); } catch (e) {}
+        try {
+          it.sheetCanvas = cv.toDataURL('image/png');
+          persistHojaCanvas(it);
+          saveState();
+        } catch (e) {}
+      }
+      cv.addEventListener('pointerdown', start);
+      cv.addEventListener('pointermove', move);
+      cv.addEventListener('pointerup', end);
+      cv.addEventListener('pointercancel', end);
+    }
+
+    function isFramelessWidget(it) {
+      return it.type === 'widget' && it.widget !== 'hoja';
+    }
+
     function renderDesktop() {
       var desk = document.getElementById('desktop');
       if (!desk) return;
       desk.classList.toggle('has-items', state.items.length > 0);
-      /* keep empty hint node */
       var empty = desk.querySelector('.desktop-empty');
       desk.querySelectorAll('.desk-item').forEach(function (n) { n.remove(); });
 
       state.items.forEach(function (it) {
         var el = document.createElement('article');
-        el.className = 'desk-item shape-' + (it.shape || 'tile') +
+        var shape = it.shape || 'tile';
+        el.className = 'desk-item shape-' + shape +
           (it.type === 'widget' ? ' widget-kind' : '') +
+          (isFramelessWidget(it) ? ' frameless' : '') +
           (it.id === selectedId ? ' selected' : '');
         el.dataset.id = it.id;
         el.style.left = (it.x || 0) + 'px';
@@ -604,16 +983,20 @@
 
         var chrome = document.createElement('div');
         chrome.className = 'item-chrome';
+        var shapeLabel = shape === 'button' ? '▭' : '◯';
+        var shapeTitle = shape === 'button' ? 'Volver a azulejo' : 'Forma botón';
         chrome.innerHTML =
           '<span class="item-title"></span>' +
-          '<button type="button" class="act shape-tog" title="Forma: azulejo o botón">◯</button>' +
+          '<button type="button" class="act shape-tog" title="' + shapeTitle + '">' + shapeLabel + '</button>' +
           '<button type="button" class="act danger rm" title="Quitar">✕</button>';
         chrome.querySelector('.item-title').textContent = it.titulo || it.id;
 
         var body = document.createElement('div');
         body.className = 'item-body';
 
-        if (it.type === 'widget') {
+        if (it.type === 'widget' && it.widget === 'hoja') {
+          buildHojaBody(it, body, el);
+        } else if (it.type === 'widget') {
           body.innerHTML = widgetHtml(it);
           if (it.widget === 'orientacion') {
             body.addEventListener('dblclick', function () {
@@ -712,6 +1095,8 @@
     }
 
     function removeItem(id) {
+      var it = findItem(id);
+      if (it && it.widget === 'hoja') flushHojaCanvas(it);
       state.items = state.items.filter(function (x) { return x.id !== id; });
       saveState();
       if (urlCache[id]) {
@@ -719,7 +1104,9 @@
         delete urlCache[id];
       }
       if (String(id).indexOf('local:') === 0) idbDel(id).catch(function () {});
+      idbDel(sheetIdbKey(id)).catch(function () {});
       if (selectedId === id) selectedId = null;
+      delete hojaPaint[id];
       renderDesktop();
     }
 
@@ -735,7 +1122,11 @@
       var desk = document.getElementById('desktop');
       function start(e, from) {
         if (e.button != null && e.button !== 0) return;
-        if (e.target.closest && e.target.closest('.act, .item-open, .resize-handle, a, button.item-open')) return;
+        if (e.target.closest && e.target.closest(
+          '.act, .item-open, .resize-handle, a, button.item-open, .hoja-chrome, .hoja-surface, .hoja-preview, textarea, canvas, button'
+        )) return;
+        /* for hoja open sheet, skip body drag entirely */
+        if (it.widget === 'hoja' && it.sheetOpen && from === body) return;
         e.preventDefault();
         el.classList.add('dragging');
         bringFront(it);
@@ -797,6 +1188,7 @@
           handle.removeEventListener('pointermove', move);
           handle.removeEventListener('pointerup', end);
           handle.removeEventListener('pointercancel', end);
+          if (it.widget === 'hoja' && it.sheetOpen) flushHojaCanvas(it);
           saveState();
         }
         handle.addEventListener('pointermove', move);
@@ -837,7 +1229,7 @@
     function addWidget(def) {
       var id = def.widget + '-' + Date.now().toString(36);
       var slot = nextSlot();
-      state.items.push({
+      var item = {
         id: id,
         type: 'widget',
         widget: def.widget,
@@ -849,7 +1241,15 @@
         pillText: '',
         z: ++Z,
         addedAt: new Date().toISOString()
-      });
+      };
+      if (def.widget === 'hoja') {
+        item.sheetText = '';
+        item.sheetCanvas = '';
+        item.sheetMode = 'write';
+        item.sheetOpen = false;
+        item.shape = 'tile';
+      }
+      state.items.push(item);
       saveState();
       renderDesktop();
     }
@@ -957,15 +1357,37 @@
       state = loadState();
       state.items.forEach(function (it) {
         if (it.z && it.z > Z) Z = it.z;
+        /* migrate old catalog titles */
+        if (it.id === 'tinta-escritura' && it.titulo === 'Tinta escritura') it.titulo = 'Hoja de escritura';
+        if (it.id === 'tinta-estudio' && it.titulo === 'Tinta estudio') it.titulo = 'Hoja de dibujo';
       });
+      applyTheme(state.theme || 'ambar');
+      applyToolbarCollapsed();
+
       document.getElementById('btn-modulos').addEventListener('click', function () { togglePanel('m'); });
       document.getElementById('btn-widgets').addEventListener('click', function () { togglePanel('w'); });
       document.getElementById('local-file').addEventListener('change', onFile);
+      document.getElementById('theme-sel').addEventListener('change', function () {
+        applyTheme(this.value);
+        saveState();
+      });
+      document.getElementById('btn-collapse-toolbar').addEventListener('click', function () {
+        state.toolbarCollapsed = true;
+        saveState();
+        applyToolbarCollapsed();
+      });
+      document.getElementById('btn-show-toolbar').addEventListener('click', function () {
+        state.toolbarCollapsed = false;
+        saveState();
+        applyToolbarCollapsed();
+      });
       document.getElementById('btn-clear').addEventListener('click', function () {
         if (!state.items.length) return;
         if (!confirm('¿Vaciar todo el escritorio?')) return;
-        state.items.filter(function (it) { return String(it.id).indexOf('local:') === 0; })
-          .forEach(function (it) { idbDel(it.id).catch(function () {}); });
+        state.items.forEach(function (it) {
+          if (String(it.id).indexOf('local:') === 0) idbDel(it.id).catch(function () {});
+          if (it.widget === 'hoja') idbDel(sheetIdbKey(it.id)).catch(function () {});
+        });
         state.items = [];
         selectedId = null;
         saveState();
