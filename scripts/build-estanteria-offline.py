@@ -6,7 +6,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 SRC = ROOT / "offline-estanteria"
-OUT = ROOT / "downloads" / "estanteria-offline-v20260922i.zip"
+OUT = ROOT / "downloads" / "estanteria-offline-v20260922j.zip"
 CAJA_OUT = ROOT / "downloads" / "caja-fuerte-offline.zip"
 STAGING = ROOT / "downloads" / ".estanteria-staging"
 
@@ -24,6 +24,7 @@ EMBED_SOURCES = {
     "caja": ROOT / "modulos" / "caja-fuerte.html",
     "calc": ROOT / "modulos" / "calculadora.html",
     "gym": ROOT / "modulos" / "gimnasio.html",
+    "guitarra": ROOT / "modulos" / "guitarra.html",
     "medica": ROOT / "modulos" / "medicacion.html",
     "medita": ROOT / "modulos" / "meditacion.html",
     "auxilios": ROOT / "modulos" / "primeros-auxilios.html",
@@ -105,7 +106,7 @@ Este ZIP lleva esencialmente UN archivo:
 
 Los módulos (Hogar, Salud, Radio, QR, Electricidad,
 Bricolaje, Jardín, Resiliencia, Apagón, Calculadora,
-Gimnasio, Caja fuerte, Medicación, Meditación, Auxilios,
+Gimnasio, Guitarra, Caja fuerte, Medicación, Meditación, Auxilios,
 Escritura, Dibujo, Informática, Alarma) van
 EMBEBIDOS dentro del HTML.
 Al tocar un icono se abren en la misma página
@@ -175,7 +176,7 @@ def main() -> None:
         raise SystemExit("shell missing EMBEDDED placeholder (need estanteria.shell.html)")
 
     embedded = build_embedded()
-    for need in ("hogar", "salud", "radio", "qr", "electro", "brico", "jardin", "supervive", "apagon", "caja", "gym", "calc", "medica", "medita", "auxilios", "escritura", "dibujo", "info", "alarma"):
+    for need in ("hogar", "salud", "radio", "qr", "electro", "brico", "jardin", "supervive", "apagon", "caja", "gym", "guitarra", "calc", "medica", "medita", "auxilios", "escritura", "dibujo", "info", "alarma"):
         if need not in embedded:
             raise SystemExit(f"missing embed {need}")
 
