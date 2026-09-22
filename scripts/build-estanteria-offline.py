@@ -16,6 +16,7 @@ EMBED_SOURCES = {
     "calc": ROOT / "modulos" / "calculadora.html",
     "gym": ROOT / "modulos" / "gimnasio.html",
     "medica": ROOT / "modulos" / "medicacion.html",
+    "medita": ROOT / "modulos" / "meditacion.html",
     "auxilios": ROOT / "modulos" / "primeros-auxilios.html",
     "escritura": ROOT / "modulos" / "tinta-escritura.html",
     "dibujo": ROOT / "modulos" / "tinta-estudio.html",
@@ -83,7 +84,7 @@ Este ZIP lleva esencialmente UN archivo:
   LEEME.txt
 
 Los módulos (Calculadora, Gimnasio, Caja fuerte,
-Medicación, Auxilios, Escritura, Dibujo, Informática,
+Medicación, Meditación, Auxilios, Escritura, Dibujo, Informática,
 Alarma) van EMBEBIDOS dentro del HTML.
 Al tocar un icono se abren en la misma página
 (← Escritorio para volver). No hace falta gym.html
@@ -151,7 +152,7 @@ def main() -> None:
         raise SystemExit("shell missing EMBEDDED placeholder (need estanteria.shell.html)")
 
     embedded = build_embedded()
-    for need in ("caja", "gym", "calc", "medica", "auxilios", "escritura", "dibujo", "info", "alarma"):
+    for need in ("caja", "gym", "calc", "medica", "medita", "auxilios", "escritura", "dibujo", "info", "alarma"):
         if need not in embedded:
             raise SystemExit(f"missing embed {need}")
 
