@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0E0E0C">
+<title>Calculadora — Les vencimos</title>
+<style>
+
+:root{
+  --fondo:#0E0E0C; --fondo-2:#161512; --fondo-3:#1C1A16;
+  --tinta:#E6E1D6; --suave:#9A9488;
+  --acento:#C4A15A; --acento-texto:#1A160E;
+  --linea:rgba(230,225,214,0.14);
+  --peligro:#C46A4A; --ok:#8F9A72;
+  --serif:"Iowan Old Style","Palatino Linotype",Palatino,"Times New Roman",Georgia,serif;
+  --sans:"Segoe UI",system-ui,-apple-system,sans-serif;
+  --radio:2px;
+}
+
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;min-height:100%;background:var(--fondo);color:var(--tinta);font-family:var(--sans)}
+body{display:flex;flex-direction:column;align-items:center;padding:1.25rem 1rem 2rem}
+header{width:100%;max-width:22rem;margin-bottom:1rem;border-bottom:1px solid var(--linea);padding-bottom:.75rem}
+header h1{margin:0;font-family:var(--serif);font-size:1.35rem;font-weight:600;letter-spacing:-.01em}
+header p{margin:.35rem 0 0;color:var(--suave);font-size:.78rem;letter-spacing:.1em;text-transform:uppercase}
+.calc{width:100%;max-width:22rem;background:var(--fondo-2);border:1px solid var(--linea);border-radius:var(--radio);padding:1rem;display:flex;flex-direction:column;gap:.65rem}
+.display{background:var(--fondo-3);border:1px solid var(--linea);border-radius:var(--radio);padding:.85rem 1rem;text-align:right;min-height:4.2rem;display:flex;flex-direction:column;justify-content:flex-end}
+.display .expr{font-size:.85rem;color:var(--suave);min-height:1.2em;word-break:break-all}
+.display .val{font-family:var(--serif);font-size:2.1rem;font-weight:600;letter-spacing:-.02em;line-height:1.15;word-break:break-all}
+.keys{display:grid;grid-template-columns:repeat(4,1fr);gap:.45rem}
+button.key{min-height:52px;font:600 1.15rem var(--sans);border:1px solid var(--linea);border-radius:var(--radio);background:var(--fondo-3);color:var(--tinta);cursor:pointer}
+button.key:hover{border-color:rgba(196,161,90,.55)}
+button.key:active{transform:scale(.97)}
+button.key.op{color:var(--acento)}
+button.key.eq{background:var(--acento);color:var(--acento-texto);border-color:var(--acento)}
+button.key.fn{color:var(--suave);font-size:.95rem}
+button.key.zero{grid-column:span 2}
+.foot{margin-top:1.25rem;color:var(--suave);font-size:.72rem;letter-spacing:.08em;text-transform:uppercase}
+</style>
+</head>
+<body>
+<header>
+  <h1>Calculadora</h1>
+  <p>Les vencimos · offline</p>
+</header>
+<div class="calc" role="application" aria-label="Calculadora">
+  <div class="display" aria-live="polite">
+    <div class="expr" id="expr"></div>
+    <div class="val" id="val">0</div>
+  </div>
+  <div class="keys">
+    <button type="button" class="key fn" data-act="clear">C</button>
+    <button type="button" class="key fn" data-act="sign">±</button>
+    <button type="button" class="key fn" data-act="pct">%</button>
+    <button type="button" class="key op" data-act="op" data-op="/">÷</button>
+    <button type="button" class="key" data-act="digit" data-d="7">7</button>
+    <button type="button" class="key" data-act="digit" data-d="8">8</button>
+    <button type="button" class="key" data-act="digit" data-d="9">9</button>
+    <button type="button" class="key op" data-act="op" data-op="*">×</button>
+    <button type="button" class="key" data-act="digit" data-d="4">4</button>
+    <button type="button" class="key" data-act="digit" data-d="5">5</button>
+    <button type="button" class="key" data-act="digit" data-d="6">6</button>
+    <button type="button" class="key op" data-act="op" data-op="-">−</button>
+    <button type="button" class="key" data-act="digit" data-d="1">1</button>
+    <button type="button" class="key" data-act="digit" data-d="2">2</button>
+    <button type="button" class="key" data-act="digit" data-d="3">3</button>
+    <button type="button" class="key op" data-act="op" data-op="+">+</button>
+    <button type="button" class="key zero" data-act="digit" data-d="0">0</button>
+    <button type="button" class="key" data-act="dot">.</button>
+    <button type="button" class="key eq" data-act="eq">=</button>
+  </div>
+</div>
+<p class="foot">Archivo local · sin nube</p>
+<script>
+(function(){
+  const valEl=document.getElementById('val');
+  const exprEl=document.getElementById('expr');
+  let cur='0', prev=null, op=null, fresh=false;
+  const sym={'+':'+','-':'−','*':'×','/':'÷'};
+  function show(){
+    valEl.textContent=cur;
+    exprEl.textContent=(prev!=null && op)? (fmt(prev)+' '+(sym[op]||op)) : '';
+  }
+  function fmt(n){
+    const s=String(n);
+    if(s.length>14) return Number(n).toPrecision(10).replace(/\.?0+$/,'');
+    return s;
+  }
+  function digit(d){
+    if(fresh){cur=d;fresh=false;}
+    else if(cur==='0' && d!=='0') cur=d;
+    else if(cur==='0' && d==='0') cur='0';
+    else if(cur.length<16) cur+=d;
+    show();
+  }
+  function dot(){
+    if(fresh){cur='0.';fresh=false;}
+    else if(cur.indexOf('.')<0) cur+='.';
+    show();
+  }
+  function clear(){cur='0';prev=null;op=null;fresh=false;show();}
+  function sign(){
+    if(cur==='0') return;
+    cur=cur.charAt(0)==='-'?cur.slice(1):('-'+cur);
+    show();
+  }
+  function pct(){
+    const n=parseFloat(cur); if(!isFinite(n)) return;
+    cur=String(n/100); show();
+  }
+  function compute(a,b,o){
+    a=Number(a); b=Number(b);
+    if(o==='+') return a+b;
+    if(o==='-') return a-b;
+    if(o==='*') return a*b;
+    if(o==='/') return b===0?NaN:a/b;
+    return b;
+  }
+  function setOp(o){
+    if(op && !fresh){
+      const r=compute(prev,cur,op);
+      if(!isFinite(r)){cur='Error';prev=null;op=null;fresh=true;show();return;}
+      cur=fmt(r); prev=Number(cur);
+    } else {
+      prev=Number(cur);
+    }
+    op=o; fresh=true; show();
+  }
+  function eq(){
+    if(op==null||prev==null) return;
+    const r=compute(prev,cur,op);
+    if(!isFinite(r)){cur='Error';prev=null;op=null;fresh=true;show();return;}
+    exprEl.textContent=fmt(prev)+' '+(sym[op]||op)+' '+cur+' =';
+    cur=fmt(r); prev=null; op=null; fresh=true;
+    valEl.textContent=cur;
+  }
+  document.querySelector('.keys').addEventListener('click',function(e){
+    const b=e.target.closest('button.key'); if(!b) return;
+    const a=b.getAttribute('data-act');
+    if(a==='digit') digit(b.getAttribute('data-d'));
+    else if(a==='dot') dot();
+    else if(a==='clear') clear();
+    else if(a==='sign') sign();
+    else if(a==='pct') pct();
+    else if(a==='op') setOp(b.getAttribute('data-op'));
+    else if(a==='eq') eq();
+  });
+  document.addEventListener('keydown',function(e){
+    if(e.key>='0'&&e.key<='9') digit(e.key);
+    else if(e.key==='.') dot();
+    else if(e.key==='Escape'||e.key==='c'||e.key==='C') clear();
+    else if(e.key==='%') pct();
+    else if(e.key==='Enter'||e.key==='=') eq();
+    else if(e.key==='+'||e.key==='-'||e.key==='*'||e.key==='/') setOp(e.key);
+  });
+  show();
+})();
+</script>
+</body>
+</html>

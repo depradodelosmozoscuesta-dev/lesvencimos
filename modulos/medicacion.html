@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0E0E0C">
+<title>Medicación — Les vencimos</title>
+<style>
+
+:root{
+  --fondo:#0E0E0C; --fondo-2:#161512; --fondo-3:#1C1A16;
+  --tinta:#E6E1D6; --suave:#9A9488;
+  --acento:#C4A15A; --acento-texto:#1A160E;
+  --linea:rgba(230,225,214,0.14);
+  --peligro:#C46A4A; --ok:#8F9A72;
+  --serif:"Iowan Old Style","Palatino Linotype",Palatino,"Times New Roman",Georgia,serif;
+  --sans:"Segoe UI",system-ui,-apple-system,sans-serif;
+  --radio:2px;
+}
+
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;min-height:100%;background:var(--fondo);color:var(--tinta);font-family:var(--sans)}
+body{padding:1.25rem 1rem 3rem;max-width:32rem;margin:0 auto}
+header{border-bottom:1px solid var(--linea);padding-bottom:.85rem;margin-bottom:1.1rem}
+header h1{margin:0;font-family:var(--serif);font-size:1.55rem;font-weight:600}
+header p{margin:.35rem 0 0;color:var(--suave);font-size:.78rem;letter-spacing:.1em;text-transform:uppercase}
+.disclaimer{background:var(--fondo-2);border:1px solid var(--linea);border-left:3px solid var(--peligro);padding:.85rem 1rem;margin:0 0 1.1rem;font-size:.92rem;color:var(--suave);border-radius:var(--radio)}
+.disclaimer strong{color:var(--tinta)}
+.toolbar{display:flex;flex-wrap:wrap;gap:.5rem;margin-bottom:1rem;align-items:center}
+button,.btn{min-height:48px;padding:0 1rem;font:600 .95rem var(--sans);border:1px solid var(--linea);border-radius:var(--radio);background:var(--fondo-3);color:var(--tinta);cursor:pointer}
+button.primary{background:var(--acento);color:var(--acento-texto);border-color:var(--acento)}
+button.on{border-color:var(--acento);color:var(--acento)}
+.toggle-label{font-size:.85rem;color:var(--suave);margin-right:.25rem}
+body.simple{font-size:1.2rem}
+body.simple h1{font-size:1.9rem}
+body.simple button,.btn{min-height:56px;font-size:1.1rem}
+body.simple .med-name{font-size:1.35rem}
+body.simple .slot{min-height:64px;font-size:1.15rem}
+h2{margin:1.4rem 0 .7rem;font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;color:var(--suave);font-weight:600}
+.panel{background:var(--fondo-2);border:1px solid var(--linea);border-radius:var(--radio);padding:1rem;margin-bottom:1rem}
+label.field{display:block;margin:0 0 .75rem}
+label.field span{display:block;font-size:.78rem;letter-spacing:.08em;text-transform:uppercase;color:var(--suave);margin-bottom:.3rem}
+input,select{width:100%;min-height:48px;padding:.55rem .75rem;font:inherit;background:var(--fondo-3);color:var(--tinta);border:1px solid var(--linea);border-radius:var(--radio)}
+.times{display:flex;flex-wrap:wrap;gap:.4rem;margin:.4rem 0}
+.times label{display:inline-flex;align-items:center;gap:.35rem;min-height:44px;padding:.35rem .7rem;border:1px solid var(--linea);border-radius:var(--radio);background:var(--fondo-3);font-size:.9rem;cursor:pointer}
+.times input{width:auto;min-height:auto}
+.list{display:flex;flex-direction:column;gap:.55rem}
+.med{display:flex;flex-wrap:wrap;align-items:center;gap:.55rem;padding:.85rem 1rem;background:var(--fondo-2);border:1px solid var(--linea);border-radius:var(--radio)}
+.med-name{font-family:var(--serif);font-weight:600;font-size:1.1rem;flex:1 1 auto}
+.med-dose{color:var(--suave);font-size:.9rem}
+.med-times{width:100%;color:var(--acento);font-size:.85rem}
+.med button.del{min-height:44px;padding:0 .75rem;font-size:.85rem;color:var(--peligro)}
+.slot{display:flex;align-items:center;gap:.75rem;padding:.9rem 1rem;background:var(--fondo-2);border:1px solid var(--linea);border-radius:var(--radio);min-height:52px;cursor:pointer;width:100%;text-align:left;font:inherit;color:inherit}
+.slot.done{opacity:.65;border-color:rgba(143,154,114,.45)}
+.slot .check{width:28px;height:28px;border:2px solid var(--linea);border-radius:var(--radio);flex-shrink:0;display:flex;align-items:center;justify-content:center}
+.slot.done .check{background:var(--ok);border-color:var(--ok);color:var(--fondo)}
+.slot .when{color:var(--acento);font-weight:700;min-width:3.5rem}
+.slot .info{flex:1}
+.empty{color:var(--suave);font-size:.95rem;padding:.5rem 0}
+.foot{margin-top:1.5rem;color:var(--suave);font-size:.72rem;letter-spacing:.08em;text-transform:uppercase}
+</style>
+</head>
+<body>
+<header>
+  <h1>Medicación</h1>
+  <p>Les vencimos · solo en este aparato</p>
+</header>
+<div class="disclaimer" role="note">
+  <strong>Aviso:</strong> esto es un recordatorio local. No sustituye la indicación de un profesional sanitario ni el prospecto. Ante duda o urgencia, llama al <strong>112</strong>.
+</div>
+<div class="toolbar">
+  <span class="toggle-label">Modo sencillo</span>
+  <button type="button" id="btnSimple" aria-pressed="false">Alzheimer-friendly: no</button>
+</div>
+
+<section>
+  <h2>Hoy</h2>
+  <div class="list" id="hoy"></div>
+</section>
+
+<section>
+  <h2>Mis medicinas</h2>
+  <div class="list" id="lista"></div>
+</section>
+
+<section class="panel" id="formPanel">
+  <h2 style="margin-top:0">Añadir medicina</h2>
+  <label class="field"><span>Nombre</span><input id="nombre" autocomplete="off" placeholder="Ej. Metformina"></label>
+  <label class="field"><span>Dosis</span><input id="dosis" autocomplete="off" placeholder="Ej. 850 mg"></label>
+  <div>
+    <span style="display:block;font-size:.78rem;letter-spacing:.08em;text-transform:uppercase;color:var(--suave);margin-bottom:.3rem">Horarios</span>
+    <div class="times" id="horarios">
+      <label><input type="checkbox" value="08:00"> Mañana 08:00</label>
+      <label><input type="checkbox" value="14:00"> Mediodía 14:00</label>
+      <label><input type="checkbox" value="21:00"> Noche 21:00</label>
+    </div>
+    <label class="field" style="margin-top:.5rem"><span>Otra hora (HH:MM)</span><input id="otraHora" type="time"></label>
+  </div>
+  <button type="button" class="primary" id="add">Guardar medicina</button>
+</section>
+<p class="foot">localStorage · sin nube · Les vencimos</p>
+<script>
+(function(){
+  const KEY='lv-medicacion-v1';
+  const DAYKEY=()=>'lv-med-check-'+new Date().toISOString().slice(0,10);
+  function load(){try{return JSON.parse(localStorage.getItem(KEY)||'[]')}catch(e){return[]}}
+  function save(arr){localStorage.setItem(KEY,JSON.stringify(arr))}
+  function loadChecks(){try{return JSON.parse(localStorage.getItem(DAYKEY())||'{}')}catch(e){return{}}}
+  function saveChecks(o){localStorage.setItem(DAYKEY(),JSON.stringify(o))}
+  const hoyEl=document.getElementById('hoy');
+  const listaEl=document.getElementById('lista');
+  const btnSimple=document.getElementById('btnSimple');
+
+  function uid(){return 'm'+Date.now().toString(36)+Math.random().toString(36).slice(2,6)}
+
+  function render(){
+    const meds=load();
+    const checks=loadChecks();
+    listaEl.innerHTML='';
+    if(!meds.length){listaEl.innerHTML='<p class="empty">Aún no hay medicinas. Añade la primera abajo.</p>';}
+    meds.forEach(function(m){
+      const div=document.createElement('div');
+      div.className='med';
+      div.innerHTML='<div class="med-name"></div><div class="med-dose"></div><div class="med-times"></div>';
+      div.querySelector('.med-name').textContent=m.nombre;
+      div.querySelector('.med-dose').textContent=m.dosis||'';
+      div.querySelector('.med-times').textContent=(m.horas||[]).join(' · ');
+      const del=document.createElement('button');
+      del.type='button'; del.className='del'; del.textContent='Quitar';
+      del.onclick=function(){
+        if(!confirm('¿Quitar '+m.nombre+'?')) return;
+        save(load().filter(function(x){return x.id!==m.id}));
+        render();
+      };
+      div.appendChild(del);
+      listaEl.appendChild(div);
+    });
+
+    // today's checklist: one slot per med×hora
+    const slots=[];
+    meds.forEach(function(m){
+      (m.horas||[]).forEach(function(h){
+        slots.push({id:m.id+'@'+h, hora:h, nombre:m.nombre, dosis:m.dosis||''});
+      });
+    });
+    slots.sort(function(a,b){return a.hora.localeCompare(b.hora)});
+    hoyEl.innerHTML='';
+    if(!slots.length){hoyEl.innerHTML='<p class="empty">Cuando tengas medicinas con horario, aquí verás el checklist de hoy.</p>';return;}
+    slots.forEach(function(s){
+      const done=!!checks[s.id];
+      const b=document.createElement('button');
+      b.type='button'; b.className='slot'+(done?' done':'');
+      b.innerHTML='<span class="check">'+(done?'✓':'')+'</span><span class="when"></span><span class="info"><strong class="n"></strong><br><span class="d"></span></span>';
+      b.querySelector('.when').textContent=s.hora;
+      b.querySelector('.n').textContent=s.nombre;
+      b.querySelector('.d').textContent=s.dosis;
+      b.onclick=function(){
+        const c=loadChecks();
+        if(c[s.id]) delete c[s.id]; else c[s.id]=true;
+        saveChecks(c); render();
+      };
+      hoyEl.appendChild(b);
+    });
+  }
+
+  document.getElementById('add').onclick=function(){
+    const nombre=(document.getElementById('nombre').value||'').trim();
+    const dosis=(document.getElementById('dosis').value||'').trim();
+    if(!nombre){alert('Pon el nombre de la medicina.');return;}
+    const horas=[];
+    document.querySelectorAll('#horarios input:checked').forEach(function(c){horas.push(c.value)});
+    const otra=(document.getElementById('otraHora').value||'').trim();
+    if(otra && horas.indexOf(otra)<0) horas.push(otra);
+    horas.sort();
+    if(!horas.length){alert('Elige al menos un horario.');return;}
+    const arr=load();
+    arr.push({id:uid(),nombre:nombre,dosis:dosis,horas:horas});
+    save(arr);
+    document.getElementById('nombre').value='';
+    document.getElementById('dosis').value='';
+    document.getElementById('otraHora').value='';
+    document.querySelectorAll('#horarios input').forEach(function(c){c.checked=false});
+    render();
+  };
+
+  btnSimple.onclick=function(){
+    const on=document.body.classList.toggle('simple');
+    btnSimple.setAttribute('aria-pressed', on?'true':'false');
+    btnSimple.textContent=on?'Alzheimer-friendly: sí':'Alzheimer-friendly: no';
+    btnSimple.classList.toggle('on', on);
+    try{localStorage.setItem('lv-med-simple', on?'1':'0')}catch(e){}
+  };
+  try{if(localStorage.getItem('lv-med-simple')==='1'){btnSimple.click()}}catch(e){}
+  render();
+})();
+</script>
+</body>
+</html>

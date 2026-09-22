@@ -1,0 +1,683 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0d1017">
+<title>Primeros auxilios — Les vencimos</title>
+<style>
+/* ═══════════════════════════════════════════════════════════
+   PRIMEROS AUXILIOS — 3 materias · 12 lecciones · 36 preguntas
+
+   Un archivo y nada más. Se abre con doble clic, funciona sin
+   internet y sin servidor, y el avance se guarda en el propio
+   navegador. Para meterlo en otro asistente hay dos maneras, las
+   dos explicadas al final del archivo:
+     · un <iframe src="Profesor.html">  — cero integración,
+     · o copiar el <script> y llamar a Profesor.montar(...).
+
+   El temario va INCRUSTADO aquí dentro, no en un archivo aparte.
+   Es medio mega y tiene su precio, pero Chrome en Android bloquea
+   la carga de guiones entre archivos cuando se abre con file://:
+   si el temario fuera aparte, en la tablet no cargaría NADA y la
+   pantalla saldría vacía sin decir por qué.
+   ═══════════════════════════════════════════════════════════ */
+
+:root{
+  --fondo:#0E0E0C; --fondo-2:#161512; --panel:#1C1A16; --panel-claro:#2a2620;
+  --tinta:#E6E1D6; --tinta-suave:#9A9488;
+  --acento:#C4A15A; --ambar:#C4A15A; --verde:#8F9A72; --rojo:#C46A4A;
+  --sombra:0 10px 26px rgba(0,0,0,.35);
+}
+/* Modo claro: se respeta lo que tenga puesto el aparato. El asistente
+   de Morgan lleva el suyo en un atributo, y aquí se acepta el mismo
+   nombre para que herede solo si se incrusta. */
+@media (prefers-color-scheme: light){
+  :root:not([data-tema="oscuro"]){
+    --fondo:#dde3ea; --fondo-2:#d3dae2; --panel:#fff; --panel-claro:#c3ccd6;
+    --tinta:#12212e; --tinta-suave:#55697c;
+    --acento:#0e7490; --ambar:#b45309; --verde:#047857; --rojo:#be123c;
+    --sombra:0 8px 20px rgba(60,75,90,.18);
+  }
+}
+:root[data-tema="claro"]{
+  --fondo:#dde3ea; --fondo-2:#d3dae2; --panel:#fff; --panel-claro:#c3ccd6;
+  --tinta:#12212e; --tinta-suave:#55697c;
+  --acento:#0e7490; --ambar:#b45309; --verde:#047857; --rojo:#be123c;
+  --sombra:0 8px 20px rgba(60,75,90,.18);
+}
+
+*{box-sizing:border-box}
+html,body{height:100%}
+body{
+  margin:0; background:var(--fondo); color:var(--tinta);
+  font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  font-size:16px; line-height:1.5;
+  display:flex; flex-direction:column;
+}
+
+/* ——— la barra de arriba ——— */
+.barra{
+  flex:0 0 auto; display:flex; align-items:center; gap:10px;
+  padding:10px 14px; background:var(--fondo-2);
+  border-bottom:1px solid var(--panel-claro);
+}
+.barra h1{
+  font-size:1.05rem; margin:0; font-weight:700; flex:1 1 auto;
+  white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+}
+.avance{ font-size:.8rem; color:var(--tinta-suave); white-space:nowrap }
+
+.btn{
+  font:inherit; font-size:.86rem; font-weight:600; cursor:pointer;
+  min-height:40px; padding:0 14px; border-radius:11px;
+  border:1px solid var(--panel-claro); background:var(--panel);
+  color:var(--tinta); white-space:nowrap;
+}
+.btn:hover{ border-color:var(--acento) }
+.btn.principal{ background:var(--acento); border-color:var(--acento); color:#1A160E }
+.btn.suave{ background:transparent; color:var(--tinta-suave) }
+
+/* ——— el cuerpo ——— */
+.cuerpo{
+  flex:1 1 auto; overflow-y:auto; padding:14px;
+  max-width:760px; width:100%; margin:0 auto;
+}
+.sub{
+  font-size:.74rem; color:var(--tinta-suave); font-weight:700;
+  letter-spacing:.06em; text-transform:uppercase; margin:18px 0 8px;
+}
+.sub:first-child{ margin-top:0 }
+
+.fila{
+  display:flex; align-items:center; gap:12px;
+  padding:12px 14px; margin-bottom:8px;
+  background:var(--panel); border:1px solid var(--panel-claro);
+  border-radius:14px; cursor:pointer; text-align:left; width:100%;
+  font:inherit; color:var(--tinta);
+}
+.fila:hover{ border-color:var(--acento) }
+.fila-titulo{ font-weight:600; font-size:.95rem }
+.fila-sub{ font-size:.8rem; color:var(--tinta-suave) }
+
+.barra-avance{
+  height:5px; margin-top:6px; border-radius:3px;
+  background:rgba(128,128,128,.22); overflow:hidden;
+}
+.barra-avance > i{
+  display:block; height:100%; border-radius:3px;
+  background:var(--verde); transition:width .3s ease;
+}
+
+.tarjeta{
+  background:var(--panel); border:1px solid var(--panel-claro);
+  border-radius:16px; padding:16px; box-shadow:var(--sombra);
+}
+.tarjeta-titulo{ font-size:1.1rem; font-weight:700; margin:0 0 4px }
+.parrafo{ margin:10px 0; line-height:1.65; font-size:.95rem }
+.numerote{ font-size:2.2rem; font-weight:800; margin:8px 0; line-height:1 }
+
+/* Las opciones del quiz: de dedo, y anchas para que se lean de un
+   vistazo. En una tablet de cocina se responde con el pulgar. */
+.opcion{
+  display:block; width:100%; text-align:left;
+  min-height:48px; padding:12px 14px; margin-top:8px;
+  border:1px solid var(--panel-claro); border-radius:12px;
+  background:rgba(128,128,128,.07); color:var(--tinta);
+  font:inherit; font-size:.95rem; cursor:pointer;
+  transition:background .15s ease, border-color .15s ease;
+}
+.opcion:hover:not(:disabled){ background:rgba(128,128,128,.16) }
+.opcion:disabled{ cursor:default; opacity:.75 }
+/* La correcta SIEMPRE se marca en verde, se acierte o no: hay que ver
+   cuál era, no solo que fallaste. */
+.opcion.bien{
+  border-color:var(--verde); opacity:1; color:var(--verde); font-weight:600;
+  background:color-mix(in srgb, var(--verde) 16%, transparent);
+}
+.opcion.mal{
+  border-color:var(--rojo); color:var(--rojo);
+  background:color-mix(in srgb, var(--rojo) 14%, transparent);
+}
+@supports not (color: color-mix(in srgb, red 10%, transparent)){
+  .opcion.bien, .opcion.mal{ background:rgba(128,128,128,.16) }
+}
+
+/* El porqué de la respuesta: esto es lo que enseña. */
+.porque{
+  margin-top:12px; padding:10px 12px; border-radius:10px;
+  background:rgba(128,128,128,.10); border-left:3px solid var(--acento);
+  font-size:.9rem; line-height:1.55; color:var(--tinta-suave);
+}
+
+.fin{ display:flex; gap:8px; flex-wrap:wrap; margin-top:14px }
+.aviso{
+  font-size:.82rem; color:var(--tinta-suave); margin-top:14px;
+  padding:10px 12px; border-radius:10px; background:rgba(128,128,128,.08);
+}
+
+/* ——— quién estudia ——— */
+.quien{ display:flex; gap:8px; flex-wrap:wrap; align-items:center; margin-bottom:6px }
+.quien select, .quien input{
+  font:inherit; font-size:.9rem; min-height:40px; padding:0 10px;
+  border-radius:11px; border:1px solid var(--panel-claro);
+  background:var(--panel); color:var(--tinta);
+}
+
+/* ——— imprimir una lección ——— */
+@media print{
+  .barra, .btn, .opcion, .fin, .aviso, .quien{ display:none !important }
+  body, .cuerpo, .tarjeta{
+    background:#fff !important; color:#000 !important;
+    box-shadow:none !important; border:0 !important;
+    max-width:none; overflow:visible; height:auto;
+  }
+  .porque{ border-left:3px solid #999; color:#333 }
+}
+
+@media (prefers-reduced-motion: reduce){
+  .barra-avance > i, .opcion{ transition:none }
+}
+</style>
+</head>
+<body>
+  <div class="barra">
+    <button type="button" class="btn suave" id="atras" hidden>←</button>
+    <h1 id="titulo">Primeros auxilios</h1>
+    <span class="avance" id="avance"></span>
+  </div>
+    <div style="margin:0;padding:10px 14px;background:#1C1A16;border-bottom:1px solid rgba(230,225,214,.14);color:#9A9488;font-size:.88rem;line-height:1.45">
+    <strong style="color:#E6E1D6">Aviso:</strong> esto no sustituye a profesionales sanitarios ni a un curso oficial de RCP.
+    En emergencias llama al <strong style="color:#C4A15A">112</strong>.
+  </div>
+  <div class="cuerpo" id="cuerpo"></div>
+
+<script>
+// ============================================================
+//  EL TEMARIO — 37 materias, 269 lecciones, 807 preguntas.
+//
+//  Va en archivo APARTE a propósito: son cientos de KB y meterlos dentro
+//  de index.html los haría descargar en CADA carga de página, mirases la
+//  agenda o la compra. Aquí se carga solo al abrir Enseñanza, y una vez.
+//
+//  Formato de cada materia:
+//    { id, titulo, icono, nivel, adultos?, lecciones: [...] }
+//  Y de cada lección:
+//    { titulo, contenido: [párrafos], quiz: [{pregunta, opciones, correcta, porque}] }
+//
+//  `nivel` dice cuánta BASE hace falta: basico / medio / avanzado.
+//  `adultos` es otra cosa: materias que NO deben salir en el perfil de
+//  un menor aunque el texto sea sencillo. Mezclar las dos cosas dejaba
+//  «Sexualidad y bienestar» en la lista de un niño de ocho años.
+//
+//  El 'porque' de cada respuesta es lo que separa enseñar de examinar:
+//  no basta con decir que está mal, hay que decir por qué.
+//
+//  Para añadir lecciones se edita ESTE archivo y nada más.
+// ============================================================
+const TEMARIO = [{"id":"enfermeria","titulo":"Enfermería y medicina básica","icono":"🩺","lecciones":[{"titulo":"Las constantes vitales: el cuadro de mandos","contenido":["Las constantes vitales son cuatro números que cuentan cómo está el cuerpo ahora mismo: temperatura, pulso, respiración y tensión arterial. Un profesional sanitario los mira antes que nada, como un piloto mira su panel. Saber tomarlos y entenderlos es la primera habilidad de enfermería.","Los valores normales del adulto: temperatura 36-37,5 °C (fiebre a partir de 38); pulso 60-100 latidos por minuto en reposo; respiración 12-20 por minuto; tensión en torno a 12/8 (se considera alta de forma sostenida desde 14/9). Los niños tienen pulso y respiración más rápidos: es normal.","Cómo medir: el pulso, con dos dedos en la muñeca durante un minuto; la respiración, contando elevaciones del pecho sin avisar (si la persona sabe, la cambia); la tensión, con el brazalete a la altura del corazón, sentado y en calma cinco minutos. La temperatura, axilar o timpánica, según el aparato.","Reto: toma tus cuatro constantes hoy y anótalas. Repite mañana a la misma hora. Tener tu 'normal' registrado es un regalo para cualquier médico futuro."],"quiz":[{"pregunta":"¿Cuáles son las cuatro constantes vitales?","opciones":["Temperatura, pulso, respiración y tensión arterial","Peso, talla, edad y sexo","Solo el pulso"],"correcta":0,"porque":"Son el cuadro de mandos: lo primero que se mide en cualquier valoración."},{"pregunta":"¿Cuál es el pulso normal de un adulto en reposo?","opciones":["Entre 60 y 100 por minuto","Entre 20 y 40","Más de 150"],"correcta":0,"porque":"Por debajo de 60 con mareo o por encima de 100 en reposo, conviene consultar."},{"pregunta":"¿Por qué se cuenta la respiración sin avisar?","opciones":["Porque si la persona lo sabe, la modifica sin querer","Por superstición","Para ir más rápido"],"correcta":0,"porque":"La respiración es semivoluntaria: saber que la observan la cambia."}]},{"titulo":"Primeros auxilios: PAS y la llamada que salva","contenido":["Ante cualquier emergencia manda la conducta PAS: Proteger (que el lugar no sea peligroso para ti ni para la víctima: un socorrista electrocutado no ayuda a nadie), Avisar (llamar al 112 dando lugar exacto, qué ha pasado y cuántos heridos) y Socorrer (actuar dentro de lo que sabes). En ese orden, siempre.","Si una persona no responde: comprueba si respira (mira el pecho diez segundos). Si respira, ponla de lado en posición lateral de seguridad para que no se ahogue si vomita. Si no respira, empieza la RCP y manda a por un desfibrilador (DESA) si lo hay cerca: cada minuto sin RCP baja la supervivencia un 10%.","La RCP en adultos: manos entrelazadas en el centro del pecho, brazos rectos, comprimir fuerte y rápido: 5-6 cm de profundidad, 100-120 por minuto (el ritmo de 'Stayin' Alive'). Sin parar hasta que llegue ayuda o la persona respire. Comprimir mal es infinitamente mejor que no comprimir.","Reto: localiza hoy el DESA más cercano a tu casa o trabajo (hay aplicaciones que los muestran). Saber dónde está antes de la emergencia es media batalla ganada."],"quiz":[{"pregunta":"¿Qué orden sigue la conducta PAS?","opciones":["Proteger, Avisar, Socorrer","Socorrer, Avisar, Proteger","Avisar, Proteger, Socorrer"],"correcta":0,"porque":"Primero no empeorar la escena, luego llamar al 112, luego actuar: siempre en ese orden."},{"pregunta":"¿Qué se hace si alguien no responde pero respira?","opciones":["Posición lateral de seguridad","Darle agua","Sentarlo"],"correcta":0,"porque":"De lado, la lengua y los vómitos no obstruyen la vía aérea."},{"pregunta":"¿Cómo son las compresiones de la RCP?","opciones":["Centro del pecho, 5-6 cm de profundidad, 100-120 por minuto","Suaves y lentas","Sobre el estómago"],"correcta":0,"porque":"Fuerte y rápido en el centro del pecho: eso mantiene la sangre llegando al cerebro."}]},{"titulo":"Heridas, quemaduras y golpes: cuidados básicos","contenido":["Heridas: primero lávate las manos. Para el sangrado, presión directa con una gasa o paño limpio durante minutos, sin levantar para mirar. Limpia con suero o agua y jabón del centro hacia fuera, y cubre. Señales de que necesita puntos: bordes separados, más de 2 cm, o que no para de sangrar.","Quemaduras: la regla de oro es agua fría corriente 15-20 minutos, inmediatamente. Nunca hielo, nunca pasta de dientes, nunca reventar ampollas (son el mejor apósito natural). Las quemaduras grandes, en cara, manos o genitales, o con piel carbonizada, son de hospital sí o sí.","Golpes y torceduras: la sigla RICE: Reposo, Hielo (envuelto en un paño, 15 minutos), Compresión con venda y Elevación. El esguince es el ligamento estirado o roto; la fractura, el hueso. Si hay deformidad, no se puede apoyar o duele mucho al mover: radiografía.","Reto: monta un pequeño botiquín casero: gasas, esparadrapo, suero, tijeras, guantes, analgésicos, termómetro. Revisa caducidades una vez al año."],"quiz":[{"pregunta":"¿Cuál es el primer gesto ante un sangrado?","opciones":["Presión directa sobre la herida con un paño limpio","Torniquete inmediato","Echar alcohol"],"correcta":0,"porque":"La presión directa sostenida detiene la inmensa mayoría de las hemorragias."},{"pregunta":"¿Qué se hace primero con una quemadura?","opciones":["Agua fría corriente 15-20 minutos","Pasta de dientes","Reventar las ampollas"],"correcta":0,"porque":"El agua fría detiene el daño térmico; los remedios caseros lo empeoran."},{"pregunta":"¿Qué significa RICE?","opciones":["Reposo, Hielo, Compresión, Elevación","Rápido, Intenso, Calor, Estirar","Un tipo de vendaje"],"correcta":0,"porque":"Las siglas del primer día de cualquier torcedura o golpe fuerte."}]},{"titulo":"Medicamentos: dosis, horarios y respeto","contenido":["Un medicamento es una sustancia con efectos, y los efectos dependen de la dosis: el mismo paracetamol cura el dolor a su dosis y daña el hígado si se supera. La regla sagrada: el medicamento correcto, a la dosis correcta, por la vía correcta, a la hora correcta, a la persona correcta. Los 'cinco correctos' de la enfermería.","Los antibióticos solo valen contra bacterias, nunca contra virus (el resfriado y la gripe son virus). Tomarlos 'por si acaso' o abandonarlos a mitad cría superbacterias resistentes: un problema mundial. Se toman hasta el último día de la pauta, aunque uno se encuentre bien.","Errores comunes: mezclar medicamentos sin consultar (el ibuprofeno con ciertos fármacos daña el estómago), tomar con pomelo (altera docenas de medicinas), guardarlos en el baño húmedo, y usar los de otra persona. El prospecto no es literatura: es el manual de la máquina.","Reto: revisa el cajón de medicinas de casa: caducidades, conservación y si sabes para qué es cada cosa. Lleva lo caducado al punto SIGRE de la farmacia."],"quiz":[{"pregunta":"¿Contra qué funcionan los antibióticos?","opciones":["Solo contra bacterias, no contra virus","Contra todo","Solo contra virus"],"correcta":0,"porque":"Resfriados y gripe son virales: el antibiótico ahí solo cría resistencias."},{"pregunta":"¿Qué pasa si abandonas un antibiótico a mitad de pauta?","opciones":["Las bacterias supervivientes pueden hacerse resistentes","Nada","Te curas antes"],"correcta":0,"porque":"Sobreviven las más duras y se multiplican: así nacen las superbacterias."},{"pregunta":"¿Cuáles son los 'cinco correctos' al dar un medicamento?","opciones":["Medicamento, dosis, vía, hora y persona correctos","Color, tamaño, sabor, marca y precio","Solo la hora"],"correcta":0,"porque":"El protocolo de seguridad que evita la mayoría de los errores de medicación."}]},{"titulo":"Higiene de manos: el gesto que más vidas salva","contenido":["El gesto sanitario más eficaz jamás inventado no es una máquina: es lavarse las manos. La mayoría de las infecciones se transmiten por las manos que tocan superficies y luego cara, comida o heridas. Cuarenta segundos con agua y jabón, con palmas, dorsos, entre dedos y uñas, reducen drásticamente el contagio.","Los momentos clave: antes de comer o cocinar, después del baño, tras toser o sonarse, al llegar de la calle, antes de tocar una herida y tras cuidar a un enfermo. El gel hidroalcohólico sirve cuando no hay agua, pero el jabón arrastra lo que el gel no alcanza.","En hospitales, la higiene de manos es la medida número uno contra las infecciones que se cogen dentro. Y tiene una historia asombrosa: Semmelweis demostró en 1847 que lavarse las manos salvaba a las parturientas, y la medicina tardó décadas en hacerle caso (ya lo verás en las historias).","Reto: cronometra tu próximo lavado completo: canta dos veces el cumpleaños feliz mientras frotas. Cuarenta segundos parecen muchos hasta que los cuentas."],"quiz":[{"pregunta":"¿Cuál es la medida más eficaz contra el contagio?","opciones":["Lavarse las manos bien y a menudo","Tomar vitaminas","Ponerse dos mascarillas"],"correcta":0,"porque":"Cuarenta segundos de agua y jabón: barato, simple y demoledor contra los microbios."},{"pregunta":"¿Cuánto debe durar un buen lavado de manos?","opciones":["Unos 40 segundos frotando bien","5 segundos","Dos minutos"],"correcta":0,"porque":"El tiempo de cantar dos veces el cumpleaños feliz, sin olvidar entre los dedos."},{"pregunta":"¿Quién demostró en 1847 que lavarse las manos salvaba vidas?","opciones":["Ignaz Semmelweis","Einstein","Darwin"],"correcta":0,"porque":"Bajó la mortalidad de las parturientas del 18% al 2%: y le tomaron por loco."}]},{"titulo":"Cuándo es urgencia y cuándo puede esperar","contenido":["Saber distinguir la urgencia de lo esperable ahorra vidas (y colapsos de urgencias). Urgencia real: dolor de pecho opresivo, dificultad para respirar, signos de ictus (cara torcida, brazo caído, habla rara: actúa rápido, cada minuto cuenta), sangrado que no cede, pérdida de conciencia, fiebre alta con rigidez de cuello o con manchas que no desaparecen al presionar.","Puede ir al médico sin correr: fiebre moderada que remite, resfriados, dolores leves de días, molestias digestivas pasajeras. Y la atención primaria existe para casi todo lo demás: mejor la cita de mañana que la sala de espera de hoy para un catarro.","La regla de la empeora: cualquier síntoma que empeora rápido, te despierta de noche, o viene acompañado de 'algo va muy mal' merece valoración. Y en duda grave, el 112 prefiere mil llamadas de más a una de menos.","Reto: aprende la prueba del ictus (sonreír, levantar los dos brazos, decir una frase completa) y enséñasela a dos personas. Es un detector gratuito que salva cerebros."],"quiz":[{"pregunta":"¿Cuáles son los tres signos rápidos del ictus?","opciones":["Cara torcida, un brazo que cae, habla extraña","Dolor de pie, tos y mareo","Solo fiebre"],"correcta":0,"porque":"Sonreír, brazos arriba, frase completa: si falla uno, 112 inmediato."},{"pregunta":"Un resfriado común, ¿dónde se atiende mejor?","opciones":["En casa y, si hace falta, en atención primaria","En urgencias de madrugada","No se debe hacer nada nunca"],"correcta":0,"porque":"Urgencias es para lo urgente: el catarro se cura con reposo, líquidos y tiempo."},{"pregunta":"¿Qué debe hacerse ante un dolor de pecho opresivo?","opciones":["Llamar al 112 sin esperar","Esperar a que pase solo","Tomar un café"],"correcta":0,"porque":"Con el corazón, cada minuto cuenta: ante la duda, se llama."}]}],"nivel":"basico"},{"id":"salud","titulo":"La salud","icono":"❤️","lecciones":[{"titulo":"Higiene: la primera medicina","contenido":["Lavarse las manos con jabón es la medicina más barata del mundo. Antes de comer, después del baño, al volver de la calle.","El jabón y 20 segundos (contar despacio hasta veinte) quitan los microbios que causan diarreas y resfriados.","Los dientes se lavan dos veces al día, dos minutos. Un diente enfermo duele, cuesta caro y se pierde; cuidarlo es gratis.","El agua que se bebe debe ser segura. Si hay dudas, hervirla un minuto mata los microbios."],"quiz":[{"pregunta":"¿Cuánto tiempo hay que lavarse las manos?","opciones":["3 segundos","Unos 20 segundos con jabón","Una hora"],"correcta":1,"porque":"Veinte segundos con jabón bastan para quitar los microbios."},{"pregunta":"¿Cuántas veces al día se lavan los dientes?","opciones":["Dos veces","Una al mes","Solo si duelen"],"correcta":0,"porque":"Dos veces al día evita caries y dolores caros."},{"pregunta":"Si el agua no es segura, ¿qué se hace?","opciones":["Beberla igual","Hervirla un minuto","Mezclarla con refresco"],"correcta":1,"porque":"Hervir el agua un minuto mata los microbios peligrosos."}]},{"titulo":"Las medicinas: cómo tomarlas bien","contenido":["Las medicinas curan si se toman como dice el médico: la cantidad justa, a la hora justa, los días justos.","Nunca tomes la medicina de otra persona, aunque tenga el mismo dolor. Lo que a uno le cura a otro le puede hacer daño.","Si el médico dice «7 días», son 7 días, aunque al tercero ya te encuentres bien. Dejarlo antes hace que la enfermedad vuelva más fuerte.","Mira la fecha de caducidad. Una medicina caducada puede no curar o hacer daño. Guárdalas lejos de los niños y del calor."],"quiz":[{"pregunta":"¿Puedes tomar la medicina de un vecino con el mismo dolor?","opciones":["Sí, es lo mismo","No, nunca","Solo media pastilla"],"correcta":1,"porque":"Cada medicina es para la persona y la enfermedad que recetó el médico."},{"pregunta":"El tratamiento es de 7 días y al tercero estás bien. ¿Qué haces?","opciones":["Dejarlo","Terminar los 7 días","Guardar el resto para otra vez"],"correcta":1,"porque":"Cortar antes deja vivos a los microbios más fuertes y la enfermedad vuelve."},{"pregunta":"¿Dónde se guardan las medicinas?","opciones":["Al alcance de los niños","Lejos de niños y del calor","En la cocina, al sol"],"correcta":1,"porque":"Los niños pueden tomarlas por error y el calor las estropea."}]},{"titulo":"Cuándo ir al médico","contenido":["Algunas señales no deben esperar: fiebre alta que no baja, dificultad para respirar, dolor fuerte en el pecho, heridas que no dejan de sangrar.","En los niños: no quieren comer ni beber, están muy dormidos, vomitan todo, o tienen fiebre alta. Con esas señales, al médico sin esperar.","Ir al médico pronto no es de débiles: es más barato y más fácil curar algo pequeño que algo grande.","Lleva apuntados los síntomas: desde cuándo, qué duele, qué medicinas tomaste. Ayuda mucho al médico."],"quiz":[{"pregunta":"Fiebre alta que no baja. ¿Qué toca?","opciones":["Esperar una semana","Ir al médico","Tomar café"],"correcta":1,"porque":"La fiebre alta persistente es una señal de alarma."},{"pregunta":"Un niño no quiere beber y está muy dormido. ¿Qué haces?","opciones":["Dejarlo descansar","Llevarlo al médico sin esperar","Darle dulces"],"correcta":1,"porque":"En niños, rechazar líquidos y estar muy dormido son señales graves."},{"pregunta":"¿Qué conviene llevar apuntado al médico?","opciones":["Nada, él lo adivina","Síntomas, desde cuándo y qué tomaste","Solo el dinero"],"correcta":1,"porque":"Esa información ayuda al médico a acertar antes."}]}],"nivel":"basico"},{"id":"rcp","titulo":"RCP y primeros auxilios: salvar una vida","icono":"❤️‍🩹","lecciones":[{"titulo":"RCP paso a paso: la cadena que salva","contenido":["La RCP (reanimación cardiopulmonar) mantiene la sangre fluyendo al cerebro cuando el corazón se para. La cadena de supervivencia tiene cuatro eslabones: reconocer y llamar al 112, RCP precoz, desfibrilación rápida y cuidados hospitalarios. Los tres primeros dependen de ti: el ciudadano es el primer eslabón.","Paso a paso: primero comprueba que la zona es segura. Toca los hombros y grita: ¿estás bien? Si no responde, grita pidiendo ayuda y que llamen al 112 (o llama tú con el manos libres). Mira el pecho 10 segundos: si no respira o solo hace gasping (bocanadas raras), empieza ya. El gasping no es respirar.","Las compresiones: talón de una mano en el centro del pecho, la otra encima, brazos rectos, hombros sobre las manos. Hunde 5-6 cm, a ritmo de 100-120 por minuto (la canción 'Stayin' Alive' marca el paso). Sin parar: cada pausa vacía la presión. Si sabes y quieres: 30 compresiones y 2 ventilaciones; si no, solo compresiones, que ya es oro.","Reto: practica la posición de las manos y el ritmo sobre un cojín firme: cien compresiones contadas en voz alta. El músculo que aprende hoy, actúa mañana."],"quiz":[{"pregunta":"¿Cuáles son los cuatro eslabones de la cadena de supervivencia?","opciones":["Llamar al 112, RCP precoz, desfibrilación rápida y hospital","Esperar, mirar, llorar, rezar","Agua, azúcar y abanico"],"correcta":0,"porque":"Los tres primeros dependen del testigo: el ciudadano es el primer eslabón de la cadena."},{"pregunta":"¿Qué es el gasping y qué se hace ante él?","opciones":["Bocanadas raras que NO son respirar: se empieza la RCP igualmente","Respiración normal","Un estornudo"],"correcta":0,"porque":"El gasping engaña: si no responde y no respira normal, compresiones ya."},{"pregunta":"¿Cómo son las compresiones correctas?","opciones":["Centro del pecho, 5-6 cm de fondo, 100-120 por minuto, sin parar","Suaves para no dañar","En la tripa"],"correcta":0,"porque":"Fuerte y rápido en el centro: romper una costilla cura; un cerebro sin sangre, no."}]},{"titulo":"El desfibrilador (DESA): la máquina amiga","contenido":["El desfibrilador semiautomático (DESA) es la máquina amarilla o verde de aeropuertos, gimnasios y centros comerciales. Está hecha para que la use cualquiera: se abre, habla en español y guía paso a paso. Analiza el ritmo del corazón y solo descarga si hace falta: no se puede descargar por error a alguien que no lo necesita.","Cómo se usa: RCP en marcha, alguien trae el DESA, se enciende, se pegan los dos parches en el pecho desnudo (uno arriba a la derecha, otro en el lado izquierdo, como dibuja la propia máquina), todos se apartan cuando analiza ('no toquen al paciente') y, si lo indica, se pulsa el botón de descarga. Luego, más RCP: la máquina manda.","Cada minuto sin desfibrilar baja la supervivencia un 10%; con RCP inmediata y DESA en 3-5 minutos, las probabilidades de salvar a una persona con parada se multiplican por diez. Por eso los DESA cuelgan de las paredes como extintores: son el extintor del corazón.","Reto: busca hoy el DESA más cercano a tu casa y a tu trabajo (hay aplicaciones que los mapean). En la emergencia, saber dónde está vale minutos, y los minutos valen vidas."],"quiz":[{"pregunta":"¿Quién puede usar un DESA?","opciones":["Cualquiera: habla y guía paso a paso, y no descarga si no hace falta","Solo médicos","Solo con curso"],"correcta":0,"porque":"Está diseñado para el ciudadano: analiza solo y solo descarga si el corazón lo necesita."},{"pregunta":"¿Dónde se pegan los parches del DESA?","opciones":["Uno arriba a la derecha del pecho y otro en el lado izquierdo","En la espalda","En las piernas"],"correcta":0,"porque":"El propio parche trae el dibujo: la máquina no deja lugar a la duda."},{"pregunta":"¿Cuánto baja la supervivencia por cada minuto sin desfibrilar?","opciones":["Un 10% por minuto","Nada","Un 1%"],"correcta":0,"porque":"Por eso el DESA cuelga como un extintor: los minutos de un testigo valen vidas."}]},{"titulo":"Atragantamientos, atragantamiento y otras urgencias","contenido":["El atragantamiento parcial (la persona tose fuerte): anímala a toser, no hagas nada más: la tos es más potente que cualquier maniobra. El atragantamiento total (no puede toser ni hablar, se lleva las manos al cuello): 5 golpes en la espalda con el talón de la mano, entre los omóplatos, inclinando a la persona hacia delante; si no sale, 5 compresiones abdominales (maniobra de Heimlich: puño sobre el ombligo, hacia dentro y arriba).","La hemorragia grave se para con presión: gasa o paño, presión directa fuerte y sostenida, y subir la extremidad si se puede. El torniquete solo como último recurso en sangrados de extremidades que no ceden (y anotando la hora). El infarto (dolor opresivo en el pecho, sudor frío, falta de aire): 112 inmediato, persona en reposo semiincorporada, ropa floja. Nunca conducirla tú si puede venir la ambulancia.","El ictus se reconoce con la prueba rápida: pide que sonría (¿la cara está torcida?), que levante los dos brazos (¿uno cae?), que diga una frase (¿habla raro?). Un fallo = 112 y anota la hora del inicio: el tratamiento del ictus es una carrera contra el reloj y la hora decide qué tratamientos caben.","Reto: ensaya la maniobra de Heimlich en el aire con alguien de la familia: posición de las manos, dirección del empuje. Ensayar sin urgencia es lo que permite actuar con urgencia."],"quiz":[{"pregunta":"¿Qué se hace si alguien se atraganta pero tose fuerte?","opciones":["Animarle a toser y nada más: la tos es la mejor maniobra","Golpes en la espalda","Meter los dedos"],"correcta":0,"porque":"La tos efectiva expulsa sola: interferir solo estorba. Si deja de toser, entonces se actúa."},{"pregunta":"¿Cómo va la maniobra ante un atragantamiento total?","opciones":["5 golpes en la espalda inclinado hacia delante, luego 5 compresiones abdominales","Darle agua","Ponerlo boca abajo"],"correcta":0,"porque":"Golpes primero, Heimlich después, alternando hasta que salga o llegue ayuda."},{"pregunta":"¿Cómo se reconoce un ictus en 10 segundos?","opciones":["Sonrisa torcida, un brazo que cae, habla rara: un fallo es 112","Dolor de espalda","Estornudos"],"correcta":0,"porque":"Cara, brazos, habla: la prueba rápida que salva cerebros. Y anota la hora: decide el tratamiento."}]}],"nivel":"medio","adultos":false}];
+
+/* ═══════════════════════════════════════════════════════════
+   PRIMEROS AUXILIOS — el programa
+
+   Se expone como window.Profesor para poder montarlo dentro de otro
+   asistente sin tocar nada:
+
+       Profesor.montar(document.getElementById("mi-hueco"), {
+         quien: "ana",            // con quién va el avance
+         rol: "peque",            // "peque" filtra materias (ver abajo)
+         guardar: async (avance) => { ... },   // opcional
+         leer:    async ()       => ({ ... }), // opcional
+       });
+
+   Si no se le pasan `guardar` y `leer`, usa el almacén del navegador.
+   Así funciona solo, y encaja con un servidor el día que haga falta.
+   ═══════════════════════════════════════════════════════════ */
+(function (global) {
+  "use strict";
+
+  const NIVELES = { basico: "Básico", medio: "Medio", avanzado: "Avanzado" };
+  const LLAVE = "primeros-auxilios:avance:";
+
+  // ——— dónde se guarda el avance ———
+  // El almacén del navegador puede fallar (ventana privada, permisos,
+  // datos borrados). Si falla no se pierde la lección: se sigue en
+  // memoria y ya está. Perder el avance es molesto; que reviente la
+  // pantalla a media lección es peor.
+  const enMemoria = {};
+  function leerLocal(quien) {
+    try {
+      const t = localStorage.getItem(LLAVE + quien);
+      return t ? JSON.parse(t) : (enMemoria[quien] || {});
+    } catch (e) { return enMemoria[quien] || {}; }
+  }
+  function guardarLocal(quien, datos) {
+    enMemoria[quien] = datos;
+    try { localStorage.setItem(LLAVE + quien, JSON.stringify(datos)); }
+    catch (e) { /* en memoria se queda, y la lección no se pierde */ }
+  }
+
+  function quienesHay() {
+    const fuera = [];
+    try {
+      for (let i = 0; i < localStorage.length; i++) {
+        const k = localStorage.key(i);
+        if (k && k.startsWith(LLAVE)) fuera.push(k.slice(LLAVE.length));
+      }
+    } catch (e) { /* sin almacén, se empieza de cero */ }
+    for (const k of Object.keys(enMemoria)) if (!fuera.includes(k)) fuera.push(k);
+    return fuera.sort();
+  }
+
+  /* ——— qué materias ve cada cual ———
+     A un peque no le salen LPIC-1 ni Ciberseguridad avanzada: se ahoga
+     la lista y no encuentra lo suyo. Y tampoco las materias marcadas
+     como de adultos, que es una cosa DISTINTA del nivel: «Sexualidad y
+     bienestar» está escrita con lenguaje sencillo, pero no va en la
+     pantalla de un niño de ocho años. Mezclar las dos cosas es lo que
+     la dejaba ahí. */
+  function materiasDe(rol, temario) {
+    if (rol === "peque") {
+      return temario.filter(m => m.nivel === "basico" && !m.adultos);
+    }
+    return temario;
+  }
+
+  // El orden en que se enseñan los niveles. Sin esto salen como estén
+  // escritos en el temario, y «avanzado» aparece antes que «básico».
+  const ORDEN = { basico: 0, medio: 1, avanzado: 2 };
+
+  function crear(etiqueta, clase, texto) {
+    const e = document.createElement(etiqueta);
+    if (clase) e.className = clase;
+    if (texto != null) e.textContent = texto;
+    return e;
+  }
+
+  function Profesor(hueco, opciones) {
+    const op = opciones || {};
+    // Ojo con esto: el temario se declara con `const TEMARIO = [...]`, y
+    // un const del ámbito global NO se cuelga de window. Buscarlo como
+    // global.TEMARIO daba una lista vacía y la pantalla salía con el
+    // aviso de «no encuentro el temario» aunque estuviera dos líneas
+    // más arriba en el mismo archivo. Con typeof se ve de las dos
+    // formas: como const y como propiedad de window.
+    const temario = op.temario ||
+      (typeof TEMARIO !== "undefined" ? TEMARIO : (global.TEMARIO || []));
+    let quien = op.quien || "yo";
+    let rol = op.rol || "adulto";
+    let avance = {};
+
+    const leerAvance = op.leer || (async () => leerLocal(quien));
+    const guardarAvance = op.guardar || (async (d) => guardarLocal(quien, d));
+
+    // Los tres trozos de pantalla que este módulo gobierna. Cuando va
+    // suelto son los de la página; incrustado, se los fabrica.
+    const cuerpo = op.cuerpo || document.getElementById("cuerpo") || hueco;
+    const elTitulo = op.titulo || document.getElementById("titulo");
+    const elAvance = op.avance || document.getElementById("avance");
+    const elAtras = op.atras || document.getElementById("atras");
+
+    let volverA = null;              // qué hace el botón de atrás ahora
+
+    function ponerAtras(fn, texto) {
+      volverA = fn;
+      if (!elAtras) return;
+      elAtras.hidden = !fn;
+      elAtras.title = texto || "Atrás";
+    }
+    if (elAtras) elAtras.addEventListener("click", () => { if (volverA) volverA(); });
+
+    function ponerTitulo(t) { if (elTitulo) elTitulo.textContent = t; }
+    function ponerAvance(t) { if (elAvance) elAvance.textContent = t || ""; }
+
+    function hecha(materiaId, i) {
+      const v = avance[materiaId + ":" + i];
+      return !!(v && v.hecha);
+    }
+
+    /* ——————————————————— quién estudia ——————————————————— */
+    function pintarQuien() {
+      cuerpo.replaceChildren();
+      ponerTitulo("Profesor");
+      ponerAvance("");
+      ponerAtras(null);
+
+      const caja = crear("div", "tarjeta");
+      caja.appendChild(crear("div", "tarjeta-titulo", "¿Quién estudia?"));
+      caja.appendChild(crear("p", "parrafo",
+        "Lo que aprende cada uno es suyo: el avance se guarda por " +
+        "persona y no se mezcla."));
+
+      const fila = crear("div", "quien");
+      const sel = crear("select");
+      const hay = quienesHay();
+      for (const n of hay) {
+        const o = crear("option", null, n); o.value = n; sel.appendChild(o);
+      }
+      const nuevo = crear("option", null, "— alguien nuevo —");
+      nuevo.value = "\u0000nuevo";
+      sel.appendChild(nuevo);
+      sel.value = hay.includes(quien) ? quien : (hay[0] || "\u0000nuevo");
+
+      const nombre = crear("input");
+      nombre.placeholder = "Nombre";
+      nombre.hidden = sel.value !== "\u0000nuevo";
+      sel.addEventListener("change", () => { nombre.hidden = sel.value !== "\u0000nuevo"; });
+
+      const rolSel = crear("select");
+      for (const [v, t] of [["adulto", "Adulto: todo el temario"],
+                            ["peque", "Peque: solo lo básico"]]) {
+        const o = crear("option", null, t); o.value = v; rolSel.appendChild(o);
+      }
+      rolSel.value = rol;
+
+      const entrar = crear("button", "btn principal", "Empezar");
+      entrar.type = "button";
+      entrar.addEventListener("click", async () => {
+        const n = sel.value === "\u0000nuevo"
+          ? (nombre.value.trim() || "yo") : sel.value;
+        quien = n; rol = rolSel.value;
+        avance = (await leerAvance(quien)) || {};
+        pintarMaterias();
+      });
+
+      fila.appendChild(sel); fila.appendChild(nombre);
+      fila.appendChild(rolSel); fila.appendChild(entrar);
+      caja.appendChild(fila);
+      cuerpo.appendChild(caja);
+    }
+
+    /* ——————————————————— las materias ——————————————————— */
+    function pintarMaterias() {
+      cuerpo.replaceChildren();
+      cuerpo.scrollTop = 0;
+      ponerTitulo("🎓 " + quien);
+      ponerAtras(op.quien ? null : pintarQuien, "Cambiar de persona");
+
+      const lista = materiasDe(rol, temario).slice()
+        .sort((a, b) => (ORDEN[a.nivel] ?? 9) - (ORDEN[b.nivel] ?? 9));
+
+      let hechas = 0, total = 0;
+      for (const m of lista) {
+        m.lecciones.forEach((_, i) => { total++; if (hecha(m.id, i)) hechas++; });
+      }
+      ponerAvance(hechas + " de " + total + " lecciones");
+
+      let nivelActual = "";
+      for (const m of lista) {
+        if (m.nivel !== nivelActual) {
+          nivelActual = m.nivel;
+          cuerpo.appendChild(crear("div", "sub", NIVELES[m.nivel] || m.nivel));
+        }
+        const n = m.lecciones.filter((_, i) => hecha(m.id, i)).length;
+
+        const tarjeta = crear("button", "fila");
+        tarjeta.type = "button";
+        const izq = crear("div");
+        izq.style.flex = "1";
+        izq.appendChild(crear("div", "fila-titulo",
+          (m.icono ? m.icono + " " : "") + m.titulo));
+        const barra = crear("div", "barra-avance");
+        const relleno = crear("i");
+        relleno.style.width = Math.round(100 * n / m.lecciones.length) + "%";
+        barra.appendChild(relleno);
+        izq.appendChild(barra);
+
+        const cuenta = crear("div", "fila-sub", n + "/" + m.lecciones.length);
+        if (n === m.lecciones.length) cuenta.style.color = "var(--verde)";
+
+        tarjeta.appendChild(izq); tarjeta.appendChild(cuenta);
+        tarjeta.addEventListener("click", () => pintarLecciones(m));
+        cuerpo.appendChild(tarjeta);
+      }
+    }
+
+    /* ——————————————————— las lecciones ——————————————————— */
+    function pintarLecciones(materia) {
+      cuerpo.replaceChildren();
+      cuerpo.scrollTop = 0;
+      ponerTitulo((materia.icono ? materia.icono + " " : "") + materia.titulo);
+      ponerAtras(pintarMaterias, "Materias");
+      const n = materia.lecciones.filter((_, i) => hecha(materia.id, i)).length;
+      ponerAvance(n + " de " + materia.lecciones.length);
+
+      materia.lecciones.forEach((l, i) => {
+        const f = crear("button", "fila");
+        f.type = "button";
+        const marca = crear("span", null, hecha(materia.id, i) ? "✓" : "•");
+        marca.style.cssText = "width:18px;flex:0 0 18px;color:" +
+          (hecha(materia.id, i) ? "var(--verde)" : "var(--tinta-suave)");
+        const t = crear("div", "fila-titulo", l.titulo);
+        t.style.flex = "1";
+        f.appendChild(marca); f.appendChild(t);
+        const v = avance[materia.id + ":" + i];
+        if (v && v.total) f.appendChild(crear("div", "fila-sub", v.aciertos + "/" + v.total));
+        f.addEventListener("click", () => pintarLeccion(materia, i));
+        cuerpo.appendChild(f);
+      });
+    }
+
+    /* ——————————————————— una lección ——————————————————— */
+    function pintarLeccion(materia, indice) {
+      const l = materia.lecciones[indice];
+      cuerpo.replaceChildren();
+      cuerpo.scrollTop = 0;
+      ponerTitulo(l.titulo);
+      ponerAtras(() => pintarLecciones(materia), materia.titulo);
+      ponerAvance("Lección " + (indice + 1) + " de " + materia.lecciones.length);
+
+      const caja = crear("div", "tarjeta");
+      caja.appendChild(crear("div", "tarjeta-titulo", l.titulo));
+      for (const parrafo of (l.contenido || [])) {
+        // textContent y no innerHTML: el temario es texto, no HTML. Si
+        // una lección lleva un < o un &, así se lee como se escribió y
+        // no se cuela nada raro en la página.
+        caja.appendChild(crear("p", "parrafo", parrafo));
+      }
+      cuerpo.appendChild(caja);
+
+      const pie = crear("div", "fin");
+      const imprimir = crear("button", "btn", "🖨 Imprimir");
+      imprimir.type = "button";
+      imprimir.addEventListener("click", () => global.print());
+      pie.appendChild(imprimir);
+
+      if (!(l.quiz || []).length) {
+        const b = crear("button", "btn principal", "✓ Leída");
+        b.type = "button";
+        b.addEventListener("click", () => terminar(materia, indice, 0, 0));
+        pie.appendChild(b);
+        cuerpo.appendChild(pie);
+        return;
+      }
+      cuerpo.appendChild(pie);
+      pintarPregunta(materia, indice, 0, 0);
+    }
+
+    /* ——————————————————— el quiz ——————————————————— */
+    function pintarPregunta(materia, indice, numero, aciertos) {
+      const l = materia.lecciones[indice];
+      const q = l.quiz[numero];
+
+      const viejo = document.getElementById("quiz");
+      if (viejo) viejo.remove();
+      const caja = crear("div", "tarjeta");
+      caja.id = "quiz";
+      caja.style.marginTop = "12px";
+
+      caja.appendChild(crear("div", "fila-sub",
+        "Pregunta " + (numero + 1) + " de " + l.quiz.length));
+      const t = crear("div", "fila-titulo", q.pregunta);
+      t.style.margin = "8px 0 12px";
+      caja.appendChild(t);
+
+      q.opciones.forEach((texto, i) => {
+        const b = crear("button", "opcion", texto);
+        b.type = "button";
+        b.addEventListener("click", () => {
+          // Al responder se bloquean todas: sin esto se puede pulsar la
+          // siguiente antes de leer por qué falló, que es justo lo
+          // único que enseña de una respuesta mal.
+          for (const otra of caja.querySelectorAll(".opcion")) otra.disabled = true;
+          const bien = i === q.correcta;
+          b.classList.add(bien ? "bien" : "mal");
+          if (!bien) caja.querySelectorAll(".opcion")[q.correcta].classList.add("bien");
+
+          caja.appendChild(crear("div", "porque",
+            (bien ? "✓ " : "✗ ") + (q.porque || "")));
+
+          const ultima = numero + 1 >= l.quiz.length;
+          const seguir = crear("button", "btn principal",
+            ultima ? "Terminar" : "Siguiente →");
+          seguir.type = "button";
+          seguir.style.marginTop = "12px";
+          seguir.addEventListener("click", () => {
+            const suma = aciertos + (bien ? 1 : 0);
+            if (ultima) terminar(materia, indice, suma, l.quiz.length);
+            else pintarPregunta(materia, indice, numero + 1, suma);
+          });
+          caja.appendChild(seguir);
+          seguir.scrollIntoView({ block: "nearest", behavior: "smooth" });
+        });
+        caja.appendChild(b);
+      });
+      cuerpo.appendChild(caja);
+    }
+
+    /* ——————————————————— apuntar lo hecho ——————————————————— */
+    async function terminar(materia, indice, aciertos, total) {
+      const clave = materia.id + ":" + indice;
+      const antes = avance[clave] || {};
+      // Se queda el MEJOR resultado, no el último: repasar una lección
+      // y fallar no debería borrar que la aprobaste.
+      avance[clave] = {
+        hecha: true,
+        aciertos: Math.max(Number(antes.aciertos) || 0, aciertos),
+        total: total,
+        veces: (Number(antes.veces) || 0) + 1,
+        fecha: new Date().toISOString().slice(0, 10),
+      };
+      try { await guardarAvance(avance, { materia: materia.id, indice, aciertos, total }); }
+      catch (e) { /* la lección ya está contada en memoria: no se pierde */ }
+
+      cuerpo.replaceChildren();
+      cuerpo.scrollTop = 0;
+      ponerAtras(() => pintarLecciones(materia), materia.titulo);
+
+      const caja = crear("div", "tarjeta");
+      caja.appendChild(crear("div", "tarjeta-titulo",
+        total ? "Lección terminada" : "Lección leída"));
+      if (total) {
+        const r = crear("div", "numerote", aciertos + " de " + total);
+        r.style.color = aciertos === total ? "var(--verde)" : "var(--ambar)";
+        caja.appendChild(r);
+        caja.appendChild(crear("div", "fila-sub",
+          aciertos === total ? "Entera. A la siguiente."
+            : aciertos * 2 >= total ? "Bien. Repásala y sale redonda."
+              : "Léela otra vez sin prisa; luego se ve clara."));
+      }
+      cuerpo.appendChild(caja);
+
+      const pie = crear("div", "fin");
+      const hay = indice + 1 < materia.lecciones.length;
+      if (hay) {
+        const sig = crear("button", "btn principal", "Siguiente lección →");
+        sig.type = "button";
+        sig.addEventListener("click", () => pintarLeccion(materia, indice + 1));
+        pie.appendChild(sig);
+      }
+      const rep = crear("button", "btn", "Repetir");
+      rep.type = "button";
+      rep.addEventListener("click", () => pintarLeccion(materia, indice));
+      pie.appendChild(rep);
+      const lista = crear("button", "btn", "← " + materia.titulo);
+      lista.type = "button";
+      lista.addEventListener("click", () => pintarLecciones(materia));
+      pie.appendChild(lista);
+      cuerpo.appendChild(pie);
+    }
+
+    /* ——————————————————— arrancar ——————————————————— */
+    (async function () {
+      if (!temario.length) {
+        cuerpo.replaceChildren();
+        cuerpo.appendChild(crear("div", "aviso",
+          "No encuentro el temario. Si lo has separado en otro archivo, " +
+          "cárgalo antes que este."));
+        return;
+      }
+      // Si el que llama ya sabe quién estudia (porque lo eligió en su
+      // propia pantalla de familia), no se le vuelve a preguntar.
+      if (op.quien) {
+        avance = (await leerAvance(quien)) || {};
+        pintarMaterias();
+      } else {
+        pintarQuien();
+      }
+    })();
+
+    return {
+      materias: pintarMaterias,
+      leccion: pintarLeccion,
+      get quien() { return quien; },
+      get avance() { return avance; },
+    };
+  }
+
+  global.Profesor = {
+    montar: Profesor,
+    // Para contar sin abrir nada: cuántas materias, lecciones y
+    // preguntas hay. Útil para enseñarlo en la pantalla de inicio.
+    resumen: function (temario) {
+      const t = temario ||
+        (typeof TEMARIO !== "undefined" ? TEMARIO : (global.TEMARIO || []));
+      let lecciones = 0, preguntas = 0;
+      for (const m of t) {
+        lecciones += m.lecciones.length;
+        for (const l of m.lecciones) preguntas += (l.quiz || []).length;
+      }
+      return { materias: t.length, lecciones, preguntas };
+    },
+  };
+})(window);
+
+/* ——— arrancarlo cuando va suelto ———
+   Esto es del archivo suelto, NO del módulo: si copias el módulo dentro
+   de otro asistente, eres tú quien decide cuándo montarlo y con quién.
+   Por eso la llamada está aquí abajo y no dentro de Profesor. */
+Profesor.montar(document.getElementById("cuerpo"));
+
+/* ═══════════════════════════════════════════════════════════
+   CÓMO METERLO EN OTRO ASISTENTE
+
+   1) Lo fácil — un marco. Cero integración, funciona tal cual:
+
+        <iframe src="Profesor.html" style="width:100%;height:100%;border:0"></iframe>
+
+   2) Lo integrado — copiar el <style>, el temario y este <script>
+      dentro del asistente, y decirle dónde va:
+
+        Profesor.montar(document.getElementById("mi-hueco"), {
+          cuerpo: document.getElementById("mi-hueco"),
+          titulo: document.getElementById("mi-titulo"),   // opcional
+          avance: document.getElementById("mi-avance"),   // opcional
+          atras:  document.getElementById("mi-atras"),    // opcional
+          quien: "ana",     // si ya sabes quién estudia, no lo pregunta
+          rol: "peque",     // "peque" deja solo lo básico y sin adultos
+          leer:    async ()        => (await fetch("/api/ensenanza/3")).json(),
+          guardar: async (av, paso) => fetch("/api/ensenanza/3", {
+            method: "POST", headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(paso) }),
+        });
+
+      Si no le pasas `leer` y `guardar`, se apaña con el almacén del
+      navegador y no necesita servidor ninguno.
+
+   Y para enseñar el tamaño del temario en una pantalla de inicio:
+
+        Profesor.resumen()   // { materias: 3, lecciones: 12, preguntas: 36 }
+   ═══════════════════════════════════════════════════════════ */
+</script>
+</body>
+</html>

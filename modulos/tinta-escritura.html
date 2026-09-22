@@ -1,0 +1,1520 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Tinta escritura — Les vencimos</title>
+<style>
+/* Paleta propia: nada se pide a una red de fuentes ni de iconos. */
+:root {
+  --fondo: #efe8dc;
+  --papel: #f7f1e6;
+  --tinta: #1c1916;
+  --suave: #6a6258;
+  --linea: #d7cfc2;
+  --acento: #8b3a2f;
+  --acento-texto: #f7f1e6;
+  --sombra: 0 10px 28px rgba(28, 25, 22, 0.12);
+  --radio: 12px;
+  --ui: "Segoe UI", "Helvetica Neue", system-ui, sans-serif;
+  --libro: Georgia, "Times New Roman", serif;
+}
+html[data-tema="noche"] {
+  --fondo: #161410;
+  --papel: #1e1a16;
+  --tinta: #ebe4d6;
+  --suave: #a39888;
+  --linea: #3a342c;
+  --acento: #c45c4c;
+  --acento-texto: #1c1916;
+  --sombra: 0 10px 28px rgba(0, 0, 0, 0.45);
+}
+* { box-sizing: border-box; }
+html, body {
+  height: 100%;
+  margin: 0;
+  /* El chrome cabe en la pantalla; solo los paneles internos hacen scroll. */
+  overflow: hidden;
+  background: var(--fondo);
+  color: var(--tinta);
+  font-family: var(--ui);
+}
+button, [role="button"] { cursor: pointer; font-family: inherit; }
+button:disabled { opacity: 0.45; cursor: default; }
+#app {
+  height: 100dvh;
+  display: flex;
+  flex-direction: column;
+}
+.cabecera, .pie {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 56px;
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--linea);
+  background: var(--papel);
+}
+.pie { border-bottom: 0; border-top: 1px solid var(--linea); justify-content: space-between; }
+.marca {
+  font-family: var(--libro);
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+.hueco { flex: 1; min-width: 8px; }
+.boton {
+  min-height: 44px;
+  min-width: 44px;
+  padding: 0 14px;
+  border: 1px solid var(--linea);
+  border-radius: 10px;
+  background: var(--papel);
+  color: var(--tinta);
+  font-size: 14px;
+}
+.boton:hover { background: var(--fondo); }
+.boton.principal {
+  background: var(--acento);
+  color: var(--acento-texto);
+  border-color: transparent;
+}
+.boton.fantasma { border-color: transparent; background: transparent; }
+.boton.peligro { color: var(--acento); }
+.cuerpo { flex: 1; min-height: 0; display: flex; }
+.lista {
+  overflow: auto;
+  padding: 16px;
+}
+.tarjeta {
+  display: block;
+  width: 100%;
+  text-align: left;
+  border: 1px solid var(--linea);
+  border-radius: var(--radio);
+  background: var(--papel);
+  padding: 16px;
+  margin-bottom: 12px;
+  box-shadow: var(--sombra);
+  color: inherit;
+  min-height: 44px;
+}
+.tarjeta h2 { margin: 0 0 6px; font-family: var(--libro); font-size: 22px; }
+.tarjeta p { margin: 0; color: var(--suave); font-size: 14px; }
+.lateral {
+  width: 240px;
+  flex: 0 0 240px;
+  border-right: 1px solid var(--linea);
+  background: var(--papel);
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+.lateral h3 {
+  margin: 0;
+  padding: 12px 12px 4px;
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--suave);
+}
+.cap-item {
+  display: flex;
+  width: 100%;
+  min-height: 44px;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  text-align: left;
+  padding: 8px 12px;
+  gap: 8px;
+}
+.cap-item.activo { background: var(--fondo); }
+.escena { flex: 1; min-width: 0; min-height: 0; display: flex; flex-direction: column; }
+.manuscrito {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  padding: 18px 16px 40px;
+}
+.hoja {
+  max-width: 720px;
+  margin: 0 auto;
+}
+.titulo-cap {
+  width: 100%;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font-family: var(--libro);
+  font-size: 28px;
+  padding: 4px 0 12px;
+  outline: none;
+}
+.texto-cap {
+  width: 100%;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font-family: var(--libro);
+  font-size: 18px;
+  line-height: 1.7;
+  resize: none;
+  outline: none;
+  min-height: 180px;
+}
+.figura {
+  margin: 12px 0;
+  padding: 10px;
+  border-radius: 10px;
+  background: var(--fondo);
+  text-align: center;
+}
+.figura svg { width: 100%; max-width: 420px; height: 160px; }
+.pie-fig {
+  width: 100%;
+  border: 0;
+  background: transparent;
+  color: var(--suave);
+  text-align: center;
+  font-size: 13px;
+  min-height: 44px;
+}
+.chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.chip {
+  min-height: 44px;
+  padding: 0 14px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--fondo);
+  color: var(--tinta);
+}
+.chip.activo { background: var(--acento); color: var(--acento-texto); }
+.campo, select, textarea.notas {
+  width: 100%;
+  min-height: 44px;
+  border: 1px solid var(--linea);
+  border-radius: 10px;
+  background: var(--papel);
+  color: inherit;
+  padding: 10px 12px;
+  font: inherit;
+}
+.dialogo {
+  position: fixed;
+  inset: 0;
+  background: rgba(28, 25, 22, 0.45);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  z-index: 20;
+  padding: 12px;
+}
+.dialogo > form, .dialogo > .caja {
+  width: min(720px, 100%);
+  max-height: 92dvh;
+  overflow: auto;
+  background: var(--papel);
+  color: var(--tinta);
+  border-radius: 16px 16px 12px 12px;
+  padding: 16px;
+  box-shadow: var(--sombra);
+}
+.rejilla {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+.ficha {
+  min-height: 88px;
+  border: 0;
+  border-radius: 10px;
+  background: var(--fondo);
+  color: inherit;
+  padding: 8px 4px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+.ficha svg { width: 100%; height: 52px; }
+.ficha span { font-size: 12px; color: var(--suave); }
+.aviso { color: var(--suave); font-size: 13px; }
+.oculto { display: none !important; }
+.lienzo-caja { background: #fff; border-radius: 10px; overflow: hidden; }
+.barra-dictado {
+  position: fixed;
+  left: 12px;
+  right: 12px;
+  bottom: 64px;
+  z-index: 25;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 8px 12px;
+  border: 1px solid var(--linea);
+  border-radius: 10px;
+  background: var(--papel);
+  box-shadow: var(--sombra);
+  font-size: 13px;
+  color: var(--suave);
+  font-style: italic;
+}
+.punto-vivo {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--acento);
+  flex: 0 0 auto;
+}
+@media (max-width: 720px) {
+  .lateral { display: none; }
+  .lateral.abierto {
+    display: flex;
+    position: absolute;
+    inset: 56px 0 56px 0;
+    width: auto;
+    z-index: 8;
+    border-right: 0;
+  }
+  .titulo-cap { font-size: 22px; }
+  .texto-cap { font-size: 16px; }
+}
+@media (min-width: 721px) {
+  .solo-movil { display: none !important; }
+  .dialogo { align-items: center; }
+  .dialogo > form, .dialogo > .caja { border-radius: 16px; }
+  .rejilla { grid-template-columns: repeat(5, 1fr); }
+}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script>
+(function () {
+  "use strict";
+
+  /* Clave propia de este archivo: si se copia a otro ordenador, cada aparato
+     guarda las suyas. No hay servidor al que mandar nada. */
+  var CLAVE = "tinta.usb.v1";
+
+  var GENEROS = ["Novela", "Relato", "Ensayo", "Guion", "Poesía", "Diario", "Otro"];
+  var PAPELES = [
+    { id: "manuscript", etiqueta: "Manuscrito", mmAncho: 216, mmAlto: 279 },
+    { id: "a4", etiqueta: "A4", mmAncho: 210, mmAlto: 297 },
+    { id: "trade", etiqueta: "Novela 15×23", mmAncho: 152, mmAlto: 229 },
+    { id: "a5", etiqueta: "A5", mmAncho: 148, mmAlto: 210 },
+    { id: "pocket", etiqueta: "Bolsillo", mmAncho: 110, mmAlto: 178 }
+  ];
+  var MARGENES = [
+    { id: "narrow", etiqueta: "Estrechos", mm: 12 },
+    { id: "normal", etiqueta: "Normales", mm: 20 },
+    { id: "wide", etiqueta: "Anchos", mm: 28 }
+  ];
+  var INTERLINEADOS = [
+    { id: 1, etiqueta: "Sencillo" },
+    { id: 1.5, etiqueta: "1,5" },
+    { id: 2, etiqueta: "Doble" }
+  ];
+  var PREAJUSTES = [
+    { id: "novel", etiqueta: "Novela 15×23", formato: "trade", interlineado: 1.5, margen: "normal" },
+    { id: "manuscript", etiqueta: "Manuscrito", formato: "manuscript", interlineado: 2, margen: "wide" },
+    { id: "pocket", etiqueta: "Bolsillo", formato: "pocket", interlineado: 1, margen: "narrow" },
+    { id: "a5", etiqueta: "A5", formato: "a5", interlineado: 1.5, margen: "normal" },
+    { id: "draft", etiqueta: "Borrador", formato: "a4", interlineado: 1, margen: "narrow" }
+  ];
+  var PAPELES_DE = {};
+  PAPELES.forEach(function (p) { PAPELES_DE[p.id] = p; });
+  var MARGEN_DE = {};
+  MARGENES.forEach(function (m) { MARGEN_DE[m.id] = m; });
+
+  var CONSEJOS = [
+    ["estructura", "Empieza tarde, sal temprano", "Una escena no necesita el viaje en coche ni el saludo en la puerta. Entra cuando la tensión ya está en la habitación y sal cuando el conflicto acaba de cambiar."],
+    ["estructura", "Deseo contra obstáculo", "Cada capítulo responde a qué quiere alguien y qué se lo impide. Si no hay deseo ni obstáculo, es exposición disfrazada."],
+    ["estructura", "Inevitable y sorprendente", "El final debe parecer la única salida posible una vez ocurrido, y aun así no ser el que el lector adivinó en la página tres."],
+    ["personajes", "El antagonista también tiene razón", "Dale a quien se opone una lógica interna. El conflicto gana peso cuando las dos partes podrían defenderse en voz alta."],
+    ["personajes", "Una contradicción visible", "El personaje memorable cuida y abandona, miente por lealtad, teme lo que más desea. Elige una contradicción y déjala actuar."],
+    ["personajes", "El detalle que delata", "Un anillo dado la vuelta, una llave que no se suelta: un gesto concreto dice más que un resumen de infancia."],
+    ["dialogo", "Subtexto, no acta", "La gente rara vez dice lo que quiere. Si el diálogo se puede sustituir por un informe, todavía no es diálogo."],
+    ["dialogo", "Corta los saludos", "Hola, ¿cómo estás: eso es cortesía, no escena. Entra en la primera frase que cambia algo."],
+    ["estilo", "Enseña, no cuentes", "«Estaba furiosa» informa. «Dejó la taza en el fregadero sin soltar el asa» deja que el lector haga el trabajo."],
+    ["estilo", "Frase corta, frase larga", "Una frase breve corta el aire. Una larga arrastra. Un párrafo de frases iguales es un motor al ralentí."],
+    ["estilo", "Vocabulario concreto", "No «vehículo»: el Seat del 92. No «comida»: lentejas con el chorizo partido a cuchillo."],
+    ["revision", "Léelo en voz alta", "La oreja detecta lo que el ojo perdona. Si te quedas sin aire, la frase es demasiado larga."],
+    ["revision", "Mata tus frases favoritas", "Si una imagen te enamora y no empuja la escena, sobra. Guárdala en un cuaderno de restos."],
+    ["revision", "Un solo cambio por pasada", "Una pasada para lo que ocurre. Otra para cómo suena. Otra para lo que sobra."]
+  ];
+
+  var PERSONAS = [
+    ["mujer", "Mujer", "largo", "vestido", "nada"],
+    ["hombre", "Hombre", "corto", "abrigo", "nada"],
+    ["nina", "Niña", "trenza", "vestido", "nada", "nina"],
+    ["nino", "Niño", "corto", "camisa", "nada", "nino"],
+    ["anciana", "Anciana", "moño", "túnica", "nada"],
+    ["anciano", "Anciano", "calvo", "abrigo", "báculo", "barba"],
+    ["farera", "Farera", "moño", "abrigo", "farol"],
+    ["farero", "Farero", "gorra", "abrigo", "farol"],
+    ["marinera", "Marinera", "corto", "túnica", "nada"],
+    ["marinero", "Marinero", "gorra", "túnica", "nada"],
+    ["escritora", "Escritora", "largo", "vestido", "libro"],
+    ["escritor", "Escritor", "corto", "abrigo", "pluma"],
+    ["poeta", "Poeta", "largo", "capa", "pluma"],
+    ["pintora", "Pintora", "moño", "camisa", "paleta"],
+    ["caballero", "Caballero", "yelmo", "armadura", "espada"],
+    ["dama", "Dama", "largo", "vestido", "abanico"],
+    ["reina", "Reina", "corona", "capa", "nada"],
+    ["rey", "Rey", "corona", "capa", "báculo", "barba"],
+    ["bruja", "Bruja", "brujas", "túnica", "báculo"],
+    ["mago", "Mago", "picudo", "túnica", "báculo", "barba"],
+    ["monja", "Monja", "velo", "túnica", "libro"],
+    ["fraile", "Fraile", "capucha", "túnica", "nada", "barba"],
+    ["campesina", "Campesina", "trenza", "vestido", "cesto"],
+    ["campesino", "Campesino", "sombrero", "túnica", "nada"],
+    ["pastora", "Pastora", "largo", "túnica", "cayado"],
+    ["pastor", "Pastor", "sombrero", "túnica", "cayado"],
+    ["cazadora", "Cazadora", "trenza", "túnica", "arco"],
+    ["cazador", "Cazador", "gorra", "abrigo", "arco"],
+    ["princesa", "Princesa", "largo", "vestido", "nada"],
+    ["principe", "Príncipe", "corto", "capa", "espada"],
+    ["soldado", "Soldado", "yelmo", "armadura", "espada"],
+    ["capitan", "Capitán", "sombrero", "capa", "espada"],
+    ["bailarina", "Bailarina", "moño", "vestido", "nada"],
+    ["musico", "Músico", "corto", "camisa", "laud"],
+    ["jinete", "Jinete", "gorra", "abrigo", "nada"],
+    ["mensajero", "Mensajero", "gorra", "túnica", "carta"],
+    ["tejedora", "Tejedora", "moño", "vestido", "cesto"],
+    ["herrero", "Herrero", "corto", "camisa", "martillo", "barba"],
+    ["panadera", "Panadera", "moño", "vestido", "pan"],
+    ["pescador", "Pescador", "sombrero", "túnica", "caña"],
+    ["madre", "Madre", "largo", "vestido", "niño"],
+    ["padre", "Padre", "corto", "abrigo", "niño"],
+    ["viajera", "Viajera", "sombrero", "abrigo", "báculo"],
+    ["peregrino", "Peregrino", "capucha", "túnica", "báculo"],
+    ["ermitano", "Ermitaño", "calvo", "túnica", "báculo", "barba"],
+    ["hada", "Hada", "largo", "vestido", "báculo"],
+    ["gigante", "Gigante", "corto", "túnica", "báculo", "barba"],
+    ["bufon", "Bufón", "gorra", "túnica", "laud"]
+  ];
+
+  var ANIMALES = [
+    ["perro", "Perro"], ["gato", "Gato"], ["caballo", "Caballo"], ["lobo", "Lobo"],
+    ["zorro", "Zorro"], ["oso", "Oso"], ["ciervo", "Ciervo"], ["jabali", "Jabalí"],
+    ["liebre", "Liebre"], ["conejo", "Conejo"], ["aguila", "Águila"], ["buho", "Búho"],
+    ["cuervo", "Cuervo"], ["paloma", "Paloma"], ["gorrion", "Gorrión"], ["gaviota", "Gaviota"],
+    ["cisne", "Cisne"], ["pato", "Pato"], ["gallina", "Gallina"], ["gallo", "Gallo"],
+    ["pez", "Pez"], ["ballena", "Ballena"], ["delfin", "Delfín"], ["tiburon", "Tiburón"],
+    ["pulpo", "Pulpo"], ["serpiente", "Serpiente"], ["rana", "Rana"], ["tortuga", "Tortuga"],
+    ["lagarto", "Lagarto"], ["mariposa", "Mariposa"], ["abeja", "Abeja"], ["luciernaga", "Luciérnaga"],
+    ["vaca", "Vaca"], ["toro", "Toro"], ["oveja", "Oveja"], ["cabra", "Cabra"],
+    ["cerdo", "Cerdo"], ["burro", "Burro"], ["elefante", "Elefante"], ["camello", "Camello"],
+    ["leon", "León"], ["tigre", "Tigre"], ["pantera", "Pantera"], ["lince", "Lince"],
+    ["raton", "Ratón"], ["erizo", "Erizo"], ["ardilla", "Ardilla"], ["murcielago", "Murciélago"],
+    ["dragon", "Dragón"], ["unicornio", "Unicornio"], ["fenix", "Fénix"], ["ruisenor", "Ruiseñor"]
+  ];
+
+  var GRABADOS = [
+    ["asterismo", "Asterismo"], ["fleuron", "Florón"], ["faro", "Faro"], ["llave", "Llave"],
+    ["mar", "Mar"], ["velero", "Velero"], ["luna", "Luna"], ["pluma", "Pluma"],
+    ["rama", "Rama"], ["brujula", "Brújula"]
+  ];
+
+  var FICHAS = [];
+  PERSONAS.forEach(function (p) { FICHAS.push({ id: p[0], etiqueta: p[1], grupo: "persona" }); });
+  ANIMALES.forEach(function (a) { FICHAS.push({ id: a[0], etiqueta: a[1], grupo: "animal" }); });
+  GRABADOS.forEach(function (g) { FICHAS.push({ id: g[0], etiqueta: g[1], grupo: "grabado" }); });
+
+  var FICHA_DE = {};
+  FICHAS.forEach(function (f) { FICHA_DE[f.id] = f; });
+
+  function tintaG(inner) {
+    return '<g fill="none" stroke="currentColor" stroke-width="1.35" stroke-linecap="round" stroke-linejoin="round">' + inner + "</g>";
+  }
+  function p(d) { return '<path d="' + d + '"/>'; }
+  function c(cx, cy, r) { return '<circle cx="' + cx + '" cy="' + cy + '" r="' + r + '"/>'; }
+  function suelo() { return p("M36 138c28-8 56-6 84 2 28 6 56 4 84-6"); }
+
+  function peloSvg(tipo) {
+    if (tipo === "corto") return p("M108 28c4-10 20-12 24 0");
+    if (tipo === "largo") return p("M108 28c2-12 22-14 24 2") + p("M107 38c-8 18-6 36 2 44M133 38c8 18 6 36-2 44");
+    if (tipo === "moño") return c(120, 18, 6) + p("M108 30c4-8 20-8 24 0");
+    if (tipo === "trenza") return p("M108 28c4-10 20-10 24 2") + p("M132 40c6 8 4 14 8 22 4 8 2 16 6 24");
+    if (tipo === "sombrero") return p("M100 30h40") + p("M108 30v-12h24v12");
+    if (tipo === "corona") return p("M104 28l6-12 10 8 10-10 10 10 10-8 6 12H104z");
+    if (tipo === "capucha") return p("M104 42c0-22 10-32 16-32 8 0 16 10 16 32");
+    if (tipo === "gorra") return p("M106 30h28v-8H112") + p("M134 30h12");
+    if (tipo === "velo") return p("M104 28h32v4H104z") + p("M106 32c-4 16-2 36 6 48M134 32c4 16 2 36-6 48");
+    if (tipo === "brujas") return p("M96 32h48L120 4z");
+    if (tipo === "picudo") return p("M100 32h40L128 2h-8z");
+    if (tipo === "yelmo") return p("M106 22h28v16H106z") + p("M112 30h16") + p("M100 38h40");
+    return "";
+  }
+
+  function objetoSvg(tipo) {
+    if (tipo === "libro") return p("M128 86h22v16H128z M139 86v16");
+    if (tipo === "espada") return p("M148 108v-44") + p("M142 66h12") + p("M146 64l4-10 4 10");
+    if (tipo === "farol") return p("M150 86h14v18H150z") + p("M154 86v-8h6v8");
+    if (tipo === "báculo") return p("M152 132V48");
+    if (tipo === "pluma") return p("M146 100 168 70");
+    if (tipo === "cesto") return p("M146 96h22l-3 14H149z M150 96c4-8 14-8 18 0");
+    if (tipo === "arco") return p("M154 64c12 16 12 36 0 52") + p("M154 64 168 90 154 116");
+    if (tipo === "laud") return '<ellipse cx="156" cy="96" rx="10" ry="12"/>' + p("M162 88l16-18");
+    if (tipo === "cayado") return p("M152 132V56c0-10 12-12 14-4");
+    if (tipo === "niño") return c(156, 80, 7) + p("M148 88c2 10 14 10 16 0");
+    if (tipo === "martillo") return p("M148 70h22v10H148z") + p("M157 80v36");
+    if (tipo === "caña") return p("M150 132 188 40") + p("M188 40c8 18 4 32-6 40");
+    if (tipo === "carta") return p("M148 86h24v16H148z") + p("M148 86l12 8 12-8");
+    if (tipo === "paleta") return '<ellipse cx="160" cy="96" rx="14" ry="10"/>' + c(154, 92, 2) + c(164, 94, 2);
+    if (tipo === "pan") return p("M148 96c8-10 24-10 32 0v8H148z");
+    if (tipo === "abanico") return p("M148 88c16-20 28-8 28 8 0-2-12-6-28-8z");
+    return "";
+  }
+
+  function personaSvg(fila) {
+    var cuerpo = fila[3];
+    var extra = "";
+    if (cuerpo === "vestido" || cuerpo === "túnica") extra += p("M98 86c-10 30-8 48 22 50 30-2 32-20 22-50");
+    else if (cuerpo === "armadura") extra += p("M100 70h40l-4 28H104z") + p("M104 98h32l-6 34H110z");
+    else extra += p("M102 70h36v30H102z") + p("M110 100v34M130 100v34") + p("M102 134h16M122 134h16");
+    if (cuerpo === "abrigo" || cuerpo === "capa") extra += p("M96 68c-8 22-6 48 8 62M144 68c8 22 6 48-8 62");
+    if (cuerpo === "capa") extra += p("M108 70c-22 18-24 50-10 64");
+    extra += p("M114 58v12M126 58v12") + p("M102 70c8-6 28-6 36 0") + c(120, 36, 13);
+    if (fila[5] === "barba") extra += p("M112 44c4 12 12 12 16 0");
+    extra += peloSvg(fila[2]);
+    extra += p("M102 72c-12 14-14 28-4 36M138 72c12 14 14 28 4 36");
+    extra += objetoSvg(fila[4]);
+    if (fila[0] === "hada") extra += p("M86 64c-16-18-8-32 8-24 6 8 10 16 4 24zM154 64c16-18 8-32-8-24-6 8-10 16-4 24z");
+    if (fila[0] === "bailarina") extra += p("M84 108c12-16 24-20 36-8M156 108c-12-16-24-20-36-8");
+    if (fila[0] === "marinera" || fila[0] === "marinero") extra += p("M40 142c30-8 50-6 80 2 30 6 50 4 80-8");
+    var escala = fila[0] === "gigante" ? 1.18 : (fila[5] === "nina" || fila[5] === "nino" || fila[0] === "nina" || fila[0] === "nino" ? 0.72 : 1);
+    var cuerpoG = extra;
+    if (escala !== 1) {
+      cuerpoG = '<g transform="translate(120 138) scale(' + escala + ') translate(-120 -138)">' + extra + "</g>";
+    }
+    return tintaG(suelo() + cuerpoG);
+  }
+
+  function cuad(opts) {
+    opts = opts || {};
+    var s = suelo();
+    s += p("M86 118c-4 8-2 16 8 16h48c8 0 12-8 8-16");
+    s += p("M94 118c2-28 8-40 28-42 16-2 28 10 32 28");
+    if (opts.cuello === "alto") s += p("M148 96c12-18 18-28 10-40");
+    else s += p("M152 92c8-8 10-16 4-24");
+    if (opts.hocico === "chato") s += p("M156 56h16v8h-10");
+    else if (opts.hocico === "afilado") s += p("M156 58l22 4-18 6");
+    else s += p("M156 56c10-2 20 2 22 8");
+    if (opts.cuerno) s += p("M160 48 168 28");
+    if (opts.asta) s += p("M148 48l-8-16M148 48l4-14M152 48l10-16");
+    else s += p("M148 50l-4-12");
+    if (opts.cola === "arriba") s += p("M90 96c-12-18-4-28 6-18");
+    else if (opts.cola === "espesa") s += p("M90 92c-16-4-22 10-12 18 8 4 14-2 16-10");
+    else s += p("M90 100c-14 8-16 20-6 24");
+    if (opts.giba) s += p("M112 78c8-16 24-14 32-2");
+    s += p("M100 118v18M118 118v18M138 116v20M152 114v20");
+    return tintaG(s);
+  }
+
+  function animalSvg(id) {
+    if (id === "perro") return cuad({ hocico: "chato", cola: "arriba" });
+    if (id === "lobo") return cuad({ hocico: "afilado", cola: "abajo" });
+    if (id === "zorro") return cuad({ hocico: "afilado", cola: "espesa" });
+    if (id === "caballo") return cuad({ cuello: "alto", hocico: "largo" });
+    if (id === "ciervo") return cuad({ cuello: "alto", hocico: "largo", asta: true });
+    if (id === "unicornio") return cuad({ cuello: "alto", hocico: "largo", cuerno: true });
+    if (id === "jabali") return cuad({ hocico: "chato", cola: "arriba" });
+    if (id === "vaca") return cuad({ hocico: "chato" });
+    if (id === "burro") return cuad({ cuello: "alto", hocico: "chato" });
+    if (id === "cabra") return cuad({ cuello: "alto", hocico: "chato", cola: "arriba" });
+    if (id === "camello") return cuad({ cuello: "alto", hocico: "chato", giba: true });
+    if (id === "pantera") return cuad({ hocico: "afilado" });
+    if (id === "gato") {
+      return tintaG(suelo() + p("M100 118c0-28 8-40 22-40 14 0 22 12 22 40") + c(122, 62, 12) + p("M112 54l-6-14 10 8M132 54l6-14-10 8") + p("M144 90c12-4 16 8 8 14") + p("M110 118v16M134 118v16"));
+    }
+    if (id === "oso") {
+      return tintaG(suelo() + p("M86 118c0-36 16-52 40-52 22 0 40 18 40 52") + c(156, 78, 14) + c(118, 62, 6) + c(138, 58, 6) + p("M96 118v16M120 118v16M144 118v16M164 114v20"));
+    }
+    if (id === "liebre") {
+      return tintaG(suelo() + '<ellipse cx="120" cy="108" rx="22" ry="14"/>' + c(142, 96, 10) + p("M138 88c-2-22 6-32 10-20M148 88c2-24 12-30 12-16") + p("M112 120v14M128 120v14"));
+    }
+    if (id === "conejo") {
+      return tintaG(suelo() + '<ellipse cx="120" cy="112" rx="18" ry="12"/>' + c(138, 100, 9) + p("M134 92c-4-16 2-22 6-12M144 92c2-18 10-20 8-10"));
+    }
+    if (id === "aguila") {
+      return tintaG(suelo() + p("M60 88c28-28 52-20 60-4 8-16 32-24 60 4") + '<ellipse cx="120" cy="90" rx="16" ry="12"/>' + p("M136 70l10 2") + p("M112 100v20M128 100v20"));
+    }
+    if (id === "buho") {
+      return tintaG(suelo() + '<ellipse cx="120" cy="86" rx="22" ry="28"/>' + c(112, 78, 7) + c(128, 78, 7) + p("M120 86l4 6h-8z") + p("M102 62l8 8M138 62l-8 8"));
+    }
+    if (id === "cuervo") {
+      return tintaG(suelo() + p("M88 100c8-28 28-36 48-20 8-16 28-12 36 8") + p("M168 88l14 2") + p("M80 96c-16 4-14 16-2 16"));
+    }
+    if (id === "paloma") {
+      return tintaG(suelo() + '<ellipse cx="120" cy="100" rx="22" ry="14"/>' + c(144, 92, 8) + p("M150 92h12") + p("M98 100c-14-6-16 8-4 10"));
+    }
+    if (id === "gorrion") {
+      return tintaG(suelo() + '<ellipse cx="120" cy="100" rx="16" ry="10"/>' + c(136, 94, 7) + p("M142 94h10"));
+    }
+    if (id === "gaviota") {
+      return tintaG(p("M36 110c30-10 54-8 84 4 28 10 54 6 84-10") + p("M70 70c20 8 34 8 50 0 18-8 36-6 50 6") + c(168, 68, 5));
+    }
+    if (id === "cisne") {
+      return tintaG(p("M40 118c28-10 52-8 80 2 28 8 52 6 80-8") + '<ellipse cx="120" cy="92" rx="28" ry="16"/>' + p("M146 88c10-18 8-32-4-40") + p("M148 52l12 4-10 4"));
+    }
+    if (id === "pato") {
+      return tintaG(p("M40 118c28-10 52-8 80 2") + '<ellipse cx="120" cy="88" rx="28" ry="16"/>' + p("M146 80c8-10 6-18-2-22") + p("M148 52l12 4"));
+    }
+    if (id === "gallina") {
+      return tintaG(suelo() + '<ellipse cx="120" cy="100" rx="24" ry="16"/>' + c(148, 92, 8) + p("M154 92h10") + p("M100 100c-14 4-12 14 0 12"));
+    }
+    if (id === "gallo") {
+      return tintaG(suelo() + '<ellipse cx="120" cy="100" rx="24" ry="16"/>' + c(148, 90, 8) + p("M140 80l4-12 4 10 4-8") + p("M154 90h12"));
+    }
+    if (id === "pez") {
+      return tintaG(p("M48 80c28-24 80-24 108 0-28 24-80 24-108 0z") + p("M156 80l28-16v32z") + c(72, 76, 3));
+    }
+    if (id === "ballena") {
+      return tintaG(p("M40 96c20-28 80-36 120-8 16 12 24 12 40 4") + p("M196 92l16-18M196 92l18-8") + p("M88 70c4-16 12-20 14-8"));
+    }
+    if (id === "delfin") {
+      return tintaG(p("M48 92c24-22 70-24 100-4 16 10 28 8 40-4") + p("M100 74c6-16 16-18 16-6") + p("M184 88l14 12"));
+    }
+    if (id === "tiburon") {
+      return tintaG(p("M36 92c28-20 90-22 128 2 12 8 20 6 32-6") + p("M108 76 120 48 128 76") + p("M72 96l-8 10"));
+    }
+    if (id === "pulpo") {
+      return tintaG('<ellipse cx="120" cy="70" rx="28" ry="22"/>' + p("M96 86c-10 20-8 36 6 40M108 88c-4 24 2 40 12 36M120 90c2 26 8 38 14 32M132 88c8 22 16 36 22 28M144 86c14 16 22 32 16 40") + c(110, 68, 4) + c(130, 68, 4));
+    }
+    if (id === "serpiente") {
+      return tintaG(p("M40 110c24-28 40-8 56 8 16 16 32-4 48-20 16-16 32-4 48 12 12 12 24 8 36-4") + c(196, 92, 8) + p("M204 92h10"));
+    }
+    if (id === "rana") {
+      return tintaG(suelo() + '<ellipse cx="120" cy="110" rx="24" ry="14"/>' + c(108, 96, 8) + c(132, 96, 8) + p("M96 112c-16 4-18 16-4 16M144 112c16 4 18 16 4 16"));
+    }
+    if (id === "tortuga") {
+      return tintaG(suelo() + '<ellipse cx="120" cy="100" rx="36" ry="20"/>' + p("M96 92l12 16M120 88v20M144 92l-12 16") + c(156, 104, 8));
+    }
+    if (id === "lagarto") {
+      return tintaG(suelo() + p("M60 110c20-16 40-16 60-2 20 12 40 8 56-8") + p("M168 100c12-4 20-2 28 8") + p("M80 108l-8 12M158 100l8 14"));
+    }
+    if (id === "mariposa") {
+      return tintaG(p("M120 40v70") + p("M120 70c-28-24-48-16-44 8 8 16 28 16 44-2") + p("M120 70c28-24 48-16 44 8-8 16-28 16-44-2") + p("M120 88c-22-8-34 4-28 18 10 8 22 2 28-10") + p("M120 88c22-8 34 4 28 18-10 8-22 2-28-10"));
+    }
+    if (id === "abeja") {
+      return tintaG('<ellipse cx="120" cy="88" rx="18" ry="12"/>' + p("M108 88h24M112 82h16M112 94h16") + p("M100 84c-16-16-8-28 6-16M140 84c16-16 8-28-6-16"));
+    }
+    if (id === "luciernaga") {
+      return tintaG('<ellipse cx="120" cy="90" rx="10" ry="7"/>' + c(136, 90, 8) + p("M110 86c-12-12-4-20 6-10M110 94c-12 12-4 20 6 10"));
+    }
+    if (id === "toro") {
+      return cuad({ hocico: "chato" }) + tintaG(p("M148 52l-16-14M164 56l16-12"));
+    }
+    if (id === "oveja") {
+      return tintaG(suelo() + p("M84 110c0-8 8-24 20-28 4-14 16-22 28-18 12-12 32-8 36 8 16 4 24 18 20 32") + c(160, 96, 10) + p("M96 118v14M120 118v14M140 118v14"));
+    }
+    if (id === "cerdo") {
+      return tintaG(suelo() + '<ellipse cx="120" cy="104" rx="36" ry="22"/>' + c(156, 100, 12) + p("M166 100h10") + p("M100 118v14M118 118v14M136 118v14"));
+    }
+    if (id === "elefante") {
+      return tintaG(suelo() + p("M70 118c0-36 18-56 50-56 28 0 44 16 50 40") + c(168, 86, 16) + p("M180 92c8 18 6 32-4 36") + p("M70 90c-16-4-18 10-8 16") + p("M84 118v16M108 118v16M132 118v16"));
+    }
+    if (id === "leon") {
+      return cuad({ hocico: "chato", cola: "arriba" }) + tintaG(c(168, 62, 16) + p("M152 54c-8-10-4-18 6-12M184 54c8-10 4-18-6-12"));
+    }
+    if (id === "tigre") {
+      return cuad({ hocico: "chato" }) + tintaG(p("M108 86v12M122 80v14M136 86v12"));
+    }
+    if (id === "lince") {
+      return cuad({ hocico: "chato", cola: "arriba" }) + tintaG(p("M148 48l-2-10M156 46l2-10"));
+    }
+    if (id === "raton") {
+      return tintaG(suelo() + '<ellipse cx="120" cy="118" rx="16" ry="8"/>' + c(136, 114, 6) + p("M104 118c-16 8-12 16 2 10") + p("M132 110l-6-8M140 110l6-8"));
+    }
+    if (id === "erizo") {
+      return tintaG(suelo() + '<ellipse cx="120" cy="112" rx="28" ry="16"/>' + p("M100 104l-6-14M112 98l0-16M124 96l4-16M136 98l10-14M146 104l12-10") + p("M148 114h10"));
+    }
+    if (id === "ardilla") {
+      return tintaG(suelo() + '<ellipse cx="124" cy="112" rx="14" ry="12"/>' + c(138, 98, 8) + p("M134 92l-4-10M142 92l6-10") + p("M110 108c-16-16-8-32 8-22 8 8 8 16 2 22"));
+    }
+    if (id === "murcielago") {
+      return tintaG(p("M40 80c28 8 40 28 80 28s52-20 80-28c-16 28-40 44-80 44S56 108 40 80z") + c(120, 92, 8) + p("M114 86l-6-10M126 86l6-10"));
+    }
+    if (id === "dragon") {
+      return tintaG(suelo() + p("M70 118c8-32 24-48 50-44 20 4 32 18 40 36") + p("M154 96c16-20 24-24 16-40") + p("M168 60l16 4-14 6") + p("M100 76l-6-14M116 70l2-16M132 76l8-14") + p("M96 118v16M120 118v16M144 116v18"));
+    }
+    if (id === "fenix") {
+      return tintaG(suelo() + p("M70 100c20-36 40-32 50-10 12-28 40-36 60-8") + '<ellipse cx="120" cy="92" rx="14" ry="10"/>' + p("M90 108c-12 8-10 22 4 16M150 100c16 4 22 18 8 20"));
+    }
+    if (id === "ruisenor") {
+      return tintaG(suelo() + p("M90 108c10-8 20-28 40-22") + '<ellipse cx="128" cy="92" rx="14" ry="10"/>' + p("M140 86c8-10 4-18-4-12") + p("M142 80l10-2") + p("M70 70c16 8 22 8 28 0"));
+    }
+    return tintaG(suelo() + c(120, 80, 20));
+  }
+
+  function grabadoSvg(id) {
+    if (id === "asterismo") return tintaG(p("M36 75h50M154 75h50") + p("M108 75l6 10 6-10-6-10z") + p("M128 75l4 7 4-7-4-7z") + p("M92 75l4 7 4-7-4-7z"));
+    if (id === "fleuron") return tintaG(p("M120 28c-8 18-8 32 0 50 8-18 8-32 0-50z") + p("M120 52c-22-4-38 8-44 22 16-2 32-8 44-22z") + p("M120 52c22-4 38 8 44 22-16-2-32-8-44-22z") + c(120, 64, 3));
+    if (id === "faro") return tintaG(c(186, 28, 7) + p("M104 40h32M108 40v8h24v-8M114 48v56l-8 22h36l-8-22V48") + p("M112 64h16M112 80h16M112 96h16") + p("M48 132c18-10 32-8 48 0 16 8 32 8 48 0") + p("M120 30L52 18M120 30L188 14"));
+    if (id === "llave") return tintaG(c(78, 75, 22) + c(78, 75, 10) + p("M100 75h92") + p("M168 75v18M184 75v12M192 75v18"));
+    if (id === "mar") return tintaG(p("M20 58c24-16 40-16 64 0 24 16 40 16 64 0 24-16 40-16 68 2") + p("M16 84c26-14 44-14 68 0 24 14 44 14 68 0") + c(168, 34, 5));
+    if (id === "velero") return tintaG(p("M120 28v86") + p("M120 36l46 54H120z") + p("M120 48 78 90h42") + p("M64 118c18 10 38 12 56 12 20 0 40-2 56-12"));
+    if (id === "luna") return tintaG(p("M132 24c-18 8-28 28-24 48 4 22 22 38 44 40-20 8-44 2-58-16-16-20-16-50 2-70 12-14 32-20 36-2z") + p("M28 118c24-12 44-10 68 2 22 12 44 10 68-4"));
+    if (id === "pluma") return tintaG(p("M168 32c-28 8-78 58-112 96") + p("M168 32c-10 22-38 40-62 52") + p("M148 40c-18 16-40 36-64 54"));
+    if (id === "rama") return tintaG(p("M40 118c28-8 48-28 58-52 8-20 18-40 42-50") + p("M96 78c-10-18-8-32 6-44 2 16 8 28 18 36") + p("M84 96c-14-6-24 2-28 16 12 0 22-4 30-14"));
+    if (id === "brujula") return tintaG(c(120, 76, 44) + c(120, 76, 6) + p("M120 40v12M120 100v12M84 76h12M144 76h12") + p("M120 48l8 28-8 28-8-28z"));
+    return "";
+  }
+
+  function svgFicha(id) {
+    var inner = "";
+    var i;
+    for (i = 0; i < PERSONAS.length; i++) if (PERSONAS[i][0] === id) inner = personaSvg(PERSONAS[i]);
+    if (!inner) inner = grabadoSvg(id);
+    if (!inner || inner === "") inner = animalSvg(id);
+    return '<svg viewBox="0 0 240 150" aria-hidden="true">' + inner + "</svg>";
+  }
+
+  function uid() {
+    return "id" + Math.random().toString(36).slice(2, 8) + Date.now().toString(36).slice(-4);
+  }
+  function ahora() { return Date.now(); }
+
+  function contarPalabras(texto) {
+    var t = String(texto || "").replace(/\{\{fig:[a-zA-Z0-9-]+\}\}/g, " ").trim();
+    if (!t) return 0;
+    return t.split(/\s+/).filter(Boolean).length;
+  }
+
+  function palabrasPorPagina(obra) {
+    var papel = PAPELES_DE[obra.formato] || PAPELES_DE.trade;
+    var margen = (MARGEN_DE[obra.margen] || MARGEN_DE.normal).mm;
+    var utilAncho = Math.max(40, papel.mmAncho - 2 * margen);
+    var utilAlto = Math.max(40, papel.mmAlto - 2 * margen);
+    var pt = { 16: 11, 18: 12, 20: 13, 22: 14 }[estado.tamanoLetra] || 12;
+    var mmLetra = pt * 0.3528;
+    var mmLinea = mmLetra * (obra.interlineado || 1.5);
+    var chars = Math.max(20, Math.floor(utilAncho / (mmLetra * 0.58)));
+    var lineas = Math.max(8, Math.floor(utilAlto / mmLinea));
+    var wpp = Math.round((chars / 6) * lineas);
+    if (wpp < 80) wpp = 80;
+    if (wpp > 800) wpp = 800;
+    return wpp;
+  }
+
+  function estimarPaginas(palabras, obra) {
+    if (palabras <= 0) return 0;
+    return Math.max(1, Math.ceil(palabras / palabrasPorPagina(obra)));
+  }
+
+  function fmt(n) {
+    return String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+  }
+
+  function juntarVoz(acc, trozo) {
+    var a = String(acc || "").replace(/\s+/g, " ").trim();
+    var b = String(trozo || "").replace(/\s+/g, " ").trim();
+    if (!b) return a;
+    if (!a) return b;
+    if (b.length >= 8 && a.toLowerCase().indexOf(b.toLowerCase()) !== -1) return a;
+    if (a.length >= 4 && b.toLowerCase().indexOf(a.toLowerCase() + " ") === 0) return b;
+    var aw = a.split(" ");
+    var bw = b.split(" ");
+    var max = Math.min(aw.length, bw.length, 14);
+    var k;
+    for (k = max; k >= 2; k -= 1) {
+      if (aw.slice(-k).join(" ").toLowerCase() === bw.slice(0, k).join(" ").toLowerCase()) {
+        return aw.concat(bw.slice(k)).join(" ");
+      }
+    }
+    return a + " " + b;
+  }
+
+  function limpiarVoz(texto) {
+    var t = String(texto || "").replace(/\s+/g, " ").trim();
+    if (!t) return "";
+    t = t.replace(/(\d)([A-Za-zÁÉÍÓÚÜáéíóúüñÑ])/g, "$1 $2");
+    t = t.replace(/([.!?])([^\s])/g, "$1 $2");
+    var palabras = t.split(" ");
+    var cambio = true;
+    var guarda = 0;
+    while (cambio && guarda < 12) {
+      cambio = false;
+      guarda += 1;
+      var n;
+      for (n = 6; n >= 1; n -= 1) {
+        var out = [];
+        var i = 0;
+        while (i < palabras.length) {
+          if (i + 2 * n <= palabras.length) {
+            var A = palabras.slice(i, i + n).join(" ").toLowerCase();
+            var B = palabras.slice(i + n, i + 2 * n).join(" ").toLowerCase();
+            if (A === B) {
+              out = out.concat(palabras.slice(i, i + n));
+              i += 2 * n;
+              while (i + n <= palabras.length && palabras.slice(i, i + n).join(" ").toLowerCase() === A) i += n;
+              cambio = true;
+              continue;
+            }
+          }
+          out.push(palabras[i]);
+          i += 1;
+        }
+        palabras = out;
+      }
+    }
+    t = palabras.join(" ");
+    t = t.replace(/([.!?]\s+)([a-záéíóúüñ])/g, function (_, sep, ch) { return sep + ch.toUpperCase(); });
+    if (/^[a-záéíóúüñ]/.test(t)) t = t.charAt(0).toUpperCase() + t.slice(1);
+    return t;
+  }
+
+  function ctorVoz() {
+    return window.SpeechRecognition || window.webkitSpeechRecognition || null;
+  }
+
+  function escapar(s) {
+    /* Se parte la entidad para que el HTML no se la coma al guardar el archivo. */
+    var amp = "\u0026";
+    return String(s == null ? "" : s)
+      .replace(/&/g, amp + "amp;")
+      .replace(/</g, amp + "lt;")
+      .replace(/>/g, amp + "gt;")
+      .replace(/"/g, amp + "quot;");
+  }
+
+  function semilla() {
+    var t = ahora();
+    var obraId = "obra-faro";
+    var cap1 = "cap-llave";
+    var cap2 = "cap-mareas";
+    var fig = "fig-faro";
+    return {
+      tema: "papel",
+      tamanoLetra: 18,
+      obraActiva: null,
+      capActivo: {},
+      vista: "biblioteca",
+      pestaña: "escribir",
+      obras: [{
+        id: obraId,
+        titulo: "El faro de invierno",
+        genero: "Novela",
+        sinopsis: "Una farera hereda el oficio de su padre en una costa donde las tormentas traen más que lluvia.",
+        formato: "trade",
+        interlineado: 1.5,
+        margen: "normal",
+        creada: t,
+        actualizada: t
+      }],
+      capitulos: [
+        {
+          id: cap1, obraId: obraId, orden: 0, titulo: "La llave de cobre",
+          cuerpo: "{{fig:" + fig + "}}\n\nLa llave pesaba más de lo que su tamaño permitía. Inés la giró entre los dedos, sentada en el umbral del faro, con el viento de noviembre empujándole el abrigo contra las rodillas. El cobre estaba tibio: su padre la había llevado en el bolsillo interno, junto al corazón, hasta el último recuento de mareas.\n\n—Cierra siempre con la de cobre —le había dicho—. La de hierro es para los extraños.\n\nAbajo, la cala de Los Humeros se vaciaba. Las redes colgaban como velos negros entre los tendales. Nadie había subido a despedirla. El oficio de farero se hereda en silencio, como se hereda una deuda.",
+          actualizado: t
+        },
+        {
+          id: cap2, obraId: obraId, orden: 1, titulo: "El cuaderno de mareas",
+          cuerpo: "El cuaderno ocupaba el cajón de la mesa de cartas. Tapas de cuero hinchadas por la humedad y una letra que Inés reconoció antes de leerla: la de Tomás, inclinada hacia adelante, como si las palabras tuvieran prisa por llegar a puerto.",
+          actualizado: t
+        }
+      ],
+      personajes: [
+        { id: "per-ines", obraId: obraId, nombre: "Inés", rol: "Protagonista", notas: "Farera. Hereda el oficio y una casa que respira con el mar." }
+      ],
+      ilustraciones: [
+        { id: fig, obraId: obraId, tipo: "ficha", fichaId: "faro", pie: "El faro de Los Humeros" }
+      ]
+    };
+  }
+
+  function cargar() {
+    try {
+      var bruto = localStorage.getItem(CLAVE);
+      if (!bruto) return semilla();
+      var datos = JSON.parse(bruto);
+      if (!datos || !datos.obras) return semilla();
+      return datos;
+    } catch (e) {
+      return semilla();
+    }
+  }
+
+  function guardar() {
+    try {
+      localStorage.setItem(CLAVE, JSON.stringify(estado));
+    } catch (e) {
+      /* Cuota llena: se sigue escribiendo en memoria. */
+    }
+  }
+
+  var estado = cargar();
+  var dialogo = null;
+  var busquedaFicha = "";
+  var grupoFicha = "persona";
+  var lateralAbierto = false;
+  var dibujo = null;
+  var dictado = { vivo: false, segundos: 0, rec: null, finales: "", timer: null };
+
+  function obraActual() {
+    var i;
+    for (i = 0; i < estado.obras.length; i++) if (estado.obras[i].id === estado.obraActiva) return estado.obras[i];
+    return null;
+  }
+  function capsDe(obraId) {
+    return estado.capitulos.filter(function (c) { return c.obraId === obraId; })
+      .sort(function (a, b) { return a.orden - b.orden; });
+  }
+  function persDe(obraId) {
+    return estado.personajes.filter(function (p) { return p.obraId === obraId; });
+  }
+  function capActual() {
+    var caps = capsDe(estado.obraActiva);
+    var id = estado.capActivo[estado.obraActiva];
+    var i;
+    for (i = 0; i < caps.length; i++) if (caps[i].id === id) return caps[i];
+    return caps[0] || null;
+  }
+  function ilustracionDe(id) {
+    var i;
+    for (i = 0; i < estado.ilustraciones.length; i++) if (estado.ilustraciones[i].id === id) return estado.ilustraciones[i];
+    return null;
+  }
+
+  function palabrasObra(obraId) {
+    var n = 0;
+    capsDe(obraId).forEach(function (c) { n += contarPalabras(c.cuerpo); });
+    return n;
+  }
+
+  function trozos(cuerpo) {
+    var re = /\{\{fig:([a-zA-Z0-9-]+)\}\}/g;
+    var out = [];
+    var last = 0;
+    var m;
+    while ((m = re.exec(cuerpo))) {
+      if (m.index > last) out.push({ tipo: "texto", texto: cuerpo.slice(last, m.index) });
+      out.push({ tipo: "fig", id: m[1] });
+      last = m.index + m[0].length;
+    }
+    out.push({ tipo: "texto", texto: cuerpo.slice(last) });
+    if (!out.length) out.push({ tipo: "texto", texto: "" });
+    return out;
+  }
+
+  function unirTrozos(lista) {
+    var s = "";
+    lista.forEach(function (t, i) {
+      if (t.tipo === "fig") {
+        if (s && s.charAt(s.length - 1) !== "\n") s += "\n\n";
+        s += "{{fig:" + t.id + "}}";
+        if (i < lista.length - 1) s += "\n\n";
+      } else {
+        s += t.texto;
+      }
+    });
+    return s;
+  }
+
+  function pintar() {
+    document.documentElement.setAttribute("data-tema", estado.tema === "noche" ? "noche" : "papel");
+    if (estado.vista === "biblioteca") pintarBiblioteca();
+    else pintarEstudio();
+    guardar();
+  }
+
+  function pintarBiblioteca() {
+    var html = '<header class="cabecera"><span class="marca">Tinta</span><span class="hueco"></span>';
+    html += '<button class="boton fantasma" data-act="tema">' + (estado.tema === "noche" ? "Día" : "Noche") + "</button>";
+    html += '<button class="boton principal" data-act="nueva">Nueva obra</button></header>';
+    html += '<div class="cuerpo"><div class="lista" style="width:100%">';
+    html += '<p class="aviso" style="margin:0 0 16px">Un estudio para escribir. Capítulos, ilustraciones y consejos. Todo queda en este aparato.</p>';
+    if (!estado.obras.length) {
+      html += '<p class="aviso">Aún no hay obras. Pulsa Nueva obra.</p>';
+    }
+    estado.obras.slice().sort(function (a, b) { return b.actualizada - a.actualizada; }).forEach(function (o) {
+      var pal = palabrasObra(o.id);
+      var pag = estimarPaginas(pal, o);
+      html += '<button class="tarjeta" data-act="abrir" data-id="' + o.id + '">';
+      html += "<h2>" + escapar(o.titulo) + "</h2>";
+      html += "<p>" + escapar(o.genero) + " · " + fmt(pal) + " pal. · " + pag + " pág.</p>";
+      if (o.sinopsis) html += '<p style="margin-top:6px">' + escapar(o.sinopsis) + "</p>";
+      html += "</button>";
+    });
+    html += "</div></div>";
+    document.getElementById("app").innerHTML = html + cajaDialogo();
+  }
+
+  function pintarEstudio() {
+    var obra = obraActual();
+    if (!obra) { estado.vista = "biblioteca"; pintarBiblioteca(); return; }
+    var caps = capsDe(obra.id);
+    var cap = capActual();
+    var palCap = cap ? contarPalabras(cap.cuerpo) : 0;
+    var palObra = palabrasObra(obra.id);
+    var pag = estimarPaginas(palObra, obra);
+    var html = '<header class="cabecera">';
+    html += '<button class="boton fantasma" data-act="volver">Biblioteca</button>';
+    html += '<strong style="font-family:var(--libro);font-size:16px">' + escapar(obra.titulo) + "</strong>";
+    html += '<span class="hueco"></span>';
+    html += '<button class="boton fantasma solo-movil" data-act="caps">Capítulos</button>';
+    html += '<button class="boton fantasma" data-act="tema">' + (estado.tema === "noche" ? "Día" : "Noche") + "</button>";
+    html += '<button class="boton fantasma" data-act="exportar">Exportar</button>';
+    html += '<button class="boton fantasma" data-act="ajustes">Ajustes</button>';
+    html += "</header><div class=\"cuerpo\" style=\"position:relative\">";
+    html += '<aside class="lateral' + (lateralAbierto ? " abierto" : "") + '"><h3>Capítulos</h3><div style="overflow:auto;flex:1">';
+    caps.forEach(function (c, i) {
+      html += '<button class="cap-item' + (cap && c.id === cap.id ? " activo" : "") + '" data-act="cap" data-id="' + c.id + '">';
+      html += "<span>" + (i + 1) + "</span><span>" + escapar(c.titulo || "Sin título") + "<br><small class=\"aviso\">" + contarPalabras(c.cuerpo) + " pal.</small></span></button>";
+    });
+    html += '</div><div style="padding:8px"><button class="boton" style="width:100%" data-act="nuevo-cap">Nuevo capítulo</button></div></aside>';
+    html += '<section class="escena">';
+    html += '<div style="display:flex;gap:6px;padding:8px 12px;border-bottom:1px solid var(--linea);overflow:auto">';
+    [["escribir", "Escribir"], ["personajes", "Personajes"], ["consejos", "Consejos"]].forEach(function (t) {
+      html += '<button class="chip' + (estado.pestaña === t[0] ? " activo" : "") + '" data-act="tab" data-id="' + t[0] + '">' + t[1] + "</button>";
+    });
+    html += "</div>";
+    if (estado.pestaña === "escribir") html += pintarManuscrito(obra, cap);
+    else if (estado.pestaña === "personajes") html += pintarPersonajes(obra);
+    else html += pintarConsejos();
+    html += "</section></div>";
+    html += '<footer class="pie"><span class="aviso">' + fmt(palCap) + " pal. capítulo · " + fmt(palObra) + " pal. obra · " + pag + " pág.</span>";
+    html += '<span style="display:flex;gap:6px">';
+    html += '<button class="boton" data-act="ilustrar">Ilustrar</button>';
+    if (dictado.vivo) {
+      html += '<button class="boton principal" data-act="parar-dictado">Parar</button>';
+    } else {
+      html += '<button class="boton" data-act="dictar">Dictar</button>';
+    }
+    html += '<button class="boton peligro" data-act="borrar-obra">Borrar obra</button>';
+    html += "</span></footer>";
+    if (dictado.vivo) {
+      html += '<div class="barra-dictado"><span class="punto-vivo"></span><span id="preview-dictado">Habla. Aún no se escribe. Pulsa Parar al terminar.</span><span id="seg-dictado">0s</span></div>';
+    }
+    document.getElementById("app").innerHTML = html + cajaDialogo();
+    ajustarAlturas();
+  }
+
+  function pintarManuscrito(obra, cap) {
+    if (!cap) return '<div class="manuscrito"><p class="aviso">Crea un capítulo.</p></div>';
+    var lh = obra.interlineado === 2 ? "1.9" : obra.interlineado === 1 ? "1.35" : "1.7";
+    var pad = obra.margen === "wide" ? "28px" : obra.margen === "narrow" ? "8px" : "16px";
+    var html = '<div class="manuscrito"><div class="hoja" style="padding-left:' + pad + ";padding-right:" + pad + '">';
+    html += '<input class="titulo-cap" data-campo="titulo-cap" maxlength="80" value="' + escapar(cap.titulo) + '">';
+    var bloques = trozos(cap.cuerpo);
+    bloques.forEach(function (b, i) {
+      if (b.tipo === "texto") {
+        html += '<textarea class="texto-cap" data-bloque="' + i + '" placeholder="' + (i === 0 ? "La primera frase es una puerta. Ábrela." : "") + '" style="font-size:' + estado.tamanoLetra + "px;line-height:" + lh + '">' + escapar(b.texto) + "</textarea>";
+      } else {
+        var fig = ilustracionDe(b.id);
+        html += '<figure class="figura">';
+        if (fig && fig.tipo === "dibujo" && fig.datos) {
+          html += '<img alt="" src="' + fig.datos + '" style="max-width:100%;max-height:220px">';
+        } else {
+          html += svgFicha(fig && fig.fichaId ? fig.fichaId : "faro");
+        }
+        html += '<input class="pie-fig" data-fig="' + b.id + '" value="' + escapar(fig ? fig.pie : "") + '" placeholder="Pie de figura">';
+        html += '<button class="boton fantasma" data-act="quitar-fig" data-id="' + b.id + '">Quitar</button>';
+        html += "</figure>";
+      }
+    });
+    html += "</div></div>";
+    return html;
+  }
+
+  function pintarPersonajes(obra) {
+    var html = '<div class="manuscrito"><div class="hoja">';
+    html += '<button class="boton principal" data-act="nuevo-per">Nuevo personaje</button>';
+    persDe(obra.id).forEach(function (p) {
+      html += '<div class="tarjeta" style="margin-top:12px">';
+      html += '<input class="campo" data-per="' + p.id + '" data-campo="nombre" value="' + escapar(p.nombre) + '" placeholder="Nombre">';
+      html += '<p class="aviso" style="margin:8px 0 4px">Rol</p>';
+      html += '<input class="campo" data-per="' + p.id + '" data-campo="rol" value="' + escapar(p.rol) + '" placeholder="Protagonista">';
+      html += '<p class="aviso" style="margin:8px 0 4px">Notas</p>';
+      html += '<textarea class="notas" data-per="' + p.id + '" data-campo="notas" rows="4">' + escapar(p.notas) + "</textarea>";
+      html += '<button class="boton peligro" style="margin-top:8px" data-act="borrar-per" data-id="' + p.id + '">Quitar</button>';
+      html += "</div>";
+    });
+    if (!persDe(obra.id).length) html += '<p class="aviso">Aún no hay fichas de personaje.</p>';
+    html += "</div></div>";
+    return html;
+  }
+
+  function pintarConsejos() {
+    var html = '<div class="manuscrito"><div class="hoja">';
+    CONSEJOS.forEach(function (c) {
+      html += '<article class="tarjeta"><p class="aviso">' + escapar(c[0]) + "</p><h2>" + escapar(c[1]) + "</h2><p>" + escapar(c[2]) + "</p></article>";
+    });
+    html += "</div></div>";
+    return html;
+  }
+
+  function cajaDialogo() {
+    if (!dialogo) return "";
+    if (dialogo === "nueva") return cajaNueva();
+    if (dialogo === "ajustes") return cajaAjustes();
+    if (dialogo === "ilustrar") return cajaIlustrar();
+    if (dialogo === "dibujar") return cajaDibujar();
+    if (dialogo === "aviso-dictar") return cajaAvisoDictar();
+    return "";
+  }
+
+  function cajaAvisoDictar() {
+    var html = '<div class="dialogo" data-act="cerrar-fondo"><div class="caja">';
+    html += "<h2>Ahora nos conectamos a internet</h2>";
+    html += '<p>El dictado usa el reconocedor de voz del navegador — en Chrome y Edge, el de Google. Es gratis. El capítulo no se manda a ninguna inteligencia artificial de pago.</p>';
+    html += '<p class="aviso">Si no hay red, o este aparato no sabe dictar, simplemente no se puede.</p>';
+    html += '<p style="display:flex;gap:8px;margin-top:16px">';
+    html += '<button type="button" class="boton" data-act="cerrar">Cancelar</button>';
+    html += '<button type="button" class="boton principal" data-act="conectar-dictar">Conectar y dictar</button>';
+    html += "</p></div></div>";
+    return html;
+  }
+
+  function cajaNueva() {
+    var html = '<div class="dialogo" data-act="cerrar-fondo"><form class="caja" data-act="nada">';
+    html += "<h2>Nueva obra</h2>";
+    html += '<p class="aviso">Título</p><input class="campo" name="titulo" maxlength="80" required placeholder="El faro de invierno">';
+    html += '<p class="aviso">Género</p><div class="chips">';
+    GENEROS.forEach(function (g, i) {
+      html += '<label class="chip"><input type="radio" name="genero" value="' + escapar(g) + '"' + (i === 0 ? " checked" : "") + "> " + escapar(g) + "</label>";
+    });
+    html += '</div><p class="aviso">Formato</p><div class="chips">';
+    PREAJUSTES.forEach(function (p, i) {
+      html += '<label class="chip"><input type="radio" name="pre" value="' + p.id + '"' + (i === 0 ? " checked" : "") + "> " + p.etiqueta + "</label>";
+    });
+    html += '</div><p style="display:flex;gap:8px;margin-top:16px">';
+    html += '<button type="button" class="boton" data-act="cerrar">Cancelar</button>';
+    html += '<button type="submit" class="boton principal">Crear</button></p></form></div>';
+    return html;
+  }
+
+  function cajaAjustes() {
+    var obra = obraActual();
+    if (!obra) return "";
+    var html = '<div class="dialogo" data-act="cerrar-fondo"><div class="caja">';
+    html += "<h2>Ajustes de la obra</h2>";
+    html += '<p class="aviso">Título</p><input class="campo" data-obra="titulo" value="' + escapar(obra.titulo) + '">';
+    html += '<p class="aviso">Sinopsis</p><textarea class="notas" data-obra="sinopsis" rows="3">' + escapar(obra.sinopsis || "") + "</textarea>";
+    html += '<p class="aviso">Formato de página</p><div class="chips">';
+    PAPELES.forEach(function (p) {
+      html += '<button type="button" class="chip' + (obra.formato === p.id ? " activo" : "") + '" data-act="fmt" data-id="' + p.id + '">' + p.etiqueta + "</button>";
+    });
+    html += '</div><p class="aviso">Márgenes</p><div class="chips">';
+    MARGENES.forEach(function (m) {
+      html += '<button type="button" class="chip' + (obra.margen === m.id ? " activo" : "") + '" data-act="mar" data-id="' + m.id + '">' + m.etiqueta + "</button>";
+    });
+    html += '</div><p class="aviso">Interlineado</p><div class="chips">';
+    INTERLINEADOS.forEach(function (n) {
+      html += '<button type="button" class="chip' + (String(obra.interlineado) === String(n.id) ? " activo" : "") + '" data-act="int" data-id="' + n.id + '">' + n.etiqueta + "</button>";
+    });
+    html += '</div><p class="aviso">Tamaño de letra</p><div class="chips">';
+    [16, 18, 20, 22].forEach(function (n) {
+      html += '<button type="button" class="chip' + (estado.tamanoLetra === n ? " activo" : "") + '" data-act="letra" data-id="' + n + '">' + n + " px</button>";
+    });
+    html += '</div><p style="margin-top:16px"><button class="boton principal" data-act="cerrar">Cerrar</button></p></div></div>';
+    return html;
+  }
+
+  function cajaIlustrar() {
+    var q = busquedaFicha.trim().toLowerCase();
+    var lista = FICHAS.filter(function (f) {
+      if (grupoFicha !== "todas" && f.grupo !== grupoFicha) return false;
+      if (!q) return true;
+      return f.etiqueta.toLowerCase().indexOf(q) !== -1 || f.id.indexOf(q) !== -1;
+    });
+    var html = '<div class="dialogo" data-act="cerrar-fondo"><div class="caja">';
+    html += "<h2>Ilustración</h2>";
+    html += '<p class="aviso">Personas, animales y grabados. Quedan en este aparato, sin red.</p>';
+    html += '<button class="boton" style="width:100%;margin:8px 0" data-act="dibujar">Dibujar una lámina</button>';
+    html += '<input class="campo" data-campo="buscar-ficha" placeholder="Buscar: lobo, farera, caballo…" value="' + escapar(busquedaFicha) + '">';
+    html += '<div class="chips" style="margin:8px 0">';
+    [["persona", "Personas " + PERSONAS.length], ["animal", "Animales " + ANIMALES.length], ["grabado", "Grabados " + GRABADOS.length], ["todas", "Todas " + FICHAS.length]].forEach(function (g) {
+      html += '<button class="chip' + (grupoFicha === g[0] ? " activo" : "") + '" data-act="grupo" data-id="' + g[0] + '">' + g[1] + "</button>";
+    });
+    html += "</div><div class=\"rejilla\">";
+    lista.forEach(function (f) {
+      html += '<button class="ficha" data-act="poner-ficha" data-id="' + f.id + '">' + svgFicha(f.id) + "<span>" + escapar(f.etiqueta) + "</span></button>";
+    });
+    html += "</div>";
+    html += '<p class="aviso">' + lista.length + " fichas</p>";
+    html += '<p><button class="boton" data-act="cerrar">Cerrar</button></p></div></div>';
+    return html;
+  }
+
+  function cajaDibujar() {
+    var html = '<div class="dialogo" data-act="cerrar-fondo"><div class="caja">';
+    html += "<h2>Dibujar</h2><p class=\"aviso\">Trazo negro sobre papel. Pulsa Usar para meterlo en el capítulo.</p>";
+    html += '<div class="lienzo-caja"><canvas id="lienzo" width="900" height="560" style="width:100%;touch-action:none;background:#fff;display:block"></canvas></div>';
+    html += '<p style="display:flex;gap:8px;margin-top:12px">';
+    html += '<button class="boton" data-act="borrar-lienzo">Limpiar</button>';
+    html += '<button class="boton" data-act="cerrar">Cancelar</button>';
+    html += '<button class="boton principal" data-act="usar-dibujo">Usar</button></p></div></div>';
+    return html;
+  }
+
+  function ajustarAlturas() {
+    var areas = document.querySelectorAll(".texto-cap");
+    areas.forEach(function (el) {
+      el.style.height = "auto";
+      el.style.height = Math.max(180, el.scrollHeight) + "px";
+    });
+  }
+
+  function abrirObra(id) {
+    estado.obraActiva = id;
+    estado.vista = "estudio";
+    estado.pestaña = "escribir";
+    lateralAbierto = false;
+    var caps = capsDe(id);
+    if (caps.length && !estado.capActivo[id]) estado.capActivo[id] = caps[0].id;
+    pintar();
+  }
+
+  function insertarFigura(ilustId) {
+    var cap = capActual();
+    if (!cap) return;
+    var cuerpo = cap.cuerpo.replace(/\s+$/, "");
+    cap.cuerpo = (cuerpo ? cuerpo + "\n\n" : "") + "{{fig:" + ilustId + "}}\n\n";
+    cap.actualizado = ahora();
+    obraActual().actualizada = ahora();
+    dialogo = null;
+    pintar();
+  }
+
+  function insertarDictado(texto) {
+    var cap = capActual();
+    if (!cap) return;
+    var t = String(texto || "").trim();
+    if (!t) return;
+    var cuerpo = cap.cuerpo;
+    var pegamento = !cuerpo || /[\s\n]$/.test(cuerpo) ? "" : " ";
+    cap.cuerpo = cuerpo + pegamento + t;
+    cap.actualizado = ahora();
+    if (obraActual()) obraActual().actualizada = ahora();
+  }
+
+  function arrancarDictado() {
+    var Ctor = ctorVoz();
+    if (!Ctor) {
+      dictado.vivo = false;
+      pintar();
+      alert("Este navegador no sabe dictar. Prueba Chrome o Edge.");
+      return;
+    }
+    dictado.finales = "";
+    dictado.segundos = 0;
+    var rec = new Ctor();
+    rec.lang = "es-ES";
+    rec.continuous = true;
+    rec.interimResults = true;
+    rec.onresult = function (ev) {
+      var i;
+      var temp = "";
+      for (i = ev.resultIndex; i < ev.results.length; i += 1) {
+        var pieza = ev.results[i][0].transcript;
+        if (ev.results[i].isFinal) dictado.finales = juntarVoz(dictado.finales, pieza);
+        else temp += pieza;
+      }
+      var el = document.getElementById("preview-dictado");
+      if (el) el.textContent = juntarVoz(dictado.finales, temp) || "Habla. Aún no se escribe. Pulsa Parar al terminar.";
+    };
+    rec.onerror = function (ev) {
+      if (!dictado.vivo) return;
+      if (ev.error === "not-allowed" || ev.error === "service-not-allowed") {
+        pararDictado(true);
+        alert("No hay permiso para el micrófono.");
+      } else if (ev.error === "network") {
+        var el = document.getElementById("preview-dictado");
+        if (el) el.textContent = "Sin red no hay dictado.";
+      }
+    };
+    rec.onend = function () {
+      if (dictado.vivo && dictado.rec === rec) {
+        try { rec.start(); } catch (e) { dictado.rec = null; }
+      }
+    };
+    dictado.rec = rec;
+    try {
+      rec.start();
+    } catch (e) {
+      dictado.vivo = false;
+      pintar();
+      alert("No se pudo arrancar el dictado.");
+      return;
+    }
+    if (dictado.timer) clearInterval(dictado.timer);
+    dictado.timer = setInterval(function () {
+      dictado.segundos += 1;
+      var s = document.getElementById("seg-dictado");
+      if (s) s.textContent = dictado.segundos + "s";
+      if (dictado.segundos >= 90) pararDictado(false);
+    }, 1000);
+  }
+
+  function pararDictado(silencio) {
+    dictado.vivo = false;
+    if (dictado.timer) { clearInterval(dictado.timer); dictado.timer = null; }
+    try { if (dictado.rec) dictado.rec.stop(); } catch (e) {}
+    dictado.rec = null;
+    var limpio = limpiarVoz(dictado.finales);
+    dictado.finales = "";
+    if (!silencio) {
+      if (limpio) insertarDictado(limpio);
+      else alert("No se oyó nada. Habla y luego pulsa Parar.");
+    }
+    pintar();
+  }
+
+  function exportar() {
+    var obra = obraActual();
+    if (!obra) return;
+    var lineas = [obra.titulo, obra.genero, "", obra.sinopsis || "", ""];
+    capsDe(obra.id).forEach(function (c, i) {
+      lineas.push("");
+      lineas.push((i + 1) + ". " + c.titulo);
+      lineas.push("");
+      lineas.push(c.cuerpo.replace(/\{\{fig:[a-zA-Z0-9-]+\}\}/g, "[ilustración]"));
+    });
+    var blob = new Blob([lineas.join("\n")], { type: "text/plain;charset=utf-8" });
+    var a = document.createElement("a");
+    var objeto = URL.createObjectURL(blob);
+    a.href = objeto;
+    a.download = (obra.titulo || "manuscrito").replace(/[\\/:*?"<>|]/g, "") + ".txt";
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    setTimeout(function () { URL.revokeObjectURL(objeto); }, 500);
+  }
+
+  function arrancarLienzo() {
+    var cv = document.getElementById("lienzo");
+    if (!cv) return;
+    var ctx = cv.getContext("2d");
+    ctx.fillStyle = "#ffffff";
+    ctx.fillRect(0, 0, cv.width, cv.height);
+    ctx.strokeStyle = "#1c1916";
+    ctx.lineWidth = 3.2;
+    ctx.lineCap = "round";
+    ctx.lineJoin = "round";
+    dibujo = { cv: cv, ctx: ctx, trazando: false };
+    function pos(ev) {
+      var r = cv.getBoundingClientRect();
+      var x = (ev.clientX - r.left) * (cv.width / r.width);
+      var y = (ev.clientY - r.top) * (cv.height / r.height);
+      return { x: x, y: y };
+    }
+    function start(ev) {
+      ev.preventDefault();
+      var p = pos(ev.touches ? ev.touches[0] : ev);
+      dibujo.trazando = true;
+      ctx.beginPath();
+      ctx.moveTo(p.x, p.y);
+    }
+    function move(ev) {
+      if (!dibujo.trazando) return;
+      ev.preventDefault();
+      var p = pos(ev.touches ? ev.touches[0] : ev);
+      ctx.lineTo(p.x, p.y);
+      ctx.stroke();
+    }
+    function end() { dibujo.trazando = false; }
+    cv.addEventListener("pointerdown", start);
+    cv.addEventListener("pointermove", move);
+    cv.addEventListener("pointerup", end);
+    cv.addEventListener("pointerleave", end);
+  }
+
+  document.getElementById("app").addEventListener("click", function (ev) {
+    var t = ev.target.closest("[data-act]");
+    if (!t) return;
+    var act = t.getAttribute("data-act");
+    var id = t.getAttribute("data-id");
+    if (dictado.vivo && act !== "parar-dictado") return;
+    if (act === "nada") { ev.stopPropagation(); return; }
+    if (act === "cerrar-fondo" && ev.target !== t) return;
+    if (act === "tema") {
+      estado.tema = estado.tema === "noche" ? "papel" : "noche";
+      pintar();
+      return;
+    }
+    if (act === "nueva") { dialogo = "nueva"; pintar(); return; }
+    if (act === "cerrar" || act === "cerrar-fondo") { dialogo = null; dibujo = null; pintar(); return; }
+    if (act === "abrir") { abrirObra(id); return; }
+    if (act === "volver") { estado.vista = "biblioteca"; estado.obraActiva = null; pintar(); return; }
+    if (act === "caps") { lateralAbierto = !lateralAbierto; pintar(); return; }
+    if (act === "cap") { estado.capActivo[estado.obraActiva] = id; lateralAbierto = false; pintar(); return; }
+    if (act === "tab") { estado.pestaña = id; pintar(); return; }
+    if (act === "nuevo-cap") {
+      var obra = obraActual();
+      var n = capsDe(obra.id).length;
+      var cap = { id: uid(), obraId: obra.id, orden: n, titulo: "Capítulo " + (n + 1), cuerpo: "", actualizado: ahora() };
+      estado.capitulos.push(cap);
+      estado.capActivo[obra.id] = cap.id;
+      estado.pestaña = "escribir";
+      obra.actualizada = ahora();
+      pintar();
+      return;
+    }
+    if (act === "nuevo-per") {
+      var o = obraActual();
+      estado.personajes.push({ id: uid(), obraId: o.id, nombre: "Sin nombre", rol: "Secundario", notas: "" });
+      o.actualizada = ahora();
+      pintar();
+      return;
+    }
+    if (act === "borrar-per") {
+      estado.personajes = estado.personajes.filter(function (p) { return p.id !== id; });
+      pintar();
+      return;
+    }
+    if (act === "ajustes") { dialogo = "ajustes"; pintar(); return; }
+    if (act === "ilustrar") { dialogo = "ilustrar"; busquedaFicha = ""; grupoFicha = "persona"; pintar(); return; }
+    if (act === "dictar") {
+      if (!ctorVoz()) {
+        alert("Este navegador no sabe dictar. Prueba Chrome o Edge.");
+        return;
+      }
+      dialogo = "aviso-dictar";
+      pintar();
+      return;
+    }
+    if (act === "conectar-dictar") {
+      dialogo = null;
+      dictado.vivo = true;
+      pintar();
+      arrancarDictado();
+      return;
+    }
+    if (act === "parar-dictado") { pararDictado(false); return; }
+    if (act === "grupo") { grupoFicha = id; pintar(); return; }
+    if (act === "poner-ficha") {
+      var ficha = FICHA_DE[id];
+      var il = { id: uid(), obraId: estado.obraActiva, tipo: "ficha", fichaId: id, pie: ficha ? ficha.etiqueta : "" };
+      estado.ilustraciones.push(il);
+      insertarFigura(il.id);
+      return;
+    }
+    if (act === "quitar-fig") {
+      var capq = capActual();
+      if (!capq) return;
+      capq.cuerpo = capq.cuerpo.replace(new RegExp("\\n*\\{\\{fig:" + id + "\\}\\}\\n*", "g"), "\n\n").replace(/\n{3,}/g, "\n\n");
+      pintar();
+      return;
+    }
+    if (act === "dibujar") { dialogo = "dibujar"; pintar(); arrancarLienzo(); return; }
+    if (act === "borrar-lienzo") {
+      if (dibujo) {
+        dibujo.ctx.fillStyle = "#ffffff";
+        dibujo.ctx.fillRect(0, 0, dibujo.cv.width, dibujo.cv.height);
+      }
+      return;
+    }
+    if (act === "usar-dibujo") {
+      if (!dibujo) return;
+      var datos = dibujo.cv.toDataURL("image/png");
+      var ild = { id: uid(), obraId: estado.obraActiva, tipo: "dibujo", datos: datos, pie: "Lámina" };
+      estado.ilustraciones.push(ild);
+      insertarFigura(ild.id);
+      dibujo = null;
+      return;
+    }
+    if (act === "exportar") { exportar(); return; }
+    if (act === "fmt") { obraActual().formato = id; obraActual().actualizada = ahora(); pintar(); return; }
+    if (act === "mar") { obraActual().margen = id; obraActual().actualizada = ahora(); pintar(); return; }
+    if (act === "int") { obraActual().interlineado = Number(id); obraActual().actualizada = ahora(); pintar(); return; }
+    if (act === "letra") { estado.tamanoLetra = Number(id); pintar(); return; }
+    if (act === "borrar-obra") {
+      if (!confirm("¿Borrar esta obra y sus capítulos?")) return;
+      var oid = estado.obraActiva;
+      estado.obras = estado.obras.filter(function (o) { return o.id !== oid; });
+      estado.capitulos = estado.capitulos.filter(function (c) { return c.obraId !== oid; });
+      estado.personajes = estado.personajes.filter(function (p) { return p.obraId !== oid; });
+      estado.ilustraciones = estado.ilustraciones.filter(function (i) { return i.obraId !== oid; });
+      estado.vista = "biblioteca";
+      estado.obraActiva = null;
+      pintar();
+    }
+  });
+
+  document.getElementById("app").addEventListener("submit", function (ev) {
+    var form = ev.target;
+    if (!form.matches("form")) return;
+    ev.preventDefault();
+    var titulo = (form.titulo.value || "").trim() || "Sin título";
+    var genero = (form.querySelector('input[name="genero"]:checked') || {}).value || "Novela";
+    var preId = (form.querySelector('input[name="pre"]:checked') || {}).value || "novel";
+    var pre = PREAJUSTES.filter(function (p) { return p.id === preId; })[0] || PREAJUSTES[0];
+    var id = uid();
+    var capId = uid();
+    estado.obras.unshift({
+      id: id, titulo: titulo, genero: genero, sinopsis: "",
+      formato: pre.formato, interlineado: pre.interlineado, margen: pre.margen,
+      creada: ahora(), actualizada: ahora()
+    });
+    estado.capitulos.push({ id: capId, obraId: id, orden: 0, titulo: "Capítulo 1", cuerpo: "", actualizado: ahora() });
+    estado.capActivo[id] = capId;
+    dialogo = null;
+    abrirObra(id);
+  });
+
+  document.getElementById("app").addEventListener("input", function (ev) {
+    var el = ev.target;
+    var cap = capActual();
+    if (el.getAttribute("data-campo") === "titulo-cap" && cap) {
+      cap.titulo = el.value;
+      cap.actualizado = ahora();
+      guardar();
+      return;
+    }
+    if (el.hasAttribute("data-bloque") && cap) {
+      var bloques = trozos(cap.cuerpo);
+      var i = Number(el.getAttribute("data-bloque"));
+      if (bloques[i] && bloques[i].tipo === "texto") bloques[i].texto = el.value;
+      cap.cuerpo = unirTrozos(bloques);
+      cap.actualizado = ahora();
+      if (obraActual()) obraActual().actualizada = ahora();
+      el.style.height = "auto";
+      el.style.height = Math.max(180, el.scrollHeight) + "px";
+      var pie = document.querySelector(".pie span");
+      if (pie && obraActual()) {
+        pie.textContent = fmt(contarPalabras(cap.cuerpo)) + " pal. capítulo · " +
+          fmt(palabrasObra(obraActual().id)) + " pal. obra · " +
+          estimarPaginas(palabrasObra(obraActual().id), obraActual()) + " pág.";
+      }
+      guardar();
+      return;
+    }
+    if (el.hasAttribute("data-fig")) {
+      var fig = ilustracionDe(el.getAttribute("data-fig"));
+      if (fig) { fig.pie = el.value; guardar(); }
+      return;
+    }
+    if (el.getAttribute("data-campo") === "buscar-ficha") {
+      busquedaFicha = el.value;
+      var keep = el.selectionStart;
+      pintar();
+      var n = document.querySelector("[data-campo='buscar-ficha']");
+      if (n) { n.focus(); n.setSelectionRange(keep, keep); }
+      return;
+    }
+    if (el.hasAttribute("data-per")) {
+      var pid = el.getAttribute("data-per");
+      var campo = el.getAttribute("data-campo");
+      estado.personajes.forEach(function (p) {
+        if (p.id === pid) p[campo] = el.value;
+      });
+      guardar();
+      return;
+    }
+    if (el.hasAttribute("data-obra")) {
+      var obra = obraActual();
+      if (obra) { obra[el.getAttribute("data-obra")] = el.value; obra.actualizada = ahora(); guardar(); }
+    }
+  });
+
+  pintar();
+})();
+</script>
+</body>
+</html>
