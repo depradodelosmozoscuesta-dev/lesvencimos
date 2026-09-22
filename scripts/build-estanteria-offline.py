@@ -6,7 +6,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 SRC = ROOT / "offline-estanteria"
-OUT = ROOT / "downloads" / "estanteria-offline.zip"
+OUT = ROOT / "downloads" / "estanteria-offline-v20260922f.zip"
 CAJA_OUT = ROOT / "downloads" / "caja-fuerte-offline.zip"
 STAGING = ROOT / "downloads" / ".estanteria-staging"
 
@@ -94,6 +94,7 @@ def inject_embedded(shell: str, embedded: dict[str, str]) -> str:
 def write_leeme() -> str:
     return """═══════════════════════════════════════
   ESTANTERÍA OFFLINE — Les vencimos
+  Build v20260922f
   UN SOLO HTML (módulos dentro)
 ═══════════════════════════════════════
 
@@ -218,7 +219,11 @@ def main() -> None:
     shutil.copy2(STAGING / "LEEME.txt", ROOT / "downloads" / "LEEME-estanteria.txt")
     shutil.rmtree(STAGING)
 
+    # Stable alias (same bytes) so old bookmarks still work; prefer versioned name.
+    alias = ROOT / "downloads" / "estanteria-offline.zip"
+    shutil.copy2(OUT, alias)
     print(f"Wrote {OUT} ({OUT.stat().st_size} bytes)")
+    print(f"Alias {alias}")
     print(f"Built HTML size: {(SRC / 'estanteria.html').stat().st_size} bytes")
     with zipfile.ZipFile(OUT) as z:
         print("Estantería contents:", ", ".join(z.namelist()))
