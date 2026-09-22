@@ -6,7 +6,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 SRC = ROOT / "offline-estanteria"
-OUT = ROOT / "downloads" / "estanteria-offline-v20260922k.zip"
+OUT = ROOT / "downloads" / "estanteria-offline-v20260922l.zip"
 CAJA_OUT = ROOT / "downloads" / "caja-fuerte-offline.zip"
 STAGING = ROOT / "downloads" / ".estanteria-staging"
 
@@ -32,6 +32,7 @@ EMBED_SOURCES = {
     "dibujo": ROOT / "modulos" / "tinta-estudio.html",
     "info": ROOT / "modulos" / "informatica.html",
     "alarma": ROOT / "alarma-cuba.html",
+    "biblio": ROOT / "modulos" / "biblioteca.html",
 }
 
 
@@ -95,7 +96,7 @@ def inject_embedded(shell: str, embedded: dict[str, str]) -> str:
 def write_leeme() -> str:
     return """═══════════════════════════════════════
   ESTANTERÍA OFFLINE — Les vencimos
-  Build v20260922k
+  Build v20260922l
   UN SOLO HTML (módulos dentro)
 ═══════════════════════════════════════
 
@@ -107,7 +108,7 @@ Este ZIP lleva esencialmente UN archivo:
 Los módulos (Hogar, Salud, Radio, QR, Electricidad,
 Bricolaje, Jardín, Resiliencia, Apagón, Calculadora,
 Gimnasio, Guitarra, Caja fuerte, Medicación, Meditación, Auxilios,
-Escritura, Dibujo, Informática, Alarma) van
+Escritura, Dibujo, Informática, Alarma, Biblioteca) van
 EMBEBIDOS dentro del HTML.
 Al tocar un icono se abren en la misma página
 (← Escritorio para volver). No hace falta gym.html
@@ -176,7 +177,7 @@ def main() -> None:
         raise SystemExit("shell missing EMBEDDED placeholder (need estanteria.shell.html)")
 
     embedded = build_embedded()
-    for need in ("hogar", "salud", "radio", "qr", "electro", "brico", "jardin", "supervive", "apagon", "caja", "gym", "guitarra", "calc", "medica", "medita", "auxilios", "escritura", "dibujo", "info", "alarma"):
+    for need in ("hogar", "salud", "radio", "qr", "electro", "brico", "jardin", "supervive", "apagon", "caja", "gym", "guitarra", "calc", "medica", "medita", "auxilios", "escritura", "dibujo", "info", "alarma", "biblio"):
         if need not in embedded:
             raise SystemExit(f"missing embed {need}")
 

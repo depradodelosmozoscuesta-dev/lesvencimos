@@ -1,0 +1,748 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0E0E0C">
+<title>Biblioteca — Les vencimos</title>
+<style>
+:root{
+  --fondo:#0E0E0C;--fondo-2:#161512;--fondo-3:#1C1A16;
+  --tinta:#E6E1D6;--suave:#9A9488;--acento:#C4A15A;--acento-texto:#1A160E;
+  --linea:rgba(230,225,214,.14);--peligro:#C46A4A;--ok:#8F9A72;
+  --serif:"Iowan Old Style","Palatino Linotype",Palatino,"Times New Roman",Georgia,serif;
+  --sans:"Segoe UI",system-ui,-apple-system,sans-serif;--radio:2px;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;min-height:100%;background:var(--fondo);color:var(--tinta);font-family:var(--sans)}
+body{padding:1.15rem 1rem 4.5rem;max-width:40rem;margin:0 auto}
+header{border-bottom:1px solid var(--linea);padding-bottom:.8rem;margin-bottom:1rem}
+header h1{margin:0;font-family:var(--serif);font-size:1.55rem;font-weight:600}
+header p{margin:.35rem 0 0;color:var(--suave);font-size:.72rem;letter-spacing:.12em;text-transform:uppercase}
+.disclaimer{background:var(--fondo-2);border:1px solid var(--linea);border-left:3px solid var(--acento);padding:.8rem 1rem;margin:0 0 1rem;font-size:.9rem;color:var(--suave);border-radius:var(--radio)}
+.disclaimer strong{color:var(--tinta)}
+nav.tabs{display:flex;flex-wrap:wrap;gap:.35rem;margin:0 0 1rem}
+nav.tabs button{min-height:44px}
+h2{margin:1.15rem 0 .55rem;font-size:.7rem;letter-spacing:.14em;text-transform:uppercase;color:var(--suave);font-weight:600}
+.row{display:flex;flex-wrap:wrap;gap:.4rem;margin:0 0 .75rem;align-items:center}
+button{appearance:none;min-height:48px;padding:0 .9rem;font:600 .9rem var(--sans);border:1px solid var(--linea);border-radius:var(--radio);background:var(--fondo-3);color:var(--tinta);cursor:pointer}
+button.primary{background:var(--acento);color:var(--acento-texto);border-color:var(--acento)}
+button.on{border-color:var(--acento);color:var(--acento)}
+button.danger{color:var(--peligro);border-color:rgba(196,106,74,.45)}
+button:disabled{opacity:.45;cursor:default}
+.view{display:none}.view.on{display:block}
+.card,.panel{background:var(--fondo-2);border:1px solid var(--linea);border-radius:var(--radio);padding:1rem 1.05rem;margin:0 0 .75rem}
+.card h3,.panel h3{margin:0 0 .25rem;font-family:var(--serif);font-size:1.15rem;font-weight:600}
+.meta{color:var(--acento);font-size:.78rem;letter-spacing:.05em;margin:0 0 .4rem}
+.hint,.card p,.panel p{color:var(--suave);font-size:.93rem;line-height:1.55;margin:.35rem 0 0}
+.book-btn{display:block;width:100%;text-align:left;margin:0 0 .45rem;padding:.85rem 1rem}
+.book-btn .t{display:block;font-family:var(--serif);font-size:1.05rem;font-weight:600;color:var(--tinta)}
+.book-btn .m{display:block;color:var(--suave);font-size:.82rem;margin-top:.2rem}
+.book-btn.on{border-color:var(--acento)}
+.reader{background:var(--fondo-2);border:1px solid var(--linea);border-radius:var(--radio);padding:1.15rem 1.1rem;margin:0 0 1rem}
+.reader h3{margin:0 0 .2rem;font-family:var(--serif);font-size:1.35rem}
+.reader .by{color:var(--acento);font-size:.8rem;margin:0 0 .85rem}
+.reader .body{font-family:var(--serif);font-size:1.08rem;line-height:1.72;color:var(--tinta);white-space:pre-wrap}
+.reader .body p{margin:0 0 .9rem}
+label.field{display:block;margin:0 0 .7rem}
+label.field span{display:block;font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;color:var(--suave);margin-bottom:.3rem}
+input[type=range]{width:100%;accent-color:var(--acento)}
+.dock{position:sticky;bottom:0;z-index:5;margin:1rem -1rem -4.5rem;padding:.75rem 1rem 1.1rem;background:linear-gradient(180deg,transparent,var(--fondo) 28%);backdrop-filter:blur(6px)}
+.dock-inner{background:var(--fondo-2);border:1px solid var(--linea);border-radius:var(--radio);padding:.75rem .85rem}
+.dock .row{margin:0 0 .45rem}
+.mute{opacity:.55}
+.status{font-size:.78rem;color:var(--suave);min-height:1.1em}
+.foot{margin-top:1.4rem;color:var(--suave);font-size:.7rem;letter-spacing:.08em;text-transform:uppercase}
+.list-more{margin:.5rem 0 0;padding-left:1.15rem;color:var(--suave);font-size:.9rem}
+.list-more li{margin:.25rem 0}
+.badge{display:inline-block;padding:.12rem .4rem;border:1px solid var(--linea);border-radius:var(--radio);font-size:.68rem;color:var(--acento);letter-spacing:.06em;text-transform:uppercase;margin-left:.35rem}
+</style>
+</head>
+<body>
+<header>
+  <h1>Biblioteca</h1>
+  <p>Les vencimos · libros libres · offline</p>
+</header>
+<div class="disclaimer" role="note">
+  <strong>Dominio público.</strong> Solo obras libres (clásicos y textos claramente libres).
+  Sin bestsellers con copyright. La voz usa el motor del navegador (Web Speech);
+  los ambientes y la melodía se sintetizan aquí (Web Audio), sin MP3 externos.
+</div>
+
+<nav class="tabs" aria-label="Secciones">
+  <button type="button" class="on" data-view="libros">Libros</button>
+  <button type="button" data-view="leer">Leer</button>
+  <button type="button" data-view="audio">Ambientes</button>
+  <button type="button" data-view="info">Info</button>
+</nav>
+
+<section id="libros" class="view on">
+  <h2>Libros libres · en este aparato</h2>
+  <p class="hint">Toca un título para abrirlo en <strong>Leer</strong>. Varios traen texto completo o extracto largo para leer sin red.</p>
+  <div id="book-list"></div>
+  <h2>Más en dominio público</h2>
+  <p class="hint">Títulos clásicos; el texto completo no cabe aquí. Búscalos luego en Project Gutenberg / Biblioteca Virtual Miguel de Cervantes (cuando tengas red).</p>
+  <ul class="list-more">
+    <li>La Celestina — Fernando de Rojas</li>
+    <li>El Lazarillo de Tormes (completo)</li>
+    <li>Fuenteovejuna — Lope de Vega</li>
+    <li>La vida es sueño — Calderón</li>
+    <li>Fortunata y Jacinta — Galdós (extractos)</li>
+    <li>Cuentos de Andersen / Grimm (traducciones libres)</li>
+  </ul>
+</section>
+
+<section id="leer" class="view">
+  <h2>Lector</h2>
+  <div class="reader" id="reader">
+    <h3 id="r-title">Elige un libro</h3>
+    <p class="by" id="r-by">—</p>
+    <div class="body" id="r-body" tabindex="0">Abre la pestaña Libros y elige un título con texto incluido.</div>
+  </div>
+  <h2>Audiolibro · voz del aparato</h2>
+  <div class="panel">
+    <p class="hint" id="voice-note">Usa <code>speechSynthesis</code>. Si no hay voz en español, el navegador leerá con la voz por defecto.</p>
+    <div class="row">
+      <button type="button" class="primary" id="tts-play">Leer en voz alta</button>
+      <button type="button" id="tts-pause">Pausa</button>
+      <button type="button" id="tts-stop">Parar</button>
+    </div>
+    <label class="field"><span>Velocidad</span>
+      <input type="range" id="tts-rate" min="0.7" max="1.4" step="0.05" value="1">
+    </label>
+    <p class="status" id="tts-status"></p>
+  </div>
+</section>
+
+<section id="audio" class="view">
+  <h2>Ambientes · cama sonora</h2>
+  <p class="hint">Sintetizados en el navegador (ruido filtrado + tonos). Sin archivos de audio. Combínalos con la lectura y la melodía.</p>
+  <div class="panel">
+    <div class="row" id="amb-btns">
+      <button type="button" data-amb="bosque">Bosque</button>
+      <button type="button" data-amb="lluvia">Lluvia</button>
+      <button type="button" data-amb="caballos">Caballos</button>
+      <button type="button" data-amb="fuego">Fuego</button>
+      <button type="button" data-amb="mar">Mar</button>
+    </div>
+    <label class="field"><span>Volumen ambiente</span>
+      <input type="range" id="amb-vol" min="0" max="1" step="0.01" value="0.35">
+    </label>
+    <div class="row">
+      <button type="button" id="amb-off" class="danger">Silenciar ambiente</button>
+    </div>
+    <p class="status" id="amb-status">Ambiente: apagado</p>
+  </div>
+
+  <h2>Melodía · tensión de la historia</h2>
+  <div class="panel">
+    <p class="hint">Pad suave generativo. No es terror: solo atmósfera de lectura. Ajusta la tensión.</p>
+    <div class="row" id="tens-presets">
+      <button type="button" data-tens="0" class="on">Calma</button>
+      <button type="button" data-tens="0.45">Media</button>
+      <button type="button" data-tens="0.85">Tensión</button>
+    </div>
+    <label class="field"><span>Tensión</span>
+      <input type="range" id="tens-slider" min="0" max="1" step="0.01" value="0.15">
+    </label>
+    <label class="field"><span>Volumen melodía</span>
+      <input type="range" id="mel-vol" min="0" max="1" step="0.01" value="0.22">
+    </label>
+    <div class="row">
+      <button type="button" class="primary" id="mel-on">Melodía</button>
+      <button type="button" id="mel-off" class="danger">Silenciar melodía</button>
+    </div>
+    <p class="status" id="mel-status">Melodía: apagada</p>
+  </div>
+</section>
+
+<section id="info" class="view">
+  <h2>Cómo usarlo</h2>
+  <div class="panel">
+    <ol class="list-more" style="padding-left:1.2rem">
+      <li>Elige un libro con texto incluido.</li>
+      <li>En Leer, usa la voz alta si quieres.</li>
+      <li>En Ambientes, enciende lluvia, bosque, caballos…</li>
+      <li>Activa la melodía y mueve Tensión (calma → media → tensión).</li>
+      <li>Cada capa se silencia por separado.</li>
+    </ol>
+    <p class="hint">Todo queda en este HTML. Sin cuentas, sin nube, sin Google Fonts.</p>
+  </div>
+  <h2>Licencia de los textos</h2>
+  <div class="panel">
+    <p>Cervantes, Bécquer, Quevedo, Samaniego, Iriarte, el Lazarillo anónimo y Machado (fallecido 1939; dominio público en la UE) son de dominio público. Los extractos se ofrecen solo para lectura personal offline.</p>
+  </div>
+</section>
+
+<div class="dock" aria-label="Controles rápidos">
+  <div class="dock-inner">
+    <div class="row">
+      <button type="button" id="q-tts" title="Voz">🔊 Voz</button>
+      <button type="button" id="q-amb" title="Ambiente">🌧️ Amb.</button>
+      <button type="button" id="q-mel" title="Melodía">🎼 Mel.</button>
+      <button type="button" id="q-mute" class="danger" title="Todo">Mute</button>
+    </div>
+    <p class="status" id="dock-status">Capas listas · offline</p>
+  </div>
+</div>
+
+<p class="foot">Les vencimos · biblioteca · file:// · sin red</p>
+
+<script>
+(function () {
+  'use strict';
+
+  /* ─── Public-domain catalog (inline texts) ─── */
+  var BOOKS = [
+    {
+      id: 'quijote',
+      titulo: 'Don Quijote · I, 1 (extracto)',
+      autor: 'Miguel de Cervantes',
+      nota: '1605 · dominio público',
+      inline: true,
+      texto:
+'En un lugar de la Mancha, de cuyo nombre no quiero acordarme, no ha mucho tiempo que vivía un hidalgo de los de lanza en astillero, adarga antigua, rocín flaco y galgo corredor. Una olla de algo más vaca que carnero, salpicón las más noches, duelos y quebrantos los sábados, lantejas los viernes, algún palomino de añadidura los domingos, consumían las tres partes de su hacienda. El resto della concluían sayo de velarte, calzas de velludo para las fiestas, con sus pantuflos de lo mesmo, y los días de entresemana se honraba con su vellorí de lo más fino. Tenía en su casa una ama que pasaba de los cuarenta, y una sobrina que no llegaba a los veinte, y un mozo de campo y plaza, que así ensillaba el rocín como tomaba la podadera. Frisaba la edad de nuestro hidalgo con los cincuenta años; era de complexión recia, seco de carnes, enjuto de rostro, gran madrugador y amigo de la caza. Quieren decir que tenía el sobrenombre de Quijada, o Quesada, que en esto hay alguna diferencia en los autores que deste caso escriben; aunque, por conjeturas verosímiles, se deja entender que se llamaba Quijana. Pero esto importa poco a nuestro cuento; basta que en la narración dél no se salga un punto de la verdad.\n\n' +
+'Es, pues, de saber que este sobredicho hidalgo, los ratos que estaba ocioso —que eran los más del año—, se daba a leer libros de caballerías, con tanta afición y gusto, que olvidó casi de todo punto el ejercicio de la caza, y aun la administración de su hacienda; y llegó a tanto su curiosidad y desatino en esto, que vendió muchas hanegas de tierra de sembradura para comprar libros de caballerías en que leer, y así, llevó a su casa todos cuantos pudo haber dellos; y de todos, ningunos le parecían tan bien como los que compuso el famoso Feliciano de Silva, porque la claridad de su prosa y aquellas entricadas razones suyas le parecían de perlas, y más cuando llegaba a leer aquellos requiebros y cartas de desafíos, donde en muchas partes hallaba escrito: «La razón de la sinrazón que a mi razón se hace, de tal manera mi razón enflaquece, que con razón me quejo de la vuestra fermosura.»\n\n' +
+'Con estas y semejantes razones perdía el pobre caballero el juicio, y desvelábase por entenderlas y desentrañarles el sentido, que no se lo sacara ni las entendiera el mesmo Aristóteles, si resucitara para solo ello. No estaba muy bien con las heridas que don Belianís daba y recebía, porque se imaginaba que, por grandes maestros que le hubiesen curado, no dejaría de tener el rostro y todo el cuerpo lleno de cicatrices y señales. Pero, con todo, alababa en su autor aquel acabar su libro con la promesa de aquella inacabable aventura, y muchas veces le vino deseo de tomar la pluma y dalle fin al pie de la letra como allí se promete; y sin duda alguna lo hiciera, y aun saliera con ello, si otros mayores y continuos pensamientos no se lo estorbaran.\n\n' +
+'En resolución, él se enfrascó tanto en su lectura, que se le pasaban las noches leyendo de claro en claro, y los días de turbio en turbio; y así, del poco dormir y del mucho leer, se le secó el celebro de manera que vino a perder el juicio. Llenósele la fantasía de todo aquello que leía en los libros, así de encantamentos como de pendencias, batallas, desafíos, heridas, requiebros, amores, tormentas y disparates imposibles; y asentósele de tal modo en la imaginación que era verdad toda aquella máquina de aquellas soñadas invenciones que leía, que para él no había otra historia más cierta en el mundo.'
+    },
+    {
+      id: 'becquer',
+      titulo: 'Rimas (selección)',
+      autor: 'Gustavo Adolfo Bécquer',
+      nota: 's. XIX · dominio público',
+      inline: true,
+      texto:
+'RIMA IV\n\nNo digáis que, agotado su tesoro,\nde asuntos falta, enmudeció la lira.\nPodrá no haber poetas; pero siempre\nhabrá poesía.\n\nMientras las ondas de la luz al beso\npalpiten encendidas;\nmientras el sol las desgarradas nubes\nde fuego y oro vista;\nmientras el aire en su regazo lleve\nperfumes y armonías;\nmientras haya en el mundo primavera,\n¡habrá poesía!\n\nMientras la ciencia a descubrir no alcance\nlas fuentes de la vida,\ny en el mar o en el cielo haya un abismo\nque al cálculo resista;\nmientras la humanidad siempre avanzando\nno sepa a do camina;\nmientras haya un misterio para el hombre,\n¡habrá poesía!\n\nMientras se sienta que se alegra el alma\nsin que los labios rían;\nmientras se llore sin que el llanto acuda\na nublar la pupila;\nmientras el corazón y la cabeza\nbatallando prosigan;\nmientras haya esperanzas y recuerdos,\n¡habrá poesía!\n\nMientras haya unos ojos que reflejen\nlos ojos que los miran;\nmientras responda el labio suspirando\nal labio que suspira;\nmientras existan unas almas que digan\nsi hay otra igual que diga;\nmientras haya una mujer hermosa,\n¡habrá poesía!\n\n———\n\nRIMA XXI\n\n¿Qué es poesía?, dices mientras clavas\nen mi pupila tu pupila azul.\n¿Qué es poesía? ¿Y tú me lo preguntas?\nPoesía… eres tú.\n\n———\n\nRIMA LIII\n\nVolverán las oscuras golondrinas\nen tu balcón sus nidos a colgar,\ny, otra vez, con el ala a sus cristales\njugueteando llamarán.\n\nPero aquellas que el vuelo refrenaban\ntu hermosura y mi dicha a contemplar,\naquellas que aprendieron nuestros nombres…\nésas… ¡no volverán!\n\nVolverán las tupidas madreselvas\nde tu jardín las tapias a escalar,\ny otra vez a la tarde, aun más hermosas,\nsus flores se abrirán.\n\nPero aquellas, cuajadas de rocío,\ncuyas gotas mirábamos temblar\ny caer, como lágrimas del día…\nésas… ¡no volverán!\n\nVolverán del amor en tus oídos\nlas palabras ardientes a sonar;\ntu corazón de su profundo sueño\ntal vez despertará.\n\nPero mudo y absorto y de rodillas,\ncomo se adora a Dios ante su altar,\ncomo yo te he querido…, desengáñate:\nasí… ¡no te querrán!'
+    },
+    {
+      id: 'machado',
+      titulo: 'Poemas cortos',
+      autor: 'Antonio Machado',
+      nota: 'dominio público en la UE (1939+70)',
+      inline: true,
+      texto:
+'Caminante, son tus huellas\nel camino, y nada más;\ncaminante, no hay camino,\nse hace camino al andar.\nAl andar se hace el camino,\ny al volver la vista atrás\nse ve la senda que nunca\nse ha de volver a pisar.\nCaminante, no hay camino,\nsino estelas en la mar.\n\n———\n\nAnoche cuando dormía\nsoñé, ¡bendita ilusión!,\nque una fontana fluía\ndentro de mi corazón.\nDi, ¿por qué acequia escondida,\nagua, vienes hasta mí,\nmanantial de nueva vida\nen donde nunca bebí?\n\nAnoche cuando dormía\nsoñé, ¡bendita ilusión!,\nque una colmena tenía\ndentro de mi corazón;\ny las doradas abejas\niban fabricando en él,\ncon las amarguras viejas,\nblanca cera y dulce miel.\n\nAnoche cuando dormía\nsoñé, ¡bendita ilusión!,\nque un ardiente sol lucía\ndentro de mi corazón.\nEra ardiente porque daba\ncalores de rojo hogar,\ny era sol porque alumbraba\ny porque hacía llorar.\n\nAnoche cuando dormía\nsoñé, ¡bendita ilusión!,\nque era Dios lo que tenía\ndentro de mi corazón.\n\n———\n\nYo voy soñando caminos\nde la tarde. ¡Las colinas\ndoradas, los verdes pinos,\nlas polvorientas encinas!…\n¿Adónde el camino irá?\nYo voy cantando, viajero\na lo largo del sendero…\n—La tarde está cayendo.\n—«En el corazón tenía\nla espina de una pasión;\nlogré arrancármela un día:\nya no siento el corazón.»\nY todo el campo un momento\nse queda, mudo y sombrío,\nmeditando. Suena el viento\nen los álamos del río.\nLa tarde más se oscurece;\ny el camino que serpea\ny débilmente blanquea,\nse enturbia y desaparece.\nMi cantar vuelve a plañir:\n«Aguda espina dorada,\nquién te pudiera sentir\nen el corazón clavada.»'
+    },
+    {
+      id: 'samaniego',
+      titulo: 'Fábulas (tres)',
+      autor: 'Félix María de Samaniego',
+      nota: 's. XVIII · dominio público',
+      inline: true,
+      texto:
+'LA CIGARRA Y LA HORMIGA\n\nCantando la Cigarra\npasó el verano entero,\nsin hacer provisiones\npara el invierno acerbo.\nLos fríos la obligaron\na abrigarse en un hueco,\ny allí de hambre y de frío\nse hallaba pereciendo.\nVió que en un hormiguero,\nentran granos de trigo,\ny dice: «Caras amigas,\nprestadme algún alimento.»\nLas Hormigas le responden:\n«Si trabajaste en verano,\ntendrías en el invierno.»\n—«Canté», dice la Cigarra.\n—«Pues ahora, baila.»\n\n———\n\nLA LECHERA\n\nLlevaba en la cabeza\nuna lechera el cántaro al mercado,\ncon aquella ligereza\nque va el seco embelesado.\nIba calculando:\n«Con esta leche compraré un centenar\nde huevos; de ellos nacerán pollitos;\nlos pollitos serán gallinas;\nlas gallinas me darán dinero;\ncon el dinero un traje nuevo…»\nEn esto resbala, cae el cántaro,\ny con la leche se van los sueños.\n¡Cuántos, en su loca fantasía,\nfabrican castillos en el aire!\n\n———\n\nEL LEÓN Y EL RATÓN\n\nDel león poderoso\nun ratoncillo hallóse prisionero.\nEl rey de los animales\nle perdonó la vida.\nPasó el tiempo. Cazado el león\nen fuertes redes, rugía impotente.\nEl ratón, acordándose del beneficio,\nroyó las cuerdas y le dio libertad.\nNo hay servicio pequeño:\nel débil puede un día\nser útil al potente.'
+    },
+    {
+      id: 'quevedo',
+      titulo: 'Poderoso caballero…',
+      autor: 'Francisco de Quevedo',
+      nota: 'letrilla · dominio público',
+      inline: true,
+      texto:
+'Poderoso caballero es don Dinero.\n\nMadre, yo al oro me humillo,\nél es mi amante y mi amado,\npues de puro enamorado\nde continuo anda amarillo.\nQue pues doblón o sencillo\nhace todo cuanto quiero,\npoderoso caballero\nes don Dinero.\n\nNace en las Indias honrado,\ndonde el mundo le acompaña;\nviense a morir en España,\ny es en Génova enterrado.\nY pues quien le trae al lado\nes hermoso, aunque sea fiero,\npoderoso caballero\nes don Dinero.\n\nEs galán y es como un oro,\nmerece amores y honras,\ny, pues le dan de las monjas\nllaves, y el prior del coro,\nhaciendo el pobre un tesoro\nde monedas y de cuero,\npoderoso caballero\nes don Dinero.\n\nMás valen en cualquier tierra\nir derechos que torcidos;\nmas ¿quién tendrá a los perdidos\nsi tiene el dinero en guerra?\nY pues es quien hace y deshace,\ny quien da y quita el poderío,\npoderoso caballero\nes don Dinero.'
+    },
+    {
+      id: 'lazarillo',
+      titulo: 'Lazarillo · Tratado I (extracto)',
+      autor: 'Anónimo',
+      nota: '1554 · dominio público',
+      inline: true,
+      texto:
+'Pues sepa Vuestra Merced, ante todas cosas, que a mí llaman Lázaro de Tormes, hijo de Tomé González y de Antona Pérez, naturales de Tejares, aldea de Salamanca. Mi nascimiento fue dentro del río Tormes, por la cual causa tomé el sobrenombre; y fue desta manera: mi padre, que Dios perdone, tenía cargo de proveer una molienda de una aceña que está ribera de aquel río, en la cual fue molinero más de quince años; y, estando mi madre una noche en la aceña, preñada de mí, tomóle el parto y parióme allí: de manera que con verdad me puedo decir nascido en el río.\n\nPues, siendo yo niño de ocho años, achacaron a mi padre ciertas sangrías mal hechas en los costales de los que allí a moler venían, por lo cual fue preso, y confesó y no negó, y padeció persecución por justicia. Espero en Dios que está en la gloria, pues el Evangelio los llama bienaventurados. En este tiempo se hizo cierta armada contra moros, entre los cuales fue mi padre, que a la sazón estaba desterrado por el desastre ya dicho, con cargo de acemilero de un caballero que allá fue; y con su señor, como leal criado, se acabó la vida.\n\nMi viuda madre, como sin marido y sin abrigo se viese, determinó arrimarse a los buenos, para ser uno dellos, y vínose a vivir a la ciudad, y alquiló una casilla, y daba de comer a ciertos estudiantes, y lavaba la ropa a ciertos mozos de caballos del Comendador de la Magdalena, de manera que fue frecuentando las caballerizas.\n\nElla y un hombre moreno de aquellos que las bestias curaban vinieron en conocimiento. Este algunas veces se venía a nuestra casa y se iba a la mañana; otras veces, de día llegaba a la puerta, en achaque de comprar huevos, y entrábase en casa. Yo, al principio de su entrada, pesábame con él y habíale miedo, viendo el color y mal gesto que tenía; mas, de que vi que con su venida mejoraba el comer, fuile queriendo bien, porque siempre traía pan, pedazos de carne, y en el invierno leños, a que nos calentábamos.\n\nDe manera que, continuando la posada y conversación, mi madre vino a darme un negrito muy bonito, el cual yo en mi poder crié y compañero tuve. Yo, como me viese negro y yo blanco, huía dél, y, cuando él me veía, reíase y venía a mí. Yo, temiendo, dábale voces y decía: «¡Madre, el coco!» Y él, puesto el dedo en la boca, decía: «¡Calla, hijo!»'
+    },
+    {
+      id: 'iriart',
+      titulo: 'El burro flautista',
+      autor: 'Tomás de Iriarte',
+      nota: 'fábula · dominio público',
+      inline: true,
+      texto:
+'Esta fabulilla,\nsalga bien o mal,\nme ha ocurrido ahora\npor casualidad.\n\nCerca de unos prados\nque hay en mi lugar,\npasaba un borrico\npor casualidad.\n\nUna flauta en ellos\nhalló, que un zagal\nse dejó olvidada\npor casualidad.\n\nAcercóse a olerla\nel dicho animal,\ny dio un resoplido\npor casualidad.\n\nEn la flauta el aire\nse hubo de colar,\ny sonó la flauta\npor casualidad.\n\n«¡Oh!», dijo el borrico,\n«¡qué bien sé tocar!\n¡Y dirán que es mala\nla música asnal!»\n\nSin reglas del arte,\nborriquitos hay\nque una vez aciertan\npor casualidad.'
+    },
+    {
+      id: 'mas',
+      titulo: 'Más clásicos (sin texto aquí)',
+      autor: 'Varios',
+      nota: 'lista · descarga aparte cuando haya red',
+      inline: false,
+      texto: 'Este título es solo una nota. Cuando tengas conexión, busca en Project Gutenberg (español) o en la Biblioteca Virtual Miguel de Cervantes: Quijote completo, Novelas ejemplares, Lope, Calderón, Galdós, Clarín…\n\nAquí dentro del módulo offline priorizamos extractos que quepan y se lean sin red.'
+    }
+  ];
+
+  var currentId = null;
+  var currentText = '';
+
+  /* ─── Tabs ─── */
+  document.querySelectorAll('nav.tabs button').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      document.querySelectorAll('nav.tabs button').forEach(function (b) { b.classList.remove('on'); });
+      btn.classList.add('on');
+      var v = btn.getAttribute('data-view');
+      document.querySelectorAll('.view').forEach(function (s) { s.classList.toggle('on', s.id === v); });
+    });
+  });
+
+  function goLeer() {
+    document.querySelectorAll('nav.tabs button').forEach(function (b) {
+      b.classList.toggle('on', b.getAttribute('data-view') === 'leer');
+    });
+    document.querySelectorAll('.view').forEach(function (s) { s.classList.toggle('on', s.id === 'leer'); });
+  }
+
+  function renderBooks() {
+    var list = document.getElementById('book-list');
+    list.innerHTML = '';
+    BOOKS.forEach(function (b) {
+      var btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'book-btn' + (currentId === b.id ? ' on' : '');
+      btn.innerHTML = '<span class="t">' + escapeHtml(b.titulo) +
+        (b.inline ? '<span class="badge">texto</span>' : '<span class="badge">lista</span>') +
+        '</span><span class="m">' + escapeHtml(b.autor) + ' · ' + escapeHtml(b.nota) + '</span>';
+      btn.addEventListener('click', function () { openBook(b.id); });
+      list.appendChild(btn);
+    });
+  }
+
+  function escapeHtml(s) {
+    return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  }
+
+  function openBook(id) {
+    var b = BOOKS.filter(function (x) { return x.id === id; })[0];
+    if (!b) return;
+    currentId = id;
+    currentText = b.texto || '';
+    document.getElementById('r-title').textContent = b.titulo;
+    document.getElementById('r-by').textContent = b.autor + ' · ' + b.nota;
+    var body = document.getElementById('r-body');
+    body.textContent = '';
+    currentText.split(/\n\n+/).forEach(function (para) {
+      var p = document.createElement('p');
+      p.textContent = para;
+      body.appendChild(p);
+    });
+    renderBooks();
+    goLeer();
+    stopTTS();
+  }
+
+  renderBooks();
+
+  /* ─── TTS ─── */
+  var ttsUtter = null;
+  var ttsPaused = false;
+
+  function pickVoice() {
+    var voices = window.speechSynthesis ? speechSynthesis.getVoices() : [];
+    var es = voices.filter(function (v) { return /^es/i.test(v.lang); });
+    if (es.length) {
+      var prefer = es.filter(function (v) { return /es-ES|es_ES|Spanish/i.test(v.lang + v.name); });
+      return (prefer[0] || es[0]);
+    }
+    return voices[0] || null;
+  }
+
+  function refreshVoiceNote() {
+    var note = document.getElementById('voice-note');
+    if (!window.speechSynthesis) {
+      note.textContent = 'Este navegador no expone speechSynthesis. La lectura en voz no está disponible.';
+      return;
+    }
+    var v = pickVoice();
+    if (v && /^es/i.test(v.lang)) {
+      note.textContent = 'Voz española detectada: ' + v.name + ' (' + v.lang + '). Funciona offline si el sistema ya tiene la voz instalada.';
+    } else if (v) {
+      note.textContent = 'No hay voz es-*. Se usará: ' + v.name + ' (' + v.lang + '). En Android/iOS puedes instalar una voz española en Ajustes.';
+    } else {
+      note.textContent = 'Aún no hay voces cargadas. Pulsa «Leer en voz alta» tras un segundo, o instala una voz española en el sistema.';
+    }
+  }
+  if (window.speechSynthesis) {
+    speechSynthesis.onvoiceschanged = refreshVoiceNote;
+    setTimeout(refreshVoiceNote, 400);
+  } else refreshVoiceNote();
+
+  function stopTTS() {
+    if (window.speechSynthesis) speechSynthesis.cancel();
+    ttsUtter = null;
+    ttsPaused = false;
+    document.getElementById('tts-status').textContent = '';
+  }
+
+  document.getElementById('tts-play').addEventListener('click', function () {
+    if (!window.speechSynthesis) {
+      document.getElementById('tts-status').textContent = 'Sin Web Speech en este navegador.';
+      return;
+    }
+    if (!currentText) {
+      document.getElementById('tts-status').textContent = 'Elige primero un libro con texto.';
+      return;
+    }
+    if (ttsPaused) {
+      speechSynthesis.resume();
+      ttsPaused = false;
+      document.getElementById('tts-status').textContent = 'Reanudado…';
+      return;
+    }
+    speechSynthesis.cancel();
+    var u = new SpeechSynthesisUtterance(currentText);
+    var v = pickVoice();
+    if (v) u.voice = v;
+    u.lang = (v && v.lang) || 'es-ES';
+    u.rate = parseFloat(document.getElementById('tts-rate').value) || 1;
+    u.onend = function () { document.getElementById('tts-status').textContent = 'Fin.'; ttsUtter = null; };
+    u.onerror = function () { document.getElementById('tts-status').textContent = 'Error de voz.'; };
+    ttsUtter = u;
+    ttsPaused = false;
+    speechSynthesis.speak(u);
+    document.getElementById('tts-status').textContent = 'Leyendo…';
+    refreshVoiceNote();
+  });
+  document.getElementById('tts-pause').addEventListener('click', function () {
+    if (!window.speechSynthesis) return;
+    if (speechSynthesis.speaking && !speechSynthesis.paused) {
+      speechSynthesis.pause();
+      ttsPaused = true;
+      document.getElementById('tts-status').textContent = 'Pausa.';
+    } else if (ttsPaused) {
+      speechSynthesis.resume();
+      ttsPaused = false;
+      document.getElementById('tts-status').textContent = 'Reanudado…';
+    }
+  });
+  document.getElementById('tts-stop').addEventListener('click', stopTTS);
+
+  /* ─── Web Audio: ambients + melody ─── */
+  var AC = null;
+  var masterAmb = null, masterMel = null;
+  var ambNodes = null;
+  var ambKind = null;
+  var melNodes = null;
+  var melOn = false;
+  var tension = 0.15;
+  var horseTimer = null;
+  var birdTimer = null;
+  var crackTimer = null;
+
+  function ensureAC() {
+    if (AC) return AC;
+    var Ctx = window.AudioContext || window.webkitAudioContext;
+    if (!Ctx) return null;
+    AC = new Ctx();
+    masterAmb = AC.createGain();
+    masterAmb.gain.value = parseFloat(document.getElementById('amb-vol').value) || 0.35;
+    masterAmb.connect(AC.destination);
+    masterMel = AC.createGain();
+    masterMel.gain.value = parseFloat(document.getElementById('mel-vol').value) || 0.22;
+    masterMel.connect(AC.destination);
+    return AC;
+  }
+
+  function noiseBuffer(seconds) {
+    var len = Math.floor(AC.sampleRate * seconds);
+    var buf = AC.createBuffer(1, len, AC.sampleRate);
+    var d = buf.getChannelData(0);
+    for (var i = 0; i < len; i++) d[i] = Math.random() * 2 - 1;
+    return buf;
+  }
+
+  function stopAmb() {
+    if (horseTimer) { clearInterval(horseTimer); horseTimer = null; }
+    if (birdTimer) { clearInterval(birdTimer); birdTimer = null; }
+    if (crackTimer) { clearInterval(crackTimer); crackTimer = null; }
+    if (ambNodes) {
+      try { ambNodes.forEach(function (n) { try { n.stop && n.stop(); } catch (e) {} try { n.disconnect && n.disconnect(); } catch (e2) {} }); } catch (e3) {}
+      ambNodes = null;
+    }
+    ambKind = null;
+    document.querySelectorAll('#amb-btns button').forEach(function (b) { b.classList.remove('on'); });
+    document.getElementById('amb-status').textContent = 'Ambiente: apagado';
+    updateDock();
+  }
+
+  function startAmb(kind) {
+    if (!ensureAC()) {
+      document.getElementById('amb-status').textContent = 'Sin Web Audio.';
+      return;
+    }
+    if (AC.state === 'suspended') AC.resume();
+    stopAmb();
+    ambKind = kind;
+    ambNodes = [];
+    var src = AC.createBufferSource();
+    src.buffer = noiseBuffer(2.5);
+    src.loop = true;
+    var filter = AC.createBiquadFilter();
+    var gain = AC.createGain();
+    gain.gain.value = 0.5;
+    src.connect(filter);
+    filter.connect(gain);
+    gain.connect(masterAmb);
+    ambNodes.push(src, filter, gain);
+
+    if (kind === 'lluvia') {
+      filter.type = 'lowpass';
+      filter.frequency.value = 900;
+      filter.Q.value = 0.7;
+      gain.gain.value = 0.55;
+      var hpf = AC.createBiquadFilter();
+      hpf.type = 'highpass';
+      hpf.frequency.value = 400;
+      src.disconnect();
+      src.connect(hpf);
+      hpf.connect(filter);
+      ambNodes.push(hpf);
+    } else if (kind === 'bosque') {
+      filter.type = 'bandpass';
+      filter.frequency.value = 600;
+      filter.Q.value = 0.4;
+      gain.gain.value = 0.22;
+      birdTimer = setInterval(function () {
+        if (!AC || ambKind !== 'bosque') return;
+        var o = AC.createOscillator();
+        var g = AC.createGain();
+        var f = 1800 + Math.random() * 2200;
+        o.type = 'sine';
+        o.frequency.setValueAtTime(f, AC.currentTime);
+        o.frequency.exponentialRampToValueAtTime(f * (0.7 + Math.random() * 0.5), AC.currentTime + 0.12);
+        g.gain.setValueAtTime(0.0001, AC.currentTime);
+        g.gain.exponentialRampToValueAtTime(0.08, AC.currentTime + 0.02);
+        g.gain.exponentialRampToValueAtTime(0.0001, AC.currentTime + 0.18);
+        o.connect(g); g.connect(masterAmb);
+        o.start(); o.stop(AC.currentTime + 0.2);
+      }, 1400 + Math.random() * 900);
+    } else if (kind === 'caballos') {
+      filter.type = 'lowpass';
+      filter.frequency.value = 180;
+      gain.gain.value = 0.08;
+      horseTimer = setInterval(function () {
+        if (!AC || ambKind !== 'caballos') return;
+        for (var i = 0; i < 4; i++) {
+          (function (delay) {
+            setTimeout(function () {
+              if (ambKind !== 'caballos') return;
+              var o = AC.createOscillator();
+              var g = AC.createGain();
+              var f2 = AC.createBiquadFilter();
+              f2.type = 'lowpass';
+              f2.frequency.value = 140;
+              o.type = 'triangle';
+              o.frequency.value = 55 + Math.random() * 20;
+              g.gain.setValueAtTime(0.0001, AC.currentTime);
+              g.gain.exponentialRampToValueAtTime(0.35, AC.currentTime + 0.01);
+              g.gain.exponentialRampToValueAtTime(0.0001, AC.currentTime + 0.12);
+              o.connect(f2); f2.connect(g); g.connect(masterAmb);
+              o.start(); o.stop(AC.currentTime + 0.14);
+            }, delay);
+          })(i * 95);
+        }
+      }, 520);
+    } else if (kind === 'fuego') {
+      filter.type = 'bandpass';
+      filter.frequency.value = 1200;
+      filter.Q.value = 0.8;
+      gain.gain.value = 0.28;
+      crackTimer = setInterval(function () {
+        if (ambKind !== 'fuego') return;
+        var o = AC.createOscillator();
+        var g = AC.createGain();
+        o.type = 'square';
+        o.frequency.value = 600 + Math.random() * 2400;
+        g.gain.setValueAtTime(0.0001, AC.currentTime);
+        g.gain.exponentialRampToValueAtTime(0.12, AC.currentTime + 0.005);
+        g.gain.exponentialRampToValueAtTime(0.0001, AC.currentTime + 0.05);
+        o.connect(g); g.connect(masterAmb);
+        o.start(); o.stop(AC.currentTime + 0.06);
+      }, 280);
+    } else if (kind === 'mar') {
+      filter.type = 'lowpass';
+      filter.frequency.value = 500;
+      gain.gain.value = 0.4;
+      var lfo = AC.createOscillator();
+      var lfoG = AC.createGain();
+      lfo.frequency.value = 0.08;
+      lfoG.gain.value = 0.15;
+      lfo.connect(lfoG);
+      lfoG.connect(gain.gain);
+      lfo.start();
+      ambNodes.push(lfo, lfoG);
+    }
+
+    src.start();
+    document.querySelectorAll('#amb-btns button').forEach(function (b) {
+      b.classList.toggle('on', b.getAttribute('data-amb') === kind);
+    });
+    document.getElementById('amb-status').textContent = 'Ambiente: ' + kind;
+    updateDock();
+  }
+
+  document.querySelectorAll('#amb-btns button').forEach(function (b) {
+    b.addEventListener('click', function () {
+      var k = b.getAttribute('data-amb');
+      if (ambKind === k) stopAmb();
+      else startAmb(k);
+    });
+  });
+  document.getElementById('amb-off').addEventListener('click', stopAmb);
+  document.getElementById('amb-vol').addEventListener('input', function () {
+    if (masterAmb) masterAmb.gain.value = parseFloat(this.value);
+  });
+
+  /* Melody / tension pad */
+  var scale = [196.00, 220.00, 233.08, 261.63, 293.66, 311.13, 349.23]; /* G minor-ish */
+  var melStep = 0;
+  var melTimer = null;
+
+  function stopMel() {
+    if (melTimer) { clearTimeout(melTimer); melTimer = null; }
+    if (melNodes) {
+      melNodes.forEach(function (n) {
+        try { n.stop && n.stop(); } catch (e) {}
+        try { n.disconnect && n.disconnect(); } catch (e2) {}
+      });
+      melNodes = null;
+    }
+    melOn = false;
+    document.getElementById('mel-status').textContent = 'Melodía: apagada';
+    document.getElementById('mel-on').classList.remove('on');
+    updateDock();
+  }
+
+  function applyTensionUI(t) {
+    tension = Math.max(0, Math.min(1, t));
+    document.getElementById('tens-slider').value = String(tension);
+    document.querySelectorAll('#tens-presets button').forEach(function (b) {
+      var v = parseFloat(b.getAttribute('data-tens'));
+      b.classList.toggle('on', Math.abs(v - tension) < 0.08);
+    });
+  }
+
+  function startMel() {
+    if (!ensureAC()) {
+      document.getElementById('mel-status').textContent = 'Sin Web Audio.';
+      return;
+    }
+    if (AC.state === 'suspended') AC.resume();
+    stopMel();
+    melOn = true;
+    melNodes = [];
+    /* soft drone pad */
+    var freqs = [98, 146.83, 196];
+    freqs.forEach(function (f, idx) {
+      var o = AC.createOscillator();
+      var g = AC.createGain();
+      var fil = AC.createBiquadFilter();
+      o.type = idx === 0 ? 'sine' : 'triangle';
+      o.frequency.value = f;
+      fil.type = 'lowpass';
+      fil.frequency.value = 400 + tension * 1200;
+      g.gain.value = 0.07 - idx * 0.015;
+      o.connect(fil); fil.connect(g); g.connect(masterMel);
+      o.start();
+      melNodes.push(o, g, fil);
+    });
+
+    function beatMs() {
+      return 900 - tension * 480; /* calma lento → tensión más vivo */
+    }
+    function tick() {
+      if (!melOn || !AC) return;
+      var o = AC.createOscillator();
+      var g = AC.createGain();
+      var fil = AC.createBiquadFilter();
+      fil.type = 'lowpass';
+      fil.frequency.value = 600 + tension * 1800;
+      var idx = melStep % scale.length;
+      /* mild dissonance with tension: add detuned second */
+      var base = scale[idx] * (1 + (melStep % 7 === 3 ? tension * 0.03 : 0));
+      o.type = 'sine';
+      o.frequency.value = base;
+      var now = AC.currentTime;
+      g.gain.setValueAtTime(0.0001, now);
+      g.gain.exponentialRampToValueAtTime(0.09 + tension * 0.05, now + 0.03);
+      g.gain.exponentialRampToValueAtTime(0.0001, now + 0.35 + (1 - tension) * 0.25);
+      o.connect(fil); fil.connect(g); g.connect(masterMel);
+      o.start(now); o.stop(now + 0.7);
+      if (tension > 0.55 && melStep % 2 === 0) {
+        var o2 = AC.createOscillator();
+        var g2 = AC.createGain();
+        o2.type = 'triangle';
+        o2.frequency.value = base * (1.498 + tension * 0.04); /* fifth-ish → slight clash */
+        g2.gain.setValueAtTime(0.0001, now);
+        g2.gain.exponentialRampToValueAtTime(0.04 * tension, now + 0.02);
+        g2.gain.exponentialRampToValueAtTime(0.0001, now + 0.28);
+        o2.connect(g2); g2.connect(masterMel);
+        o2.start(now); o2.stop(now + 0.32);
+      }
+      melStep++;
+      /* retune pad filter live */
+      melNodes.forEach(function (n) {
+        if (n && n.Q && n.frequency && typeof n.Q.value === 'number') {
+          try { n.frequency.setTargetAtTime(400 + tension * 1200, AC.currentTime, 0.2); } catch (e) {}
+        }
+      });
+      if (melTimer) clearTimeout(melTimer);
+      melTimer = setTimeout(tick, beatMs());
+    }
+    tick();
+    document.getElementById('mel-status').textContent = 'Melodía: on · tensión ' + Math.round(tension * 100) + '%';
+    document.getElementById('mel-on').classList.add('on');
+    updateDock();
+  }
+
+  document.getElementById('mel-on').addEventListener('click', function () {
+    if (melOn) stopMel();
+    else startMel();
+  });
+  document.getElementById('mel-off').addEventListener('click', stopMel);
+  document.getElementById('mel-vol').addEventListener('input', function () {
+    if (masterMel) masterMel.gain.value = parseFloat(this.value);
+  });
+  document.getElementById('tens-slider').addEventListener('input', function () {
+    applyTensionUI(parseFloat(this.value));
+    if (melOn) {
+      document.getElementById('mel-status').textContent = 'Melodía: on · tensión ' + Math.round(tension * 100) + '%';
+    }
+  });
+  document.querySelectorAll('#tens-presets button').forEach(function (b) {
+    b.addEventListener('click', function () {
+      applyTensionUI(parseFloat(b.getAttribute('data-tens')));
+      if (melOn) startMel(); /* restart with new feel */
+    });
+  });
+  applyTensionUI(0.15);
+
+  /* Dock quick controls */
+  function updateDock() {
+    var parts = [];
+    if (window.speechSynthesis && speechSynthesis.speaking) parts.push('voz');
+    if (ambKind) parts.push(ambKind);
+    if (melOn) parts.push('melodía');
+    document.getElementById('dock-status').textContent = parts.length ? ('Activo: ' + parts.join(' · ')) : 'Capas listas · offline';
+  }
+  document.getElementById('q-tts').addEventListener('click', function () {
+    document.getElementById('tts-play').click();
+    goLeer();
+  });
+  document.getElementById('q-amb').addEventListener('click', function () {
+    document.querySelectorAll('nav.tabs button').forEach(function (b) {
+      b.classList.toggle('on', b.getAttribute('data-view') === 'audio');
+    });
+    document.querySelectorAll('.view').forEach(function (s) { s.classList.toggle('on', s.id === 'audio'); });
+    if (!ambKind) startAmb('lluvia');
+    else stopAmb();
+  });
+  document.getElementById('q-mel').addEventListener('click', function () {
+    if (melOn) stopMel(); else startMel();
+  });
+  document.getElementById('q-mute').addEventListener('click', function () {
+    stopTTS(); stopAmb(); stopMel();
+    updateDock();
+  });
+  setInterval(updateDock, 1200);
+})();
+</script>
+</body>
+</html>
