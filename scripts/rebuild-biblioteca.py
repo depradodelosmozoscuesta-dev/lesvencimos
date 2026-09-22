@@ -12,6 +12,7 @@ CATALOG = LIB / "catalog.json"
 ZIP_OUT = ROOT / "downloads" / "biblioteca-offline.zip"
 INLINE_CAP = 45000  # keep zip/html lean; huge texts still load via src
 
+
 def load_books():
     catalog = json.loads(CATALOG.read_text(encoding="utf-8"))
     books = []
@@ -30,39 +31,32 @@ def load_books():
             texto = data.get("texto") or ""
             entry["src"] = f"biblioteca-libros/{bid}.json"
             entry["inline"] = True
-            # Cap inline texto for huge chapters to keep HTML manageable
             if len(texto) > INLINE_CAP:
                 entry["texto"] = texto[:INLINE_CAP]
                 entry["chars"] = len(texto)
             else:
                 entry["texto"] = texto
                 entry["chars"] = len(texto)
-            # Prefer file metadata when richer
             for k in ("titulo", "autor", "nota", "categoria"):
                 if data.get(k):
                     entry[k] = data[k]
         else:
-            # aviso-only entries (e.g. lotr)
             entry["inline"] = False
             entry["texto"] = meta.get("texto", "")
             entry["chars"] = len(entry["texto"])
         books.append(entry)
     return books
 
+
 def inject_books(html: str, books: list) -> str:
     payload = json.dumps(books, ensure_ascii=False, separators=(",", ":"))
-    # Escape </script> breakouts
+    # Escape </script> breakouts (HTML parser ignores JS string context)
     payload = payload.replace("<", "\\u003c")
-    new_html, n = re.subn(
-        r"var BOOKS = \[.*?\];\n",
-        "var BOOKS = " + payload + ";\n",
-        html,
-        count=1,
-        flags=re.S,
-    )
-    if n != 1:
-        raise SystemExit(f"BOOKS inject failed (n={n})")
-    return new_html
+    m = re.search(r"var BOOKS = \[.*?\];\n", html, flags=re.S)
+    if not m:
+        raise SystemExit("BOOKS inject failed (n=0)")
+    return html[: m.start()] + "var BOOKS = " + payload + ";\n" + html[m.end() :]
+
 
 def build_zip():
     if ZIP_OUT.exists():
@@ -77,6 +71,7 @@ def build_zip():
             z.write(p, f"biblioteca-libros/{p.name}")
     return ZIP_OUT.stat().st_size
 
+
 def main():
     books = load_books()
     html = HTML.read_text(encoding="utf-8")
@@ -85,6 +80,7 @@ def main():
     BIBLIO.write_text(html, encoding="utf-8")
     size = build_zip()
     print(f"books={len(books)} html={HTML.stat().st_size} zip={size}")
+
 
 if __name__ == "__main__":
     main()
