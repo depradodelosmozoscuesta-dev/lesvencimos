@@ -6,7 +6,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 SRC = ROOT / "offline-estanteria"
-OUT = ROOT / "downloads" / "estanteria-offline-v20260922f.zip"
+OUT = ROOT / "downloads" / "estanteria-offline-v20260922g.zip"
 CAJA_OUT = ROOT / "downloads" / "caja-fuerte-offline.zip"
 STAGING = ROOT / "downloads" / ".estanteria-staging"
 
@@ -94,7 +94,7 @@ def inject_embedded(shell: str, embedded: dict[str, str]) -> str:
 def write_leeme() -> str:
     return """═══════════════════════════════════════
   ESTANTERÍA OFFLINE — Les vencimos
-  Build v20260922f
+  Build v20260922g
   UN SOLO HTML (módulos dentro)
 ═══════════════════════════════════════
 

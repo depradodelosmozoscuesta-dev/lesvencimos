@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="referrer" content="strict-origin-when-cross-origin">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self' blob: data:; base-uri 'self'; object-src 'none'; img-src 'self' data: blob:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; font-src 'self' data:; connect-src 'self'; form-action 'self'; media-src 'self' blob:; frame-src 'self' blob:">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self' blob: data:; base-uri 'self'; object-src 'none'; img-src 'self' data: blob:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; font-src 'self' data:; connect-src 'self'; form-action 'self'; media-src 'self' blob:; frame-src 'self' blob: data:">
   <meta name="description" content="Estantería — escritorio libre para módulos Les vencimos.">
   <meta name="theme-color" content="#0E0E0C">
   <title>Estantería — Les vencimos</title>
@@ -560,14 +560,16 @@
   .offline-tip strong { color: var(--acento); }
   .file-err { color: var(--peligro); font-size: 0.85rem; margin: 0.5rem 0 0; min-height: 1.1em; }
 
-  /* In-page module viewer (no sibling navigation) */
+  /* In-page module viewer (must live OUTSIDE .wrap — wrap is visibility:hidden when open) */
   #mod-viewer {
     display: none;
     position: fixed;
     inset: 0;
     z-index: 10000;
-    background: var(--fondo);
+    background: #F4F0E6; /* cream chrome so never a pure black empty stage */
     flex-direction: column;
+    visibility: visible !important; /* belt-and-suspenders if ever re-nested under .wrap */
+    opacity: 1 !important;
   }
   body.mod-open #mod-viewer { display: flex; }
   body.mod-open .wrap { visibility: hidden; }
@@ -577,15 +579,16 @@
     align-items: center;
     gap: 0.65rem;
     padding: 0.55rem 0.75rem;
-    background: var(--fondo-2);
-    border-bottom: 1px solid var(--linea);
+    background: #EDE6D6;
+    border-bottom: 1px solid #C9BFA8;
+    color: #1a1a16;
   }
   #mod-viewer-bar button {
     min-height: 44px;
     padding: 0 0.9rem;
-    background: var(--acento);
-    color: var(--acento-texto);
-    border: 1px solid var(--acento);
+    background: #C45C26;
+    color: #fff;
+    border: 1px solid #C45C26;
     border-radius: var(--radio);
     font: 700 0.9rem var(--sans);
     cursor: pointer;
@@ -595,7 +598,7 @@
     font-family: var(--serif);
     font-weight: 600;
     font-size: 1.05rem;
-    color: var(--tinta);
+    color: #1a1a16;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -604,8 +607,20 @@
     flex: 1 1 auto;
     width: 100%;
     border: 0;
-    background: var(--fondo);
+    background: #F4F0E6;
+    min-height: 0;
   }
+  #mod-host {
+    display: none;
+    flex: 1 1 auto;
+    width: 100%;
+    min-height: 0;
+    overflow: auto;
+    background: #F4F0E6;
+    -webkit-overflow-scrolling: touch;
+  }
+  body.mod-host #mod-host { display: block; }
+  body.mod-host #mod-frame { display: none; }
   #mod-external {
     display: none;
     flex: 1;
@@ -693,6 +708,8 @@
       </div>
     </div>
 
+    <footer class="site-foot">lesvencimos.com · estantería offline · <span id="est-build">v20260922g</span></footer>
+  </div>
 
   <div id="mod-viewer" role="dialog" aria-modal="true" aria-labelledby="mod-viewer-title" hidden>
     <div id="mod-viewer-bar">
@@ -700,9 +717,8 @@
       <span id="mod-viewer-title">Módulo</span>
     </div>
     <iframe id="mod-frame" title="Módulo" sandbox="allow-scripts allow-same-origin allow-forms allow-modals allow-popups allow-downloads"></iframe>
+    <div id="mod-host" aria-label="Contenido del módulo"></div>
     <div id="mod-external" aria-live="polite"></div>
-  </div>
-    <footer class="site-foot">lesvencimos.com · estantería offline · <span id="est-build">v20260922f</span></footer>
   </div>
 
   <script>
@@ -926,21 +942,77 @@
     }
 
     var modBlobUrl = null;
+    var modLoadTimer = null;
 
     function closeModuleViewer() {
       var viewer = document.getElementById('mod-viewer');
       var frame = document.getElementById('mod-frame');
+      var host = document.getElementById('mod-host');
       var ext = document.getElementById('mod-external');
-      document.body.classList.remove('mod-open', 'mod-external');
+      document.body.classList.remove('mod-open', 'mod-external', 'mod-host');
+      if (modLoadTimer) { clearTimeout(modLoadTimer); modLoadTimer = null; }
       if (viewer) viewer.hidden = true;
       if (frame) {
+        try { frame.removeAttribute('srcdoc'); } catch (e0) {}
         try { frame.src = 'about:blank'; } catch (e) {}
       }
+      if (host) host.innerHTML = '';
       if (ext) ext.innerHTML = '';
       if (modBlobUrl) {
         try { URL.revokeObjectURL(modBlobUrl); } catch (e2) {}
         modBlobUrl = null;
       }
+    }
+
+    function frameLooksEmpty(frame) {
+      try {
+        var doc = frame.contentDocument;
+        if (!doc) return true;
+        var body = doc.body;
+        if (!body) return true;
+        var text = (body.innerText || '').replace(/\s+/g, '');
+        var kids = body.childElementCount || 0;
+        return kids === 0 && text.length < 2;
+      } catch (e) {
+        return true;
+      }
+    }
+
+    function loadModuleViaSrcdoc(frame, html) {
+      frame.removeAttribute('src');
+      frame.srcdoc = html || '';
+    }
+
+    function loadModuleViaBlob(frame, html) {
+      if (modBlobUrl) {
+        try { URL.revokeObjectURL(modBlobUrl); } catch (e) {}
+        modBlobUrl = null;
+      }
+      var blob = new Blob([html], { type: 'text/html;charset=utf-8' });
+      modBlobUrl = URL.createObjectURL(blob);
+      try { frame.removeAttribute('srcdoc'); } catch (e2) {}
+      frame.src = modBlobUrl;
+    }
+
+    function loadModuleSameDocument(html) {
+      var host = document.getElementById('mod-host');
+      if (!host) return false;
+      document.body.classList.add('mod-host');
+      /* Extract body inner HTML when possible so we do not nest <html> */
+      var inner = html || '';
+      var m = /<body[^>]*>([\s\S]*)<\/body>/i.exec(inner);
+      if (m) inner = m[1];
+      host.innerHTML = '<div class="mod-host-root">' + inner + '</div>';
+      /* Re-execute inline scripts inside host (innerHTML skips them) */
+      var scripts = host.querySelectorAll('script');
+      for (var i = 0; i < scripts.length; i++) {
+        var old = scripts[i];
+        var s = document.createElement('script');
+        if (old.src) continue; /* skip external — offline embeds are inline */
+        s.textContent = old.textContent;
+        old.parentNode.replaceChild(s, old);
+      }
+      return true;
     }
 
     function showModuleViewer(title, html, externalHtml) {
@@ -949,8 +1021,8 @@
       var ext = document.getElementById('mod-external');
       var t = document.getElementById('mod-viewer-title');
       if (!viewer || !frame) return;
-      if (t) t.textContent = title || 'Módulo';
       closeModuleViewer();
+      if (t) t.textContent = title || 'Módulo';
       viewer.hidden = false;
       document.body.classList.add('mod-open');
       if (externalHtml) {
@@ -958,19 +1030,58 @@
         if (ext) ext.innerHTML = externalHtml;
         return;
       }
-      if (modBlobUrl) {
-        try { URL.revokeObjectURL(modBlobUrl); } catch (e) {}
+      if (!html) {
+        alert('Este módulo no tiene contenido embebido.');
+        closeModuleViewer();
+        return;
       }
-      try {
-        var blob = new Blob([html], { type: 'text/html;charset=utf-8' });
-        modBlobUrl = URL.createObjectURL(blob);
-        frame.src = modBlobUrl;
-      } catch (err) {
-        /* fallback srcdoc */
-        try { frame.srcdoc = html; } catch (e2) {
-          alert('No se pudo abrir el módulo en esta página.');
-          closeModuleViewer();
+
+      /* Prefer srcdoc: works on Android content:// / file:// where blob: often paints blank.
+         Fall back to blob, then same-document host if iframe stays empty. */
+      var settled = false;
+      function ok() { settled = true; if (modLoadTimer) { clearTimeout(modLoadTimer); modLoadTimer = null; } }
+
+      function tryBlobThenHost() {
+        if (settled) return;
+        try {
+          loadModuleViaBlob(frame, html);
+        } catch (errBlob) {
+          if (!loadModuleSameDocument(html)) {
+            alert('No se pudo abrir el módulo en esta página.');
+            closeModuleViewer();
+          } else {
+            ok();
+          }
+          return;
         }
+        modLoadTimer = setTimeout(function () {
+          if (settled) return;
+          if (!frameLooksEmpty(frame)) { ok(); return; }
+          /* iframe still empty → same-document inject */
+          try { frame.src = 'about:blank'; } catch (e3) {}
+          if (!loadModuleSameDocument(html)) {
+            alert('No se pudo abrir el módulo en esta página.');
+            closeModuleViewer();
+          } else {
+            ok();
+          }
+        }, 700);
+      }
+
+      try {
+        loadModuleViaSrcdoc(frame, html);
+        frame.onload = function () {
+          if (settled) return;
+          if (!frameLooksEmpty(frame)) { ok(); return; }
+          tryBlobThenHost();
+        };
+        modLoadTimer = setTimeout(function () {
+          if (settled) return;
+          if (!frameLooksEmpty(frame)) { ok(); return; }
+          tryBlobThenHost();
+        }, 600);
+      } catch (errSrc) {
+        tryBlobThenHost();
       }
     }
 
@@ -1738,7 +1849,7 @@
       });
     }
 
-    var EST_BUILD = 'v20260922f';
+    var EST_BUILD = 'v20260922g';
 
     function layoutPanelSheet() {
       var tb = document.getElementById('desk-toolbar');
