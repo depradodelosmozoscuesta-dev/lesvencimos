@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0E0E0C">
+<title>Electricidad — Les vencimos</title>
+<style>
+:root{
+  --fondo:#0E0E0C; --fondo-2:#161512; --fondo-3:#1C1A16;
+  --tinta:#E6E1D6; --suave:#9A9488;
+  --acento:#C4A15A; --acento-texto:#1A160E;
+  --linea:rgba(230,225,214,0.14);
+  --peligro:#C46A4A; --ok:#8F9A72; --fase:#5B8FA8; --neutro:#C4A15A; --tierra:#8F9A72;
+  --serif:"Iowan Old Style","Palatino Linotype",Palatino,"Times New Roman",Georgia,serif;
+  --sans:"Segoe UI",system-ui,-apple-system,sans-serif;
+  --radio:2px;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;min-height:100%;background:var(--fondo);color:var(--tinta);font-family:var(--sans)}
+body{padding:1.15rem 1rem 3.5rem;max-width:40rem;margin:0 auto}
+header{border-bottom:1px solid var(--linea);padding-bottom:.85rem;margin-bottom:1rem}
+header h1{margin:0;font-family:var(--serif);font-size:1.55rem;font-weight:600}
+header p{margin:.35rem 0 0;color:var(--suave);font-size:.72rem;letter-spacing:.12em;text-transform:uppercase}
+.badge-vida{display:inline-block;margin-top:.55rem;padding:.2rem .55rem;border:1px solid var(--acento);color:var(--acento);font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;border-radius:var(--radio)}
+.aviso{background:var(--fondo-2);border:1px solid var(--linea);border-left:4px solid var(--peligro);padding:.9rem 1rem;margin:0 0 1.1rem;border-radius:var(--radio);font-size:.95rem}
+.aviso strong{color:var(--peligro)}
+.aviso ul{margin:.4rem 0 0;padding-left:1.15rem;color:var(--suave)}
+.aviso li{margin:.25rem 0}
+.toc{display:flex;flex-direction:column;gap:.45rem;margin-bottom:1.25rem}
+.toc button{text-align:left;padding:.9rem 1rem;background:var(--fondo-2);border:1px solid var(--linea);border-radius:var(--radio);color:inherit;font:inherit;cursor:pointer}
+.toc button:hover,.toc button:focus{border-color:var(--acento)}
+.toc .t{font-family:var(--serif);font-weight:600;font-size:1.08rem}
+.toc .m{color:var(--suave);font-size:.85rem;margin-top:.2rem}
+.back{margin:0 0 .85rem}
+button{min-height:48px;padding:0 1rem;font:600 .95rem var(--sans);border:1px solid var(--linea);border-radius:var(--radio);background:var(--fondo-3);color:var(--tinta);cursor:pointer}
+button.primary{background:var(--acento);color:var(--acento-texto);border-color:var(--acento)}
+button.ghost{background:transparent}
+.lesson h2{margin:0 0 .75rem;font-family:var(--serif);font-size:1.45rem;font-weight:600}
+.step{background:var(--fondo-2);border:1px solid var(--linea);border-radius:var(--radio);padding:1rem;margin:0 0 .85rem}
+.step .num{display:inline-block;color:var(--acento);font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;font-weight:700;margin-bottom:.4rem}
+.step p{margin:.35rem 0 0;line-height:1.45}
+.diag{background:#0a0a09;border:1px solid var(--linea);border-radius:var(--radio);padding:.75rem;margin:.75rem 0 0;overflow:hidden}
+.diag svg{display:block;width:100%;height:auto;max-height:220px}
+.leyenda{display:flex;flex-wrap:wrap;gap:.65rem;margin:.55rem 0 0;font-size:.8rem;color:var(--suave)}
+.leyenda span{display:inline-flex;align-items:center;gap:.35rem}
+.dot{width:10px;height:10px;border-radius:50%;display:inline-block}
+.dot.fase{background:var(--fase)} .dot.neutro{background:var(--neutro)} .dot.tierra{background:var(--ok)}
+.nav-steps{display:flex;gap:.5rem;flex-wrap:wrap;margin-top:1rem}
+.foot{margin-top:1.6rem;color:var(--suave);font-size:.7rem;letter-spacing:.08em;text-transform:uppercase}
+.hidden{display:none!important}
+/* animations */
+@keyframes spark{0%,100%{opacity:.35}50%{opacity:1}}
+@keyframes flow{to{stroke-dashoffset:-24}}
+@keyframes screw{to{transform:rotate(90deg)}}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.25}}
+@keyframes drop{0%{transform:translateY(-6px);opacity:.2}100%{transform:translateY(0);opacity:1}}
+.wire-flow{stroke-dasharray:6 6;animation:flow 1.2s linear infinite}
+.spark{animation:spark 1.4s ease-in-out infinite}
+.screw-turn{transform-origin:60px 70px;animation:screw 2.4s ease-in-out infinite alternate}
+.blink-warn{animation:blink 1.2s ease-in-out infinite}
+.drop-in{animation:drop .8s ease-out both}
+</style>
+</head>
+<body>
+<header>
+  <h1>Electricidad</h1>
+  <p>Aprender para la vida · bricolaje</p>
+  <span class="badge-vida">Vida · no cole</span>
+</header>
+
+<div class="aviso" role="alert">
+  <strong>Seguridad primero</strong>
+  <ul>
+    <li>Corta la corriente en el diferencial / magnetotérmico antes de tocar cables.</li>
+    <li>Comprueba con un buscapolos o polímetro que no hay tensión.</li>
+    <li>Manos secas. No trabajes con agua cerca ni descalzo en suelo húmedo.</li>
+    <li>Si no estás seguro, para y llama a un electricista. Esto no sustituye formación profesional.</li>
+    <li>En casa española típica: marrón/negro = fase, azul = neutro, verde-amarillo = tierra.</li>
+  </ul>
+</div>
+
+<div id="toc" class="toc"></div>
+<main id="app"></main>
+<p class="foot">Les vencimos · dibujos SVG · offline · «aprender para la vida»</p>
+
+<script>
+(function(){
+  const LESSONS = [
+    {
+      id:'poner-enchufe',
+      titulo:'Poner un enchufe',
+      meta:'Caja empotrada · 3 hilos',
+      steps:[
+        {t:'Corta y comprueba', d:'Baja el diferencial de esa planta. Comprueba en la caja que no hay tensión. Prepara destornillador, pelacables y el mecanismo nuevo.', svg:'cut'},
+        {t:'Identifica los cables', d:'Fase (marrón/negro), neutro (azul), tierra (verde-amarillo). Si dudan los colores, no improvises: mide o llama a un profesional.', svg:'colors'},
+        {t:'Conecta al mecanismo', d:'Afloja bornes. Tierra al contacto de tierra (suele ir marcado). Neutro y fase a L/N según marca del enchufe. Aprieta sin aplastar el aislante.', svg:'connect'},
+        {t:'Monta y prueba', d:'Encaja en la caja, atornilla el marco, sube el diferencial y prueba con un cargador o lámpara. Si salta, vuelve a cortar y revisa.', svg:'test'}
+      ]
+    },
+    {
+      id:'quitar-enchufe',
+      titulo:'Quitar un enchufe',
+      meta:'Retirar mecanismo viejo',
+      steps:[
+        {t:'Corta la corriente', d:'Diferencial abajo. Verifica ausencia de tensión en los bornes del enchufe.', svg:'cut'},
+        {t:'Suelta el marco', d:'Quita tornillos del embellecedor. Extrae el mecanismo tirando con cuidado; no tires de los cables.', svg:'unscrew'},
+        {t:'Afloja bornes', d:'Afloja cada borne y saca el cable. Evita que los hilos pelados se toquen entre sí.', svg:'loose'},
+        {t:'Aísla o tapa', d:'Si dejas la caja vacía, usa un tapón de caja y asegúrate de que ningún vivo quede al aire. Marca el circuito en el cuadro si puedes.', svg:'cap'}
+      ]
+    },
+    {
+      id:'clavija-macho',
+      titulo:'Poner clavija macho',
+      meta:'Enchufe de aparato · cable',
+      steps:[
+        {t:'Elige clavija adecuada', d:'Misma amperaje que el aparato (habitual 10/16 A). Con tierra si el aparato la pide (tres patillas).', svg:'plug'},
+        {t:'Pela el cable', d:'Corta la funda exterior ~3 cm. Pela ~8 mm cada hilo. No niques el cobre.', svg:'strip'},
+        {t:'Orden de conexión', d:'Tierra al borne de tierra (patilla lateral/central según modelo). Neutro azul y fase marrón a los otros. El tornillo de sujeción del cable evita tirones.', svg:'plug-wire'},
+        {t:'Cierra y tira suave', d:'Cierra la carcasa. Tira suavemente del cable: no debe salir. Prueba el aparato.', svg:'test'}
+      ]
+    },
+    {
+      id:'clavija-antena',
+      titulo:'Clavija de antena',
+      meta:'TV / coax · IEC',
+      steps:[
+        {t:'Prepara el coax', d:'Corta limpio. Con cuchilla o pelador coax: deja el vivo central, el dieléctrico y la malla sin cortocircuitos entre sí.', svg:'coax'},
+        {t:'Monta la clavija', d:'El vivo al pin central (suelda o aprieta según modelo). La malla al cuerpo metálico. Evita que malla y vivo se toquen.', svg:'coax-fit'},
+        {t:'Comprueba', d:'Enchufa a la toma de antena y a la TV. Si hay nieve o nada, revisa malla suelta o vivo demasiado corto.', svg:'tv'}
+      ]
+    },
+    {
+      id:'se-va-la-luz',
+      titulo:'Cuando se va la luz',
+      meta:'Cuadro · pasos seguros',
+      steps:[
+        {t:'Mira el cuadro', d:'Con linterna: ¿está bajado el diferencial (ID) o un magnetotérmico (PIA)? Anota cuál saltó.', svg:'panel'},
+        {t:'Desconecta cargas', d:'Antes de subir, apaga hornos, estufas y aparatos dudosos. Evita rearmar con todo a tope.', svg:'loads'},
+        {t:'Rearma con cuidado', d:'Sube primero el diferencial, luego el PIA que saltó. Si vuelve a saltar al momento, deja abajo y revisa el circuito o llama a un electricista.', svg:'rearm'},
+        {t:'Si es de la calle', d:'Si el cuadro está todo arriba y no hay luz en vecinos, es acometida: avisa a la compañía. Ten linterna y powerbank a mano.', svg:'street'}
+      ]
+    }
+  ];
+
+  const SVG = {
+    cut: `<svg viewBox="0 0 320 160" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <rect x="20" y="30" width="90" height="100" rx="4" fill="#1C1A16" stroke="#C4A15A" stroke-width="2"/>
+      <text x="65" y="55" text-anchor="middle" fill="#9A9488" font-size="11">CUADRO</text>
+      <rect class="blink-warn" x="40" y="70" width="50" height="18" rx="2" fill="#C46A4A"/>
+      <text x="65" y="83" text-anchor="middle" fill="#0E0E0C" font-size="10" font-weight="700">OFF</text>
+      <path class="wire-flow" d="M110 80 H180" stroke="#C46A4A" stroke-width="3" fill="none"/>
+      <circle cx="200" cy="80" r="28" fill="#161512" stroke="#E6E1D6" stroke-width="2"/>
+      <text x="200" y="85" text-anchor="middle" fill="#E6E1D6" font-size="12">0 V</text>
+      <text x="260" y="140" fill="#9A9488" font-size="11">Comprueba siempre</text>
+    </svg>`,
+    colors: `<svg viewBox="0 0 320 160" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <line class="wire-flow" x1="40" y1="40" x2="280" y2="40" stroke="#5B8FA8" stroke-width="6"/>
+      <line class="wire-flow" x1="40" y1="80" x2="280" y2="80" stroke="#C4A15A" stroke-width="6" style="animation-delay:.2s"/>
+      <line class="wire-flow" x1="40" y1="120" x2="280" y2="120" stroke="#8F9A72" stroke-width="6" style="animation-delay:.4s"/>
+      <text x="40" y="32" fill="#5B8FA8" font-size="12">Fase</text>
+      <text x="40" y="72" fill="#C4A15A" font-size="12">Neutro</text>
+      <text x="40" y="112" fill="#8F9A72" font-size="12">Tierra</text>
+    </svg>`,
+    connect: `<svg viewBox="0 0 320 160" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <rect x="160" y="30" width="120" height="100" rx="6" fill="#1C1A16" stroke="#C4A15A" stroke-width="2"/>
+      <circle cx="200" cy="70" r="10" fill="none" stroke="#E6E1D6" stroke-width="2"/>
+      <circle cx="240" cy="70" r="10" fill="none" stroke="#E6E1D6" stroke-width="2"/>
+      <path d="M190 110 H250" stroke="#8F9A72" stroke-width="3"/>
+      <line class="drop-in wire-flow" x1="40" y1="50" x2="160" y2="55" stroke="#5B8FA8" stroke-width="4"/>
+      <line class="drop-in wire-flow" x1="40" y1="80" x2="160" y2="80" stroke="#C4A15A" stroke-width="4" style="animation-delay:.15s"/>
+      <line class="drop-in wire-flow" x1="40" y1="110" x2="160" y2="110" stroke="#8F9A72" stroke-width="4" style="animation-delay:.3s"/>
+      <g class="screw-turn"><circle cx="60" cy="70" r="14" fill="#161512" stroke="#C4A15A"/><line x1="60" y1="58" x2="60" y2="82" stroke="#C4A15A" stroke-width="2"/><line x1="48" y1="70" x2="72" y2="70" stroke="#C4A15A" stroke-width="2"/></g>
+    </svg>`,
+    test: `<svg viewBox="0 0 320 160" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <rect x="40" y="50" width="70" height="70" rx="4" fill="#1C1A16" stroke="#C4A15A"/>
+      <circle class="spark" cx="75" cy="85" r="12" fill="#C4A15A"/>
+      <path class="wire-flow" d="M110 85 H170" stroke="#8F9A72" stroke-width="3" fill="none"/>
+      <rect x="170" y="55" width="100" height="60" rx="4" fill="#161512" stroke="#E6E1D6"/>
+      <text x="220" y="90" text-anchor="middle" fill="#8F9A72" font-size="14">OK</text>
+    </svg>`,
+    unscrew: `<svg viewBox="0 0 320 160" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <rect x="90" y="40" width="140" height="90" rx="4" fill="#1C1A16" stroke="#C4A15A"/>
+      <g class="screw-turn" style="transform-origin:120px 70px"><circle cx="120" cy="70" r="10" fill="#161512" stroke="#C4A15A"/><line x1="120" y1="62" x2="120" y2="78" stroke="#C4A15A"/></g>
+      <g class="screw-turn" style="transform-origin:200px 70px;animation-delay:.3s"><circle cx="200" cy="70" r="10" fill="#161512" stroke="#C4A15A"/><line x1="200" y1="62" x2="200" y2="78" stroke="#C4A15A"/></g>
+      <path class="drop-in" d="M160 40 L160 15" stroke="#9A9488" stroke-width="2" marker-end="url(#a)"/>
+    </svg>`,
+    loose: `<svg viewBox="0 0 320 160" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <rect x="180" y="35" width="100" height="90" rx="4" fill="#1C1A16" stroke="#9A9488" stroke-dasharray="4 3"/>
+      <line x1="40" y1="50" x2="160" y2="55" stroke="#5B8FA8" stroke-width="4"/>
+      <line x1="40" y1="80" x2="150" y2="85" stroke="#C4A15A" stroke-width="4"/>
+      <line x1="40" y1="110" x2="155" y2="115" stroke="#8F9A72" stroke-width="4"/>
+      <circle class="spark" cx="165" cy="55" r="4" fill="#C46A4A"/>
+      <text x="40" y="140" fill="#9A9488" font-size="11">Hilos sueltos · no se tocan</text>
+    </svg>`,
+    cap: `<svg viewBox="0 0 320 160" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <rect x="100" y="40" width="120" height="90" rx="6" fill="#161512" stroke="#C4A15A" stroke-width="2"/>
+      <rect class="drop-in" x="115" y="55" width="90" height="60" rx="4" fill="#1C1A16" stroke="#8F9A72"/>
+      <text x="160" y="90" text-anchor="middle" fill="#8F9A72" font-size="12">TAPÓN</text>
+    </svg>`,
+    plug: `<svg viewBox="0 0 320 160" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <rect x="60" y="45" width="100" height="70" rx="8" fill="#1C1A16" stroke="#C4A15A"/>
+      <rect x="145" y="60" width="30" height="12" fill="#E6E1D6"/>
+      <rect x="145" y="88" width="30" height="12" fill="#E6E1D6"/>
+      <circle cx="90" cy="80" r="8" fill="#8F9A72"/>
+      <text x="200" y="85" fill="#9A9488" font-size="12">Clavija macho</text>
+    </svg>`,
+    strip: `<svg viewBox="0 0 320 160" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <rect x="40" y="70" width="160" height="24" rx="4" fill="#3a3428"/>
+      <rect class="drop-in" x="200" y="74" width="50" height="16" fill="#5B8FA8"/>
+      <rect class="drop-in" x="200" y="74" width="50" height="16" fill="#C4A15A" transform="translate(0,0)" style="animation-delay:.2s; opacity:.0"/>
+      <line x1="200" y1="70" x2="200" y2="94" stroke="#C46A4A" stroke-width="2" class="blink-warn"/>
+      <text x="40" y="55" fill="#9A9488" font-size="12">Pelar sin dañar el cobre</text>
+    </svg>`,
+    'plug-wire': `<svg viewBox="0 0 320 160" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <rect x="180" y="30" width="110" height="100" rx="6" fill="#1C1A16" stroke="#C4A15A"/>
+      <line class="wire-flow" x1="40" y1="50" x2="180" y2="55" stroke="#8F9A72" stroke-width="4"/>
+      <line class="wire-flow" x1="40" y1="80" x2="180" y2="80" stroke="#5B8FA8" stroke-width="4"/>
+      <line class="wire-flow" x1="40" y1="110" x2="180" y2="105" stroke="#C4A15A" stroke-width="4"/>
+      <text x="50" y="40" fill="#8F9A72" font-size="11">Tierra primero</text>
+    </svg>`,
+    coax: `<svg viewBox="0 0 320 160" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <circle cx="160" cy="80" r="50" fill="none" stroke="#9A9488" stroke-width="10"/>
+      <circle cx="160" cy="80" r="28" fill="none" stroke="#C4A15A" stroke-width="14"/>
+      <circle class="spark" cx="160" cy="80" r="8" fill="#E6E1D6"/>
+      <text x="40" y="30" fill="#9A9488" font-size="11">Malla · dieléctrico · vivo</text>
+    </svg>`,
+    'coax-fit': `<svg viewBox="0 0 320 160" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <rect x="40" y="60" width="120" height="40" rx="4" fill="#3a3428"/>
+      <circle class="drop-in" cx="200" cy="80" r="28" fill="#1C1A16" stroke="#C4A15A" stroke-width="3"/>
+      <circle cx="200" cy="80" r="6" fill="#E6E1D6"/>
+      <path class="wire-flow" d="M160 80 H172" stroke="#E6E1D6" stroke-width="3"/>
+    </svg>`,
+    tv: `<svg viewBox="0 0 320 160" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <rect x="80" y="30" width="160" height="100" rx="4" fill="#161512" stroke="#C4A15A"/>
+      <rect class="spark" x="100" y="50" width="120" height="60" fill="#1C1A16" stroke="#8F9A72"/>
+      <text x="160" y="85" text-anchor="middle" fill="#8F9A72" font-size="12">Señal OK</text>
+    </svg>`,
+    panel: `<svg viewBox="0 0 320 160" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <rect x="70" y="20" width="180" height="120" rx="4" fill="#1C1A16" stroke="#C4A15A"/>
+      <rect class="blink-warn" x="95" y="45" width="40" height="20" fill="#C46A4A"/>
+      <rect x="150" y="45" width="40" height="20" fill="#8F9A72"/>
+      <rect x="205" y="45" width="30" height="20" fill="#8F9A72"/>
+      <text x="160" y="100" text-anchor="middle" fill="#9A9488" font-size="12">¿Qué saltó?</text>
+    </svg>`,
+    loads: `<svg viewBox="0 0 320 160" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <rect x="40" y="50" width="60" height="50" fill="#161512" stroke="#9A9488"/><text x="70" y="80" text-anchor="middle" fill="#9A9488" font-size="10">Horno</text>
+      <rect x="130" y="50" width="60" height="50" fill="#161512" stroke="#9A9488"/><text x="160" y="80" text-anchor="middle" fill="#9A9488" font-size="10">Estufa</text>
+      <rect x="220" y="50" width="60" height="50" fill="#161512" stroke="#C46A4A"/><text x="250" y="80" text-anchor="middle" fill="#C46A4A" font-size="10">OFF</text>
+    </svg>`,
+    rearm: `<svg viewBox="0 0 320 160" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <rect x="100" y="40" width="120" height="80" rx="4" fill="#1C1A16" stroke="#C4A15A"/>
+      <rect class="drop-in" x="130" y="60" width="60" height="24" fill="#8F9A72"/>
+      <text x="160" y="77" text-anchor="middle" fill="#0E0E0C" font-size="12" font-weight="700">ON</text>
+      <text x="160" y="140" text-anchor="middle" fill="#9A9488" font-size="11">Si vuelve a saltar → para</text>
+    </svg>`,
+    street: `<svg viewBox="0 0 320 160" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <rect x="40" y="70" width="50" height="50" fill="#161512" stroke="#9A9488"/>
+      <rect x="110" y="70" width="50" height="50" fill="#161512" stroke="#9A9488"/>
+      <rect x="180" y="70" width="50" height="50" fill="#161512" stroke="#9A9488"/>
+      <circle class="blink-warn" cx="260" cy="50" r="16" fill="#C4A15A"/>
+      <text x="160" y="40" text-anchor="middle" fill="#9A9488" font-size="12">¿Vecinos también?</text>
+    </svg>`
+  };
+
+  let current = null;
+  let step = 0;
+  const toc = document.getElementById('toc');
+  const app = document.getElementById('app');
+
+  function showToc(){
+    current = null;
+    app.innerHTML = '';
+    toc.classList.remove('hidden');
+    toc.innerHTML = LESSONS.map(l =>
+      '<button type="button" data-id="'+l.id+'"><div class="t">'+l.titulo+'</div><div class="m">'+l.meta+'</div></button>'
+    ).join('') +
+    '<p style="color:var(--suave);font-size:.9rem;margin:.75rem 0 0">Más módulos de vida (fontanería, etc.) llegarán después. Este es el primero de bricolaje.</p>';
+    toc.querySelectorAll('[data-id]').forEach(b => b.onclick = () => openLesson(b.getAttribute('data-id')));
+  }
+
+  function openLesson(id){
+    current = LESSONS.find(x => x.id === id);
+    step = 0;
+    toc.classList.add('hidden');
+    renderStep();
+  }
+
+  function renderStep(){
+    const L = current;
+    const s = L.steps[step];
+    const svg = SVG[s.svg] || SVG.cut;
+    app.innerHTML =
+      '<div class="back"><button type="button" class="ghost" id="back">← Temas</button></div>'+
+      '<article class="lesson">'+
+      '<h2>'+L.titulo+'</h2>'+
+      '<div class="step"><div class="num">Paso '+(step+1)+' de '+L.steps.length+'</div>'+
+      '<strong style="font-family:var(--serif);font-size:1.15rem">'+s.t+'</strong>'+
+      '<p>'+s.d+'</p>'+
+      '<div class="diag">'+svg+'</div>'+
+      '<div class="leyenda"><span><i class="dot fase"></i> Fase</span><span><i class="dot neutro"></i> Neutro</span><span><i class="dot tierra"></i> Tierra</span></div>'+
+      '</div>'+
+      '<div class="nav-steps">'+
+      '<button type="button" id="prev"'+(step<=0?' disabled':'')+'>Anterior</button>'+
+      '<button type="button" class="primary" id="next">'+(step>=L.steps.length-1?'Terminar':'Siguiente')+'</button>'+
+      '</div></article>';
+    document.getElementById('back').onclick = showToc;
+    document.getElementById('prev').onclick = () => { if(step>0){ step--; renderStep(); } };
+    document.getElementById('next').onclick = () => {
+      if(step >= L.steps.length-1) showToc();
+      else { step++; renderStep(); }
+    };
+  }
+
+  showToc();
+})();
+</script>
+</body>
+</html>

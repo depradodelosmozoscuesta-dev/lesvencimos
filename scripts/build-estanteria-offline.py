@@ -12,6 +12,11 @@ STAGING = ROOT / "downloads" / ".estanteria-staging"
 
 # embed key -> source file
 EMBED_SOURCES = {
+    "hogar": ROOT / "modulos" / "hogar.html",
+    "salud": ROOT / "modulos" / "salud.html",
+    "radio": ROOT / "modulos" / "radio.html",
+    "qr": ROOT / "modulos" / "qr.html",
+    "electro": ROOT / "modulos" / "electricidad.html",
     "caja": ROOT / "modulos" / "caja-fuerte.html",
     "calc": ROOT / "modulos" / "calculadora.html",
     "gym": ROOT / "modulos" / "gimnasio.html",
@@ -83,15 +88,17 @@ Este ZIP lleva esencialmente UN archivo:
   estanteria.html
   LEEME.txt
 
-Los módulos (Calculadora, Gimnasio, Caja fuerte,
-Medicación, Meditación, Auxilios, Escritura, Dibujo, Informática,
-Alarma) van EMBEBIDOS dentro del HTML.
+Los módulos (Hogar, Salud, Radio, QR, Electricidad,
+Calculadora, Gimnasio, Caja fuerte, Medicación, Meditación,
+Auxilios, Escritura, Dibujo, Informática, Alarma) van
+EMBEBIDOS dentro del HTML.
 Al tocar un icono se abren en la misma página
 (← Escritorio para volver). No hace falta gym.html
 ni otros hermanos.
 
-Profesor es grande: descarga aparte en
+Profesor (cole) es grande: descarga aparte en
 lesvencimos.com/descargas.html (o «Archivo local…»).
+Electricidad = aprender para la vida (bricolaje).
 
 ─── Android — pasos ───
 
@@ -152,7 +159,7 @@ def main() -> None:
         raise SystemExit("shell missing EMBEDDED placeholder (need estanteria.shell.html)")
 
     embedded = build_embedded()
-    for need in ("caja", "gym", "calc", "medica", "medita", "auxilios", "escritura", "dibujo", "info", "alarma"):
+    for need in ("hogar", "salud", "radio", "qr", "electro", "caja", "gym", "calc", "medica", "medita", "auxilios", "escritura", "dibujo", "info", "alarma"):
         if need not in embedded:
             raise SystemExit(f"missing embed {need}")
 
