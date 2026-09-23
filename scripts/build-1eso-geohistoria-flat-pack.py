@@ -1221,7 +1221,7 @@ def update_index() -> None:
         "(oficial CyL). Descarga ZIP offline en Descargas."
     )
     patterns = [
-        r"1º ESO Matemáticas \+ Biología y Geología \+ Geografía e Historia L0?\d+(?:–L?\d+)? \(oficial CyL\)\. Descarga ZIP offline en Descargas\.?",
+        r"1º ESO Matemáticas \+ Biología y Geología \+ Geografía e Historia(?: \+ Lengua)? L0?\d+(?:–L?\d+)? \(oficial CyL\)\. Descarga ZIP offline en Descargas\.?",
         r"1º ESO Matemáticas \+ Biología y Geología L0?\d+(?:–L?\d+)? \(oficial CyL\)\. Descarga ZIP offline en Descargas\.?",
         r"1º ESO Matemáticas \(oficial CyL\)\. L01 lista — descarga ZIP offline en Descargas\.?",
     ]
