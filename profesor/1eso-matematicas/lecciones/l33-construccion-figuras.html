@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Construcción de figuras · 1º ESO</title>
+<style>
+  :root {
+    --bg:#ecfdf5; --ink:#1a2b3c; --muted:#5a6d7e; --card:#fff;
+    --green:#059669; --green-soft:#d1fae5; --green-deep:#047857;
+    --teal:#0d9488; --teal-soft:#ccfbf1; --blue:#2563eb; --blue-soft:#dbeafe;
+    --amber:#d97706; --amber-soft:#fef3c7; --amber-deep:#b45309;
+    --rose:#e11d48; --rose-soft:#ffe4e6; --purple:#7c3aed; --purple-soft:#ede9fe;
+    --shadow:0 8px 28px rgba(26,43,60,.08); --radius:18px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{min-height:100%;background:var(--bg);color:var(--ink);
+    font-family:"Segoe UI",system-ui,-apple-system,sans-serif;-webkit-font-smoothing:antialiased}
+  body{display:flex;flex-direction:column;align-items:center;padding:14px 10px 36px}
+  .wrap{width:100%;max-width:980px}
+  header{text-align:center;margin-bottom:12px}
+  header .badge{display:inline-block;font-size:.78rem;font-weight:700;letter-spacing:.04em;
+    text-transform:uppercase;color:var(--green-deep);background:var(--green-soft);
+    padding:4px 12px;border-radius:999px;margin-bottom:8px}
+  h1{font-size:clamp(1.25rem,4.5vw,1.85rem);line-height:1.2;font-weight:800}
+  .subtitle{margin-top:6px;font-size:clamp(.9rem,2.8vw,1.05rem);color:var(--muted);font-weight:500}
+  .story{background:linear-gradient(135deg,#d1fae5,#dbeafe 55%,#ede9fe);
+    border:2px solid #6ee7b7;border-radius:var(--radius);padding:12px 14px;
+    margin-bottom:14px;display:flex;gap:12px;align-items:flex-start}
+  .story .emoji{font-size:2rem}
+  .story p{font-size:clamp(.9rem,2.5vw,1.02rem);line-height:1.45}
+  .story strong{color:var(--green-deep)}
+  .card{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);
+    padding:16px 14px 18px;margin-bottom:14px}
+  .card h2{font-size:clamp(1.05rem,3vw,1.25rem);font-weight:800;margin-bottom:8px}
+  .hint{font-size:clamp(.88rem,2.4vw,1rem);color:var(--muted);line-height:1.45;margin-bottom:12px}
+  .mode-row{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px;justify-content:center}
+  .mode-btn{padding:10px 12px;border-radius:12px;border:3px solid #cbd5e1;background:#fff;
+    font-size:.82rem;font-weight:800;cursor:pointer}
+  .mode-btn.active{border-color:var(--green);background:var(--green-soft);color:var(--green-deep)}
+  .stage{position:relative;width:100%;aspect-ratio:16/11;background:#f0fdf4;
+    border-radius:14px;overflow:hidden;border:2px solid #a7f3d0;margin-bottom:12px}
+  .stage svg{width:100%;height:100%;display:block}
+  .ctrl-row{display:flex;flex-wrap:wrap;gap:12px;align-items:flex-end;margin-bottom:12px}
+  .field{display:flex;flex-direction:column;gap:4px;flex:1 1 140px}
+  .field label{font-size:.8rem;font-weight:700;color:var(--muted)}
+  .field label .letter{display:inline-block;padding:1px 7px;border-radius:8px;font-weight:800;
+    margin-right:3px;background:var(--green-soft);color:var(--green-deep)}
+  .field input[type="range"]{width:100%;accent-color:var(--green)}
+  .field output{font-weight:900;font-variant-numeric:tabular-nums;color:var(--green-deep);font-size:1.05rem}
+  .toggle{display:flex;align-items:center;gap:8px;margin:8px 0;font-weight:700;font-size:.92rem}
+  .toggle input{width:18px;height:18px;accent-color:var(--blue)}
+  .verdict{text-align:center;font-size:clamp(1.05rem,2.8vw,1.35rem);font-weight:900;padding:14px;
+    border-radius:14px;margin:10px 0;background:var(--green-soft);color:var(--green-deep);border:2px solid #6ee7b7}
+  .steps{display:grid;gap:10px;margin:12px 0}
+  .step{display:flex;gap:12px;align-items:flex-start;background:#f8fafc;border:2px solid #e2e8f0;
+    border-radius:14px;padding:12px 14px}
+  .step .n{flex:0 0 36px;height:36px;border-radius:50%;background:var(--green);color:#fff;
+    font-weight:900;display:flex;align-items:center;justify-content:center}
+  .step .body .t{font-weight:800;font-size:1rem}
+  .step .body .d{font-size:.92rem;color:var(--muted);margin-top:2px;line-height:1.4}
+  .step.hl{border-color:#6ee7b7;background:var(--green-soft)}
+  .step.dim{opacity:.45}
+  .glossary{display:grid;gap:.4rem;margin:10px 0;padding:12px 14px;background:#ecfdf5;
+    border-radius:12px;border:2px solid #a7f3d0;font-size:.95rem}
+  .glossary strong{color:var(--green-deep)}
+  .mnemonic{font-size:.95rem;font-weight:700;color:#5b21b6;background:var(--purple-soft);
+    border-left:4px solid #7c3aed;padding:10px 14px;border-radius:0 12px 12px 0;margin-top:10px;line-height:1.4}
+  .callout{font-size:.9rem;font-weight:700;color:var(--amber-deep);background:var(--amber-soft);
+    border-left:4px solid var(--amber);padding:8px 12px;border-radius:0 10px 10px 0;margin-top:10px}
+  .btn-row{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px}
+  button.action{appearance:none;border:none;border-radius:999px;padding:10px 18px;
+    font-weight:800;font-size:.95rem;cursor:pointer;background:var(--green);color:#fff}
+  button.action.secondary{background:#fff;color:var(--green-deep);border:2px solid var(--green)}
+  footer{text-align:center;font-size:.8rem;color:var(--muted);margin-top:4px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="badge">Lección 33 · UD10 Figuras planas</div>
+    <h1>Construcción de figuras</h1>
+    <p class="subtitle">Compás + regla en SVG · mediatriz, bisectriz, triángulo SSS · geometría dinámica</p>
+  </header>
+
+  <div class="story">
+    <div class="emoji">🧭</div>
+    <p>Construir no es dibujar a ojo: es seguir un <strong>protocolo</strong> (segmento, arcos de compás, intersección)
+    que otra persona pueda repetir. Arrastra los controles y mira los arcos — sensación de GeoGebra offline.</p>
+  </div>
+
+  <section class="card">
+    <h2>Construcción</h2>
+    <div class="mode-row" id="modos">
+      <button type="button" class="mode-btn active" data-mode="sss">Triángulo SSS</button>
+      <button type="button" class="mode-btn" data-mode="equi">Equilátero</button>
+      <button type="button" class="mode-btn" data-mode="med">Mediatriz</button>
+      <button type="button" class="mode-btn" data-mode="bis">Bisectriz</button>
+    </div>
+
+    <div class="stage" aria-label="Construcción con regla y compás">
+      <svg id="svg" viewBox="0 0 800 550" role="img"></svg>
+    </div>
+
+    <div class="ctrl-row" id="ctrls"></div>
+    <label class="toggle"><input type="checkbox" id="showArcs" checked/> Mostrar arcos de compás</label>
+    <label class="toggle"><input type="checkbox" id="showSteps" checked/> Resaltar paso actual</label>
+    <div class="btn-row">
+      <button type="button" class="action" id="btnPaso">Siguiente paso</button>
+      <button type="button" class="action secondary" id="btnEj">Ejemplo de la lección</button>
+      <button type="button" class="action secondary" id="btnReset">Reiniciar pasos</button>
+    </div>
+    <p class="hint">Lados <strong>a, b, c independientes</strong>. Si no cumplen la desigualdad triangular, el triángulo no cierra (como con pajitas).</p>
+  </section>
+
+  <section class="card">
+    <h2>Protocolo (reproducible)</h2>
+    <div class="steps" id="pasos"></div>
+    <div class="verdict" id="veredicto">—</div>
+    <div class="callout">Desigualdad triangular: cada lado &lt; suma de los otros. Si falla, no hay construcción posible.</div>
+  </section>
+
+  <section class="card">
+    <h2>Letras y símbolos (léelos siempre en español)</h2>
+    <div class="glossary">
+      <div><strong>Compás</strong> = herramienta que dibuja circunferencias (aquí: arcos SVG) de radio fijo.</div>
+      <div><strong>Regla</strong> = traza segmentos/rectas (sin medir, en la versión clásica; aquí puedes fijar longitudes).</div>
+      <div><strong>Mediatriz</strong> = recta de puntos equidistantes de A y B → pasa por el punto medio y es ⊥ a AB.</div>
+      <div><strong>Bisectriz</strong> = rayo que parte un ángulo en dos ángulos iguales.</div>
+      <div><strong>SSS</strong> = tres lados dados · <strong>Intersección</strong> = punto que pertenece a dos lugares geométricos (dos arcos).</div>
+      <div><strong>Vértice / lado / ángulo</strong> = como en L31; aquí los <em>construyes</em>, no solo los nombras.</div>
+    </div>
+    <div class="mnemonic">🧠 Truco: «Arco desde A con radio b, arco desde B con radio a; donde se cruzan nace C. Si no se cruzan: desigualdad.»</div>
+  </section>
+
+  <footer>Offline · file:// · 1º ESO Matemáticas · CyL Decreto 39/2022 C.1</footer>
+</div>
+<script>
+(function(){
+  const svg=document.getElementById('svg');
+  const ctrls=document.getElementById('ctrls');
+  const pasos=document.getElementById('pasos');
+  const veredicto=document.getElementById('veredicto');
+  const showArcs=document.getElementById('showArcs');
+  const showSteps=document.getElementById('showSteps');
+
+  let mode='sss';
+  let step=99; // show all by default; btn advances
+  let a=5,b=6,c=7; // SSS: a=BC, b=AC, c=AB
+  let side=6; // equilateral
+  let seg=8; // mediatriz segment length
+  let angDeg=70; // bisector angle
+
+  function el(tag,attrs,text){
+    const e=document.createElementNS('http://www.w3.org/2000/svg',tag);
+    if(attrs) Object.entries(attrs).forEach(([k,v])=>e.setAttribute(k,v));
+    if(text!=null) e.textContent=text;
+    return e;
+  }
+  function fmt(n){ return String(Math.round(Number(n)*10)/10).replace('.',','); }
+  function triOK(a,b,c){ return a+b>c+1e-9 && a+c>b+1e-9 && b+c>a+1e-9; }
+
+  function buildCtrls(){
+    ctrls.innerHTML='';
+    function field(id,letter,name,min,max,stepv,val,cb,suffix){
+      const div=document.createElement('div'); div.className='field';
+      const suf=suffix||' u';
+      div.innerHTML='<label for="'+id+'"><span class="letter">'+letter+'</span> '+name+'</label>'+
+        '<input id="'+id+'" type="range" min="'+min+'" max="'+max+'" step="'+stepv+'" value="'+val+'"/>'+
+        '<output id="o_'+id+'">'+fmt(val)+suf+'</output>';
+      ctrls.appendChild(div);
+      const inp=div.querySelector('input'), out=div.querySelector('output');
+      inp.addEventListener('input',function(){ out.textContent=fmt(+inp.value)+suf; cb(+inp.value); draw(); });
+    }
+    if(mode==='sss'){
+      field('sa','a','Lado a (BC)',2,12,0.1,a,function(v){a=v;});
+      field('sb','b','Lado b (AC)',2,12,0.1,b,function(v){b=v;});
+      field('sc','c','Lado c (AB · base)',2,14,0.1,c,function(v){c=v;});
+    } else if(mode==='equi'){
+      field('sl','L','Lado',2,12,0.1,side,function(v){side=v;});
+    } else if(mode==='med'){
+      field('sg','AB','Longitud del segmento',3,14,0.1,seg,function(v){seg=v;});
+    } else {
+      field('an','θ','Ángulo a bisecar',20,140,1,angDeg,function(v){angDeg=v;},'°');
+    }
+  }
+
+  function setPasos(list, hl){
+    pasos.innerHTML=list.map(function(s,i){
+      var cls='step';
+      if(showSteps.checked){
+        if(i===hl) cls+=' hl';
+        else if(i>hl && step<99) cls+=' dim';
+      } else if(i===hl) cls+=' hl';
+      return '<div class="'+cls+'"><div class="n">'+(i+1)+'</div><div class="body"><div class="t">'+s[0]+'</div><div class="d">'+s[1]+'</div></div></div>';
+    }).join('');
+  }
+
+  function draw(){
+    svg.innerHTML='';
+    for(var x=40;x<800;x+=40) svg.appendChild(el('line',{x1:x,y1:20,x2:x,y2:530,stroke:'#d1fae5','stroke-width':1}));
+    for(var y=20;y<550;y+=40) svg.appendChild(el('line',{x1:40,y1:y,x2:760,y2:y,stroke:'#d1fae5','stroke-width':1}));
+
+    var maxStep = (mode==='sss'||mode==='equi')?4:(mode==='med'?4:3);
+    var cur = Math.min(step, maxStep);
+
+    if(mode==='sss' || mode==='equi'){
+      var aa=a, bb=b, cc=c;
+      if(mode==='equi'){ aa=bb=cc=side; }
+      if(!triOK(aa,bb,cc)){
+        setPasos([
+          ['Comprobar desigualdad','a+b>c, a+c>b, b+c>a'],
+          ['Resultado','NO se puede: '+fmt(aa)+'+'+fmt(bb)+' ? '+fmt(cc)+'…'],
+          ['Idea física','Las pajitas no llegan a cerrar.']
+        ],1);
+        veredicto.textContent='Imposible construir: desigualdad triangular incumplida';
+        svg.appendChild(el('text',{x:400,y:260,fill:'#be123c','font-size':22,'font-weight':800,'text-anchor':'middle','font-family':'Segoe UI,sans-serif'},'No cierra'));
+        svg.appendChild(el('text',{x:400,y:295,fill:'#64748b','font-size':16,'font-weight':600,'text-anchor':'middle','font-family':'Segoe UI,sans-serif'},
+          'a='+fmt(aa)+' · b='+fmt(bb)+' · c='+fmt(cc)));
+        return;
+      }
+      var scale=Math.min(480/Math.max(cc,1), 55);
+      var Ax=400-(cc*scale)/2, Ay=430;
+      var Bx=Ax+cc*scale, By=Ay;
+      var cosA=(bb*bb+cc*cc-aa*aa)/(2*bb*cc);
+      var angA=Math.acos(Math.max(-1,Math.min(1,cosA)));
+      var Cx=Ax+bb*scale*Math.cos(angA);
+      var Cy=Ay-bb*scale*Math.sin(angA);
+      var A={x:Ax,y:Ay}, B={x:Bx,y:By}, C={x:Cx,y:Cy};
+      var Ra=aa*scale, Rb=bb*scale;
+
+      // Step 1: base AB
+      if(cur>=1){
+        svg.appendChild(el('line',{x1:A.x,y1:A.y,x2:B.x,y2:B.y,stroke:'#047857','stroke-width':4,'stroke-linecap':'round'}));
+        svg.appendChild(el('circle',{cx:A.x,cy:A.y,r:6,fill:'#047857'}));
+        svg.appendChild(el('circle',{cx:B.x,cy:B.y,r:6,fill:'#047857'}));
+        svg.appendChild(el('text',{x:A.x-14,y:A.y+22,fill:'#064e3b','font-size':18,'font-weight':900,'font-family':'Segoe UI,sans-serif'},'A'));
+        svg.appendChild(el('text',{x:B.x+14,y:B.y+22,fill:'#064e3b','font-size':18,'font-weight':900,'font-family':'Segoe UI,sans-serif'},'B'));
+        svg.appendChild(el('text',{x:(A.x+B.x)/2,y:A.y+28,fill:'#0f766e','font-size':14,'font-weight':800,'text-anchor':'middle','font-family':'Segoe UI,sans-serif'},'c = '+fmt(cc)));
+      }
+      // Step 2: arc from A radius b
+      if(cur>=2 && showArcs.checked){
+        svg.appendChild(el('circle',{cx:A.x,cy:A.y,r:Rb,fill:'none',stroke:'#2563eb','stroke-width':2,'stroke-dasharray':'6 5',opacity:0.85}));
+        svg.appendChild(el('text',{x:A.x-Rb*0.7,y:A.y-Rb*0.7,fill:'#1d4ed8','font-size':13,'font-weight':700,'font-family':'Segoe UI,sans-serif'},'compás r=b'));
+      }
+      // Step 3: arc from B radius a
+      if(cur>=3 && showArcs.checked){
+        svg.appendChild(el('circle',{cx:B.x,cy:B.y,r:Ra,fill:'none',stroke:'#7c3aed','stroke-width':2,'stroke-dasharray':'6 5',opacity:0.85}));
+        svg.appendChild(el('text',{x:B.x+Ra*0.35,y:B.y-Ra*0.75,fill:'#5b21b6','font-size':13,'font-weight':700,'font-family':'Segoe UI,sans-serif'},'compás r=a'));
+      }
+      // Step 4: intersection C and sides
+      if(cur>=4){
+        svg.appendChild(el('polygon',{points:A.x+','+A.y+' '+B.x+','+B.y+' '+C.x+','+C.y,
+          fill:'rgba(16,185,129,.18)',stroke:'#059669','stroke-width':3.5,'stroke-linejoin':'round'}));
+        svg.appendChild(el('circle',{cx:C.x,cy:C.y,r:7,fill:'#e11d48',stroke:'#fff','stroke-width':2}));
+        svg.appendChild(el('text',{x:C.x,y:C.y-16,fill:'#be123c','font-size':18,'font-weight':900,'text-anchor':'middle','font-family':'Segoe UI,sans-serif'},'C'));
+        // side labels
+        svg.appendChild(el('text',{x:(B.x+C.x)/2+12,y:(B.y+C.y)/2,fill:'#0f766e','font-size':13,'font-weight':800,'font-family':'Segoe UI,sans-serif'},'a='+fmt(aa)));
+        svg.appendChild(el('text',{x:(A.x+C.x)/2-12,y:(A.y+C.y)/2,fill:'#0f766e','font-size':13,'font-weight':800,'font-family':'Segoe UI,sans-serif'},'b='+fmt(bb)));
+      }
+
+      var stepsList=[
+        ['Trazar base AB','Segmento de longitud c = '+fmt(cc)+'.'],
+        ['Arco desde A','Compás con radio b = '+fmt(bb)+' (lugar de puntos a distancia b de A).'],
+        ['Arco desde B','Compás con radio a = '+fmt(aa)+'.'],
+        ['Intersección → C','Donde se cruzan los arcos nace el vértice C. Unir CA y CB.']
+      ];
+      setPasos(stepsList, Math.min(cur,4)-1);
+      veredicto.textContent = mode==='equi'
+        ? 'Equilátero construido: tres lados = '+fmt(side)+' · tres arcos del mismo radio'
+        : 'Triángulo SSS construido · a='+fmt(aa)+' · b='+fmt(bb)+' · c='+fmt(cc);
+      return;
+    }
+
+    if(mode==='med'){
+      var scale=Math.min(500/Math.max(seg,1), 50);
+      var Ax=400-(seg*scale)/2, Ay=300;
+      var Bx=Ax+seg*scale, By=Ay;
+      var Mx=400, My=300;
+      var R=seg*scale*0.65;
+      var A={x:Ax,y:Ay}, B={x:Bx,y:By};
+
+      if(cur>=1){
+        svg.appendChild(el('line',{x1:A.x,y1:A.y,x2:B.x,y2:B.y,stroke:'#047857','stroke-width':4,'stroke-linecap':'round'}));
+        svg.appendChild(el('circle',{cx:A.x,cy:A.y,r:6,fill:'#047857'}));
+        svg.appendChild(el('circle',{cx:B.x,cy:B.y,r:6,fill:'#047857'}));
+        svg.appendChild(el('text',{x:A.x-14,y:A.y+22,fill:'#064e3b','font-size':18,'font-weight':900,'font-family':'Segoe UI,sans-serif'},'A'));
+        svg.appendChild(el('text',{x:B.x+14,y:B.y+22,fill:'#064e3b','font-size':18,'font-weight':900,'font-family':'Segoe UI,sans-serif'},'B'));
+      }
+      if(cur>=2 && showArcs.checked){
+        svg.appendChild(el('circle',{cx:A.x,cy:A.y,r:R,fill:'none',stroke:'#2563eb','stroke-width':2,'stroke-dasharray':'6 5'}));
+      }
+      if(cur>=3 && showArcs.checked){
+        svg.appendChild(el('circle',{cx:B.x,cy:B.y,r:R,fill:'none',stroke:'#7c3aed','stroke-width':2,'stroke-dasharray':'6 5'}));
+      }
+      if(cur>=4){
+        // intersection points of two circles
+        var d=seg*scale;
+        var aa2=d/2;
+        var h=Math.sqrt(Math.max(0,R*R-aa2*aa2));
+        var P={x:Mx,y:My-h}, Q={x:Mx,y:My+h};
+        svg.appendChild(el('circle',{cx:P.x,cy:P.y,r:6,fill:'#e11d48',stroke:'#fff','stroke-width':2}));
+        svg.appendChild(el('circle',{cx:Q.x,cy:Q.y,r:6,fill:'#e11d48',stroke:'#fff','stroke-width':2}));
+        svg.appendChild(el('line',{x1:P.x,y1:P.y-40,x2:Q.x,y2:Q.y+40,stroke:'#d97706','stroke-width':3.5,'stroke-linecap':'round'}));
+        svg.appendChild(el('circle',{cx:Mx,cy:My,r:5,fill:'#b45309'}));
+        svg.appendChild(el('text',{x:Mx+12,y:My-8,fill:'#b45309','font-size':14,'font-weight':800,'font-family':'Segoe UI,sans-serif'},'M (punto medio)'));
+        // right angle mark
+        var s=14;
+        svg.appendChild(el('polyline',{points:(Mx)+','+(My-s)+' '+(Mx+s)+','+(My-s)+' '+(Mx+s)+','+(My),
+          fill:'none',stroke:'#b45309','stroke-width':2.5}));
+        svg.appendChild(el('text',{x:Mx+24,y:My+80,fill:'#92400e','font-size':14,'font-weight':700,'font-family':'Segoe UI,sans-serif'},'mediatriz ⊥ AB'));
+      }
+      setPasos([
+        ['Segmento AB','Longitud = '+fmt(seg)+'.'],
+        ['Arco desde A','Radio > AB/2 (mismo radio en ambos).'],
+        ['Arco desde B','Mismo radio: se cortan en dos puntos.'],
+        ['Unir intersecciones','La recta es la mediatriz: pasa por M y es perpendicular.']
+      ], Math.min(cur,4)-1);
+      veredicto.textContent='Mediatriz: equidistancia de A y B · perpendicular por el punto medio';
+      return;
+    }
+
+    // bisectriz
+    var Vx=280, Vy=360;
+    var rayLen=320;
+    var ang=angDeg*Math.PI/180;
+    var ux=1, uy=0; // first ray horizontal
+    var vx=Math.cos(-ang), vy=Math.sin(-ang);
+    var P1={x:Vx+ux*rayLen,y:Vy+uy*rayLen};
+    var P2={x:Vx+vx*rayLen,y:Vy+vy*rayLen};
+    var bis=ang/2;
+    var bx=Math.cos(-bis), by=Math.sin(-bis);
+    var Pb={x:Vx+bx*rayLen,y:Vy+by*rayLen};
+    var arcR=110;
+
+    if(cur>=1){
+      svg.appendChild(el('line',{x1:Vx,y1:Vy,x2:P1.x,y2:P1.y,stroke:'#047857','stroke-width':4,'stroke-linecap':'round'}));
+      svg.appendChild(el('line',{x1:Vx,y1:Vy,x2:P2.x,y2:P2.y,stroke:'#047857','stroke-width':4,'stroke-linecap':'round'}));
+      svg.appendChild(el('circle',{cx:Vx,cy:Vy,r:7,fill:'#047857'}));
+      svg.appendChild(el('text',{x:Vx-18,y:Vy+8,fill:'#064e3b','font-size':18,'font-weight':900,'font-family':'Segoe UI,sans-serif'},'V'));
+      // angle arc
+      svg.appendChild(el('path',{
+        d:'M '+(Vx+70)+' '+Vy+' A 70 70 0 0 0 '+(Vx+70*Math.cos(-ang))+' '+(Vy+70*Math.sin(-ang)),
+        fill:'none',stroke:'#d97706','stroke-width':2.5
+      }));
+      svg.appendChild(el('text',{x:Vx+90*Math.cos(-ang/2),y:Vy+90*Math.sin(-ang/2),fill:'#b45309','font-size':14,'font-weight':800,'font-family':'Segoe UI,sans-serif'},fmt(angDeg)+'°'));
+    }
+    if(cur>=2 && showArcs.checked){
+      svg.appendChild(el('circle',{cx:Vx,cy:Vy,r:arcR,fill:'none',stroke:'#2563eb','stroke-width':2,'stroke-dasharray':'6 5'}));
+      // marks on rays
+      var M1={x:Vx+ux*arcR,y:Vy+uy*arcR}, M2={x:Vx+vx*arcR,y:Vy+vy*arcR};
+      svg.appendChild(el('circle',{cx:M1.x,cy:M1.y,r:5,fill:'#2563eb'}));
+      svg.appendChild(el('circle',{cx:M2.x,cy:M2.y,r:5,fill:'#2563eb'}));
+    }
+    if(cur>=3){
+      // small arcs from M1 and M2 (same radius) — show intersection on bisector
+      var M1={x:Vx+ux*arcR,y:Vy+uy*arcR}, M2={x:Vx+vx*arcR,y:Vy+vy*arcR};
+      var small=80;
+      if(showArcs.checked){
+        svg.appendChild(el('circle',{cx:M1.x,cy:M1.y,r:small,fill:'none',stroke:'#7c3aed','stroke-width':1.8,'stroke-dasharray':'4 4',opacity:0.7}));
+        svg.appendChild(el('circle',{cx:M2.x,cy:M2.y,r:small,fill:'none',stroke:'#7c3aed','stroke-width':1.8,'stroke-dasharray':'4 4',opacity:0.7}));
+      }
+      var I={x:Vx+bx*(arcR+small*0.55), y:Vy+by*(arcR+small*0.55)};
+      // better: point on bisector at distance from V
+      I={x:Vx+bx*(arcR+40), y:Vy+by*(arcR+40)};
+      svg.appendChild(el('line',{x1:Vx,y1:Vy,x2:Pb.x,y2:Pb.y,stroke:'#e11d48','stroke-width':3.5,'stroke-linecap':'round','stroke-dasharray':'8 5'}));
+      svg.appendChild(el('circle',{cx:I.x,cy:I.y,r:6,fill:'#e11d48',stroke:'#fff','stroke-width':2}));
+      svg.appendChild(el('text',{x:Pb.x*0.55+Vx*0.45+10,y:Pb.y*0.55+Vy*0.45-10,fill:'#be123c','font-size':14,'font-weight':800,'font-family':'Segoe UI,sans-serif'},'bisectriz'));
+      // two equal half labels
+      svg.appendChild(el('text',{x:Vx+100*Math.cos(-ang/4),y:Vy+100*Math.sin(-ang/4)-6,fill:'#0f766e','font-size':13,'font-weight':800,'font-family':'Segoe UI,sans-serif'},fmt(angDeg/2)+'°'));
+      svg.appendChild(el('text',{x:Vx+100*Math.cos(-3*ang/4),y:Vy+100*Math.sin(-3*ang/4)-6,fill:'#0f766e','font-size':13,'font-weight':800,'font-family':'Segoe UI,sans-serif'},fmt(angDeg/2)+'°'));
+    }
+    setPasos([
+      ['Dibujar el ángulo','Vértice V y dos rayos · θ = '+fmt(angDeg)+'°.'],
+      ['Arco centrado en V','Marca el mismo radio en ambos lados.'],
+      ['Arcos desde las marcas','Misma abertura: su cruce define la bisectriz (parte θ en dos).']
+    ], Math.min(cur,3)-1);
+    veredicto.textContent='Bisectriz: divide el ángulo en dos de '+fmt(angDeg/2)+'°';
+  }
+
+  document.querySelectorAll('.mode-btn').forEach(function(b){
+    b.addEventListener('click',function(){
+      mode=b.dataset.mode;
+      document.querySelectorAll('.mode-btn').forEach(function(x){ x.classList.toggle('active',x===b); });
+      step=99; buildCtrls(); draw();
+    });
+  });
+  showArcs.addEventListener('change',draw);
+  showSteps.addEventListener('change',draw);
+  document.getElementById('btnPaso').addEventListener('click',function(){
+    var maxStep=(mode==='sss'||mode==='equi'||mode==='med')?4:3;
+    if(step>=99) step=0;
+    step=Math.min(step+1,maxStep);
+    draw();
+  });
+  document.getElementById('btnReset').addEventListener('click',function(){ step=0; draw(); });
+  document.getElementById('btnEj').addEventListener('click',function(){
+    if(mode==='sss'){ a=4; b=5; c=7; }
+    else if(mode==='equi'){ side=6; }
+    else if(mode==='med'){ seg=8; }
+    else { angDeg=70; }
+    step=99; buildCtrls(); draw();
+  });
+
+  buildCtrls(); draw();
+
+  if (/[?&]preview=1\b/.test(location.search)) {
+    mode='sss'; a=4; b=5; c=7; step=99; showArcs.checked=true;
+    document.querySelectorAll('.mode-btn').forEach(function(x){ x.classList.toggle('active',x.dataset.mode==='sss'); });
+    buildCtrls(); draw();
+  }
+})();
+</script>
+</body>
+</html>

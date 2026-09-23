@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Posiciones relativas de rectas y circunferencias · 1º ESO</title>
+<style>
+  :root {
+    --bg:#fdf4ff; --ink:#1a2b3c; --muted:#5a6d7e; --card:#fff;
+    --purple:#7c3aed; --purple-soft:#ede9fe; --purple-deep:#5b21b6;
+    --blue:#2563eb; --blue-soft:#dbeafe; --teal:#0d9488; --teal-soft:#ccfbf1; --teal-deep:#0f766e;
+    --green:#059669; --green-soft:#d1fae5; --amber:#d97706; --amber-soft:#fef3c7; --amber-deep:#b45309;
+    --rose:#e11d48; --rose-soft:#ffe4e6;
+    --shadow:0 8px 28px rgba(26,43,60,.08); --radius:18px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{min-height:100%;background:var(--bg);color:var(--ink);
+    font-family:"Segoe UI",system-ui,-apple-system,sans-serif;-webkit-font-smoothing:antialiased}
+  body{display:flex;flex-direction:column;align-items:center;padding:14px 10px 36px}
+  .wrap{width:100%;max-width:980px}
+  header{text-align:center;margin-bottom:12px}
+  header .badge{display:inline-block;font-size:.78rem;font-weight:700;letter-spacing:.04em;
+    text-transform:uppercase;color:var(--purple-deep);background:var(--purple-soft);
+    padding:4px 12px;border-radius:999px;margin-bottom:8px}
+  h1{font-size:clamp(1.25rem,4.5vw,1.85rem);line-height:1.2;font-weight:800}
+  .subtitle{margin-top:6px;font-size:clamp(.9rem,2.8vw,1.05rem);color:var(--muted);font-weight:500}
+  .story{background:linear-gradient(135deg,#ede9fe,#dbeafe 55%,#ccfbf1);
+    border:2px solid #c4b5fd;border-radius:var(--radius);padding:12px 14px;
+    margin-bottom:14px;display:flex;gap:12px;align-items:flex-start}
+  .story .emoji{font-size:2rem}
+  .story p{font-size:clamp(.9rem,2.5vw,1.02rem);line-height:1.45}
+  .story strong{color:var(--purple-deep)}
+  .card{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);
+    padding:16px 14px 18px;margin-bottom:14px}
+  .card h2{font-size:clamp(1.05rem,3vw,1.25rem);font-weight:800;margin-bottom:8px}
+  .hint{font-size:clamp(.88rem,2.4vw,1rem);color:var(--muted);line-height:1.45;margin-bottom:12px}
+  .mode-row{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px;justify-content:center}
+  .mode-btn{padding:10px 12px;border-radius:12px;border:3px solid #cbd5e1;background:#fff;
+    font-size:.82rem;font-weight:800;cursor:pointer}
+  .mode-btn.active{border-color:var(--purple);background:var(--purple-soft);color:var(--purple-deep)}
+  .stage{position:relative;width:100%;aspect-ratio:16/11;background:#faf5ff;
+    border-radius:14px;overflow:hidden;border:2px solid #ddd6fe;margin-bottom:12px}
+  .stage svg{width:100%;height:100%;display:block}
+  .ctrl-row{display:flex;flex-wrap:wrap;gap:12px;align-items:flex-end;margin-bottom:12px}
+  .field{display:flex;flex-direction:column;gap:4px;flex:1 1 150px}
+  .field label{font-size:.8rem;font-weight:700;color:var(--muted)}
+  .field label .letter{display:inline-block;padding:1px 7px;border-radius:8px;font-weight:800;
+    margin-right:3px;background:var(--purple-soft);color:var(--purple-deep)}
+  .field input[type="range"]{width:100%;accent-color:var(--purple)}
+  .field output{font-weight:900;font-variant-numeric:tabular-nums;color:var(--purple-deep);font-size:1.1rem}
+  .verdict{text-align:center;font-size:clamp(1.1rem,2.8vw,1.4rem);font-weight:900;padding:14px;
+    border-radius:14px;margin:10px 0;background:var(--purple-soft);color:var(--purple-deep);border:2px solid #c4b5fd}
+  .steps{display:grid;gap:10px;margin:12px 0}
+  .step{display:flex;gap:12px;align-items:flex-start;background:#f8fafc;border:2px solid #e2e8f0;
+    border-radius:14px;padding:12px 14px}
+  .step .n{flex:0 0 36px;height:36px;border-radius:50%;background:var(--purple);color:#fff;
+    font-weight:900;display:flex;align-items:center;justify-content:center}
+  .step .body .t{font-weight:800;font-size:1rem}
+  .step .body .d{font-size:.92rem;color:var(--muted);margin-top:2px;line-height:1.4}
+  .step.hl{border-color:#c4b5fd;background:var(--purple-soft)}
+  .glossary{display:grid;gap:.4rem;margin:10px 0;padding:12px 14px;background:#faf5ff;
+    border-radius:12px;border:2px solid #ddd6fe;font-size:.95rem}
+  .glossary strong{color:var(--purple-deep)}
+  .mnemonic{font-size:.95rem;font-weight:700;color:#5b21b6;background:var(--purple-soft);
+    border-left:4px solid #7c3aed;padding:10px 14px;border-radius:0 12px 12px 0;margin-top:10px;line-height:1.4}
+  .callout{font-size:.9rem;font-weight:700;color:var(--amber-deep);background:var(--amber-soft);
+    border-left:4px solid var(--amber);padding:8px 12px;border-radius:0 10px 10px 0;margin-top:10px}
+  .btn-row{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px}
+  button.action{appearance:none;border:none;border-radius:999px;padding:10px 18px;
+    font-weight:800;font-size:.95rem;cursor:pointer;background:var(--purple);color:#fff}
+  button.action.secondary{background:#fff;color:var(--purple-deep);border:2px solid var(--purple)}
+  footer{text-align:center;font-size:.8rem;color:var(--muted);margin-top:4px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="badge">Lección 32 · UD10 Figuras planas</div>
+    <h1>Posiciones relativas de rectas y circunferencias</h1>
+    <p class="subtitle">Paralelas · perpendiculares · tangente · secante · exterior — con d y r</p>
+  </header>
+
+  <div class="story">
+    <div class="emoji">◯</div>
+    <p>Las posiciones se deciden con <strong>ángulos</strong> (entre rectas) o comparando la distancia
+    <strong>d</strong> con el radio <strong>r</strong> (recta–circunferencia). El dibujo muestra rectas y círculos de verdad,
+    con el segmento perpendicular que mide d.</p>
+  </div>
+
+  <section class="card">
+    <h2>Situación</h2>
+    <div class="mode-row" id="modos">
+      <button type="button" class="mode-btn active" data-mode="rectas">Dos rectas</button>
+      <button type="button" class="mode-btn" data-mode="recta-circ">Recta y circunferencia</button>
+      <button type="button" class="mode-btn" data-mode="dos-circ">Dos circunferencias</button>
+    </div>
+
+    <div class="stage" aria-label="Posiciones relativas">
+      <svg id="svg" viewBox="0 0 800 550" role="img"></svg>
+    </div>
+
+    <div class="ctrl-row" id="ctrls"></div>
+    <div class="btn-row">
+      <button type="button" class="action" id="btnEj">Ejemplo de la lección</button>
+      <button type="button" class="action secondary" id="btnSnap">Ajustar a caso típico</button>
+    </div>
+    <p class="hint">Controles <strong>independientes</strong>: mover r no mueve d (ni al revés). Compara d ? r tú mismo.</p>
+  </section>
+
+  <section class="card">
+    <h2>Decisión</h2>
+    <div class="steps" id="pasos"></div>
+    <div class="verdict" id="veredicto">—</div>
+    <div class="callout">Circunferencia = borde (línea curva). Círculo = disco (región). El área πr² es del círculo; aquí estudiamos posiciones.</div>
+  </section>
+
+  <section class="card">
+    <h2>Letras y símbolos (léelos siempre en español)</h2>
+    <div class="glossary">
+      <div><strong>Paralelas (∥)</strong> = misma dirección; no se cortan en el plano.</div>
+      <div><strong>Secantes</strong> = se cortan en un punto (rectas) o en dos (recta–circunferencia).</div>
+      <div><strong>Perpendiculares (⊥)</strong> = secantes que forman 90°.</div>
+      <div><strong>Tangente</strong> = toca en <em>exactamente un</em> punto (d = r).</div>
+      <div><strong>Exterior</strong> = no se cortan (d &gt; r para recta–circunferencia).</div>
+      <div><strong>O</strong> = centro · <strong>r</strong> = radio · <strong>diámetro</strong> = 2r · <strong>d</strong> = distancia (perpendicular) del centro a la recta.</div>
+      <div>Criterio: <strong>d &gt; r</strong> exterior · <strong>d = r</strong> tangente · <strong>d &lt; r</strong> secante (2 puntos).</div>
+    </div>
+    <div class="mnemonic">🧠 Truco: «d contra r: mayor → fuera; igual → roce (tangente); menor → corta en dos.»</div>
+  </section>
+
+  <footer>Offline · file:// · 1º ESO Matemáticas · CyL Decreto 39/2022 C.1</footer>
+</div>
+<script>
+(function(){
+  const svg=document.getElementById('svg');
+  const ctrls=document.getElementById('ctrls');
+  const pasos=document.getElementById('pasos');
+  const veredicto=document.getElementById('veredicto');
+  let mode='recta-circ'; // will set to rectas then preview overrides
+  mode='rectas';
+
+  // independent state
+  let angle=35; // degrees between two lines (0 = parallel)
+  let r=5, d=5; // for line-circle (units)
+  let r1=4, r2=3, distC=6; // two circles
+
+  function el(tag,attrs,text){
+    const e=document.createElementNS('http://www.w3.org/2000/svg',tag);
+    if(attrs) Object.entries(attrs).forEach(([k,v])=>e.setAttribute(k,v));
+    if(text!=null) e.textContent=text;
+    return e;
+  }
+  function fmt(n){ return String(Math.round(Number(n)*100)/100).replace('.',','); }
+
+  function buildCtrls(){
+    ctrls.innerHTML='';
+    function field(id,letter,name,min,max,step,val,cb){
+      const div=document.createElement('div'); div.className='field';
+      div.innerHTML=`<label for="${id}"><span class="letter">${letter}</span> ${name}</label>
+        <input id="${id}" type="range" min="${min}" max="${max}" step="${step}" value="${val}"/>
+        <output id="o_${id}">${fmt(val)}</output>`;
+      ctrls.appendChild(div);
+      const inp=div.querySelector('input'), out=div.querySelector('output');
+      inp.addEventListener('input',()=>{ out.textContent=fmt(+inp.value)+(id==='ang'?'°':' u'); cb(+inp.value); draw(); });
+      out.textContent=fmt(val)+(id==='ang'?'°':' u');
+    }
+    if(mode==='rectas'){
+      field('ang','θ','Ángulo entre rectas',0,90,1,angle,v=>angle=v);
+    } else if(mode==='recta-circ'){
+      field('rr','r','Radio',1,10,0.1,r,v=>r=v);
+      field('dd','d','Distancia O→recta',0,12,0.1,d,v=>d=v);
+    } else {
+      field('r1','r₁','Radio 1',1,8,0.1,r1,v=>r1=v);
+      field('r2','r₂','Radio 2',1,8,0.1,r2,v=>r2=v);
+      field('dc','δ','Distancia entre centros',0,16,0.1,distC,v=>distC=v);
+    }
+  }
+
+  function drawRight(Q, dirU, size){
+    // dirU unit along one arm; perpendicular via rotate 90
+    const s=size||14;
+    const px=-dirU.y, py=dirU.x;
+    const p1={x:Q.x+dirU.x*s,y:Q.y+dirU.y*s};
+    const p2={x:Q.x+dirU.x*s+px*s,y:Q.y+dirU.y*s+py*s};
+    const p3={x:Q.x+px*s,y:Q.y+py*s};
+    return el('polyline',{points:`${p1.x},${p1.y} ${p2.x},${p2.y} ${p3.x},${p3.y}`,fill:'none',stroke:'#b45309','stroke-width':2.5});
+  }
+
+  function draw(){
+    svg.innerHTML='';
+    // soft grid
+    for(let x=40;x<800;x+=40) svg.appendChild(el('line',{x1:x,y1:20,x2:x,y2:530,stroke:'#f3e8ff','stroke-width':1}));
+    for(let y=20;y<550;y+=40) svg.appendChild(el('line',{x1:40,y1:y,x2:760,y2:y,stroke:'#f3e8ff','stroke-width':1}));
+
+    if(mode==='rectas'){
+      const cx=400, cy=280;
+      const a1=0; // horizontal
+      const a2=-angle*Math.PI/180;
+      function lineThrough(ang, color, label, yOff){
+        const ux=Math.cos(ang), uy=Math.sin(ang);
+        const len=420;
+        const x1=cx-ux*len, y1=cy-uy*len, x2=cx+ux*len, y2=cy+uy*len;
+        svg.appendChild(el('line',{x1,y1,x2,y2,stroke:color,'stroke-width':4,'stroke-linecap':'round'}));
+        svg.appendChild(el('text',{x:cx+ux*200,y:cy+uy*200+(yOff||0),fill:color,'font-size':16,'font-weight':800,'font-family':'Segoe UI,sans-serif'}, label));
+        return {ux,uy};
+      }
+      const L1=lineThrough(a1,'#2563eb','recta r₁',-12);
+      const L2=lineThrough(a2,'#7c3aed','recta r₂',14);
+
+      let title, stepsHtml, hl;
+      if(angle<0.5){
+        // parallel: draw second line shifted
+        svg.innerHTML='';
+        for(let x=40;x<800;x+=40) svg.appendChild(el('line',{x1:x,y1:20,x2:x,y2:530,stroke:'#f3e8ff','stroke-width':1}));
+        for(let y=20;y<550;y+=40) svg.appendChild(el('line',{x1:40,y1:y,x2:760,y2:y,stroke:'#f3e8ff','stroke-width':1}));
+        svg.appendChild(el('line',{x1:80,y1:220,x2:720,y2:220,stroke:'#2563eb','stroke-width':4,'stroke-linecap':'round'}));
+        svg.appendChild(el('line',{x1:80,y1:340,x2:720,y2:340,stroke:'#7c3aed','stroke-width':4,'stroke-linecap':'round'}));
+        // parallel marks
+        [[300,220],[300,340],[500,220],[500,340]].forEach((p,i)=>{
+          const y=p[1];
+          svg.appendChild(el('line',{x1:p[0]-8,y1:y-10,x2:p[0]+8,y2:y+10,stroke:'#0d9488','stroke-width':2.5}));
+          if(i%2===0) svg.appendChild(el('line',{x1:p[0]-3,y1:y-10,x2:p[0]+13,y2:y+10,stroke:'#0d9488','stroke-width':2.5}));
+        });
+        svg.appendChild(el('text',{x:400,y:200,fill:'#1d4ed8','font-size':16,'font-weight':800,'text-anchor':'middle','font-family':'Segoe UI,sans-serif'},'r₁'));
+        svg.appendChild(el('text',{x:400,y:370,fill:'#5b21b6','font-size':16,'font-weight':800,'text-anchor':'middle','font-family':'Segoe UI,sans-serif'},'r₂'));
+        svg.appendChild(el('text',{x:400,y:40,fill:'#0f766e','font-size':18,'font-weight':800,'text-anchor':'middle','font-family':'Segoe UI,sans-serif'},'Marcas ∥ · no se cortan'));
+        title='Paralelas (∥)';
+        stepsHtml=[
+          ['θ = 0°','Misma dirección: el ángulo entre ellas es nulo.'],
+          ['No hay punto común','En el plano euclídeo escolar no se encuentran.'],
+          ['Conclusión','Se llaman paralelas.']
+        ]; hl=2;
+      } else {
+        // intersection point
+        svg.appendChild(el('circle',{cx,cy,r:7,fill:'#e11d48',stroke:'#fff','stroke-width':2}));
+        svg.appendChild(el('text',{x:cx+14,y:cy-12,fill:'#be123c','font-size':16,'font-weight':800,'font-family':'Segoe UI,sans-serif'},'P'));
+        // angle arc
+        const rr=48;
+        svg.appendChild(el('path',{d:`M ${cx+rr} ${cy} A ${rr} ${rr} 0 0 0 ${cx+rr*Math.cos(a2)} ${cy+rr*Math.sin(a2)}`,
+          fill:'none',stroke:'#d97706','stroke-width':3}));
+        svg.appendChild(el('text',{x:cx+rr*Math.cos(a2/2)+8,y:cy+rr*Math.sin(a2/2)-8,fill:'#b45309','font-size':15,'font-weight':800,'font-family':'Segoe UI,sans-serif'}, fmt(angle)+'°'));
+        if(Math.abs(angle-90)<0.6){
+          svg.appendChild(drawRight({x:cx,y:cy},{x:1,y:0},18));
+          title='Perpendiculares (⊥)';
+          stepsHtml=[
+            ['Se cortan en P','Las dos rectas son secantes.'],
+            ['θ = 90°','El ángulo es recto.'],
+            ['Conclusión','Secantes perpendiculares.']
+          ]; hl=2;
+        } else {
+          title='Secantes';
+          stepsHtml=[
+            ['Se cortan en P','Un único punto en común.'],
+            ['θ = '+fmt(angle)+'°','Ángulo distinto de 0° y '+(Math.abs(angle-90)<0.6?'':'no ')+'es 90°.'],
+            ['Conclusión','Rectas secantes'+(Math.abs(angle-90)<0.6?' perpendiculares':'')+'.']
+          ]; hl=2;
+        }
+      }
+      pasos.innerHTML=stepsHtml.map((s,i)=>`<div class="step${i===hl?' hl':''}"><div class="n">${i+1}</div><div class="body"><div class="t">${s[0]}</div><div class="d">${s[1]}</div></div></div>`).join('');
+      veredicto.textContent=title;
+      return;
+    }
+
+    if(mode==='recta-circ'){
+      // Independent scales: px per unit fixed so changing r doesn't resize d visually inconsistently
+      const scaleX=28, scaleY=28; // same unit
+      const Ox=400, Oy=300;
+      // horizontal line at y = Oy + d*scaleY (line below center if d>0) — actually place line and center with vertical distance d
+      const lineY = Oy + d*scaleY;
+      // If d large, keep circle on screen: shift both
+      let shift=0;
+      if(lineY>500) shift=lineY-500;
+      if(Oy-r*scaleY-shift<40) shift = Oy-r*scaleY-40;
+      const O={x:Ox,y:Oy-shift};
+      const LY=lineY-shift;
+      const Rpx=r*scaleX;
+
+      // line
+      svg.appendChild(el('line',{x1:60,y1:LY,x2:740,y2:LY,stroke:'#2563eb','stroke-width':4,'stroke-linecap':'round'}));
+      svg.appendChild(el('text',{x:700,y:LY-12,fill:'#1d4ed8','font-size':15,'font-weight':800,'font-family':'Segoe UI,sans-serif'},'recta'));
+
+      // circle
+      svg.appendChild(el('circle',{cx:O.x,cy:O.y,r:Rpx,fill:'rgba(124,58,237,.08)',stroke:'#7c3aed','stroke-width':3.5}));
+      // center
+      svg.appendChild(el('circle',{cx:O.x,cy:O.y,r:5,fill:'#5b21b6'}));
+      svg.appendChild(el('text',{x:O.x+10,y:O.y-10,fill:'#5b21b6','font-size':16,'font-weight':900,'font-family':'Segoe UI,sans-serif'},'O'));
+
+      // radius segment (horizontal for clarity)
+      svg.appendChild(el('line',{x1:O.x,y1:O.y,x2:O.x+Rpx,y2:O.y,stroke:'#0d9488','stroke-width':2.5,'stroke-dasharray':'5 4'}));
+      svg.appendChild(el('text',{x:O.x+Rpx/2,y:O.y-10,fill:'#0f766e','font-size':14,'font-weight':800,'text-anchor':'middle','font-family':'Segoe UI,sans-serif'},'r = '+fmt(r)));
+
+      // perpendicular distance d
+      svg.appendChild(el('line',{x1:O.x,y1:O.y,x2:O.x,y2:LY,stroke:'#d97706','stroke-width':3}));
+      // right angle at foot
+      const foot={x:O.x,y:LY};
+      svg.appendChild(el('circle',{cx:foot.x,cy:foot.y,r:5,fill:'#b45309'}));
+      if(d>0.15){
+        const dir = LY>O.y ? {x:0,y:1} : {x:0,y:-1};
+        // small square: along line (1,0) and toward O
+        const s=12;
+        const toward = LY>O.y ? -1 : 1;
+        svg.appendChild(el('polyline',{points:`${foot.x+s},${foot.y} ${foot.x+s},${foot.y+toward*s} ${foot.x},${foot.y+toward*s}`,
+          fill:'none',stroke:'#b45309','stroke-width':2}));
+      }
+      svg.appendChild(el('text',{x:O.x+14,y:(O.y+LY)/2+5,fill:'#b45309','font-size':15,'font-weight':800,'font-family':'Segoe UI,sans-serif'},'d = '+fmt(d)));
+
+      // intersection points
+      let caso, nPts;
+      const eps=0.08;
+      if(d>r+eps){ caso='exterior'; nPts=0; }
+      else if(Math.abs(d-r)<=eps){ caso='tangente'; nPts=1; }
+      else { caso='secante'; nPts=2; }
+
+      if(nPts>=1){
+        const half = Math.sqrt(Math.max(0, Rpx*Rpx - (d*scaleY)*(d*scaleY)));
+        const pts = nPts===1 ? [{x:O.x,y:LY}] : [{x:O.x-half,y:LY},{x:O.x+half,y:LY}];
+        pts.forEach((p,i)=>{
+          svg.appendChild(el('circle',{cx:p.x,cy:p.y,r:7,fill:'#e11d48',stroke:'#fff','stroke-width':2}));
+          svg.appendChild(el('text',{x:p.x,y:p.y-14,fill:'#be123c','font-size':14,'font-weight':800,'text-anchor':'middle','font-family':'Segoe UI,sans-serif'}, nPts===1?'T':('P'+(i+1))));
+        });
+      }
+
+      const cmp = d>r+eps ? 'd > r' : (Math.abs(d-r)<=eps ? 'd = r' : 'd < r');
+      const stepsHtml=[
+        ['Datos','Radio r = '+fmt(r)+' · distancia d = '+fmt(d)],
+        ['Comparar', cmp + '  →  ' + (nPts===0?'0 puntos':nPts===1?'1 punto':'2 puntos')],
+        ['Nombre', caso.charAt(0).toUpperCase()+caso.slice(1) + (caso==='tangente'?' (roce)':caso==='secante'?' (corta)':' (no corta)')]
+      ];
+      pasos.innerHTML=stepsHtml.map((s,i)=>`<div class="step${i===2?' hl':''}"><div class="n">${i+1}</div><div class="body"><div class="t">${s[0]}</div><div class="d">${s[1]}</div></div></div>`).join('');
+      veredicto.textContent='Recta y circunferencia: '+caso+' · '+cmp;
+      return;
+    }
+
+    // two circles
+    const scale=26;
+    const mid=400, cy=300;
+    const O1={x:mid - (distC*scale)/2, y:cy};
+    const O2={x:mid + (distC*scale)/2, y:cy};
+    const R1=r1*scale, R2=r2*scale;
+    svg.appendChild(el('circle',{cx:O1.x,cy:O1.y,r:R1,fill:'rgba(37,99,235,.08)',stroke:'#2563eb','stroke-width':3.5}));
+    svg.appendChild(el('circle',{cx:O2.x,cy:O2.y,r:R2,fill:'rgba(124,58,237,.08)',stroke:'#7c3aed','stroke-width':3.5}));
+    svg.appendChild(el('circle',{cx:O1.x,cy:O1.y,r:5,fill:'#1d4ed8'}));
+    svg.appendChild(el('circle',{cx:O2.x,cy:O2.y,r:5,fill:'#5b21b6'}));
+    svg.appendChild(el('text',{x:O1.x,y:O1.y-12,fill:'#1d4ed8','font-size':15,'font-weight':900,'text-anchor':'middle','font-family':'Segoe UI,sans-serif'},'O₁'));
+    svg.appendChild(el('text',{x:O2.x,y:O2.y-12,fill:'#5b21b6','font-size':15,'font-weight':900,'text-anchor':'middle','font-family':'Segoe UI,sans-serif'},'O₂'));
+    // distance
+    svg.appendChild(el('line',{x1:O1.x,y1:O1.y,x2:O2.x,y2:O2.y,stroke:'#d97706','stroke-width':2.5,'stroke-dasharray':'6 4'}));
+    svg.appendChild(el('text',{x:mid,y:cy+22,fill:'#b45309','font-size':14,'font-weight':800,'text-anchor':'middle','font-family':'Segoe UI,sans-serif'},'δ = '+fmt(distC)));
+    // radii labels
+    svg.appendChild(el('line',{x1:O1.x,y1:O1.y,x2:O1.x,y2:O1.y-R1,stroke:'#0d9488','stroke-width':2,'stroke-dasharray':'4 3'}));
+    svg.appendChild(el('text',{x:O1.x+8,y:O1.y-R1/2,fill:'#0f766e','font-size':13,'font-weight':800,'font-family':'Segoe UI,sans-serif'},'r₁='+fmt(r1)));
+    svg.appendChild(el('line',{x1:O2.x,y1:O2.y,x2:O2.x,y2:O2.y-R2,stroke:'#0d9488','stroke-width':2,'stroke-dasharray':'4 3'}));
+    svg.appendChild(el('text',{x:O2.x+8,y:O2.y-R2/2,fill:'#0f766e','font-size':13,'font-weight':800,'font-family':'Segoe UI,sans-serif'},'r₂='+fmt(r2)));
+
+    const sum=r1+r2, diff=Math.abs(r1-r2);
+    let caso;
+    if(distC<1e-6) caso='concéntricas (mismo centro)';
+    else if(Math.abs(distC-sum)<0.12) caso='tangentes exteriores';
+    else if(Math.abs(distC-diff)<0.12 && distC>0.1) caso='tangentes interiores';
+    else if(distC>sum) caso='exteriores (sin corte)';
+    else if(distC<diff) caso='una dentro de la otra (sin corte)';
+    else caso='secantes (2 puntos)';
+
+    // intersection approx when secant
+    if(caso.startsWith('secantes') || caso.includes('tangentes')){
+      // locate intersection via geometry
+      const dpx=distC*scale;
+      if(dpx>1e-6){
+        const a=(R1*R1-R2*R2+dpx*dpx)/(2*dpx);
+        const h2=R1*R1-a*a;
+        if(h2>=-1){
+          const h=Math.sqrt(Math.max(0,h2));
+          const px=O1.x+a*(O2.x-O1.x)/dpx;
+          const py=O1.y+a*(O2.y-O1.y)/dpx;
+          const ix1={x:px, y:py+h}, ix2={x:px,y:py-h};
+          const pts = h<0.5 ? [ix1] : [ix1,ix2];
+          pts.forEach((p,i)=>{
+            svg.appendChild(el('circle',{cx:p.x,cy:p.y,r:6,fill:'#e11d48',stroke:'#fff','stroke-width':2}));
+            if(pts.length>1) svg.appendChild(el('text',{x:p.x+10,y:p.y+4,fill:'#be123c','font-size':13,'font-weight':800,'font-family':'Segoe UI,sans-serif'},'P'+(i+1)));
+            else svg.appendChild(el('text',{x:p.x+10,y:p.y+4,fill:'#be123c','font-size':13,'font-weight':800,'font-family':'Segoe UI,sans-serif'},'T'));
+          });
+        }
+      }
+    }
+
+    const stepsHtml=[
+      ['Datos','r₁='+fmt(r1)+' · r₂='+fmt(r2)+' · δ='+fmt(distC)],
+      ['Comparar','δ ? r₁+r₂='+fmt(sum)+' · |r₁−r₂|='+fmt(diff)],
+      ['Caso', caso]
+    ];
+    pasos.innerHTML=stepsHtml.map((s,i)=>`<div class="step${i===2?' hl':''}"><div class="n">${i+1}</div><div class="body"><div class="t">${s[0]}</div><div class="d">${s[1]}</div></div></div>`).join('');
+    veredicto.textContent='Dos circunferencias: '+caso;
+  }
+
+  document.querySelectorAll('.mode-btn').forEach(b=>{
+    b.addEventListener('click',()=>{
+      mode=b.dataset.mode;
+      document.querySelectorAll('.mode-btn').forEach(x=>x.classList.toggle('active',x===b));
+      buildCtrls(); draw();
+    });
+  });
+
+  document.getElementById('btnEj').addEventListener('click',()=>{
+    if(mode==='rectas'){ angle=90; }
+    else if(mode==='recta-circ'){ r=5; d=5; }
+    else { r1=4; r2=3; distC=7; }
+    buildCtrls(); draw();
+  });
+  document.getElementById('btnSnap').addEventListener('click',()=>{
+    if(mode==='rectas'){
+      // cycle 0, 45, 90
+      if(angle<20) angle=45; else if(angle<70) angle=90; else angle=0;
+    } else if(mode==='recta-circ'){
+      if(d>r+0.2) d=r; else if(Math.abs(d-r)<=0.2) d=Math.max(0,r-2); else d=r+2;
+    } else {
+      if(distC>r1+r2+0.2) distC=r1+r2; else if(Math.abs(distC-(r1+r2))<=0.2) distC=Math.abs(r1-r2); else distC=Math.abs(r1-r2)+Math.min(r1,r2);
+    }
+    buildCtrls(); draw();
+  });
+
+  // Fix keys helper for this file - write with quoted keys from the start
+  buildCtrls(); draw();
+
+  if (/[?&]preview=1\b/.test(location.search)) {
+    mode='recta-circ'; r=5; d=5;
+    document.querySelectorAll('.mode-btn').forEach(x=>x.classList.toggle('active',x.dataset.mode==='recta-circ'));
+    buildCtrls(); draw();
+  }
+})();
+</script>
+</body>
+</html>

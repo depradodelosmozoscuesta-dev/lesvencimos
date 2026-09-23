@@ -15,7 +15,7 @@ DESCARGAS = REPO / "descargas.html"
 PACK_DIR = REPO / "downloads/_build-1eso-mate-flat"
 ZIP_PATH = REPO / "downloads/1eso-matematicas-offline.zip"
 TOTAL = 47
-AVAILABLE = 30  # L01–L30
+AVAILABLE = 33  # L01–L33
 
 # (num, short_ud, title, meta, curiosidad_title, curiosidad_text, figura_cur,
 #  objetivos[list], cuerpo_extra_html, vida_title, vida_items, vida_figura,
@@ -1224,6 +1224,130 @@ LESSONS = [
     "reto": "Calcula el área aproximada de tu mesa de estudio o de tu habitación (croquis). Explica para qué te serviría ese dato en casa.",
     "reto_id": "1eso-mate-L30",
     "cierre": "Área mide superficie. Fórmulas básicas + descomposición resuelven casi todo el plano elemental de 1º.",
+  },
+
+  {
+    "n": 31,
+    "eyebrow": "Lección 31 · UD10 · Figuras planas",
+    "title_html": "Elementos y <em>clasificación</em> de figuras planas",
+    "title_plain": "Elementos y clasificación de figuras planas",
+    "meta": "Saberes CyL (Decreto 39/2022): C.1 Figuras geométricas 2D",
+    "curiosidad_t": "El lenguaje de las figuras",
+    "curiosidad": "Desde Euclides, nombrar un vértice, un lado o un ángulo permite que otra persona reconstruya exactamente la figura. Clasificar no es poner etiquetas al azar: es reconocer propiedades que se mantienen.",
+    "curiosidad_fig": "mapa.svg",
+    "objetivos": [
+      "Identificar puntos, segmentos, rectas, rayos, ángulos y polígonos.",
+      "Clasificar triángulos por lados y por ángulos.",
+      "Clasificar cuadriláteros y reconocer sus inclusiones.",
+      "Usar vocabulario preciso: vértice, lado, diagonal, base y altura.",
+    ],
+    "cuerpo": """
+    <h2>Explicación breve</h2>
+    <p>Un <strong>polígono</strong> es una figura cerrada de lados rectos. Los triángulos se clasifican por lados (equilátero, isósceles, escaleno) y por ángulos (acutángulo, rectángulo, obtusángulo).</p>
+    <div class="tarjeta">
+      <p style="margin:0"><strong>Cuadriláteros:</strong> cuadrado, rectángulo, rombo y romboide son paralelogramos; el trapecio tiene al menos un par de lados paralelos. Todo cuadrado es rectángulo y rombo, pero no al revés.</p>
+    </div>
+    <p>Un polígono de <strong>n</strong> lados tiene <strong>n(n−3)/2</strong> diagonales. En un triángulo hay 0 y en un hexágono hay 9.</p>
+""",
+    "cuerpo_after_widgets": "",
+    "widget_split": False,
+    "vida_t": "Formas a nuestro alrededor",
+    "vida": [
+      "Señales de tráfico, baldosas y marcos de fotos.",
+      "Triángulos rígidos en puentes y tejados.",
+      "Pantallas y objetos rectangulares del aula.",
+      "Describir una figura para que otra persona la identifique.",
+    ],
+    "vida_fig": "mapa.svg",
+    "widgets": [
+      ("Interactivo · clasificar polígonos", "l31-clasificar-figuras.html"),
+    ],
+    "reto_t": "Zoo geométrico",
+    "reto": "Fotografía mental de 6 formas en tu entorno y clasifícalas con el vocabulario de la lección. Una debe ser un triángulo no equilátero.",
+    "reto_id": "1eso-mate-L31",
+    "cierre": "Clasificar es organizar el zoo de figuras por propiedades. El vocabulario preciso evita confusiones en problemas.",
+  },
+  {
+    "n": 32,
+    "eyebrow": "Lección 32 · UD10 · Figuras planas",
+    "title_html": "Posiciones relativas de <em>rectas y circunferencias</em>",
+    "title_plain": "Posiciones relativas de rectas y circunferencias",
+    "meta": "Saberes CyL (Decreto 39/2022): C.1 Rectas y circunferencias",
+    "curiosidad_t": "Cuando una rueda roza el suelo",
+    "curiosidad": "Una tangencia es un contacto muy preciso: la rueda toca el suelo en un solo punto. La distancia perpendicular del centro a la recta coincide exactamente con el radio.",
+    "curiosidad_fig": "mapa.svg",
+    "objetivos": [
+      "Determinar posiciones relativas entre dos rectas.",
+      "Distinguir exterior, tangente y secante en recta-circunferencia.",
+      "Reconocer casos básicos entre dos circunferencias.",
+      "Relacionar la distancia centro-recta con el radio.",
+    ],
+    "cuerpo": """
+    <h2>Explicación breve</h2>
+    <p>Dos rectas pueden ser <strong>paralelas</strong>, <strong>secantes</strong> o <strong>perpendiculares</strong>. Para una recta y una circunferencia de centro O y radio r, compara la distancia perpendicular d de O a la recta.</p>
+    <div class="tarjeta">
+      <p style="margin:0"><strong>d &gt; r</strong>: exterior, 0 puntos · <strong>d = r</strong>: tangente, 1 punto · <strong>d &lt; r</strong>: secante, 2 puntos.</p>
+    </div>
+    <p>La <strong>circunferencia</strong> es el borde; el <strong>círculo</strong> es el disco interior. El diámetro mide 2r.</p>
+""",
+    "cuerpo_after_widgets": "",
+    "widget_split": False,
+    "vida_t": "Rectas y ruedas",
+    "vida": [
+      "Carriles paralelos y calles perpendiculares.",
+      "Una rueda tangente al suelo en un instante.",
+      "Dianas con circunferencias concéntricas.",
+      "Arcos de puertas y mecanismos que giran.",
+    ],
+    "vida_fig": "mapa.svg",
+    "widgets": [
+      ("Interactivo · posiciones con d y r", "l32-posiciones-rectas-circulos.html"),
+    ],
+    "reto_t": "Tangentes en la calle",
+    "reto": "Encuentra un ejemplo de rectas paralelas, uno de perpendiculares y uno de tangencia aproximada. Explica por qué encajan.",
+    "reto_id": "1eso-mate-L32",
+    "cierre": "Las posiciones relativas se deciden con ángulos (rectas) o comparando d y r (recta-circunferencia).",
+  },
+  {
+    "n": 33,
+    "eyebrow": "Lección 33 · UD10 · Figuras planas",
+    "title_html": "Construcción de figuras: <em>regla y compás</em>",
+    "title_plain": "Construcción de figuras: regla y compás",
+    "meta": "Saberes CyL (Decreto 39/2022): C.1 Construcción manipulativa y digital",
+    "curiosidad_t": "Construir es justificar",
+    "curiosidad": "Una construcción geométrica no es un dibujo a ojo: cada arco, segmento e intersección deja un rastro que otra persona puede repetir. La precisión convierte una intuición en una prueba.",
+    "curiosidad_fig": "mapa.svg",
+    "objetivos": [
+      "Construir triángulos dados lados o ángulos con regla y compás.",
+      "Comprender la idea de mediatriz y bisectriz.",
+      "Describir una construcción digital paso a paso.",
+      "Valorar la precisión y la reproducibilidad.",
+    ],
+    "cuerpo": """
+    <h2>Explicación breve</h2>
+    <p>La <strong>regla</strong> traza segmentos y el <strong>compás</strong> dibuja circunferencias o arcos de radio fijo. La mediatriz reúne los puntos equidistantes de los extremos de un segmento; la bisectriz divide un ángulo en dos iguales.</p>
+    <div class="tarjeta">
+      <p style="margin:0"><strong>Triángulo SSS:</strong> desde A dibuja un arco de radio b y desde B otro de radio a. Su intersección es C. Solo cierra si se cumple la desigualdad triangular.</p>
+    </div>
+    <p>Deja constancia de los pasos y comprueba las medidas: así otra persona puede repetir la construcción.</p>
+""",
+    "cuerpo_after_widgets": "",
+    "widget_split": False,
+    "vida_t": "Diseño con precisión",
+    "vida": [
+      "Plantillas de costura, bricolaje y piezas mecánicas.",
+      "Croquis a escala de una habitación.",
+      "Logos geométricos y estructuras de papel.",
+      "GeoGebra para arrastrar y comprobar invariantes.",
+    ],
+    "vida_fig": "mapa.svg",
+    "widgets": [
+      ("Interactivo · construcción con regla y compás", "l33-construccion-figuras.html"),
+    ],
+    "reto_t": "Mini construcción",
+    "reto": "Construye en papel o GeoGebra un triángulo o un cuadrado con medidas concretas. Lista 3 comprobaciones que demuestren que está bien.",
+    "reto_id": "1eso-mate-L33",
+    "cierre": "Construir es demostrar con las manos (o el software) que una figura existe y cumple propiedades. Precisión + desigualdad triangular.",
   },
 ]
 
