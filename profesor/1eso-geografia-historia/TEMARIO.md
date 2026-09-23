@@ -61,6 +61,7 @@
 | L08 Ecosistemas, patrimonio y huella humana | **Entregada** | `08.md` + `l08-ecosistemas-patrimonio-huella-humana.html` + preview |
 | L09 TIC, redes seguras y lectura crítica | **Entregada** | `09.md` + `l09-tic-redes-seguras-lectura-critica.html` + preview |
 | L10 Ciencias sociales: objetivos, términos, plataformas | **Entregada** | `10.md` + `l10-ciencias-sociales-objetivos-terminos.html` + preview |
+| QA L01–L10 | **Hecho** | `lecciones/_qa-bloque-01-10.md` |
 | L11 Pensar como geógrafo y como historiador | **Entregada** | `11.md` + `l11-pensar-geografo-historiador.html` + preview |
 | L12 Fuentes; museos, archivos y bibliotecas | **Entregada** | `12.md` + `l12-fuentes-museos-archivos-bibliotecas.html` + preview |
 | L13 Origen del ser humano y grandes migraciones | **Entregada** | `13.md` + `l13-origen-humano-migraciones.html` + preview |
@@ -76,5 +77,17 @@
 | L23 Pueblos prerromanos e Hispania romana | **Entregada** | `23.md` + `l23-pueblos-prerromanos-hispania-romana.html` + preview |
 | L24 Romanización y patrimonio en CyL | **Entregada** | `24.md` + `l24-romanizacion-patrimonio-cyl.html` + preview |
 | QA L11–L24 | **Hecho** | `lecciones/_qa-bloque-11-24.md` |
-| L25–L36 | Pendiente | Bloque C + cierre |
-| QA L01–L10 | **Hecho** | `lecciones/_qa-bloque-01-10.md` |
+| L25 Conciencia ambiental | **Entregada** | `25.md` + `l25-conciencia-ambiental-planeta-seres-vivos.html` + preview |
+| L26 Alteridad / no discriminación | **Entregada** | `26.md` + `l26-alteridad-respeto-no-discriminacion.html` + preview |
+| L27 Dignidad y derechos del niño | **Entregada** | `27.md` + `l27-dignidad-humana-derechos-nino.html` + preview |
+| L28 Igualdad de género | **Entregada** | `28.md` + `l28-igualdad-genero-conductas-no-sexistas.html` + preview |
+| L29 Convivencia democrática | **Entregada** | `29.md` + `l29-convivencia-democratica-participacion.html` + preview |
+| L30 Ciclos vitales / consumo | **Entregada** | `30.md` + `l30-ciclos-vitales-tiempo-libre-consumo.html` + preview |
+| L31 Seguridad vial / espacio público | **Entregada** | `31.md` + `l31-seguridad-vial-espacio-publico.html` + preview |
+| L32 Línea del tiempo Prehistoria→Roma | **Entregada** | `32.md` + `l32-linea-tiempo-prehistoria-roma.html` + preview |
+| L33 Atlas CyL–España–Europa–mundo | **Entregada** | `33.md` + `l33-atlas-interactivo-cyl-espana-europa-mundo.html` + preview |
+| L34 Mini-investigación con fuentes | **Entregada** | `34.md` + `l34-mini-investigacion-fuentes.html` + preview |
+| L35 Proyecto integrador paisaje+historia | **Entregada** | `35.md` + `l35-proyecto-integrador-paisaje-historia.html` + preview |
+| L36 Autoevaluación / portfolio / ciudadanía | **Entregada** | `36.md` + `l36-autoevaluacion-portfolio-ciudadania.html` + preview |
+| QA L25–L36 | **Hecho** | `lecciones/_qa-bloque-25-36.md` |
+| **Curso** | **Cerrado 36/36** | Bloques A + B + C + cierre |

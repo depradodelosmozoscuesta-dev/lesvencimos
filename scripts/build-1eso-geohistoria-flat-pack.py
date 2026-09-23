@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Build online shell + flat offline pack for 1º ESO Geografía e Historia (L01–L24 / 36)."""
+"""Build online shell + flat offline pack for 1º ESO Geografía e Historia (L01–L36)."""
 from __future__ import annotations
 
 import html
@@ -22,13 +22,13 @@ ZIP_PATH = REPO / "downloads/1eso-geografia-historia-offline.zip"
 COURSE_ICONS = COURSE_DIR / "icons"
 BRAND_ICONS = REPO / "brand/favicon"
 TOTAL = 36
-AVAILABLE = 24
+AVAILABLE = 36
 
 COURSE_NAME = "1º ESO Geografía e Historia"
 COURSE_SHORT = "1º ESO GeoHistoria"
 ZIP_FOLDER = "1eso-geografia-historia-offline"
 
-# UD ranges: A = L01–L10, B = L11–L24, C = L25–L36 (helper ready for later)
+# UD ranges: A = L01–L10, B = L11–L24, C = L25–L36
 UD_BLOCKS = {
     "A": ("UD A · Retos del mundo actual", "bloque A"),
     "B": ("UD B · Sociedades y territorios", "bloque B"),
@@ -53,6 +53,35 @@ def eyebrow_ud(n: int) -> str:
 def meta_for_lesson(n: int) -> str:
     bloque = UD_BLOCKS[ud_for_lesson(n)][1]
     return f"1º ESO Geografía e Historia · CyL Decreto 39/2022 · {bloque}"
+
+
+def pack_ud_blurb(*, short: bool = False) -> str:
+    """Human copy for which UDs the current AVAILABLE pack covers."""
+    if AVAILABLE >= TOTAL:
+        if short:
+            return "UD A + UD B + UD C · Compromiso cívico"
+        return (
+            "UD A · Retos del mundo actual + UD B · Sociedades y territorios "
+            "+ UD C · Compromiso cívico"
+        )
+    # Partial: only A+B while C still pending
+    if short:
+        return "UD A + UD B"
+    return "UD A · Retos del mundo actual + UD B · Sociedades y territorios"
+
+
+def pack_interactivos_blurb() -> str:
+    base = (
+        "mapas, relieve y clima (UD A); pensamiento histórico, Prehistoria, "
+        "civilizaciones, Grecia–Roma y patrimonio CyL (UD B)"
+    )
+    if AVAILABLE >= TOTAL:
+        return (
+            base
+            + "; compromiso cívico, derechos, convivencia, atlas y proyectos (UD C)"
+        )
+    return base
+
 
 # Full temario titles (curso completo L01–L36) — from TEMARIO.md
 TEMARIO = [
@@ -119,6 +148,19 @@ TITLE_HTML = {
     22: "Prehistoria en la Península: <em>Atapuerca</em> y arte prehistórico",
     23: "Pueblos prerromanos e <em>Hispania</em> romana",
     24: "<em>Romanización</em> y patrimonio en Castilla y León",
+    25: "Conciencia ambiental: <em>cuidar</em> el planeta y los seres vivos",
+    26: "<em>Alteridad</em>: respeto y rechazo a la discriminación",
+    27: "Dignidad humana y <em>derechos del niño</em>",
+    28: "Igualdad de género: conductas <em>no sexistas</em>",
+    29: "Convivencia democrática y <em>participación</em> ciudadana",
+    30: "Ciclos vitales, tiempo libre y <em>hábitos de consumo</em>",
+    31: "Seguridad vial y espacio público <em>sostenible</em>",
+    32: "Línea del tiempo: de la Prehistoria a <em>Roma</em>",
+    33: "Atlas interactivo <em>CyL–España–Europa–mundo</em>",
+    34: "Mini-investigación con <em>fuentes</em>",
+    35: "Proyecto integrador: <em>paisaje</em> local + historia cercana",
+    36: "Autoevaluación, <em>portfolio</em> y hábitos de ciudadanía",
+
 }
 
 WIDGETS = {
@@ -146,6 +188,19 @@ WIDGETS = {
     22: ("Laboratorio · Prehistoria peninsular y Atapuerca", "l22-prehistoria-peninsula-atapuerca.html"),
     23: ("Laboratorio · prerromanos e Hispania romana", "l23-pueblos-prerromanos-hispania-romana.html"),
     24: ("Laboratorio · romanización y patrimonio CyL", "l24-romanizacion-patrimonio-cyl.html"),
+    25: ("Laboratorio · conciencia ambiental", "l25-conciencia-ambiental-planeta-seres-vivos.html"),
+    26: ("Laboratorio · alteridad", "l26-alteridad-respeto-no-discriminacion.html"),
+    27: ("Laboratorio · dignidad y derechos del niño", "l27-dignidad-humana-derechos-nino.html"),
+    28: ("Laboratorio · igualdad de género", "l28-igualdad-genero-conductas-no-sexistas.html"),
+    29: ("Laboratorio · convivencia democrática", "l29-convivencia-democratica-participacion.html"),
+    30: ("Laboratorio · ciclos vitales y consumo", "l30-ciclos-vitales-tiempo-libre-consumo.html"),
+    31: ("Laboratorio · seguridad vial", "l31-seguridad-vial-espacio-publico.html"),
+    32: ("Laboratorio · línea del tiempo del curso", "l32-linea-tiempo-prehistoria-roma.html"),
+    33: ("Laboratorio · atlas CyL–España–Europa–mundo", "l33-atlas-interactivo-cyl-espana-europa-mundo.html"),
+    34: ("Laboratorio · mini-investigación", "l34-mini-investigacion-fuentes.html"),
+    35: ("Laboratorio · proyecto paisaje + historia", "l35-proyecto-integrador-paisaje-historia.html"),
+    36: ("Laboratorio · autoevaluación y portfolio", "l36-autoevaluacion-portfolio-ciudadania.html"),
+
 }
 
 # Short curiosidades (MD sources lack a dedicated block)
@@ -301,6 +356,19 @@ CURIOSIDADES = {
         "dejó vías, latín y ciudades; no borró del todo lo anterior ni fue homogénea.",
         "mapa.svg",
     ),
+    25: ("3R + seres vivos", "Cuidar el planeta es también cuidar <strong>seres vivos</strong>: reducir, reutilizar, reciclar y respetar hábitats. En CyL, espacios naturales se consultan en fuentes oficiales.", "mapa.svg"),
+    26: ("El otro también cuenta", "<strong>Alteridad</strong> es respetar al otro. Diferencia enriquece; discriminación y segregación excluyen. En el patio: incluir, no burlar.", "mapa.svg"),
+    27: ("CDN 1989", "La <strong>Convención sobre los Derechos del Niño</strong> (ONU, 1989) reconoce derechos a menores de 18. Dignidad = valor de toda persona. Sin inventar artículos.", "mapa.svg"),
+    28: ("Igualdad, no clones", "<strong>Igualdad de género</strong>: mismos derechos y oportunidades. Conductas no sexistas en casa, patio y aula. El talento no tiene género.", "mapa.svg"),
+    29: ("Participar en lo común", "Democracia = normas justas + diálogo + participación. A tu escala: aula, centro, barrio. Proyectos comunitarios cuidan el bien común.", "mapa.svg"),
+    30: ("Antes / ahora con matices", "Ciclo vital y ocio cambian. Compara <strong>antes/ahora</strong> con fuentes; no idealices el pasado ni consumas a ciegas.", "mapa.svg"),
+    31: ("Mirar · parar · cruzar", "Seguridad vial y <strong>espacio público</strong> de todos. Movilidad sostenible (andar, bici, bus) según el contexto de cada pueblo.", "mapa.svg"),
+    32: ("Pa–Ne–Me–Gre–Ro", "Síntesis: Paleolítico → Neolítico → Metales → Grecia → Roma → Hispania/CyL. <strong>753 a.C.</strong> = tradición; fechas antiguas = rangos.", "mapa.svg"),
+    33: ("MU–EU–ES–CyL", "Atlas de escalas: mundo → Europa → España → <strong>CyL</strong> (Meseta, Duero). SVG didáctico, no carta oficial.", "mapa.svg"),
+    34: ("Pregunta · busca · contrasta · cita", "Mini-investigación: fuentes primarias/secundarias, contrastar ≥2 y <strong>citar</strong>. Si no consta, dilo.", "mapa.svg"),
+    35: ("Paisaje + historia", "Proyecto: croquis del lugar + 3 rasgos de paisaje + una huella histórica cercana con fuentes. Sin inventar leyendas.", "mapa.svg"),
+    36: ("Sé · portfolio · hábitos", "Cierre: autoevaluación honesta, portfolio (3–5 evidencias) y 3 <strong>hábitos cívicos</strong>. Curso 36/36.", "mapa.svg"),
+
 }
 
 FIG_CYCLE = ("mapa.svg", "fuego.svg", "ticket.svg", "olla.svg")
@@ -1043,14 +1111,14 @@ def render_hub(*, for_downloads: bool = False) -> str:
     <p class="eyebrow" style="display:block;font-size:0.72rem;letter-spacing:0.16em;text-transform:uppercase;color:var(--lv-acento);font-weight:600;margin:0 0 0.55rem">Decreto 39/2022 · Castilla y León</p>
     <h1 id="hub-titulo">{COURSE_NAME}</h1>
     <p class="hub-status">
-      <strong>Lecciones 01–{AVAILABLE:02d} disponibles</strong> (UD A · Retos del mundo actual + UD B · Sociedades y territorios) en shell HTML.
-      Curso en construcción ({AVAILABLE}/{TOTAL} lecciones).
+      <strong>{"Pack completo L01–L%02d" % AVAILABLE if AVAILABLE >= TOTAL else "Lecciones 01–%02d disponibles" % AVAILABLE}</strong> ({pack_ud_blurb()}) en shell HTML.
+      {"Curso cerrado" if AVAILABLE >= TOTAL else "Curso en construcción"} ({AVAILABLE}/{TOTAL} lecciones).
       <strong>ZIP offline</strong> (sin instalar: descomprime y abre <code>ABRE-AQUI.html</code>) en <a href="{descargas}">Descargas</a>.
     </p>
     <a class="hub-cta" href="{lec_prefix}{l01}">Abrir lección 01 →</a>
   </section>
 
-  <p class="hub-nota">Índice del temario completo ({TOTAL} lecciones). Disponibles L01–L{AVAILABLE:02d} como <code>leccion-NN-….html</code> (alias <code>leccion-NN.html</code>). L{AVAILABLE+1:02d}–L{TOTAL} próximamente.</p>
+  <p class="hub-nota">Índice del temario completo ({TOTAL} lecciones). Disponibles L01–L{AVAILABLE:02d} como <code>leccion-NN-….html</code> (alias <code>leccion-NN.html</code>).{' Curso completo.' if AVAILABLE >= TOTAL else f' L{AVAILABLE+1:02d}–L{TOTAL} próximamente.'}</p>
 
   <ol class="hub-lista">
 {chr(10).join(items)}
@@ -1058,11 +1126,11 @@ def render_hub(*, for_downloads: bool = False) -> str:
 
   <p class="hub-pie-nota">
     Educación obligatoria · currículo oficial CyL (Decreto 39/2022). Misma familia que Mate y ByG; distinto del pack Profesor (multi-materia).
-    Interactivos L01–L{AVAILABLE:02d}: mapas, relieve y clima (UD A); pensamiento histórico, Prehistoria, civilizaciones, Grecia–Roma y patrimonio CyL (UD B).
+    Interactivos L01–L{AVAILABLE:02d}: {pack_interactivos_blurb()}.
   </p>
 
   <footer class="leccion-pie">
-    <strong>Les vencimos</strong> · {COURSE_NAME} · L01–L{AVAILABLE:02d}/{TOTAL}
+    <strong>Les vencimos</strong> · {COURSE_NAME} · {"pack completo " if AVAILABLE >= TOTAL else ""}L01–L{AVAILABLE:02d}/{TOTAL}
   </footer>
 </div>
 </body>
@@ -1100,10 +1168,10 @@ def update_descargas() -> None:
           <div class="num">08c</div>
           <div>
             <h2>1º ESO Geografía e Historia</h2>
-            <p class="kicker">Oficial CyL · Decreto 39/2022 · L01–L{AVAILABLE:02d} (de {TOTAL} previstas)</p>
+            <p class="kicker">Oficial CyL · Decreto 39/2022 · {"pack completo (" + str(TOTAL) + " lecciones)" if AVAILABLE >= TOTAL else f"L01–L{AVAILABLE:02d} (de {TOTAL} previstas)"}</p>
             <p><strong>No se instala.</strong> Descomprime y abre <code>ABRE-AQUI.html</code> / <code>index.html</code>.
-            Pack plano L01–L{AVAILABLE:02d} (UD A + UD B: mapas y clima; pensamiento histórico, Prehistoria, civilizaciones, Grecia–Roma y patrimonio CyL).
-            Curso en construcción ({AVAILABLE}/{TOTAL}). Sin nube ni servidor.
+            Pack plano L01–L{AVAILABLE:02d} ({pack_ud_blurb(short=True)}: mapas y clima; pensamiento histórico, Prehistoria, civilizaciones, Grecia–Roma y patrimonio CyL{"; compromiso cívico y proyectos" if AVAILABLE >= TOTAL else ""}).
+            {"Curso cerrado (" + f"{TOTAL}/{TOTAL}" + ")" if AVAILABLE >= TOTAL else f"Curso en construcción ({AVAILABLE}/{TOTAL})"}. Sin nube ni servidor.
             Distinto del pack Profesor.</p>
             <div class="actions">
               <a class="btn-download" href="/downloads/1eso-geografia-historia-offline.zip" download="1eso-geografia-historia-offline.zip">Descargar ZIP</a>
@@ -1178,9 +1246,8 @@ def build_offline_pack() -> None:
 No hay que instalar nada. Descomprime y abre **ABRE-AQUI.html** (o index.html).
 
 **Qué es:** lecciones de **Educación obligatoria** (currículo oficial Castilla y León, Decreto 39/2022).
-Este pack trae las lecciones **01–{AVAILABLE:02d}/{TOTAL}** (UD A · Retos del mundo actual + UD B · Sociedades y territorios) en HTML plano (shell + interactivos embebidos).
-L{AVAILABLE + 1:02d}–L{TOTAL} próximamente (UD C · Compromiso cívico).
-
+{"Este pack trae el **curso completo** (lecciones **01–%02d/%d**)" % (AVAILABLE, TOTAL) if AVAILABLE >= TOTAL else "Este pack trae las lecciones **01–%02d/%d**" % (AVAILABLE, TOTAL)} ({pack_ud_blurb()}) en HTML plano (shell + interactivos embebidos).
+{"" if AVAILABLE >= TOTAL else "L%02d–L%d próximamente (UD C · Compromiso cívico)." % (AVAILABLE + 1, TOTAL) + chr(10)}
 **Cómo abrir (Android / PC) — 4 pasos**
 
 1. Descarga el ZIP.
@@ -1248,7 +1315,7 @@ alias `leccion-NN.html`, widgets `l01`…`l{AVAILABLE:02d}-….html`, calculador
   <header class="bloque-titulo">
     <span class="eyebrow">Educación obligatoria · CyL</span>
     <h1 class="titulo-leccion">{COURSE_NAME}</h1>
-    <p class="meta-leccion">L01–L{AVAILABLE:02d}/{TOTAL} · UD A + UD B · curso en construcción</p>
+    <p class="meta-leccion">{"Pack completo L01–L%02d/%d · curso cerrado" % (AVAILABLE, TOTAL) if AVAILABLE >= TOTAL else "L01–L%02d/%d · UD A + UD B · curso en construcción" % (AVAILABLE, TOTAL)}</p>
   </header>
   <div class="no-install">
     <strong>No hay que instalar nada.</strong> Abre <code>ABRE-AQUI.html</code> o <code>index.html</code> desde esta carpeta
@@ -1259,7 +1326,7 @@ alias `leccion-NN.html`, widgets `l01`…`l{AVAILABLE:02d}-….html`, calculador
   </div>
   <p><a class="big-cta" href="{lesson_filename(1)}">Abrir lección 01 →</a>
      &nbsp; <a href="calculadora.html">Calculadora</a></p>
-  <p class="hub-nota">Disponibles L01–L{AVAILABLE:02d}. L{AVAILABLE+1:02d}–L{TOTAL} próximamente. Usa siempre este índice.</p>
+  <p class="hub-nota">{"Curso completo (%d/%d). Usa siempre este índice." % (TOTAL, TOTAL) if AVAILABLE >= TOTAL else "Disponibles L01–L%02d. L%02d–L%d próximamente. Usa siempre este índice." % (AVAILABLE, AVAILABLE + 1, TOTAL)}</p>
   <section class="bloque-cuerpo">
     <h2>Lecciones</h2>
     <ol class="hub-lista-flat">
