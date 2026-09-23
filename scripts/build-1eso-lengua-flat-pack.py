@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Build online shell + flat offline pack for 1º ESO Lengua Castellana y Literatura (L01–L27 of 40)."""
+"""Build online shell + flat offline pack for 1º ESO Lengua Castellana y Literatura (L01–L40 of 40)."""
 from __future__ import annotations
 
 import html
@@ -22,7 +22,7 @@ ZIP_PATH = REPO / "downloads/1eso-lengua-castellana-offline.zip"
 COURSE_ICONS = COURSE_DIR / "icons"
 BRAND_ICONS = REPO / "brand/favicon"
 TOTAL = 40
-AVAILABLE = 27
+AVAILABLE = 40
 
 COURSE_NAME = "1º ESO Lengua Castellana y Literatura"
 COURSE_SHORT = "1º ESO Lengua"
@@ -96,11 +96,18 @@ def pack_interactivos_blurb() -> str:
         "comprensión y producción oral/escrita, instrucciones, oral-escrito/coloquial-formal, "
         "deixis/cohesión, verbos/puntuación, debates (UD B)"
     )
+    base_c = (
+        "biblioteca e itinerario, literatura/placer/artes, recomendar lecturas, "
+        "géneros literarios, recursos expresivos, perspectiva de género, "
+        "lectura expresiva/dramatización, crear textos breves (UD C)"
+    )
+    base_d = (
+        "sintaxis/léxico/pragmática, unidades sonido–palabra–oración, "
+        "clases de palabras, forma/función y oración simple, "
+        "ortografía/diccionarios/vulgarismos CyL + portfolio (UD D)"
+    )
     if AVAILABLE >= TOTAL:
-        return (
-            base_a + "; " + base_b
-            + "; literatura y reflexión sobre la lengua (UD C + UD D)"
-        )
+        return base_a + "; " + base_b + "; " + base_c + "; " + base_d
     if AVAILABLE >= 27:
         return base_a + "; " + base_b
     # L01–L10 only
@@ -179,6 +186,19 @@ TITLE_HTML = {
     25: "Deixis, registro y <em>cohesión</em> (conectores y referencias)",
     26: "Formas <em>verbales</em> y puntuación básica",
     27: "<em>Debates</em> y cooperación en el aprendizaje",
+    28: "<em>Biblioteca</em> e itinerario lector personal",
+    29: "Literatura: <em>placer</em>, actualidad y otras artes",
+    30: "<em>Recomendar</em> lecturas (oral y soportes)",
+    31: "Géneros literarios: <em>rasgos</em> y fragmentos",
+    32: "Lenguaje literario y <em>recursos</em> expresivos",
+    33: "Lectura con perspectiva de <em>género</em>",
+    34: "Lectura expresiva, <em>dramatización</em> y recitación",
+    35: "Crear textos literarios <em>breves</em> (imitación / transformación)",
+    36: "Oral y escrito: sintaxis, léxico y <em>pragmática</em>",
+    37: "Unidades de la lengua: sonido, <em>palabra</em>, oración",
+    38: "Clases de palabras (sustantivo a <em>interjección</em>)",
+    39: "Forma y función; oración <em>simple</em>; formación de palabras",
+    40: "Ortografía, diccionarios, vulgarismos/localismos de CyL + cierre <em>portfolio</em>",
 }
 
 WIDGETS = {
@@ -209,6 +229,19 @@ WIDGETS = {
     25: ("Laboratorio · deixis, registro y cohesión", "l25-deixis-registro-cohesion.html"),
     26: ("Laboratorio · formas verbales y puntuación", "l26-formas-verbales-puntuacion-basica.html"),
     27: ("Laboratorio · debates y cooperación", "l27-debates-cooperacion-aprendizaje.html"),
+    28: ("Laboratorio · biblioteca e itinerario lector", "l28-biblioteca-itinerario-lector.html"),
+    29: ("Laboratorio · literatura: placer, actualidad y artes", "l29-literatura-placer-actualidad-artes.html"),
+    30: ("Laboratorio · recomendar lecturas (oral y soportes)", "l30-recomendar-lecturas-oral-soportes.html"),
+    31: ("Laboratorio · géneros literarios: rasgos y fragmentos", "l31-generos-literarios-rasgos-fragmentos.html"),
+    32: ("Laboratorio · lenguaje literario y recursos", "l32-lenguaje-literario-recursos-expresivos.html"),
+    33: ("Laboratorio · lectura con perspectiva de género", "l33-lectura-perspectiva-genero.html"),
+    34: ("Laboratorio · lectura expresiva, dramatización y recitación", "l34-lectura-expresiva-dramatizacion-recitacion.html"),
+    35: ("Laboratorio · crear textos literarios breves", "l35-crear-textos-literarios-breves.html"),
+    36: ("Laboratorio · oral/escrito: sintaxis, léxico y pragmática", "l36-oral-escrito-sintaxis-lexico-pragmatica.html"),
+    37: ("Laboratorio · unidades: sonido, palabra, oración", "l37-unidades-lengua-sonido-palabra-oracion.html"),
+    38: ("Laboratorio · clases de palabras (sustantivo–interjección)", "l38-clases-de-palabras-sustantivo-interjeccion.html"),
+    39: ("Laboratorio · forma/función, oración simple, formación", "l39-forma-funcion-oracion-simple-formacion.html"),
+    40: ("Laboratorio · ortografía, diccionarios CyL y portfolio", "l40-ortografia-diccionarios-vulgarismos-cyl-portfolio.html"),
 }
 
 # Short curiosidades (MD sources lack a dedicated block)
@@ -379,6 +412,84 @@ CURIOSIDADES = {
         "Turno, argumento, ejemplo y cooperación: el kit del "
         "<strong>debate</strong> escolar. Ganar no es gritar: es razonar juntos.",
         "fuego.svg",
+    ),
+    28: (
+        "BIEA",
+        "Biblioteca, interés, elegir, anotar: el mapa del "
+        "<strong>itinerario lector</strong>. No es una nota: es tu identidad como lectora/lector.",
+        "mapa.svg",
+    ),
+    29: (
+        "PLA-Vín",
+        "Placer + vínculos (actualidad, artes, textos): la "
+        "<strong>literatura</strong> no vive sola en el libro de texto.",
+        "ticket.svg",
+    ),
+    30: (
+        "G2C",
+        "Gancho, 2 razones y cierre (para quién): recomendar una lectura es "
+        "<strong>oralidad</strong> con propósito, no un spoiler.",
+        "olla.svg",
+    ),
+    31: (
+        "NaLiTe",
+        "Narrativa, lírica, teatro: tres familias de "
+        "<strong>géneros</strong>. Los rasgos se ven en fragmentos, no en etiquetas vacías.",
+        "fuego.svg",
+    ),
+    32: (
+        "CoMeP-HA",
+        "Comparación, metáfora, personificación, hipérbole, aliteración: el kit de "
+        "<strong>recursos</strong> expresivos del lenguaje literario.",
+        "mapa.svg",
+    ),
+    33: (
+        "¿Quién-rol?",
+        "¿Quién actúa? ¿Qué rol se impone? ¿Se puede abrir?: lectura con "
+        "<strong>perspectiva de género</strong> sin convertir el texto en moralina.",
+        "ticket.svg",
+    ),
+    34: (
+        "VoPaGe",
+        "Voz, pausas y gesto: la lectura "
+        "<strong>expresiva</strong> (y la dramatización) hace oír el texto, no solo verlo.",
+        "olla.svg",
+    ),
+    35: (
+        "ITC",
+        "Imitar, transformar, continuar: tres puertas para "
+        "<strong>crear</strong> textos literarios breves sin inventar un género nuevo.",
+        "fuego.svg",
+    ),
+    36: (
+        "SiLéPra",
+        "Sintaxis, léxico y pragmática: tres capas al pasar de "
+        "<strong>oral</strong> a escrito (y al revés).",
+        "mapa.svg",
+    ),
+    37: (
+        "SoPaO",
+        "Sonido, palabra, oración: las "
+        "<strong>unidades</strong> de la lengua encajan como piezas, no como adornos.",
+        "ticket.svg",
+    ),
+    38: (
+        "SA-PD-V + APCI",
+        "Sustantivo–adjetivo, pronombre–determinante, verbo, y el resto hasta la "
+        "<strong>interjección</strong>: clases de palabras con función, no solo lista.",
+        "olla.svg",
+    ),
+    39: (
+        "FoFu-OS-Af",
+        "Forma/función, oración simple y afijos: ver "
+        "<strong>cómo</strong> se construye una oración y una palabra.",
+        "fuego.svg",
+    ),
+    40: (
+        "OrDiVu-P",
+        "Ortografía, diccionario, vulgarismos/localismos de CyL y "
+        "<strong>portfolio</strong>: cierra el curso con corrección respetuosa y evidencias.",
+        "mapa.svg",
     ),
 }
 
@@ -1181,7 +1292,7 @@ def update_descargas() -> None:
             <h2>1º ESO Lengua Castellana y Literatura</h2>
             <p class="kicker">Oficial CyL · Decreto 39/2022 · {"pack completo (" + str(TOTAL) + " lecciones)" if AVAILABLE >= TOTAL else f"L01–L{AVAILABLE:02d} (de {TOTAL} previstas)"}</p>
             <p><strong>No se instala.</strong> Descomprime y abre <code>ABRE-AQUI.html</code> / <code>index.html</code>.
-            Pack plano L01–L{AVAILABLE:02d} ({pack_ud_blurb(short=True)}: lenguas y hablantes; comunicación completa).
+            {"Pack completo L01–L%02d (%s: lenguas y hablantes; comunicación; educación literaria; reflexión sobre la lengua)." % (AVAILABLE, pack_ud_blurb(short=True)) if AVAILABLE >= TOTAL else "Pack plano L01–L%02d (%s: lenguas y hablantes; comunicación completa)." % (AVAILABLE, pack_ud_blurb(short=True))}
             {"Curso cerrado (" + f"{TOTAL}/{TOTAL}" + ")" if AVAILABLE >= TOTAL else f"Curso en construcción ({AVAILABLE}/{TOTAL})"}. Sin nube ni servidor.
             Distinto del pack Profesor.</p>
             <div class="actions">
@@ -1223,11 +1334,18 @@ def update_descargas() -> None:
 
 def update_index() -> None:
     text = INDEX.read_text(encoding="utf-8")
-    new = (
-        f"1º ESO Matemáticas + Biología y Geología + Geografía e Historia + Lengua L01–L{AVAILABLE:02d} "
-        "(oficial CyL). Descarga ZIP offline en Descargas."
-    )
+    if AVAILABLE >= TOTAL:
+        new = (
+            f"1º ESO Matemáticas + Biología y Geología + Geografía e Historia + Lengua pack completo "
+            f"{AVAILABLE}/{TOTAL} (oficial CyL). Descarga ZIP offline en Descargas."
+        )
+    else:
+        new = (
+            f"1º ESO Matemáticas + Biología y Geología + Geografía e Historia + Lengua L01–L{AVAILABLE:02d} "
+            "(oficial CyL). Descarga ZIP offline en Descargas."
+        )
     patterns = [
+        r"1º ESO Matemáticas \+ Biología y Geología \+ Geografía e Historia \+ Lengua pack completo \d+/\d+ \(oficial CyL\)\. Descarga ZIP offline en Descargas\.?",
         r"1º ESO Matemáticas \+ Biología y Geología \+ Geografía e Historia \+ Lengua L0?\d+(?:–L?\d+)? \(oficial CyL\)\. Descarga ZIP offline en Descargas\.?",
         r"1º ESO Matemáticas \+ Biología y Geología \+ Geografía e Historia L0?\d+(?:–L?\d+)? \(oficial CyL\)\. Descarga ZIP offline en Descargas\.?",
         r"1º ESO Matemáticas \+ Biología y Geología L0?\d+(?:–L?\d+)? \(oficial CyL\)\. Descarga ZIP offline en Descargas\.?",
