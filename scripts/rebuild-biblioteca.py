@@ -24,6 +24,7 @@ def load_books():
             "autor": meta["autor"],
             "nota": meta.get("nota", ""),
             "categoria": meta.get("categoria", "narrativa"),
+            "idioma": meta.get("idioma") or meta.get("lang") or "es",
         }
         path = LIB / f"{bid}.json"
         if path.exists():
@@ -37,9 +38,12 @@ def load_books():
             else:
                 entry["texto"] = texto
                 entry["chars"] = len(texto)
-            for k in ("titulo", "autor", "nota", "categoria"):
+            for k in ("titulo", "autor", "nota", "categoria", "idioma", "lang"):
                 if data.get(k):
-                    entry[k] = data[k]
+                    if k == "lang":
+                        entry["idioma"] = data[k]
+                    else:
+                        entry[k] = data[k]
         else:
             entry["inline"] = False
             entry["texto"] = meta.get("texto", "")
