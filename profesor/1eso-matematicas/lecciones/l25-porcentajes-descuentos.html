@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Porcentajes y descuentos · etiquetas de tienda · 1º ESO</title>
+<style>
+  :root {
+    --bg:#f4f7fb; --ink:#1a2b3c; --muted:#5a6d7e; --card:#fff;
+    --blue:#3b82f6; --blue-soft:#dbeafe; --blue-deep:#1d4ed8;
+    --orange:#f59e0b; --orange-soft:#fef3c7; --orange-deep:#b45309;
+    --green:#10b981; --green-soft:#d1fae5; --green-deep:#047857;
+    --purple:#8b5cf6; --purple-soft:#ede9fe; --purple-deep:#6d28d9;
+    --rose:#e11d48; --rose-soft:#ffe4e6; --rose-deep:#be123c;
+    --gold:#eab308; --gold-soft:#fef9c3; --gold-deep:#a16207;
+    --shadow:0 8px 28px rgba(26,43,60,.08); --radius:18px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{min-height:100%;background:var(--bg);color:var(--ink);
+    font-family:"Segoe UI",system-ui,-apple-system,sans-serif;-webkit-font-smoothing:antialiased}
+  body{display:flex;flex-direction:column;align-items:center;padding:14px 10px 36px}
+  .wrap{width:100%;max-width:980px}
+  header{text-align:center;margin-bottom:12px}
+  header .badge{display:inline-block;font-size:.78rem;font-weight:600;letter-spacing:.04em;
+    text-transform:uppercase;color:var(--rose-deep);background:var(--rose-soft);
+    padding:4px 12px;border-radius:999px;margin-bottom:8px}
+  h1{font-size:clamp(1.3rem,4.5vw,1.9rem);line-height:1.2;font-weight:800}
+  .subtitle{margin-top:6px;font-size:clamp(.9rem,2.8vw,1.05rem);color:var(--muted);font-weight:500}
+  .story{background:linear-gradient(135deg,#ffe4e6,#fef3c7 50%,#dbeafe);
+    border:2px solid #fda4af;border-radius:var(--radius);padding:12px 14px;
+    margin-bottom:14px;display:flex;gap:12px;align-items:flex-start}
+  .story .emoji{font-size:2rem}
+  .story p{font-size:clamp(.9rem,2.5vw,1.02rem);line-height:1.45}
+  .story strong{color:var(--rose-deep)}
+  .card{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);
+    padding:16px 14px 18px;margin-bottom:14px}
+  .card h2{font-size:clamp(1.05rem,3vw,1.25rem);font-weight:800;margin-bottom:8px}
+  .hint{font-size:clamp(.88rem,2.4vw,1rem);color:var(--muted);line-height:1.45;margin-bottom:12px}
+  .mode-row{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px;justify-content:center}
+  .mode-btn{padding:10px 14px;border-radius:12px;border:3px solid #cbd5e1;background:#fff;
+    font-size:.88rem;font-weight:800;cursor:pointer}
+  .mode-btn.active{border-color:var(--rose);background:var(--rose-soft);color:var(--rose-deep)}
+  .ctrl-row{display:flex;flex-wrap:wrap;gap:12px;align-items:flex-end;margin-bottom:12px}
+  .field{display:flex;flex-direction:column;gap:4px;flex:1 1 110px}
+  .field label{font-size:.8rem;font-weight:700;color:var(--muted)}
+  .field label .letter{display:inline-block;padding:1px 7px;border-radius:8px;font-weight:800;margin-right:3px;background:#fff;color:var(--rose-deep)}
+  .field input{width:100%;font-size:1.2rem;font-weight:800;font-variant-numeric:tabular-nums;
+    padding:8px 10px;border:2.5px solid #cbd5e1;border-radius:12px;background:#fff}
+  .field input:focus{outline:none;border-color:var(--rose);box-shadow:0 0 0 3px #fecdd3}
+  .chooser{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px}
+  .chip{border:2px solid #cbd5e1;background:#fff;border-radius:999px;padding:7px 14px;
+    font-size:.86rem;font-weight:700;cursor:pointer}
+  .chip.active{border-color:var(--rose);background:var(--rose-soft);color:var(--rose-deep)}
+
+  /* —— Realistic shop tag —— */
+  .shop-stage{display:flex;flex-wrap:wrap;gap:18px;justify-content:center;align-items:flex-start;margin:14px 0}
+  .price-tag{
+    position:relative;width:min(100%,280px);background:#fffef7;
+    border:3px solid #1a2b3c;border-radius:6px 6px 18px 18px;
+    box-shadow:6px 8px 0 rgba(26,43,60,.12), 0 12px 28px rgba(26,43,60,.1);
+    padding:16px 18px 20px;transform:rotate(-1.5deg);
+  }
+  .price-tag::before{
+    content:"";position:absolute;top:-14px;left:50%;transform:translateX(-50%);
+    width:28px;height:28px;background:radial-gradient(circle at 40% 35%,#fda4af,#e11d48);
+    border-radius:50%;border:3px solid #9f1239;box-shadow:inset 0 0 0 4px #fff;
+  }
+  .price-tag .store{font-size:.72rem;font-weight:800;letter-spacing:.12em;text-transform:uppercase;
+    color:#64748b;text-align:center;margin-bottom:6px}
+  .price-tag .item{font-size:1.05rem;font-weight:800;text-align:center;margin-bottom:10px;color:var(--ink)}
+  .price-tag .old{text-align:center;font-size:1.15rem;font-weight:700;color:#94a3b8;
+    text-decoration:line-through;text-decoration-thickness:3px;text-decoration-color:var(--rose)}
+  .price-tag .new{text-align:center;font-size:clamp(2rem,6vw,2.6rem);font-weight:900;
+    color:var(--rose-deep);font-variant-numeric:tabular-nums;line-height:1.1;margin:4px 0}
+  .price-tag .new small{font-size:.45em;font-weight:800}
+  .badge-pct{
+    position:absolute;top:10px;right:-12px;width:72px;height:72px;
+    background:radial-gradient(circle at 35% 30%,#fb7185,#be123c);
+    color:#fff;border-radius:50%;border:4px solid #fff;
+    box-shadow:0 4px 14px rgba(190,18,60,.45);
+    display:flex;flex-direction:column;align-items:center;justify-content:center;
+    transform:rotate(12deg);font-weight:900;line-height:1;
+  }
+  .badge-pct .big{font-size:1.35rem}
+  .badge-pct .sm{font-size:.65rem;letter-spacing:.04em;margin-top:2px}
+  .tag-foot{text-align:center;font-size:.75rem;font-weight:700;color:#64748b;margin-top:8px;
+    border-top:2px dashed #cbd5e1;padding-top:8px}
+
+  .formula-board{flex:1 1 260px;background:#0f172a;color:#e2e8f0;border-radius:16px;
+    padding:14px 16px;font-family:"Courier New",ui-monospace,monospace;min-width:240px}
+  .formula-board .ttl{font-size:.72rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase;
+    color:#94a3b8;margin-bottom:8px;font-family:"Segoe UI",system-ui,sans-serif}
+  .formula-board .line{font-size:clamp(.95rem,2.5vw,1.1rem);margin:6px 0;line-height:1.45}
+  .formula-board .hi{color:#fde047;font-weight:900}
+  .formula-board .ok{color:#6ee7b7;font-weight:900}
+
+  .steps{display:grid;gap:10px;margin:12px 0}
+  .step{display:flex;gap:12px;align-items:flex-start;background:#f8fafc;border:2px solid #e2e8f0;
+    border-radius:14px;padding:12px 14px}
+  .step .n{flex:0 0 36px;height:36px;border-radius:50%;background:var(--rose);color:#fff;
+    font-weight:900;display:flex;align-items:center;justify-content:center}
+  .step .body{flex:1}
+  .step .body .t{font-weight:800;font-size:1rem}
+  .step .body .d{font-size:.92rem;color:var(--muted);margin-top:2px;line-height:1.4}
+  .step.hl{border-color:#fda4af;background:var(--rose-soft)}
+
+  .verdict{text-align:center;font-size:clamp(1.1rem,3vw,1.4rem);font-weight:900;padding:12px;
+    border-radius:14px;margin:10px 0;background:var(--green-soft);color:var(--green-deep);border:2px solid #6ee7b7}
+  .verdict.warn{background:var(--orange-soft);color:var(--orange-deep);border-color:#fcd34d}
+  .bar-track{height:26px;background:#e2e8f0;border-radius:999px;overflow:hidden;border:2px solid #cbd5e1;margin:8px 0}
+  .bar-fill{height:100%;background:linear-gradient(90deg,#fb7185,#e11d48);border-radius:999px;
+    display:flex;align-items:center;justify-content:flex-end;padding-right:10px;
+    color:#fff;font-weight:800;font-size:.85rem;min-width:0;transition:width .2s}
+  .callout{font-size:.9rem;font-weight:700;color:var(--gold-deep);background:#fefce8;
+    border-left:4px solid var(--gold);padding:8px 12px;border-radius:0 10px 10px 0;margin-top:10px}
+  .mnemonic{background:linear-gradient(135deg,var(--gold-soft),#ffe4e6);
+    border:2px solid #fde047;border-radius:14px;padding:12px 14px;margin-top:10px;text-align:center}
+  .mnemonic .tag{font-size:.75rem;font-weight:800;text-transform:uppercase;letter-spacing:.05em;color:var(--gold-deep)}
+  .mnemonic p{margin-top:4px;font-size:clamp(.95rem,3vw,1.1rem);font-weight:800;color:var(--gold-deep)}
+  .glossary{display:grid;gap:8px}
+  .glossary dt{font-weight:800;font-size:.95rem;color:var(--rose-deep)}
+  .glossary dd{font-size:.92rem;color:var(--muted);line-height:1.4;margin-bottom:4px}
+  .sym-chip{display:inline-block;background:var(--purple-soft);color:var(--purple-deep);font-weight:800;
+    padding:1px 7px;border-radius:6px;font-family:"Courier New",ui-monospace,monospace}
+  .warn{background:var(--rose-soft);border:2px solid #fda4af;border-radius:12px;padding:10px 12px;
+    font-weight:700;color:var(--rose-deep);margin-top:8px;display:none}
+  .warn.show{display:block}
+  footer.note{text-align:center;font-size:.8rem;color:var(--muted);margin-top:8px}
+  .compare{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
+  @media(max-width:560px){.compare{grid-template-columns:1fr}}
+  .compare .box{border-radius:12px;padding:12px;border:2px solid #e2e8f0;text-align:center}
+  .compare .box.a{background:var(--rose-soft);border-color:#fda4af}
+  .compare .box.b{background:var(--blue-soft);border-color:#93c5fd}
+  .compare .box .lab{font-size:.75rem;font-weight:800;text-transform:uppercase;color:var(--muted)}
+  .compare .box .val{font-size:1.4rem;font-weight:900;margin-top:4px;font-variant-numeric:tabular-nums}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="badge">1º ESO · UD7 Proporcionalidad · L25</div>
+    <h1>Porcentajes: cálculo y problemas</h1>
+    <p class="subtitle">Etiquetas de rebajas · % de · aumentos · descuentos encadenados</p>
+  </header>
+
+  <div class="story">
+    <div class="emoji">🏷️💥</div>
+    <p>El símbolo <strong>%</strong> significa <strong>«por ciento»</strong> = de cada 100.
+      Descuento 20 % → pagas el <strong>80 %</strong> (×0,8). ¡Ojo con encadenar % sobre bases distintas!</p>
+  </div>
+
+  <div class="card">
+    <h2>🎛️ Situación</h2>
+    <p class="hint">Controles independientes: precio, porcentaje y (si aplica) segundo descuento. Elige el modo; la etiqueta de tienda se actualiza sola.</p>
+    <div class="mode-row">
+      <button type="button" class="mode-btn" data-mode="of">% de una cantidad</button>
+      <button type="button" class="mode-btn" data-mode="what">¿Qué % es…?</button>
+      <button type="button" class="mode-btn active" data-mode="dto">Descuento</button>
+      <button type="button" class="mode-btn" data-mode="up">Aumento</button>
+      <button type="button" class="mode-btn" data-mode="chain">Encadenados</button>
+    </div>
+
+    <div class="chooser" id="presets">
+      <button type="button" class="chip active" data-p="hoodie">Sudadera 80 €</button>
+      <button type="button" class="chip" data-p="libro">Libro 24 €</button>
+      <button type="button" class="chip" data-p="bici">Casco bici 40 €</button>
+      <button type="button" class="chip" data-p="custom">A tu gusto</button>
+    </div>
+
+    <div class="ctrl-row" id="ctrls"></div>
+    <div class="warn" id="warn"></div>
+
+    <div id="stage"></div>
+
+    <div class="mnemonic">
+      <div class="tag">Truco mnemotécnico</div>
+      <p>% = por ciento = de cada 100. Descuento p % → ×(1 − p/100). Encadenados: ¡paso a paso!</p>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>📖 Glosario rápido</h2>
+    <dl class="glossary">
+      <dt><span class="sym-chip">%</span> por ciento</dt>
+      <dd>De cada 100. Ejemplo: 25 % = 25/100 = 1/4.</dd>
+      <dt><span class="sym-chip">p% de N</span></dt>
+      <dd>(p/100)×N. El 15 % de 240 = 0,15×240 = 36.</dd>
+      <dt>Descuento / aumento</dt>
+      <dd>Dto p % → ×(1−p/100). Aumento p % → ×(1+p/100).</dd>
+      <dt>Base del %</dt>
+      <dd>Siempre pregunta: ¿% de qué? El segundo descuento actúa sobre el precio ya rebajado.</dd>
+    </dl>
+  </div>
+
+  <footer class="note">Offline · file:// · 1º ESO Matemáticas CyL · L25 · sin red</footer>
+</div>
+<script>
+(function(){
+  const $ = (s, el=document) => el.querySelector(s);
+  const $$ = (s, el=document) => [...el.querySelectorAll(s)];
+  let mode = 'dto';
+  let preset = 'hoodie';
+  const state = { N: 80, p: 25, part: 18, total: 60, p2: 10 };
+
+  const PRESETS = {
+    hoodie: {N:80, p:25, part:20, total:80, p2:10, item:'Sudadera «Pucela»'},
+    libro:  {N:24, p:15, part:6, total:24, p2:5, item:'Libro de mates'},
+    bici:   {N:40, p:20, part:8, total:40, p2:10, item:'Casco de bici'},
+    custom: {N:50, p:30, part:12, total:40, p2:10, item:'Artículo a elegir'}
+  };
+
+  function fmt(n, d=2){
+    if (!isFinite(n)) return '—';
+    const x = Math.round(n * Math.pow(10,d)) / Math.pow(10,d);
+    let s = x.toFixed(d).replace('.', ',');
+    if (d>0) s = s.replace(/,?0+$/,'').replace(/,$/,'');
+    return s;
+  }
+  function euro(n){ if(!isFinite(n)) return '— €'; return n.toFixed(2).replace('.',',')+' €'; }
+  function parseIn(v){
+    if (typeof v === 'number') return v;
+    return parseFloat(String(v).replace(',', '.')) || 0;
+  }
+
+  function renderCtrls(){
+    const c = $('#ctrls');
+    if (mode === 'of') {
+      c.innerHTML = `
+        <div class="field"><label><span class="letter">N</span> Cantidad</label>
+          <input type="number" id="N" value="${state.N}" min="0" step="1"></div>
+        <div class="field"><label><span class="letter">p</span> Porcentaje (%)</label>
+          <input type="number" id="p" value="${state.p}" min="0" max="200" step="1"></div>`;
+    } else if (mode === 'what') {
+      c.innerHTML = `
+        <div class="field"><label><span class="letter">parte</span> Parte</label>
+          <input type="number" id="part" value="${state.part}" min="0" step="1"></div>
+        <div class="field"><label><span class="letter">total</span> Total</label>
+          <input type="number" id="total" value="${state.total}" min="0.01" step="1"></div>`;
+    } else if (mode === 'dto' || mode === 'up') {
+      c.innerHTML = `
+        <div class="field"><label><span class="letter">P</span> Precio inicial (€)</label>
+          <input type="number" id="N" value="${state.N}" min="0" step="0.5"></div>
+        <div class="field"><label><span class="letter">p</span> ${mode==='dto'?'Descuento':'Aumento'} (%)</label>
+          <input type="number" id="p" value="${state.p}" min="0" max="100" step="1"></div>`;
+    } else {
+      c.innerHTML = `
+        <div class="field"><label><span class="letter">P</span> Precio inicial (€)</label>
+          <input type="number" id="N" value="${state.N}" min="0" step="0.5"></div>
+        <div class="field"><label><span class="letter">p₁</span> 1.er descuento (%)</label>
+          <input type="number" id="p" value="${state.p}" min="0" max="100" step="1"></div>
+        <div class="field"><label><span class="letter">p₂</span> 2.º descuento (%)</label>
+          <input type="number" id="p2" value="${state.p2}" min="0" max="100" step="1"></div>`;
+    }
+    $$('#ctrls input').forEach(inp => inp.addEventListener('input', readAndDraw));
+  }
+
+  function readAndDraw(){
+    const N = $('#N'), p = $('#p'), part = $('#part'), total = $('#total'), p2 = $('#p2');
+    if (N) state.N = parseIn(N.value);
+    if (p) state.p = parseIn(p.value);
+    if (part) state.part = parseIn(part.value);
+    if (total) state.total = parseIn(total.value);
+    if (p2) state.p2 = parseIn(p2.value);
+    draw();
+  }
+
+  function itemName(){ return PRESETS[preset].item; }
+
+  function draw(){
+    const w = $('#warn'); w.classList.remove('show'); w.textContent = '';
+    const item = itemName();
+    let html = '';
+
+    if (mode === 'of') {
+      const res = (state.p/100) * state.N;
+      const pct = Math.min(100, Math.max(0, state.p));
+      html = `
+        <div class="shop-stage">
+          <div class="price-tag">
+            <div class="badge-pct"><span class="big">${fmt(state.p,0)}%</span><span class="sm">DE</span></div>
+            <div class="store">Mercienda · Burgos</div>
+            <div class="item">${item}</div>
+            <div class="old">Base: ${euro(state.N)}</div>
+            <div class="new">${euro(res)} <small>es el ${fmt(state.p,0)} %</small></div>
+            <div class="tag-foot">${fmt(state.p,0)} de cada 100</div>
+          </div>
+          <div class="formula-board">
+            <div class="ttl">Pizarra</div>
+            <div class="line">${fmt(state.p,0)}% de ${fmt(state.N)} =</div>
+            <div class="line">(<span class="hi">${fmt(state.p,0)}/100</span>) × ${fmt(state.N)}</div>
+            <div class="line">= <span class="hi">${fmt(state.p/100,4)}</span> × ${fmt(state.N)}</div>
+            <div class="line">= <span class="ok">${fmt(res)}</span></div>
+          </div>
+        </div>
+        <div class="bar-track"><div class="bar-fill" style="width:${pct}%">${fmt(state.p,0)} %</div></div>
+        <div class="steps">
+          <div class="step hl"><div class="n">1</div><div class="body"><div class="t">Pasa % a decimal</div><div class="d">${fmt(state.p,0)} ÷ 100 = ${fmt(state.p/100,4)}</div></div></div>
+          <div class="step"><div class="n">2</div><div class="body"><div class="t">Multiplica por la cantidad</div><div class="d">${fmt(state.p/100,4)} × ${fmt(state.N)} = <strong>${fmt(res)}</strong></div></div></div>
+        </div>
+        <div class="verdict">✓ ${fmt(state.p,0)} % de ${fmt(state.N)} = ${fmt(res)}</div>`;
+    } else if (mode === 'what') {
+      if (state.total <= 0) { w.textContent = 'El total debe ser > 0.'; w.classList.add('show'); }
+      const pct = state.total > 0 ? (state.part/state.total)*100 : 0;
+      html = `
+        <div class="shop-stage">
+          <div class="price-tag" style="transform:rotate(1deg)">
+            <div class="badge-pct"><span class="big">${fmt(pct,1)}</span><span class="sm">%</span></div>
+            <div class="store">Examen · León</div>
+            <div class="item">Aciertos: ${fmt(state.part,0)} / ${fmt(state.total,0)}</div>
+            <div class="old">Parte respecto al total</div>
+            <div class="new">${fmt(pct,1)} <small>%</small></div>
+            <div class="tag-foot">(parte ÷ total) × 100</div>
+          </div>
+          <div class="formula-board">
+            <div class="ttl">Pizarra</div>
+            <div class="line">% = (parte / total) × 100</div>
+            <div class="line">= (${fmt(state.part)} / ${fmt(state.total)}) × 100</div>
+            <div class="line">= <span class="ok">${fmt(pct,2)} %</span></div>
+          </div>
+        </div>
+        <div class="bar-track"><div class="bar-fill" style="width:${Math.min(100,Math.max(0,pct))}%">${fmt(pct,1)} %</div></div>
+        <div class="verdict">✓ ${fmt(state.part)} de ${fmt(state.total)} = ${fmt(pct,2)} %</div>`;
+    } else if (mode === 'dto') {
+      const dto = (state.p/100)*state.N;
+      const final = state.N * (1 - state.p/100);
+      html = `
+        <div class="shop-stage">
+          <div class="price-tag">
+            <div class="badge-pct"><span class="big">−${fmt(state.p,0)}</span><span class="sm">%</span></div>
+            <div class="store">Rebajas · Valladolid</div>
+            <div class="item">${item}</div>
+            <div class="old">${euro(state.N)}</div>
+            <div class="new">${euro(final)}</div>
+            <div class="tag-foot">Ahorras ${euro(dto)}</div>
+          </div>
+          <div class="formula-board">
+            <div class="ttl">Pizarra</div>
+            <div class="line">Pagas el <span class="hi">${fmt(100-state.p,0)} %</span></div>
+            <div class="line">${fmt(state.N)} × <span class="hi">${fmt(1-state.p/100,4)}</span></div>
+            <div class="line">= <span class="ok">${euro(final)}</span></div>
+            <div class="line" style="margin-top:8px;color:#94a3b8">Dto = ${fmt(state.N)}×${fmt(state.p/100,4)} = ${euro(dto)}</div>
+          </div>
+        </div>
+        <div class="steps">
+          <div class="step"><div class="n">1</div><div class="body"><div class="t">Factor que pagas</div><div class="d">1 − ${fmt(state.p,0)}/100 = ${fmt(1-state.p/100,4)}</div></div></div>
+          <div class="step hl"><div class="n">2</div><div class="body"><div class="t">Precio final</div><div class="d">${fmt(state.N)} × ${fmt(1-state.p/100,4)} = <strong>${euro(final)}</strong></div></div></div>
+        </div>
+        <div class="verdict">✓ Precio final: ${euro(final)} (ahorras ${euro(dto)})</div>`;
+    } else if (mode === 'up') {
+      const extra = (state.p/100)*state.N;
+      const final = state.N * (1 + state.p/100);
+      html = `
+        <div class="shop-stage">
+          <div class="price-tag" style="transform:rotate(1.2deg)">
+            <div class="badge-pct" style="background:radial-gradient(circle at 35% 30%,#6ee7b7,#047857)"><span class="big">+${fmt(state.p,0)}</span><span class="sm">%</span></div>
+            <div class="store">Nómina / precio · Salamanca</div>
+            <div class="item">${item}</div>
+            <div class="old">${euro(state.N)}</div>
+            <div class="new" style="color:var(--green-deep)">${euro(final)}</div>
+            <div class="tag-foot">Sube ${euro(extra)}</div>
+          </div>
+          <div class="formula-board">
+            <div class="ttl">Pizarra</div>
+            <div class="line">Queda el <span class="hi">${fmt(100+state.p,0)} %</span></div>
+            <div class="line">${fmt(state.N)} × <span class="hi">${fmt(1+state.p/100,4)}</span></div>
+            <div class="line">= <span class="ok">${euro(final)}</span></div>
+          </div>
+        </div>
+        <div class="verdict">✓ Nuevo importe: ${euro(final)}</div>`;
+    } else {
+      const mid = state.N * (1 - state.p/100);
+      const final = mid * (1 - state.p2/100);
+      const naive = state.N * (1 - (state.p+state.p2)/100);
+      html = `
+        <div class="shop-stage">
+          <div class="price-tag">
+            <div class="badge-pct"><span class="big">−${fmt(state.p,0)}</span><span class="sm">luego −${fmt(state.p2,0)}</span></div>
+            <div class="store">Doble etiqueta · Ávila</div>
+            <div class="item">${item}</div>
+            <div class="old">${euro(state.N)}</div>
+            <div class="new">${euro(final)}</div>
+            <div class="tag-foot">Paso 1 → ${euro(mid)} → final</div>
+          </div>
+          <div class="formula-board">
+            <div class="ttl">Pizarra</div>
+            <div class="line">${fmt(state.N)} × ${fmt(1-state.p/100,4)} = <span class="hi">${fmt(mid)}</span></div>
+            <div class="line">${fmt(mid)} × ${fmt(1-state.p2/100,4)} = <span class="ok">${euro(final)}</span></div>
+            <div class="line" style="margin-top:10px;color:#fca5a5">≠ restar ${fmt(state.p+state.p2,0)} % de golpe → ${euro(naive)}</div>
+          </div>
+        </div>
+        <div class="compare">
+          <div class="box a"><div class="lab">Encadenado (correcto)</div><div class="val">${euro(final)}</div></div>
+          <div class="box b"><div class="lab">Sumar % a lo loco</div><div class="val">${euro(naive)}</div></div>
+        </div>
+        <div class="callout">Los % encadenados NO se suman: el segundo actúa sobre el precio ya rebajado. Aquí la diferencia es ${euro(Math.abs(final-naive))}.</div>
+        <div class="verdict warn">✓ Final real: ${euro(final)} · «${fmt(state.p+state.p2,0)} % de golpe» daría ${euro(naive)}</div>`;
+    }
+    $('#stage').innerHTML = html;
+  }
+
+  $$('.mode-btn').forEach(b => b.addEventListener('click', () => {
+    $$('.mode-btn').forEach(x => x.classList.remove('active'));
+    b.classList.add('active');
+    mode = b.dataset.mode;
+    renderCtrls(); draw();
+  }));
+
+  $$('#presets .chip').forEach(b => b.addEventListener('click', () => {
+    $$('#presets .chip').forEach(x => x.classList.remove('active'));
+    b.classList.add('active');
+    preset = b.dataset.p;
+    const P = PRESETS[preset];
+    state.N = P.N; state.p = P.p; state.part = P.part; state.total = P.total; state.p2 = P.p2;
+    renderCtrls(); draw();
+  }));
+
+  renderCtrls(); draw();
+})();
+</script>
+</body>
+</html>

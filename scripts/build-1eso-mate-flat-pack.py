@@ -15,7 +15,7 @@ DESCARGAS = REPO / "descargas.html"
 PACK_DIR = REPO / "downloads/_build-1eso-mate-flat"
 ZIP_PATH = REPO / "downloads/1eso-matematicas-offline.zip"
 TOTAL = 47
-AVAILABLE = 24  # L01–L24
+AVAILABLE = 27  # L01–L27
 
 # (num, short_ud, title, meta, curiosidad_title, curiosidad_text, figura_cur,
 #  objetivos[list], cuerpo_extra_html, vida_title, vida_items, vida_figura,
@@ -977,6 +977,133 @@ LESSONS = [
     "reto": "Pon un ejemplo de tu barrio que sí sea proporcionalidad directa y otro que lo parezca pero no lo sea. Justifica con números pequeños.",
     "reto_id": "1eso-mate-L24",
     "cierre": "Directa ⇒ razón constante. Reduce a 1 y multiplica, o monta una proporción. Primero pregunta: ¿es proporcional?",
+  },
+
+  {
+    "n": 25,
+    "eyebrow": "Lección 25 · UD7 · Proporcionalidad y porcentajes",
+    "title_html": "Porcentajes: <em>cálculo y problemas</em>",
+    "title_plain": "Porcentajes: cálculo y problemas",
+    "meta": "Saberes CyL (Decreto 39/2022): A.5 Porcentajes",
+    "curiosidad_t": "De cada cien",
+    "curiosidad": "El símbolo % resume una idea antigua y poderosa: contar cuántas partes hay si el todo se reparte en cien. Por eso 25 % es 25 de cada 100, o la cuarta parte.",
+    "curiosidad_fig": "ticket.svg",
+    "objetivos": [
+      "Calcular el p % de una cantidad.",
+      "Hallar el porcentaje que representa una parte respecto a un total.",
+      "Resolver aumentos y descuentos porcentuales.",
+      "Encadenar descuentos sin sumar porcentajes a lo loco.",
+    ],
+    "cuerpo": """
+    <h2>Explicación breve</h2>
+    <p><strong>p % de N = (p/100) × N</strong>. Para hallar qué porcentaje representa una parte, calcula parte ÷ total × 100. En un descuento del 20 %, pagas el 80 %, es decir, multiplicas por 0,8.</p>
+    <div class="tarjeta">
+      <p style="margin:0"><strong>Ejemplo:</strong> una sudadera de 80 € con 25 % de descuento → pagas el 75 %: 80 × 0,75 = <strong>60 €</strong>. Dos descuentos sucesivos se calculan paso a paso.</p>
+    </div>
+""",
+    "cuerpo_after_widgets": "",
+    "widget_split": False,
+    "vida_t": "Aplicaciones",
+    "vida": [
+      "Rebajas de temporada y etiquetas de tiendas.",
+      "Porcentaje de aciertos en un examen o tiros en un partido.",
+      "Aumentos, recargos e impuestos sencillos en un ticket.",
+      "Comparar cuánto sube o baja un precio sin confundir euros con porcentajes.",
+    ],
+    "vida_fig": "ticket.svg",
+    "widgets": [
+      ("Interactivo · etiquetas de rebajas y descuentos", "l25-porcentajes-descuentos.html"),
+    ],
+    "reto_t": "Cazador de descuentos",
+    "reto": "Encuentra una oferta real (%). Calcula el precio final de un artículo inventado o real. ¿El cartel es claro o confunde? Comenta en 4 frases.",
+    "reto_id": "1eso-mate-L25",
+    "cierre": "% = de cada 100. Multiplica por p/100. En descuentos, multiplica por (1−p/100). Encadenados: paso a paso.",
+  },
+  {
+    "n": 26,
+    "eyebrow": "Lección 26 · UD8 · Educación financiera sencilla",
+    "title_html": "Leer información numérica en <em>tickets, ofertas y presupuestos</em>",
+    "title_plain": "Leer información numérica en tickets, ofertas y presupuestos",
+    "meta": "Saberes CyL (Decreto 39/2022): A.6 Educación financiera; E · énfasis socioafectivo [E]",
+    "curiosidad_t": "La letra pequeña también cuenta",
+    "curiosidad": "Un ticket moderno resume una pequeña historia: cantidades, precios unitarios, descuentos, impuestos y total. Leerlo con calma convierte números cotidianos en decisiones informadas.",
+    "curiosidad_fig": "ticket.svg",
+    "objetivos": [
+      "Leer un ticket sencillo identificando base, impuestos, total y redondeos.",
+      "Interpretar ofertas 2x1, 2ª al 50 % y precio por unidad o kilogramo.",
+      "Detectar información engañosa o incompleta.",
+      "Elaborar un presupuesto mínimo con ingresos y gastos.",
+    ],
+    "cuerpo": """
+    <h2>Explicación breve</h2>
+    <p>En un ticket, multiplica <strong>cantidad × precio</strong> en cada línea y suma. El precio unitario (€/kg, €/L o €/ud) permite comparar envases distintos. En una oferta 2×1 pagas una unidad y llevas dos; en «2ª al 50 %» pagas el 100 % de una y el 50 % de la segunda.</p>
+    <div class="tarjeta">
+      <p style="margin:0"><strong>Ejemplo:</strong> 1,5 L a 1,20 € cuestan 0,80 €/L. Un presupuesto también es una cuenta: ingresos − gastos = dinero libre.</p>
+    </div>
+    <div class="tarjeta">
+      <p style="margin:0"><strong>Momento [E]:</strong> usa cantidades ficticias si hablar de dinero te resulta sensible y respeta la privacidad de cada casa.</p>
+    </div>
+""",
+    "cuerpo_after_widgets": "",
+    "widget_split": False,
+    "vida_t": "Aplicaciones",
+    "vida": [
+      "Ticket del supermercado, la panadería o una excursión.",
+      "Comparar packs de cereales por €/100 g o €/kg.",
+      "Leer ofertas de móviles, videojuegos y tiendas con letra pequeña.",
+      "Preparar un presupuesto semanal de ejemplo.",
+    ],
+    "vida_fig": "ticket.svg",
+    "widgets": [
+      ("Interactivo · ticket térmico, ofertas y presupuesto", "l26-ticket-ofertas.html"),
+    ],
+    "reto_t": "Ticket detective",
+    "reto": "Analiza un ticket real (o inventado realista) de al menos 4 líneas. Calcula un precio unitario y señala si hubo oferta. Propón una mejora de gasto.",
+    "reto_id": "1eso-mate-L26",
+    "cierre": "Leer números de la compra es alfabetización financiera. Precio unitario y condiciones de la oferta mandan.",
+  },
+  {
+    "n": 27,
+    "eyebrow": "Lección 27 · UD8 · Educación financiera sencilla",
+    "title_html": "Decisiones de consumo: <em>calidad-precio y valor-precio</em>",
+    "title_plain": "Decisiones de consumo: calidad-precio y valor-precio",
+    "meta": "Saberes CyL (Decreto 39/2022): A.6 Consumo responsable; E · énfasis socioafectivo [E]",
+    "curiosidad_t": "Barato no siempre es mejor",
+    "curiosidad": "La etiqueta muestra el precio, pero una decisión completa también mira cuánto dura, qué prestaciones ofrece y si realmente se necesita. Dividir el precio entre meses o usos hace visible esa historia.",
+    "curiosidad_fig": "mapa.svg",
+    "objetivos": [
+      "Distinguir precio bajo, calidad-precio y valor personal.",
+      "Usar criterios numéricos y no numéricos en una decisión de compra.",
+      "Valorar sostenibilidad y necesidad frente al impulso.",
+      "Argumentar una elección con datos.",
+    ],
+    "cuerpo": """
+    <h2>Explicación breve</h2>
+    <p><strong>Precio</strong> es lo que pagas; <strong>calidad-precio</strong> relaciona prestaciones o duración con ese precio; <strong>valor</strong> es lo que aporta a una persona. Un producto caro puede salir más barato al mes si dura mucho más.</p>
+    <div class="tarjeta">
+      <p style="margin:0"><strong>Ejemplo:</strong> 60 € durante 24 meses son 2,50 €/mes; 25 € durante 5 meses son 5 €/mes. Después de calcular, pregunta también: «¿lo necesito?, ¿me durará?, ¿puedo repararlo?»</p>
+    </div>
+    <div class="tarjeta">
+      <p style="margin:0"><strong>Momento [E]:</strong> en un debate, ataca el argumento, no a la persona. Las preferencias ajenas pueden tener valor personal.</p>
+    </div>
+""",
+    "cuerpo_after_widgets": "",
+    "widget_split": False,
+    "vida_t": "Aplicaciones",
+    "vida": [
+      "Elegir material escolar duradero frente a lo más barato.",
+      "Comparar unas zapatillas, una mochila o unos auriculares por €/uso o €/mes.",
+      "Valorar reparación, residuos y desperdicio alimentario.",
+      "Decidir en grupo explicitando primero los criterios.",
+    ],
+    "vida_fig": "mapa.svg",
+    "widgets": [
+      ("Interactivo · estantería de calidad-precio y valor", "l27-calidad-precio.html"),
+    ],
+    "reto_t": "Compra con cabeza",
+    "reto": "Elige un producto que quieras o necesites. Compara dos opciones con precio, duración estimada y un criterio personal. Publica tu decisión razonada.",
+    "reto_id": "1eso-mate-L27",
+    "cierre": "Decidir bien mezcla números (precio, €/uso) y valores (necesidad, ética, gusto). El consumo responsable también se calcula.",
   },
 ]
 

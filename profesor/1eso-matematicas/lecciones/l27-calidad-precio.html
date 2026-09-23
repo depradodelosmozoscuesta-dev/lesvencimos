@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Calidad-precio y valor · 1º ESO</title>
+<style>
+  :root {
+    --bg:#f5f3ff; --ink:#1a2b3c; --muted:#5a6d7e; --card:#fff;
+    --blue:#3b82f6; --blue-soft:#dbeafe; --blue-deep:#1d4ed8;
+    --orange:#f59e0b; --orange-soft:#fef3c7; --orange-deep:#b45309;
+    --green:#10b981; --green-soft:#d1fae5; --green-deep:#047857;
+    --purple:#8b5cf6; --purple-soft:#ede9fe; --purple-deep:#6d28d9;
+    --rose:#e11d48; --rose-soft:#ffe4e6; --rose-deep:#be123c;
+    --teal:#0d9488; --teal-soft:#ccfbf1; --teal-deep:#0f766e;
+    --gold:#eab308; --gold-soft:#fef9c3; --gold-deep:#a16207;
+    --shadow:0 8px 28px rgba(26,43,60,.08); --radius:18px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{min-height:100%;background:var(--bg);color:var(--ink);
+    font-family:"Segoe UI",system-ui,-apple-system,sans-serif;-webkit-font-smoothing:antialiased}
+  body{display:flex;flex-direction:column;align-items:center;padding:14px 10px 36px}
+  .wrap{width:100%;max-width:980px}
+  header{text-align:center;margin-bottom:12px}
+  header .badge{display:inline-block;font-size:.78rem;font-weight:600;letter-spacing:.04em;
+    text-transform:uppercase;color:var(--purple-deep);background:var(--purple-soft);
+    padding:4px 12px;border-radius:999px;margin-bottom:8px}
+  h1{font-size:clamp(1.3rem,4.5vw,1.9rem);line-height:1.2;font-weight:800}
+  .subtitle{margin-top:6px;font-size:clamp(.9rem,2.8vw,1.05rem);color:var(--muted);font-weight:500}
+  .story{background:linear-gradient(135deg,#ede9fe,#fef9c3 50%,#d1fae5);
+    border:2px solid #c4b5fd;border-radius:var(--radius);padding:12px 14px;
+    margin-bottom:14px;display:flex;gap:12px;align-items:flex-start}
+  .story .emoji{font-size:2rem}
+  .story p{font-size:clamp(.9rem,2.5vw,1.02rem);line-height:1.45}
+  .story strong{color:var(--purple-deep)}
+  .card{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);
+    padding:16px 14px 18px;margin-bottom:14px}
+  .card h2{font-size:clamp(1.05rem,3vw,1.25rem);font-weight:800;margin-bottom:8px}
+  .hint{font-size:clamp(.88rem,2.4vw,1rem);color:var(--muted);line-height:1.45;margin-bottom:12px}
+  .mode-row{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px;justify-content:center}
+  .mode-btn{padding:10px 14px;border-radius:12px;border:3px solid #cbd5e1;background:#fff;
+    font-size:.88rem;font-weight:800;cursor:pointer}
+  .mode-btn.active{border-color:var(--purple);background:var(--purple-soft);color:var(--purple-deep)}
+  .ctrl-row{display:flex;flex-wrap:wrap;gap:12px;align-items:flex-end;margin-bottom:12px}
+  .field{display:flex;flex-direction:column;gap:4px;flex:1 1 110px}
+  .field label{font-size:.8rem;font-weight:700;color:var(--muted)}
+  .field label .letter{display:inline-block;padding:1px 7px;border-radius:8px;font-weight:800;margin-right:3px;background:#fff;color:var(--purple-deep)}
+  .field input, .field select{width:100%;font-size:1.1rem;font-weight:800;font-variant-numeric:tabular-nums;
+    padding:8px 10px;border:2.5px solid #cbd5e1;border-radius:12px;background:#fff}
+  .field input:focus{outline:none;border-color:var(--purple);box-shadow:0 0 0 3px #ddd6fe}
+  .chooser{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px}
+  .chip{border:2px solid #cbd5e1;background:#fff;border-radius:999px;padding:7px 14px;
+    font-size:.86rem;font-weight:700;cursor:pointer}
+  .chip.active{border-color:var(--purple);background:var(--purple-soft);color:var(--purple-deep)}
+
+  /* —— Two product shelf —— */
+  .shelf{
+    display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:14px 0;
+    background:linear-gradient(180deg,#fafafa 0%,#fafafa 78%,#8b5a2b 78%,#6b4220 100%);
+    border-radius:16px;padding:16px 14px 28px;border:3px solid #5c3a1a;
+    box-shadow:inset 0 -8px 0 #4a2f14;
+  }
+  @media(max-width:620px){.shelf{grid-template-columns:1fr}}
+  .product{
+    background:#fff;border-radius:14px;border:2px solid #e2e8f0;padding:14px 12px 16px;
+    text-align:center;position:relative;box-shadow:0 8px 18px rgba(0,0,0,.08);
+    transition:transform .15s, border-color .15s;
+  }
+  .product.win{border-color:#10b981;box-shadow:0 0 0 3px #a7f3d0, 0 8px 18px rgba(0,0,0,.08);transform:translateY(-4px)}
+  .product .emoji{font-size:2.6rem;line-height:1;margin-bottom:6px}
+  .product .brand{font-size:.72rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:#94a3b8}
+  .product .name{font-size:1.05rem;font-weight:800;margin:4px 0 8px}
+  .product .price{font-size:clamp(1.5rem,4vw,1.9rem);font-weight:900;font-variant-numeric:tabular-nums;color:var(--ink)}
+  .product .meta{font-size:.85rem;color:var(--muted);font-weight:600;margin-top:4px}
+  .product .unit-pill{
+    display:inline-block;margin-top:10px;background:var(--purple-soft);color:var(--purple-deep);
+    font-weight:900;padding:6px 12px;border-radius:999px;font-size:1rem;font-variant-numeric:tabular-nums;
+  }
+  .product.win .unit-pill{background:var(--green-soft);color:var(--green-deep)}
+  .product .tag-win{
+    position:absolute;top:-10px;right:-8px;background:var(--green);color:#fff;
+    font-size:.72rem;font-weight:900;padding:4px 10px;border-radius:999px;
+    box-shadow:0 3px 10px rgba(16,185,129,.4);display:none;
+  }
+  .product.win .tag-win{display:block}
+
+  .vs{text-align:center;font-weight:900;color:var(--muted);font-size:1.1rem;margin:4px 0}
+  .verdict{text-align:center;font-size:clamp(1.05rem,2.8vw,1.3rem);font-weight:900;padding:12px;
+    border-radius:14px;margin:10px 0;background:var(--green-soft);color:var(--green-deep);border:2px solid #6ee7b7}
+  .verdict.soft{background:var(--purple-soft);color:var(--purple-deep);border-color:#c4b5fd}
+  .steps{display:grid;gap:10px;margin:12px 0}
+  .step{display:flex;gap:12px;align-items:flex-start;background:#f8fafc;border:2px solid #e2e8f0;
+    border-radius:14px;padding:12px 14px}
+  .step .n{flex:0 0 36px;height:36px;border-radius:50%;background:var(--purple);color:#fff;
+    font-weight:900;display:flex;align-items:center;justify-content:center}
+  .step .body .t{font-weight:800;font-size:1rem}
+  .step .body .d{font-size:.92rem;color:var(--muted);margin-top:2px;line-height:1.4}
+  .step.hl{border-color:#c4b5fd;background:var(--purple-soft)}
+  .callout{font-size:.9rem;font-weight:700;color:var(--gold-deep);background:#fefce8;
+    border-left:4px solid var(--gold);padding:8px 12px;border-radius:0 10px 10px 0;margin-top:10px}
+  .socio{background:linear-gradient(135deg,#ede9fe,#d1fae5);border:2px solid #c4b5fd;
+    border-radius:14px;padding:12px 14px;margin-top:10px;font-size:.92rem;line-height:1.45}
+  .socio strong{color:var(--purple-deep)}
+  .mnemonic{background:linear-gradient(135deg,var(--gold-soft),#ede9fe);
+    border:2px solid #fde047;border-radius:14px;padding:12px 14px;margin-top:10px;text-align:center}
+  .mnemonic .tag{font-size:.75rem;font-weight:800;text-transform:uppercase;letter-spacing:.05em;color:var(--gold-deep)}
+  .mnemonic p{margin-top:4px;font-size:clamp(.95rem,3vw,1.1rem);font-weight:800;color:var(--gold-deep)}
+  .glossary{display:grid;gap:8px}
+  .glossary dt{font-weight:800;font-size:.95rem;color:var(--purple-deep)}
+  .glossary dd{font-size:.92rem;color:var(--muted);line-height:1.4;margin-bottom:4px}
+  .sym-chip{display:inline-block;background:var(--purple-soft);color:var(--purple-deep);font-weight:800;
+    padding:1px 7px;border-radius:6px;font-family:"Courier New",ui-monospace,monospace}
+  .crit-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:8px;margin:10px 0}
+  .crit{border:2px solid #e2e8f0;border-radius:12px;padding:10px;text-align:center;cursor:pointer;background:#fff;font-weight:700;font-size:.88rem}
+  .crit.on{border-color:var(--purple);background:var(--purple-soft);color:var(--purple-deep)}
+  .rubric{width:100%;border-collapse:separate;border-spacing:0;margin:10px 0;border-radius:12px;overflow:hidden;border:2px solid #ddd6fe}
+  .rubric th,.rubric td{padding:10px;text-align:center;font-weight:700}
+  .rubric th{background:var(--purple-deep);color:#fff;font-size:.82rem;text-transform:uppercase}
+  .rubric td{background:#fff;border-bottom:1px solid #ede9fe;font-variant-numeric:tabular-nums}
+  .rubric tr:last-child td{border-bottom:none}
+  .stars{color:var(--gold);letter-spacing:2px}
+  footer.note{text-align:center;font-size:.8rem;color:var(--muted);margin-top:8px}
+  .triad{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin:12px 0}
+  @media(max-width:640px){.triad{grid-template-columns:1fr}}
+  .triad-pill{border-radius:14px;padding:12px;border:2px solid #e2e8f0;text-align:center}
+  .triad-pill .label{font-size:.72rem;font-weight:800;text-transform:uppercase;color:var(--muted)}
+  .triad-pill .val{font-size:1.1rem;font-weight:900;margin-top:4px}
+  .triad-pill.p{background:#f8fafc}
+  .triad-pill.q{background:var(--green-soft);border-color:#6ee7b7}
+  .triad-pill.v{background:var(--purple-soft);border-color:#c4b5fd}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="badge">1º ESO · UD8 Consumo responsable · L27 · [E]</div>
+    <h1>Calidad-precio y valor</h1>
+    <p class="subtitle">Compara dos productos · €/kg · €/mes · criterios personales</p>
+  </header>
+
+  <div class="story">
+    <div class="emoji">🛒⚖️</div>
+    <p><strong>Precio</strong> es lo que pagas. <strong>Calidad-precio</strong> mira duración y prestaciones.
+      <strong>Valor</strong> es lo que te aporta a ti. Lo más barato del escaparate no siempre gana.</p>
+  </div>
+
+  <div class="card">
+    <h2>🎛️ Situación</h2>
+    <p class="hint">Controles A y B independientes (precio, cantidad o meses). Elige modo: €/kg en estantería, coste por mes, o desperdicio. Marca criterios no numéricos sin ridiculizar gustos.</p>
+    <div class="mode-row">
+      <button type="button" class="mode-btn active" data-mode="kg">⚖️ €/kg en estantería</button>
+      <button type="button" class="mode-btn" data-mode="mes">📅 € / mes de uso</button>
+      <button type="button" class="mode-btn" data-mode="waste">🍎 Con desperdicio</button>
+      <button type="button" class="mode-btn" data-mode="value">💜 Precio · calidad · valor</button>
+    </div>
+
+    <div class="chooser" id="presets">
+      <button type="button" class="chip active" data-p="arroz">Arroz</button>
+      <button type="button" class="chip" data-p="auris">Auriculares</button>
+      <button type="button" class="chip" data-p="mochila">Mochila</button>
+      <button type="button" class="chip" data-p="custom">A tu gusto</button>
+    </div>
+
+    <div class="ctrl-row" id="ctrls"></div>
+    <div id="stage"></div>
+
+    <div class="mnemonic">
+      <div class="tag">Truco mnemotécnico</div>
+      <p>Barato ≠ mejor. Divide: €/kg o €/mes. Luego pregunta: ¿lo necesito? ¿me dura? ¿me importa?</p>
+    </div>
+    <div class="socio">
+      <strong>Momento [E]:</strong> En el debate, ataca el argumento, no a la persona.
+      Que a alguien le guste una marca no es «tontería»: es valor personal. Escucha antes de responder.
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>📖 Glosario rápido</h2>
+    <dl class="glossary">
+      <dt><span class="sym-chip">precio</span></dt>
+      <dd>Lo que pagas en euros en la etiqueta.</dd>
+      <dt><span class="sym-chip">calidad-precio</span></dt>
+      <dd>Relación entre prestaciones/duración y precio. A menudo se mira con €/uso o €/mes.</dd>
+      <dt><span class="sym-chip">valor</span></dt>
+      <dd>Importancia subjetiva: te gusta, es ético, te dura, encaja en tu vida.</dd>
+      <dt><span class="sym-chip">€/kg</span> · <span class="sym-chip">€/mes</span></dt>
+      <dd>Precio ÷ kilos (o litros). Precio ÷ meses de vida útil estimada.</dd>
+    </dl>
+  </div>
+
+  <footer class="note">Offline · file:// · 1º ESO Matemáticas CyL · L27 · consumo responsable</footer>
+</div>
+<script>
+(function(){
+  const $ = (s, el=document) => el.querySelector(s);
+  const $$ = (s, el=document) => [...el.querySelectorAll(s)];
+  let mode = 'kg';
+  let preset = 'arroz';
+  const S = {
+    nameA:'Marca blanca', nameB:'Marca extra',
+    emojiA:'🍚', emojiB:'🍚',
+    priceA:1.80, qtyA:1,   // kg or months
+    priceB:2.40, qtyB:1.5,
+    wasteA:10, wasteB:0,   // % wasted
+    monthsA:4, monthsB:18,
+    // value mode scores 1-5
+    qa:3, qb:4, va:3, vb:4
+  };
+
+  const PRESETS = {
+    arroz: {modePrefer:'kg', emojiA:'🍚', emojiB:'🍚', nameA:'Arroz A · 1 kg', nameB:'Arroz B · 1,5 kg',
+      priceA:1.80, qtyA:1, priceB:2.40, qtyB:1.5, monthsA:12, monthsB:12, wasteA:0, wasteB:0},
+    auris: {modePrefer:'mes', emojiA:'🎧', emojiB:'🎧', nameA:'Auris básicos', nameB:'Auris resistentes',
+      priceA:15, qtyA:1, priceB:36, qtyB:1, monthsA:4, monthsB:18, wasteA:0, wasteB:0},
+    mochila:{modePrefer:'mes', emojiA:'🎒', emojiB:'🎒', nameA:'Mochila B', nameB:'Mochila A',
+      priceA:20, qtyA:1, priceB:40, qtyB:1, monthsA:6, monthsB:24, wasteA:0, wasteB:0},
+    custom: {modePrefer:'kg', emojiA:'📦', emojiB:'📦', nameA:'Producto A', nameB:'Producto B',
+      priceA:10, qtyA:1, priceB:14, qtyB:1.2, monthsA:6, monthsB:12, wasteA:5, wasteB:0}
+  };
+
+  function fmt(n,d=2){
+    if(!isFinite(n)) return '—';
+    const x = Math.round(n*Math.pow(10,d))/Math.pow(10,d);
+    let s = x.toFixed(d).replace('.',',');
+    if(d>0) s = s.replace(/,?0+$/,'').replace(/,$/,'');
+    return s;
+  }
+  function euro(n){ if(!isFinite(n)) return '— €'; return n.toFixed(2).replace('.',',')+' €'; }
+  function parseIn(v){ return parseFloat(String(v).replace(',','.'))||0; }
+
+  function applyPreset(id){
+    preset = id;
+    const P = PRESETS[id];
+    Object.assign(S, {
+      emojiA:P.emojiA, emojiB:P.emojiB, nameA:P.nameA, nameB:P.nameB,
+      priceA:P.priceA, qtyA:P.qtyA, priceB:P.priceB, qtyB:P.qtyB,
+      monthsA:P.monthsA, monthsB:P.monthsB, wasteA:P.wasteA, wasteB:P.wasteB
+    });
+  }
+
+  function renderCtrls(){
+    const c = $('#ctrls');
+    if(mode==='kg'){
+      c.innerHTML = `
+        <div class="field"><label><span class="letter">€A</span> Precio A</label>
+          <input type="number" id="priceA" value="${S.priceA}" min="0" step="0.1"></div>
+        <div class="field"><label><span class="letter">kgA</span> Kilos A</label>
+          <input type="number" id="qtyA" value="${S.qtyA}" min="0.1" step="0.1"></div>
+        <div class="field"><label><span class="letter">€B</span> Precio B</label>
+          <input type="number" id="priceB" value="${S.priceB}" min="0" step="0.1"></div>
+        <div class="field"><label><span class="letter">kgB</span> Kilos B</label>
+          <input type="number" id="qtyB" value="${S.qtyB}" min="0.1" step="0.1"></div>`;
+    } else if(mode==='mes'){
+      c.innerHTML = `
+        <div class="field"><label><span class="letter">€A</span> Precio A</label>
+          <input type="number" id="priceA" value="${S.priceA}" min="0" step="0.5"></div>
+        <div class="field"><label><span class="letter">mA</span> Meses A</label>
+          <input type="number" id="monthsA" value="${S.monthsA}" min="1" step="1"></div>
+        <div class="field"><label><span class="letter">€B</span> Precio B</label>
+          <input type="number" id="priceB" value="${S.priceB}" min="0" step="0.5"></div>
+        <div class="field"><label><span class="letter">mB</span> Meses B</label>
+          <input type="number" id="monthsB" value="${S.monthsB}" min="1" step="1"></div>`;
+    } else if(mode==='waste'){
+      c.innerHTML = `
+        <div class="field"><label><span class="letter">€A</span> Precio A</label>
+          <input type="number" id="priceA" value="${S.priceA}" min="0" step="0.1"></div>
+        <div class="field"><label><span class="letter">%A</span> % desperdicio A</label>
+          <input type="number" id="wasteA" value="${S.wasteA}" min="0" max="90" step="1"></div>
+        <div class="field"><label><span class="letter">€B</span> Precio B</label>
+          <input type="number" id="priceB" value="${S.priceB}" min="0" step="0.1"></div>
+        <div class="field"><label><span class="letter">%B</span> % desperdicio B</label>
+          <input type="number" id="wasteB" value="${S.wasteB}" min="0" max="90" step="1"></div>`;
+    } else {
+      c.innerHTML = `
+        <div class="field"><label><span class="letter">€A</span> Precio A</label>
+          <input type="number" id="priceA" value="${S.priceA}" min="0" step="0.5"></div>
+        <div class="field"><label><span class="letter">qA</span> Calidad A (1–5)</label>
+          <input type="number" id="qa" value="${S.qa}" min="1" max="5" step="1"></div>
+        <div class="field"><label><span class="letter">€B</span> Precio B</label>
+          <input type="number" id="priceB" value="${S.priceB}" min="0" step="0.5"></div>
+        <div class="field"><label><span class="letter">qB</span> Calidad B (1–5)</label>
+          <input type="number" id="qb" value="${S.qb}" min="1" max="5" step="1"></div>
+        <div class="field"><label><span class="letter">vA</span> Valor personal A (1–5)</label>
+          <input type="number" id="va" value="${S.va}" min="1" max="5" step="1"></div>
+        <div class="field"><label><span class="letter">vB</span> Valor personal B (1–5)</label>
+          <input type="number" id="vb" value="${S.vb}" min="1" max="5" step="1"></div>`;
+    }
+    $$('#ctrls input').forEach(el => el.addEventListener('input', readAndDraw));
+  }
+
+  function readAndDraw(){
+    ['priceA','qtyA','priceB','qtyB','monthsA','monthsB','wasteA','wasteB','qa','qb','va','vb'].forEach(k=>{
+      const el=$('#'+k); if(el) S[k]=parseIn(el.value);
+    });
+    draw();
+  }
+
+  function productCard(side, unitLabel, unitVal, win){
+    const name = side==='A'?S.nameA:S.nameB;
+    const emoji = side==='A'?S.emojiA:S.emojiB;
+    const price = side==='A'?S.priceA:S.priceB;
+    return `<div class="product ${win?'win':''}">
+      <div class="tag-win">MEJOR ${unitLabel}</div>
+      <div class="emoji">${emoji}</div>
+      <div class="brand">Opción ${side}</div>
+      <div class="name">${name}</div>
+      <div class="price">${euro(price)}</div>
+      <div class="meta">etiqueta</div>
+      <div class="unit-pill">${euro(unitVal)}/${unitLabel}</div>
+    </div>`;
+  }
+
+  function draw(){
+    let html='';
+    if(mode==='kg'){
+      const uA = S.qtyA>0 ? S.priceA/S.qtyA : 0;
+      const uB = S.qtyB>0 ? S.priceB/S.qtyB : 0;
+      const winA = uA < uB, winB = uB < uA;
+      html = `
+        <div class="shelf">
+          ${productCard('A','kg',uA,winA)}
+          ${productCard('B','kg',uB,winB)}
+        </div>
+        <div class="vs">VS · compara €/kg, no solo el precio del envase</div>
+        <div class="steps">
+          <div class="step"><div class="n">1</div><div class="body"><div class="t">€/kg = precio ÷ kilos</div>
+            <div class="d">A: ${fmt(S.priceA)} ÷ ${fmt(S.qtyA)} = <strong>${euro(uA)}/kg</strong> · B: <strong>${euro(uB)}/kg</strong></div></div></div>
+          <div class="step hl"><div class="n">2</div><div class="body"><div class="t">Gana el menor €/kg</div>
+            <div class="d">${winA?'A':winB?'B':'Empate'} en coste por kilo. Luego pregunta si lo vas a usar todo.</div></div></div>
+        </div>
+        <div class="verdict">${winA||winB?`✓ Mejor €/kg: opción ${winA?'A':'B'} (${euro(winA?uA:uB)}/kg)`:'✓ Mismo €/kg'}</div>`;
+    } else if(mode==='mes'){
+      const uA = S.monthsA>0 ? S.priceA/S.monthsA : 0;
+      const uB = S.monthsB>0 ? S.priceB/S.monthsB : 0;
+      const winA = uA < uB, winB = uB < uA;
+      // also show total if replacing cheap one over long horizon
+      const horizon = Math.max(S.monthsA, S.monthsB);
+      const timesA = S.monthsA>0 ? Math.ceil(horizon/S.monthsA) : 1;
+      const timesB = S.monthsB>0 ? Math.ceil(horizon/S.monthsB) : 1;
+      const totA = timesA*S.priceA, totB = timesB*S.priceB;
+      html = `
+        <div class="shelf">
+          ${productCard('A','mes',uA,winA)}
+          ${productCard('B','mes',uB,winB)}
+        </div>
+        <div class="vs">VS · lo barato que se rompe puede salir caro</div>
+        <div class="steps">
+          <div class="step"><div class="n">1</div><div class="body"><div class="t">€/mes = precio ÷ meses de vida</div>
+            <div class="d">A: ${fmt(S.priceA)}÷${fmt(S.monthsA,0)} = <strong>${euro(uA)}/mes</strong> · B: <strong>${euro(uB)}/mes</strong></div></div></div>
+          <div class="step hl"><div class="n">2</div><div class="body"><div class="t">En ${fmt(horizon,0)} meses (horizonte)</div>
+            <div class="d">A se compra ≈${timesA} veces → ${euro(totA)}. B ≈${timesB} → ${euro(totB)}.</div></div></div>
+        </div>
+        <div class="verdict">${winA||winB?`✓ Mejor coste/mes: ${winA?'A':'B'} (${euro(winA?uA:uB)}/mes)`:'✓ Empate en €/mes'}</div>
+        <div class="callout">Ejemplo del temario: 15 € / 4 meses = 3,75 €/mes frente a 36 € / 18 meses = 2 €/mes.</div>`;
+    } else if(mode==='waste'){
+      const effA = (1 - S.wasteA/100) > 0 ? S.priceA / (1 - S.wasteA/100) : Infinity;
+      const effB = (1 - S.wasteB/100) > 0 ? S.priceB / (1 - S.wasteB/100) : Infinity;
+      const winA = effA < effB, winB = effB < effA;
+      html = `
+        <div class="shelf">
+          <div class="product ${winA?'win':''}">
+            <div class="tag-win">MEJOR efectivo</div>
+            <div class="emoji">${S.emojiA}</div>
+            <div class="brand">Opción A</div>
+            <div class="name">${S.nameA}</div>
+            <div class="price">${euro(S.priceA)}</div>
+            <div class="meta">desperdicias ${fmt(S.wasteA,0)} %</div>
+            <div class="unit-pill">efectivo ${euro(effA)}</div>
+          </div>
+          <div class="product ${winB?'win':''}">
+            <div class="tag-win">MEJOR efectivo</div>
+            <div class="emoji">${S.emojiB}</div>
+            <div class="brand">Opción B</div>
+            <div class="name">${S.nameB}</div>
+            <div class="price">${euro(S.priceB)}</div>
+            <div class="meta">desperdicias ${fmt(S.wasteB,0)} %</div>
+            <div class="unit-pill">efectivo ${euro(effB)}</div>
+          </div>
+        </div>
+        <div class="steps">
+          <div class="step"><div class="n">1</div><div class="body"><div class="t">Coste efectivo ≈ precio ÷ (1 − % desperdicio)</div>
+            <div class="d">A: ${fmt(S.priceA)} ÷ ${fmt(1-S.wasteA/100,2)} ≈ <strong>${euro(effA)}</strong></div></div></div>
+          <div class="step hl"><div class="n">2</div><div class="body"><div class="t">El «barato» puede salir peor</div>
+            <div class="d">Si tiras comida o dejas de usar algo, pagaste por kilos que no disfrutaste.</div></div></div>
+        </div>
+        <div class="verdict">${winA||winB?`✓ Mejor coste efectivo: ${winA?'A':'B'}`:'✓ Empate'}</div>`;
+    } else {
+      // value triad
+      const stars = n => '★'.repeat(Math.max(1,Math.min(5,Math.round(n)))) + '☆'.repeat(5-Math.max(1,Math.min(5,Math.round(n))));
+      // simple score: lower price better → invert rank; quality + value higher better
+      const priceScoreA = S.priceA <= S.priceB ? 5 : Math.max(1, Math.round(5 * S.priceB / S.priceA));
+      const priceScoreB = S.priceB <= S.priceA ? 5 : Math.max(1, Math.round(5 * S.priceA / S.priceB));
+      const totA = priceScoreA + S.qa + S.va;
+      const totB = priceScoreB + S.qb + S.vb;
+      const winA = totA > totB, winB = totB > totA;
+      html = `
+        <div class="triad">
+          <div class="triad-pill p"><div class="label">Precio</div><div class="val">lo que pagas</div></div>
+          <div class="triad-pill q"><div class="label">Calidad-precio</div><div class="val">prestaciones / €</div></div>
+          <div class="triad-pill v"><div class="label">Valor</div><div class="val">te aporta a ti</div></div>
+        </div>
+        <table class="rubric">
+          <tr><th></th><th>Opción A</th><th>Opción B</th></tr>
+          <tr><td>Precio</td><td>${euro(S.priceA)} <span class="stars">${stars(priceScoreA)}</span></td>
+              <td>${euro(S.priceB)} <span class="stars">${stars(priceScoreB)}</span></td></tr>
+          <tr><td>Calidad (1–5)</td><td><span class="stars">${stars(S.qa)}</span></td>
+              <td><span class="stars">${stars(S.qb)}</span></td></tr>
+          <tr><td>Valor personal</td><td><span class="stars">${stars(S.va)}</span></td>
+              <td><span class="stars">${stars(S.vb)}</span></td></tr>
+          <tr><td><strong>Suma</strong></td><td><strong>${totA}/15</strong></td><td><strong>${totB}/15</strong></td></tr>
+        </table>
+        <div class="crit-grid" id="crits">
+          <div class="crit" data-c="duracion">Duración</div>
+          <div class="crit" data-c="necesidad">¿Lo necesito?</div>
+          <div class="crit" data-c="etica">Ética / eco</div>
+          <div class="crit" data-c="gusto">Me gusta</div>
+          <div class="crit" data-c="reparar">Se puede reparar</div>
+          <div class="crit" data-c="presupuesto">Cabe en presupuesto</div>
+        </div>
+        <div class="verdict soft">${winA||winB?`Con estos pesos, se inclina a ${winA?'A':'B'} (${winA?totA:totB}/15).`:'Empate numérico: decide con tus criterios.'} Los criterios marcados son tuyos.</div>
+        <div class="callout">La rúbrica es una ayuda, no un juez. Si B suma menos pero la usas cada día y A se queda en el cajón, B tiene más valor real.</div>`;
+    }
+    $('#stage').innerHTML = html;
+    if(mode==='value'){
+      $$('#crits .crit').forEach(c => c.addEventListener('click', () => c.classList.toggle('on')));
+    }
+  }
+
+  $$('.mode-btn').forEach(b => b.addEventListener('click', () => {
+    $$('.mode-btn').forEach(x => x.classList.remove('active'));
+    b.classList.add('active');
+    mode = b.dataset.mode;
+    renderCtrls(); draw();
+  }));
+
+  $$('#presets .chip').forEach(b => b.addEventListener('click', () => {
+    $$('#presets .chip').forEach(x => x.classList.remove('active'));
+    b.classList.add('active');
+    applyPreset(b.dataset.p);
+    // optionally switch mode to preferred
+    const prefer = PRESETS[b.dataset.p].modePrefer;
+    if(prefer && prefer !== mode && (prefer==='kg'||prefer==='mes')){
+      mode = prefer;
+      $$('.mode-btn').forEach(x => x.classList.toggle('active', x.dataset.mode===mode));
+    }
+    renderCtrls(); draw();
+  }));
+
+  applyPreset('arroz');
+  renderCtrls(); draw();
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Ticket, ofertas y presupuesto · 1º ESO</title>
+<style>
+  :root {
+    --bg:#eef2f7; --ink:#1a2b3c; --muted:#5a6d7e; --card:#fff;
+    --blue:#3b82f6; --blue-soft:#dbeafe; --blue-deep:#1d4ed8;
+    --orange:#f59e0b; --orange-soft:#fef3c7; --orange-deep:#b45309;
+    --green:#10b981; --green-soft:#d1fae5; --green-deep:#047857;
+    --purple:#8b5cf6; --purple-soft:#ede9fe; --purple-deep:#6d28d9;
+    --rose:#e11d48; --rose-soft:#ffe4e6; --rose-deep:#be123c;
+    --teal:#0d9488; --teal-soft:#ccfbf1; --teal-deep:#0f766e;
+    --gold:#eab308; --gold-soft:#fef9c3; --gold-deep:#a16207;
+    --shadow:0 8px 28px rgba(26,43,60,.08); --radius:18px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{min-height:100%;background:var(--bg);color:var(--ink);
+    font-family:"Segoe UI",system-ui,-apple-system,sans-serif;-webkit-font-smoothing:antialiased}
+  body{display:flex;flex-direction:column;align-items:center;padding:14px 10px 36px}
+  .wrap{width:100%;max-width:980px}
+  header{text-align:center;margin-bottom:12px}
+  header .badge{display:inline-block;font-size:.78rem;font-weight:600;letter-spacing:.04em;
+    text-transform:uppercase;color:var(--teal-deep);background:var(--teal-soft);
+    padding:4px 12px;border-radius:999px;margin-bottom:8px}
+  h1{font-size:clamp(1.3rem,4.5vw,1.9rem);line-height:1.2;font-weight:800}
+  .subtitle{margin-top:6px;font-size:clamp(.9rem,2.8vw,1.05rem);color:var(--muted);font-weight:500}
+  .story{background:linear-gradient(135deg,#ccfbf1,#fef9c3 55%,#ede9fe);
+    border:2px solid #5eead4;border-radius:var(--radius);padding:12px 14px;
+    margin-bottom:14px;display:flex;gap:12px;align-items:flex-start}
+  .story .emoji{font-size:2rem}
+  .story p{font-size:clamp(.9rem,2.5vw,1.02rem);line-height:1.45}
+  .story strong{color:var(--teal-deep)}
+  .card{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);
+    padding:16px 14px 18px;margin-bottom:14px}
+  .card h2{font-size:clamp(1.05rem,3vw,1.25rem);font-weight:800;margin-bottom:8px}
+  .hint{font-size:clamp(.88rem,2.4vw,1rem);color:var(--muted);line-height:1.45;margin-bottom:12px}
+  .mode-row{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px;justify-content:center}
+  .mode-btn{padding:10px 14px;border-radius:12px;border:3px solid #cbd5e1;background:#fff;
+    font-size:.88rem;font-weight:800;cursor:pointer}
+  .mode-btn.active{border-color:var(--teal);background:var(--teal-soft);color:var(--teal-deep)}
+  .ctrl-row{display:flex;flex-wrap:wrap;gap:12px;align-items:flex-end;margin-bottom:12px}
+  .field{display:flex;flex-direction:column;gap:4px;flex:1 1 110px}
+  .field label{font-size:.8rem;font-weight:700;color:var(--muted)}
+  .field label .letter{display:inline-block;padding:1px 7px;border-radius:8px;font-weight:800;margin-right:3px;background:#fff;color:var(--teal-deep)}
+  .field input, .field select{width:100%;font-size:1.1rem;font-weight:800;font-variant-numeric:tabular-nums;
+    padding:8px 10px;border:2.5px solid #cbd5e1;border-radius:12px;background:#fff}
+  .field input:focus, .field select:focus{outline:none;border-color:var(--teal);box-shadow:0 0 0 3px #99f6e4}
+  .chooser{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px}
+  .chip{border:2px solid #cbd5e1;background:#fff;border-radius:999px;padding:7px 14px;
+    font-size:.86rem;font-weight:700;cursor:pointer}
+  .chip.active{border-color:var(--teal);background:var(--teal-soft);color:var(--teal-deep)}
+
+  /* —— Thermal receipt —— */
+  .stage{display:flex;flex-wrap:wrap;gap:18px;justify-content:center;align-items:flex-start;margin:14px 0}
+  .receipt{
+    width:min(100%,320px);background:#faf7f0;
+    background-image:repeating-linear-gradient(0deg,transparent,transparent 27px,rgba(0,0,0,.03) 28px);
+    border-left:1px solid #e7e0d4;border-right:1px solid #e7e0d4;
+    box-shadow:0 12px 30px rgba(26,43,60,.15), inset 0 0 40px rgba(0,0,0,.02);
+    padding:18px 16px 28px;position:relative;
+    font-family:"Courier New",ui-monospace,monospace;
+  }
+  .receipt::before,.receipt::after{
+    content:"";position:absolute;left:0;right:0;height:12px;
+    background:linear-gradient(135deg,#eef2f7 33.33%,transparent 33.33%) 0 0/12px 12px,
+               linear-gradient(225deg,#eef2f7 33.33%,transparent 33.33%) 0 0/12px 12px;
+  }
+  .receipt::before{top:-6px}
+  .receipt::after{bottom:-6px;transform:rotate(180deg)}
+  .receipt .shop-name{text-align:center;font-weight:900;font-size:1.05rem;letter-spacing:.04em;
+    font-family:"Segoe UI",system-ui,sans-serif;margin-bottom:2px}
+  .receipt .shop-meta{text-align:center;font-size:.72rem;color:#64748b;margin-bottom:10px;line-height:1.35}
+  .receipt .sep{border:none;border-top:1px dashed #94a3b8;margin:8px 0}
+  .receipt .line{display:flex;justify-content:space-between;gap:8px;font-size:.88rem;margin:3px 0;
+    font-variant-numeric:tabular-nums}
+  .receipt .line .name{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .receipt .line .qty{color:#64748b;margin-right:4px}
+  .receipt .tot{font-weight:900;font-size:1.15rem;margin-top:4px}
+  .receipt .foot{text-align:center;font-size:.7rem;color:#64748b;margin-top:12px;
+    font-family:"Segoe UI",system-ui,sans-serif}
+  .receipt .iva{font-size:.78rem;color:#64748b}
+
+  .side{flex:1 1 280px;min-width:240px}
+  .side .panel{background:#f8fafc;border:2px solid #e2e8f0;border-radius:14px;padding:12px 14px;margin-bottom:10px}
+  .side .panel h3{font-size:.95rem;font-weight:800;margin-bottom:6px}
+  .side .panel p{font-size:.9rem;color:var(--muted);line-height:1.4}
+  .unit-big{font-size:clamp(1.5rem,4vw,2rem);font-weight:900;color:var(--teal-deep);font-variant-numeric:tabular-nums}
+  .verdict{text-align:center;font-size:clamp(1.05rem,2.8vw,1.3rem);font-weight:900;padding:12px;
+    border-radius:14px;margin:10px 0;background:var(--green-soft);color:var(--green-deep);border:2px solid #6ee7b7}
+  .verdict.care{background:var(--orange-soft);color:var(--orange-deep);border-color:#fcd34d}
+  .steps{display:grid;gap:10px;margin:12px 0}
+  .step{display:flex;gap:12px;align-items:flex-start;background:#f8fafc;border:2px solid #e2e8f0;
+    border-radius:14px;padding:12px 14px}
+  .step .n{flex:0 0 36px;height:36px;border-radius:50%;background:var(--teal);color:#fff;
+    font-weight:900;display:flex;align-items:center;justify-content:center}
+  .step .body .t{font-weight:800;font-size:1rem}
+  .step .body .d{font-size:.92rem;color:var(--muted);margin-top:2px;line-height:1.4}
+  .step.hl{border-color:#5eead4;background:var(--teal-soft)}
+  .callout{font-size:.9rem;font-weight:700;color:var(--gold-deep);background:#fefce8;
+    border-left:4px solid var(--gold);padding:8px 12px;border-radius:0 10px 10px 0;margin-top:10px}
+  .socio{background:linear-gradient(135deg,#ede9fe,#ccfbf1);border:2px solid #c4b5fd;
+    border-radius:14px;padding:12px 14px;margin-top:10px;font-size:.92rem;line-height:1.45}
+  .socio strong{color:var(--purple-deep)}
+  .mnemonic{background:linear-gradient(135deg,var(--gold-soft),#ccfbf1);
+    border:2px solid #fde047;border-radius:14px;padding:12px 14px;margin-top:10px;text-align:center}
+  .mnemonic .tag{font-size:.75rem;font-weight:800;text-transform:uppercase;letter-spacing:.05em;color:var(--gold-deep)}
+  .mnemonic p{margin-top:4px;font-size:clamp(.95rem,3vw,1.1rem);font-weight:800;color:var(--gold-deep)}
+  .glossary{display:grid;gap:8px}
+  .glossary dt{font-weight:800;font-size:.95rem;color:var(--teal-deep)}
+  .glossary dd{font-size:.92rem;color:var(--muted);line-height:1.4;margin-bottom:4px}
+  .sym-chip{display:inline-block;background:var(--purple-soft);color:var(--purple-deep);font-weight:800;
+    padding:1px 7px;border-radius:6px;font-family:"Courier New",ui-monospace,monospace}
+  .bars{display:flex;flex-direction:column;gap:8px;margin:10px 0}
+  .bar-row{display:grid;grid-template-columns:90px 1fr 70px;gap:8px;align-items:center}
+  .bar-row .lab{font-weight:800;font-size:.82rem;color:var(--muted)}
+  .bar-row .track{height:18px;background:#e2e8f0;border-radius:999px;overflow:hidden}
+  .bar-row .fill{height:100%;border-radius:999px}
+  .bar-row .fill.in{background:var(--green)}
+  .bar-row .fill.out{background:var(--rose)}
+  .bar-row .fill.save{background:var(--blue)}
+  .bar-row .num{font-weight:900;font-variant-numeric:tabular-nums;text-align:right;font-size:.9rem}
+  .offer-card{background:#fff;border:3px dashed var(--rose);border-radius:14px;padding:14px;text-align:center;
+    transform:rotate(-1deg);box-shadow:4px 6px 0 rgba(225,29,72,.12)}
+  .offer-card .big{font-size:2rem;font-weight:900;color:var(--rose-deep)}
+  .offer-card .sub{font-size:.9rem;font-weight:700;color:var(--muted);margin-top:4px}
+  footer.note{text-align:center;font-size:.8rem;color:var(--muted);margin-top:8px}
+  .compare{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  @media(max-width:560px){.compare{grid-template-columns:1fr}}
+  .compare .box{border-radius:12px;padding:12px;border:2px solid #e2e8f0;text-align:center}
+  .compare .box.win{background:var(--green-soft);border-color:#6ee7b7}
+  .compare .box .lab{font-size:.75rem;font-weight:800;text-transform:uppercase;color:var(--muted)}
+  .compare .box .val{font-size:1.25rem;font-weight:900;margin-top:4px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="badge">1º ESO · UD8 Educación financiera · L26 · [E]</div>
+    <h1>Tickets, ofertas y presupuestos</h1>
+    <p class="subtitle">Leer el papel del súper · €/kg · 2×1 · presupuesto semanal</p>
+  </header>
+
+  <div class="story">
+    <div class="emoji">🧾🕵️</div>
+    <p>Ser <strong>detective de tickets</strong> es alfabetización financiera: mira el <strong>precio unitario</strong> (€/kg, €/L),
+      lee la letra pequeña de la oferta y suma con cabeza. Los ejemplos son ficticios: respeta la privacidad de cada casa.</p>
+  </div>
+
+  <div class="card">
+    <h2>🎛️ Situación</h2>
+    <p class="hint">Modos independientes. En ticket, edita las 3 líneas; en €/kg compara dos packs; en oferta elige 2×1 o 2ª al 50 %; en presupuesto mueve ingresos y gastos.</p>
+    <div class="mode-row">
+      <button type="button" class="mode-btn active" data-mode="ticket">🧾 Ticket</button>
+      <button type="button" class="mode-btn" data-mode="unit">⚖️ €/kg</button>
+      <button type="button" class="mode-btn" data-mode="offer">🏷️ Oferta</button>
+      <button type="button" class="mode-btn" data-mode="budget">📊 Presupuesto</button>
+    </div>
+    <div class="ctrl-row" id="ctrls"></div>
+    <div id="stage"></div>
+    <div class="mnemonic">
+      <div class="tag">Truco mnemotécnico</div>
+      <p>Unitario manda. Oferta → calcula el precio final. Presupuesto: ingresos − gastos = lo que queda.</p>
+    </div>
+    <div class="socio">
+      <strong>Momento [E]:</strong> Hablar de dinero puede ser sensible. Usa importes inventados si prefieres;
+      no hace falta contar lo que hay en casa. Ataca el cartel engañoso, no a quien compra.
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>📖 Glosario rápido</h2>
+    <dl class="glossary">
+      <dt><span class="sym-chip">€/kg</span> precio unitario</dt>
+      <dd>Precio ÷ cantidad (en kg, L o ud). Sirve para comparar envases distintos.</dd>
+      <dt>2×1 / 2ª al 50 %</dt>
+      <dd>2×1: pagas 1, llevas 2. 2ª al 50 %: pagas 100 % + 50 % de la segunda (no la mitad del total).</dd>
+      <dt>Base / IVA / total</dt>
+      <dd>En muchos tickets el IVA va incluido; a veces se desglosa. El total es lo que sales pagando.</dd>
+      <dt>«Hasta −70 %»</dt>
+      <dd>No todo está al 70 %. Pregunta: ¿qué productos y desde qué precio?</dd>
+    </dl>
+  </div>
+
+  <footer class="note">Offline · file:// · 1º ESO Matemáticas CyL · L26 · ejemplos ficticios</footer>
+</div>
+<script>
+(function(){
+  const $ = (s, el=document) => el.querySelector(s);
+  const $$ = (s, el=document) => [...el.querySelectorAll(s)];
+  let mode = 'ticket';
+  const S = {
+    // ticket lines
+    n1:'Pan barra', q1:1, p1:1.20,
+    n2:'Leche 1L', q2:2, p2:0.95,
+    n3:'Manzanas', q3:1.5, p3:1.80,
+    paid:10,
+    // unit
+    gA:500, eA:2.40, gB:750, eB:3.30,
+    // offer
+    offerType:'2x1', price:20, qty:2,
+    // budget
+    income:25, fixed:12, save:8
+  };
+
+  function fmt(n,d=2){
+    if(!isFinite(n)) return '—';
+    const x = Math.round(n*Math.pow(10,d))/Math.pow(10,d);
+    let s = x.toFixed(d).replace('.',',');
+    if(d>0) s = s.replace(/,?0+$/,'').replace(/,$/,'');
+    return s;
+  }
+  function euro(n){ if(!isFinite(n)) return '— €'; return n.toFixed(2).replace('.',',')+' €'; }
+  function parseIn(v){ return parseFloat(String(v).replace(',','.'))||0; }
+
+  function renderCtrls(){
+    const c = $('#ctrls');
+    if(mode==='ticket'){
+      c.innerHTML = `
+        <div class="field"><label><span class="letter">1</span> Producto / ud / €</label>
+          <input id="n1" value="${S.n1}" style="font-size:.95rem;font-weight:700">
+          <div style="display:flex;gap:6px;margin-top:4px">
+            <input type="number" id="q1" value="${S.q1}" min="0" step="0.5" style="flex:1" title="Cantidad">
+            <input type="number" id="p1" value="${S.p1}" min="0" step="0.05" style="flex:1" title="Precio ud">
+          </div></div>
+        <div class="field"><label><span class="letter">2</span> Producto / ud / €</label>
+          <input id="n2" value="${S.n2}" style="font-size:.95rem;font-weight:700">
+          <div style="display:flex;gap:6px;margin-top:4px">
+            <input type="number" id="q2" value="${S.q2}" min="0" step="0.5" style="flex:1">
+            <input type="number" id="p2" value="${S.p2}" min="0" step="0.05" style="flex:1">
+          </div></div>
+        <div class="field"><label><span class="letter">3</span> Producto / ud / €</label>
+          <input id="n3" value="${S.n3}" style="font-size:.95rem;font-weight:700">
+          <div style="display:flex;gap:6px;margin-top:4px">
+            <input type="number" id="q3" value="${S.q3}" min="0" step="0.5" style="flex:1">
+            <input type="number" id="p3" value="${S.p3}" min="0" step="0.05" style="flex:1">
+          </div></div>
+        <div class="field"><label><span class="letter">€</span> Entregas</label>
+          <input type="number" id="paid" value="${S.paid}" min="0" step="0.5"></div>`;
+    } else if(mode==='unit'){
+      c.innerHTML = `
+        <div class="field"><label><span class="letter">A</span> Pack A: gramos</label>
+          <input type="number" id="gA" value="${S.gA}" min="1" step="50"></div>
+        <div class="field"><label><span class="letter">€A</span> Precio A (€)</label>
+          <input type="number" id="eA" value="${S.eA}" min="0" step="0.1"></div>
+        <div class="field"><label><span class="letter">B</span> Pack B: gramos</label>
+          <input type="number" id="gB" value="${S.gB}" min="1" step="50"></div>
+        <div class="field"><label><span class="letter">€B</span> Precio B (€)</label>
+          <input type="number" id="eB" value="${S.eB}" min="0" step="0.1"></div>`;
+    } else if(mode==='offer'){
+      c.innerHTML = `
+        <div class="field"><label><span class="letter">tipo</span> Oferta</label>
+          <select id="offerType">
+            <option value="2x1" ${S.offerType==='2x1'?'selected':''}>2×1</option>
+            <option value="2nd50" ${S.offerType==='2nd50'?'selected':''}>2ª al 50 %</option>
+            <option value="upto" ${S.offerType==='upto'?'selected':''}>«Hasta −70 %»</option>
+          </select></div>
+        <div class="field"><label><span class="letter">P</span> Precio unitario (€)</label>
+          <input type="number" id="price" value="${S.price}" min="0" step="0.5"></div>
+        <div class="field"><label><span class="letter">n</span> Unidades que llevas</label>
+          <input type="number" id="qty" value="${S.qty}" min="1" max="10" step="1"></div>`;
+    } else {
+      c.innerHTML = `
+        <div class="field"><label><span class="letter">I</span> Ingresos semana (€)</label>
+          <input type="number" id="income" value="${S.income}" min="0" step="1"></div>
+        <div class="field"><label><span class="letter">F</span> Gastos fijos (€)</label>
+          <input type="number" id="fixed" value="${S.fixed}" min="0" step="1"></div>
+        <div class="field"><label><span class="letter">A</span> Quiero ahorrar (€)</label>
+          <input type="number" id="save" value="${S.save}" min="0" step="1"></div>`;
+    }
+    $$('#ctrls input, #ctrls select').forEach(el => el.addEventListener('input', readAndDraw));
+    $$('#ctrls select').forEach(el => el.addEventListener('change', readAndDraw));
+  }
+
+  function readAndDraw(){
+    ['n1','n2','n3'].forEach(k=>{ const el=$('#'+k); if(el) S[k]=el.value; });
+    ['q1','p1','q2','p2','q3','p3','paid','gA','eA','gB','eB','price','qty','income','fixed','save'].forEach(k=>{
+      const el=$('#'+k); if(el) S[k]=parseIn(el.value);
+    });
+    const ot = $('#offerType'); if(ot) S.offerType = ot.value;
+    draw();
+  }
+
+  function draw(){
+    let html='';
+    if(mode==='ticket'){
+      const l1=S.q1*S.p1, l2=S.q2*S.p2, l3=S.q3*S.p3;
+      const sub=l1+l2+l3;
+      const iva=sub - sub/1.1; // idea: IVA incluido ~10% alimentación ficticio
+      const base=sub - iva;
+      const change=S.paid - sub;
+      html = `
+        <div class="stage">
+          <div class="receipt">
+            <div class="shop-name">SUPER MERINO</div>
+            <div class="shop-meta">C/ Mayor 12 · Segovia<br>Ticket ficticio · 23/09/2026<br>Ticket nº 00482</div>
+            <hr class="sep">
+            <div class="line"><span class="name"><span class="qty">${fmt(S.q1,1)}×</span>${S.n1}</span><span>${euro(l1)}</span></div>
+            <div class="line" style="font-size:.75rem;color:#64748b"><span></span><span>${fmt(S.q1,1)} × ${euro(S.p1)}</span></div>
+            <div class="line"><span class="name"><span class="qty">${fmt(S.q2,1)}×</span>${S.n2}</span><span>${euro(l2)}</span></div>
+            <div class="line" style="font-size:.75rem;color:#64748b"><span></span><span>${fmt(S.q2,1)} × ${euro(S.p2)}</span></div>
+            <div class="line"><span class="name"><span class="qty">${fmt(S.q3,1)}×</span>${S.n3}</span><span>${euro(l3)}</span></div>
+            <div class="line" style="font-size:.75rem;color:#64748b"><span></span><span>${fmt(S.q3,1)} kg × ${euro(S.p3)}/kg</span></div>
+            <hr class="sep">
+            <div class="line iva"><span>Base (idea)</span><span>${euro(base)}</span></div>
+            <div class="line iva"><span>IVA incl. ~10%</span><span>${euro(iva)}</span></div>
+            <div class="line tot"><span>TOTAL</span><span>${euro(sub)}</span></div>
+            <div class="line"><span>Entrega</span><span>${euro(S.paid)}</span></div>
+            <div class="line"><span>Cambio</span><span>${euro(change)}</span></div>
+            <div class="foot">¡Gracias por su visita!<br>Precio unitario manzana: ${euro(S.p3)}/kg</div>
+          </div>
+          <div class="side">
+            <div class="panel"><h3>🔎 Lectura</h3>
+              <p>Suma de líneas = <strong>${euro(sub)}</strong>. Cambio de ${euro(S.paid)} = <strong>${euro(change)}</strong>.</p>
+              <p style="margin-top:6px">Unitario de «${S.n3}»: <span class="unit-big">${euro(S.p3)}/kg</span></p>
+            </div>
+            <div class="panel"><h3>❓ Pregunta detective</h3>
+              <p>¿Hay descuento visible? En este ticket ficticio, no. Si hubiera «−20 %», restaría sobre la línea, no sobre el total a ciegas.</p>
+            </div>
+          </div>
+        </div>
+        <div class="steps">
+          <div class="step"><div class="n">1</div><div class="body"><div class="t">Multiplica cantidad × precio</div><div class="d">${fmt(S.q1,1)}×${fmt(S.p1)} + ${fmt(S.q2,1)}×${fmt(S.p2)} + ${fmt(S.q3,1)}×${fmt(S.p3)}</div></div></div>
+          <div class="step hl"><div class="n">2</div><div class="body"><div class="t">Total y cambio</div><div class="d">${euro(sub)} · cambio ${euro(change)}</div></div></div>
+        </div>
+        <div class="verdict">✓ Total ${euro(sub)} · cambio ${euro(change)}</div>`;
+    } else if(mode==='unit'){
+      const kgA=S.gA/1000, kgB=S.gB/1000;
+      const uA=kgA>0?S.eA/kgA:0, uB=kgB>0?S.eB/kgB:0;
+      const win = uA<uB ? 'A' : uB<uA ? 'B' : 'empate';
+      html = `
+        <div class="stage">
+          <div class="compare" style="width:100%;max-width:640px">
+            <div class="box ${win==='A'?'win':''}">
+              <div class="lab">Pack A · ${fmt(S.gA,0)} g</div>
+              <div class="val">${euro(S.eA)}</div>
+              <div style="margin-top:8px;font-weight:800;color:var(--teal-deep)">${euro(uA)}/kg</div>
+            </div>
+            <div class="box ${win==='B'?'win':''}">
+              <div class="lab">Pack B · ${fmt(S.gB,0)} g</div>
+              <div class="val">${euro(S.eB)}</div>
+              <div style="margin-top:8px;font-weight:800;color:var(--teal-deep)">${euro(uB)}/kg</div>
+            </div>
+          </div>
+        </div>
+        <div class="steps">
+          <div class="step"><div class="n">1</div><div class="body"><div class="t">Pasa a kg</div><div class="d">A: ${fmt(S.gA,0)} g = ${fmt(kgA,3)} kg · B: ${fmt(kgB,3)} kg</div></div></div>
+          <div class="step hl"><div class="n">2</div><div class="body"><div class="t">Divide precio ÷ kg</div><div class="d">A: ${fmt(S.eA)}÷${fmt(kgA,3)} = <strong>${euro(uA)}/kg</strong> · B: <strong>${euro(uB)}/kg</strong></div></div></div>
+        </div>
+        <div class="verdict">${win==='empate'?'✓ Mismo €/kg':`✓ Mejor €/kg: pack ${win} (${win==='A'?euro(uA):euro(uB)}/kg)`}</div>
+        <div class="callout">Comparar solo el precio del envase engaña: el pack más caro puede ser más barato por kilo.</div>`;
+    } else if(mode==='offer'){
+      const P=S.price, n=Math.max(1,Math.floor(S.qty));
+      let pay=0, eff=0, title='', tip='';
+      if(S.offerType==='2x1'){
+        const pairs=Math.floor(n/2), rest=n%2;
+        pay = pairs*P + rest*P;
+        eff = n>0?pay/n:0;
+        title='2×1';
+        tip='Pagas 1 de cada 2. Si no necesitas dos, puede no compensar.';
+      } else if(S.offerType==='2nd50'){
+        // sort as pairs: for each pair pay 1.5P; leftover full
+        const pairs=Math.floor(n/2), rest=n%2;
+        pay = pairs*(P + P*0.5) + rest*P;
+        eff = n>0?pay/n:0;
+        title='2ª unidad al 50 %';
+        tip='Pagas 100 % + 50 % de la segunda (no la mitad del total).';
+      } else {
+        pay = P*n*0.3; // "hasta -70%" example if the item WERE at 70%
+        eff = n>0?pay/n:0;
+        title='«Hasta −70 %»';
+        tip='¡Trampa habitual! No todo está al −70 %. Pregunta qué productos y desde qué precio.';
+      }
+      html = `
+        <div class="stage">
+          <div class="offer-card">
+            <div class="big">${title}</div>
+            <div class="sub">${n} ud × ${euro(P)} (precio etiqueta)</div>
+            <div style="margin-top:12px;font-size:1.6rem;font-weight:900;color:var(--ink)">Pagas ${euro(pay)}</div>
+            <div class="sub">Efectivo: ${euro(eff)} / ud</div>
+          </div>
+          <div class="side">
+            <div class="panel"><h3>🧮 Cálculo</h3>
+              <p>${S.offerType==='2x1'?`Pares: pagas ${Math.floor(n/2)} × ${euro(P)} + resto ${n%2} × ${euro(P)}`:
+                 S.offerType==='2nd50'?`Cada par: ${euro(P)}+${euro(P*0.5)} = ${euro(P*1.5)}`:
+                 `Si ESTE artículo estuviera al −70 %: ×0,3 → ${euro(pay)}. Pero el cartel dice «hasta».`}</p>
+            </div>
+            <div class="panel"><h3>⚠️ Letra pequeña</h3><p>${tip}</p></div>
+          </div>
+        </div>
+        <div class="verdict ${S.offerType==='upto'?'care':''}">✓ Pagas ${euro(pay)} · ${euro(eff)}/ud</div>`;
+    } else {
+      const free = S.income - S.fixed;
+      const leisure = free - S.save;
+      const max = Math.max(S.income,1);
+      html = `
+        <div class="stage">
+          <div class="side" style="flex:1 1 100%">
+            <div class="bars">
+              <div class="bar-row"><div class="lab">Ingresos</div><div class="track"><div class="fill in" style="width:100%"></div></div><div class="num">${euro(S.income)}</div></div>
+              <div class="bar-row"><div class="lab">Fijos</div><div class="track"><div class="fill out" style="width:${Math.min(100,S.fixed/max*100)}%"></div></div><div class="num">${euro(S.fixed)}</div></div>
+              <div class="bar-row"><div class="lab">Ahorro</div><div class="track"><div class="fill save" style="width:${Math.min(100,S.save/max*100)}%"></div></div><div class="num">${euro(S.save)}</div></div>
+            </div>
+            <div class="panel"><h3>Resultado</h3>
+              <p>Libre tras fijos: <strong>${euro(free)}</strong>. Si ahorras ${euro(S.save)}, ocio: <strong style="color:${leisure>=0?'var(--green-deep)':'var(--rose-deep)'}">${euro(leisure)}</strong>.</p>
+            </div>
+          </div>
+        </div>
+        <div class="steps">
+          <div class="step"><div class="n">1</div><div class="body"><div class="t">Ingresos − fijos</div><div class="d">${fmt(S.income)} − ${fmt(S.fixed)} = ${fmt(free)}</div></div></div>
+          <div class="step hl"><div class="n">2</div><div class="body"><div class="t">Libre − ahorro = ocio</div><div class="d">${fmt(free)} − ${fmt(S.save)} = <strong>${fmt(leisure)}</strong></div></div></div>
+        </div>
+        <div class="verdict ${leisure<0?'care':''}">${leisure>=0?`✓ Te quedan ${euro(leisure)} para ocio`:`⚠ Te faltan ${euro(-leisure)}: baja gastos o ahorro`}</div>
+        <div class="callout">Un presupuesto no es «ser rico o pobre»: es un mapa. Los números son ficticios; el hábito es real.</div>`;
+    }
+    $('#stage').innerHTML = html;
+  }
+
+  $$('.mode-btn').forEach(b => b.addEventListener('click', () => {
+    $$('.mode-btn').forEach(x => x.classList.remove('active'));
+    b.classList.add('active');
+    mode = b.dataset.mode;
+    renderCtrls(); draw();
+  }));
+
+  renderCtrls(); draw();
+})();
+</script>
+</body>
+</html>
