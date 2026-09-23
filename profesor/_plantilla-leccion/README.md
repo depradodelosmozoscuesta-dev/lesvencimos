@@ -19,15 +19,18 @@ Rutas relativas: funciona desde disco o desde el sitio estático.
 
 | Archivo | Uso |
 |---|---|
-| `leccion-shell.css` | Estilos reutilizables |
+| `leccion-shell.css` | Estilos reutilizables (columna ~60rem, barra sticky) |
+| `leccion-shell-nav.js` | Opcional: sincroniza progreso desde `data-actual` / `data-total` |
 | `demo-bloques.html` / `leccion-shell.html` | Catálogo visual de bloques |
 | `figuras/*.svg` | Mini-gráficos de ejemplo (fuego, olla, mapa, ticket) |
 | `README.md` | Esta guía |
 
 ## Cómo estructurar cada lección HTML (Mate bots)
 
-Orden recomendado dentro de `<body class="leccion-shell">` → `.leccion-wrap`:
+Orden recomendado dentro de `<body class="leccion-shell">` → `.leccion-wrap`
+(la columna de lectura usa `max-width: ~60rem`; padding horizontal reducido en tablet/desktop):
 
+0. **Barra de navegación (siempre visible):** `.leccion-barra` — sticky arriba
 1. **Cabecera** (opcional): `.leccion-top`
 2. **Título de lección:** `.bloque-titulo`
    - `.eyebrow` — «Lección 01 · UD0»
@@ -52,11 +55,52 @@ Orden recomendado dentro de `<body class="leccion-shell">` → `.leccion-wrap`:
 
 | Bloque | Clase contenedor | Notas |
 |---|---|---|
+| Barra nav | `.leccion-barra` | Sticky; `data-actual` / `data-total`; calc + prev/next |
 | Título | `.bloque-titulo` | No uses un H1 suelto sin esta envoltura |
 | Curiosidad histórica | `.bloque-curiosidad` | Panel featured |
 | Vida real / apps | `.bloque-vida-real` | Gráfico en `.figura` |
 | Interactivo | `.bloque-interactivo` | iframe dentro de `.marco-interactivo` |
 | Reto web | `.bloque-reto` | Callout dorado |
+
+
+### Barra sticky · progreso / calculadora / prev–next
+
+Contrato obligatorio en cada presentación HTML:
+
+```html
+<nav class="leccion-barra" aria-label="Navegación de lección"
+     data-actual="1" data-total="47">
+  <div class="leccion-progreso" role="status">
+    <span class="progreso-texto"><strong>1</strong> de <strong>47</strong></span>
+    <div class="progreso-pista" aria-hidden="true"><div class="progreso-lleno" style="width:2.13%"></div></div>
+  </div>
+  <div class="leccion-atajos">
+    <a class="atajo atajo-calc" href="../../../modulos/calculadora.html" title="Calculadora">Calculadora</a>
+    <a class="atajo atajo-prev" href="…">← Anterior</a>
+    <a class="atajo atajo-next" href="…">Siguiente →</a>
+  </div>
+</nav>
+```
+
+Reglas para bots Mate:
+
+| Campo | Quién lo rellena | Notas |
+|---|---|---|
+| `data-actual` / `data-total` | Mate | Nº de lección y total del curso (p. ej. 1 y 47). |
+| `.progreso-lleno` width | Mate o JS | `actual/total × 100%`. Si incluyes `leccion-shell-nav.js`, el script lo calcula solo. |
+| `atajo-calc` href | Mate | Ruta relativa a `modulos/calculadora.html`. Desde `…/lecciones/` → `../../../modulos/calculadora.html`. (También existe `calculadora.html` en la raíz del sitio; preferir el módulo.) |
+| `atajo-prev` / `atajo-next` | Mate | Hrefs reales a HTML hermano. **No** inventar URLs en el JS. |
+| Primera lección | Mate | «Anterior» deshabilitado: `<span class="atajo atajo-prev is-disabled" aria-disabled="true">` (sin enlace muerto). |
+| Última lección | Mate | «Siguiente» igual, deshabilitado. |
+| Lección aún sin HTML | Mate | Siguiente deshabilitado con `title="Próximamente"`, o stub mínimo «en construcción» con el mismo shell. |
+
+Incluir el script opcional (sin CDN):
+
+```html
+<script src="../../_plantilla-leccion/leccion-shell-nav.js" defer></script>
+```
+
+(ajusta la profundidad). El JS **solo** lee `data-actual`/`data-total` y actualiza texto + barra; los hrefs prev/next permanecen en el HTML.
 
 ### Snippet mínimo
 
@@ -71,6 +115,8 @@ Orden recomendado dentro de `<body class="leccion-shell">` → `.leccion-wrap`:
 </head>
 <body class="leccion-shell">
 <div class="leccion-wrap">
+  <nav class="leccion-barra" aria-label="Navegación de lección"
+       data-actual="N" data-total="47">…</nav>
   <header class="bloque-titulo">…</header>
   <aside class="bloque-curiosidad">…</aside>
   <section class="bloque-cuerpo">…</section>
@@ -90,8 +136,9 @@ Orden recomendado dentro de `<body class="leccion-shell">` → `.leccion-wrap`:
 </html>
 ```
 
-Ajusta la ruta al CSS según la profundidad del HTML de la lección
-(`lecciones/` → `../../_plantilla-leccion/leccion-shell.css`).
+Ajusta la ruta al CSS (y al JS de la barra) según la profundidad del HTML de la lección
+(`lecciones/` → `../../_plantilla-leccion/leccion-shell.css` y `leccion-shell-nav.js`).
+Columna de lectura: `--lv-max: 60rem` (antes ~46rem); menos padding lateral en tablet/desktop.
 
 ## Figuras de ejemplo
 
