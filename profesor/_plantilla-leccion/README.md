@@ -156,16 +156,18 @@ Son SVG inline-friendly (fondo crema `#FAF7F0` + oro `#C4A15A`). Se pueden pegar
 
 
 
+
 ## Naming canónico · `leccion-NN-titulo.html` + pack offline plano
 
 - **Online (sitio):** `profesor/1eso-matematicas/lecciones/leccion-01-tema.html` … `leccion-47-tema.html`; el prefijo NN conserva el orden en Descargas.
   CSS/JS: `../../_plantilla-leccion/leccion-shell.css` (+ `leccion-shell-nav.js`).
   Calculadora: `../../../modulos/calculadora.html`.
   Prev/next: usan siempre el nombre con slug; los iframes `l0N-….html` siguen en la misma carpeta.
-- **Offline (ZIP plano):** una sola carpeta con `index.html`, `LEEME.md`, `leccion-NN-titulo.html`, alias `leccion-NN.html`, widgets `l0N-….html`,
+- **Offline (ZIP plano):** una sola carpeta con `ABRE-AQUI.html` (= `index.html`), `LEEME.md`, `leccion-NN-titulo.html`, alias `leccion-NN.html`, widgets `l0N-….html`,
   y **vendor** de `leccion-shell.css`, `leccion-shell-nav.js`, `calculadora.html`, `figuras/*.svg` e `icons/*`.
+  En offline los interactivos van **embebidos** (`iframe srcdoc=…`) para que animaciones funcionen en Android `file://`.
 - Los alias antiguos (`leccion-NN.html`, `01-presentacion.html`) redirigen al archivo con slug para no romper enlaces.
-- El alumno **no instala nada**: descomprime el ZIP y abre `index.html` desde la carpeta descomprimida (`file://`).
+- El alumno **no instala nada**: descomprime el ZIP y abre `ABRE-AQUI.html` / `index.html` desde la carpeta descomprimida (`file://`), nunca desde Descargas `content://`.
 ## Qué no hacer
 
 - No reescribir los 47 `.md` desde aquí; el shell es para **presentación HTML**.

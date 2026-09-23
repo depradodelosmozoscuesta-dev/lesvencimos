@@ -2,6 +2,7 @@
 """Build leccion-NN.html shells (online + flat offline pack) for 1º ESO Mate."""
 from __future__ import annotations
 
+import html
 import json
 import pathlib
 import re
@@ -2021,16 +2022,83 @@ def nav_html(n: int, *, offline: bool) -> str:
   </nav>"""
 
 
-def widget_block(label: str, fname: str) -> str:
+def srcdoc_escape(doc: str) -> str:
+    """Escape widget HTML for use inside a double-quoted srcdoc attribute."""
+    return (
+        doc.replace("&", "&amp;")
+        .replace('"', "&quot;")
+        .replace("<", "&lt;")
+    )
+
+
+def load_widget_html(fname: str) -> str:
+    path = LEC / fname
+    if not path.exists():
+        raise SystemExit(f"missing widget {fname}")
+    return path.read_text(encoding="utf-8")
+
+
+_EXTERNAL_URL_RE = re.compile(r"https?://[^\s\"'<>]+", re.I)
+_EXTERNAL_OK = ("w3.org", "www.w3.org", "xmlns", "schema.org", "schemas.xmlsoap")
+
+
+def assert_widget_offline_safe(fname: str, doc: str) -> None:
+    """Fail build if a widget pulls CDN/network assets that would break offline."""
+    bad = []
+    for url in sorted(set(_EXTERNAL_URL_RE.findall(doc))):
+        if any(ok in url for ok in _EXTERNAL_OK):
+            continue
+        bad.append(url)
+    if bad:
+        raise SystemExit(
+            f"widget {fname} has network URL(s) that break offline: {', '.join(bad[:8])}"
+        )
+
+
+def widget_block(
+    label: str,
+    fname: str,
+    *,
+    offline: bool = False,
+    widget_html: str | None = None,
+) -> str:
+    title = html.escape(label, quote=True)
+    if offline and widget_html is not None:
+        # Sibling iframe src= often fails on Android file:// / content://.
+        # Embed the full widget via srcdoc so animations run inside the lesson.
+        onload = (
+            "try{var d=this.contentDocument||this.contentWindow.document;"
+            "if(d){var h=Math.max("
+            "(d.documentElement&&d.documentElement.scrollHeight)||0,"
+            "(d.body&&d.body.scrollHeight)||0,560);"
+            "this.style.height=h+'px';this.parentElement.style.minHeight=h+'px';}}"
+            "catch(e){}}"
+        )
+        iframe = (
+            f'<iframe title="{title}" class="widget-srcdoc" '
+            f'srcdoc="{srcdoc_escape(widget_html)}" '
+            f'onload="{html.escape(onload, quote=True)}"></iframe>'
+        )
+        fallback = (
+            f'Si el marco embebido no responde, abre el widget suelto: '
+            f'<a href="{fname}">{fname}</a>.'
+        )
+    else:
+        iframe = f'<iframe title="{title}" src="{fname}" loading="lazy"></iframe>'
+        fallback = (
+            f'Si el marco no carga (<code>file://</code>), abre '
+            f'<a href="{fname}">{fname}</a>.'
+        )
+    marco_extra = " marco-offline-embed" if offline else ""
     return f"""  <section class="bloque-interactivo">
     <div class="marco-interactivo-cabecera">
       <span class="etiqueta-interactivo">{label}</span>
       <a class="enlace-abrir" href="{fname}">Abrir en pestaña →</a>
     </div>
-    <div class="marco-interactivo">
-      <iframe title="{label}" src="{fname}" loading="lazy"></iframe>
+    <div class="marco-interactivo{marco_extra}">
+      {iframe}
     </div>
-    <p class="fallback-enlace">Si el marco no carga (<code>file://</code>), abre <a href="{fname}">{fname}</a>.</p>
+    <p class="fallback-enlace">{fallback}</p>
   </section>"""
 
 
@@ -2043,19 +2111,27 @@ def render_lesson(lesson: dict, *, offline: bool) -> str:
     marca_meta = "1º ESO Matemáticas · offline" if offline else "1º ESO Matemáticas"
     icon_root = "icons" if offline else "../../../brand/favicon"
     manifest_href = "manifest.webmanifest" if offline else "../manifest.webmanifest"
+    body_class = "leccion-shell offline-embed" if offline else "leccion-shell"
 
     objs = "".join(f"      <li>{o}</li>\n" for o in lesson["objetivos"])
     vida_lis = "".join(f"        <li>{v}</li>\n" for v in lesson["vida"])
 
+    def _wblock(lab: str, fn: str) -> str:
+        wh = None
+        if offline:
+            wh = load_widget_html(fn)
+            assert_widget_offline_safe(fn, wh)
+        return widget_block(lab, fn, offline=offline, widget_html=wh)
+
     widgets = lesson["widgets"]
     if lesson.get("widget_split") and len(widgets) >= 2:
-        w_html = widget_block(*widgets[0])
+        w_html = _wblock(*widgets[0])
         mid = lesson.get("cuerpo_after_widgets") or ""
         # wrap mid in section if present
         mid_html = f'  <section class="bloque-cuerpo">\n{mid}\n  </section>\n' if mid.strip() else ""
-        w_html = w_html + "\n" + mid_html + widget_block(*widgets[1])
+        w_html = w_html + "\n" + mid_html + _wblock(*widgets[1])
     else:
-        w_html = "\n".join(widget_block(lab, fn) for lab, fn in widgets)
+        w_html = "\n".join(_wblock(lab, fn) for lab, fn in widgets)
 
     vida2 = ""
     if lesson.get("vida2"):
@@ -2086,7 +2162,7 @@ def render_lesson(lesson: dict, *, offline: bool) -> str:
 <link rel="stylesheet" href="{css}"/>
 <script src="{js}" defer></script>
 </head>
-<body class="leccion-shell">
+<body class="{body_class}">
 <div class="leccion-wrap">
 
 {nav_html(n, offline=offline)}
@@ -2333,10 +2409,11 @@ def update_plantilla_readme() -> None:
   CSS/JS: `../../_plantilla-leccion/leccion-shell.css` (+ `leccion-shell-nav.js`).
   Calculadora: `../../../modulos/calculadora.html`.
   Prev/next: usan siempre el nombre con slug; los iframes `l0N-….html` siguen en la misma carpeta.
-- **Offline (ZIP plano):** una sola carpeta con `index.html`, `LEEME.md`, `leccion-NN-titulo.html`, alias `leccion-NN.html`, widgets `l0N-….html`,
+- **Offline (ZIP plano):** una sola carpeta con `ABRE-AQUI.html` (= `index.html`), `LEEME.md`, `leccion-NN-titulo.html`, alias `leccion-NN.html`, widgets `l0N-….html`,
   y **vendor** de `leccion-shell.css`, `leccion-shell-nav.js`, `calculadora.html`, `figuras/*.svg` e `icons/*`.
+  En offline los interactivos van **embebidos** (`iframe srcdoc=…`) para que animaciones funcionen en Android `file://`.
 - Los alias antiguos (`leccion-NN.html`, `01-presentacion.html`) redirigen al archivo con slug para no romper enlaces.
-- El alumno **no instala nada**: descomprime el ZIP y abre `index.html` desde la carpeta descomprimida (`file://`).
+- El alumno **no instala nada**: descomprime el ZIP y abre `ABRE-AQUI.html` / `index.html` desde la carpeta descomprimida (`file://`), nunca desde Descargas `content://`.
 """
     section_re = re.compile(r"\n## Naming canónico .*?(?=\n## Qué no hacer)", re.S)
     if section_re.search(text):
@@ -2359,24 +2436,31 @@ def build_offline_pack() -> None:
     (root / "LEEME.md").write_text(
         f"""# 1º ESO Matemáticas — pack offline
 
-No hay que instalar nada. Descomprime y abre index.html
+No hay que instalar nada. Descomprime y abre **ABRE-AQUI.html** (o index.html).
 
 **Qué es:** lecciones de **Educación obligatoria** (currículo oficial Castilla y León, Decreto 39/2022).
-Este pack trae las lecciones **01–{AVAILABLE:02d}** en HTML plano (shell + interactivos Mate).
+Este pack trae las lecciones **01–{AVAILABLE:02d}** en HTML plano (shell + interactivos Mate embebidos).
 
-**Cómo abrir (3 pasos)**
+**Cómo abrir (Android / PC) — 4 pasos**
 
-1. Descomprime este ZIP donde quieras.
-2. Entra en la carpeta `1eso-matematicas-offline` (o la raíz del ZIP si ya están los archivos ahí).
-3. Abre **`index.html`** con el navegador (doble clic o arrastrar).
+1. Descarga el ZIP.
+2. Abre **Archivos / Mis archivos** (NO la lista Descargas del navegador).
+3. Descomprime y entra en la carpeta `1eso-matematicas-offline`.
+4. Toca **`ABRE-AQUI.html`** o **`index.html`** → Chrome / Samsung Internet.
 
 Todo funciona **offline**, sin nube ni servidor (`file://`). Sin instalación, sin app store, sin «setup».
 
-**Android:** descomprime con **Archivos / Mis archivos** y abre **`index.html` desde la carpeta descomprimida** (`file://`).
+**Importante en Android:** abre siempre desde la **carpeta descomprimida** (`file://`).
+**Nunca** abras el HTML desde la lista Descargas del navegador (`content://`): ahí fallan
+imágenes, CSS e interactivos/animaciones.
 En Chrome/Android: menú → **Añadir a pantalla de inicio**.
-No abras una lección individual desde Android **Descargas** mediante `content://`: así pueden fallar imágenes e iframes (abre siempre el hub `index.html`).
 
-**Contenido:** `leccion-NN-titulo.html` (con slugs reales), alias `leccion-NN.html`, widgets `lNN-….html`, calculadora, CSS/JS, figuras SVG e iconos — todo en la misma carpeta.
+Los interactivos van **embebidos** en cada lección (funcionan sin cargar iframes hermanos).
+Si hace falta, cada lección sigue teniendo el enlace «Abrir en pestaña →» al widget suelto.
+
+**Contenido:** `ABRE-AQUI.html`, `index.html`, `LEEME.md`, `leccion-NN-titulo.html` (con slugs),
+alias `leccion-NN.html`, widgets `lNN-….html`, calculadora, CSS/JS, `figuras/*.svg` e iconos —
+todo en la misma carpeta.
 """,
         encoding="utf-8",
     )
@@ -2427,10 +2511,11 @@ No abras una lección individual desde Android **Descargas** mediante `content:/
     <p class="meta-leccion">Lecciones 01–{AVAILABLE:02d} listas · curso completo</p>
   </header>
   <div class="no-install">
-    <strong>No hay que instalar nada.</strong> Descomprime y abre <code>index.html</code> desde esta carpeta.
-    Todo es HTML que se abre en el navegador (<code>file://</code>).
+    <strong>No hay que instalar nada.</strong> Abre <code>ABRE-AQUI.html</code> o <code>index.html</code> desde esta carpeta
+    (Archivos / Mis archivos → carpeta descomprimida → <code>file://</code>).
+    Los interactivos van embebidos en cada lección.
     En Chrome/Android: menú → <strong>Añadir a pantalla de inicio</strong>.
-    No abras lecciones sueltas desde Descargas mediante <code>content://</code>.
+    <strong>Nunca</strong> abras desde la lista Descargas del navegador (<code>content://</code>).
   </div>
   <p><a class="big-cta" href="{lesson_filename(1)}">Abrir lección 01 →</a>
      &nbsp; <a href="calculadora.html">Calculadora</a></p>
@@ -2447,6 +2532,10 @@ No abras una lección individual desde Android **Descargas** mediante `content:/
 </html>
 """,
         encoding="utf-8",
+    )
+    # Entry UX like Estantería: same hub under a clear Android-friendly name
+    (root / "ABRE-AQUI.html").write_text(
+        (root / "index.html").read_text(encoding="utf-8"), encoding="utf-8"
     )
 
     # vendor css/js/figuras/calc/icons
@@ -2477,6 +2566,8 @@ No abras una lección individual desde Android **Descargas** mediante `content:/
         src = LEC / wf
         if not src.exists():
             raise SystemExit(f"missing widget {wf}")
+        wh = src.read_text(encoding="utf-8")
+        assert_widget_offline_safe(wf, wh)
         shutil.copy2(src, root / wf)
 
     # zip: put files at root of zip (folder name as top-level)
