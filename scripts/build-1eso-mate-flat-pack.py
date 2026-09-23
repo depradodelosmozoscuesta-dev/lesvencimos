@@ -15,7 +15,7 @@ DESCARGAS = REPO / "descargas.html"
 PACK_DIR = REPO / "downloads/_build-1eso-mate-flat"
 ZIP_PATH = REPO / "downloads/1eso-matematicas-offline.zip"
 TOTAL = 47
-AVAILABLE = 42  # L01–L42
+AVAILABLE = 45  # L01–L45
 
 # (num, short_ud, title, meta, curiosidad_title, curiosidad_text, figura_cur,
 #  objetivos[list], cuerpo_extra_html, vida_title, vida_items, vida_figura,
@@ -1723,6 +1723,133 @@ LESSONS = [
     "reto_id": "1eso-mate-L42",
     "cierre": "Simplifica con términos semejantes y distributiva. Ecuaciones equivalentes = misma solución. Mantén la balanza equilibrada.",
   },
+  {
+    "n": 43,
+    "eyebrow": "Lección 43 · UD13 · Álgebra inicial",
+    "title_html": "Resolución de ecuaciones lineales y <em>comprobación de soluciones</em>",
+    "title_plain": "Resolución de ecuaciones lineales y comprobación de soluciones",
+    "meta": "Saberes CyL (Decreto 39/2022): D.4 Ecuaciones lineales; coeficientes enteros",
+    "curiosidad_t": "La balanza que comprueba",
+    "curiosidad": "La idea de hacer la misma operación en los dos platos de una balanza acompaña a la enseñanza de las ecuaciones desde hace siglos. Hoy añadimos un control imprescindible: sustituir la solución y comprobar que los dos miembros coinciden.",
+    "curiosidad_fig": "mapa.svg",
+    "objetivos": [
+      "Resolver ecuaciones del tipo ax+b=c y ax+b=cx+d con enteros.",
+      "Usar la trasposición de términos con criterio.",
+      "Comprobar siempre sustituyendo la solución.",
+      "Interpretar la solución en un problema verbal.",
+    ],
+    "cuerpo": """
+    <h2>Explicación breve</h2>
+    <p>Resuelve en cuatro pasos: simplifica cada miembro, agrupa letras a un lado y números al otro, despeja <strong>x</strong> y <strong>comprueba</strong> sustituyendo.</p>
+    <div class="tarjeta">
+      <p style="margin:0 0 0.45rem"><strong>Ejemplo:</strong> 3x−5=2x+4 → 3x−2x=4+5 → <strong>x=9</strong>. Comprobación: 3·9−5=22 y 2·9+4=22.</p>
+      <p style="margin:0"><strong>Casos especiales:</strong> 0·x=5 no tiene solución; 0·x=0 tiene infinitas. Si aparece x/2, multiplica ambos miembros por 2 para limpiar la fracción.</p>
+    </div>
+    <p>Define primero la incógnita en los problemas («x = precio de una entrada en €») y termina con una frase que interprete la solución. No cambies de miembro sin cambiar el signo ni dividas solo un término.</p>
+""",
+    "cuerpo_after_widgets": "",
+    "widget_split": False,
+    "vida_t": "Ecuaciones para encontrar lo desconocido",
+    "vida": [
+      "Edades y situaciones de «dentro de n años».",
+      "Precios desconocidos en compras.",
+      "Repartos con condiciones.",
+      "Temperatura o nivel que alcanza un valor.",
+    ],
+    "vida_fig": "ticket.svg",
+    "widgets": [
+      ("Interactivo · resolver y comprobar ecuaciones", "l43-ecuaciones-resolver.html"),
+    ],
+    "reto_t": "Ecuación del día",
+    "reto": "Inventa un problema breve cuya ecuación sea lineal. Resuélvelo y muestra la comprobación. Propón el enunciado para la web.",
+    "reto_id": "1eso-mate-L43",
+    "cierre": "Resuelve con operaciones inversas, agrupa y comprueba sustituyendo. La comprobación es el control de calidad de la solución.",
+  },
+  {
+    "n": 44,
+    "eyebrow": "Lección 44 · UD14 · Relaciones y funciones",
+    "title_html": "Relaciones cuantitativas: <em>tablas y gráficas</em>",
+    "title_plain": "Relaciones cuantitativas: tablas y gráficas",
+    "meta": "Saberes CyL (Decreto 39/2022): D.5 Relaciones y funciones",
+    "curiosidad_t": "De una lista de datos a una imagen",
+    "curiosidad": "Una tabla guarda pares de valores; una gráfica permite ver de un vistazo si algo crece, baja o se mantiene. Por eso comerciantes, meteorólogos y ciclistas convierten medidas en puntos y ejes.",
+    "curiosidad_fig": "mapa.svg",
+    "objetivos": [
+      "Organizar datos en tablas de entrada y salida.",
+      "Representar puntos en ejes y unirlos cuando tenga sentido.",
+      "Leer máximos y tendencias sencillas de una gráfica.",
+      "Relacionar expresión, tabla y gráfica en relaciones lineales.",
+    ],
+    "cuerpo": """
+    <h2>Explicación breve</h2>
+    <p>Una <strong>relación</strong> asocia valores de <strong>x</strong> con valores de <strong>y</strong>. Puede expresarse con palabras, una tabla, una gráfica o una fórmula. En <strong>y=2x+1</strong>, para x=0,1,2,3 obtenemos y=1,3,5,7.</p>
+    <div class="tarjeta">
+      <p style="margin:0 0 0.45rem"><strong>Recorrido:</strong> elige x → calcula y → coloca los puntos (x,y) en ejes graduados → observa si crece, baja o se alinea.</p>
+      <p style="margin:0"><strong>Ojo con la escala:</strong> empezar el eje Y en 50 puede exagerar diferencias. En categorías no unas puntos sin una razón.</p>
+    </div>
+    <p>Normalmente x es la variable independiente (horas, kg) y y la dependiente (km, €, °C). Una relación lineal y=m·x+n produce puntos alineados; y=x² es una relación no lineal que crece cada vez más deprisa.</p>
+""",
+    "cuerpo_after_widgets": "",
+    "widget_split": False,
+    "vida_t": "Datos que vemos cada día",
+    "vida": [
+      "Temperatura a lo largo del día en una gráfica meteorológica.",
+      "Consumo de datos del móvil por días.",
+      "Distancia recorrida en bici según el tiempo.",
+      "Precios según kg en una tabla de mercado.",
+    ],
+    "vida_fig": "ticket.svg",
+    "widgets": [
+      ("Interactivo · tabla y gráfica", "l44-tablas-graficas.html"),
+    ],
+    "reto_t": "Gráfica de mi semana",
+    "reto": "Haz una tabla de algo que midas 5 días (pasos, minutos de lectura, temperatura…). Dibuja la gráfica y escribe 3 conclusiones.",
+    "reto_id": "1eso-mate-L44",
+    "cierre": "Verbal ↔ tabla ↔ gráfica ↔ fórmula. Pasar de una representación a otra ayuda a leer relaciones y tendencias.",
+  },
+  {
+    "n": 45,
+    "eyebrow": "Lección 45 · UD14 · Relaciones y pensamiento computacional",
+    "title_html": "Algoritmos sencillos: <em>interpretar y modificar pasos</em>",
+    "title_plain": "Algoritmos sencillos: interpretar y modificar pasos",
+    "meta": "Saberes CyL (Decreto 39/2022): D.6 Pensamiento computacional; E (socioafectivo)",
+    "curiosidad_t": "Recetas antes de los ordenadores",
+    "curiosidad": "Una receta, las instrucciones del metro y el algoritmo de Euclides tienen algo en común: una secuencia finita de pasos claros. El pensamiento computacional también sirve para revisar un paso que falla sin culpar a quien lo está aprendiendo.",
+    "curiosidad_fig": "mapa.svg",
+    "objetivos": [
+      "Interpretar un algoritmo escrito en pasos o diagrama sencillo.",
+      "Detectar errores y mejorar la claridad de un algoritmo.",
+      "Modificar un algoritmo para un objetivo nuevo.",
+      "Valorar el trabajo en equipo y depurar sin frustración excesiva.",
+    ],
+    "cuerpo": """
+    <h2>Explicación breve</h2>
+    <p>Un <strong>algoritmo</strong> es una secuencia finita de pasos claros para resolver una tarea. Tiene entradas, acciones y una salida. En pseudocódigo usamos <strong>SI…ENTONCES…SI NO</strong> y repeticiones como <strong>MIENTRAS</strong> o <strong>REPETIR HASTA</strong>.</p>
+    <div class="tarjeta">
+      <p style="margin:0 0 0.45rem"><strong>Depurar:</strong> prueba con un ejemplo, localiza dónde falla y corrige ese paso. Prueba también con 0, números iguales o un valor extremo.</p>
+      <p style="margin:0"><strong>Ejemplo:</strong> leer a,b; si a≥b escribir a; si no escribir b. Para tres números, añade la comparación con c.</p>
+    </div>
+    <p>Los pasos deben ser precisos, finitos, eficaces y comprensibles. Si no cuadra, pregunta «¿me miras el paso 3?»; depurar juntos es normal y no hace falta acertar a la primera.</p>
+""",
+    "cuerpo_after_widgets": "",
+    "widget_split": False,
+    "vida_t": "Algoritmos cotidianos",
+    "vida": [
+      "Recetas de cocina y qué hacer si algo se corta.",
+      "Instrucciones para llegar al instituto.",
+      "Protocolo de evacuación del centro.",
+      "Apps: pasos para pagar con un código QR.",
+    ],
+    "vida_fig": "mapa.svg",
+    "widgets": [
+      ("Interactivo · algoritmos en tarjetas", "l45-algoritmos-pasos.html"),
+    ],
+    "reto_t": "Algoritmo de mi barrio",
+    "reto": "¿Para qué se podría usar un algoritmo de este estilo en tu día a día o en tu barrio? Da una idea concreta con entradas, pasos y salida.",
+    "reto_id": "1eso-mate-L45",
+    "cierre": "Algoritmo = pasos claros y finitos. Interpretar, probar y modificar es pensamiento computacional en 1º ESO.",
+  },
+
 ]
 
 

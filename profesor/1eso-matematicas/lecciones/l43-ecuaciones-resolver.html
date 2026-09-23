@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Resolver ecuaciones lineales · 1º ESO</title>
+<style>
+  :root {
+    --bg:#FAF7F0; --ink:#2A2620; --muted:#5C564C; --card:#fff;
+    --gold:#C4A15A; --gold-soft:#F5EDD8; --gold-deep:#8A6B2F;
+    --green:#3D6B4F; --green-soft:#E4F0E8; --blue:#2F5D7A; --blue-soft:#E3EEF4;
+    --rose:#9B3A4A; --rose-soft:#F8E8EB;
+    --shadow:0 8px 28px rgba(42,38,32,.08); --radius:18px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{min-height:100%;background:var(--bg);color:var(--ink);
+    font-family:"Segoe UI",system-ui,-apple-system,sans-serif;-webkit-font-smoothing:antialiased}
+  body{display:flex;flex-direction:column;align-items:center;padding:14px 10px 36px}
+  .wrap{width:100%;max-width:980px}
+  header{text-align:center;margin-bottom:12px}
+  .badge{display:inline-block;font-size:.78rem;font-weight:700;letter-spacing:.04em;
+    text-transform:uppercase;color:var(--gold-deep);background:var(--gold-soft);
+    padding:4px 12px;border-radius:999px;margin-bottom:8px}
+  h1{font-size:clamp(1.25rem,4.5vw,1.85rem);line-height:1.2;font-weight:800;color:#0E0E0C}
+  .subtitle{margin-top:6px;font-size:clamp(.9rem,2.8vw,1.05rem);color:var(--muted);font-weight:500}
+  .story{background:linear-gradient(135deg,#F5EDD8,#E3EEF4 55%,#E4F0E8);
+    border:2px solid #E0D0A8;border-radius:var(--radius);padding:12px 14px;
+    margin-bottom:14px;display:flex;gap:12px;align-items:flex-start}
+  .story .emoji{font-size:2rem}
+  .story p{font-size:clamp(.9rem,2.5vw,1.02rem);line-height:1.45}
+  .story strong{color:var(--gold-deep)}
+  .card{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);
+    padding:16px 14px 18px;margin-bottom:14px}
+  .card h2{font-size:clamp(1.05rem,3vw,1.25rem);font-weight:800;margin-bottom:8px}
+  .hint{font-size:clamp(.88rem,2.4vw,1rem);color:var(--muted);line-height:1.45;margin-bottom:12px}
+  .mode-row{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px;justify-content:center}
+  .mode-btn{padding:10px 12px;border-radius:12px;border:3px solid #D9D0C0;background:#fff;
+    font-size:.8rem;font-weight:800;cursor:pointer;color:var(--ink)}
+  .mode-btn.active{border-color:var(--gold);background:var(--gold-soft);color:var(--gold-deep)}
+  .stage{position:relative;width:100%;aspect-ratio:16/10;background:#FFFcf5;
+    border-radius:14px;overflow:hidden;border:2px solid #E0D0A8;margin-bottom:12px}
+  .stage svg{width:100%;height:100%;display:block}
+  .ctrl-row{display:flex;flex-wrap:wrap;gap:12px;align-items:flex-end;margin-bottom:12px}
+  .field{display:flex;flex-direction:column;gap:4px;flex:1 1 140px}
+  .field label{font-size:.8rem;font-weight:700;color:var(--muted)}
+  .field label .letter{display:inline-block;padding:1px 7px;border-radius:8px;font-weight:800;
+    margin-right:3px;background:var(--gold-soft);color:var(--gold-deep)}
+  .field input[type="range"]{width:100%;accent-color:var(--gold)}
+  .field output{font-weight:900;font-variant-numeric:tabular-nums;color:var(--gold-deep);font-size:1.05rem}
+  .toggle{display:flex;align-items:center;gap:8px;margin:8px 0;font-weight:700;font-size:.92rem}
+  .toggle input{width:18px;height:18px;accent-color:var(--blue)}
+  .verdict{text-align:center;font-size:clamp(1.0rem,2.6vw,1.25rem);font-weight:900;padding:14px;
+    border-radius:14px;margin:10px 0;background:var(--gold-soft);color:var(--gold-deep);border:2px solid #E0D0A8}
+  .verdict.ok{background:var(--green-soft);color:#2A5238;border-color:#9BC4A8}
+  .verdict.bad{background:var(--rose-soft);color:#7A2A36;border-color:#E8A8B0}
+  .props{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px;margin:10px 0}
+  .prop{background:#FFFcf5;border:2px solid #E8DFD0;border-radius:12px;padding:10px 12px;text-align:center}
+  .prop .lab{font-size:.75rem;font-weight:700;color:var(--muted);text-transform:uppercase}
+  .prop .val{font-size:1.05rem;font-weight:900;color:var(--gold-deep);margin-top:2px}
+  .glossary{display:grid;gap:.4rem;margin:10px 0;padding:12px 14px;background:#FFFcf5;
+    border-radius:12px;border:2px solid #E0D0A8;font-size:.95rem}
+  .glossary strong{color:var(--gold-deep)}
+  .mnemonic{font-size:.95rem;font-weight:700;color:var(--gold-deep);background:var(--gold-soft);
+    border-left:4px solid var(--gold);padding:10px 14px;border-radius:0 12px 12px 0;margin-top:10px;line-height:1.4}
+  .hist{font-size:.9rem;color:#334155;background:var(--blue-soft);border-left:4px solid var(--blue);
+    padding:10px 14px;border-radius:0 12px 12px 0;margin-top:10px;line-height:1.45}
+  .callout{font-size:.9rem;font-weight:700;color:var(--rose);background:var(--rose-soft);
+    border-left:4px solid var(--rose);padding:8px 12px;border-radius:0 10px 10px 0;margin-top:10px}
+  .btn-row{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px}
+  button.action{appearance:none;border:none;border-radius:999px;padding:10px 18px;
+    font-weight:800;font-size:.95rem;cursor:pointer;background:var(--gold);color:#fff}
+  button.action.secondary{background:#fff;color:var(--gold-deep);border:2px solid var(--gold)}
+  footer{text-align:center;font-size:.8rem;color:var(--muted);margin-top:4px}
+  .steps{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin:8px 0}
+  .step-pill{padding:8px 12px;border-radius:999px;border:2px solid #D9D0C0;background:#fff;
+    font-weight:800;font-size:.82rem;color:var(--muted)}
+  .step-pill.on{border-color:var(--blue);background:var(--blue-soft);color:var(--blue)}
+  .step-pill.done{border-color:var(--green);background:var(--green-soft);color:#2A5238}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="badge">Lección 43 · UD13 Álgebra inicial</div>
+    <h1>Resolver ecuaciones y comprobar</h1>
+    <p class="subtitle">Balanza · operaciones inversas · comprobación siempre</p>
+  </header>
+
+  <div class="story">
+    <div class="emoji">⚖️</div>
+    <p>En el <strong>mercadillo de Valladolid</strong>, Lucía piensa un precio desconocido:
+    «el triple del precio menos 5 € es el doble más 4 €». Eso es una <strong>ecuación</strong>.
+    Imagina una <strong>balanza</strong>: lo que haces a un plato, lo haces al otro (operaciones inversas).
+    Al final, <strong>comprueba</strong> sustituyendo: si ambos lados coinciden, ¡solución correcta!</p>
+  </div>
+
+  <section class="card">
+    <h2>Taller de la balanza</h2>
+    <div class="mode-row" id="modos">
+      <button type="button" class="mode-btn active" data-mode="simple">ax + b = c</button>
+      <button type="button" class="mode-btn" data-mode="ambos">Ambos lados</button>
+      <button type="button" class="mode-btn" data-mode="paren">Con paréntesis</button>
+      <button type="button" class="mode-btn" data-mode="problema">Problema verbal</button>
+    </div>
+
+    <div class="stage" aria-label="Balanza para resolver ecuaciones">
+      <svg id="svg" viewBox="0 0 800 500" role="img"></svg>
+    </div>
+
+    <div class="steps" id="stepPills"></div>
+    <div class="ctrl-row" id="ctrls"></div>
+    <label class="toggle"><input type="checkbox" id="showNames" checked/> Mostrar nombres (x = «la cantidad desconocida»)</label>
+    <label class="toggle"><input type="checkbox" id="showCheck" checked/> Mostrar comprobación en la balanza</label>
+    <div class="btn-row">
+      <button type="button" class="action" id="btnPaso">Siguiente paso</button>
+      <button type="button" class="action secondary" id="btnEj">Ejemplo del libro</button>
+      <button type="button" class="action secondary" id="btnReset">Reiniciar</button>
+    </div>
+    <p class="hint">Controles <strong>independientes</strong>: coeficientes, paso de resolución y valor de prueba para comprobar.</p>
+    <div class="props" id="props"></div>
+    <div class="verdict" id="veredicto">Simplifica · agrupa · despeja · comprueba.</div>
+  </section>
+
+  <section class="card">
+    <h2>Letras y símbolos (en español)</h2>
+    <div class="glossary">
+      <div><strong>x</strong> = «la cantidad desconocida» (incógnita; ej.: precio de una entrada en €).</div>
+      <div><strong>Ecuación lineal</strong> = igualdad con x a la primera potencia (sin x²).</div>
+      <div><strong>Operación inversa</strong> = deshace: + ↔ − · × ↔ ÷ (≠0).</div>
+      <div><strong>Trasponer</strong> = pasar un término al otro miembro cambiando de signo.</div>
+      <div><strong>Comprobar</strong> = sustituir la solución en ambos miembros; deben coincidir.</div>
+      <div><strong>Balanza</strong> = metáfora: plato izquierdo = plato derecho.</div>
+    </div>
+    <div class="mnemonic">«Simplifica · junta letras a un lado y números al otro · despeja · comprueba sustituyendo.»</div>
+    <div class="hist"><strong>Vida real CyL:</strong> edades («dentro de n años»), precios en mercadillo, repartos con condición. Define x en una frase antes de montar la ecuación.</div>
+    <div class="callout">Error típico: cambiar de miembro sin cambiar de signo · dividir solo un término · no comprobar.</div>
+  </section>
+  <footer>1º ESO Matemáticas · CyL Decreto 39/2022 · D.4 Ecuaciones · offline · file://</footer>
+</div>
+<script>
+(function(){
+  const svg = document.getElementById('svg');
+  const ctrls = document.getElementById('ctrls');
+  const props = document.getElementById('props');
+  const veredicto = document.getElementById('veredicto');
+  const showNames = document.getElementById('showNames');
+  const showCheck = document.getElementById('showCheck');
+  const stepPills = document.getElementById('stepPills');
+
+  let mode = 'simple';
+  // simple: a x + b = c
+  let a=2, b=7, c=15;
+  // ambos: a x + b = c x + d
+  let a2=3, b2=-5, c2=2, d2=4;
+  // paren: k(x + p) = m x + n
+  let k=2, p=-3, m=1, n=1;
+  let step=0, xGuess=4;
+  let probIdx=0;
+  const PROBS = [
+    {frase:'Pienso un número, lo multiplico por 4 y sumo 6; obtengo 30.', eq:'4x+6=30', sol:6, a:4,b:6,c:30},
+    {frase:'El triple de un número menos 5 es 16.', eq:'3x−5=16', sol:7, a:3,b:-5,c:16},
+    {frase:'Un número más 7 es 20.', eq:'x+7=20', sol:13, a:1,b:7,c:20}
+  ];
+
+  function el(tag, attrs, text){
+    const n = document.createElementNS('http://www.w3.org/2000/svg', tag);
+    for (const k in attrs) n.setAttribute(k, attrs[k]);
+    if (text != null) n.textContent = text;
+    return n;
+  }
+  function clear(){ while(svg.firstChild) svg.removeChild(svg.firstChild); }
+  function bg(){ svg.appendChild(el('rect',{x:0,y:0,width:800,height:500,fill:'#FFFcf5'})); }
+  function fmt(v){
+    if (!Number.isFinite(v)) return '?';
+    if (Number.isInteger(v)) return String(v);
+    return (Math.round(v*100)/100).toString().replace('.',',');
+  }
+  function setVerdict(msg, cls){
+    veredicto.textContent = msg;
+    veredicto.className = 'verdict' + (cls ? ' '+cls : '');
+  }
+  function termX(coef){
+    if (coef===0) return '';
+    if (coef===1) return 'x';
+    if (coef===-1) return '−x';
+    return (coef<0?'−'+Math.abs(coef):coef)+'x';
+  }
+  function signed(n){
+    if (n===0) return '';
+    const s = n<0 ? '−' : '+';
+    return s + Math.abs(n);
+  }
+  function exprAXB(aa,bb){
+    const xs = termX(aa);
+    if (bb===0) return xs || '0';
+    if (!xs) return String(bb).replace('-','−');
+    return xs + (bb>0?'+'+bb:String(bb).replace('-','−'));
+  }
+
+  function stateEq(){
+    if (mode==='simple' || mode==='problema'){
+      const aa = mode==='problema' ? PROBS[probIdx].a : a;
+      const bb = mode==='problema' ? PROBS[probIdx].b : b;
+      const cc = mode==='problema' ? PROBS[probIdx].c : c;
+      // steps: 0 original, 1 subtract b, 2 divide by a
+      if (step===0) return {L: exprAXB(aa,bb), R: String(cc), sol:(cc-bb)/aa, tipLabel:'Original'};
+      if (step===1) return {L: termX(aa)||'0', R: String(cc-bb), sol:(cc-bb)/aa, tipLabel:'Restar '+bb+' a ambos'};
+      return {L:'x', R: String((cc-bb)/aa), sol:(cc-bb)/aa, tipLabel:'Dividir entre '+aa};
+    }
+    if (mode==='ambos'){
+      // 0: ax+b = cx+d · 1: (a-c)x = d-b · 2: x = ...
+      const aa=a2,bb=b2,cc=c2,dd=d2;
+      const coef = aa-cc, num = dd-bb;
+      if (step===0) return {L: exprAXB(aa,bb), R: exprAXB(cc,dd), sol: coef===0?NaN:num/coef, tipLabel:'Original'};
+      if (step===1) return {L: termX(coef)||'0', R: String(num).replace('-','−'), sol: coef===0?NaN:num/coef, tipLabel:'Agrupar letras / números'};
+      return {L:'x', R: coef===0?'¿?':String(num/coef).replace('-','−'), sol: coef===0?NaN:num/coef, tipLabel:'Despejar x'};
+    }
+    // paren: k(x+p)=mx+n
+    const L0 = k+'(x'+(p>=0?'+'+p:String(p).replace('-','−'))+')';
+    const R0 = exprAXB(m,n);
+    const distL = exprAXB(k, k*p); // kx + kp
+    const sol = (k-m)===0 ? NaN : (n - k*p)/(k-m);
+    if (step===0) return {L:L0, R:R0, sol, tipLabel:'Original'};
+    if (step===1) return {L:distL, R:R0, sol, tipLabel:'Distributiva'};
+    if (step===2){
+      const coef=k-m, num=n-k*p;
+      return {L: termX(coef)||'0', R:String(num).replace('-','−'), sol, tipLabel:'Agrupar'};
+    }
+    return {L:'x', R:Number.isFinite(sol)?String(sol).replace('-','−'):'¿?', sol, tipLabel:'Despejar'};
+  }
+
+  function maxStep(){
+    if (mode==='paren') return 3;
+    return 2;
+  }
+
+  function drawBalance(L, R, tip, balanced){
+    bg();
+    // table
+    svg.appendChild(el('rect',{x:80,y:420,width:640,height:18,rx:4,fill:'#C4A15A'}));
+    svg.appendChild(el('rect',{x:380,y:280,width:40,height:140,rx:4,fill:'#8A6B2F'}));
+    // fulcrum
+    svg.appendChild(el('polygon',{points:'360,280 440,280 400,250',fill:'#5C564C'}));
+
+    const tilt = balanced ? 0 : (tip>0 ? 8 : tip<0 ? -8 : 0);
+    const g = el('g',{transform:'rotate('+tilt+' 400 260)'});
+    // beam
+    g.appendChild(el('rect',{x:140,y:252,width:520,height:16,rx:6,fill:'#2F5D7A'}));
+    // left pan
+    g.appendChild(el('line',{x1:200,y1:260,x2:200,y2:310,stroke:'#5C564C','stroke-width':3}));
+    g.appendChild(el('path',{d:'M140 310 Q200 350 260 310 Z',fill:'#E3EEF4',stroke:'#2F5D7A','stroke-width':3}));
+    g.appendChild(el('text',{x:200,y:335,'text-anchor':'middle','font-size':22,'font-weight':800,fill:'#2F5D7A'}, L));
+    g.appendChild(el('text',{x:200,y:300,'text-anchor':'middle','font-size':13,fill:'#5C564C'}, 'plato izquierdo'));
+    // right pan
+    g.appendChild(el('line',{x1:600,y1:260,x2:600,y2:310,stroke:'#5C564C','stroke-width':3}));
+    g.appendChild(el('path',{d:'M540 310 Q600 350 660 310 Z',fill:'#E4F0E8',stroke:'#3D6B4F','stroke-width':3}));
+    g.appendChild(el('text',{x:600,y:335,'text-anchor':'middle','font-size':22,'font-weight':800,fill:'#3D6B4F'}, R));
+    g.appendChild(el('text',{x:600,y:300,'text-anchor':'middle','font-size':13,fill:'#5C564C'}, 'plato derecho'));
+    // equals
+    g.appendChild(el('text',{x:400,y:245,'text-anchor':'middle','font-size':28,'font-weight':900,fill:'#8A6B2F'}, '='));
+    svg.appendChild(g);
+
+    if (showNames.checked){
+      svg.appendChild(el('text',{x:400,y:40,'text-anchor':'middle','font-size':16,fill:'#8A6B2F','font-weight':700},
+        'x = la cantidad desconocida'));
+    }
+    svg.appendChild(el('text',{x:400,y:70,'text-anchor':'middle','font-size':18,'font-weight':800,fill:'#2A2620'},
+      L+'  =  '+R));
+  }
+
+  function evalSides(st){
+    // numerical evaluation with xGuess for tip
+    const x = xGuess;
+    if (mode==='simple' || mode==='problema'){
+      const aa = mode==='problema' ? PROBS[probIdx].a : a;
+      const bb = mode==='problema' ? PROBS[probIdx].b : b;
+      const cc = mode==='problema' ? PROBS[probIdx].c : c;
+      if (step===0) return {lv: aa*x+bb, rv: cc};
+      if (step===1) return {lv: aa*x, rv: cc-bb};
+      return {lv: x, rv: (cc-bb)/aa};
+    }
+    if (mode==='ambos'){
+      if (step===0) return {lv: a2*x+b2, rv: c2*x+d2};
+      if (step===1) return {lv: (a2-c2)*x, rv: d2-b2};
+      return {lv: x, rv: st.sol};
+    }
+    // paren
+    if (step===0) return {lv: k*(x+p), rv: m*x+n};
+    if (step===1) return {lv: k*x + k*p, rv: m*x+n};
+    if (step===2) return {lv: (k-m)*x, rv: n-k*p};
+    return {lv: x, rv: st.sol};
+  }
+
+  function draw(){
+    const st = stateEq();
+    const ev = evalSides(st);
+    const tip = (ev.lv||0) - (ev.rv||0);
+    const balanced = Math.abs(tip) < 1e-9;
+    drawBalance(st.L, st.R, tip, !showCheck.checked || balanced || step===maxStep());
+
+    // problem banner
+    if (mode==='problema'){
+      svg.appendChild(el('rect',{x:60,y:450,width:680,height:40,rx:10,fill:'#F5EDD8',stroke:'#C4A15A'}));
+      svg.appendChild(el('text',{x:400,y:475,'text-anchor':'middle','font-size':14,'font-weight':700,fill:'#8A6B2F'},
+        '«'+PROBS[probIdx].frase+'»'));
+    }
+
+    // check box
+    if (showCheck.checked){
+      const ok = Math.abs((ev.lv||0)-(ev.rv||0))<1e-9;
+      const msg = ok
+        ? 'Comprobación con x='+fmt(xGuess)+': '+fmt(ev.lv)+' = '+fmt(ev.rv)+' ✓'
+        : 'Con x='+fmt(xGuess)+': izq '+fmt(ev.lv)+' ≠ der '+fmt(ev.rv);
+      svg.appendChild(el('text',{x:400,y:110,'text-anchor':'middle','font-size':15,'font-weight':700,
+        fill: ok?'#3D6B4F':'#9B3A4A'}, msg));
+    }
+
+    renderPills();
+    renderProps(st, ev);
+    const sol = st.sol;
+    if (step===maxStep() && Number.isFinite(sol)){
+      const okGuess = Math.abs(xGuess - sol)<1e-9;
+      setVerdict(okGuess
+        ? 'Solución x = '+fmt(sol)+'. Comprobación OK. ¡Balanza equilibrada!'
+        : 'Solución correcta: x = '+fmt(sol)+'. Ajusta el valor de prueba para ver el equilibrio.',
+        okGuess?'ok':'');
+    } else if (!Number.isFinite(sol) && step>=1){
+      setVerdict('Cuidado: coeficiente de x es 0. Puede no haber solución o haber infinitas.', 'bad');
+    } else {
+      setVerdict('Paso: '+st.tipLabel+'. Haz lo mismo en ambos platos.', '');
+    }
+  }
+
+  function renderPills(){
+    stepPills.innerHTML='';
+    const labels = mode==='paren'
+      ? ['1. Original','2. Distributiva','3. Agrupar','4. Despejar']
+      : ['1. Original','2. Agrupar / restar','3. Despejar'];
+    labels.forEach((lab,i)=>{
+      const d=document.createElement('div');
+      d.className='step-pill'+(i===step?' on':(i<step?' done':''));
+      d.textContent=lab;
+      stepPills.appendChild(d);
+    });
+  }
+
+  function renderProps(st, ev){
+    props.innerHTML='';
+    const items=[
+      {lab:'Ecuación', val: st.L+' = '+st.R},
+      {lab:'Paso', val: (step+1)+'/'+(maxStep()+1)},
+      {lab:'Prueba x', val: fmt(xGuess)},
+      {lab:'Solución', val: Number.isFinite(st.sol)?fmt(st.sol):'—'}
+    ];
+    items.forEach(it=>{
+      const d=document.createElement('div'); d.className='prop';
+      d.innerHTML='<div class="lab">'+it.lab+'</div><div class="val">'+it.val+'</div>';
+      props.appendChild(d);
+    });
+  }
+
+  function mkRange(id, label, letter, min, max, val, oninput){
+    const f=document.createElement('div'); f.className='field';
+    f.innerHTML='<label><span class="letter">'+letter+'</span>'+label+'</label>'+
+      '<input type="range" id="'+id+'" min="'+min+'" max="'+max+'" value="'+val+'"/>'+
+      '<output id="'+id+'o">'+val+'</output>';
+    ctrls.appendChild(f);
+    const inp=f.querySelector('input');
+    const out=f.querySelector('output');
+    inp.addEventListener('input',()=>{ out.textContent=inp.value; oninput(+inp.value); draw(); });
+  }
+
+  function buildCtrls(){
+    ctrls.innerHTML='';
+    if (mode==='simple'){
+      mkRange('ra','coef. de x','a',-5,8,a,v=>a=v||1);
+      mkRange('rb','término libre','b',-10,10,b,v=>b=v);
+      mkRange('rc','lado derecho','c',-10,20,c,v=>c=v);
+    } else if (mode==='ambos'){
+      mkRange('ra2','coef. izq.','a',-5,8,a2,v=>a2=v);
+      mkRange('rb2','libre izq.','b',-10,10,b2,v=>b2=v);
+      mkRange('rc2','coef. der.','c',-5,8,c2,v=>c2=v);
+      mkRange('rd2','libre der.','d',-10,10,d2,v=>d2=v);
+    } else if (mode==='paren'){
+      mkRange('rk','fuera ( )','k',-4,5,k,v=>k=v||1);
+      mkRange('rp','dentro','p',-6,6,p,v=>p=v);
+      mkRange('rm','coef. der.','m',-4,5,m,v=>m=v);
+      mkRange('rn','libre der.','n',-10,10,n,v=>n=v);
+    } else {
+      const f=document.createElement('div'); f.className='field'; f.style.flex='1 1 100%';
+      f.innerHTML='<label><span class="letter">P</span>Problema verbal (elige enunciado)</label>';
+      const sel=document.createElement('select');
+      sel.style.cssText='padding:8px;border-radius:10px;border:2px solid #E0D0A8;font-weight:700;font-size:.95rem';
+      PROBS.forEach((p,i)=>{ const o=document.createElement('option'); o.value=i; o.textContent=p.frase; sel.appendChild(o); });
+      sel.value=probIdx;
+      sel.addEventListener('change',()=>{ probIdx=+sel.value; step=0; xGuess=PROBS[probIdx].sol; draw(); });
+      f.appendChild(sel); ctrls.appendChild(f);
+    }
+    mkRange('rx','valor de prueba','x',-10,20,xGuess,v=>xGuess=v);
+  }
+
+  document.querySelectorAll('.mode-btn').forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      mode=btn.dataset.mode; step=0;
+      document.querySelectorAll('.mode-btn').forEach(b=>b.classList.toggle('active',b===btn));
+      if (mode==='simple'){ a=2;b=7;c=15; xGuess=4; }
+      if (mode==='ambos'){ a2=3;b2=-5;c2=2;d2=4; xGuess=9; }
+      if (mode==='paren'){ k=2;p=-3;m=1;n=1; xGuess=7; }
+      if (mode==='problema'){ probIdx=0; xGuess=PROBS[0].sol; }
+      buildCtrls(); draw();
+    });
+  });
+  showNames.addEventListener('change', draw);
+  showCheck.addEventListener('change', draw);
+  document.getElementById('btnPaso').addEventListener('click',()=>{
+    step = Math.min(step+1, maxStep()); draw();
+  });
+  document.getElementById('btnEj').addEventListener('click',()=>{
+    if (mode==='simple'){ a=2;b=7;c=15; xGuess=4; step=0; }
+    else if (mode==='ambos'){ a2=3;b2=-5;c2=2;d2=4; xGuess=9; step=0; }
+    else if (mode==='paren'){ k=2;p=-3;m=1;n=1; xGuess=7; step=0; }
+    else { probIdx=0; xGuess=6; step=0; }
+    buildCtrls(); draw();
+  });
+  document.getElementById('btnReset').addEventListener('click',()=>{
+    step=0; buildCtrls(); draw();
+  });
+
+  buildCtrls(); draw();
+
+  if (/[?&]preview=1\b/.test(location.search)) {
+    mode='ambos'; a2=3; b2=-5; c2=2; d2=4; step=2; xGuess=9;
+    showNames.checked=true; showCheck.checked=true;
+    document.querySelectorAll('.mode-btn').forEach(x=>x.classList.toggle('active',x.dataset.mode==='ambos'));
+    buildCtrls(); draw();
+  }
+})();
+</script>
+</body>
+</html>

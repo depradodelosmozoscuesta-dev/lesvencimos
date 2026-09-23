@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Algoritmos sencillos · 1º ESO</title>
+<style>
+  :root {
+    --bg:#FAF7F0; --ink:#2A2620; --muted:#5C564C; --card:#fff;
+    --gold:#C4A15A; --gold-soft:#F5EDD8; --gold-deep:#8A6B2F;
+    --green:#3D6B4F; --green-soft:#E4F0E8; --blue:#2F5D7A; --blue-soft:#E3EEF4;
+    --rose:#9B3A4A; --rose-soft:#F8E8EB;
+    --shadow:0 8px 28px rgba(42,38,32,.08); --radius:18px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{min-height:100%;background:var(--bg);color:var(--ink);
+    font-family:"Segoe UI",system-ui,-apple-system,sans-serif;-webkit-font-smoothing:antialiased}
+  body{display:flex;flex-direction:column;align-items:center;padding:14px 10px 36px}
+  .wrap{width:100%;max-width:980px}
+  header{text-align:center;margin-bottom:12px}
+  .badge{display:inline-block;font-size:.78rem;font-weight:700;letter-spacing:.04em;
+    text-transform:uppercase;color:var(--gold-deep);background:var(--gold-soft);
+    padding:4px 12px;border-radius:999px;margin-bottom:8px}
+  h1{font-size:clamp(1.25rem,4.5vw,1.85rem);line-height:1.2;font-weight:800;color:#0E0E0C}
+  .subtitle{margin-top:6px;font-size:clamp(.9rem,2.8vw,1.05rem);color:var(--muted);font-weight:500}
+  .story{background:linear-gradient(135deg,#F5EDD8,#E3EEF4 55%,#E4F0E8);
+    border:2px solid #E0D0A8;border-radius:var(--radius);padding:12px 14px;
+    margin-bottom:14px;display:flex;gap:12px;align-items:flex-start}
+  .story .emoji{font-size:2rem}
+  .story p{font-size:clamp(.9rem,2.5vw,1.02rem);line-height:1.45}
+  .story strong{color:var(--gold-deep)}
+  .card{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);
+    padding:16px 14px 18px;margin-bottom:14px}
+  .card h2{font-size:clamp(1.05rem,3vw,1.25rem);font-weight:800;margin-bottom:8px}
+  .hint{font-size:clamp(.88rem,2.4vw,1rem);color:var(--muted);line-height:1.45;margin-bottom:12px}
+  .mode-row{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px;justify-content:center}
+  .mode-btn{padding:10px 12px;border-radius:12px;border:3px solid #D9D0C0;background:#fff;
+    font-size:.8rem;font-weight:800;cursor:pointer;color:var(--ink)}
+  .mode-btn.active{border-color:var(--gold);background:var(--gold-soft);color:var(--gold-deep)}
+  .stage{position:relative;width:100%;aspect-ratio:16/10;background:#FFFcf5;
+    border-radius:14px;overflow:hidden;border:2px solid #E0D0A8;margin-bottom:12px}
+  .stage svg{width:100%;height:100%;display:block}
+  .ctrl-row{display:flex;flex-wrap:wrap;gap:12px;align-items:flex-end;margin-bottom:12px}
+  .field{display:flex;flex-direction:column;gap:4px;flex:1 1 140px}
+  .field label{font-size:.8rem;font-weight:700;color:var(--muted)}
+  .field label .letter{display:inline-block;padding:1px 7px;border-radius:8px;font-weight:800;
+    margin-right:3px;background:var(--gold-soft);color:var(--gold-deep)}
+  .field input[type="range"]{width:100%;accent-color:var(--gold)}
+  .field output{font-weight:900;font-variant-numeric:tabular-nums;color:var(--gold-deep);font-size:1.05rem}
+  .toggle{display:flex;align-items:center;gap:8px;margin:8px 0;font-weight:700;font-size:.92rem}
+  .toggle input{width:18px;height:18px;accent-color:var(--blue)}
+  .verdict{text-align:center;font-size:clamp(1.0rem,2.6vw,1.25rem);font-weight:900;padding:14px;
+    border-radius:14px;margin:10px 0;background:var(--gold-soft);color:var(--gold-deep);border:2px solid #E0D0A8}
+  .verdict.ok{background:var(--green-soft);color:#2A5238;border-color:#9BC4A8}
+  .verdict.bad{background:var(--rose-soft);color:#7A2A36;border-color:#E8A8B0}
+  .props{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px;margin:10px 0}
+  .prop{background:#FFFcf5;border:2px solid #E8DFD0;border-radius:12px;padding:10px 12px;text-align:center}
+  .prop .lab{font-size:.75rem;font-weight:700;color:var(--muted);text-transform:uppercase}
+  .prop .val{font-size:1.05rem;font-weight:900;color:var(--gold-deep);margin-top:2px}
+  .glossary{display:grid;gap:.4rem;margin:10px 0;padding:12px 14px;background:#FFFcf5;
+    border-radius:12px;border:2px solid #E0D0A8;font-size:.95rem}
+  .glossary strong{color:var(--gold-deep)}
+  .mnemonic{font-size:.95rem;font-weight:700;color:var(--gold-deep);background:var(--gold-soft);
+    border-left:4px solid var(--gold);padding:10px 14px;border-radius:0 12px 12px 0;margin-top:10px;line-height:1.4}
+  .hist{font-size:.9rem;color:#334155;background:var(--blue-soft);border-left:4px solid var(--blue);
+    padding:10px 14px;border-radius:0 12px 12px 0;margin-top:10px;line-height:1.45}
+  .callout{font-size:.9rem;font-weight:700;color:var(--rose);background:var(--rose-soft);
+    border-left:4px solid var(--rose);padding:8px 12px;border-radius:0 10px 10px 0;margin-top:10px}
+  .socio{font-size:.95rem;font-weight:600;color:#2A5238;background:var(--green-soft);
+    border-left:4px solid var(--green);padding:10px 14px;border-radius:0 12px 12px 0;margin-top:10px;line-height:1.45}
+  .btn-row{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px}
+  button.action{appearance:none;border:none;border-radius:999px;padding:10px 18px;
+    font-weight:800;font-size:.95rem;cursor:pointer;background:var(--gold);color:#fff}
+  button.action.secondary{background:#fff;color:var(--gold-deep);border:2px solid var(--gold)}
+  footer{text-align:center;font-size:.8rem;color:var(--muted);margin-top:4px}
+  .choice-row{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin:8px 0}
+  .choice{padding:10px 14px;border-radius:12px;border:3px solid #D9D0C0;background:#fff;
+    font-weight:800;cursor:pointer;font-size:.92rem}
+  .choice.ok{border-color:var(--green);background:var(--green-soft)}
+  .choice.bad{border-color:var(--rose);background:var(--rose-soft)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="badge">Lección 45 · UD14 Pensamiento computacional</div>
+    <h1>Algoritmos: interpretar y modificar</h1>
+    <p class="subtitle">Pasos claros · probar · depurar · pedir ayuda sin drama</p>
+  </header>
+
+  <div class="story">
+    <div class="emoji">🧩</div>
+    <p>Un <strong>algoritmo</strong> es una lista finita de pasos claros (como una receta o el camino al instituto).
+    Aquí verás las instrucciones en <strong>tarjetas numeradas</strong> — no un lío de flechas.
+    Prueba con números, encuentra el fallo si lo hay, y cámbialo para un objetivo nuevo.
+    Si te atascas: <em>revisa el paso</em> o <em>pregunta</em>; depurar es normal.</p>
+  </div>
+
+  <section class="card">
+    <h2>Taller de algoritmos (tarjetas)</h2>
+    <div class="mode-row" id="modos">
+      <button type="button" class="mode-btn active" data-mode="max2">Máximo de 2</button>
+      <button type="button" class="mode-btn" data-mode="max3">Modificar → 3</button>
+      <button type="button" class="mode-btn" data-mode="par">Mientras sea par</button>
+      <button type="button" class="mode-btn" data-mode="bug">Encuentra el fallo</button>
+    </div>
+
+    <div class="stage" aria-label="Tarjetas de pasos de un algoritmo">
+      <svg id="svg" viewBox="0 0 800 500" role="img"></svg>
+    </div>
+
+    <div class="ctrl-row" id="ctrls"></div>
+    <div class="choice-row" id="choices"></div>
+    <label class="toggle"><input type="checkbox" id="showTrace" checked/> Mostrar traza (valores al ejecutar)</label>
+    <label class="toggle"><input type="checkbox" id="showSocio" checked/> Consejo socioafectivo suave</label>
+    <div class="btn-row">
+      <button type="button" class="action" id="btnRun">Ejecutar un paso</button>
+      <button type="button" class="action secondary" id="btnEj">Ejemplo del libro</button>
+      <button type="button" class="action secondary" id="btnReset">Reiniciar</button>
+    </div>
+    <p class="hint">Controles <strong>independientes</strong>: entradas a, b (y c), paso activo. Las tarjetas son el diagrama — claras, no spaghetti.</p>
+    <div class="props" id="props"></div>
+    <div class="verdict" id="veredicto">Lee las tarjetas · elige entradas · ejecuta paso a paso.</div>
+  </section>
+
+  <section class="card">
+    <h2>Letras y símbolos (en español)</h2>
+    <div class="glossary">
+      <div><strong>Algoritmo</strong> = secuencia finita de pasos claros para una tarea.</div>
+      <div><strong>Entrada</strong> = datos que das al empezar (a, b, c…).</div>
+      <div><strong>Salida</strong> = resultado que escribe al terminar.</div>
+      <div><strong>SI … ENTONCES … SI NO …</strong> = decisión (condicional).</div>
+      <div><strong>MIENTRAS / REPETIR HASTA</strong> = repetición con condición de parada.</div>
+      <div><strong>Depurar</strong> = probar con un ejemplo, ver dónde falla, corregir el paso (no a la persona).</div>
+    </div>
+    <div class="mnemonic">«Entrada clara · pasos numerados · prueba con un ejemplo · si falla, mira el paso · pide ayuda si hace falta.»</div>
+    <div class="hist"><strong>Vida real:</strong> receta de cocina, protocolo de evacuación del centro, pasos para pagar con QR, camino al instituto en tu provincia.</div>
+    <div class="socio" id="socioBox">Cuando un paso no cuadra, prueba con un ejemplo o pregunta: «¿me miras el paso 3?». Depurar juntos es normal; no hace falta acertar a la primera.</div>
+    <div class="callout">Error típico: pasos ambiguos («hazlo bien») · bucles sin final · asumir datos no leídos.</div>
+  </section>
+  <footer>1º ESO Matemáticas · CyL Decreto 39/2022 · D.6 Pensamiento computacional · E · offline · file://</footer>
+</div>
+<script>
+(function(){
+  const svg = document.getElementById('svg');
+  const ctrls = document.getElementById('ctrls');
+  const props = document.getElementById('props');
+  const choices = document.getElementById('choices');
+  const veredicto = document.getElementById('veredicto');
+  const showTrace = document.getElementById('showTrace');
+  const showSocio = document.getElementById('showSocio');
+  const socioBox = document.getElementById('socioBox');
+
+  let mode = 'max2';
+  let a=7, b=4, c=9, step=0, bugPick=null;
+  // buggy algorithm for mode bug: forgets to compare when equal correctly / wrong branch
+  const BUG_STEPS = [
+    '1. Leer a y b',
+    '2. SI a > b ENTONCES escribir a',
+    '3. SI NO escribir b',
+    '4. (¿Y si a = b?)' // the bug: when equal, step 2 false → writes b, which is ok actually...
+  ];
+  // Real bug: algorithm that divides without checking even, or max that uses >= wrong
+  // Better bug: "máximo" that always escribe a if a≥b else b — OK. Use: perimeter that forgets ×2
+  // Or: while even that does n←n−2 instead of n/2
+
+  function el(tag, attrs, text){
+    const n = document.createElementNS('http://www.w3.org/2000/svg', tag);
+    for (const k in attrs) n.setAttribute(k, attrs[k]);
+    if (text != null) n.textContent = text;
+    return n;
+  }
+  function clear(){ while(svg.firstChild) svg.removeChild(svg.firstChild); }
+  function bg(){ svg.appendChild(el('rect',{x:0,y:0,width:800,height:500,fill:'#FFFcf5'})); }
+  function fmt(v){ return String(v); }
+  function setVerdict(msg, cls){
+    veredicto.textContent = msg;
+    veredicto.className = 'verdict' + (cls ? ' '+cls : '');
+  }
+
+  function cardsForMode(){
+    if (mode==='max2'){
+      return [
+        {t:'INICIO', sub:'Máximo de 2 números'},
+        {t:'1. Leer a, b', sub:'entradas'},
+        {t:'2. ¿a ≥ b?', sub:'decisión'},
+        {t:'3a. Escribir a', sub:'SI sí'},
+        {t:'3b. Escribir b', sub:'SI no'},
+        {t:'FIN', sub:'salida = máximo'}
+      ];
+    }
+    if (mode==='max3'){
+      return [
+        {t:'INICIO', sub:'Máximo de 3'},
+        {t:'1. Leer a, b, c', sub:'entradas'},
+        {t:'2. m ← máximo(a,b)', sub:'reutiliza max2'},
+        {t:'3. m ← máximo(m,c)', sub:'compara con c'},
+        {t:'4. Escribir m', sub:'salida'},
+        {t:'FIN', sub:'extensión del algoritmo'}
+      ];
+    }
+    if (mode==='par'){
+      return [
+        {t:'INICIO', sub:'Mientras sea par'},
+        {t:'1. Leer n', sub:'entrada'},
+        {t:'2. ¿n es par?', sub:'decisión'},
+        {t:'3. SI sí: n ← n÷2', sub:'repetir'},
+        {t:'4. SI no: escribir n', sub:'salida (impar)'},
+        {t:'FIN', sub:'finito porque n baja'}
+      ];
+    }
+    // bug mode: while-even but subtracts 2 instead of dividing — wrong goal
+    return [
+      {t:'INICIO', sub:'¿Reducir a impar?'},
+      {t:'1. Leer n', sub:'entrada'},
+      {t:'2. MIENTRAS n par…', sub:'bucle'},
+      {t:'3. n ← n − 2', sub:'⚠ ¿correcto?'},
+      {t:'4. Escribir n', sub:'salida'},
+      {t:'FIN', sub:'¿cumple el objetivo?'}
+    ];
+  }
+
+  function runState(){
+    if (mode==='max2'){
+      const out = a>=b ? a : b;
+      const branch = a>=b ? '3a' : '3b';
+      return {trace:['a='+a,'b='+b,'decisión: a≥b → '+(a>=b), 'salida='+out], out, branch, maxStep:5};
+    }
+    if (mode==='max3'){
+      const m1 = a>=b ? a : b;
+      const out = m1>=c ? m1 : c;
+      return {trace:['a='+a,'b='+b,'c='+c,'m=max(a,b)='+m1,'salida=max(m,c)='+out], out, maxStep:5};
+    }
+    if (mode==='par'){
+      let n=a, hist=[n];
+      while (n%2===0 && n!==0){ n=n/2; hist.push(n); if(hist.length>8) break; }
+      return {trace:['n inicial='+a, 'valores: '+hist.join(' → '), 'salida='+n], out:n, hist, maxStep:5};
+    }
+    // bug: subtract 2
+    let n=a, hist=[n];
+    while (n%2===0 && n>0){ n=n-2; hist.push(n); if(hist.length>10) break; }
+    return {trace:['n='+a, 'con n−2: '+hist.join(' → '), 'sale '+n+' (pero el objetivo era ÷2…)'], out:n, hist, maxStep:5, buggy:true};
+  }
+
+  function drawCard(x,y,w,h,title,sub,active,done){
+    const fill = active ? '#E3EEF4' : done ? '#E4F0E8' : '#fff';
+    const stroke = active ? '#2F5D7A' : done ? '#3D6B4F' : '#C4A15A';
+    svg.appendChild(el('rect',{x,y,width:w,height:h,rx:14,fill,stroke,'stroke-width':active?4:2}));
+    svg.appendChild(el('text',{x:x+w/2,y:y+28,'text-anchor':'middle','font-size':15,'font-weight':800,fill:'#0E0E0C'}, title));
+    svg.appendChild(el('text',{x:x+w/2,y:y+50,'text-anchor':'middle','font-size':12,fill:'#5C564C'}, sub));
+  }
+
+  function drawArrow(x1,y1,x2,y2){
+    svg.appendChild(el('line',{x1,y1,x2,y2,stroke:'#8A6B2F','stroke-width':2,'marker-end':'url(#arrow)'}));
+  }
+
+  function draw(){
+    clear(); bg();
+    // arrow marker
+    const defs = el('defs',{});
+    const mk = el('marker',{id:'arrow', markerWidth:8, markerHeight:8, refX:6, refY:3, orient:'auto'});
+    mk.appendChild(el('path',{d:'M0,0 L6,3 L0,6 Z', fill:'#8A6B2F'}));
+    defs.appendChild(mk); svg.appendChild(defs);
+
+    const cards = cardsForMode();
+    const st = runState();
+    svg.appendChild(el('text',{x:400,y:30,'text-anchor':'middle','font-size':18,'font-weight':800,fill:'#0E0E0C'},
+      mode==='max2'?'Algoritmo: máximo de dos números':
+      mode==='max3'?'Modificar: de 2 a 3 números':
+      mode==='par'?'Bucle: mientras sea par, dividir entre 2':
+      'Depurar: ¿este algoritmo hace lo que dice?'));
+
+    // layout: 2 rows of 3 cards — clear, not spaghetti
+    const positions = [
+      [40,60],[290,60],[540,60],
+      [40,200],[290,200],[540,200]
+    ];
+    cards.forEach((c,i)=>{
+      const [x,y]=positions[i];
+      drawCard(x,y,220,70, c.t, c.sub, i===step, i<step);
+    });
+    // simple arrows between consecutive cards (horizontal then down)
+    for (let i=0;i<2;i++){
+      const [x1,y1]=positions[i]; const [x2,y2]=positions[i+1];
+      drawArrow(x1+220, y1+35, x2, y2+35);
+    }
+    // from card 2 down to card 3? Actually row1: 0→1→2, then 2 down to 5? Better: 2→5 visually hard.
+    // Connect 0-1-2 and 3-4-5, plus 2 down to 3
+    drawArrow(positions[2][0]+110, positions[2][1]+70, positions[3][0]+110, positions[3][1]);
+    for (let i=3;i<5;i++){
+      const [x1,y1]=positions[i]; const [x2,y2]=positions[i+1];
+      drawArrow(x1+220, y1+35, x2, y2+35);
+    }
+
+    // trace panel
+    if (showTrace.checked){
+      svg.appendChild(el('rect',{x:40,y:310,width:720,height:160,rx:12,fill:'#fff',stroke:'#E0D0A8','stroke-width':2}));
+      svg.appendChild(el('text',{x:60,y:340,'font-size':14,'font-weight':800,fill:'#8A6B2F'}, 'Traza con tus entradas:'));
+      st.trace.forEach((line,i)=>{
+        svg.appendChild(el('text',{x:60,y:368+i*22,'font-size':15,'font-weight':600,fill:'#2A2620'}, '· '+line));
+      });
+    }
+
+    renderProps(st);
+    renderChoices();
+    socioBox.style.display = showSocio.checked ? 'block' : 'none';
+
+    if (mode==='bug'){
+      setVerdict('Objetivo: dejar n impar dividiendo entre 2. Este algoritmo resta 2. ¿Dónde está el fallo?', '');
+    } else if (step >= st.maxStep){
+      setVerdict('Fin. Salida = '+st.out+'. ¿Coincide con lo que esperabas? Si no, revisa el paso activo.', 'ok');
+    } else {
+      setVerdict('Paso '+step+' · '+cards[step].t+'. Pulsa «Ejecutar un paso» para avanzar.', '');
+    }
+  }
+
+  function renderProps(st){
+    props.innerHTML='';
+    const items=[
+      {lab:'Entradas', val: mode==='max3'?'a='+a+' b='+b+' c='+c : mode==='max2'?'a='+a+' b='+b : 'n='+a},
+      {lab:'Paso', val: step+' / '+st.maxStep},
+      {lab:'Salida', val: String(st.out)},
+      {lab:'Modo', val: mode}
+    ];
+    items.forEach(it=>{
+      const d=document.createElement('div'); d.className='prop';
+      d.innerHTML='<div class="lab">'+it.lab+'</div><div class="val">'+it.val+'</div>';
+      props.appendChild(d);
+    });
+  }
+
+  function renderChoices(){
+    choices.innerHTML='';
+    if (mode!=='bug') return;
+    [
+      {t:'El fallo está en el paso 3: debería ser n ← n÷2', ok:true},
+      {t:'Falta la entrada (paso 1)', ok:false},
+      {t:'No hace falta condición de parada', ok:false}
+    ].forEach(o=>{
+      const b=document.createElement('button');
+      b.type='button'; b.className='choice'; b.textContent=o.t;
+      b.addEventListener('click',()=>{
+        b.classList.add(o.ok?'ok':'bad');
+        setVerdict(o.ok
+          ? '✓ Eso es. Restar 2 mantiene la paridad mal para el objetivo «dividir». Corregir el paso, no culpar a quien lo escribió.'
+          : 'No es el fallo principal. Mira qué operación hace el bucle.',
+          o.ok?'ok':'bad');
+      });
+      choices.appendChild(b);
+    });
+  }
+
+  function mkRange(id, label, letter, min, max, val, oninput){
+    const f=document.createElement('div'); f.className='field';
+    f.innerHTML='<label><span class="letter">'+letter+'</span>'+label+'</label>'+
+      '<input type="range" id="'+id+'" min="'+min+'" max="'+max+'" value="'+val+'"/>'+
+      '<output>'+val+'</output>';
+    ctrls.appendChild(f);
+    const inp=f.querySelector('input');
+    const out=f.querySelector('output');
+    inp.addEventListener('input',()=>{ out.textContent=inp.value; oninput(+inp.value); draw(); });
+  }
+
+  function buildCtrls(){
+    ctrls.innerHTML='';
+    if (mode==='max2'){
+      mkRange('ra','número a','a',0,20,a,v=>a=v);
+      mkRange('rb','número b','b',0,20,b,v=>b=v);
+    } else if (mode==='max3'){
+      mkRange('ra','número a','a',0,20,a,v=>a=v);
+      mkRange('rb','número b','b',0,20,b,v=>b=v);
+      mkRange('rc','número c','c',0,20,c,v=>c=v);
+    } else {
+      mkRange('rn','número n (par recomendado)','n',2,40,a,v=>a=v);
+    }
+  }
+
+  document.querySelectorAll('.mode-btn').forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      mode=btn.dataset.mode; step=0; bugPick=null;
+      document.querySelectorAll('.mode-btn').forEach(b=>b.classList.toggle('active',b===btn));
+      if (mode==='max2'){ a=7; b=4; }
+      if (mode==='max3'){ a=7; b=4; c=9; }
+      if (mode==='par'){ a=40; }
+      if (mode==='bug'){ a=40; }
+      buildCtrls(); draw();
+    });
+  });
+  showTrace.addEventListener('change', draw);
+  showSocio.addEventListener('change', ()=>{ socioBox.style.display = showSocio.checked?'block':'none'; });
+  document.getElementById('btnRun').addEventListener('click',()=>{
+    const st=runState();
+    step = Math.min(step+1, st.maxStep);
+    draw();
+  });
+  document.getElementById('btnEj').addEventListener('click',()=>{
+    if (mode==='max2'){ a=7; b=4; }
+    else if (mode==='max3'){ a=7; b=4; c=9; }
+    else { a=40; }
+    step=0; buildCtrls(); draw();
+  });
+  document.getElementById('btnReset').addEventListener('click',()=>{ step=0; draw(); });
+
+  buildCtrls(); draw();
+
+  if (/[?&]preview=1\b/.test(location.search)) {
+    mode='max2'; a=7; b=4; step=3; // decision done, writing a
+    showTrace.checked=true; showSocio.checked=true;
+    document.querySelectorAll('.mode-btn').forEach(x=>x.classList.toggle('active',x.dataset.mode==='max2'));
+    buildCtrls(); draw();
+  }
+})();
+</script>
+</body>
+</html>

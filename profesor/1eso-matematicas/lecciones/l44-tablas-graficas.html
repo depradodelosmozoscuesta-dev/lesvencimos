@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Tablas y gráficas · 1º ESO</title>
+<style>
+  :root {
+    --bg:#FAF7F0; --ink:#2A2620; --muted:#5C564C; --card:#fff;
+    --gold:#C4A15A; --gold-soft:#F5EDD8; --gold-deep:#8A6B2F;
+    --green:#3D6B4F; --green-soft:#E4F0E8; --blue:#2F5D7A; --blue-soft:#E3EEF4;
+    --rose:#9B3A4A; --rose-soft:#F8E8EB;
+    --shadow:0 8px 28px rgba(42,38,32,.08); --radius:18px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{min-height:100%;background:var(--bg);color:var(--ink);
+    font-family:"Segoe UI",system-ui,-apple-system,sans-serif;-webkit-font-smoothing:antialiased}
+  body{display:flex;flex-direction:column;align-items:center;padding:14px 10px 36px}
+  .wrap{width:100%;max-width:980px}
+  header{text-align:center;margin-bottom:12px}
+  .badge{display:inline-block;font-size:.78rem;font-weight:700;letter-spacing:.04em;
+    text-transform:uppercase;color:var(--gold-deep);background:var(--gold-soft);
+    padding:4px 12px;border-radius:999px;margin-bottom:8px}
+  h1{font-size:clamp(1.25rem,4.5vw,1.85rem);line-height:1.2;font-weight:800;color:#0E0E0C}
+  .subtitle{margin-top:6px;font-size:clamp(.9rem,2.8vw,1.05rem);color:var(--muted);font-weight:500}
+  .story{background:linear-gradient(135deg,#F5EDD8,#E3EEF4 55%,#E4F0E8);
+    border:2px solid #E0D0A8;border-radius:var(--radius);padding:12px 14px;
+    margin-bottom:14px;display:flex;gap:12px;align-items:flex-start}
+  .story .emoji{font-size:2rem}
+  .story p{font-size:clamp(.9rem,2.5vw,1.02rem);line-height:1.45}
+  .story strong{color:var(--gold-deep)}
+  .card{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);
+    padding:16px 14px 18px;margin-bottom:14px}
+  .card h2{font-size:clamp(1.05rem,3vw,1.25rem);font-weight:800;margin-bottom:8px}
+  .hint{font-size:clamp(.88rem,2.4vw,1rem);color:var(--muted);line-height:1.45;margin-bottom:12px}
+  .mode-row{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px;justify-content:center}
+  .mode-btn{padding:10px 12px;border-radius:12px;border:3px solid #D9D0C0;background:#fff;
+    font-size:.8rem;font-weight:800;cursor:pointer;color:var(--ink)}
+  .mode-btn.active{border-color:var(--gold);background:var(--gold-soft);color:var(--gold-deep)}
+  .stage{position:relative;width:100%;aspect-ratio:16/10;background:#FFFcf5;
+    border-radius:14px;overflow:hidden;border:2px solid #E0D0A8;margin-bottom:12px}
+  .stage svg{width:100%;height:100%;display:block}
+  .ctrl-row{display:flex;flex-wrap:wrap;gap:12px;align-items:flex-end;margin-bottom:12px}
+  .field{display:flex;flex-direction:column;gap:4px;flex:1 1 140px}
+  .field label{font-size:.8rem;font-weight:700;color:var(--muted)}
+  .field label .letter{display:inline-block;padding:1px 7px;border-radius:8px;font-weight:800;
+    margin-right:3px;background:var(--gold-soft);color:var(--gold-deep)}
+  .field input[type="range"]{width:100%;accent-color:var(--gold)}
+  .field output{font-weight:900;font-variant-numeric:tabular-nums;color:var(--gold-deep);font-size:1.05rem}
+  .toggle{display:flex;align-items:center;gap:8px;margin:8px 0;font-weight:700;font-size:.92rem}
+  .toggle input{width:18px;height:18px;accent-color:var(--blue)}
+  .verdict{text-align:center;font-size:clamp(1.0rem,2.6vw,1.25rem);font-weight:900;padding:14px;
+    border-radius:14px;margin:10px 0;background:var(--gold-soft);color:var(--gold-deep);border:2px solid #E0D0A8}
+  .verdict.ok{background:var(--green-soft);color:#2A5238;border-color:#9BC4A8}
+  .verdict.bad{background:var(--rose-soft);color:#7A2A36;border-color:#E8A8B0}
+  .props{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px;margin:10px 0}
+  .prop{background:#FFFcf5;border:2px solid #E8DFD0;border-radius:12px;padding:10px 12px;text-align:center}
+  .prop .lab{font-size:.75rem;font-weight:700;color:var(--muted);text-transform:uppercase}
+  .prop .val{font-size:1.05rem;font-weight:900;color:var(--gold-deep);margin-top:2px}
+  .glossary{display:grid;gap:.4rem;margin:10px 0;padding:12px 14px;background:#FFFcf5;
+    border-radius:12px;border:2px solid #E0D0A8;font-size:.95rem}
+  .glossary strong{color:var(--gold-deep)}
+  .mnemonic{font-size:.95rem;font-weight:700;color:var(--gold-deep);background:var(--gold-soft);
+    border-left:4px solid var(--gold);padding:10px 14px;border-radius:0 12px 12px 0;margin-top:10px;line-height:1.4}
+  .hist{font-size:.9rem;color:#334155;background:var(--blue-soft);border-left:4px solid var(--blue);
+    padding:10px 14px;border-radius:0 12px 12px 0;margin-top:10px;line-height:1.45}
+  .callout{font-size:.9rem;font-weight:700;color:var(--rose);background:var(--rose-soft);
+    border-left:4px solid var(--rose);padding:8px 12px;border-radius:0 10px 10px 0;margin-top:10px}
+  .btn-row{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px}
+  button.action{appearance:none;border:none;border-radius:999px;padding:10px 18px;
+    font-weight:800;font-size:.95rem;cursor:pointer;background:var(--gold);color:#fff}
+  button.action.secondary{background:#fff;color:var(--gold-deep);border:2px solid var(--gold)}
+  footer{text-align:center;font-size:.8rem;color:var(--muted);margin-top:4px}
+  .choice-row{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin:8px 0}
+  .choice{padding:10px 14px;border-radius:12px;border:3px solid #D9D0C0;background:#fff;
+    font-weight:800;cursor:pointer;font-size:.95rem}
+  .choice.picked{border-color:var(--blue);background:var(--blue-soft)}
+  .choice.ok{border-color:var(--green);background:var(--green-soft)}
+  .choice.bad{border-color:var(--rose);background:var(--rose-soft)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="badge">Lección 44 · UD14 Relaciones y funciones</div>
+    <h1>Tablas y gráficas</h1>
+    <p class="subtitle">Verbal ↔ tabla ↔ gráfica ↔ fórmula · contexto CyL</p>
+  </header>
+
+  <div class="story">
+    <div class="emoji">🍎</div>
+    <p>En el <strong>mercadillo de León</strong>, las manzanas cuestan <strong>2 € el kilo</strong> más 1 € de bolsa:
+    precio = 2·kg + 1. Organiza los datos en una <strong>tabla</strong> (entrada → salida),
+    dibuja los <strong>puntos</strong> en ejes y mira la <strong>gráfica</strong>: ¿están alineados? ¿Crece?</p>
+  </div>
+
+  <section class="card">
+    <h2>Laboratorio tabla → gráfica</h2>
+    <div class="mode-row" id="modos">
+      <button type="button" class="mode-btn active" data-mode="manzanas">Manzanas (€/kg)</button>
+      <button type="button" class="mode-btn" data-mode="bici">Bici (km)</button>
+      <button type="button" class="mode-btn" data-mode="temp">Temperatura (°C)</button>
+      <button type="button" class="mode-btn" data-mode="leer">Leer la gráfica</button>
+    </div>
+
+    <div class="stage" aria-label="Tabla y gráfica de una relación">
+      <svg id="svg" viewBox="0 0 800 500" role="img"></svg>
+    </div>
+
+    <div class="ctrl-row" id="ctrls"></div>
+    <div class="choice-row" id="choices"></div>
+    <label class="toggle"><input type="checkbox" id="showNames" checked/> Mostrar nombres de ejes en castellano</label>
+    <label class="toggle"><input type="checkbox" id="showLine" checked/> Unir puntos (relación continua)</label>
+    <label class="toggle"><input type="checkbox" id="showFormula" checked/> Mostrar fórmula</label>
+    <div class="btn-row">
+      <button type="button" class="action" id="btnEj">Ejemplo del libro</button>
+      <button type="button" class="action secondary" id="btnMore">Añadir / quitar punto</button>
+      <button type="button" class="action secondary" id="btnReset">Reiniciar</button>
+    </div>
+    <p class="hint">Controles <strong>independientes</strong>: pendiente, término independiente, número de puntos y escala.</p>
+    <div class="props" id="props"></div>
+    <div class="verdict" id="veredicto">Completa la tabla y mira si los puntos se alinean.</div>
+  </section>
+
+  <section class="card">
+    <h2>Letras y símbolos (en español)</h2>
+    <div class="glossary">
+      <div><strong>x</strong> = variable independiente (la que eliges: kg, horas, …) · va en el <em>eje horizontal</em>.</div>
+      <div><strong>y</strong> = variable dependiente (la que responde: €, km, °C) · va en el <em>eje vertical</em>.</div>
+      <div><strong>Tabla</strong> = pares (entrada, salida) organizados en filas.</div>
+      <div><strong>Gráfica</strong> = dibujo de esos pares como puntos en ejes graduados.</div>
+      <div><strong>Relación lineal</strong> = y = m·x + n → puntos alineados (recta).</div>
+      <div><strong>Escala</strong> = cuánto vale cada marca del eje; ¡mira siempre el 0!</div>
+    </div>
+    <div class="mnemonic">«Elige x · calcula y · tabla · puntos en ejes · mira si crece, baja o se alinea.»</div>
+    <div class="hist"><strong>Vida real CyL:</strong> temperatura en Burgos a lo largo del día, km en bici por la Vía de la Plata, precios en mercadillo. La gráfica engaña si el eje Y no empieza en 0.</div>
+    <div class="callout">Error típico: unir puntos de categorías sin sentido · escala desigual · confundir eje x con eje y.</div>
+  </section>
+  <footer>1º ESO Matemáticas · CyL Decreto 39/2022 · D.5 Relaciones · offline · file://</footer>
+</div>
+<script>
+(function(){
+  const svg = document.getElementById('svg');
+  const ctrls = document.getElementById('ctrls');
+  const props = document.getElementById('props');
+  const choices = document.getElementById('choices');
+  const veredicto = document.getElementById('veredicto');
+  const showNames = document.getElementById('showNames');
+  const showLine = document.getElementById('showLine');
+  const showFormula = document.getElementById('showFormula');
+
+  let mode = 'manzanas';
+  let m = 2, n = 1, nPts = 4, xMax = 4;
+  let highlight = 2; // x value to highlight
+  let readQ = 0;
+  const READ_QS = [
+    {q:'¿Cuánto cuesta 3 kg?', ans:'7 €', ok: v => v===7},
+    {q:'¿Para qué x vale y=5?', ans:'x=2', ok: v => v===2},
+    {q:'¿La gráfica crece o decrece?', ans:'crece', ok: v => v==='crece'}
+  ];
+
+  const CTX = {
+    manzanas: {xLab:'kg (manzanas)', yLab:'precio (€)', title:'Mercadillo de León', unitY:'€', emoji:'🍎',
+      defM:2, defN:1, story:'precio = 2·kg + 1 (bolsa)'},
+    bici: {xLab:'tiempo (h)', yLab:'distancia (km)', title:'Bici por Castilla', unitY:'km', emoji:'🚲',
+      defM:15, defN:0, story:'distancia = 15·horas (15 km/h)'},
+    temp: {xLab:'hora del día', yLab:'temperatura (°C)', title:'Mañana en Burgos', unitY:'°C', emoji:'🌡️',
+      defM:2, defN:4, story:'aprox. temp = 2·hora + 4 (modelo lineal escolar)'},
+    leer: {xLab:'kg (manzanas)', yLab:'precio (€)', title:'Lee la gráfica', unitY:'€', emoji:'👀',
+      defM:2, defN:1, story:'precio = 2·kg + 1'}
+  };
+
+  function el(tag, attrs, text){
+    const n = document.createElementNS('http://www.w3.org/2000/svg', tag);
+    for (const k in attrs) n.setAttribute(k, attrs[k]);
+    if (text != null) n.textContent = text;
+    return n;
+  }
+  function clear(){ while(svg.firstChild) svg.removeChild(svg.firstChild); }
+  function bg(){ svg.appendChild(el('rect',{x:0,y:0,width:800,height:500,fill:'#FFFcf5'})); }
+  function fmt(v){
+    if (!Number.isFinite(v)) return '?';
+    if (Number.isInteger(v)) return String(v);
+    return (Math.round(v*100)/100).toString().replace('.',',');
+  }
+  function setVerdict(msg, cls){
+    veredicto.textContent = msg;
+    veredicto.className = 'verdict' + (cls ? ' '+cls : '');
+  }
+  function yOf(x){ return m*x + n; }
+  function points(){
+    const pts=[];
+    for (let i=0;i<nPts;i++){
+      const x = nPts===1 ? 0 : Math.round(i * xMax / (nPts-1));
+      pts.push({x, y: yOf(x)});
+    }
+    // de-dupe if rounding collided
+    const seen=new Set(); const out=[];
+    for (const p of pts){ if(!seen.has(p.x)){ seen.add(p.x); out.push(p);} }
+    return out;
+  }
+
+  function drawAxes(ctx, yMax){
+    const ox=320, oy=420, W=420, H=340;
+    // axes
+    svg.appendChild(el('line',{x1:ox,y1:oy,x2:ox+W,y2:oy,stroke:'#2A2620','stroke-width':2}));
+    svg.appendChild(el('line',{x1:ox,y1:oy,x2:ox,y2:oy-H,stroke:'#2A2620','stroke-width':2}));
+    // arrow heads
+    svg.appendChild(el('polygon',{points:(ox+W)+','+oy+' '+(ox+W-10)+','+(oy-5)+' '+(ox+W-10)+','+(oy+5),fill:'#2A2620'}));
+    svg.appendChild(el('polygon',{points:ox+','+(oy-H)+' '+(ox-5)+','+(oy-H+10)+' '+(ox+5)+','+(oy-H+10),fill:'#2A2620'}));
+    if (showNames.checked){
+      svg.appendChild(el('text',{x:ox+W/2,y:470,'text-anchor':'middle','font-size':14,'font-weight':700,fill:'#8A6B2F'}, ctx.xLab));
+      svg.appendChild(el('text',{x:40,y:oy-H/2,'text-anchor':'middle','font-size':14,'font-weight':700,fill:'#8A6B2F',
+        transform:'rotate(-90 40 '+(oy-H/2)+')'}, ctx.yLab));
+    }
+    // ticks
+    for (let i=0;i<=4;i++){
+      const xx = ox + (i/4)*W;
+      const xv = (i/4)*xMax;
+      svg.appendChild(el('line',{x1:xx,y1:oy,x2:xx,y2:oy+6,stroke:'#5C564C'}));
+      svg.appendChild(el('text',{x:xx,y:oy+20,'text-anchor':'middle','font-size':12,fill:'#5C564C'}, fmt(xv)));
+      const yy = oy - (i/4)*H;
+      const yv = (i/4)*yMax;
+      svg.appendChild(el('line',{x1:ox,y1:yy,x2:ox-6,y2:yy,stroke:'#5C564C'}));
+      svg.appendChild(el('text',{x:ox-10,y:yy+4,'text-anchor':'end','font-size':12,fill:'#5C564C'}, fmt(yv)));
+    }
+    return {ox,oy,W,H,yMax};
+  }
+
+  function draw(){
+    clear(); bg();
+    const ctx = CTX[mode==='leer'?'leer':mode];
+    const pts = points();
+    const yMax = Math.max(10, Math.ceil(Math.max(...pts.map(p=>p.y), 1)*1.15));
+    // title
+    svg.appendChild(el('text',{x:400,y:28,'text-anchor':'middle','font-size':18,'font-weight':800,fill:'#0E0E0C'},
+      ctx.emoji+' '+ctx.title));
+    if (showFormula.checked){
+      svg.appendChild(el('text',{x:400,y:52,'text-anchor':'middle','font-size':14,'font-weight':700,fill:'#8A6B2F'},
+        'y = '+m+'·x'+(n>=0?' + ':' − ')+Math.abs(n)+'   ·   '+ctx.story));
+    }
+
+    // TABLE on the left
+    const tw=240, th=28, tx=30, ty=80;
+    svg.appendChild(el('rect',{x:tx,y:ty,width:tw,height:th*(pts.length+1)+8,rx:10,fill:'#fff',stroke:'#C4A15A','stroke-width':2}));
+    svg.appendChild(el('rect',{x:tx,y:ty,width:tw,height:th,fill:'#F5EDD8'}));
+    svg.appendChild(el('text',{x:tx+tw/4,y:ty+20,'text-anchor':'middle','font-size':13,'font-weight':800,fill:'#8A6B2F'}, 'x (entrada)'));
+    svg.appendChild(el('text',{x:tx+3*tw/4,y:ty+20,'text-anchor':'middle','font-size':13,'font-weight':800,fill:'#8A6B2F'}, 'y (salida)'));
+    pts.forEach((p,i)=>{
+      const yy = ty + th*(i+1);
+      const hi = Math.abs(p.x - highlight)<1e-9;
+      if (hi) svg.appendChild(el('rect',{x:tx+2,y:yy,width:tw-4,height:th,fill:'#E4F0E8'}));
+      svg.appendChild(el('text',{x:tx+tw/4,y:yy+20,'text-anchor':'middle','font-size':15,'font-weight':700,fill:'#2A2620'}, fmt(p.x)));
+      svg.appendChild(el('text',{x:tx+3*tw/4,y:yy+20,'text-anchor':'middle','font-size':15,'font-weight':700,fill:'#2F5D7A'}, fmt(p.y)));
+      svg.appendChild(el('line',{x1:tx,y1:yy,x2:tx+tw,y2:yy,stroke:'#E0D0A8'}));
+    });
+    svg.appendChild(el('line',{x1:tx+tw/2,y1:ty,x2:tx+tw/2,y2:ty+th*(pts.length+1),stroke:'#E0D0A8'}));
+
+    const ax = drawAxes(ctx, yMax);
+    const toX = x => ax.ox + (x/xMax)*ax.W;
+    const toY = y => ax.oy - (y/yMax)*ax.H;
+
+    // line
+    if (showLine.checked && pts.length>=2){
+      let d = 'M'+toX(pts[0].x)+' '+toY(pts[0].y);
+      for (let i=1;i<pts.length;i++) d += ' L'+toX(pts[i].x)+' '+toY(pts[i].y);
+      // extend a bit
+      svg.appendChild(el('path',{d, fill:'none', stroke:'#C4A15A', 'stroke-width':3, 'stroke-linecap':'round'}));
+    }
+
+    pts.forEach(p=>{
+      const hi = Math.abs(p.x - highlight)<1e-9;
+      svg.appendChild(el('circle',{cx:toX(p.x), cy:toY(p.y), r: hi?9:7,
+        fill: hi?'#3D6B4F':'#2F5D7A', stroke:'#fff', 'stroke-width':2}));
+      if (hi){
+        svg.appendChild(el('text',{x:toX(p.x)+12,y:toY(p.y)-10,'font-size':13,'font-weight':800,fill:'#3D6B4F'},
+          '('+fmt(p.x)+', '+fmt(p.y)+')'));
+      }
+    });
+
+    // aligned?
+    const aligned = true; // linear by construction
+    renderProps(pts, ctx, aligned);
+    renderChoices();
+
+    if (mode==='leer'){
+      setVerdict('Pregunta: '+READ_QS[readQ].q+' · Respuesta esperada: '+READ_QS[readQ].ans, '');
+    } else {
+      setVerdict(aligned
+        ? 'Puntos alineados → relación lineal. Destacado: x='+fmt(highlight)+' → y='+fmt(yOf(highlight))+' '+ctx.unitY+'.'
+        : 'Los puntos no se alinean.', 'ok');
+    }
+  }
+
+  function renderProps(pts, ctx, aligned){
+    props.innerHTML='';
+    const items=[
+      {lab:'Fórmula', val:'y='+m+'x'+(n>=0?'+':'')+n},
+      {lab:'Puntos', val: String(pts.length)},
+      {lab:'Destacado', val:'('+fmt(highlight)+', '+fmt(yOf(highlight))+')'},
+      {lab:'¿Alineados?', val: aligned?'Sí':'No'}
+    ];
+    items.forEach(it=>{
+      const d=document.createElement('div'); d.className='prop';
+      d.innerHTML='<div class="lab">'+it.lab+'</div><div class="val">'+it.val+'</div>';
+      props.appendChild(d);
+    });
+  }
+
+  function renderChoices(){
+    choices.innerHTML='';
+    if (mode!=='leer') return;
+    const q = READ_QS[readQ];
+    const opts = readQ===2
+      ? [{v:'crece',t:'Crece'},{v:'decrece',t:'Decrece'},{v:'horizontal',t:'Horizontal'}]
+      : readQ===0
+        ? [{v:5,t:'5 €'},{v:7,t:'7 €'},{v:9,t:'9 €'}]
+        : [{v:1,t:'x=1'},{v:2,t:'x=2'},{v:3,t:'x=3'}];
+    opts.forEach(o=>{
+      const b=document.createElement('button');
+      b.type='button'; b.className='choice'; b.textContent=o.t;
+      b.addEventListener('click',()=>{
+        const ok = q.ok(o.v);
+        b.classList.add(ok?'ok':'bad');
+        setVerdict(ok ? '✓ '+q.ans+' — bien leído en la gráfica.' : 'No exactamente. Mira el punto o la tabla.', ok?'ok':'bad');
+      });
+      choices.appendChild(b);
+    });
+  }
+
+  function mkRange(id, label, letter, min, max, val, oninput){
+    const f=document.createElement('div'); f.className='field';
+    f.innerHTML='<label><span class="letter">'+letter+'</span>'+label+'</label>'+
+      '<input type="range" id="'+id+'" min="'+min+'" max="'+max+'" step="1" value="'+val+'"/>'+
+      '<output id="'+id+'o">'+val+'</output>';
+    ctrls.appendChild(f);
+    const inp=f.querySelector('input');
+    const out=f.querySelector('output');
+    inp.addEventListener('input',()=>{ out.textContent=inp.value; oninput(+inp.value); draw(); });
+  }
+
+  function buildCtrls(){
+    ctrls.innerHTML='';
+    if (mode==='leer'){
+      const f=document.createElement('div'); f.className='field'; f.style.flex='1 1 100%';
+      f.innerHTML='<label><span class="letter">?</span>Pregunta de lectura</label>';
+      const sel=document.createElement('select');
+      sel.style.cssText='padding:8px;border-radius:10px;border:2px solid #E0D0A8;font-weight:700';
+      READ_QS.forEach((q,i)=>{ const o=document.createElement('option'); o.value=i; o.textContent=q.q; sel.appendChild(o); });
+      sel.value=readQ;
+      sel.addEventListener('change',()=>{ readQ=+sel.value; draw(); });
+      f.appendChild(sel); ctrls.appendChild(f);
+      mkRange('rh','destacar x','x',0,xMax,highlight,v=>highlight=v);
+      return;
+    }
+    mkRange('rm','pendiente m','m', mode==='bici'?5:1, mode==='bici'?25:6, m, v=>m=v);
+    mkRange('rn','término n','n', mode==='temp'?0:-2, mode==='temp'?10:5, n, v=>n=v);
+    mkRange('rp','nº de puntos','n', 2, 6, nPts, v=>nPts=v);
+    mkRange('rx','destacar x','x', 0, xMax, Math.min(highlight,xMax), v=>highlight=v);
+  }
+
+  document.querySelectorAll('.mode-btn').forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      mode=btn.dataset.mode;
+      document.querySelectorAll('.mode-btn').forEach(b=>b.classList.toggle('active',b===btn));
+      const c=CTX[mode==='leer'?'leer':mode];
+      m=c.defM; n=c.defN; nPts=4; highlight=2;
+      xMax = mode==='bici'?4 : mode==='temp'?6 : 4;
+      buildCtrls(); draw();
+    });
+  });
+  showNames.addEventListener('change', draw);
+  showLine.addEventListener('change', draw);
+  showFormula.addEventListener('change', draw);
+  document.getElementById('btnEj').addEventListener('click',()=>{
+    const c=CTX[mode==='leer'?'leer':mode];
+    m=c.defM; n=c.defN; nPts=4; highlight=2; readQ=0;
+    buildCtrls(); draw();
+  });
+  document.getElementById('btnMore').addEventListener('click',()=>{
+    nPts = nPts>=6 ? 3 : nPts+1; buildCtrls(); draw();
+  });
+  document.getElementById('btnReset').addEventListener('click',()=>{
+    const c=CTX[mode==='leer'?'leer':mode];
+    m=c.defM; n=c.defN; nPts=4; highlight=0; buildCtrls(); draw();
+  });
+
+  buildCtrls(); draw();
+
+  if (/[?&]preview=1\b/.test(location.search)) {
+    mode='manzanas'; m=2; n=1; nPts=5; xMax=4; highlight=2;
+    showNames.checked=true; showLine.checked=true; showFormula.checked=true;
+    document.querySelectorAll('.mode-btn').forEach(x=>x.classList.toggle('active',x.dataset.mode==='manzanas'));
+    buildCtrls(); draw();
+  }
+})();
+</script>
+</body>
+</html>
