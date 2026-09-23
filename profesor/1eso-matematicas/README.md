@@ -2,7 +2,7 @@
 
 > **Producto del alumno (web / GitHub Pages):** lecciones HTML en el **shell** Les vencimos  
 > (`lecciones/leccion-01.html` … `leccion-NN.html`, cero-padded). Entrada: [`1eso-matematicas.html`](1eso-matematicas.html)  
-> (índice → L01–L12 disponibles; resto próximamente). Alias `01-presentacion.html` redirige a `leccion-01.html`.  
+> (índice → L01–L15 disponibles; resto próximamente). Alias `01-presentacion.html` redirige a `leccion-01.html`.  
 > **Los `.md` son andamio / temario** para Mate — no el lector masivo del estudiante.
 
 **Curso:** 1º ESO · **Materia:** Matemáticas  
@@ -158,8 +158,8 @@ Todos los retos llevan `reto_id` estable `1eso-mate-LXX` y el marcador HTML `<!-
 ## Lectura offline
 
 - **ZIP alumno (pack plano):** `downloads/1eso-matematicas-offline.zip` (Descargas → Educación obligatoria).
-  **No hay que instalar nada.** Descomprime y abre `index.html` (L01–L12 en la misma carpeta; `file://` sin nube).
-- Online: `lecciones/leccion-01.html` … `leccion-09.html` (+ widgets `l0N-….html`).
+  **No hay que instalar nada.** Descomprime y abre `index.html` (L01–L15 en la misma carpeta; `file://` sin nube).
+- Online: `lecciones/leccion-01.html` … `leccion-15.html` (+ widgets `l0N-….html`).
 - Markdown en `lecciones/01.md` … `47.md` (andamio / temario del equipo Mate).
 - Índice HTML del curso: `1eso-matematicas.html`.
 

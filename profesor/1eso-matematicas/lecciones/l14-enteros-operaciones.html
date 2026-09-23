@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Operaciones con enteros · Saltos e inversas · 1º ESO</title>
+<style>
+  :root {
+    --bg:#f4f7fb; --ink:#1a2b3c; --muted:#5a6d7e; --card:#fff;
+    --blue:#3b82f6; --blue-soft:#dbeafe; --blue-deep:#1d4ed8;
+    --orange:#f59e0b; --orange-soft:#fef3c7; --orange-deep:#b45309;
+    --green:#10b981; --green-soft:#d1fae5; --green-deep:#047857;
+    --purple:#8b5cf6; --purple-soft:#ede9fe; --purple-deep:#6d28d9;
+    --rose:#f43f5e; --rose-soft:#ffe4e6; --rose-deep:#be123c;
+    --teal:#14b8a6; --teal-soft:#ccfbf1; --teal-deep:#0f766e;
+    --shadow:0 8px 28px rgba(26,43,60,.08); --radius:18px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{min-height:100%;background:var(--bg);color:var(--ink);
+    font-family:"Segoe UI",system-ui,-apple-system,sans-serif;-webkit-font-smoothing:antialiased}
+  body{display:flex;flex-direction:column;align-items:center;padding:14px 10px 36px}
+  .wrap{width:100%;max-width:980px}
+  header{text-align:center;margin-bottom:12px}
+  header .badge{display:inline-block;font-size:.78rem;font-weight:600;letter-spacing:.04em;
+    text-transform:uppercase;color:var(--teal-deep);background:var(--teal-soft);
+    padding:4px 12px;border-radius:999px;margin-bottom:8px}
+  h1{font-size:clamp(1.3rem,4.5vw,1.9rem);line-height:1.2;font-weight:800}
+  .subtitle{margin-top:6px;font-size:clamp(.9rem,2.8vw,1.05rem);color:var(--muted);font-weight:500}
+  .story{background:linear-gradient(135deg,#ccfbf1,#e0f2fe 45%,#fef3c7);
+    border:2px solid #5eead4;border-radius:var(--radius);padding:12px 14px;
+    margin-bottom:14px;display:flex;gap:12px;align-items:flex-start}
+  .story .emoji{font-size:2rem}
+  .story p{font-size:clamp(.9rem,2.5vw,1.02rem);line-height:1.45}
+  .story strong{color:var(--teal-deep)}
+  .card{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);
+    padding:16px 14px 18px;margin-bottom:14px}
+  .card h2{font-size:clamp(1.05rem,3vw,1.25rem);font-weight:800;margin-bottom:8px;
+    display:flex;align-items:center;gap:8px}
+  .hint{font-size:clamp(.88rem,2.4vw,1rem);color:var(--muted);line-height:1.45;margin-bottom:12px}
+  .ctrl-row{display:flex;flex-wrap:wrap;gap:12px;align-items:flex-end;margin-bottom:14px}
+  .field{display:flex;flex-direction:column;gap:6px;flex:1 1 120px}
+  .field label{font-size:.88rem;font-weight:700;color:var(--muted)}
+  .field label .letter{display:inline-block;background:var(--teal-soft);color:var(--teal-deep);
+    padding:1px 8px;border-radius:8px;font-weight:800;margin-right:4px}
+  .field input[type="number"]{width:100%;max-width:120px;font-size:1.4rem;font-weight:800;
+    font-variant-numeric:tabular-nums;padding:10px 12px;border:2.5px solid #cbd5e1;border-radius:12px}
+  .field input[type="number"]:focus{outline:none;border-color:var(--teal);box-shadow:0 0 0 3px var(--teal-soft)}
+  .letters-legend{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0 4px}
+  .letters-legend span{background:var(--purple-soft);color:var(--purple-deep);font-size:.8rem;
+    font-weight:700;padding:4px 10px;border-radius:999px}
+  .btn{border:none;border-radius:12px;padding:8px 14px;font-size:.88rem;font-weight:800;cursor:pointer}
+  .btn-ghost{background:#fff;color:var(--ink);border:2px solid #cbd5e1}
+  .chooser{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px}
+  .chip{border:2px solid #cbd5e1;background:#fff;border-radius:999px;padding:7px 14px;
+    font-size:.88rem;font-weight:700;cursor:pointer}
+  .chip.active{border-color:var(--teal);background:var(--teal-soft);color:var(--teal-deep)}
+  .result-big{text-align:center;padding:14px;border-radius:16px;border:2px solid #5eead4;
+    background:linear-gradient(135deg,#f0fdfa,#ecfeff);margin-bottom:12px}
+  .result-big .eq{font-size:clamp(1.3rem,4vw,1.85rem);font-weight:900;font-variant-numeric:tabular-nums}
+  .result-big .why{margin-top:6px;font-size:.95rem;font-weight:600;color:var(--muted);line-height:1.4}
+  .stage{border-radius:16px;padding:14px 12px 16px;margin-bottom:12px;border:2px solid #5eead4;
+    background:linear-gradient(180deg,#f0fdfa 0%,#ccfbf1 60%,#99f6e4 100%);overflow:hidden}
+  .stage-header{display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:12px}
+  .shop-name{font-weight:800;font-size:1.05rem;color:var(--teal-deep)}
+  .line-wrap{position:relative;height:110px;margin:8px 0 4px}
+  .line-track{position:absolute;left:28px;right:28px;top:48px;height:6px;background:#334155;border-radius:4px}
+  .line-track::before,.line-track::after{content:"";position:absolute;top:50%;width:0;height:0;
+    border-top:7px solid transparent;border-bottom:7px solid transparent}
+  .line-track::before{left:-10px;border-right:12px solid #334155;transform:translateY(-50%)}
+  .line-track::after{right:-10px;border-left:12px solid #334155;transform:translateY(-50%)}
+  .tick{position:absolute;top:40px;width:2px;height:22px;background:#64748b;transform:translateX(-50%)}
+  .tick.zero{width:4px;height:30px;top:36px;background:var(--rose);box-shadow:0 0 0 3px #fecdd3}
+  .tick-lab{position:absolute;top:66px;transform:translateX(-50%);font-size:.7rem;font-weight:800;
+    color:var(--muted);font-variant-numeric:tabular-nums}
+  .marker{position:absolute;top:12px;transform:translateX(-50%);z-index:3;text-align:center}
+  .marker .pin{width:20px;height:20px;border-radius:50%;border:3px solid #fff;margin:0 auto;
+    box-shadow:0 2px 8px rgba(0,0,0,.25)}
+  .marker .pin.start{background:var(--blue)}
+  .marker .pin.end{background:var(--green)}
+  .marker .m-lab{font-size:.72rem;font-weight:800;margin-top:2px;white-space:nowrap}
+  .jump-arc{position:absolute;top:18px;height:28px;border:3px solid var(--orange);border-bottom:none;
+    border-radius:40px 40px 0 0;transform-origin:center bottom;pointer-events:none;z-index:2}
+  .jump-arc.left{border-color:var(--rose)}
+  .sign-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:8px}
+  @media(max-width:560px){.sign-grid{grid-template-columns:1fr}}
+  .sign-card{border-radius:14px;padding:12px;border:2px solid #e2e8f0;background:#fff}
+  .sign-card.on{border-color:var(--green);background:var(--green-soft);box-shadow:0 0 0 3px #a7f3d0}
+  .sign-card .t{font-weight:900;font-size:1.05rem}
+  .sign-card .s{font-size:.88rem;color:var(--muted);margin-top:4px;line-height:1.35}
+  .inv-box{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  @media(max-width:560px){.inv-box{grid-template-columns:1fr}}
+  .inv-pill{border-radius:14px;padding:12px 14px;border:2px solid #d8b4fe;background:var(--purple-soft)}
+  .inv-pill .label{font-size:.78rem;font-weight:700;color:var(--muted);text-transform:uppercase}
+  .inv-pill .eq{font-size:1.1rem;font-weight:800;margin-top:4px;font-variant-numeric:tabular-nums}
+  .mnemonic{background:linear-gradient(135deg,var(--purple-soft),#fce7f3);
+    border:2px solid #d8b4fe;border-radius:14px;padding:12px 14px;margin-top:10px;text-align:center}
+  .mnemonic .tag{font-size:.75rem;font-weight:800;text-transform:uppercase;letter-spacing:.05em;color:var(--purple-deep)}
+  .mnemonic p{margin-top:4px;font-size:clamp(.95rem,3vw,1.1rem);font-weight:800;color:var(--purple-deep)}
+  .glossary{display:grid;gap:8px}
+  .glossary dt{font-weight:800;font-size:.95rem;color:var(--blue-deep)}
+  .glossary dd{font-size:.92rem;color:var(--muted);line-height:1.4;margin-bottom:4px}
+  .sym-chip{display:inline-block;background:var(--teal-soft);color:var(--teal-deep);font-weight:800;
+    padding:1px 7px;border-radius:6px;font-family:"Courier New",ui-monospace,monospace}
+  footer.note{text-align:center;font-size:.8rem;color:var(--muted);margin-top:8px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="badge">1º ESO · UD4 Enteros · L14</div>
+    <h1>Saltos en la recta</h1>
+    <p class="subtitle">Sumar, restar, multiplicar y dividir enteros · operaciones inversas</p>
+  </header>
+
+  <div class="story">
+    <div class="emoji">🦘</div>
+    <p>Imagina un saltamontes en la recta: <strong>sumar</strong> es saltar a la derecha (o a la izquierda si sumas negativo).
+    <strong>Restar</strong> es <em>sumar el opuesto</em>: a − b = a + (−b).
+    En producto y división, la <strong>regla de signos</strong> decide el resultado.</p>
+  </div>
+
+  <section class="card">
+    <h2>🎛️ Elige a, b y la operación (independientes)</h2>
+    <p class="hint">Cada control mueve solo su valor. Cambiar <span class="sym-chip">a</span> no reescala <span class="sym-chip">b</span>.</p>
+    <div class="letters-legend">
+      <span><b>a</b>, <b>b</b> = enteros (−9…9)</span>
+      <span><span class="sym-chip">+</span> suma · <span class="sym-chip">−</span> resta</span>
+      <span><span class="sym-chip">×</span> producto · <span class="sym-chip">÷</span> división</span>
+      <span><span class="sym-chip">−b</span> = opuesto de b</span>
+    </div>
+    <div class="ctrl-row">
+      <div class="field">
+        <label><span class="letter">a</span> Primer número</label>
+        <input type="number" id="aNum" min="-9" max="9" value="-3">
+      </div>
+      <div class="field">
+        <label><span class="letter">b</span> Segundo número</label>
+        <input type="number" id="bNum" min="-9" max="9" value="5">
+      </div>
+      <div class="field">
+        <label>Pares típicos</label>
+        <div style="display:flex;flex-wrap:wrap;gap:6px">
+          <button class="btn btn-ghost" type="button" data-pair="-3,5">−3 y 5</button>
+          <button class="btn btn-ghost" type="button" data-pair="-7,-4">−7 y −4</button>
+          <button class="btn btn-ghost" type="button" data-pair="4,-9">4 y −9</button>
+          <button class="btn btn-ghost" type="button" data-pair="-6,-3">−6 y −3</button>
+        </div>
+      </div>
+    </div>
+    <div class="chooser" id="opChips">
+      <button class="chip active" data-op="+" type="button">+ sumar</button>
+      <button class="chip" data-op="-" type="button">− restar</button>
+      <button class="chip" data-op="*" type="button">× multiplicar</button>
+      <button class="chip" data-op="/" type="button">÷ dividir</button>
+    </div>
+    <div class="result-big">
+      <div class="eq" id="eqOut">—</div>
+      <div class="why" id="whyOut">—</div>
+    </div>
+  </section>
+
+  <section class="card" id="jumpCard">
+    <h2>🦘 La operación como movimiento</h2>
+    <p class="hint" id="jumpHint">Para + y −: partes de a y saltas |b| unidades. Naranja = salto a la derecha; rosa = a la izquierda.</p>
+    <div class="stage">
+      <div class="stage-header">
+        <div class="shop-name">📏 Recta de saltos (−18…18)</div>
+      </div>
+      <div class="line-wrap" id="lineWrap"></div>
+      <p id="jumpExplain" style="text-align:center;font-weight:800;color:var(--teal-deep);margin-top:6px"></p>
+    </div>
+  </section>
+
+  <section class="card" id="signCard">
+    <h2>✖️➗ Regla de signos (producto / división)</h2>
+    <p class="hint">Signos <strong>iguales</strong> → resultado positivo. Signos <strong>distintos</strong> → resultado negativo.</p>
+    <div class="sign-grid">
+      <div class="sign-card" id="scPP"><div class="t">(+)×(+) → +</div><div class="s">Dos positivos: resultado positivo.</div></div>
+      <div class="sign-card" id="scNN"><div class="t">(−)×(−) → +</div><div class="s">Dos negativos: ¡también positivo!</div></div>
+      <div class="sign-card" id="scPN"><div class="t">(+)×(−) → −</div><div class="s">Distintos: resultado negativo.</div></div>
+      <div class="sign-card" id="scNP"><div class="t">(−)×(+) → −</div><div class="s">Distintos: resultado negativo.</div></div>
+    </div>
+    <div class="mnemonic">
+      <div class="tag">Truco mnemotécnico</div>
+      <p>«Restar es sumar el opuesto. Amigos (+ + / − −) → + ; enemigos → −.»</p>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>↩️ Comprueba con la inversa</h2>
+    <p class="hint">Toda operación tiene una inversa que te devuelve al punto de partida.</p>
+    <div class="inv-box">
+      <div class="inv-pill">
+        <div class="label">Suma ↔ resta del mismo</div>
+        <div class="eq" id="invAdd">—</div>
+      </div>
+      <div class="inv-pill">
+        <div class="label">Producto ↔ división</div>
+        <div class="eq" id="invMul">—</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>📖 Glosario de símbolos y letras</h2>
+    <dl class="glossary">
+      <dt>a, b</dt><dd>Los dos enteros de la operación (controles independientes).</dd>
+      <dt><span class="sym-chip">+</span></dt><dd>«Más / sumar». En la recta: salto en el sentido del segundo sumando.</dd>
+      <dt><span class="sym-chip">−</span></dt><dd>«Menos / restar» o signo negativo. a − b = a + (−b).</dd>
+      <dt><span class="sym-chip">×</span></dt><dd>«Por / multiplicar».</dd>
+      <dt><span class="sym-chip">÷</span></dt><dd>«Dividido entre». Si b = 0, no se puede dividir.</dd>
+      <dt><span class="sym-chip">−b</span></dt><dd>Opuesto de b: el «espejo» respecto al 0.</dd>
+      <dt><span class="sym-chip">=</span></dt><dd>«Vale lo mismo».</dd>
+      <dt>Inversa</dt><dd>Operación que deshace la anterior: sumar 5 se deshace restando 5; ×(−3) se deshace ÷(−3).</dd>
+    </dl>
+  </section>
+
+  <p class="note footer">Offline · file:// · CyL Decreto 39/2022 · A.3 Operaciones con enteros · sin red</p>
+</div>
+<script>
+(function () {
+  const AMIN = -9, AMAX = 9;
+  const LMIN = -18, LMAX = 18;
+  const aNum = document.getElementById('aNum');
+  const bNum = document.getElementById('bNum');
+  const eqOut = document.getElementById('eqOut');
+  const whyOut = document.getElementById('whyOut');
+  const lineWrap = document.getElementById('lineWrap');
+  const jumpExplain = document.getElementById('jumpExplain');
+  const jumpHint = document.getElementById('jumpHint');
+  const invAdd = document.getElementById('invAdd');
+  const invMul = document.getElementById('invMul');
+  const jumpCard = document.getElementById('jumpCard');
+  const signCard = document.getElementById('signCard');
+  let op = '+';
+
+  function clamp(v, lo, hi) {
+    v = parseInt(v, 10);
+    if (isNaN(v)) v = 0;
+    return Math.max(lo, Math.min(hi, v));
+  }
+  function fmt(n) {
+    if (!isFinite(n)) return '¿?';
+    n = Math.round(n);
+    return (n < 0 ? '−' : '') + Math.abs(n);
+  }
+  function paren(n) {
+    return n < 0 ? '(' + fmt(n) + ')' : fmt(n);
+  }
+  function getAB() {
+    const a = clamp(aNum.value, AMIN, AMAX);
+    let b = clamp(bNum.value, AMIN, AMAX);
+    aNum.value = a;
+    bNum.value = b;
+    return { a, b };
+  }
+
+  function compute(a, b, operation) {
+    if (operation === '+') return a + b;
+    if (operation === '-') return a - b;
+    if (operation === '*') return a * b;
+    if (operation === '/') {
+      if (b === 0) return NaN;
+      if (a % b !== 0) return a / b; // may be non-integer; we'll show carefully
+      return a / b;
+    }
+    return NaN;
+  }
+
+  function renderLine(start, end, jump) {
+    lineWrap.innerHTML = '<div class="line-track"></div>';
+    for (let v = LMIN; v <= LMAX; v++) {
+      if (v % 2 !== 0 && v !== start && v !== end && v !== 0) continue;
+      const t = document.createElement('div');
+      t.className = 'tick' + (v === 0 ? ' zero' : '');
+      t.style.left = 'calc(28px + (100% - 56px) * ' + ((v - LMIN) / (LMAX - LMIN)) + ')';
+      lineWrap.appendChild(t);
+      if (v % 3 === 0 || v === 0 || v === start || v === end) {
+        const lab = document.createElement('div');
+        lab.className = 'tick-lab';
+        lab.style.left = t.style.left;
+        lab.textContent = fmt(v);
+        if (v === 0) lab.style.color = 'var(--rose-deep)';
+        lineWrap.appendChild(lab);
+      }
+    }
+    function addMarker(val, cls, label) {
+      const m = document.createElement('div');
+      m.className = 'marker';
+      m.style.left = 'calc(28px + (100% - 56px) * ' + ((val - LMIN) / (LMAX - LMIN)) + ')';
+      m.innerHTML = '<div class="pin ' + cls + '"></div><div class="m-lab">' + label + '</div>';
+      lineWrap.appendChild(m);
+    }
+    // Clamp visual markers into line range
+    const sShow = Math.max(LMIN, Math.min(LMAX, start));
+    const eShow = Math.max(LMIN, Math.min(LMAX, end));
+    addMarker(sShow, 'start', 'inicio ' + fmt(start));
+    if (eShow !== sShow) addMarker(eShow, 'end', 'fin ' + fmt(end));
+
+    if (jump !== 0 && isFinite(end)) {
+      const lo = Math.min(sShow, eShow);
+      const hi = Math.max(sShow, eShow);
+      const leftPct = ((lo - LMIN) / (LMAX - LMIN));
+      const widthPct = ((hi - lo) / (LMAX - LMIN));
+      const arc = document.createElement('div');
+      arc.className = 'jump-arc' + (jump < 0 ? ' left' : '');
+      arc.style.left = 'calc(28px + (100% - 56px) * ' + leftPct + ')';
+      arc.style.width = 'calc((100% - 56px) * ' + widthPct + ')';
+      lineWrap.appendChild(arc);
+    }
+  }
+
+  function highlightSigns(a, b) {
+    const sa = a === 0 ? 0 : (a > 0 ? 1 : -1);
+    const sb = b === 0 ? 0 : (b > 0 ? 1 : -1);
+    const cards = {
+      pp: document.getElementById('scPP'),
+      nn: document.getElementById('scNN'),
+      pn: document.getElementById('scPN'),
+      np: document.getElementById('scNP')
+    };
+    Object.values(cards).forEach(c => c.classList.remove('on'));
+    if (sa === 0 || sb === 0) return; // 0 is special
+    if (sa > 0 && sb > 0) cards.pp.classList.add('on');
+    else if (sa < 0 && sb < 0) cards.nn.classList.add('on');
+    else if (sa > 0 && sb < 0) cards.pn.classList.add('on');
+    else cards.np.classList.add('on');
+  }
+
+  function render() {
+    const { a, b } = getAB();
+    const r = compute(a, b, op);
+    const opSym = { '+': '+', '-': '−', '*': '×', '/': '÷' }[op];
+
+    if (op === '/' && b === 0) {
+      eqOut.textContent = paren(a) + ' ÷ 0 → no existe';
+      whyOut.textContent = 'No se puede dividir entre cero. Elige otro b.';
+    } else if (op === '/' && a % b !== 0) {
+      eqOut.textContent = paren(a) + ' ÷ ' + paren(b) + ' = ' + (a / b).toFixed(2).replace('.', ',') + ' (no entero)';
+      whyOut.textContent = 'En 1º ESO priorizamos cocientes enteros. Prueba b que divida a a (ej. −6 y −3).';
+    } else {
+      eqOut.textContent = paren(a) + ' ' + opSym + ' ' + paren(b) + ' = ' + fmt(r);
+      if (op === '+') {
+        whyOut.textContent = b >= 0
+          ? 'Partes de ' + fmt(a) + ' y saltas ' + b + ' a la derecha.'
+          : 'Partes de ' + fmt(a) + ' y saltas ' + Math.abs(b) + ' a la izquierda (sumas un negativo).';
+      } else if (op === '-') {
+        whyOut.textContent = 'Resta = suma del opuesto: ' + paren(a) + ' + (' + fmt(-b) + ') = ' + fmt(r) + '.';
+      } else if (op === '*') {
+        const same = (a >= 0 && b >= 0) || (a < 0 && b < 0) || a === 0 || b === 0;
+        whyOut.textContent = (a === 0 || b === 0)
+          ? 'Cualquier número × 0 = 0.'
+          : (same ? 'Signos iguales → resultado positivo. |a|×|b| = ' + (Math.abs(a)*Math.abs(b)) + '.'
+                  : 'Signos distintos → resultado negativo. |a|×|b| = ' + (Math.abs(a)*Math.abs(b)) + '.');
+      } else {
+        const same = (a >= 0 && b > 0) || (a < 0 && b < 0);
+        whyOut.textContent = same
+          ? 'Signos iguales → cociente positivo.'
+          : 'Signos distintos → cociente negativo.';
+      }
+    }
+
+    // Jump visual for + and −
+    const showJump = (op === '+' || op === '-');
+    jumpCard.style.display = showJump ? '' : 'none';
+    signCard.style.display = (op === '*' || op === '/') ? '' : 'none';
+
+    if (showJump) {
+      const end = op === '+' ? a + b : a - b;
+      const jump = op === '+' ? b : -b;
+      renderLine(a, end, jump);
+      jumpExplain.textContent = op === '+'
+        ? 'Inicio a = ' + fmt(a) + ' · salto ' + (b >= 0 ? '+' : '') + fmt(b) + ' · llegada = ' + fmt(end)
+        : 'Inicio a = ' + fmt(a) + ' · restar ' + fmt(b) + ' = sumar ' + fmt(-b) + ' · llegada = ' + fmt(end);
+      jumpHint.textContent = 'Arco naranja = salto a la derecha (+). Arco rosa = salto a la izquierda (−).';
+    } else {
+      highlightSigns(a, b);
+    }
+
+    // Inverses
+    invAdd.textContent = paren(a) + ' + ' + paren(b) + ' = ' + fmt(a + b) + '  →  ' +
+      fmt(a + b) + ' − ' + paren(b) + ' = ' + fmt(a);
+    if (b === 0) {
+      invMul.textContent = 'No hay inversa útil con b = 0 en la división.';
+    } else if ((a * b) % b === 0) {
+      invMul.textContent = paren(a) + ' × ' + paren(b) + ' = ' + fmt(a * b) + '  →  ' +
+        fmt(a * b) + ' ÷ ' + paren(b) + ' = ' + fmt(a);
+    } else {
+      invMul.textContent = paren(a) + ' × ' + paren(b) + ' = ' + fmt(a * b);
+    }
+  }
+
+  aNum.addEventListener('change', render);
+  bNum.addEventListener('change', render);
+  aNum.addEventListener('input', render);
+  bNum.addEventListener('input', render);
+  document.querySelectorAll('[data-pair]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const [a, b] = btn.dataset.pair.split(',').map(Number);
+      aNum.value = a; bNum.value = b; render();
+    });
+  });
+  document.querySelectorAll('#opChips .chip').forEach(ch => {
+    ch.addEventListener('click', () => {
+      op = ch.dataset.op;
+      document.querySelectorAll('#opChips .chip').forEach(c => c.classList.toggle('active', c === ch));
+      render();
+    });
+  });
+
+  render();
+})();
+</script>
+</body>
+</html>

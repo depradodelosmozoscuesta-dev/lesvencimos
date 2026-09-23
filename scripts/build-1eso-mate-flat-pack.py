@@ -15,7 +15,7 @@ DESCARGAS = REPO / "descargas.html"
 PACK_DIR = REPO / "downloads/_build-1eso-mate-flat"
 ZIP_PATH = REPO / "downloads/1eso-matematicas-offline.zip"
 TOTAL = 47
-AVAILABLE = 12  # L01–L12
+AVAILABLE = 15  # L01–L15
 
 # (num, short_ud, title, meta, curiosidad_title, curiosidad_text, figura_cur,
 #  objetivos[list], cuerpo_extra_html, vida_title, vida_items, vida_figura,
@@ -505,6 +505,117 @@ LESSONS = [
     "reto": "Inventa dos rutinas con periodos distintos (entreno, serie, recogida de basura…). ¿Cada cuántos días coinciden? Usa mcm.",
     "reto_id": "1eso-mate-L12",
     "cierre": "mcd = mayor divisor común; mcm = menor múltiplo común. El enunciado decide cuál.",
+  },
+  {
+    "n": 13,
+    "eyebrow": "Lección 13 · UD4 · Enteros",
+    "title_html": "Números enteros: necesidad, <em>representación</em> y orden",
+    "title_plain": "Números enteros: necesidad, representación y orden",
+    "meta": "Saberes CyL (Decreto 39/2022): A.2 Cantidad (enteros); recta numérica",
+    "curiosidad_t": "El frío y el garaje",
+    "curiosidad": "Los enteros amplían los naturales con los negativos: temperaturas bajo cero, deudas, planta −1. En la recta, a la derecha se crece: −5 < −2. Opuesto de a es −a; |a| es la distancia al 0. «El frío y el garaje viven a la izquierda del 0.»",
+    "curiosidad_fig": "mapa.svg",
+    "objetivos": [
+      "Justificar la necesidad de los enteros (deudas, temperaturas, profundidades).",
+      "Representar enteros en la recta y hallar el opuesto y el valor absoluto.",
+      "Ordenar enteros correctamente.",
+      "Usar el vocabulario: positivo, negativo, cero, opuesto.",
+    ],
+    "cuerpo": """
+    <h2>Explicación breve</h2>
+    <p>Los <strong>enteros</strong> (ℤ) = …, −2, −1, 0, 1, 2, …. A la derecha, mayores. <strong>Opuesto</strong> de a es −a. <strong>Valor absoluto</strong> |a| = distancia a 0. Trampa: |−8| &gt; |−3|, pero −8 &lt; −3.</p>
+""",
+    "cuerpo_after_widgets": "",
+    "widget_split": False,
+    "vida_t": "Aplicaciones",
+    "vida": [
+      "Partes meteorológicos en invierno castellano-leonés.",
+      "Saldo de una cuenta o «debo 5 €».",
+      "Ascensor: planta −1 (garaje).",
+      "Clasificaciones con diferencia de goles / puntos negativos de sanción.",
+    ],
+    "vida_fig": "ticket.svg",
+    "widgets": [
+      ("Interactivo · recta, termómetro y ascensor", "l13-enteros-recta.html"),
+    ],
+    "reto_t": "Negativos a mi alrededor",
+    "reto": "Lista tres situaciones de tu vida donde un número negativo tenga sentido. Elige una y explícala a alguien de tu familia.",
+    "reto_id": "1eso-mate-L13",
+    "cierre": "Enteros = naturales + negativos + cero. En la recta, a la derecha se crece. El signo indica dirección o sentido.",
+  },
+  {
+    "n": 14,
+    "eyebrow": "Lección 14 · UD4 · Enteros",
+    "title_html": "Operaciones con enteros y <em>relaciones inversas</em>",
+    "title_plain": "Operaciones con enteros y relaciones inversas",
+    "meta": "Saberes CyL (Decreto 39/2022): A.3 Operaciones con enteros",
+    "curiosidad_t": "Amigos y enemigos",
+    "curiosidad": "Resta = sumar el opuesto: a−b = a+(−b). En producto/división: signos iguales → +; distintos → −. Frase: «Restar es sumar el opuesto. Amigos (+ + / − −) → + ; enemigos → −.»",
+    "curiosidad_fig": "ticket.svg",
+    "objetivos": [
+      "Sumar y restar enteros con recta o reglas de signos.",
+      "Multiplicar y dividir enteros (regla de signos).",
+      "Usar la resta como sumar el opuesto.",
+      "Comprobar operaciones con la inversa.",
+    ],
+    "cuerpo": """
+    <h2>Explicación breve</h2>
+    <p>Suma: misma dirección → suman absolutos; signos distintos → restan y gana el de mayor absoluto. Resta: a−b = a+(−b). × y ÷: iguales → +; distintos → −.</p>
+""",
+    "cuerpo_after_widgets": "",
+    "widget_split": False,
+    "vida_t": "Aplicaciones",
+    "vida": [
+      "Subidas y bajadas de temperatura a lo largo del día.",
+      "Ganar y gastar dinero (modelos simplificados).",
+      "Avanzar y retroceder casillas en un juego de mesa.",
+      "Desniveles en una ruta de senderismo.",
+    ],
+    "vida_fig": "mapa.svg",
+    "widgets": [
+      ("Interactivo · saltos e inversas", "l14-enteros-operaciones.html"),
+    ],
+    "reto_t": "Termómetro matemático",
+    "reto": "Inventa un mini relato del tiempo en tu provincia con 4 temperaturas enteras a lo largo del día y calcula la variación entre cada tramo.",
+    "reto_id": "1eso-mate-L14",
+    "cierre": "Resta = suma del opuesto. En producto/división, signos iguales → +; distintos → −.",
+  },
+  {
+    "n": 15,
+    "eyebrow": "Lección 15 · UD4 · Enteros",
+    "title_html": "Problemas con enteros en <em>contextos</em> cotidianos",
+    "title_plain": "Problemas con enteros en contextos cotidianos",
+    "meta": "Saberes CyL (Decreto 39/2022): A.3 Operaciones contextualizadas; E socioafectivo · énfasis [E]",
+    "curiosidad_t": "Primero elijo el 0",
+    "curiosidad": "Modelar es decidir qué significa el cero y qué es positivo (saldo inicial, planta baja, 0 °C…). Luego traduces «sube/baja» a +/−. Revisa si el resultado tiene sentido (−3 personas no suele valer). Corrige el paso, no a la persona [E].",
+    "curiosidad_fig": "olla.svg",
+    "objetivos": [
+      "Modelar situaciones con enteros eligiendo un origen 0.",
+      "Resolver problemas multi-paso con enteros.",
+      "Interpretar el significado del signo en la respuesta.",
+      "Colaborar y revisar errores sin ridiculizar.",
+    ],
+    "cuerpo": """
+    <h2>Explicación breve</h2>
+    <p>Elige el <strong>origen 0</strong> y no lo cambies a mitad. Traduce ganancias/pérdidas a sumas de enteros. Comprueba el sentido del resultado. Feedback amable centrado en el paso ([E]).</p>
+""",
+    "cuerpo_after_widgets": "",
+    "widget_split": False,
+    "vida_t": "Aplicaciones",
+    "vida": [
+      "Controlar el saldo semanal de la paga.",
+      "Seguir la clasificación de un torneo con diferencia de goles.",
+      "Rutas con subidas y bajadas (desnivel).",
+      "Línea del tiempo: años a.C. y d.C. en Sociales.",
+    ],
+    "vida_fig": "ticket.svg",
+    "widgets": [
+      ("Interactivo · historias con enteros [E]", "l15-enteros-contextos.html"),
+    ],
+    "reto_t": "Modelo con zero casero",
+    "reto": "Elige un origen 0 en tu casa (termo, hucha, planta del edificio) y escribe un problema de 3 acciones con enteros. Ofrece la solución.",
+    "reto_id": "1eso-mate-L15",
+    "cierre": "Los enteros modelan ida y vuelta respecto de un origen. La interpretación final importa tanto como la cuenta.",
   },
 ]
 

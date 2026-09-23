@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Enteros · Recta, termómetro y ascensor · 1º ESO</title>
+<style>
+  :root {
+    --bg:#f4f7fb; --ink:#1a2b3c; --muted:#5a6d7e; --card:#fff;
+    --blue:#3b82f6; --blue-soft:#dbeafe; --blue-deep:#1d4ed8;
+    --orange:#f59e0b; --orange-soft:#fef3c7; --orange-deep:#b45309;
+    --green:#10b981; --green-soft:#d1fae5; --green-deep:#047857;
+    --purple:#8b5cf6; --purple-soft:#ede9fe; --purple-deep:#6d28d9;
+    --rose:#f43f5e; --rose-soft:#ffe4e6; --rose-deep:#be123c;
+    --teal:#14b8a6; --teal-soft:#ccfbf1; --teal-deep:#0f766e;
+    --cyan:#06b6d4; --cyan-soft:#cffafe;
+    --shadow:0 8px 28px rgba(26,43,60,.08); --radius:18px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{min-height:100%;background:var(--bg);color:var(--ink);
+    font-family:"Segoe UI",system-ui,-apple-system,sans-serif;-webkit-font-smoothing:antialiased}
+  body{display:flex;flex-direction:column;align-items:center;padding:14px 10px 36px}
+  .wrap{width:100%;max-width:980px}
+  header{text-align:center;margin-bottom:12px}
+  header .badge{display:inline-block;font-size:.78rem;font-weight:600;letter-spacing:.04em;
+    text-transform:uppercase;color:var(--blue-deep);background:var(--blue-soft);
+    padding:4px 12px;border-radius:999px;margin-bottom:8px}
+  h1{font-size:clamp(1.3rem,4.5vw,1.9rem);line-height:1.2;font-weight:800}
+  .subtitle{margin-top:6px;font-size:clamp(.9rem,2.8vw,1.05rem);color:var(--muted);font-weight:500}
+  .story{background:linear-gradient(135deg,#dbeafe,#e0f2fe 45%,#ede9fe);
+    border:2px solid #93c5fd;border-radius:var(--radius);padding:12px 14px;
+    margin-bottom:14px;display:flex;gap:12px;align-items:flex-start}
+  .story .emoji{font-size:2rem}
+  .story p{font-size:clamp(.9rem,2.5vw,1.02rem);line-height:1.45}
+  .story strong{color:var(--blue-deep)}
+  .card{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);
+    padding:16px 14px 18px;margin-bottom:14px}
+  .card h2{font-size:clamp(1.05rem,3vw,1.25rem);font-weight:800;margin-bottom:8px;
+    display:flex;align-items:center;gap:8px}
+  .hint{font-size:clamp(.88rem,2.4vw,1rem);color:var(--muted);line-height:1.45;margin-bottom:12px}
+  .ctrl-row{display:flex;flex-wrap:wrap;gap:12px;align-items:flex-end;margin-bottom:14px}
+  .field{display:flex;flex-direction:column;gap:6px;flex:1 1 140px}
+  .field label{font-size:.88rem;font-weight:700;color:var(--muted)}
+  .field label .letter{display:inline-block;background:var(--blue-soft);color:var(--blue-deep);
+    padding:1px 8px;border-radius:8px;font-weight:800;margin-right:4px}
+  .field input[type="number"]{width:100%;max-width:140px;font-size:1.4rem;font-weight:800;
+    font-variant-numeric:tabular-nums;padding:10px 12px;border:2.5px solid #cbd5e1;border-radius:12px}
+  .field input[type="number"]:focus{outline:none;border-color:var(--blue);box-shadow:0 0 0 3px var(--blue-soft)}
+  .letters-legend{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0 4px}
+  .letters-legend span{background:var(--purple-soft);color:var(--purple-deep);font-size:.8rem;
+    font-weight:700;padding:4px 10px;border-radius:999px}
+  .btn{border:none;border-radius:12px;padding:8px 14px;font-size:.88rem;font-weight:800;cursor:pointer}
+  .btn-ghost{background:#fff;color:var(--ink);border:2px solid #cbd5e1}
+  .btn-ghost:hover{border-color:var(--blue)}
+  .chooser{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px}
+  .chip{border:2px solid #cbd5e1;background:#fff;border-radius:999px;padding:7px 14px;
+    font-size:.88rem;font-weight:700;cursor:pointer}
+  .chip.active{border-color:var(--blue);background:var(--blue-soft);color:var(--blue-deep)}
+  .results{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:14px}
+  @media(max-width:640px){.results{grid-template-columns:1fr}}
+  .result-pill{border-radius:14px;padding:12px 14px;border:2px solid #e2e8f0}
+  .result-pill.opp{background:var(--purple-soft);border-color:#d8b4fe}
+  .result-pill.abs{background:var(--green-soft);border-color:#6ee7b7}
+  .result-pill.cmp{background:var(--orange-soft);border-color:#fcd34d}
+  .result-pill .label{font-size:.78rem;font-weight:700;color:var(--muted);text-transform:uppercase}
+  .result-pill .eq{font-size:clamp(1.05rem,3.2vw,1.35rem);font-weight:800;margin-top:4px;line-height:1.35;
+    font-variant-numeric:tabular-nums}
+  .result-pill .sub{font-size:.85rem;font-weight:600;color:var(--muted);margin-top:4px}
+  .stage{border-radius:16px;padding:14px 12px 16px;margin-bottom:12px;border:2px solid #93c5fd;
+    background:linear-gradient(180deg,#eff6ff 0%,#dbeafe 55%,#bfdbfe 100%);overflow:hidden}
+  .stage.thermo{border-color:#fca5a5;background:linear-gradient(180deg,#fff7ed 0%,#ffedd5 50%,#fecaca 100%)}
+  .stage.elev{border-color:#a5b4fc;background:linear-gradient(180deg,#eef2ff 0%,#e0e7ff 55%,#c7d2fe 100%)}
+  .stage-header{display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:12px}
+  .shop-name{font-weight:800;font-size:1.05rem;color:var(--blue-deep)}
+  .stage.thermo .shop-name{color:var(--rose-deep)}
+  .stage.elev .shop-name{color:#4338ca}
+  .line-wrap{position:relative;height:92px;margin:8px 0 4px}
+  .line-track{position:absolute;left:28px;right:28px;top:38px;height:6px;background:#334155;border-radius:4px}
+  .line-track::before,.line-track::after{content:"";position:absolute;top:50%;width:0;height:0;
+    border-top:7px solid transparent;border-bottom:7px solid transparent}
+  .line-track::before{left:-10px;border-right:12px solid #334155;transform:translateY(-50%)}
+  .line-track::after{right:-10px;border-left:12px solid #334155;transform:translateY(-50%)}
+  .tick{position:absolute;top:30px;width:2px;height:22px;background:#64748b;transform:translateX(-50%)}
+  .tick.zero{width:4px;height:30px;top:26px;background:var(--rose);box-shadow:0 0 0 3px #fecdd3}
+  .tick-lab{position:absolute;top:56px;transform:translateX(-50%);font-size:.72rem;font-weight:800;
+    color:var(--muted);font-variant-numeric:tabular-nums}
+  .tick.zero + .tick-lab,.tick-lab.zero{color:var(--rose-deep);font-size:.85rem}
+  .marker{position:absolute;top:8px;transform:translateX(-50%);z-index:3;text-align:center}
+  .marker .pin{width:22px;height:22px;border-radius:50%;border:3px solid #fff;margin:0 auto;
+    box-shadow:0 2px 8px rgba(0,0,0,.25)}
+  .marker .pin.a{background:var(--blue)}
+  .marker .pin.b{background:var(--orange)}
+  .marker .pin.opp{background:var(--purple)}
+  .marker .m-lab{font-size:.75rem;font-weight:800;margin-top:2px;white-space:nowrap}
+  .dual{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  @media(max-width:640px){.dual{grid-template-columns:1fr}}
+  .thermo-box{display:flex;gap:14px;align-items:stretch;justify-content:center;padding:8px}
+  .thermo-tube{width:48px;height:220px;background:#fff;border:3px solid #94a3b8;border-radius:24px;
+    position:relative;overflow:hidden;box-shadow:inset 0 0 0 2px #e2e8f0}
+  .thermo-fill{position:absolute;left:4px;right:4px;bottom:4px;border-radius:20px;
+    background:linear-gradient(180deg,#f87171,#ef4444 40%,#3b82f6);transition:height .25s ease}
+  .thermo-bulb{position:absolute;bottom:-6px;left:50%;transform:translateX(-50%);
+    width:58px;height:58px;border-radius:50%;background:#ef4444;border:3px solid #94a3b8;z-index:2}
+  .thermo-scale{display:flex;flex-direction:column;justify-content:space-between;height:220px;
+    font-weight:800;font-size:.85rem;font-variant-numeric:tabular-nums;color:var(--muted);padding:4px 0}
+  .thermo-scale span.hot{color:var(--rose-deep)}
+  .thermo-scale span.cold{color:var(--blue-deep)}
+  .elev-shaft{width:100%;max-width:280px;margin:0 auto;height:260px;background:#1e293b;border-radius:16px;
+    border:4px solid #475569;position:relative;overflow:hidden}
+  .elev-floor{position:absolute;left:8px;right:8px;height:1px;background:rgba(148,163,184,.45)}
+  .elev-floor-lab{position:absolute;left:12px;font-size:.7rem;font-weight:800;color:#94a3b8;
+    transform:translateY(-50%)}
+  .elev-cab{position:absolute;left:28px;right:28px;height:36px;border-radius:8px;
+    background:linear-gradient(180deg,#fbbf24,#f59e0b);border:2px solid #fff;
+    display:flex;align-items:center;justify-content:center;font-weight:900;color:#78350f;
+    box-shadow:0 4px 12px rgba(0,0,0,.35);transition:bottom .3s ease;z-index:2}
+  .chips-row{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;min-height:48px;padding:8px}
+  .token{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+    font-weight:900;font-size:.8rem;color:#fff;border:2px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,.2)}
+  .token.pos{background:var(--blue)}
+  .token.neg{background:var(--rose)}
+  .token.zero{background:#64748b}
+  .order-row{display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:center;
+    font-size:clamp(1rem,3vw,1.25rem);font-weight:800;margin-top:8px}
+  .order-row .bubble{background:#fff;border:2px solid #cbd5e1;border-radius:12px;padding:6px 12px;
+    font-variant-numeric:tabular-nums}
+  .order-row .bubble.on-a{border-color:var(--blue);background:var(--blue-soft);color:var(--blue-deep)}
+  .order-row .bubble.on-b{border-color:var(--orange);background:var(--orange-soft);color:var(--orange-deep)}
+  .mnemonic{background:linear-gradient(135deg,var(--purple-soft),#fce7f3);
+    border:2px solid #d8b4fe;border-radius:14px;padding:12px 14px;margin-top:10px;text-align:center}
+  .mnemonic .tag{font-size:.75rem;font-weight:800;text-transform:uppercase;letter-spacing:.05em;color:var(--purple-deep)}
+  .mnemonic p{margin-top:4px;font-size:clamp(.95rem,3vw,1.1rem);font-weight:800;color:var(--purple-deep)}
+  .glossary{display:grid;gap:8px}
+  .glossary dt{font-weight:800;font-size:.95rem;color:var(--blue-deep)}
+  .glossary dd{font-size:.92rem;color:var(--muted);line-height:1.4;margin-bottom:4px}
+  .sym-chip{display:inline-block;background:var(--teal-soft);color:var(--teal-deep);font-weight:800;
+    padding:1px 7px;border-radius:6px;font-family:"Courier New",ui-monospace,monospace}
+  footer.note{text-align:center;font-size:.8rem;color:var(--muted);margin-top:8px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="badge">1º ESO · UD4 Enteros · L13</div>
+    <h1>La recta de los enteros</h1>
+    <p class="subtitle">Termómetro, ascensor y fichas para ver negativos, opuestos y orden</p>
+  </header>
+
+  <div class="story">
+    <div class="emoji">🌡️🛗</div>
+    <p>En Ávila hace <strong>frío bajo cero</strong> y el garaje está en la planta <strong>−1</strong>.
+    Los enteros viven en una recta: a la <strong>derecha</strong> crecen, a la <strong>izquierda</strong> bajan.
+    El <strong>0</strong> es el origen (planta baja / punto de congelación).</p>
+  </div>
+
+  <section class="card">
+    <h2>🎛️ Elige a y b (independientes)</h2>
+    <p class="hint">Cambiar <span class="sym-chip">a</span> no mueve <span class="sym-chip">b</span>. Rango −12…12 (legible en la recta).</p>
+    <div class="letters-legend">
+      <span><b>a</b>, <b>b</b> = enteros que colocas</span>
+      <span><span class="sym-chip">−</span> = menos / negativo</span>
+      <span><span class="sym-chip">+</span> = más / positivo</span>
+      <span><span class="sym-chip">|a|</span> = valor absoluto</span>
+      <span><span class="sym-chip">&lt;</span> / <span class="sym-chip">&gt;</span> = menor / mayor</span>
+    </div>
+    <div class="ctrl-row">
+      <div class="field">
+        <label><span class="letter">a</span> Primer entero (−12…12)</label>
+        <input type="number" id="aNum" min="-12" max="12" value="-5">
+      </div>
+      <div class="field">
+        <label><span class="letter">b</span> Segundo entero (−12…12)</label>
+        <input type="number" id="bNum" min="-12" max="12" value="3">
+      </div>
+      <div class="field">
+        <label>Ejemplos rápidos</label>
+        <div style="display:flex;flex-wrap:wrap;gap:6px">
+          <button class="btn btn-ghost" type="button" data-pair="-5,3">−5 y 3</button>
+          <button class="btn btn-ghost" type="button" data-pair="-8,-2">−8 y −2</button>
+          <button class="btn btn-ghost" type="button" data-pair="0,7">0 y 7</button>
+          <button class="btn btn-ghost" type="button" data-pair="-4,4">opuestos</button>
+        </div>
+      </div>
+    </div>
+    <div class="results">
+      <div class="result-pill opp">
+        <div class="label">Opuesto de a · −a</div>
+        <div class="eq" id="oppOut">—</div>
+        <div class="sub">misma distancia al 0, otro lado</div>
+      </div>
+      <div class="result-pill abs">
+        <div class="label">Valor absoluto · |a|</div>
+        <div class="eq" id="absOut">—</div>
+        <div class="sub">saltos desde 0 hasta a</div>
+      </div>
+      <div class="result-pill cmp">
+        <div class="label">Orden en la recta</div>
+        <div class="eq" id="cmpOut">—</div>
+        <div class="sub" id="cmpSub">quien está más a la derecha es mayor</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>👀 Escena</h2>
+    <div class="chooser" id="viewChips">
+      <button class="chip active" data-v="line" type="button">📏 Recta</button>
+      <button class="chip" data-v="thermo" type="button">🌡️ Termómetro</button>
+      <button class="chip" data-v="elev" type="button">🛗 Ascensor</button>
+      <button class="chip" data-v="chips" type="button">🔴🔵 Fichas</button>
+    </div>
+
+    <div class="stage" id="stageLine">
+      <div class="stage-header">
+        <div class="shop-name">📏 Recta numérica de enteros</div>
+        <div style="font-size:.85rem;font-weight:700;color:var(--muted)">Azul = a · Naranja = b · Morado = opuesto de a</div>
+      </div>
+      <div class="line-wrap" id="lineWrap"></div>
+      <div class="order-row" id="orderRow"></div>
+    </div>
+
+    <div class="stage thermo" id="stageThermo" hidden>
+      <div class="stage-header">
+        <div class="shop-name">🌡️ Termómetro (°C) — invierno en CyL</div>
+      </div>
+      <div class="thermo-box">
+        <div style="position:relative;width:48px;height:220px;margin-bottom:20px">
+          <div class="thermo-tube"><div class="thermo-fill" id="thermoFill"></div></div>
+          <div class="thermo-bulb"></div>
+        </div>
+        <div class="thermo-scale" id="thermoScale"></div>
+        <div style="flex:1;display:flex;flex-direction:column;justify-content:center;gap:10px;font-weight:700;line-height:1.4">
+          <div id="thermoMsg">—</div>
+          <div style="font-size:.9rem;color:var(--muted)">Bajo 0 °C = negativo (hielo). Por encima de 0 = positivo (deshielo).</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="stage elev" id="stageElev" hidden>
+      <div class="stage-header">
+        <div class="shop-name">🛗 Ascensor del edificio</div>
+        <div style="font-size:.85rem;font-weight:700;color:var(--muted)">0 = planta baja · negativos = garaje</div>
+      </div>
+      <div class="elev-shaft" id="elevShaft"></div>
+      <p id="elevMsg" style="text-align:center;margin-top:10px;font-weight:800;color:#4338ca"></p>
+    </div>
+
+    <div class="stage" id="stageChips" hidden style="border-color:#fda4af;background:linear-gradient(180deg,#fff1f2,#ffe4e6)">
+      <div class="stage-header">
+        <div class="shop-name" style="color:var(--rose-deep)">🔴 Fichas negativas · 🔵 Fichas positivas</div>
+      </div>
+      <p class="hint" style="text-align:center">Cada ficha azul = <span class="sym-chip">+1</span>. Cada ficha roja = <span class="sym-chip">−1</span>. El 0 no tiene fichas.</p>
+      <div><strong style="color:var(--blue-deep)">a:</strong></div>
+      <div class="chips-row" id="chipsA"></div>
+      <div><strong style="color:var(--orange-deep)">b:</strong></div>
+      <div class="chips-row" id="chipsB"></div>
+      <p id="chipsMsg" style="text-align:center;font-weight:800;margin-top:8px;color:var(--rose-deep)"></p>
+    </div>
+
+    <div class="mnemonic">
+      <div class="tag">Truco mnemotécnico</div>
+      <p>«El frío y el garaje viven a la izquierda del 0.»</p>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>📖 Glosario de símbolos y letras</h2>
+    <dl class="glossary">
+      <dt>a, b</dt><dd>Enteros que eliges (controles independientes).</dd>
+      <dt><span class="sym-chip">−</span> (menos)</dt><dd>Signo negativo o la operación «restar». En −5 se lee «menos cinco» o «cinco negativo».</dd>
+      <dt><span class="sym-chip">+</span> (más)</dt><dd>Signo positivo (a veces se omite: +3 = 3) o la operación «sumar».</dd>
+      <dt><span class="sym-chip">0</span></dt><dd>Origen: ni positivo ni negativo. Planta baja / 0 °C.</dd>
+      <dt><span class="sym-chip">−a</span> (opuesto)</dt><dd>El número simétrico respecto al 0. Opuesto de 4 → −4; de −4 → 4.</dd>
+      <dt><span class="sym-chip">|a|</span> (valor absoluto)</dt><dd>Distancia de a al 0 (siempre ≥ 0). |−7| = 7.</dd>
+      <dt><span class="sym-chip">&lt;</span> / <span class="sym-chip">&gt;</span></dt><dd>«Menor que» / «mayor que». Quien está más a la derecha en la recta es mayor: −10 &lt; −3.</dd>
+      <dt>ℤ (enteros)</dt><dd>…, −2, −1, 0, 1, 2, … Naturales + cero + negativos.</dd>
+    </dl>
+  </section>
+
+  <p class="note footer">Offline · file:// · CyL Decreto 39/2022 · A.2 Cantidad (enteros) · sin red</p>
+</div>
+<script>
+(function () {
+  const MIN = -12, MAX = 12;
+  const aNum = document.getElementById('aNum');
+  const bNum = document.getElementById('bNum');
+  const oppOut = document.getElementById('oppOut');
+  const absOut = document.getElementById('absOut');
+  const cmpOut = document.getElementById('cmpOut');
+  const cmpSub = document.getElementById('cmpSub');
+  const lineWrap = document.getElementById('lineWrap');
+  const orderRow = document.getElementById('orderRow');
+  const thermoFill = document.getElementById('thermoFill');
+  const thermoScale = document.getElementById('thermoScale');
+  const thermoMsg = document.getElementById('thermoMsg');
+  const elevShaft = document.getElementById('elevShaft');
+  const elevMsg = document.getElementById('elevMsg');
+  const chipsA = document.getElementById('chipsA');
+  const chipsB = document.getElementById('chipsB');
+  const chipsMsg = document.getElementById('chipsMsg');
+  const stages = {
+    line: document.getElementById('stageLine'),
+    thermo: document.getElementById('stageThermo'),
+    elev: document.getElementById('stageElev'),
+    chips: document.getElementById('stageChips')
+  };
+  let view = 'line';
+
+  function clamp(v, lo, hi) {
+    v = parseInt(v, 10);
+    if (isNaN(v)) v = 0;
+    return Math.max(lo, Math.min(hi, v));
+  }
+  function fmt(n) {
+    return (n < 0 ? '−' : '') + Math.abs(n);
+  }
+  function getAB() {
+    const a = clamp(aNum.value, MIN, MAX);
+    const b = clamp(bNum.value, MIN, MAX);
+    aNum.value = a;
+    bNum.value = b;
+    return { a, b };
+  }
+  function pct(v) {
+    return ((v - MIN) / (MAX - MIN)) * 100;
+  }
+
+  function renderLine(a, b) {
+    lineWrap.innerHTML = '<div class="line-track"></div>';
+    for (let v = MIN; v <= MAX; v++) {
+      const t = document.createElement('div');
+      t.className = 'tick' + (v === 0 ? ' zero' : '');
+      t.style.left = 'calc(28px + (100% - 56px) * ' + ((v - MIN) / (MAX - MIN)) + ')';
+      lineWrap.appendChild(t);
+      if (v % 2 === 0 || v === 0) {
+        const lab = document.createElement('div');
+        lab.className = 'tick-lab' + (v === 0 ? ' zero' : '');
+        lab.style.left = t.style.left;
+        lab.textContent = fmt(v);
+        lineWrap.appendChild(lab);
+      }
+    }
+    function addMarker(val, cls, label) {
+      const m = document.createElement('div');
+      m.className = 'marker';
+      m.style.left = 'calc(28px + (100% - 56px) * ' + ((val - MIN) / (MAX - MIN)) + ')';
+      m.innerHTML = '<div class="pin ' + cls + '"></div><div class="m-lab">' + label + '</div>';
+      lineWrap.appendChild(m);
+    }
+    const opp = -a;
+    addMarker(a, 'a', 'a=' + fmt(a));
+    if (b !== a) addMarker(b, 'b', 'b=' + fmt(b));
+    if (opp !== a && opp !== b) addMarker(opp, 'opp', '−a=' + fmt(opp));
+    else if (opp === b && b !== a) {
+      // already shown as b
+    }
+
+    const vals = [a, b, opp].filter((v, i, arr) => arr.indexOf(v) === i).sort((x, y) => x - y);
+    orderRow.innerHTML = vals.map(v => {
+      let cls = 'bubble';
+      if (v === a) cls += ' on-a';
+      else if (v === b) cls += ' on-b';
+      return '<span class="' + cls + '">' + fmt(v) + '</span>';
+    }).join('<span style="color:var(--muted)">&lt;</span>');
+  }
+
+  function renderThermo(a) {
+    // fill height: map MIN..MAX to 8%..92% of tube
+    const h = 8 + ((a - MIN) / (MAX - MIN)) * 84;
+    thermoFill.style.height = h + '%';
+    thermoScale.innerHTML = '';
+    [12, 6, 0, -6, -12].forEach(v => {
+      const s = document.createElement('span');
+      s.textContent = fmt(v) + ' °C';
+      if (v > 0) s.className = 'hot';
+      if (v < 0) s.className = 'cold';
+      thermoScale.appendChild(s);
+    });
+    let feeling = a < 0 ? '¡Abrigo! Bajo cero.' : a === 0 ? 'Justo en el punto de congelación.' : 'Por encima de cero.';
+    thermoMsg.innerHTML = 'Temperatura <strong>a = ' + fmt(a) + ' °C</strong>. ' + feeling +
+      '<br>Opuesto −a = ' + fmt(-a) + ' °C (el «espejo» al otro lado del 0).';
+  }
+
+  function renderElev(a) {
+    elevShaft.innerHTML = '';
+    const floors = [];
+    for (let f = MAX; f >= MIN; f--) floors.push(f);
+    floors.forEach(f => {
+      const y = ((MAX - f) / (MAX - MIN)) * 100;
+      const line = document.createElement('div');
+      line.className = 'elev-floor';
+      line.style.top = y + '%';
+      elevShaft.appendChild(line);
+      if (f % 3 === 0 || f === 0 || f === a) {
+        const lab = document.createElement('div');
+        lab.className = 'elev-floor-lab';
+        lab.style.top = y + '%';
+        lab.textContent = f === 0 ? '0 PB' : (f < 0 ? 'G' + Math.abs(f) + ' (' + fmt(f) + ')' : 'P' + f);
+        if (f === 0) lab.style.color = '#fda4af';
+        elevShaft.appendChild(lab);
+      }
+    });
+    const cab = document.createElement('div');
+    cab.className = 'elev-cab';
+    // bottom% so cab sits on floor a
+    const bottomPct = ((a - MIN) / (MAX - MIN)) * 100;
+    cab.style.bottom = 'calc(' + bottomPct + '% - 18px)';
+    cab.textContent = 'a=' + fmt(a);
+    elevShaft.appendChild(cab);
+    elevMsg.textContent = a < 0
+      ? 'Estás en el garaje (planta ' + fmt(a) + '). Subir hacia el 0 es acercarte a la calle.'
+      : a === 0
+        ? 'Planta baja (0). Aquí empiezan los positivos hacia arriba.'
+        : 'Planta ' + a + '. Más alto = número mayor en la recta.';
+  }
+
+  function renderChips(a, b) {
+    function fill(el, n) {
+      el.innerHTML = '';
+      if (n === 0) {
+        const z = document.createElement('div');
+        z.className = 'token zero';
+        z.textContent = '0';
+        el.appendChild(z);
+        return;
+      }
+      const sign = n > 0 ? 'pos' : 'neg';
+      const count = Math.abs(n);
+      for (let i = 0; i < count; i++) {
+        const t = document.createElement('div');
+        t.className = 'token ' + sign;
+        t.textContent = n > 0 ? '+1' : '−1';
+        el.appendChild(t);
+      }
+    }
+    fill(chipsA, a);
+    fill(chipsB, b);
+    chipsMsg.textContent = '|a| = ' + Math.abs(a) + ' ficha(s) · |b| = ' + Math.abs(b) + ' ficha(s). El color marca el signo.';
+  }
+
+  function render() {
+    const { a, b } = getAB();
+    oppOut.textContent = '−(' + fmt(a) + ') = ' + fmt(-a);
+    absOut.textContent = '|' + fmt(a) + '| = ' + Math.abs(a);
+    if (a < b) {
+      cmpOut.textContent = fmt(a) + ' < ' + fmt(b);
+      cmpSub.textContent = 'a está a la izquierda de b → a es menor';
+    } else if (a > b) {
+      cmpOut.textContent = fmt(a) + ' > ' + fmt(b);
+      cmpSub.textContent = 'a está a la derecha de b → a es mayor';
+    } else {
+      cmpOut.textContent = fmt(a) + ' = ' + fmt(b);
+      cmpSub.textContent = 'mismo punto en la recta';
+    }
+
+    Object.keys(stages).forEach(k => { stages[k].hidden = (k !== view); });
+    if (view === 'line') renderLine(a, b);
+    else if (view === 'thermo') renderThermo(a);
+    else if (view === 'elev') renderElev(a);
+    else renderChips(a, b);
+  }
+
+  aNum.addEventListener('change', render);
+  bNum.addEventListener('change', render);
+  aNum.addEventListener('input', render);
+  bNum.addEventListener('input', render);
+  document.querySelectorAll('[data-pair]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const [a, b] = btn.dataset.pair.split(',').map(Number);
+      aNum.value = a; bNum.value = b; render();
+    });
+  });
+  document.querySelectorAll('#viewChips .chip').forEach(ch => {
+    ch.addEventListener('click', () => {
+      view = ch.dataset.v;
+      document.querySelectorAll('#viewChips .chip').forEach(c => c.classList.toggle('active', c === ch));
+      render();
+    });
+  });
+
+  // Build thermo scale once structure
+  render();
+})();
+</script>
+</body>
+</html>
