@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>L01 · Camino rectangular · Perímetro</title>
+<style>
+  :root {
+    --bg: #f7faf8;
+    --ink: #1a2e28;
+    --muted: #5a7268;
+    --card: #ffffff;
+    --teal: #0d9488;
+    --teal-dark: #0f766e;
+    --amber: #d97706;
+    --line: #cfe6df;
+    --soft: #e8f5f1;
+    --path: #c4a574;
+    --path-edge: #8b6914;
+    --grass: #b5d99c;
+    --grass2: #9ccc65;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    line-height: 1.45;
+  }
+  header {
+    padding: 1rem 1.25rem 0.5rem;
+    max-width: 720px;
+    margin: 0 auto;
+  }
+  header h1 { font-size: 1.25rem; margin: 0 0 0.35rem; }
+  header p { margin: 0; color: var(--muted); font-size: 0.95rem; }
+  main {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 0.75rem 1.25rem 2rem;
+    display: grid;
+    gap: 1rem;
+  }
+  .card {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    padding: 1rem 1.1rem;
+    box-shadow: 0 1px 0 rgba(13,148,136,0.06);
+  }
+  .enunciado {
+    background: var(--soft);
+    border-left: 4px solid var(--teal);
+  }
+  .stage {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 16 / 11;
+    background: #e8f0e0;
+    border-radius: 14px;
+    overflow: hidden;
+    border: 1px solid var(--line);
+  }
+  svg { width: 100%; height: 100%; display: block; }
+  .label-svg {
+    font-family: system-ui, sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    fill: var(--teal-dark);
+  }
+  .label-svg.dim { fill: var(--amber); }
+  .label-svg.soft { fill: var(--muted); font-weight: 600; font-size: 12px; }
+  .controls { display: grid; gap: 0.85rem; margin-top: 1rem; }
+  .row {
+    display: grid;
+    grid-template-columns: 4.5rem 1fr 3.2rem;
+    align-items: center;
+    gap: 0.6rem;
+  }
+  .row label { font-weight: 600; font-size: 0.95rem; }
+  .row output {
+    font-variant-numeric: tabular-nums;
+    font-weight: 700;
+    text-align: right;
+    color: var(--teal-dark);
+  }
+  input[type="range"] { width: 100%; accent-color: var(--teal); }
+  .formula { font-size: 1.05rem; }
+  .glossary {
+    display: grid;
+    gap: 0.35rem;
+    margin: 0.5rem 0 0.75rem;
+    padding: 0.7rem 0.8rem;
+    background: #f3faf7;
+    border-radius: 10px;
+    border: 1px solid var(--line);
+    font-size: 0.95rem;
+  }
+  .glossary div { font-variant-numeric: tabular-nums; }
+  .glossary strong { color: var(--teal-dark); }
+  .formula .line {
+    margin: 0.35rem 0;
+    padding: 0.55rem 0.7rem;
+    border-radius: 10px;
+    background: #f3faf7;
+    border: 1px dashed var(--line);
+    font-variant-numeric: tabular-nums;
+  }
+  .formula .line.hi {
+    background: #dff7f1;
+    border-style: solid;
+    border-color: var(--teal);
+    font-weight: 700;
+  }
+  .formula .big { font-size: 1.2rem; letter-spacing: 0.01em; }
+  .hint { font-size: 0.9rem; color: var(--muted); margin: 0.4rem 0 0; }
+  .btn-row { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.6rem; }
+  button {
+    appearance: none; border: none; border-radius: 999px;
+    padding: 0.55rem 1rem; font-weight: 600; font-size: 0.95rem;
+    cursor: pointer; background: var(--teal); color: white;
+  }
+  button.secondary {
+    background: white; color: var(--teal-dark); border: 1px solid var(--teal);
+  }
+  button:active { transform: scale(0.98); }
+  @media (max-width: 480px) {
+    .label-svg { font-size: 11px; }
+    .row { grid-template-columns: 3.6rem 1fr 2.8rem; }
+  }
+</style>
+</head>
+<body>
+<header>
+  <h1>Lección 01 · Ejemplo 2: el camino rectangular</h1>
+  <p>El dibujo es un <strong>camino de tierra</strong> que rodea el patio (no una piscina). Mueve el largo y el ancho y mira cómo cambia el perímetro.</p>
+</header>
+<main>
+  <section class="card enunciado">
+    <strong>Problema.</strong> Un camino rectangular del patio mide <span id="txtL">12</span> m de largo y <span id="txtA">5</span> m de ancho. ¿Cuántos metros de cinta hacen falta para rodearlo una vez por el borde exterior?
+  </section>
+
+  <section class="card">
+    <div class="stage" aria-label="Dibujo del camino rectangular alrededor del patio">
+      <svg id="svg" viewBox="0 0 640 440" role="img">
+        <!-- césped de fondo -->
+        <rect x="0" y="0" width="640" height="440" fill="#c8e6a8"/>
+        <!-- textura césped suave -->
+        <g opacity="0.25" fill="#7cb342">
+          <circle cx="60" cy="50" r="18"/><circle cx="120" cy="90" r="12"/>
+          <circle cx="560" cy="60" r="22"/><circle cx="600" cy="120" r="14"/>
+          <circle cx="80" cy="380" r="16"/><circle cx="520" cy="390" r="20"/>
+        </g>
+        <text x="20" y="32" class="label-svg soft">Patio del instituto (césped)</text>
+
+        <!-- CAMINO: anillo rectangular (path stroke), no un rectángulo lleno tipo piscina -->
+        <rect id="pathOuter" x="120" y="90" width="400" height="260" rx="6"
+              fill="#c4a574" stroke="#8b6914" stroke-width="3"/>
+        <!-- Interior = patio de dentro (césped), así se ve que es un camino-anillo -->
+        <rect id="pathInner" x="155" y="125" width="330" height="190" rx="4"
+              fill="#b5d99c" stroke="#7cb342" stroke-width="2"/>
+        <text id="labInside" class="label-svg soft" text-anchor="middle" x="320" y="225">césped interior</text>
+
+        <!-- marcas de bordillo / piedras en el camino -->
+        <g id="stones" opacity="0.35"></g>
+
+        <!-- cinta que mide el contorno EXTERIOR -->
+        <rect id="tape" x="120" y="90" width="400" height="260" rx="6"
+              fill="none" stroke="#d97706" stroke-width="5"
+              stroke-dasharray="16 12" stroke-linecap="round"/>
+
+        <text id="labPath" class="label-svg" text-anchor="middle" x="320" y="112">camino (tierra)</text>
+        <text id="labL" class="label-svg dim" text-anchor="middle" x="320" y="78">largo (L) = 12 m</text>
+        <text id="labA" class="label-svg dim" text-anchor="middle" x="545" y="220">ancho (A) = 5 m</text>
+        <text id="labTape" class="label-svg dim" text-anchor="middle" x="320" y="400">cinta naranja = borde que medimos (perímetro)</text>
+      </svg>
+    </div>
+
+    <div class="controls">
+      <div class="row">
+        <label for="largo">Largo</label>
+        <input id="largo" type="range" min="6" max="20" step="1" value="12"/>
+        <output id="outL" for="largo">12 m</output>
+      </div>
+      <div class="row">
+        <label for="ancho">Ancho</label>
+        <input id="ancho" type="range" min="4" max="14" step="1" value="5"/>
+        <output id="outA" for="ancho">5 m</output>
+      </div>
+      <div class="btn-row">
+        <button type="button" id="btnEjemplo">Volver al ejemplo (12 × 5)</button>
+        <button type="button" class="secondary" id="btnAnimar">Ver la cinta rodear</button>
+      </div>
+      <p class="hint">El anillo marrón es el camino. El verde de dentro es el patio. La cinta naranja sigue el borde exterior.</p>
+    </div>
+  </section>
+
+  <section class="card formula" aria-live="polite">
+    <strong>Letras que usamos (léelas siempre)</strong>
+    <div class="glossary">
+      <div><strong>P</strong> = perímetro → longitud del contorno (cuánta cinta hace falta).</div>
+      <div><strong>L</strong> = largo → el lado más largo del rectángulo (<span id="gL">12</span> m).</div>
+      <div><strong>A</strong> = ancho → el lado más corto del rectángulo (<span id="gA">5</span> m).</div>
+    </div>
+
+    <strong>Cómo se calcula</strong>
+    <div class="line">1) Sumo un largo y un ancho: <span id="paso1">L + A = 12 + 5 = 17</span> m</div>
+    <div class="line">2) Hay dos largos y dos anchos, así que multiplico esa suma por 2:</div>
+    <div class="line hi big" id="paso2">P = 2 × (L + A) = 2 × (12 + 5) = 2 × 17 = 34 m</div>
+    <div class="line">Respuesta: hacen falta <strong id="resp">34</strong> m de cinta.</div>
+    <p class="hint">En palabras: perímetro = 2 × (largo + ancho). Por eso escribimos P = 2 × (L + A).</p>
+  </section>
+</main>
+<script>
+(function () {
+  const largo = document.getElementById('largo');
+  const ancho = document.getElementById('ancho');
+  const outL = document.getElementById('outL');
+  const outA = document.getElementById('outA');
+  const txtL = document.getElementById('txtL');
+  const txtA = document.getElementById('txtA');
+  const gL = document.getElementById('gL');
+  const gA = document.getElementById('gA');
+  const labL = document.getElementById('labL');
+  const labA = document.getElementById('labA');
+  const labPath = document.getElementById('labPath');
+  const labInside = document.getElementById('labInside');
+  const labTape = document.getElementById('labTape');
+  const paso1 = document.getElementById('paso1');
+  const paso2 = document.getElementById('paso2');
+  const resp = document.getElementById('resp');
+  const pathOuter = document.getElementById('pathOuter');
+  const pathInner = document.getElementById('pathInner');
+  const tape = document.getElementById('tape');
+  const stones = document.getElementById('stones');
+
+  const VB_W = 640, VB_H = 440;
+  const MARGIN = 70;
+  // grosor visual del camino (anillo), en unidades del viewBox
+  const PATH_W = 34;
+
+  function layout(L, A) {
+    const maxW = VB_W - 2 * MARGIN;
+    const maxH = VB_H - 2 * MARGIN - 30;
+    const scale = Math.min(maxW / L, maxH / A);
+    const w = L * scale;
+    const h = A * scale;
+    const x = (VB_W - w) / 2;
+    const y = (VB_H - h) / 2 - 16;
+    return { x, y, w, h };
+  }
+
+  function drawStones(box) {
+    stones.innerHTML = '';
+    // piedrecitas a lo largo del anillo (solo decoración)
+    const step = 28;
+    const pts = [];
+    for (let x = box.x + 8; x < box.x + box.w - 8; x += step) {
+      pts.push([x, box.y + PATH_W / 2]);
+      pts.push([x, box.y + box.h - PATH_W / 2]);
+    }
+    for (let y = box.y + 8; y < box.y + box.h - 8; y += step) {
+      pts.push([box.x + PATH_W / 2, y]);
+      pts.push([box.x + box.w - PATH_W / 2, y]);
+    }
+    pts.forEach(([px, py], i) => {
+      const c = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+      c.setAttribute('cx', px + ((i % 3) - 1) * 2);
+      c.setAttribute('cy', py + ((i % 2) - 0.5) * 2);
+      c.setAttribute('r', 2.2);
+      c.setAttribute('fill', '#6d4c41');
+      stones.appendChild(c);
+    });
+  }
+
+  function update() {
+    let L = Number(largo.value);
+    let A = Number(ancho.value);
+    // si el usuario pone ancho > largo, intercambiamos etiquetas visuales de sentido
+    if (A > L) { /* permitido; solo etiquetamos con claridad */ }
+
+    const suma = L + A;
+    const P = 2 * suma;
+
+    outL.textContent = L + ' m';
+    outA.textContent = A + ' m';
+    txtL.textContent = String(L);
+    txtA.textContent = String(A);
+    gL.textContent = String(L);
+    gA.textContent = String(A);
+    labL.textContent = 'largo (L) = ' + L + ' m';
+    labA.textContent = 'ancho (A) = ' + A + ' m';
+    paso1.textContent = 'L + A = ' + L + ' + ' + A + ' = ' + suma;
+    paso2.textContent = 'P = 2 × (L + A) = 2 × (' + L + ' + ' + A + ') = 2 × ' + suma + ' = ' + P + ' m';
+    resp.textContent = String(P);
+
+    const box = layout(L, A);
+    pathOuter.setAttribute('x', box.x);
+    pathOuter.setAttribute('y', box.y);
+    pathOuter.setAttribute('width', box.w);
+    pathOuter.setAttribute('height', box.h);
+
+    const inset = PATH_W;
+    pathInner.setAttribute('x', box.x + inset);
+    pathInner.setAttribute('y', box.y + inset);
+    pathInner.setAttribute('width', Math.max(20, box.w - 2 * inset));
+    pathInner.setAttribute('height', Math.max(20, box.h - 2 * inset));
+
+    tape.setAttribute('x', box.x);
+    tape.setAttribute('y', box.y);
+    tape.setAttribute('width', box.w);
+    tape.setAttribute('height', box.h);
+    tape.style.strokeDasharray = '16 12';
+    tape.style.strokeDashoffset = '0';
+
+    labL.setAttribute('x', box.x + box.w / 2);
+    labL.setAttribute('y', Math.max(22, box.y - 14));
+    labA.setAttribute('x', box.x + box.w + 16);
+    labA.setAttribute('y', box.y + box.h / 2);
+    labA.setAttribute('transform', 'rotate(90 ' + (box.x + box.w + 16) + ' ' + (box.y + box.h / 2) + ')');
+    labPath.setAttribute('x', box.x + box.w / 2);
+    labPath.setAttribute('y', box.y + PATH_W / 2 + 5);
+    labInside.setAttribute('x', box.x + box.w / 2);
+    labInside.setAttribute('y', box.y + box.h / 2 + 4);
+    labTape.setAttribute('x', 320);
+    labTape.setAttribute('y', Math.min(428, box.y + box.h + 28));
+
+    drawStones(box);
+  }
+
+  let animTimer = null;
+  function animateTape() {
+    if (animTimer) cancelAnimationFrame(animTimer);
+    const box = layout(Number(largo.value), Number(ancho.value));
+    const perimPx = 2 * (box.w + box.h);
+    const start = performance.now();
+    const duration = 2800;
+    function frame(t) {
+      const u = Math.min(1, (t - start) / duration);
+      tape.style.strokeDasharray = String(perimPx);
+      tape.style.strokeDashoffset = String(perimPx * (1 - u));
+      if (u < 1) animTimer = requestAnimationFrame(frame);
+      else {
+        tape.style.strokeDasharray = '16 12';
+        tape.style.strokeDashoffset = '0';
+      }
+    }
+    animTimer = requestAnimationFrame(frame);
+  }
+
+  largo.addEventListener('input', update);
+  ancho.addEventListener('input', update);
+  document.getElementById('btnEjemplo').addEventListener('click', function () {
+    largo.value = 12;
+    ancho.value = 5;
+    update();
+    animateTape();
+  });
+  document.getElementById('btnAnimar').addEventListener('click', animateTape);
+
+  update();
+})();
+</script>
+</body>
+</html>

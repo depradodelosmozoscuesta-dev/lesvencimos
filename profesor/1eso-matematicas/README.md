@@ -1,5 +1,10 @@
 # 1º ESO Matemáticas — Pack de lecciones (Castilla y León)
 
+> **Producto del alumno (web / GitHub Pages):** lecciones HTML en el **shell** Les vencimos  
+> (`lecciones/01-presentacion.html`, …). Entrada del curso: [`1eso-matematicas.html`](1eso-matematicas.html)  
+> (índice crema → L01 disponible; resto en construcción).  
+> **Los `.md` son andamio / temario** para Mate — no el lector masivo del estudiante.
+
 **Curso:** 1º ESO · **Materia:** Matemáticas  
 **Normativa:** Decreto 39/2022, de 29 de septiembre (BOCyL 30/09/2022), Anexo III — Matemáticas — Primer curso.  
 **PDF oficial:** https://bocyl.jcyl.es/boletines/2022/09/30/pdf/BOCYL-D-30092022-3.pdf  

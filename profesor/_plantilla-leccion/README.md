@@ -139,6 +139,7 @@ Incluir el script opcional (sin CDN):
 Ajusta la ruta al CSS (y al JS de la barra) según la profundidad del HTML de la lección
 (`lecciones/` → `../../_plantilla-leccion/leccion-shell.css` y `leccion-shell-nav.js`).
 Columna de lectura: `--lv-max: 60rem` (antes ~46rem); menos padding lateral en tablet/desktop.
+`.bloque-cuerpo` usa todo el ancho del wrap; las cajas (`.bloque-titulo`, curiosidad, vida real, reto, interactivo) llevan `margin-inline: clamp(0.5rem, 4vw, 2.5rem)` y se leen más estrechas / enmarcadas. La barra sticky no se reduce.
 
 ## Figuras de ejemplo
 

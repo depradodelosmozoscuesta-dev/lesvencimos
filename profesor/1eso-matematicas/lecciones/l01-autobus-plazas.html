@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>L01 · Autobús y plazas</title>
+<style>
+  :root {
+    --bg:#f7f8fb; --ink:#1e293b; --muted:#64748b; --card:#fff;
+    --blue:#2563eb; --blue-d:#1d4ed8; --ok:#059669; --bad:#dc2626;
+    --line:#e2e8f0; --soft:#eff6ff; --bus:#e8eef7; --aisle:#f1f5f9;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;background:var(--bg);color:var(--ink);line-height:1.45}
+  header,main{max-width:720px;margin:0 auto;padding:1rem 1.25rem}
+  header{padding-bottom:0.25rem}
+  h1{font-size:1.25rem;margin:0 0 0.35rem}
+  header p{margin:0;color:var(--muted);font-size:0.95rem}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:1rem 1.1rem;margin-bottom:1rem}
+  .enunciado{background:var(--soft);border-left:4px solid var(--blue)}
+  .bus-wrap{
+    background:linear-gradient(#dbeafe,#eff6ff);
+    border-radius:14px;border:1px solid var(--line);padding:0.85rem 0.7rem 1rem;
+  }
+  .bus-top{display:flex;align-items:center;justify-content:space-between;gap:0.5rem;flex-wrap:wrap;margin-bottom:0.65rem}
+  .badge{font-weight:700;font-size:0.9rem;padding:0.25rem 0.6rem;border-radius:999px;background:#fff;border:1px solid var(--line)}
+  .hull{
+    margin:0 auto;max-width:340px;
+    background:var(--bus);
+    border:3px solid #334155;
+    border-radius:28px 28px 18px 18px;
+    padding:10px 10px 12px;
+    position:relative;
+  }
+  .hull::before{
+    content:"";position:absolute;left:18px;right:18px;top:6px;height:10px;
+    background:#94a3b8;border-radius:8px;opacity:0.45;
+  }
+  .front{
+    display:grid;
+    grid-template-columns: 1fr 1.1fr 1fr;
+    gap:6px;align-items:stretch;margin-bottom:8px;margin-top:14px;
+  }
+  .driver,.door,.nose{
+    min-height:44px;border-radius:10px;display:flex;align-items:center;justify-content:center;
+    font-size:0.72rem;font-weight:700;text-align:center;padding:4px;
+  }
+  .driver{background:#fef3c7;border:2px dashed #d97706;color:#92400e}
+  .door{background:#fecaca;border:2px solid #ef4444;color:#991b1b}
+  .nose{background:#e2e8f0;border:1px solid #94a3b8;color:#475569}
+  .rows{display:flex;flex-direction:column;gap:6px}
+  .row-seats{
+    display:grid;
+    grid-template-columns:1fr 1fr 0.7fr 1fr 1fr;
+    gap:5px;align-items:center;
+  }
+  .row-seats.back{
+    grid-template-columns:repeat(5,1fr);
+  }
+  .aisle{
+    height:100%;min-height:28px;border-radius:6px;background:var(--aisle);
+    border:1px dashed #cbd5e1;display:flex;align-items:center;justify-content:center;
+    font-size:0.55rem;color:#94a3b8;font-weight:600;
+  }
+  .seat{
+    aspect-ratio:1;border-radius:7px;background:#e2e8f0;border:1.5px solid #94a3b8;
+    min-height:28px;
+  }
+  .seat.filled{background:#3b82f6;border-color:#1d4ed8}
+  .seat.boarding{background:#f59e0b;border-color:#d97706}
+  .seat.empty{background:#f8fafc;border-color:#94a3b8}
+  .overflow-box{
+    margin-top:10px;padding:8px;border-radius:10px;background:#fff1f2;border:1px dashed #fda4af;
+    display:none;
+  }
+  .overflow-box.show{display:block}
+  .overflow-box .title{font-size:0.8rem;font-weight:700;color:#9f1239;margin-bottom:6px}
+  .overflow-seats{display:flex;flex-wrap:wrap;gap:5px}
+  .overflow-seats .seat{width:28px;height:28px;background:#ef4444;border-color:#b91c1c}
+  .legend{display:flex;flex-wrap:wrap;gap:0.75rem;margin-top:0.75rem;font-size:0.85rem;color:var(--muted)}
+  .legend span{display:inline-flex;align-items:center;gap:0.35rem}
+  .sw{width:12px;height:12px;border-radius:3px;display:inline-block}
+  .sw.f{background:#3b82f6}.sw.b{background:#f59e0b}.sw.o{background:#ef4444}.sw.e{background:#f8fafc;border:1px solid #94a3b8}
+  .sw.dr{background:#fef3c7;border:1px solid #d97706}.sw.du{background:#fecaca;border:1px solid #ef4444}
+  .meta{font-size:0.85rem;color:var(--muted);margin:0.35rem 0 0;text-align:center}
+  .row{display:grid;grid-template-columns:7.5rem 1fr 3rem;align-items:center;gap:0.55rem;margin:0.55rem 0}
+  label{font-weight:600;font-size:0.92rem}
+  output{font-weight:700;text-align:right;font-variant-numeric:tabular-nums;color:var(--blue-d)}
+  input[type=range]{width:100%;accent-color:var(--blue)}
+  .line{margin:0.35rem 0;padding:0.55rem 0.7rem;border-radius:10px;background:#f8fafc;border:1px dashed var(--line);font-variant-numeric:tabular-nums}
+  .line.hi{background:#dbeafe;border-style:solid;border-color:var(--blue);font-weight:700}
+  .verdict{font-size:1.15rem;font-weight:800;margin-top:0.4rem}
+  .verdict.ok{color:var(--ok)}.verdict.bad{color:var(--bad)}
+  button{appearance:none;border:none;border-radius:999px;padding:0.55rem 1rem;font-weight:600;cursor:pointer;background:var(--blue);color:#fff;margin-right:0.4rem;margin-top:0.4rem}
+  button.secondary{background:#fff;color:var(--blue-d);border:1px solid var(--blue)}
+  .hint{font-size:0.9rem;color:var(--muted);margin:0.4rem 0 0}
+</style>
+</head>
+<body>
+<header>
+  <h1>Lección 01 · Ejemplo 1: autobús y plazas</h1>
+  <p>Planta real: conductor, puerta, filas 2+2 y banco de atrás con 5. Cambia los números y mira si caben.</p>
+</header>
+<main>
+  <section class="card enunciado">
+    <strong>Problema.</strong> Cabida <span id="tCap">55</span>. Hay <span id="tHay">38</span>. Suben <span id="tG">3</span> grupos de <span id="tTam">6</span>. ¿Cabe todo el mundo?
+  </section>
+
+  <section class="card">
+    <div class="bus-wrap">
+      <div class="bus-top">
+        <div class="badge">🚌 Autobús Valladolid → Segovia</div>
+        <div class="badge" id="ocupacion">38 / 55</div>
+      </div>
+
+      <div class="hull" aria-label="Planta del autobús">
+        <div class="front">
+          <div class="driver">Conductor</div>
+          <div class="door">Puerta</div>
+          <div class="nose">Morro</div>
+        </div>
+        <div class="rows" id="rows"></div>
+        <div class="overflow-box" id="overflowBox">
+          <div class="title">Fuera del autobús (no caben)</div>
+          <div class="overflow-seats" id="overflowSeats"></div>
+        </div>
+      </div>
+      <p class="meta" id="layoutMeta">Planta: 12 filas de 2+2 + banco trasero de 5 = 53 + … ajustado a la cabida</p>
+
+      <div class="legend">
+        <span><i class="sw f"></i> Ya iban</span>
+        <span><i class="sw b"></i> Quieren subir</span>
+        <span><i class="sw o"></i> No caben</span>
+        <span><i class="sw e"></i> Libres</span>
+        <span><i class="sw dr"></i> Conductor</span>
+        <span><i class="sw du"></i> Puerta</span>
+      </div>
+    </div>
+
+    <div class="row"><label for="cap">Cabida</label><input id="cap" type="range" min="20" max="61" value="55"/><output id="oCap">55</output></div>
+    <div class="row"><label for="hay">Ya hay</label><input id="hay" type="range" min="0" max="61" value="38"/><output id="oHay">38</output></div>
+    <div class="row"><label for="grupos">Grupos</label><input id="grupos" type="range" min="1" max="6" value="3"/><output id="oG">3</output></div>
+    <div class="row"><label for="tam">Por grupo</label><input id="tam" type="range" min="1" max="10" value="6"/><output id="oTam">6</output></div>
+    <button type="button" id="reset">Volver al ejemplo</button>
+    <button type="button" class="secondary" id="anim">Ver cómo suben</button>
+    <p class="hint">Pasillo en el centro, dos asientos a cada lado, y atrás un banco de cinco. El conductor no cuenta como plaza de viajero.</p>
+  </section>
+
+  <section class="card" aria-live="polite">
+    <strong>Cómo se calcula</strong>
+    <div class="line" id="p1">1) Quieren subir: 3 × 6 = 18</div>
+    <div class="line" id="p2">2) Total si suben: 38 + 18 = 56</div>
+    <div class="line hi" id="p3">3) Comparo con la cabida: 56 &gt; 55 → falta 1 plaza</div>
+    <div class="verdict bad" id="verdict">No caben todos.</div>
+    <p class="hint">Comprobación: plazas libres = cabida − ya hay. Si libres &lt; los que suben, no caben.</p>
+  </section>
+</main>
+<script>
+(function(){
+  const cap=document.getElementById('cap'), hay=document.getElementById('hay');
+  const grupos=document.getElementById('grupos'), tam=document.getElementById('tam');
+  const rowsEl=document.getElementById('rows');
+  const overflowBox=document.getElementById('overflowBox');
+  const overflowSeats=document.getElementById('overflowSeats');
+  let animating=false;
+
+  /** Build passenger seat slots for capacity C with real coach layout:
+   *  - Normal rows: 2 + aisle + 2
+   *  - Last row: 5 seats (no aisle)
+   * Capacity is passenger seats only (driver separate).
+   */
+  function planLayout(C){
+    // Prefer: N normal rows of 4 + 1 back row of 5.
+    // 4N + 5 = C  =>  C ≡ 1 (mod 4). If not, add/remove normal seats carefully.
+    // Strategy: use as many 2+2 rows as possible, then a back row of min(5, remaining),
+    // and if still short, add another partial front-ish row of 2+2 truncated.
+    const seats = []; // each item: {kind:'pairrow'|'back', left:2, right:2} or back count
+    if (C <= 5) {
+      seats.push({kind:'back', n:C});
+      return seats;
+    }
+    let remaining = C - 5; // reserve back bench of 5
+    const nFull = Math.floor(remaining / 4);
+    for (let i=0;i<nFull;i++) seats.push({kind:'pairrow', left:2, right:2});
+    remaining = remaining % 4;
+    if (remaining > 0) {
+      // partial row near the back before the 5-seat bench: fill left first then right
+      const left = Math.min(2, remaining);
+      const right = remaining - left;
+      seats.push({kind:'pairrow', left:left, right:right});
+    }
+    seats.push({kind:'back', n:5});
+    return seats;
+  }
+
+  function flattenSlots(layout){
+    const slots=[];
+    layout.forEach((row, idx)=>{
+      if(row.kind==='back'){
+        for(let i=0;i<row.n;i++) slots.push({row:idx, pos:'back'+i});
+      } else {
+        for(let i=0;i<row.left;i++) slots.push({row:idx, pos:'L'+i});
+        for(let i=0;i<row.right;i++) slots.push({row:idx, pos:'R'+i});
+      }
+    });
+    return slots;
+  }
+
+  function seatEl(state){
+    const s=document.createElement('div');
+    s.className='seat '+state;
+    return s;
+  }
+
+  function drawBus(C, H, showBoard, fit){
+    const layout=planLayout(C);
+    const slots=flattenSlots(layout);
+    // sanity
+    while(slots.length > C) slots.pop();
+    // if planLayout produced fewer (shouldn't), pad as extra back seats
+    while(slots.length < C) slots.push({row:-1, pos:'extra'});
+
+    const states=[];
+    for(let i=0;i<C;i++){
+      if(i<H) states.push('filled');
+      else if(i<H+Math.min(showBoard, fit)) states.push('boarding');
+      else states.push('empty');
+    }
+
+    rowsEl.innerHTML='';
+    let cursor=0;
+    layout.forEach(row=>{
+      if(row.kind==='back'){
+        const div=document.createElement('div');
+        div.className='row-seats back';
+        for(let i=0;i<row.n;i++){
+          div.appendChild(seatEl(states[cursor++]||'empty'));
+        }
+        rowsEl.appendChild(div);
+      } else {
+        const div=document.createElement('div');
+        div.className='row-seats';
+        if ((row.left+row.right)<4) div.title='Fila incompleta (para cuadrar la cabida)';
+        // left 2 (or fewer)
+        for(let i=0;i<2;i++){
+          if(i<row.left) div.appendChild(seatEl(states[cursor++]||'empty'));
+          else {
+            const ph=document.createElement('div');
+            ph.style.visibility='hidden'; ph.className='seat';
+            div.appendChild(ph);
+          }
+        }
+        const aisle=document.createElement('div');
+        aisle.className='aisle';
+        aisle.textContent='···';
+        div.appendChild(aisle);
+        for(let i=0;i<2;i++){
+          if(i<row.right) div.appendChild(seatEl(states[cursor++]||'empty'));
+          else {
+            const ph=document.createElement('div');
+            ph.style.visibility='hidden'; ph.className='seat';
+            div.appendChild(ph);
+          }
+        }
+        rowsEl.appendChild(div);
+      }
+    });
+
+    const nPair = layout.filter(r=>r.kind==='pairrow').length;
+    const back = layout.find(r=>r.kind==='back');
+    const partial = layout.filter(r=>r.kind==='pairrow' && (r.left+r.right)<4).length;
+    const full = nPair - partial;
+    let meta = 'Planta real: conductor + puerta · '+full+' filas de 2+2';
+    if (partial) meta += ' · 1 fila incompleta';
+    if (back) meta += ' · banco trasero de '+back.n;
+    meta += ' = '+C+' plazas de viajero (el conductor no cuenta).';
+    document.getElementById('layoutMeta').textContent = meta;
+  }
+
+  function clampHay(){
+    if(Number(hay.value)>Number(cap.value)) hay.value=cap.value;
+  }
+
+  function render(boardedExtra){
+    clampHay();
+    const C=Number(cap.value), H=Number(hay.value), G=Number(grupos.value), T=Number(tam.value);
+    const want=G*T;
+    const total=H+want;
+    const free=Math.max(0, C-H);
+    const fit=Math.min(want, free);
+    const showBoard = boardedExtra===undefined ? want : boardedExtra;
+    const showFit=Math.min(showBoard, fit);
+    const showOver=Math.max(0, showBoard - fit);
+
+    document.getElementById('oCap').textContent=C;
+    document.getElementById('oHay').textContent=H;
+    document.getElementById('oG').textContent=G;
+    document.getElementById('oTam').textContent=T;
+    document.getElementById('tCap').textContent=C;
+    document.getElementById('tHay').textContent=H;
+    document.getElementById('tG').textContent=G;
+    document.getElementById('tTam').textContent=T;
+    document.getElementById('ocupacion').textContent=(H+showFit)+' / '+C;
+
+    document.getElementById('p1').textContent='1) Quieren subir: '+G+' × '+T+' = '+want;
+    document.getElementById('p2').textContent='2) Total si suben: '+H+' + '+want+' = '+total;
+    const cmp = total>C ? (total+' > '+C+' → faltan '+(total-C)+' plaza'+(total-C===1?'':'s'))
+              : total===C ? (total+' = '+C+' → justo lleno')
+              : (total+' < '+C+' → sobran '+(C-total)+' plaza'+(C-total===1?'':'s'));
+    document.getElementById('p3').textContent='3) Comparo con la cabida: '+cmp;
+
+    const v=document.getElementById('verdict');
+    if(total>C){ v.textContent='No caben todos.'; v.className='verdict bad'; }
+    else if(total===C){ v.textContent='Caben justo: el autobús queda lleno.'; v.className='verdict ok'; }
+    else { v.textContent='Sí caben todos.'; v.className='verdict ok'; }
+
+    drawBus(C, H, showBoard, fit);
+
+    overflowSeats.innerHTML='';
+    if(showOver>0){
+      overflowBox.classList.add('show');
+      for(let i=0;i<showOver;i++){
+        const s=document.createElement('div');
+        s.className='seat';
+        overflowSeats.appendChild(s);
+      }
+    } else {
+      overflowBox.classList.remove('show');
+    }
+  }
+
+  function update(){ if(!animating) render(); }
+
+  ['input','change'].forEach(ev=>{
+    cap.addEventListener(ev,update);
+    hay.addEventListener(ev,update);
+    grupos.addEventListener(ev,update);
+    tam.addEventListener(ev,update);
+  });
+
+  document.getElementById('reset').onclick=()=>{
+    animating=false;
+    cap.value=55; hay.value=38; grupos.value=3; tam.value=6;
+    render();
+  };
+
+  document.getElementById('anim').onclick=async ()=>{
+    animating=true;
+    const want=Number(grupos.value)*Number(tam.value);
+    for(let k=0;k<=want;k++){
+      render(k);
+      await new Promise(r=>setTimeout(r,90));
+    }
+    animating=false;
+    render();
+  };
+
+  render();
+})();
+</script>
+</body>
+</html>
