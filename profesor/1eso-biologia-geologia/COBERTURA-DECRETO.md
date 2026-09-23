@@ -11,3 +11,5 @@
 | E | Funciones vitales; clasificación/binomial/especies CyL; reinos/dominios; hongos/micología CyL; plantas (flor/fruto/semilla); animales inv./vert. + sintientes; identificación entorno | L22–L29 |
 | F | Ecosistema; relaciones; cadenas/redes/pirámides; conservación/sostenibilidad; amenazadas/protección; edafogénesis/relieve; cambio climático; hábitos; One Health | L30–L38 |
 | Cierre | Proyecto integrador + autoevaluación (empaquetado didáctico; moviliza A–F) | L39–L40 |
+
+**Estado:** Curso **40/40** cerrado (2026-09-23 Europe/Madrid). Bloque F L30–L38 + cierre L39–L40 entregados.

@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>L31 · Relaciones intraespecíficas e interespecíficas</title>
+<style>
+
+:root{--bg:#FAF7F0;--ink:#2A2620;--muted:#5C564C;--card:#fff;--gold:#C4A15A;--gold-soft:#F5EDD8;--gold-deep:#8A6B2F;--green:#3D6B4F;--green-soft:#E4F0E8;--blue:#2F5D7A;--blue-soft:#E3EEF4;--rose:#9B3A4A;--rose-soft:#F8E8EB;--shadow:0 10px 32px rgba(42,38,32,.09);--radius:18px}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{min-height:100%;background:var(--bg);color:var(--ink);font-family:"Segoe UI",system-ui,-apple-system,sans-serif;-webkit-font-smoothing:antialiased}
+body{display:flex;flex-direction:column;align-items:center;padding:14px 10px 36px}
+.wrap{width:100%;max-width:980px}
+header{text-align:center;margin-bottom:12px}
+.badge{display:inline-block;font-size:.78rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--gold-deep);background:var(--gold-soft);padding:4px 12px;border-radius:999px;margin-bottom:8px}
+h1{font-size:clamp(1.25rem,4.5vw,1.85rem);line-height:1.2;font-weight:800;color:#0E0E0C}
+.subtitle{margin-top:6px;font-size:clamp(.9rem,2.8vw,1.05rem);color:var(--muted);font-weight:500}
+.story{background:linear-gradient(135deg,#F5EDD8,#E3EEF4 55%,#E4F0E8);border:2px solid #E0D0A8;border-radius:var(--radius);padding:12px 14px;margin-bottom:14px;font-size:clamp(.9rem,2.5vw,1.02rem);line-height:1.45;display:flex;gap:14px;align-items:center}
+.story-avatar{flex:0 0 auto;width:72px;height:72px}
+.story-avatar svg{width:72px;height:72px;display:block;filter:drop-shadow(0 2px 4px rgba(0,0,0,.12))}
+.story strong{color:var(--gold-deep)}
+.card{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);padding:16px 14px 18px;margin-bottom:14px}
+.card h2{font-size:clamp(1.05rem,3vw,1.25rem);font-weight:800;margin-bottom:8px}
+.hint{font-size:clamp(.88rem,2.4vw,1rem);color:var(--muted);line-height:1.45;margin-bottom:10px}
+.btn-row{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
+button.action{appearance:none;border:none;border-radius:999px;padding:10px 18px;font-weight:800;font-size:.95rem;cursor:pointer;background:var(--gold);color:#fff;transition:transform .15s ease,box-shadow .15s ease}
+button.action:hover{transform:translateY(-1px);box-shadow:0 4px 12px rgba(196,161,90,.35)}
+button.action.secondary{background:#fff;color:var(--gold-deep);border:2px solid var(--gold)}
+button.action:disabled{opacity:.45;cursor:not-allowed;transform:none;box-shadow:none}
+.nav-steps{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin:8px 0}
+.nav-steps button{padding:8px 12px;border-radius:999px;border:2px solid #D9D0C0;background:#fff;font-weight:800;font-size:.75rem;color:var(--muted);cursor:pointer;transition:all .2s}
+.nav-steps button:hover{border-color:var(--gold)}
+.nav-steps button.on{border-color:var(--blue);background:var(--blue-soft);color:var(--blue);transform:scale(1.04)}
+.stage{position:relative;width:100%;aspect-ratio:16/10;background:linear-gradient(#E8F4FC 0%,#FFFcf5 55%,#EDE6D6 100%);border-radius:14px;overflow:hidden;border:2px solid #E0D0A8;margin-bottom:12px}
+.stage svg{width:100%;height:100%;display:block}
+.glossary{display:grid;gap:.4rem;margin:10px 0;padding:12px 14px;background:#FFFcf5;border-radius:12px;border:2px solid #E0D0A8;font-size:.95rem}
+.glossary strong{color:var(--gold-deep)}
+.mnemonic{font-size:.95rem;font-weight:700;color:var(--gold-deep);background:var(--gold-soft);border-left:4px solid var(--gold);padding:10px 14px;border-radius:0 12px 12px 0;margin-top:10px;line-height:1.4}
+.verdict{text-align:center;font-size:1.05rem;font-weight:900;padding:12px;border-radius:14px;margin:10px 0;display:none;border:2px solid #E0D0A8}
+.verdict.show{display:block}.verdict.ok{background:var(--green-soft);color:#2A5238;border-color:#9BC4A8}.verdict.bad{background:var(--rose-soft);color:#7A2A36;border-color:#E8A8B0}
+.opts{display:grid;gap:8px;margin:10px 0}
+.opt{padding:12px 14px;border:2px solid #D9D0C0;border-radius:12px;background:#fff;cursor:pointer;font-weight:700;text-align:left;font-size:.95rem}
+.opt:hover{border-color:var(--gold)}.opt.ok{border-color:var(--green);background:var(--green-soft)}.opt.bad{border-color:var(--rose);background:var(--rose-soft)}.opt.selected{border-color:var(--blue);background:var(--blue-soft)}
+.info-panel{min-height:3.6em;background:#FFFcf5;border:2px solid #E0D0A8;border-radius:12px;padding:12px 14px;margin-bottom:10px;font-size:clamp(.92rem,2.5vw,1.05rem);line-height:1.45}
+.info-panel .tag{display:inline-block;font-size:.72rem;font-weight:800;text-transform:uppercase;letter-spacing:.04em;color:var(--blue);background:var(--blue-soft);padding:2px 8px;border-radius:999px;margin-bottom:6px}
+.pool{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin:8px 0;padding:8px;border:2px solid #E0D0A8;border-radius:12px;background:#fff}
+.chip{display:inline-block;margin:3px;padding:7px 10px;border-radius:999px;background:var(--blue-soft);border:2px solid var(--blue);font-weight:800;font-size:.75rem;color:var(--blue);cursor:pointer;user-select:none}
+.bins{display:grid;gap:8px;margin:10px 0}
+.bin{min-height:90px;border:2px dashed #C4B8A0;border-radius:14px;padding:8px;background:#FFFcf5;text-align:center}
+.bin h3{font-size:.8rem;font-weight:800;color:var(--gold-deep);margin-bottom:4px}
+.bin.ok{border-style:solid;border-color:var(--green);background:var(--green-soft)}
+footer{text-align:center;font-size:.8rem;color:var(--muted);margin-top:4px}
+body.preview-mode .story,body.preview-mode footer,body.preview-mode .hide-preview,body.preview-mode .glossary{display:none}
+@media (max-width:640px){.story{flex-direction:column;text-align:center}}
+
+.org{transition:filter .2s}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="badge">Lección 31 · UD F Ecología · CyL Decreto 39/2022</div>
+    <h1>Relaciones intraespecíficas e interespecíficas</h1>
+    <p class="subtitle">Intra · inter · CyL</p>
+  </header>
+  <div class="story">
+    <div class="story-avatar">
+<svg viewBox="0 0 80 80" aria-hidden="true">
+  <defs>
+    <linearGradient id="skinAv" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#F3D0AE"/><stop offset="100%" stop-color="#E2B48A"/></linearGradient>
+    <linearGradient id="hairAv" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#4A3428"/><stop offset="100%" stop-color="#2A1C14"/></linearGradient>
+  </defs>
+  <circle cx="40" cy="40" r="38" fill="#F5EDD8"/>
+  <ellipse cx="40" cy="72" rx="22" ry="10" fill="#E8F0F6"/>
+  <path d="M22 72 Q40 52 58 72" fill="#2F5D7A"/>
+  <ellipse cx="40" cy="38" rx="18" ry="20" fill="url(#skinAv)"/>
+  <path d="M22 34 Q24 12 40 10 Q56 12 58 34 Q52 22 40 20 Q28 22 22 34Z" fill="url(#hairAv)"/>
+  <path d="M54 28 Q66 34 64 52 Q58 44 54 38Z" fill="url(#hairAv)"/>
+  <ellipse cx="33" cy="40" rx="2.2" ry="2.6" fill="#2A2620"/>
+  <ellipse cx="47" cy="40" rx="2.2" ry="2.6" fill="#2A2620"/>
+  <path d="M37 46 Q40 49 43 46" fill="none" stroke="#C4785A" stroke-width="1.4" stroke-linecap="round"/>
+  <circle cx="28" cy="44" r="3" fill="#F0A090" opacity=".45"/>
+  <circle cx="52" cy="44" r="3" fill="#F0A090" opacity=".45"/>
+</svg>
+</div>
+    <div>Lucía compara: <strong>manada</strong> (intra) frente a <strong>lobo-conejo</strong> o <strong>abeja-flor</strong> (inter).</div>
+  </div>
+  
+<section class="card">
+  <h2>Relaciones en el ecosistema</h2>
+  <p class="hint">Pulsa cada escena: intra (manada) e inter (depredación, mutualismo, competencia, parasitismo).</p>
+  <div class="info-panel" id="info"><span class="tag">Idea clave</span> Relaciones = cómo se conectan los seres vivos.</div>
+  <div class="stage"><svg viewBox="0 0 800 500" role="img">
+<defs>
+  <linearGradient id="woodG" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0%" stop-color="#C4A070"/><stop offset="100%" stop-color="#8A6838"/>
+  </linearGradient>
+  <linearGradient id="metalG" x1="0" y1="0" x2="1" y2="1">
+    <stop offset="0%" stop-color="#D8DEE6"/><stop offset="50%" stop-color="#9AA8B8"/><stop offset="100%" stop-color="#6A7888"/>
+  </linearGradient>
+  <radialGradient id="lensG" cx="35%" cy="30%" r="70%">
+    <stop offset="0%" stop-color="#E8F4FC" stop-opacity=".9"/><stop offset="60%" stop-color="#A8C8E0" stop-opacity=".55"/><stop offset="100%" stop-color="#4A6A88" stop-opacity=".35"/>
+  </radialGradient>
+  <radialGradient id="capOrange" cx="40%" cy="30%" r="70%">
+    <stop offset="0%" stop-color="#F0A050"/><stop offset="55%" stop-color="#D07028"/><stop offset="100%" stop-color="#8A4018"/>
+  </radialGradient>
+  <radialGradient id="capBrown" cx="40%" cy="30%" r="70%">
+    <stop offset="0%" stop-color="#C89858"/><stop offset="55%" stop-color="#8A6030"/><stop offset="100%" stop-color="#5A3818"/>
+  </radialGradient>
+  <radialGradient id="capRed" cx="40%" cy="30%" r="70%">
+    <stop offset="0%" stop-color="#E85848"/><stop offset="55%" stop-color="#B02820"/><stop offset="100%" stop-color="#701818"/>
+  </radialGradient>
+  <radialGradient id="stemG" cx="40%" cy="20%" r="80%">
+    <stop offset="0%" stop-color="#F5E8D0"/><stop offset="100%" stop-color="#D0B890"/>
+  </radialGradient>
+  <radialGradient id="leafG" cx="30%" cy="30%" r="70%">
+    <stop offset="0%" stop-color="#8ED060"/><stop offset="100%" stop-color="#3A7A28"/>
+  </radialGradient>
+  <radialGradient id="petalG" cx="40%" cy="35%" r="65%">
+    <stop offset="0%" stop-color="#F8D0E0"/><stop offset="100%" stop-color="#D06090"/>
+  </radialGradient>
+  <radialGradient id="furG" cx="35%" cy="30%" r="70%">
+    <stop offset="0%" stop-color="#C8B090"/><stop offset="100%" stop-color="#6A5030"/>
+  </radialGradient>
+  <filter id="softSh"><feDropShadow dx="1.5" dy="3" stdDeviation="3" flood-opacity=".25"/></filter>
+  <filter id="tinySh"><feDropShadow dx="1" dy="1.5" stdDeviation="1.5" flood-opacity=".2"/></filter>
+</defs>
+
+  <rect width="800" height="500" fill="#E8F4FC"/>
+  <path d="M0 300 Q400 260 800 310 L800 500 L0 500Z" fill="#8A9A50"/>
+  <path d="M0 380 Q400 350 800 390 L800 500 L0 500Z" fill="#6A5030"/>
+  <rect x="30" y="18" width="340" height="36" rx="12" fill="#E4F0E8"/>
+  <text x="200" y="42" text-anchor="middle" font-size="15" font-weight="800" fill="#2A5238">Intraespecífica (misma especie)</text>
+  <rect x="430" y="18" width="340" height="36" rx="12" fill="#E3EEF4"/>
+  <text x="600" y="42" text-anchor="middle" font-size="15" font-weight="800" fill="#2F5D7A">Interespecífica (especies distintas)</text>
+  <g class="org" data-org="intra"><g transform="translate(110,200) scale(0.5)" filter="url(#softSh)" class="org" data-org="lobo">
+  <!-- body -->
+  <ellipse cx="0" cy="10" rx="55" ry="28" fill="url(#furG)"/>
+  <!-- chest / neck -->
+  <ellipse cx="-40" cy="0" rx="28" ry="24" fill="#A89070"/>
+  <!-- head -->
+  <ellipse cx="-70" cy="-18" rx="22" ry="16" fill="#B89870"/>
+  <!-- snout -->
+  <ellipse cx="-92" cy="-12" rx="16" ry="10" fill="#C8A880"/>
+  <ellipse cx="-102" cy="-10" rx="4" ry="3" fill="#2A2620"/>
+  <!-- ear -->
+  <path d="M-78 -30 L-70 -48 L-62 -28 Z" fill="#8A6848"/>
+  <path d="M-74 -32 L-70 -42 L-66 -30 Z" fill="#E8C0A0"/>
+  <!-- eye -->
+  <circle cx="-80" cy="-20" r="3" fill="#2A2620"/>
+  <circle cx="-81" cy="-21" r="1" fill="#fff" opacity=".7"/>
+  <!-- legs -->
+  <rect x="-35" y="30" width="10" height="35" rx="3" fill="#6A5030"/>
+  <rect x="-10" y="32" width="10" height="33" rx="3" fill="#6A5030"/>
+  <rect x="15" y="30" width="10" height="35" rx="3" fill="#5A4028"/>
+  <rect x="35" y="32" width="10" height="33" rx="3" fill="#5A4028"/>
+  <!-- tail -->
+  <path d="M50 5 Q85 -10 95 25 Q70 20 55 15 Z" fill="#8A6848"/>
+  <text x="0" y="90" text-anchor="middle" font-size="12" font-weight="800" fill="#5C564C">Lobo ibérico</text>
+  <text x="0" y="105" text-anchor="middle" font-size="10" fill="#5C564C"><tspan font-style="italic">Canis lupus signatus</tspan></text>
+</g><g transform="translate(190,220) scale(0.45)" filter="url(#softSh)" class="org" data-org="lobo">
+  <!-- body -->
+  <ellipse cx="0" cy="10" rx="55" ry="28" fill="url(#furG)"/>
+  <!-- chest / neck -->
+  <ellipse cx="-40" cy="0" rx="28" ry="24" fill="#A89070"/>
+  <!-- head -->
+  <ellipse cx="-70" cy="-18" rx="22" ry="16" fill="#B89870"/>
+  <!-- snout -->
+  <ellipse cx="-92" cy="-12" rx="16" ry="10" fill="#C8A880"/>
+  <ellipse cx="-102" cy="-10" rx="4" ry="3" fill="#2A2620"/>
+  <!-- ear -->
+  <path d="M-78 -30 L-70 -48 L-62 -28 Z" fill="#8A6848"/>
+  <path d="M-74 -32 L-70 -42 L-66 -30 Z" fill="#E8C0A0"/>
+  <!-- eye -->
+  <circle cx="-80" cy="-20" r="3" fill="#2A2620"/>
+  <circle cx="-81" cy="-21" r="1" fill="#fff" opacity=".7"/>
+  <!-- legs -->
+  <rect x="-35" y="30" width="10" height="35" rx="3" fill="#6A5030"/>
+  <rect x="-10" y="32" width="10" height="33" rx="3" fill="#6A5030"/>
+  <rect x="15" y="30" width="10" height="35" rx="3" fill="#5A4028"/>
+  <rect x="35" y="32" width="10" height="33" rx="3" fill="#5A4028"/>
+  <!-- tail -->
+  <path d="M50 5 Q85 -10 95 25 Q70 20 55 15 Z" fill="#8A6848"/>
+  <text x="0" y="90" text-anchor="middle" font-size="12" font-weight="800" fill="#5C564C">Lobo ibérico</text>
+  <text x="0" y="105" text-anchor="middle" font-size="10" fill="#5C564C"><tspan font-style="italic">Canis lupus signatus</tspan></text>
+</g><g transform="translate(270,205) scale(0.42)" filter="url(#softSh)" class="org" data-org="lobo">
+  <!-- body -->
+  <ellipse cx="0" cy="10" rx="55" ry="28" fill="url(#furG)"/>
+  <!-- chest / neck -->
+  <ellipse cx="-40" cy="0" rx="28" ry="24" fill="#A89070"/>
+  <!-- head -->
+  <ellipse cx="-70" cy="-18" rx="22" ry="16" fill="#B89870"/>
+  <!-- snout -->
+  <ellipse cx="-92" cy="-12" rx="16" ry="10" fill="#C8A880"/>
+  <ellipse cx="-102" cy="-10" rx="4" ry="3" fill="#2A2620"/>
+  <!-- ear -->
+  <path d="M-78 -30 L-70 -48 L-62 -28 Z" fill="#8A6848"/>
+  <path d="M-74 -32 L-70 -42 L-66 -30 Z" fill="#E8C0A0"/>
+  <!-- eye -->
+  <circle cx="-80" cy="-20" r="3" fill="#2A2620"/>
+  <circle cx="-81" cy="-21" r="1" fill="#fff" opacity=".7"/>
+  <!-- legs -->
+  <rect x="-35" y="30" width="10" height="35" rx="3" fill="#6A5030"/>
+  <rect x="-10" y="32" width="10" height="33" rx="3" fill="#6A5030"/>
+  <rect x="15" y="30" width="10" height="35" rx="3" fill="#5A4028"/>
+  <rect x="35" y="32" width="10" height="33" rx="3" fill="#5A4028"/>
+  <!-- tail -->
+  <path d="M50 5 Q85 -10 95 25 Q70 20 55 15 Z" fill="#8A6848"/>
+  <text x="0" y="90" text-anchor="middle" font-size="12" font-weight="800" fill="#5C564C">Lobo ibérico</text>
+  <text x="0" y="105" text-anchor="middle" font-size="10" fill="#5C564C"><tspan font-style="italic">Canis lupus signatus</tspan></text>
+</g></g>
+  <text x="190" y="285" text-anchor="middle" font-size="13" font-weight="700" fill="#3D2A18">Manada · cooperación</text>
+  <g class="org" data-org="pred"><g transform="translate(470,185) scale(0.4)" filter="url(#softSh)" class="org" data-org="lobo">
+  <!-- body -->
+  <ellipse cx="0" cy="10" rx="55" ry="28" fill="url(#furG)"/>
+  <!-- chest / neck -->
+  <ellipse cx="-40" cy="0" rx="28" ry="24" fill="#A89070"/>
+  <!-- head -->
+  <ellipse cx="-70" cy="-18" rx="22" ry="16" fill="#B89870"/>
+  <!-- snout -->
+  <ellipse cx="-92" cy="-12" rx="16" ry="10" fill="#C8A880"/>
+  <ellipse cx="-102" cy="-10" rx="4" ry="3" fill="#2A2620"/>
+  <!-- ear -->
+  <path d="M-78 -30 L-70 -48 L-62 -28 Z" fill="#8A6848"/>
+  <path d="M-74 -32 L-70 -42 L-66 -30 Z" fill="#E8C0A0"/>
+  <!-- eye -->
+  <circle cx="-80" cy="-20" r="3" fill="#2A2620"/>
+  <circle cx="-81" cy="-21" r="1" fill="#fff" opacity=".7"/>
+  <!-- legs -->
+  <rect x="-35" y="30" width="10" height="35" rx="3" fill="#6A5030"/>
+  <rect x="-10" y="32" width="10" height="33" rx="3" fill="#6A5030"/>
+  <rect x="15" y="30" width="10" height="35" rx="3" fill="#5A4028"/>
+  <rect x="35" y="32" width="10" height="33" rx="3" fill="#5A4028"/>
+  <!-- tail -->
+  <path d="M50 5 Q85 -10 95 25 Q70 20 55 15 Z" fill="#8A6848"/>
+  <text x="0" y="90" text-anchor="middle" font-size="12" font-weight="800" fill="#5C564C">Lobo ibérico</text>
+  <text x="0" y="105" text-anchor="middle" font-size="10" fill="#5C564C"><tspan font-style="italic">Canis lupus signatus</tspan></text>
+</g><g transform="translate(575,220) scale(0.85)" filter="url(#tinySh)">
+  <ellipse cx="0" cy="8" rx="22" ry="14" fill="#C8B090"/>
+  <ellipse cx="-18" cy="0" rx="12" ry="10" fill="#D0B898"/>
+  <ellipse cx="-28" cy="-18" rx="4" ry="14" fill="#C8B090"/>
+  <ellipse cx="-18" cy="-18" rx="4" ry="14" fill="#C8B090"/>
+  <circle cx="-22" cy="-2" r="2.2" fill="#1A2838"/>
+  <ellipse cx="16" cy="10" rx="6" ry="4" fill="#B89870"/>
+</g></g>
+  <text x="530" y="285" text-anchor="middle" font-size="13" font-weight="700" fill="#9B3A4A">Depredación</text>
+  <g class="org" data-org="mut"><g transform="translate(650,150) scale(1.1)">
+  <line x1="0" y1="8" x2="0" y2="40" stroke="#3D6B4F" stroke-width="3"/>
+  <circle cx="0" cy="0" r="8" fill="#F0C040"/>
+  <circle cx="-14" cy="0" r="9" fill="#F8E070"/><circle cx="14" cy="0" r="9" fill="#F8E070"/>
+  <circle cx="0" cy="-14" r="9" fill="#F8E070"/><circle cx="0" cy="14" r="9" fill="#F8E070"/>
+  <circle cx="0" cy="0" r="4" fill="#8A5A20"/>
+</g><g transform="translate(720,130) scale(0.7)" filter="url(#tinySh)" class="org" data-org="artropodo">
+  <!-- wings -->
+  <ellipse cx="-28" cy="-8" rx="28" ry="35" fill="#5A8AC8" stroke="#2A4A78" transform="rotate(-15 -28 -8)"/>
+  <ellipse cx="28" cy="-8" rx="28" ry="35" fill="#5A8AC8" stroke="#2A4A78" transform="rotate(15 28 -8)"/>
+  <ellipse cx="-22" cy="22" rx="18" ry="22" fill="#E8C040" stroke="#A08020" transform="rotate(-20 -22 22)"/>
+  <ellipse cx="22" cy="22" rx="18" ry="22" fill="#E8C040" stroke="#A08020" transform="rotate(20 22 22)"/>
+  <circle cx="-30" cy="-15" r="6" fill="#1A2838"/>
+  <circle cx="30" cy="-15" r="6" fill="#1A2838"/>
+  <!-- body -->
+  <ellipse cx="0" cy="5" rx="8" ry="32" fill="#2A2620"/>
+  <circle cx="0" cy="-28" r="8" fill="#3A3428"/>
+  <path d="M-4 -32 Q-18 -50 -22 -48" fill="none" stroke="#2A2620" stroke-width="1.5"/>
+  <path d="M4 -32 Q18 -50 22 -48" fill="none" stroke="#2A2620" stroke-width="1.5"/>
+  <text x="0" y="60" text-anchor="middle" font-size="12" font-weight="800" fill="#2F5D7A">Mariposa (artrópodo)</text>
+</g></g>
+  <text x="690" y="215" text-anchor="middle" font-size="13" font-weight="700" fill="#3D6B4F">Mutualismo</text>
+  <g class="org" data-org="comp">
+    <g transform="translate(80,320)"><g transform="translate(0,0) scale(0.4)" filter="url(#softSh)" class="org" data-org="encina">
+  <rect x="-10" y="-20" width="20" height="90" fill="#5A4028"/>
+  <ellipse cx="0" cy="-70" rx="70" ry="55" fill="#2E5A28"/>
+  <ellipse cx="-35" cy="-50" rx="40" ry="35" fill="#3A7A30"/>
+  <ellipse cx="40" cy="-55" rx="38" ry="32" fill="#3A6A28"/>
+  <ellipse cx="0" cy="-95" rx="45" ry="30" fill="#4A8A38"/>
+  <!-- acorns -->
+  <g transform="translate(-25,-10)">
+    <ellipse cx="0" cy="8" rx="6" ry="9" fill="#C4A060"/>
+    <path d="M-7 0 Q0 -8 7 0 Z" fill="#6A5030"/>
+  </g>
+  <g transform="translate(20,-5)">
+    <ellipse cx="0" cy="8" rx="6" ry="9" fill="#C4A060"/>
+    <path d="M-7 0 Q0 -8 7 0 Z" fill="#6A5030"/>
+  </g>
+  <text x="0" y="95" text-anchor="middle" font-size="12" font-weight="800" fill="#2A5238">Encina</text>
+  <text x="0" y="110" text-anchor="middle" font-size="10" fill="#5C564C"><tspan font-style="italic">Quercus ilex</tspan></text>
+</g></g>
+    <g transform="translate(170,335)"><g transform="translate(0,0) scale(0.35)" filter="url(#softSh)" class="org" data-org="encina">
+  <rect x="-10" y="-20" width="20" height="90" fill="#5A4028"/>
+  <ellipse cx="0" cy="-70" rx="70" ry="55" fill="#2E5A28"/>
+  <ellipse cx="-35" cy="-50" rx="40" ry="35" fill="#3A7A30"/>
+  <ellipse cx="40" cy="-55" rx="38" ry="32" fill="#3A6A28"/>
+  <ellipse cx="0" cy="-95" rx="45" ry="30" fill="#4A8A38"/>
+  <!-- acorns -->
+  <g transform="translate(-25,-10)">
+    <ellipse cx="0" cy="8" rx="6" ry="9" fill="#C4A060"/>
+    <path d="M-7 0 Q0 -8 7 0 Z" fill="#6A5030"/>
+  </g>
+  <g transform="translate(20,-5)">
+    <ellipse cx="0" cy="8" rx="6" ry="9" fill="#C4A060"/>
+    <path d="M-7 0 Q0 -8 7 0 Z" fill="#6A5030"/>
+  </g>
+  <text x="0" y="95" text-anchor="middle" font-size="12" font-weight="800" fill="#2A5238">Encina</text>
+  <text x="0" y="110" text-anchor="middle" font-size="10" fill="#5C564C"><tspan font-style="italic">Quercus ilex</tspan></text>
+</g></g>
+  </g>
+  <text x="150" y="460" text-anchor="middle" font-size="13" font-weight="700" fill="#8A6B2F">Competencia (luz/agua)</text>
+  <g class="org" data-org="par"><g transform="translate(520,370) scale(0.55)" filter="url(#tinySh)" class="org" data-org="mamifero">
+  <ellipse cx="8" cy="8" rx="42" ry="20" fill="#A08058"/>
+  <ellipse cx="-38" cy="-6" rx="16" ry="13" fill="#B09068"/>
+  <ellipse cx="-52" cy="-2" rx="12" ry="7" fill="#C4A888"/>
+  <circle cx="-58" cy="-3" r="2.2" fill="#1A2838"/>
+  <!-- antlers branching -->
+  <path d="M-42 -16 L-46 -42 M-46 -36 L-56 -48 M-46 -32 L-38 -46" fill="none" stroke="#5A4020" stroke-width="3" stroke-linecap="round"/>
+  <path d="M-32 -16 L-30 -44 M-30 -36 L-20 -50 M-30 -30 L-36 -48" fill="none" stroke="#5A4020" stroke-width="3" stroke-linecap="round"/>
+  <ellipse cx="-40" cy="-14" rx="4" ry="6" fill="#B09068"/>
+  <rect x="-22" y="22" width="7" height="30" rx="2" fill="#8A6840"/>
+  <rect x="-6" y="24" width="7" height="28" rx="2" fill="#8A6840"/>
+  <rect x="18" y="22" width="7" height="30" rx="2" fill="#7A5838"/>
+  <rect x="32" y="24" width="7" height="28" rx="2" fill="#7A5838"/>
+  <path d="M45 0 Q62 8 58 22" fill="none" stroke="#8A6840" stroke-width="4" stroke-linecap="round"/>
+  <text x="0" y="70" text-anchor="middle" font-size="12" font-weight="800" fill="#5C564C">Mamífero</text>
+</g>
+    <circle cx="555" cy="340" r="7" fill="#4A3020"/><text x="575" y="345" font-size="12" font-weight="800" fill="#9B3A4A">parásito</text>
+  </g>
+  <text x="560" y="460" text-anchor="middle" font-size="13" font-weight="700" fill="#9B3A4A">Parasitismo</text>
+</svg></div>
+  <div class="opts hide-preview" id="quiz">
+    <p style="font-weight:800;margin-bottom:6px">La manada de lobos es una relación…</p>
+    <button type="button" class="opt" data-ok="1">Intraespecífica</button>
+    <button type="button" class="opt" data-ok="0">Interespecífica</button>
+    <button type="button" class="opt" data-ok="0">Solo geológica</button>
+  </div>
+  <div class="verdict" id="verdict"></div>
+  <p class="mnemonic">Mnemónico: <strong>«INTRA = misma · INTER = distintas»</strong>.</p>
+  <div class="glossary hide-preview">
+    <div><strong>Intraespecífica:</strong> misma especie.</div>
+    <div><strong>Interespecífica:</strong> especies distintas.</div>
+  </div>
+</section>
+  <footer>1º ESO ByG · CyL Decreto 39/2022 · Bloque F (relaciones) · Offline file://</footer>
+</div>
+<script>
+(function(){
+if(/[?&]preview=1\b/.test(location.search)){document.body.classList.add('preview-mode');}
+
+const ORG_INFO = {'intra': ('Intra', 'Misma especie: manada, familia, grupo.'), 'pred': ('Depredación', 'El depredador caza a la presa.'), 'mut': ('Mutualismo', 'Las dos especies salen beneficiadas.'), 'comp': ('Competencia', 'Compiten por luz, agua, comida…'), 'par': ('Parasitismo', 'El parásito se beneficia; el hospedador pierde.')};
+document.querySelectorAll('.org').forEach(el=>{
+  el.style.cursor='pointer';
+  el.addEventListener('click',()=>{
+    const k=el.getAttribute('data-org');
+    const d=ORG_INFO[k];
+    if(!d)return;
+    const info=document.getElementById('info');
+    if(info) info.innerHTML='<span class="tag">'+d[0]+'</span> '+d[1];
+    document.querySelectorAll('.org').forEach(o=>o.style.filter='');
+    el.style.filter='brightness(1.12) drop-shadow(0 0 5px #C4A15A)';
+  });
+});
+
+document.querySelectorAll('#quiz .opt').forEach(btn=>btn.onclick=()=>{
+  const ok=btn.dataset.ok==='1';
+  document.querySelectorAll('#quiz .opt').forEach(b=>b.classList.remove('ok','bad'));
+  btn.classList.add(ok?'ok':'bad');
+  const v=document.getElementById('verdict');
+  v.className='verdict show '+(ok?'ok':'bad');
+  v.textContent=ok?'¡Bien!':'Revisa el dibujo y el glosario.';
+});
+
+})();
+</script>
+</body>
+</html>

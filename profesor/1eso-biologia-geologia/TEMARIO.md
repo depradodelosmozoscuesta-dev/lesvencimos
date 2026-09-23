@@ -103,5 +103,15 @@
 | L28 Vertebrados / sintientes | **Entregada** | `28.md` + `l28-vertebrados-sintientes.html` + preview HQ |
 | L29 Identificar especies | **Entregada** | `29.md` + `l29-identificar-especies.html` + preview |
 | L30 Ecosistemas del entorno | **Entregada** | `30.md` + `l30-ecosistemas-entorno.html` + preview |
-| L31–L40 | Pendiente | Siguiente: relaciones intra/interespecíficas (L31) |
-| QA | **Bloques 01–10, 11–20 y 21–30** | `_qa-bloque-01-10.md` · `_qa-bloque-11-20.md` · `_qa-bloque-21-30.md` |
+| L31 Relaciones intra/interespecíficas | **Entregada** | `31.md` + `l31-relaciones-intra-inter.html` + preview |
+| L32 Cadenas / redes / pirámides | **Entregada** | `32.md` + `l32-cadenas-redes-piramides.html` + preview |
+| L33 Conservar / biodiversidad / sostenible | **Entregada** | `33.md` + `l33-conservar-biodiversidad-sostenible.html` + preview |
+| L34 Amenazadas / figuras protección | **Entregada** | `34.md` + `l34-especies-amenazadas-proteccion.html` + preview |
+| L35 Esferas / suelo / relieve | **Entregada** | `35.md` + `l35-esferas-suelo-relieve.html` + preview |
+| L36 Cambio climático / ecosistemas | **Entregada** | `36.md` + `l36-cambio-climatico-ecosistemas.html` + preview |
+| L37 Hábitos sostenibles | **Entregada** | `37.md` + `l37-habitos-sostenibles.html` + preview |
+| L38 One Health | **Entregada** | `38.md` + `l38-one-health.html` + preview |
+| L39 Proyecto integrador CyL | **Entregada** | `39.md` + `l39-proyecto-integrador-cyl.html` + preview |
+| L40 Autoevaluación / portfolio / hábitos | **Entregada** | `40.md` + `l40-autoevaluacion-portfolio-habitos.html` + preview |
+| QA | **Bloques 01–10, 11–20, 21–30 y 31–40** | `_qa-bloque-01-10.md` · `_qa-bloque-11-20.md` · `_qa-bloque-21-30.md` · `_qa-bloque-31-40.md` |
+| **Curso** | **40/40 cerrado** | ByG 1º ESO CyL Decreto 39/2022 A–F + cierre |

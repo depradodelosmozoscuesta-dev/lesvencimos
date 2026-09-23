@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Build online shell + flat offline pack for 1º ESO Biología y Geología (L01–L30)."""
+"""Build online shell + flat offline pack for 1º ESO Biología y Geología (L01–L40)."""
 from __future__ import annotations
 
 import html
@@ -21,9 +21,9 @@ ZIP_PATH = REPO / "downloads/1eso-biologia-geologia-offline.zip"
 COURSE_ICONS = COURSE_DIR / "icons"
 BRAND_ICONS = REPO / "brand/favicon"
 TOTAL = 40
-AVAILABLE = 30
+AVAILABLE = 40
 
-# Full temario titles (L31–L40 shown as próximamente on hub)
+# Full temario titles (curso completo L01–L40)
 TEMARIO = [
     "El método científico en experimentos sencillos",
     "Fuentes veraces frente a bulos y pseudociencia",
@@ -1713,7 +1713,7 @@ LESSONS = [
             'Una dehesa de encinas en Salamanca o un tramo del Duero: sol, suelo, agua, encinas, insectos, aves, hongos… forman el ecosistema.',
             'Dehesa de encinas en Salamanca o tramo del Duero: ejemplo cercano.',
             'Productores, consumidores y descomponedores + medio físico.',
-            'Abre el bloque F; L31–L40 siguen con relaciones y sostenibilidad.',
+            'Cierra el bloque F de ecosistemas; L31–L40 completan relaciones y sostenibilidad.',
         ],
         "vida_fig": "mapa.svg",
         "widgets": [
@@ -1726,6 +1726,541 @@ LESSONS = [
         ),
         "reto_id": "1eso-byg-L30",
         "cierre": '<strong>Bio-Abio-Rel.</strong> Bióticos + abióticos + relaciones = ecosistema.',
+    },
+    {
+        "n": 31,
+        "slug": "relaciones-intraespecificas-e-interespecificas",
+        "eyebrow": "Lección 31 · UD F · Ecología y sostenibilidad",
+        "title_html": "Relaciones <em>intraespecíficas</em> e <em>interespecíficas</em>",
+        "title_plain": "Relaciones intraespecíficas e interespecíficas",
+        "meta": "1º ESO Biología y Geología · CyL Decreto 39/2022 · bloque F",
+        "curiosidad_t": "INTRA = misma · INTER = distintas",
+        "curiosidad": (
+            "Las relaciones ecológicas unen a los seres vivos. "
+            "<strong>Intraespecífica</strong>: misma especie (manada, familia…). "
+            "<strong>Interespecífica</strong>: especies distintas (depredación, mutualismo…)."
+        ),
+        "curiosidad_fig": "mapa.svg",
+        "objetivos": [
+            "Distinguir relaciones <strong>intraespecíficas</strong> e <strong>interespecíficas</strong>.",
+            "Reconocer cooperación, competencia, depredación, mutualismo y parasitismo.",
+            "Poner un ejemplo cercano (CyL o patio/parque).",
+            "Usar el mnemónico INTRA / INTER.",
+            "Clasificar una relación dada como intra o inter.",
+        ],
+        "cuerpo": """
+    <h2>Explicación</h2>
+    <p>Las <strong>relaciones ecológicas</strong> unen a los seres vivos.</p>
+    <ul>
+      <li><strong>Intraespecífica:</strong> entre individuos de la <strong>misma</strong> especie (manada, familia, competencia por pareja).</li>
+      <li><strong>Interespecífica:</strong> entre <strong>especies distintas</strong>.</li>
+    </ul>
+    <table>
+      <thead><tr><th>Tipo inter</th><th>Idea</th></tr></thead>
+      <tbody>
+        <tr><td>Depredación</td><td>Uno caza y se come al otro</td></tr>
+        <tr><td>Competencia</td><td>Compiten por el mismo recurso</td></tr>
+        <tr><td>Mutualismo</td><td>Ambos salen beneficiados</td></tr>
+        <tr><td>Parasitismo</td><td>Uno se beneficia y el otro sale perjudicado</td></tr>
+      </tbody>
+    </table>
+    <div class="tarjeta">
+      <p style="margin:0"><strong>Mnemónico:</strong> «INTRA = misma · INTER = distintas».</p>
+    </div>
+""",
+        "vida_t": "Castilla y León",
+        "vida": [
+            "Lobos en manada (intraespecífica) en paisajes de CyL.",
+            "Lobo y conejo: depredación (interespecífica).",
+            "Abeja y flor: mutualismo; dos encinas por la luz: competencia.",
+            "Garrapata en un ciervo: parasitismo.",
+        ],
+        "vida_fig": "mapa.svg",
+        "widgets": [
+            ("Relaciones intra e inter", "l31-relaciones-intra-inter.html"),
+        ],
+        "reto_t": "INTRA / INTER en 1 minuto",
+        "reto": (
+            "Explica a un compañero, con el dibujo del interactivo, la idea más importante de esta "
+            "lección en 1 minuto."
+        ),
+        "reto_id": "1eso-byg-L31",
+        "cierre": "<strong>INTRA = misma · INTER = distintas.</strong> Clasifica siempre la relación antes de nombrar el tipo.",
+    },
+    {
+        "n": 32,
+        "slug": "cadenas-redes-y-piramides-troficas",
+        "eyebrow": "Lección 32 · UD F · Ecología y sostenibilidad",
+        "title_html": "Cadenas, redes y <em>pirámides tróficas</em>",
+        "title_plain": "Cadenas, redes y pirámides tróficas",
+        "meta": "1º ESO Biología y Geología · CyL Decreto 39/2022 · bloque F",
+        "curiosidad_t": "PRO-CON-DES",
+        "curiosidad": (
+            "La <strong>estructura trófica</strong> cuenta cómo fluye la materia y la energía: "
+            "<strong>cadena</strong> (línea), <strong>red</strong> (telaraña) y <strong>pirámide</strong> "
+            "(base = productores)."
+        ),
+        "curiosidad_fig": "mapa.svg",
+        "objetivos": [
+            "Explicar <strong>cadena trófica</strong> (quién come a quién).",
+            "Diferenciar cadena, red y pirámide trófica.",
+            "Situar productores, consumidores y descomponedores.",
+            "Usar PRO-CON-DES.",
+            "Completar una cadena sencilla de dehesa o ribera.",
+        ],
+        "cuerpo": """
+    <h2>Explicación</h2>
+    <p>La <strong>estructura trófica</strong> cuenta cómo fluye la materia y la energía.</p>
+    <ul>
+      <li><strong>Cadena:</strong> línea simple: hierba → conejo → zorro.</li>
+      <li><strong>Red:</strong> muchas cadenas cruzadas (parece una <strong>telaraña</strong> de comidas).</li>
+      <li><strong>Pirámide:</strong> niveles; la base son los <strong>productores</strong>; arriba hay menos biomasa/energía disponible.</li>
+    </ul>
+    <p>Niveles: productores → consumidores 1º → 2º → … + descomponedores.</p>
+    <div class="tarjeta">
+      <p style="margin:0"><strong>Mnemónico:</strong> «PRO-CON-DES (Productor · Consumidor · Descomponedor)».</p>
+    </div>
+""",
+        "vida_t": "Castilla y León",
+        "vida": [
+            "En una dehesa o ribera de CyL: encinas/hierba (productores).",
+            "Insectos y conejos (herbívoros / consumidores 1º).",
+            "Rapaces y carnívoros (consumidores superiores).",
+            "Hongos y bacterias: descomponedores que cierran el ciclo.",
+        ],
+        "vida_fig": "mapa.svg",
+        "widgets": [
+            ("Cadenas, redes y pirámides", "l32-cadenas-redes-piramides.html"),
+        ],
+        "reto_t": "PRO-CON-DES en 1 minuto",
+        "reto": (
+            "Explica a un compañero, con el dibujo del interactivo, la idea más importante de esta "
+            "lección en 1 minuto."
+        ),
+        "reto_id": "1eso-byg-L32",
+        "cierre": "<strong>PRO-CON-DES.</strong> Cadena = línea; red = telaraña; pirámide = base de productores.",
+    },
+    {
+        "n": 33,
+        "slug": "conservar-ecosistemas-biodiversidad-y-desarrollo-sostenible",
+        "eyebrow": "Lección 33 · UD F · Ecología y sostenibilidad",
+        "title_html": "Conservar ecosistemas, <em>biodiversidad</em> y desarrollo sostenible",
+        "title_plain": "Conservar ecosistemas, biodiversidad y desarrollo sostenible",
+        "meta": "1º ESO Biología y Geología · CyL Decreto 39/2022 · bloque F",
+        "curiosidad_t": "HOY-sin-agotar-MAÑANA",
+        "curiosidad": (
+            "<strong>Conservar</strong> es cuidar para que el ecosistema siga funcionando. "
+            "<strong>Desarrollo sostenible</strong>: cubrir necesidades de <strong>hoy</strong> "
+            "sin agotar las de <strong>mañana</strong>."
+        ),
+        "curiosidad_fig": "mapa.svg",
+        "objetivos": [
+            "Explicar por qué importa conservar ecosistemas y biodiversidad.",
+            "Definir <strong>desarrollo sostenible</strong> con palabras propias.",
+            "Proponer una acción concreta y cercana.",
+            "Usar HOY-sin-agotar-MAÑANA.",
+            "Relacionar biodiversidad con servicios del ecosistema.",
+        ],
+        "cuerpo": """
+    <h2>Explicación</h2>
+    <p><strong>Conservar</strong> = cuidar para que el ecosistema siga funcionando.</p>
+    <p><strong>Biodiversidad</strong> = variedad de seres vivos y de hábitats.</p>
+    <p><strong>Desarrollo sostenible</strong> = cubrir necesidades de <strong>hoy</strong> sin agotar las de <strong>mañana</strong> (recursos, hábitats, clima).</p>
+    <p>Si perdemos especies o suelos, perdemos servicios: agua limpia, polinización, alimentos, belleza del paisaje.</p>
+    <div class="tarjeta">
+      <p style="margin:0"><strong>Mnemónico:</strong> «HOY-sin-agotar-MAÑANA».</p>
+    </div>
+""",
+        "vida_t": "Castilla y León",
+        "vida": [
+            "Montes, riberas y dehesas de CyL: biodiversidad local = calidad de vida.",
+            "Agua limpia, suelo fértil y polinización son servicios del ecosistema.",
+            "Turismo respetuoso y gestión responsable también son conservación.",
+            "Una acción cercana: cuidar un tramo de ribera o el huerto escolar.",
+        ],
+        "vida_fig": "mapa.svg",
+        "widgets": [
+            ("Conservar y desarrollo sostenible", "l33-conservar-biodiversidad-sostenible.html"),
+        ],
+        "reto_t": "HOY-sin-agotar-MAÑANA en 1 minuto",
+        "reto": (
+            "Explica a un compañero, con el dibujo del interactivo, la idea más importante de esta "
+            "lección en 1 minuto."
+        ),
+        "reto_id": "1eso-byg-L33",
+        "cierre": "<strong>HOY-sin-agotar-MAÑANA.</strong> Conservar biodiversidad es también cuidar servicios del ecosistema.",
+    },
+    {
+        "n": 34,
+        "slug": "especies-amenazadas-y-figuras-de-proteccion-ambiental",
+        "eyebrow": "Lección 34 · UD F · Ecología y sostenibilidad",
+        "title_html": "Especies <em>amenazadas</em> y figuras de protección ambiental",
+        "title_plain": "Especies amenazadas y figuras de protección ambiental",
+        "meta": "1º ESO Biología y Geología · CyL Decreto 39/2022 · bloque F",
+        "curiosidad_t": "LUGAR + ESPECIE = PROTECCIÓN",
+        "curiosidad": (
+            "Una <strong>especie amenazada</strong> corre riesgo serio de desaparecer. "
+            "Proteger el <strong>lugar</strong> (parque, ZEPA, reserva…) ayuda a proteger a las "
+            "<strong>especies</strong> que viven ahí."
+        ),
+        "curiosidad_fig": "mapa.svg",
+        "objetivos": [
+            "Explicar qué es una <strong>especie amenazada</strong>.",
+            "Reconocer figuras de protección (parque nacional/natural, Red Natura, reserva…).",
+            "Relacionar protección del lugar y de la especie.",
+            "Usar LUGAR + ESPECIE = PROTECCIÓN.",
+            "Respetar normas en rutas y espacios protegidos de CyL.",
+        ],
+        "cuerpo": """
+    <h2>Explicación</h2>
+    <p><strong>Especie amenazada:</strong> corre riesgo serio de desaparecer si no se actúa.</p>
+    <p><strong>Figuras de protección</strong> (ejemplos):</p>
+    <ul>
+      <li>Parque Nacional (protección muy alta)</li>
+      <li>Parque Natural / Regional (CyL tiene varios)</li>
+      <li>ZEPA / LIC (Red Natura 2000: aves / hábitats)</li>
+      <li>Reserva o monumento natural</li>
+    </ul>
+    <p>Proteger el <strong>lugar</strong> ayuda a proteger a las <strong>especies</strong> que viven ahí.</p>
+    <div class="tarjeta">
+      <p style="margin:0"><strong>Mnemónico:</strong> «LUGAR + ESPECIE = PROTECCIÓN».</p>
+    </div>
+""",
+        "vida_t": "Castilla y León",
+        "vida": [
+            "En CyL hay parques naturales, ZEPA y otras figuras de protección.",
+            "En rutas: mirar carteles y respetar normas.",
+            "No molestar fauna ni dejar basura en espacios protegidos.",
+            "Proteger el hábitat es proteger a las especies amenazadas.",
+        ],
+        "vida_fig": "mapa.svg",
+        "widgets": [
+            ("Amenazadas y protección", "l34-especies-amenazadas-proteccion.html"),
+        ],
+        "reto_t": "LUGAR + ESPECIE en 1 minuto",
+        "reto": (
+            "Explica a un compañero, con el dibujo del interactivo, la idea más importante de esta "
+            "lección en 1 minuto."
+        ),
+        "reto_id": "1eso-byg-L34",
+        "cierre": "<strong>LUGAR + ESPECIE = PROTECCIÓN.</strong> Amenazada ≠ extinguida: aún se puede actuar.",
+    },
+    {
+        "n": 35,
+        "slug": "atmosfera-hidrosfera-geosfera-y-biosfera-suelo-y-relieve",
+        "eyebrow": "Lección 35 · UD F · Ecología y sostenibilidad",
+        "title_html": "Atmósfera, hidrosfera, geosfera y biosfera: <em>suelo y relieve</em>",
+        "title_plain": "Atmósfera, hidrosfera, geosfera y biosfera: suelo y relieve",
+        "meta": "1º ESO Biología y Geología · CyL Decreto 39/2022 · bloque F",
+        "curiosidad_t": "A-H-G-B → SUELO y RELIEVE",
+        "curiosidad": (
+            "Las cuatro esferas (<strong>atmósfera, hidrosfera, geosfera, biosfera</strong>) "
+            "interactúan en la <strong>edafogénesis</strong> (formación del suelo) y en el "
+            "<strong>modelado del relieve</strong>."
+        ),
+        "curiosidad_fig": "olla.svg",
+        "objetivos": [
+            "Nombrar las cuatro esferas y qué aporta cada una.",
+            "Explicar que el suelo nace de interacciones (<strong>edafogénesis</strong>).",
+            "Relacionar modelado del relieve con agua, aire, roca y seres vivos.",
+            "Usar A-H-G-B → SUELO y RELIEVE.",
+            "Poner un ejemplo de CyL (páramo, hoz, ribera…).",
+        ],
+        "cuerpo": """
+    <h2>Explicación</h2>
+    <p>Cuatro “capas” del sistema Tierra:</p>
+    <ul>
+      <li><strong>Atmósfera</strong> (aire)</li>
+      <li><strong>Hidrosfera</strong> (agua)</li>
+      <li><strong>Geosfera</strong> (rocas, relieve)</li>
+      <li><strong>Biosfera</strong> (seres vivos)</li>
+    </ul>
+    <p><strong>Edafogénesis:</strong> formación del <strong>suelo</strong> (roca + clima + agua + seres vivos + tiempo).</p>
+    <p><strong>Modelado del relieve:</strong> ríos, viento, hielo, gravedad y seres vivos desgastan y construyen formas del terreno.</p>
+    <div class="tarjeta">
+      <p style="margin:0"><strong>Mnemónico:</strong> «A-H-G-B → SUELO y RELIEVE».</p>
+    </div>
+""",
+        "vida_t": "Castilla y León",
+        "vida": [
+            "Páramos, hoces, riberas y suelos agrícolas de CyL nacen de esas interacciones.",
+            "Clima + agua + roca + seres vivos + tiempo = suelo.",
+            "El viento y los ríos también modelan el relieve.",
+            "Sin suelo fértil y relieve estable, la vida terrestre se complica.",
+        ],
+        "vida_fig": "mapa.svg",
+        "widgets": [
+            ("Esferas, suelo y relieve", "l35-esferas-suelo-relieve.html"),
+        ],
+        "reto_t": "A-H-G-B en 1 minuto",
+        "reto": (
+            "Explica a un compañero, con el dibujo del interactivo, la idea más importante de esta "
+            "lección en 1 minuto."
+        ),
+        "reto_id": "1eso-byg-L35",
+        "cierre": "<strong>A-H-G-B → SUELO y RELIEVE.</strong> Las esferas no trabajan aisladas.",
+    },
+    {
+        "n": 36,
+        "slug": "cambio-climatico-y-consecuencias-en-los-ecosistemas",
+        "eyebrow": "Lección 36 · UD F · Ecología y sostenibilidad",
+        "title_html": "<em>Cambio climático</em> y consecuencias en los ecosistemas",
+        "title_plain": "Cambio climático y consecuencias en los ecosistemas",
+        "meta": "1º ESO Biología y Geología · CyL Decreto 39/2022 · bloque F",
+        "curiosidad_t": "CAUSA → CALOR → ECOSISTEMA",
+        "curiosidad": (
+            "El <strong>cambio climático</strong> es un cambio a <strong>largo plazo</strong> "
+            "(no el tiempo de mañana). Actividades humanas refuerzan el efecto invernadero; "
+            "en clase <strong>no inventamos cifras</strong>."
+        ),
+        "curiosidad_fig": "fuego.svg",
+        "objetivos": [
+            "Relacionar actividades humanas con el refuerzo del efecto invernadero.",
+            "Describir consecuencias generales en ecosistemas (sin inventar cifras).",
+            "Distinguir clima (largo plazo) de tiempo atmosférico (días).",
+            "Usar CAUSA → CALOR → ECOSISTEMA.",
+            "Observar el entorno de CyL sin alarmismo falso ni negación.",
+        ],
+        "cuerpo": """
+    <h2>Explicación</h2>
+    <p><strong>Cambio climático:</strong> cambio a <strong>largo plazo</strong> del clima del planeta.</p>
+    <p><strong>Causas humanas principales (idea):</strong> quema de combustibles, deforestación y aumento de ciertos <strong>gases de efecto invernadero</strong> → se retiene más calor.</p>
+    <p><strong>Consecuencias en ecosistemas</strong> (honestas, sin números inventados):</p>
+    <ul>
+      <li>Cambios de temperatura y lluvias</li>
+      <li>Estrés en especies (migración, ciclos de vida)</li>
+      <li>Riesgo en hábitats sensibles</li>
+      <li>Relación con fenómenos extremos (olas de calor, sequías)</li>
+    </ul>
+    <div class="tarjeta">
+      <p style="margin:0"><strong>Mnemónico:</strong> «CAUSA → CALOR → ECOSISTEMA». Sin porcentajes inventados.</p>
+    </div>
+""",
+        "vida_t": "Castilla y León",
+        "vida": [
+            "En CyL se notan sequías, olas de calor y cambios en ríos/montes.",
+            "Observar el entorno ayuda a entender el tema con rigor.",
+            "Clima ≠ el tiempo de mañana: es a largo plazo.",
+            "Usa fuentes científicas; no inventes porcentajes en el examen.",
+        ],
+        "vida_fig": "mapa.svg",
+        "widgets": [
+            ("Cambio climático y ecosistemas", "l36-cambio-climatico-ecosistemas.html"),
+        ],
+        "reto_t": "CAUSA → CALOR → ECOSISTEMA",
+        "reto": (
+            "Explica a un compañero, con el dibujo del interactivo, la idea más importante de esta "
+            "lección en 1 minuto."
+        ),
+        "reto_id": "1eso-byg-L36",
+        "cierre": "<strong>CAUSA → CALOR → ECOSISTEMA.</strong> Clima = largo plazo; sin cifras inventadas.",
+    },
+    {
+        "n": 37,
+        "slug": "habitos-sostenibles-consumo-residuos-respeto-al-medio",
+        "eyebrow": "Lección 37 · UD F · Ecología y sostenibilidad",
+        "title_html": "<em>Hábitos sostenibles</em> (consumo, residuos, respeto al medio)",
+        "title_plain": "Hábitos sostenibles (consumo, residuos, respeto al medio)",
+        "meta": "1º ESO Biología y Geología · CyL Decreto 39/2022 · bloque F",
+        "curiosidad_t": "3R: Reducir > Reutilizar > Reciclar",
+        "curiosidad": (
+            "Los <strong>hábitos sostenibles</strong> son acciones diarias que cuidan recursos. "
+            "Orden de las 3R: primero <strong>reducir</strong>, luego reutilizar, después reciclar."
+        ),
+        "curiosidad_fig": "ticket.svg",
+        "objetivos": [
+            "Aplicar las <strong>3R</strong>: reducir, reutilizar, reciclar (en ese orden).",
+            "Relacionar consumo responsable y gestión de residuos.",
+            "Proponer gestos de respeto al medio en el centro y en casa.",
+            "Usar 3R: Reducir > Reutilizar > Reciclar.",
+            "Cuidar agua y energía además de separar residuos.",
+        ],
+        "cuerpo": """
+    <h2>Explicación</h2>
+    <p><strong>Hábitos sostenibles</strong> = acciones diarias que cuidan recursos y entorno.</p>
+    <ol>
+      <li><strong>Reducir</strong> (lo más importante): menos consumo innecesario.</li>
+      <li><strong>Reutilizar:</strong> segunda vida a objetos.</li>
+      <li><strong>Reciclar:</strong> separar residuos (orgánico, papel, envases, vidrio…).</li>
+    </ol>
+    <p>También: cuidar agua y energía, no abandonar basura, respetar seres vivos y espacios naturales.</p>
+    <div class="tarjeta">
+      <p style="margin:0"><strong>Mnemónico:</strong> «3R: Reducir > Reutilizar > Reciclar».</p>
+    </div>
+""",
+        "vida_t": "Castilla y León",
+        "vida": [
+            "En el instituto y en pueblos/ciudades de CyL: contenedores bien usados.",
+            "Huerto escolar y caminos sin basura.",
+            "Compra con menos plástico = reducir.",
+            "Reutilizar ≠ reciclar: otra vida vs procesar material.",
+        ],
+        "vida_fig": "mapa.svg",
+        "widgets": [
+            ("Hábitos sostenibles", "l37-habitos-sostenibles.html"),
+        ],
+        "reto_t": "3R en 1 minuto",
+        "reto": (
+            "Explica a un compañero, con el dibujo del interactivo, la idea más importante de esta "
+            "lección en 1 minuto."
+        ),
+        "reto_id": "1eso-byg-L37",
+        "cierre": "<strong>3R: Reducir > Reutilizar > Reciclar.</strong> Reducir es la R más importante.",
+    },
+    {
+        "n": 38,
+        "slug": "one-health-salud-ambiental-humana-y-de-otros-seres-vivos",
+        "eyebrow": "Lección 38 · UD F · Ecología y sostenibilidad",
+        "title_html": "<em>One Health</em>: salud ambiental, humana y de otros seres vivos",
+        "title_plain": "One Health: salud ambiental, humana y de otros seres vivos",
+        "meta": "1º ESO Biología y Geología · CyL Decreto 39/2022 · bloque F",
+        "curiosidad_t": "3 SALUDES unidas",
+        "curiosidad": (
+            "<strong>One Health (una sola salud)</strong>: la salud de las <strong>personas</strong>, "
+            "de <strong>otros seres vivos</strong> y del <strong>medio ambiente</strong> están conectadas."
+        ),
+        "curiosidad_fig": "olla.svg",
+        "objetivos": [
+            "Explicar One Health con el diagrama de tres círculos.",
+            "Dar un ejemplo que una persona, animal y entorno.",
+            "Relacionar higiene, mascotas, agua limpia y ecosistemas.",
+            "Usar 3 SALUDES unidas (persona · animal · entorno).",
+            "Ver la salud como un sistema, no como magia.",
+        ],
+        "cuerpo": """
+    <h2>Explicación</h2>
+    <p><strong>One Health (una sola salud):</strong> la salud de las <strong>personas</strong>, de <strong>otros seres vivos</strong> y del <strong>medio ambiente</strong> están conectadas.</p>
+    <p>Ejemplos sencillos:</p>
+    <ul>
+      <li>Agua contaminada → enferma gente y animales.</li>
+      <li>Cuidar mascotas + higiene → menos riesgos compartidos.</li>
+      <li>Ecosistema sano → mejor aire, agua y alimentos.</li>
+    </ul>
+    <div class="tarjeta">
+      <p style="margin:0"><strong>Mnemónico:</strong> «3 SALUDES unidas (persona · animal · entorno)».</p>
+    </div>
+""",
+        "vida_t": "Castilla y León",
+        "vida": [
+            "En CyL: ríos limpios, ganado, mascotas y pueblos/ciudades comparten aire y agua.",
+            "Cuidar el entorno es también cuidarnos.",
+            "Agua sucia conecta salud humana y animal.",
+            "One Health no ignora el medio: es una de las tres saludes.",
+        ],
+        "vida_fig": "mapa.svg",
+        "widgets": [
+            ("One Health", "l38-one-health.html"),
+        ],
+        "reto_t": "3 SALUDES en 1 minuto",
+        "reto": (
+            "Explica a un compañero, con el dibujo del interactivo, la idea más importante de esta "
+            "lección en 1 minuto."
+        ),
+        "reto_id": "1eso-byg-L38",
+        "cierre": "<strong>3 SALUDES unidas (persona · animal · entorno).</strong> One Health = sistema conectado.",
+    },
+    {
+        "n": 39,
+        "slug": "proyecto-integrador-del-curso-ciencia-entorno-cyl",
+        "eyebrow": "Lección 39 · UD F · Cierre",
+        "title_html": "Proyecto integrador del curso (<em>ciencia + entorno CyL</em>)",
+        "title_plain": "Proyecto integrador del curso (ciencia + entorno CyL)",
+        "meta": "1º ESO Biología y Geología · CyL Decreto 39/2022 · cierre A–F",
+        "curiosidad_t": "PREGUNTA → OBSERVA → MODELA → CUENTA",
+        "curiosidad": (
+            "Cerramos el curso con un <strong>mini-proyecto</strong> local: pregunta clara, "
+            "observar evidencias, modelar (esquema/tabla) y comunicar — sin inventar datos."
+        ),
+        "curiosidad_fig": "ticket.svg",
+        "objetivos": [
+            "Elegir una pregunta local (CyL / barrio / centro).",
+            "Seguir pasos: preguntar → observar → modelar → comunicar.",
+            "Usar vocabulario científico del curso (A–F).",
+            "Usar PREGUNTA → OBSERVA → MODELA → CUENTA.",
+            "Registrar lo que ves y citar fuentes si usas web.",
+        ],
+        "cuerpo": """
+    <h2>Explicación</h2>
+    <p>Cerramos el curso con un <strong>mini-proyecto</strong>:</p>
+    <ol>
+      <li><strong>Pregunta</strong> clara y local</li>
+      <li><strong>Observar</strong> y reunir evidencias (notas, fotos, medidas sencillas)</li>
+      <li><strong>Modelo</strong> (esquema, mapa, tabla)</li>
+      <li><strong>Comunicar</strong> (informe corto oral o escrito)</li>
+    </ol>
+    <p>Ideas CyL: dehesa/pinar, río, parque, residuos del centro, roca local, One Health en casa.</p>
+    <p>No inventes datos: registra lo que ves y cita fuentes si usas web.</p>
+    <div class="tarjeta">
+      <p style="margin:0"><strong>Mnemónico:</strong> «PREGUNTA → OBSERVA → MODELA → CUENTA».</p>
+    </div>
+""",
+        "vida_t": "Castilla y León",
+        "vida": [
+            "Elige un lugar real cerca de ti en CyL (patio, parque, ribera, monte).",
+            "Aplica saberes A–F: método, geosfera, agua, célula, seres vivos, ecología.",
+            "Ideas: dehesa, río, residuos del centro, roca local, One Health.",
+            "Comunica con rigor: evidencias, no inventos.",
+        ],
+        "vida_fig": "mapa.svg",
+        "widgets": [
+            ("Proyecto integrador CyL", "l39-proyecto-integrador-cyl.html"),
+        ],
+        "reto_t": "Cuenta tu proyecto en 1 minuto",
+        "reto": (
+            "Explica a un compañero, con el dibujo del interactivo, la idea más importante de esta "
+            "lección en 1 minuto."
+        ),
+        "reto_id": "1eso-byg-L39",
+        "cierre": "<strong>PREGUNTA → OBSERVA → MODELA → CUENTA.</strong> Proyecto local, evidencias reales.",
+    },
+    {
+        "n": 40,
+        "slug": "autoevaluacion-portfolio-y-habitos-de-trabajo-cientifico",
+        "eyebrow": "Lección 40 · UD F · Cierre",
+        "title_html": "<em>Autoevaluación</em>, portfolio y hábitos de trabajo científico",
+        "title_plain": "Autoevaluación, portfolio y hábitos de trabajo científico",
+        "meta": "1º ESO Biología y Geología · CyL Decreto 39/2022 · cierre",
+        "curiosidad_t": "SÉ · GUARDO · MEJORO",
+        "curiosidad": (
+            "Cierra las <strong>40 lecciones</strong> de ByG 1º ESO: autoevaluación honesta, "
+            "portfolio de evidencias y hábitos científicos (curiosidad, rigor, honestidad, respeto, constancia)."
+        ),
+        "curiosidad_fig": "ticket.svg",
+        "objetivos": [
+            "Completar una autoevaluación honesta del curso.",
+            "Organizar el <strong>portfolio</strong> (evidencias de aprendizaje).",
+            "Listar hábitos científicos a mantener el próximo curso.",
+            "Usar SÉ · GUARDO · MEJORO.",
+            "Guardar el portfolio para el curso siguiente.",
+        ],
+        "cuerpo": """
+    <h2>Explicación</h2>
+    <p><strong>Autoevaluación:</strong> ¿qué sé hacer solo? Marca con honestidad.</p>
+    <p><strong>Portfolio:</strong> carpeta con esquemas, fotos de prácticas, glosarios, retos, proyecto L39 y esta checklist.</p>
+    <p><strong>Hábitos científicos:</strong> curiosidad, rigor, honestidad con los datos, respeto y constancia.</p>
+    <p>Esto cierra las <strong>40 lecciones</strong> de ByG 1º ESO (CyL).</p>
+    <div class="tarjeta">
+      <p style="margin:0"><strong>Mnemónico:</strong> «SÉ · GUARDO · MEJORO».</p>
+    </div>
+""",
+        "vida_t": "Castilla y León",
+        "vida": [
+            "Tu portfolio es la prueba de lo aprendido en el instituto y en salidas por CyL.",
+            "Guárdalo para el curso siguiente.",
+            "Autoevaluar no es copiar del solucionario: es honestidad.",
+            "Curso completo: 40 lecciones (A–F + cierre).",
+        ],
+        "vida_fig": "mapa.svg",
+        "widgets": [
+            ("Autoevaluación y portfolio", "l40-autoevaluacion-portfolio-habitos.html"),
+        ],
+        "reto_t": "SÉ · GUARDO · MEJORO en 1 minuto",
+        "reto": (
+            "Explica a un compañero, con el dibujo del interactivo, la idea más importante de esta "
+            "lección en 1 minuto."
+        ),
+        "reto_id": "1eso-byg-L40",
+        "cierre": "<strong>SÉ · GUARDO · MEJORO.</strong> Fin del curso ByG 1º ESO: 40/40.",
     },
 ]
 
@@ -2199,14 +2734,14 @@ def render_hub(*, for_downloads: bool = False) -> str:
     <p class="eyebrow" style="display:block;font-size:0.72rem;letter-spacing:0.16em;text-transform:uppercase;color:var(--lv-acento);font-weight:600;margin:0 0 0.55rem">Decreto 39/2022 · Castilla y León</p>
     <h1 id="hub-titulo">1º ESO Biología y Geología</h1>
     <p class="hub-status">
-      <strong>Lecciones 01–{AVAILABLE:02d} disponibles</strong> (UD A–F: proyecto científico, geosfera, atmósfera/hidrosfera, célula, seres vivos, ecosistemas) en shell HTML.
-      El curso está <strong>en construcción</strong> ({TOTAL} lecciones previstas).
+      <strong>Pack completo L01–L{AVAILABLE:02d}</strong> (UD A–F + cierre: proyecto científico, geosfera, atmósfera/hidrosfera, célula, seres vivos, ecosistemas y sostenibilidad) en shell HTML.
+      Curso <strong>cerrado</strong> ({TOTAL}/{TOTAL} lecciones disponibles).
       <strong>ZIP offline</strong> (sin instalar: descomprime y abre <code>ABRE-AQUI.html</code>) en <a href="{descargas}">Descargas</a>.
     </p>
     <a class="hub-cta" href="{lec_prefix}{l01}">Abrir lección 01 →</a>
   </section>
 
-  <p class="hub-nota">Índice del temario ({TOTAL} lecciones previstas). Disponibles L01–L{AVAILABLE:02d} como <code>leccion-NN-….html</code> (alias <code>leccion-NN.html</code>). L{AVAILABLE+1:02d}–L{TOTAL}: próximamente.</p>
+  <p class="hub-nota">Índice del temario completo ({TOTAL} lecciones). Todas disponibles como <code>leccion-NN-….html</code> (alias <code>leccion-NN.html</code>). Pack completo — sin «próximamente».</p>
 
   <ol class="hub-lista">
 {chr(10).join(items)}
@@ -2214,11 +2749,11 @@ def render_hub(*, for_downloads: bool = False) -> str:
 
   <p class="hub-pie-nota">
     Educación obligatoria · currículo oficial CyL (Decreto 39/2022). Distinto del pack Profesor (multi-materia).
-    Interactivos L01–L{AVAILABLE:02d}: método, geosfera, atmósfera/hidrosfera, célula, seres vivos y ecosistemas (UD A–F).
+    Interactivos L01–L{AVAILABLE:02d}: método, geosfera, atmósfera/hidrosfera, célula, seres vivos, ecosistemas y sostenibilidad (UD A–F + cierre).
   </p>
 
   <footer class="leccion-pie">
-    <strong>Les vencimos</strong> · 1º ESO Biología y Geología · L01–L{AVAILABLE:02d} de {TOTAL} · en construcción
+    <strong>Les vencimos</strong> · 1º ESO Biología y Geología · pack completo L01–L{AVAILABLE:02d}/{TOTAL}
   </footer>
 </div>
 </body>
@@ -2238,6 +2773,17 @@ def update_descargas() -> None:
     text = DESCARGAS.read_text(encoding="utf-8")
     import re
 
+    text = text.replace(
+        "Oficial CyL · Decreto 39/2022 · en construcción (40 lecciones)",
+        "Oficial CyL · Decreto 39/2022 · pack completo (40 lecciones)",
+    )
+    text = re.sub(
+        r"L01–L\d{2} disponibles \(UD A–F:.*?\); curso en construcción \(40 lecciones previstas\)",
+        f"Pack completo L01–L{AVAILABLE:02d} (UD A–F + cierre: proyecto científico, geosfera, atmósfera/hidrosfera, célula, seres vivos, ecosistemas y sostenibilidad). Curso cerrado ({TOTAL}/{TOTAL})",
+        text,
+        count=1,
+    )
+
     # Lead line (Mate + ByG)
     text = re.sub(
         r"1º ESO Matemáticas y Biología y Geología \(L0?\d+(?:–L?\d+)?\)",
@@ -2252,15 +2798,15 @@ def update_descargas() -> None:
 
     byg_body = (
         f"<strong>No se instala.</strong> Descomprime y abre <code>ABRE-AQUI.html</code> / <code>index.html</code>.\n"
-        f"            L01–L{AVAILABLE:02d} disponibles (UD A–F: proyecto científico, geosfera, atmósfera/hidrosfera, célula, seres vivos, ecosistemas); "
-        f"curso en construcción ({TOTAL} lecciones previstas). Sin nube ni servidor.\n"
+        f"            Pack completo L01–L{AVAILABLE:02d} (UD A–F + cierre: proyecto científico, geosfera, atmósfera/hidrosfera, célula, seres vivos, ecosistemas y sostenibilidad). "
+        f"Curso cerrado ({TOTAL}/{TOTAL}). Sin nube ni servidor.\n"
         f"            Distinto del pack Profesor."
     )
 
     if "1eso-biologia-geologia-offline.zip" in text:
         text2, n = re.subn(
             r"(<h2>1º ESO Biología y Geología</h2>\s*"
-            r'<p class="kicker">Oficial CyL · Decreto 39/2022 · en construcción \(40 lecciones\)</p>\s*'
+            r'<p class="kicker">Oficial CyL · Decreto 39/2022 · pack completo \(40 lecciones\)</p>\s*'
             r"<p>)(.*?)(</p>\s*"
             r'<div class="actions">\s*'
             r'<a class="btn-download" href="/downloads/1eso-biologia-geologia-offline\.zip")',
@@ -2295,7 +2841,7 @@ def update_descargas() -> None:
           <div class="num">08b</div>
           <div>
             <h2>1º ESO Biología y Geología</h2>
-            <p class="kicker">Oficial CyL · Decreto 39/2022 · en construcción (40 lecciones)</p>
+            <p class="kicker">Oficial CyL · Decreto 39/2022 · pack completo (40 lecciones)</p>
             <p>{byg_body.replace(chr(92)+'n', chr(10))}</p>
             <div class="actions">
               <a class="btn-download" href="/downloads/1eso-biologia-geologia-offline.zip" download="1eso-biologia-geologia-offline.zip">Descargar ZIP</a>
@@ -2378,8 +2924,8 @@ def build_offline_pack() -> None:
 No hay que instalar nada. Descomprime y abre **ABRE-AQUI.html** (o index.html).
 
 **Qué es:** lecciones de **Educación obligatoria** (currículo oficial Castilla y León, Decreto 39/2022).
-Este pack trae las lecciones **01–{AVAILABLE:02d}** (UD A–F: proyecto científico, geosfera, atmósfera/hidrosfera, célula, seres vivos, ecosistemas) en HTML plano (shell + interactivos embebidos).
-Curso en construcción: **{TOTAL}** lecciones previstas (no está completo).
+Este pack trae el curso **completo**: lecciones **01–{AVAILABLE:02d}/{TOTAL}** (UD A–F + cierre: proyecto científico, geosfera, atmósfera/hidrosfera, célula, seres vivos, ecosistemas y sostenibilidad) en HTML plano (shell + interactivos embebidos).
+**Pack completo** — sin lecciones «próximamente».
 
 **Cómo abrir (Android / PC) — 4 pasos**
 
@@ -2448,7 +2994,7 @@ alias `leccion-NN.html`, widgets `l01`…`l{AVAILABLE:02d}-….html`, calculador
   <header class="bloque-titulo">
     <span class="eyebrow">Educación obligatoria · CyL</span>
     <h1 class="titulo-leccion">1º ESO Biología y Geología</h1>
-    <p class="meta-leccion">L01–L{AVAILABLE:02d} listas · curso en construcción ({TOTAL} lecciones previstas)</p>
+    <p class="meta-leccion">Pack completo L01–L{AVAILABLE:02d}/{TOTAL} · curso cerrado</p>
   </header>
   <div class="no-install">
     <strong>No hay que instalar nada.</strong> Abre <code>ABRE-AQUI.html</code> o <code>index.html</code> desde esta carpeta
@@ -2459,7 +3005,7 @@ alias `leccion-NN.html`, widgets `l01`…`l{AVAILABLE:02d}-….html`, calculador
   </div>
   <p><a class="big-cta" href="{lesson_filename(1)}">Abrir lección 01 →</a>
      &nbsp; <a href="calculadora.html">Calculadora</a></p>
-  <p class="hub-nota">L{AVAILABLE+1:02d}–L{TOTAL} próximamente. Usa siempre este índice.</p>
+  <p class="hub-nota">Curso completo ({TOTAL}/{TOTAL}). Usa siempre este índice.</p>
   <section class="bloque-cuerpo">
     <h2>Lecciones</h2>
     <ol class="hub-lista-flat">
