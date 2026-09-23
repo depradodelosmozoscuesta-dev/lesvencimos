@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Build online shell + flat offline pack for 1º ESO Lengua Castellana y Literatura (L01–L10 of 40)."""
+"""Build online shell + flat offline pack for 1º ESO Lengua Castellana y Literatura (L01–L27 of 40)."""
 from __future__ import annotations
 
 import html
@@ -22,7 +22,7 @@ ZIP_PATH = REPO / "downloads/1eso-lengua-castellana-offline.zip"
 COURSE_ICONS = COURSE_DIR / "icons"
 BRAND_ICONS = REPO / "brand/favicon"
 TOTAL = 40
-AVAILABLE = 10
+AVAILABLE = 27
 
 COURSE_NAME = "1º ESO Lengua Castellana y Literatura"
 COURSE_SHORT = "1º ESO Lengua"
@@ -71,6 +71,13 @@ def pack_ud_blurb(*, short: bool = False) -> str:
             "UD A · Las lenguas y sus hablantes + UD B · Comunicación "
             "+ UD C · Educación literaria + UD D · Reflexión sobre la lengua"
         )
+    if AVAILABLE >= 27:
+        # UD A + UD B complete (L01–L27); NOT full course
+        if short:
+            return "UD A + UD B"
+        return (
+            "UD A · Las lenguas y sus hablantes + UD B · Comunicación"
+        )
     # Partial: A + inicio B (L10)
     if short:
         return "UD A + inicio UD B"
@@ -78,15 +85,26 @@ def pack_ud_blurb(*, short: bool = False) -> str:
 
 
 def pack_interactivos_blurb() -> str:
-    base = (
+    base_a = (
         "lenguas/dialectos/hablas, marco legal CyL, biografía lingüística, "
         "familias del mundo, mapa de España y signos, plurilingüismo, "
-        "prejuicios e inclusivo, fenómenos (seseo–voseo), variedades CyL (UD A); "
-        "hecho comunicativo (inicio UD B)"
+        "prejuicios e inclusivo, fenómenos (seseo–voseo), variedades CyL (UD A)"
+    )
+    base_b = (
+        "hecho comunicativo, no verbal, secuencias, diálogo/exposición, adecuación, "
+        "géneros personales y educativos, redes/medios, turno/cortesía, "
+        "comprensión y producción oral/escrita, instrucciones, oral-escrito/coloquial-formal, "
+        "deixis/cohesión, verbos/puntuación, debates (UD B)"
     )
     if AVAILABLE >= TOTAL:
-        return base + "; comunicación, literatura y reflexión sobre la lengua (resto del curso)"
-    return base
+        return (
+            base_a + "; " + base_b
+            + "; literatura y reflexión sobre la lengua (UD C + UD D)"
+        )
+    if AVAILABLE >= 27:
+        return base_a + "; " + base_b
+    # L01–L10 only
+    return base_a + "; hecho comunicativo (inicio UD B)"
 
 
 # Full temario titles (curso completo L01–L40) — from TEMARIO.md
@@ -144,6 +162,23 @@ TITLE_HTML = {
     8: "<em>Seseo</em>, ceceo, yeísmo y voseo (ejemplos sencillos)",
     9: "Variedades del español con foco en <em>Castilla y León</em>",
     10: "El <em>hecho comunicativo</em>: elementos, intención y canal",
+    11: "Comunicación <em>no verbal</em>",
+    12: "Secuencias <em>narrativas</em> y descriptivas",
+    13: "<em>Diálogo</em> y exposición",
+    14: "<em>Adecuación</em> del texto a la situación",
+    15: "Géneros personales: la <em>conversación</em>",
+    16: "Géneros educativos: <em>tipologías</em> textuales",
+    17: "Redes sociales y medios: lectura <em>crítica</em>",
+    18: "Turno de palabra, <em>cortesía</em> y escucha activa",
+    19: "Comprensión oral: sentido <em>global</em> e información relevante",
+    20: "Producción oral: <em>formal</em> e informal",
+    21: "Comprensión lectora: intención, forma y <em>contenido</em>",
+    22: "Producción escrita: redactar, revisar, <em>editar</em>",
+    23: "Instrucciones, <em>normas</em> y avisos del día a día",
+    24: "Oral / escrito y coloquial / <em>formal</em> en la escuela",
+    25: "Deixis, registro y <em>cohesión</em> (conectores y referencias)",
+    26: "Formas <em>verbales</em> y puntuación básica",
+    27: "<em>Debates</em> y cooperación en el aprendizaje",
 }
 
 WIDGETS = {
@@ -157,6 +192,23 @@ WIDGETS = {
     8: ("Laboratorio · seseo, ceceo, yeísmo y voseo", "l08-seseo-ceceo-yeismo-voseo.html"),
     9: ("Laboratorio · variedades del español en CyL", "l09-variedades-espanol-castilla-leon.html"),
     10: ("Laboratorio · hecho comunicativo", "l10-hecho-comunicativo-elementos-intencion-canal.html"),
+    11: ("Laboratorio · comunicación no verbal", "l11-comunicacion-no-verbal.html"),
+    12: ("Laboratorio · secuencias narrativas y descriptivas", "l12-secuencias-narrativas-descriptivas.html"),
+    13: ("Laboratorio · diálogo y exposición", "l13-dialogo-y-exposicion.html"),
+    14: ("Laboratorio · adecuación del texto a la situación", "l14-adecuacion-texto-situacion.html"),
+    15: ("Laboratorio · géneros personales: conversación", "l15-generos-personales-conversacion.html"),
+    16: ("Laboratorio · géneros educativos: tipologías", "l16-generos-educativos-tipologias.html"),
+    17: ("Laboratorio · redes sociales y lectura crítica", "l17-redes-sociales-medios-lectura-critica.html"),
+    18: ("Laboratorio · turno, cortesía y escucha activa", "l18-turno-cortesia-escucha-activa.html"),
+    19: ("Laboratorio · comprensión oral: sentido global", "l19-comprension-oral-sentido-global.html"),
+    20: ("Laboratorio · producción oral formal e informal", "l20-produccion-oral-formal-informal.html"),
+    21: ("Laboratorio · comprensión lectora: intención-forma-contenido", "l21-comprension-lectora-intencion-forma-contenido.html"),
+    22: ("Laboratorio · producción escrita: redactar-revisar-editar", "l22-produccion-escrita-redactar-revisar-editar.html"),
+    23: ("Laboratorio · instrucciones, normas y avisos", "l23-instrucciones-normas-avisos.html"),
+    24: ("Laboratorio · oral/escrito y coloquial/formal", "l24-oral-escrito-coloquial-formal-escuela.html"),
+    25: ("Laboratorio · deixis, registro y cohesión", "l25-deixis-registro-cohesion.html"),
+    26: ("Laboratorio · formas verbales y puntuación", "l26-formas-verbales-puntuacion-basica.html"),
+    27: ("Laboratorio · debates y cooperación", "l27-debates-cooperacion-aprendizaje.html"),
 }
 
 # Short curiosidades (MD sources lack a dedicated block)
@@ -225,6 +277,108 @@ CURIOSIDADES = {
         "<strong>hecho comunicativo</strong>. La intención (informar, pedir, convencer…) "
         "explica por qué dices lo que dices.",
         "ticket.svg",
+    ),
+    11: (
+        "GMP-TP",
+        "Gestos, mirada, postura · tono y proxémica: el cuerpo también comunica. "
+        "Si las palabras y el gesto chocan, mucha gente cree más al <strong>cuerpo</strong>.",
+        "fuego.svg",
+    ),
+    12: (
+        "NADES",
+        "<strong>NA</strong>rrar = acciones en el tiempo. <strong>DES</strong>cribir = cualidades "
+        "y sentidos. Distinguir ambas secuencias evita mezclar «qué pasó» con «cómo es».",
+        "mapa.svg",
+    ),
+    13: (
+        "DI-EX",
+        "<strong>DI</strong>álogo = varias voces. <strong>EX</strong>posición = explicar con "
+        "orden. En el aula y en CyL usas las dos: charla y explicación clara.",
+        "ticket.svg",
+    ),
+    14: (
+        "Las 4A",
+        "A quién, a qué, a dónde (canal) y ajuste de registro: la <strong>adecuación</strong> "
+        "elige el texto que encaja en la situación, no «el más largo».",
+        "olla.svg",
+    ),
+    15: (
+        "ADC + turno",
+        "Apertura, desarrollo y cierre: la <strong>conversación</strong> personal también "
+        "tiene forma. Respetar el turno es cooperación, no formalismo vacío.",
+        "fuego.svg",
+    ),
+    16: (
+        "ENDE",
+        "Exponer, narrar, describir, entablar diálogo: tipologías del <strong>ámbito "
+        "educativo</strong>. Elegir la pieza correcta ahorra confusiones en el instituto.",
+        "mapa.svg",
+    ),
+    17: (
+        "FOCCE",
+        "Fuente, opinión/hecho, clic-intención, contraste, exclusión: lectura "
+        "<strong>crítica</strong> de redes y medios antes de compartir.",
+        "ticket.svg",
+    ),
+    18: (
+        "TCE-R",
+        "Turno, cortesía, escucha y resolución: el mapa mínimo de una charla "
+        "<strong>cooperativa</strong>. Interrumpir sin escuchar rompe el acuerdo.",
+        "olla.svg",
+    ),
+    19: (
+        "GIR-D",
+        "Global, intención, relevante y ¿discriminación?: la comprensión "
+        "<strong>oral</strong> no es solo «oir palabras», es filtrar lo importante.",
+        "fuego.svg",
+    ),
+    20: (
+        "FAI",
+        "Formal vs audiencia e informal consciente: la producción "
+        "<strong>oral</strong> cambia de registro según con quién hablas.",
+        "mapa.svg",
+    ),
+    21: (
+        "IFC",
+        "Intención, forma y contenido: tres capas de la comprensión "
+        "<strong>lectora</strong>. Leer solo el contenido deja a medias el mensaje.",
+        "ticket.svg",
+    ),
+    22: (
+        "PRRE",
+        "Planifica, redacta, revisa, edita: el ciclo de la producción "
+        "<strong>escrita</strong>. Publicar el primer borrador no es «ser rápido»: es saltarse pasos.",
+        "olla.svg",
+    ),
+    23: (
+        "INA",
+        "Instrucción, norma, aviso: textos del día a día. En CyL (colegio, bus, museo) "
+        "saber leerlos evita líos y respeta reglas compartidas.",
+        "fuego.svg",
+    ),
+    24: (
+        "OECF",
+        "Oral/escrito y coloquial/formal: cuatro polos, no dos. En la "
+        "<strong>escuela</strong> mezclarlos sin conciencia genera malentendidos.",
+        "mapa.svg",
+    ),
+    25: (
+        "DRC",
+        "Deixis (aquí/ahora/yo), registro y cohesión (conectores y referencias): "
+        "el pegamento que hace que un texto <strong>siga unido</strong>.",
+        "ticket.svg",
+    ),
+    26: (
+        "VP",
+        "Verbos coherentes y puntuación con sentido: no son adornos. Cambian el "
+        "<strong>significado</strong> de lo que escribes.",
+        "olla.svg",
+    ),
+    27: (
+        "TAE-C",
+        "Turno, argumento, ejemplo y cooperación: el kit del "
+        "<strong>debate</strong> escolar. Ganar no es gritar: es razonar juntos.",
+        "fuego.svg",
     ),
 }
 
@@ -1027,7 +1181,7 @@ def update_descargas() -> None:
             <h2>1º ESO Lengua Castellana y Literatura</h2>
             <p class="kicker">Oficial CyL · Decreto 39/2022 · {"pack completo (" + str(TOTAL) + " lecciones)" if AVAILABLE >= TOTAL else f"L01–L{AVAILABLE:02d} (de {TOTAL} previstas)"}</p>
             <p><strong>No se instala.</strong> Descomprime y abre <code>ABRE-AQUI.html</code> / <code>index.html</code>.
-            Pack plano L01–L{AVAILABLE:02d} ({pack_ud_blurb(short=True)}: lenguas y hablantes; inicio de comunicación).
+            Pack plano L01–L{AVAILABLE:02d} ({pack_ud_blurb(short=True)}: lenguas y hablantes; comunicación completa).
             {"Curso cerrado (" + f"{TOTAL}/{TOTAL}" + ")" if AVAILABLE >= TOTAL else f"Curso en construcción ({AVAILABLE}/{TOTAL})"}. Sin nube ni servidor.
             Distinto del pack Profesor.</p>
             <div class="actions">
@@ -1102,7 +1256,7 @@ No hay que instalar nada. Descomprime y abre **ABRE-AQUI.html** (o index.html).
 
 **Qué es:** lecciones de **Educación obligatoria** (currículo oficial Castilla y León, Decreto 39/2022).
 {"Este pack trae el **curso completo** (lecciones **01–%02d/%d**)" % (AVAILABLE, TOTAL) if AVAILABLE >= TOTAL else "Este pack trae las lecciones **01–%02d/%d**" % (AVAILABLE, TOTAL)} ({pack_ud_blurb()}) en HTML plano (shell + interactivos embebidos).
-{"" if AVAILABLE >= TOTAL else "L%02d–L%d próximamente (resto UD B · Comunicación + UD C + UD D)." % (AVAILABLE + 1, TOTAL) + chr(10)}
+{"" if AVAILABLE >= TOTAL else ("L%02d–L%d próximamente (UD C · Educación literaria + UD D · Reflexión sobre la lengua)." % (AVAILABLE + 1, TOTAL) if AVAILABLE >= 27 else "L%02d–L%d próximamente (resto UD B · Comunicación + UD C + UD D)." % (AVAILABLE + 1, TOTAL)) + chr(10)}
 **Cómo abrir (Android / PC) — 4 pasos**
 
 1. Descarga el ZIP.
@@ -1170,7 +1324,7 @@ alias `leccion-NN.html`, widgets `l01`…`l{AVAILABLE:02d}-….html`, calculador
   <header class="bloque-titulo">
     <span class="eyebrow">Educación obligatoria · CyL</span>
     <h1 class="titulo-leccion">{COURSE_NAME}</h1>
-    <p class="meta-leccion">{"Pack completo L01–L%02d/%d · curso cerrado" % (AVAILABLE, TOTAL) if AVAILABLE >= TOTAL else "L01–L%02d/%d · UD A + inicio UD B · curso en construcción" % (AVAILABLE, TOTAL)}</p>
+    <p class="meta-leccion">{"Pack completo L01–L%02d/%d · curso cerrado" % (AVAILABLE, TOTAL) if AVAILABLE >= TOTAL else "L01–L%02d/%d · %s · curso en construcción" % (AVAILABLE, TOTAL, pack_ud_blurb(short=True))}</p>
   </header>
   <div class="no-install">
     <strong>No hay que instalar nada.</strong> Abre <code>ABRE-AQUI.html</code> o <code>index.html</code> desde esta carpeta

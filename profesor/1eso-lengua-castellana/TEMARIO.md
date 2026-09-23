@@ -58,5 +58,5 @@
 | Bloque | Estado |
 |---|---|
 | L01–L10 | **Hecho** (2026-09-23) |
-| L11–L27 | Pendiente |
+| L11–L27 | **Hecho** (2026-09-23) |
 | L28–L40 | Pendiente |
