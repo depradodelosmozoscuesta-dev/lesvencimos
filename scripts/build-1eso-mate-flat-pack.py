@@ -15,7 +15,7 @@ DESCARGAS = REPO / "descargas.html"
 PACK_DIR = REPO / "downloads/_build-1eso-mate-flat"
 ZIP_PATH = REPO / "downloads/1eso-matematicas-offline.zip"
 TOTAL = 47
-AVAILABLE = 39  # L01–L39
+AVAILABLE = 42  # L01–L42
 
 # (num, short_ud, title, meta, curiosidad_title, curiosidad_text, figura_cur,
 #  objetivos[list], cuerpo_extra_html, vida_title, vida_items, vida_figura,
@@ -1596,6 +1596,132 @@ LESSONS = [
     "reto": "Encuentra un patrón visual o numérico en casa (azulejos, horarios, coleccionables). Describe la regla y predice el siguiente elemento.",
     "reto_id": "1eso-mate-L39",
     "cierre": "Mira → cuenta → di la regla → escribe aₙ → comprueba n=1 y n=2. Una tabla convierte el patrón en una predicción comprobable.",
+  },
+  {
+    "n": 40,
+    "eyebrow": "Lección 40 · UD13 · Álgebra inicial",
+    "title_html": "Del lenguaje cotidiano al <em>lenguaje algebraico</em>",
+    "title_plain": "Del lenguaje cotidiano al lenguaje algebraico",
+    "meta": "Saberes CyL (Decreto 39/2022): D.2 Modelo matemático; D.3 Variable (intro)",
+    "curiosidad_t": "Palabras que se vuelven símbolos",
+    "curiosidad": "Durante siglos muchos problemas se resolvían con palabras («retórica»). En la Europa moderna aparecieron símbolos compactos: hoy una frase como «3 más que el doble» puede escribirse 2x+3. La notación cambia, pero la idea sigue siendo la misma.",
+    "curiosidad_fig": "ticket.svg",
+    "objetivos": [
+      "Traducir frases a expresiones algebraicas.",
+      "Distinguir expresión, ecuación e identidad a nivel intuitivo.",
+      "Usar letras para cantidades desconocidas o variables.",
+      "Evitar errores de traducción, especialmente con «el doble de». ",
+    ],
+    "cuerpo": """
+    <h2>Explicación breve</h2>
+    <p>El álgebra comprime frases: «un número» → <strong>x</strong>, «el siguiente» → <strong>x+1</strong>, «el doble» → <strong>2x</strong>, «la mitad» → <strong>x/2</strong> y «3 más que el doble» → <strong>2x+3</strong>.</p>
+    <div class="tarjeta">
+      <p style="margin:0 0 0.45rem"><strong>Expresión:</strong> 2x+3 se puede evaluar. <strong>Ecuación:</strong> 2x+3=11 se resuelve.</p>
+      <p style="margin:0"><strong>Convención:</strong> 2x significa 2·x; se omite el signo × para no confundirlo con la letra x.</p>
+    </div>
+    <p>Para traducir: lee la frase, subraya la cantidad, define qué representa cada letra, escribe la expresión y comprueba con un número. «El doble de x más 3» suele ser 2x+3, no 2(x+3), salvo que la frase incluya los paréntesis.</p>
+""",
+    "cuerpo_after_widgets": "",
+    "widget_split": False,
+    "vida_t": "Fórmulas que nos rodean",
+    "vida": [
+      "Tarifas: 1 € fijo + 0,10 € por minuto.",
+      "Edades: «dentro de 5 años tendré el doble…».",
+      "Perímetros con un lado desconocido.",
+      "Puntos de un juego: 3 por victoria + 1 por empate.",
+    ],
+    "vida_fig": "ticket.svg",
+    "widgets": [
+      ("Interactivo · traducir frases y expresiones", "l40-lenguaje-algebraico.html"),
+    ],
+    "reto_t": "Frase secreta algebraica",
+    "reto": "Escribe 3 frases cotidianas y su expresión algebraica. Reta a un compañero a traducirlas al revés, de expresión a frase.",
+    "reto_id": "1eso-mate-L40",
+    "cierre": "Traducir al álgebra es poner orden a lo que ya dices con palabras. Define las letras y cuidado con «doble de» y paréntesis.",
+  },
+  {
+    "n": 41,
+    "eyebrow": "Lección 41 · UD13 · Álgebra inicial",
+    "title_html": "Variable e incógnita: <em>fórmulas</em>",
+    "title_plain": "Variable e incógnita; fórmulas",
+    "meta": "Saberes CyL (Decreto 39/2022): D.3 Variable; fórmulas",
+    "curiosidad_t": "La letra que cambia y la letra que buscamos",
+    "curiosidad": "Una fórmula empaqueta un modelo: en P=2(L+A), L y A pueden cambiar y P responde. En cambio, si conocemos P y L y buscamos A, A es la incógnita. La misma letra puede tener papeles distintos según la pregunta.",
+    "curiosidad_fig": "mapa.svg",
+    "objetivos": [
+      "Distinguir variable (puede cambiar) e incógnita (valor a descubrir).",
+      "Sustituir en fórmulas de área, perímetro, velocidad y temperatura.",
+      "Despejar una variable en fórmulas lineales sencillas.",
+      "Valorar el papel histórico del lenguaje simbólico.",
+    ],
+    "cuerpo": """
+    <h2>Explicación breve</h2>
+    <p>En <strong>A=L·L</strong> de un cuadrado, las letras representan magnitudes que pueden variar. En <strong>2x+3=11</strong>, x es la incógnita: buscamos el valor que cumple la igualdad.</p>
+    <div class="tarjeta">
+      <p style="margin:0 0 0.45rem"><strong>Fórmulas:</strong> P=2(a+b) y d=v·t empaquetan modelos. Para despejar, usa operaciones inversas en ambos miembros: P/2=a+b → b=P/2−a.</p>
+      <p style="margin:0"><strong>Unidades:</strong> v=d/t con d en km y t en h da km/h. Al sustituir números negativos, usa paréntesis.</p>
+    </div>
+    <p>Truco: ¿cambia a voluntad? → variable. ¿La buscas en una igualdad? → incógnita. Sustituye con paréntesis y despeja con pasos reversibles.</p>
+""",
+    "cuerpo_after_widgets": "",
+    "widget_split": False,
+    "vida_t": "Fórmulas para decidir",
+    "vida": [
+      "Velocidad media en un viaje en coche o autobús.",
+      "Área al comprar pintura para una habitación.",
+      "Hojas de cálculo: las celdas funcionan como variables.",
+      "Perímetros y medidas del patio o del aula.",
+    ],
+    "vida_fig": "mapa.svg",
+    "widgets": [
+      ("Interactivo · variables, incógnitas y fórmulas", "l41-variable-formulas.html"),
+    ],
+    "reto_t": "Fórmula casera",
+    "reto": "Inventa una fórmula útil en tu casa (minutos de horno, coste de datos, riego…). Define las variables y pon un ejemplo numérico.",
+    "reto_id": "1eso-mate-L41",
+    "cierre": "Variable = puede variar; incógnita = se busca. Las fórmulas se usan sustituyendo o despejando con operaciones inversas.",
+  },
+  {
+    "n": 42,
+    "eyebrow": "Lección 42 · UD13 · Álgebra inicial",
+    "title_html": "Equivalencia de expresiones y <em>ecuaciones lineales</em>",
+    "title_plain": "Equivalencia de expresiones y ecuaciones lineales (coeficientes enteros)",
+    "meta": "Saberes CyL (Decreto 39/2022): D.4 Igualdad y desigualdad; equivalencia",
+    "curiosidad_t": "La balanza de la igualdad",
+    "curiosidad": "Una balanza se mantiene equilibrada si hacemos lo mismo en los dos platos. Esa imagen ayuda a entender las ecuaciones equivalentes: sumar, restar, multiplicar o dividir por el mismo número (distinto de cero) conserva las soluciones.",
+    "curiosidad_fig": "mapa.svg",
+    "objetivos": [
+      "Simplificar expresiones reduciendo términos semejantes.",
+      "Aplicar la propiedad distributiva con enteros.",
+      "Reconocer ecuaciones equivalentes.",
+      "Montar ecuaciones lineales con coeficientes enteros a partir de enunciados.",
+    ],
+    "cuerpo": """
+    <h2>Explicación breve</h2>
+    <p>Los términos semejantes tienen la misma parte literal: 3x−7x=−4x, pero 3x y 2 no se pueden sumar. La distributiva reparte el factor: <strong>−2(x−5)=−2x+10</strong>.</p>
+    <div class="tarjeta">
+      <p style="margin:0 0 0.45rem"><strong>Ecuaciones equivalentes:</strong> x+3=7 equivale a x=4 porque ambas tienen la misma solución. Haz siempre la misma operación en los dos miembros.</p>
+      <p style="margin:0"><strong>Enunciados:</strong> subraya «es / equivale / resulta»; ahí suele ir el signo =. La balanza es una metáfora útil para comprobar.</p>
+    </div>
+    <p>Truco: junta lo parecido, reparte el paréntesis, haz lo mismo en los dos platos y comprueba la solución. No sumes 3x+2 como si fuera 5x ni multipliques un solo lado.</p>
+""",
+    "cuerpo_after_widgets": "",
+    "widget_split": False,
+    "vida_t": "Igualdades en la vida real",
+    "vida": [
+      "Simplificar un presupuesto con partidas del mismo tipo.",
+      "Balanzas de cocina: equilibrio = igualdad.",
+      "Juegos: igualar puntuaciones con una ecuación.",
+      "Ofertas: 3 artículos iguales → 3x.",
+    ],
+    "vida_fig": "mapa.svg",
+    "widgets": [
+      ("Interactivo · equivalencia y balanza", "l42-equivalencia-ecuaciones.html"),
+    ],
+    "reto_t": "Balanza de palabras",
+    "reto": "Escribe un enunciado cotidiano y su ecuación. Enseña dos ecuaciones equivalentes a esa y explica los pasos que has hecho en ambos miembros.",
+    "reto_id": "1eso-mate-L42",
+    "cierre": "Simplifica con términos semejantes y distributiva. Ecuaciones equivalentes = misma solución. Mantén la balanza equilibrada.",
   },
 ]
 

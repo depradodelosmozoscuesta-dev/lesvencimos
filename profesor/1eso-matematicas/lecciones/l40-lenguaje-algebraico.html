@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Del lenguaje cotidiano al algebraico · 1º ESO</title>
+<style>
+  :root {
+    --bg:#FAF7F0; --ink:#2A2620; --muted:#5C564C; --card:#fff;
+    --gold:#C4A15A; --gold-soft:#F5EDD8; --gold-deep:#8A6B2F;
+    --green:#3D6B4F; --green-soft:#E4F0E8; --blue:#2F5D7A; --blue-soft:#E3EEF4;
+    --rose:#9B3A4A; --rose-soft:#F8E8EB; --amber:#B87333; --amber-soft:#F8EBD8;
+    --purple:#6B4C9A; --purple-soft:#F0EAF7;
+    --shadow:0 8px 28px rgba(42,38,32,.08); --radius:18px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{min-height:100%;background:var(--bg);color:var(--ink);
+    font-family:"Segoe UI",system-ui,-apple-system,sans-serif;-webkit-font-smoothing:antialiased}
+  body{display:flex;flex-direction:column;align-items:center;padding:14px 10px 36px}
+  .wrap{width:100%;max-width:980px}
+  header{text-align:center;margin-bottom:12px}
+  header .badge{display:inline-block;font-size:.78rem;font-weight:700;letter-spacing:.04em;
+    text-transform:uppercase;color:var(--gold-deep);background:var(--gold-soft);
+    padding:4px 12px;border-radius:999px;margin-bottom:8px}
+  h1{font-size:clamp(1.25rem,4.5vw,1.85rem);line-height:1.2;font-weight:800;color:#0E0E0C}
+  .subtitle{margin-top:6px;font-size:clamp(.9rem,2.8vw,1.05rem);color:var(--muted);font-weight:500}
+  .story{background:linear-gradient(135deg,#F5EDD8,#E3EEF4 55%,#E4F0E8);
+    border:2px solid #E0D0A8;border-radius:var(--radius);padding:12px 14px;
+    margin-bottom:14px;display:flex;gap:12px;align-items:flex-start}
+  .story .emoji{font-size:2rem}
+  .story p{font-size:clamp(.9rem,2.5vw,1.02rem);line-height:1.45}
+  .story strong{color:var(--gold-deep)}
+  .card{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);
+    padding:16px 14px 18px;margin-bottom:14px}
+  .card h2{font-size:clamp(1.05rem,3vw,1.25rem);font-weight:800;margin-bottom:8px}
+  .hint{font-size:clamp(.88rem,2.4vw,1rem);color:var(--muted);line-height:1.45;margin-bottom:12px}
+  .mode-row{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px;justify-content:center}
+  .mode-btn{padding:10px 12px;border-radius:12px;border:3px solid #D9D0C0;background:#fff;
+    font-size:.8rem;font-weight:800;cursor:pointer;color:var(--ink)}
+  .mode-btn.active{border-color:var(--gold);background:var(--gold-soft);color:var(--gold-deep)}
+  .stage{position:relative;width:100%;aspect-ratio:16/10;background:#FFFcf5;
+    border-radius:14px;overflow:hidden;border:2px solid #E0D0A8;margin-bottom:12px}
+  .stage svg{width:100%;height:100%;display:block}
+  .ctrl-row{display:flex;flex-wrap:wrap;gap:12px;align-items:flex-end;margin-bottom:12px}
+  .field{display:flex;flex-direction:column;gap:4px;flex:1 1 140px}
+  .field label{font-size:.8rem;font-weight:700;color:var(--muted)}
+  .field label .letter{display:inline-block;padding:1px 7px;border-radius:8px;font-weight:800;
+    margin-right:3px;background:var(--gold-soft);color:var(--gold-deep)}
+  .field input[type="range"]{width:100%;accent-color:var(--gold)}
+  .field output{font-weight:900;font-variant-numeric:tabular-nums;color:var(--gold-deep);font-size:1.05rem}
+  .toggle{display:flex;align-items:center;gap:8px;margin:8px 0;font-weight:700;font-size:.92rem}
+  .toggle input{width:18px;height:18px;accent-color:var(--blue)}
+  .verdict{text-align:center;font-size:clamp(1.0rem,2.6vw,1.25rem);font-weight:900;padding:14px;
+    border-radius:14px;margin:10px 0;background:var(--gold-soft);color:var(--gold-deep);border:2px solid #E0D0A8}
+  .verdict.ok{background:var(--green-soft);color:#2A5238;border-color:#9BC4A8}
+  .verdict.bad{background:var(--rose-soft);color:#7A2A36;border-color:#E8A8B0}
+  .props{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;margin:10px 0}
+  .prop{background:#FFFcf5;border:2px solid #E8DFD0;border-radius:12px;padding:10px 12px;text-align:center}
+  .prop .lab{font-size:.75rem;font-weight:700;color:var(--muted);text-transform:uppercase}
+  .prop .val{font-size:1.05rem;font-weight:900;color:var(--gold-deep);margin-top:2px}
+  .glossary{display:grid;gap:.4rem;margin:10px 0;padding:12px 14px;background:#FFFcf5;
+    border-radius:12px;border:2px solid #E0D0A8;font-size:.95rem}
+  .glossary strong{color:var(--gold-deep)}
+  .mnemonic{font-size:.95rem;font-weight:700;color:var(--gold-deep);background:var(--gold-soft);
+    border-left:4px solid var(--gold);padding:10px 14px;border-radius:0 12px 12px 0;margin-top:10px;line-height:1.4}
+  .hist{font-size:.9rem;color:#334155;background:var(--blue-soft);border-left:4px solid var(--blue);
+    padding:10px 14px;border-radius:0 12px 12px 0;margin-top:10px;line-height:1.45}
+  .callout{font-size:.9rem;font-weight:700;color:var(--rose);background:var(--rose-soft);
+    border-left:4px solid var(--rose);padding:8px 12px;border-radius:0 10px 10px 0;margin-top:10px}
+  .btn-row{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px}
+  button.action{appearance:none;border:none;border-radius:999px;padding:10px 18px;
+    font-weight:800;font-size:.95rem;cursor:pointer;background:var(--gold);color:#fff}
+  button.action.secondary{background:#fff;color:var(--gold-deep);border:2px solid var(--gold)}
+  footer{text-align:center;font-size:.8rem;color:var(--muted);margin-top:4px}
+  .choice-row{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin:8px 0}
+  .choice{padding:10px 14px;border-radius:12px;border:3px solid #D9D0C0;background:#fff;
+    font-weight:800;cursor:pointer;font-size:.95rem}
+  .choice:hover{border-color:var(--gold)}
+  .choice.picked{border-color:var(--blue);background:var(--blue-soft)}
+  .choice.ok{border-color:var(--green);background:var(--green-soft)}
+  .choice.bad{border-color:var(--rose);background:var(--rose-soft)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="badge">Lección 40 · UD13 Álgebra inicial</div>
+    <h1>Del lenguaje cotidiano al algebraico</h1>
+    <p class="subtitle">Frases → expresiones · x = «la cantidad desconocida» · tarifas · ambigüedad</p>
+  </header>
+
+  <div class="story">
+    <div class="emoji">🗣️</div>
+    <p>En el recreo de un instituto de <strong>Valladolid</strong>, Lucía dice:
+    «Si gano el <strong>doble</strong> de cromos que tengo y me dan 3 más…». Eso ya es álgebra:
+    <strong>x</strong> = la cantidad de cromos · <strong>2x+3</strong> = el doble más 3.
+    Traducir es poner orden a lo que ya dices con palabras.</p>
+  </div>
+
+  <section class="card">
+    <h2>Laboratorio de traducción</h2>
+    <div class="mode-row" id="modos">
+      <button type="button" class="mode-btn active" data-mode="match">Emparejar frase→expresión</button>
+      <button type="button" class="mode-btn" data-mode="eval">Evaluar con un valor</button>
+      <button type="button" class="mode-btn" data-mode="ambi">Ambigüedad «doble de»</button>
+      <button type="button" class="mode-btn" data-mode="tarifa">Tarifa taxi CyL</button>
+    </div>
+
+    <div class="stage" aria-label="Traducción de frases a expresiones algebraicas">
+      <svg id="svg" viewBox="0 0 800 500" role="img"></svg>
+    </div>
+
+    <div class="ctrl-row" id="ctrls"></div>
+    <div class="choice-row" id="choices"></div>
+    <label class="toggle"><input type="checkbox" id="showNames" checked/> Mostrar nombres en español (x = «la cantidad…»)</label>
+    <label class="toggle"><input type="checkbox" id="showHint" checked/> Pista visual (flecha frase→expresión)</label>
+    <div class="btn-row">
+      <button type="button" class="action" id="btnEj">Ejemplo del libro</button>
+      <button type="button" class="action secondary" id="btnNext">Otra frase</button>
+      <button type="button" class="action secondary" id="btnReset">Reiniciar</button>
+    </div>
+    <p class="hint">Controles <strong>independientes</strong>: elige frase, valor de x y modo sin mezclar. Nunca uses una letra suelta sin decir qué representa.</p>
+    <div class="props" id="props"></div>
+    <div class="verdict" id="veredicto">Elige una expresión que traduzca la frase.</div>
+  </section>
+
+  <section class="card">
+    <h2>Letras y símbolos (en español)</h2>
+    <div class="glossary">
+      <div><strong>x</strong> = «la cantidad desconocida» (un número que aún no sabemos o que puede cambiar).</div>
+      <div><strong>Expresión</strong> = fórmula sin «=»; se puede <em>evaluar</em> (ej.: 2x+3).</div>
+      <div><strong>Ecuación</strong> = igualdad con incógnita; se <em>resuelve</em> (ej.: 2x+3=11).</div>
+      <div><strong>2x</strong> = «el doble de x» (se omite el · para no confundir × con la letra x).</div>
+      <div><strong>x/2</strong> o <strong>½x</strong> = «la mitad de x» · <strong>x+1</strong> = «el siguiente».</div>
+      <div><strong>P, L, A</strong> = perímetro, largo, ancho (siempre nómbralos en español primero).</div>
+    </div>
+    <div class="mnemonic">«Lee la frase → subraya la cantidad → ponle nombre (x = …) → escribe la expresión → comprueba con un número.»</div>
+    <div class="hist"><strong>Historia breve:</strong> durante siglos se resolvían problemas solo con palabras («retórica»). En Europa moderna aparecieron símbolos compactos. Hoy usamos notación corta, pero el sentido sigue siendo el de la frase.</div>
+    <div class="callout">Error típico: «el doble de x más 3» ≠ 2(x+3), salvo que diga «el doble de (x más 3)». · Escribir x3 en vez de 3x.</div>
+  </section>
+  <footer>1º ESO Matemáticas · CyL Decreto 39/2022 · D.2 Modelo · offline · file://</footer>
+</div>
+<script>
+(function(){
+  const svg = document.getElementById('svg');
+  const ctrls = document.getElementById('ctrls');
+  const props = document.getElementById('props');
+  const choices = document.getElementById('choices');
+  const veredicto = document.getElementById('veredicto');
+  const showNames = document.getElementById('showNames');
+  const showHint = document.getElementById('showHint');
+
+  let mode = 'match';
+  let xVal = 4;
+  let matchIdx = 0;
+  let picked = null;
+  let fixed = 4, porKm = 0.20, km = 12;
+  let ambiParen = false; // false = 2x+3, true = 2(x+3)
+
+  const PAIRS = [
+    {frase:'Un número', expr:'x', name:'x = la cantidad desconocida'},
+    {frase:'El siguiente a un número', expr:'x+1', name:'x = el número'},
+    {frase:'El doble de un número', expr:'2x', name:'x = el número'},
+    {frase:'La mitad de un número', expr:'x/2', name:'x = el número'},
+    {frase:'3 más que el doble', expr:'2x+3', name:'x = el número'},
+    {frase:'5 menos que el triple', expr:'3x−5', name:'x = el número'},
+    {frase:'El triple disminuido en 7', expr:'3x−7', name:'x = el número'},
+    {frase:'La cuarta parte', expr:'x/4', name:'x = el número'},
+    {frase:'Suma de dos consecutivos', expr:'x+(x+1)', name:'x = el primero'},
+    {frase:'Perímetro de un cuadrado de lado L', expr:'4L', name:'L = el lado'},
+  ];
+
+  function el(tag, attrs, text){
+    const n = document.createElementNS('http://www.w3.org/2000/svg', tag);
+    for (const k in attrs) n.setAttribute(k, attrs[k]);
+    if (text != null) n.textContent = text;
+    return n;
+  }
+  function clear(){ while(svg.firstChild) svg.removeChild(svg.firstChild); }
+  function bg(){
+    svg.appendChild(el('rect',{x:0,y:0,width:800,height:500,fill:'#FFFcf5'}));
+    // soft floor
+    svg.appendChild(el('rect',{x:0,y:420,width:800,height:80,fill:'#F5EDD8',opacity:.5}));
+  }
+  function wrapText(parent, text, x, y, maxW, fontSize, fill, weight){
+    // simple wrap by words
+    const words = String(text).split(/\s+/);
+    let line='', lines=[], yy=y;
+    const meas = document.createElementNS('http://www.w3.org/2000/svg','text');
+    meas.setAttribute('font-size', fontSize);
+    meas.setAttribute('font-weight', weight||700);
+    svg.appendChild(meas);
+    words.forEach(w=>{
+      const trial = line ? line+' '+w : w;
+      meas.textContent = trial;
+      if (meas.getBBox().width > maxW && line){ lines.push(line); line=w; }
+      else line=trial;
+    });
+    if (line) lines.push(line);
+    svg.removeChild(meas);
+    lines.forEach((ln,i)=>{
+      parent.appendChild(el('text',{x:x,y:yy+i*(fontSize+4),'font-size':fontSize,'font-weight':weight||700,fill:fill||'#2A2620','text-anchor':'middle'}, ln));
+    });
+    return lines.length;
+  }
+  function bubble(x,y,w,h,text,fill){
+    const g = el('g',{});
+    g.appendChild(el('rect',{x:x,y:y,width:w,height:h,rx:18,fill:fill||'#E3EEF4',stroke:'#2F5D7A','stroke-width':2.5}));
+    // tail
+    g.appendChild(el('polygon',{points:(x+40)+','+(y+h)+' '+(x+70)+','+(y+h)+' '+(x+55)+','+(y+h+18),fill:fill||'#E3EEF4',stroke:'#2F5D7A','stroke-width':2}));
+    wrapText(g, text, x+w/2, y+28, w-24, 16, '#2A2620', 800);
+    svg.appendChild(g);
+    return g;
+  }
+  function exprCard(x,y,w,h,expr,sub,fill,stroke){
+    const g = el('g',{});
+    g.appendChild(el('rect',{x:x,y:y,width:w,height:h,rx:14,fill:fill||'#F5EDD8',stroke:stroke||'#C4A15A','stroke-width':3}));
+    g.appendChild(el('text',{x:x+w/2,y:y+h/2+6,'font-size':26,'font-weight':900,fill:'#8A6B2F','text-anchor':'middle'}, expr));
+    if (sub) g.appendChild(el('text',{x:x+w/2,y:y+h-10,'font-size':12,'font-weight':700,fill:'#5C564C','text-anchor':'middle'}, sub));
+    svg.appendChild(g);
+    return g;
+  }
+  function person(cx, cy, label){
+    const g = el('g',{});
+    g.appendChild(el('circle',{cx:cx,cy:cy-28,r:16,fill:'#F8EBD8',stroke:'#B87333','stroke-width':2}));
+    g.appendChild(el('ellipse',{cx:cx,cy:cy+10,rx:22,ry:26,fill:'#2F5D7A'}));
+    g.appendChild(el('text',{x:cx,y:cy+48,'font-size':13,'font-weight':800,fill:'#2A2620','text-anchor':'middle'}, label));
+    svg.appendChild(g);
+  }
+
+  function setVerdict(msg, cls){
+    veredicto.textContent = msg;
+    veredicto.className = 'verdict' + (cls ? ' '+cls : '');
+  }
+
+  function buildCtrls(){
+    ctrls.innerHTML = '';
+    choices.innerHTML = '';
+    if (mode==='match'){
+      // no sliders; choices below
+    } else if (mode==='eval'){
+      addRange('xVal','x','x = la cantidad desconocida',1,12,xVal,v=>{xVal=+v; draw();});
+    } else if (mode==='ambi'){
+      addRange('xVal','x','x = la cantidad desconocida',0,10,xVal,v=>{xVal=+v; draw();});
+    } else if (mode==='tarifa'){
+      addRange('fixed','F','F = euros fijos de bajada',1,8,fixed,v=>{fixed=+v; draw();});
+      addRange('porKm','c','c = € por kilómetro',0.1,0.5,porKm,v=>{porKm=+v; draw();},0.05);
+      addRange('km','k','k = kilómetros del viaje',1,40,km,v=>{km=+v; draw();});
+    }
+  }
+  function addRange(id, letter, label, min, max, val, on, step){
+    const f = document.createElement('div'); f.className='field';
+    f.innerHTML = '<label><span class="letter">'+letter+'</span>'+label+'</label>';
+    const inp = document.createElement('input');
+    inp.type='range'; inp.min=min; inp.max=max; inp.step=step||1; inp.value=val; inp.id=id;
+    const out = document.createElement('output'); out.textContent = formatNum(+val);
+    inp.addEventListener('input',()=>{ out.textContent=formatNum(+inp.value); on(inp.value); });
+    f.appendChild(inp); f.appendChild(out); ctrls.appendChild(f);
+  }
+  function formatNum(v){
+    if (Number.isInteger(v)) return String(v);
+    return (Math.round(v*100)/100).toString().replace('.',',');
+  }
+
+  function distractors(correct){
+    const pool = PAIRS.map(p=>p.expr).filter(e=>e!==correct);
+    // shuffle
+    for(let i=pool.length-1;i>0;i--){ const j=Math.floor(Math.random()* (i+1)); [pool[i],pool[j]]=[pool[j],pool[i]]; }
+    const opts = [correct, pool[0], pool[1], pool[2]].filter(Boolean);
+    // unique
+    const uniq=[...new Set(opts)];
+    while(uniq.length<4){ uniq.push(pool[uniq.length]); }
+    for(let i=uniq.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [uniq[i],uniq[j]]=[uniq[j],uniq[i]]; }
+    return uniq.slice(0,4);
+  }
+
+  function buildChoices(){
+    choices.innerHTML='';
+    if (mode!=='match' && mode!=='ambi') return;
+    let opts, correct;
+    if (mode==='match'){
+      correct = PAIRS[matchIdx].expr;
+      opts = distractors(correct);
+    } else {
+      correct = ambiParen ? '2(x+3)' : '2x+3';
+      opts = ['2x+3','2(x+3)','2+x+3','x²+3'];
+    }
+    opts.forEach(o=>{
+      const b=document.createElement('button');
+      b.type='button'; b.className='choice'; b.textContent=o;
+      b.addEventListener('click',()=>{
+        picked=o;
+        [...choices.children].forEach(c=>c.classList.remove('picked','ok','bad'));
+        b.classList.add('picked');
+        if (o===correct){ b.classList.add('ok'); setVerdict('¡Correcto! «'+o+'» traduce bien la frase.', 'ok'); }
+        else { b.classList.add('bad'); setVerdict('Casi… «'+o+'» no es esa frase. Piensa el orden de las operaciones.', 'bad'); }
+        draw();
+      });
+      choices.appendChild(b);
+    });
+  }
+
+  function drawMatch(){
+    bg();
+    const p = PAIRS[matchIdx];
+    person(90, 380, 'Lucía');
+    bubble(40, 40, 340, 110, '«'+p.frase+'»', '#E3EEF4');
+    // arrow
+    if (showHint.checked){
+      svg.appendChild(el('path',{d:'M400 95 H460',stroke:'#C4A15A','stroke-width':4,'marker-end':'url(#arrow)'}));
+      const defs=el('defs',{});
+      const m=el('marker',{id:'arrow',markerWidth:10,markerHeight:10,refX:8,refY:3,orient:'auto'});
+      m.appendChild(el('path',{d:'M0,0 L10,3 L0,6 Z',fill:'#C4A15A'}));
+      defs.appendChild(m); svg.appendChild(defs);
+      svg.appendChild(el('line',{x1:390,y1:95,x2:470,y2:95,stroke:'#C4A15A','stroke-width':4}));
+      svg.appendChild(el('polygon',{points:'470,88 490,95 470,102',fill:'#C4A15A'}));
+    }
+    // expression cards row
+    const cards = distractors(p.expr);
+    // keep correct visible among them - use same as choices
+    const shown = [];
+    [...choices.querySelectorAll('.choice')].forEach(c=>shown.push(c.textContent));
+    const list = shown.length? shown : [p.expr,'2x','x+1','3x−5'];
+    list.forEach((ex,i)=>{
+      const cx = 520;
+      const cy = 40 + i*95;
+      const isCorrect = ex===p.expr;
+      const isPicked = picked===ex;
+      let fill='#F5EDD8', stroke='#C4A15A';
+      if (isPicked && isCorrect){ fill='#E4F0E8'; stroke='#3D6B4F'; }
+      else if (isPicked && !isCorrect){ fill='#F8E8EB'; stroke='#9B3A4A'; }
+      exprCard(cx, cy, 240, 78, ex, isCorrect && picked===ex ? '✓ traduce la frase' : '', fill, stroke);
+    });
+    if (showNames.checked){
+      svg.appendChild(el('text',{x:400,y:470,'font-size':15,'font-weight':700,fill:'#8A6B2F','text-anchor':'middle'},
+        p.name + ' · 2x significa 2·x (sin ×)'));
+    }
+    props.innerHTML = '<div class="prop"><div class="lab">Frase</div><div class="val">#'+(matchIdx+1)+'</div></div>'+
+      '<div class="prop"><div class="lab">Tipo</div><div class="val">Traducción</div></div>'+
+      '<div class="prop"><div class="lab">Meta</div><div class="val">Expresión</div></div>';
+    if (!picked) setVerdict('Toca la expresión que traduce: «'+p.frase+'».');
+  }
+
+  function drawEval(){
+    bg();
+    const expr = '3x−5';
+    const val = 3*xVal - 5;
+    person(100, 380, 'Tú');
+    bubble(40, 50, 300, 100, '«5 menos que el triple de un número»', '#E3EEF4');
+    exprCard(400, 60, 220, 90, expr, showNames.checked?'x = la cantidad':'' , '#F5EDD8','#C4A15A');
+    // substitution machine
+    svg.appendChild(el('rect',{x:360,y:200,width:380,height:180,rx:16,fill:'#E4F0E8',stroke:'#3D6B4F','stroke-width':2.5}));
+    svg.appendChild(el('text',{x:550,y:235,'font-size':16,'font-weight':800,fill:'#2A5238','text-anchor':'middle'}, 'Máquina de sustituir'));
+    svg.appendChild(el('text',{x:550,y:275,'font-size':20,'font-weight':800,fill:'#2A2620','text-anchor':'middle'},
+      '3·('+xVal+') − 5'));
+    svg.appendChild(el('text',{x:550,y:320,'font-size':28,'font-weight':900,fill:'#3D6B4F','text-anchor':'middle'},
+      '= '+val));
+    svg.appendChild(el('text',{x:550,y:360,'font-size':14,'font-weight':700,fill:'#5C564C','text-anchor':'middle'},
+      'Si x = '+xVal+', la expresión vale '+val));
+    // arrow
+    svg.appendChild(el('line',{x1:510,y1:150,x2:510,y2:195,stroke:'#C4A15A','stroke-width':4}));
+    svg.appendChild(el('polygon',{points:'502,195 510,210 518,195',fill:'#C4A15A'}));
+    props.innerHTML = '<div class="prop"><div class="lab">x</div><div class="val">'+xVal+'</div></div>'+
+      '<div class="prop"><div class="lab">3x−5</div><div class="val">'+val+'</div></div>'+
+      '<div class="prop"><div class="lab">Frase</div><div class="val">triple − 5</div></div>';
+    setVerdict('Con x = '+xVal+' («la cantidad»), 3x−5 = '+val+'.', 'ok');
+  }
+
+  function drawAmbi(){
+    bg();
+    const frase = ambiParen
+      ? '«El doble de (un número más 3)»'
+      : '«El doble de un número más 3»';
+    person(90, 380, 'Profe');
+    bubble(30, 40, 360, 100, frase, '#F8EBD8');
+    // two interpretations side by side
+    const leftOk = !ambiParen;
+    const v1 = 2*xVal + 3;
+    const v2 = 2*(xVal+3);
+    exprCard(80, 180, 280, 120, '2x+3', 'doble, y luego +3 → '+v1,
+      leftOk && picked==='2x+3' ? '#E4F0E8' : '#F5EDD8',
+      leftOk && picked==='2x+3' ? '#3D6B4F' : '#C4A15A');
+    exprCard(440, 180, 280, 120, '2(x+3)', 'primero +3, luego ×2 → '+v2,
+      !leftOk && picked==='2(x+3)' ? '#E4F0E8' : '#F5EDD8',
+      !leftOk && picked==='2(x+3)' ? '#3D6B4F' : '#C4A15A');
+    if (showNames.checked){
+      svg.appendChild(el('text',{x:400,y:460,'font-size':14,'font-weight':700,fill:'#8A6B2F','text-anchor':'middle'},
+        'x = '+xVal+' · Los paréntesis cambian el valor: '+v1+' ≠ '+v2));
+    }
+    // toggle phrase button area hint
+    svg.appendChild(el('text',{x:400,y:340,'font-size':14,'font-weight':700,fill:'#5C564C','text-anchor':'middle'},
+      'Pulsa «Otra frase» para cambiar la versión con/sin paréntesis en la frase.'));
+    props.innerHTML = '<div class="prop"><div class="lab">x</div><div class="val">'+xVal+'</div></div>'+
+      '<div class="prop"><div class="lab">2x+3</div><div class="val">'+v1+'</div></div>'+
+      '<div class="prop"><div class="lab">2(x+3)</div><div class="val">'+v2+'</div></div>';
+    if (!picked) setVerdict('¿Cuál expresa exactamente esa frase?');
+  }
+
+  function drawTarifa(){
+    bg();
+    // taxi scene
+    svg.appendChild(el('rect',{x:60,y:280,width:200,height:70,rx:12,fill:'#C4A15A',stroke:'#8A6B2F','stroke-width':2}));
+    svg.appendChild(el('rect',{x:90,y:250,width:120,height:40,rx:8,fill:'#E3EEF4',stroke:'#2F5D7A','stroke-width':2}));
+    svg.appendChild(el('circle',{cx:100,cy:355,r:18,fill:'#2A2620'}));
+    svg.appendChild(el('circle',{cx:220,cy:355,r:18,fill:'#2A2620'}));
+    svg.appendChild(el('text',{x:160,y:325,'font-size':16,'font-weight':900,fill:'#fff','text-anchor':'middle'}, 'TAXI'));
+    svg.appendChild(el('text',{x:160,y:400,'font-size':13,'font-weight':700,fill:'#5C564C','text-anchor':'middle'}, 'Castilla y León'));
+
+    // formula card
+    const precio = fixed + porKm*km;
+    exprCard(360, 40, 380, 100, 'p = F + c·k', showNames.checked?'p=precio · F=fijos · c=€/km · k=km':'', '#F5EDD8','#C4A15A');
+
+    // receipt
+    svg.appendChild(el('rect',{x:380,y:170,width:340,height:250,rx:8,fill:'#fff',stroke:'#D9D0C0','stroke-width':2}));
+    svg.appendChild(el('text',{x:550,y:205,'font-size':16,'font-weight':900,fill:'#2A2620','text-anchor':'middle'}, 'Ticket del viaje'));
+    svg.appendChild(el('line',{x1:400,y1:220,x2:700,y2:220,stroke:'#E0D0A8','stroke-width':2,'stroke-dasharray':'4 4'}));
+    svg.appendChild(el('text',{x:410,y:255,'font-size':15,'font-weight':700,fill:'#5C564C'}, 'Bajada (F)'));
+    svg.appendChild(el('text',{x:690,y:255,'font-size':15,'font-weight':800,fill:'#2A2620','text-anchor':'end'}, formatNum(fixed)+' €'));
+    svg.appendChild(el('text',{x:410,y:290,'font-size':15,'font-weight':700,fill:'#5C564C'}, 'c · k  ('+formatNum(porKm)+'×'+km+')'));
+    svg.appendChild(el('text',{x:690,y:290,'font-size':15,'font-weight':800,fill:'#2A2620','text-anchor':'end'}, formatNum(porKm*km)+' €'));
+    svg.appendChild(el('line',{x1:400,y1:310,x2:700,y2:310,stroke:'#C4A15A','stroke-width':2}));
+    svg.appendChild(el('text',{x:410,y:350,'font-size':18,'font-weight':900,fill:'#8A6B2F'}, 'Precio p'));
+    svg.appendChild(el('text',{x:690,y:350,'font-size':22,'font-weight':900,fill:'#8A6B2F','text-anchor':'end'}, formatNum(precio)+' €'));
+    svg.appendChild(el('text',{x:550,y:400,'font-size':13,'font-weight':700,fill:'#5C564C','text-anchor':'middle'},
+      'Modelo lineal: fijo + proporcional a los km'));
+
+    props.innerHTML = '<div class="prop"><div class="lab">F (fijos)</div><div class="val">'+formatNum(fixed)+' €</div></div>'+
+      '<div class="prop"><div class="lab">c (€/km)</div><div class="val">'+formatNum(porKm)+'</div></div>'+
+      '<div class="prop"><div class="lab">k (km)</div><div class="val">'+km+'</div></div>'+
+      '<div class="prop"><div class="lab">p (precio)</div><div class="val">'+formatNum(precio)+' €</div></div>';
+    setVerdict('p = '+formatNum(fixed)+' + '+formatNum(porKm)+'·'+km+' = '+formatNum(precio)+' €. Cada letra tiene nombre.', 'ok');
+  }
+
+  function draw(){
+    clear();
+    if (mode==='match') drawMatch();
+    else if (mode==='eval') drawEval();
+    else if (mode==='ambi') drawAmbi();
+    else drawTarifa();
+  }
+
+  document.getElementById('modos').addEventListener('click', e=>{
+    const b=e.target.closest('.mode-btn'); if(!b) return;
+    mode=b.dataset.mode; picked=null;
+    document.querySelectorAll('.mode-btn').forEach(x=>x.classList.toggle('active',x===b));
+    buildCtrls(); buildChoices(); draw();
+  });
+  showNames.addEventListener('change', draw);
+  showHint.addEventListener('change', draw);
+  document.getElementById('btnEj').addEventListener('click', ()=>{
+    if (mode==='match'){ matchIdx=5; picked=null; } // 5 menos que el triple
+    else if (mode==='eval'){ xVal=4; }
+    else if (mode==='ambi'){ ambiParen=false; xVal=5; picked=null; }
+    else { fixed=4; porKm=0.2; km=12; }
+    buildCtrls(); buildChoices(); draw();
+  });
+  document.getElementById('btnNext').addEventListener('click', ()=>{
+    if (mode==='match'){ matchIdx=(matchIdx+1)%PAIRS.length; picked=null; }
+    else if (mode==='ambi'){ ambiParen=!ambiParen; picked=null; }
+    else if (mode==='eval'){ xVal = xVal>=12?1:xVal+1; }
+    else { km = km>=40?1:km+3; }
+    buildCtrls(); buildChoices(); draw();
+  });
+  document.getElementById('btnReset').addEventListener('click', ()=>{
+    matchIdx=0; xVal=4; fixed=4; porKm=0.2; km=12; ambiParen=false; picked=null;
+    buildCtrls(); buildChoices(); draw();
+  });
+
+  buildCtrls(); buildChoices(); draw();
+
+  if (/[?&]preview=1\b/.test(location.search)) {
+    mode='match'; matchIdx=5; picked='3x−5';
+    showNames.checked=true; showHint.checked=true;
+    document.querySelectorAll('.mode-btn').forEach(x=>x.classList.toggle('active',x.dataset.mode==='match'));
+    buildCtrls(); buildChoices();
+    // mark correct choice
+    [...choices.children].forEach(c=>{
+      c.classList.remove('picked','ok','bad');
+      if (c.textContent==='3x−5'){ c.classList.add('picked','ok'); }
+    });
+    setVerdict('¡Correcto! «3x−5» traduce «5 menos que el triple».', 'ok');
+    draw();
+  }
+})();
+</script>
+</body>
+</html>
