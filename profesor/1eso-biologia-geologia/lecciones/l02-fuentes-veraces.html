@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="es"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>L02 · Fuentes veraces frente a bulos y pseudociencia</title>
+<style>
+  :root{--bg:#FAF7F0;--ink:#2A2620;--muted:#5C564C;--card:#fff;--gold:#C4A15A;--gold-soft:#F5EDD8;--gold-deep:#8A6B2F;--green:#3D6B4F;--green-soft:#E4F0E8;--blue:#2F5D7A;--blue-soft:#E3EEF4;--rose:#9B3A4A;--rose-soft:#F8E8EB;--shadow:0 10px 32px rgba(42,38,32,.09);--radius:18px}
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{min-height:100%;background:var(--bg);color:var(--ink);font-family:"Segoe UI",system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+  body{display:flex;flex-direction:column;align-items:center;padding:14px 10px 36px}
+  .wrap{width:100%;max-width:980px}
+  header{text-align:center;margin-bottom:12px}
+  .badge{display:inline-block;font-size:.78rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--gold-deep);background:var(--gold-soft);padding:4px 12px;border-radius:999px;margin-bottom:8px}
+  h1{font-size:clamp(1.25rem,4.5vw,1.85rem);line-height:1.2;font-weight:800;color:#0E0E0C}
+  .subtitle{margin-top:6px;font-size:clamp(.9rem,2.8vw,1.05rem);color:var(--muted);font-weight:500}
+  .story{background:linear-gradient(135deg,#F5EDD8,#E3EEF4 55%,#E4F0E8);border:2px solid #E0D0A8;border-radius:var(--radius);padding:12px 14px;margin-bottom:14px;font-size:clamp(.9rem,2.5vw,1.02rem);line-height:1.45}
+  .story strong{color:var(--gold-deep)}
+  .card{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);padding:16px 14px 18px;margin-bottom:14px}
+  .card h2{font-size:clamp(1.05rem,3vw,1.25rem);font-weight:800;margin-bottom:8px}
+  .hint{font-size:clamp(.88rem,2.4vw,1rem);color:var(--muted);line-height:1.45;margin-bottom:10px}
+  .btn-row{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
+  button.action{appearance:none;border:none;border-radius:999px;padding:10px 18px;font-weight:800;font-size:.95rem;cursor:pointer;background:var(--gold);color:#fff;transition:transform .15s}
+  button.action:hover{transform:translateY(-1px)}
+  button.action.secondary{background:#fff;color:var(--gold-deep);border:2px solid var(--gold)}
+  button.action:disabled{opacity:.45;cursor:not-allowed}
+  .glossary{display:grid;gap:.4rem;margin:10px 0;padding:12px 14px;background:#FFFcf5;border-radius:12px;border:2px solid #E0D0A8;font-size:.95rem}
+  .glossary strong{color:var(--gold-deep)}
+  .mnemonic{font-size:.95rem;font-weight:700;color:var(--gold-deep);background:var(--gold-soft);border-left:4px solid var(--gold);padding:10px 14px;border-radius:0 12px 12px 0;margin-top:10px;line-height:1.4}
+  .verdict{text-align:center;font-size:1.05rem;font-weight:900;padding:12px;border-radius:14px;margin:10px 0;display:none;border:2px solid #E0D0A8}
+  .verdict.show{display:block}.verdict.ok{background:var(--green-soft);color:#2A5238;border-color:#9BC4A8}.verdict.bad{background:var(--rose-soft);color:#7A2A36;border-color:#E8A8B0}
+  .stage{position:relative;width:100%;aspect-ratio:16/10;background:linear-gradient(#E8F4FC 0%,#FFFcf5 55%,#EDE6D6 100%);border-radius:14px;overflow:hidden;border:2px solid #E0D0A8;margin-bottom:12px}
+  .stage svg{width:100%;height:100%;display:block}
+  .opts{display:grid;gap:8px;margin:10px 0}
+  .opt{padding:12px 14px;border:2px solid #D9D0C0;border-radius:12px;background:#fff;cursor:pointer;font-weight:700;text-align:left;font-size:.95rem;transition:border-color .2s,background .2s}
+  .opt:hover{border-color:var(--gold)}.opt.ok{border-color:var(--green);background:var(--green-soft)}.opt.bad{border-color:var(--rose);background:var(--rose-soft)}.opt.selected{border-color:var(--blue);background:var(--blue-soft)}
+  .score{font-weight:900;color:var(--gold-deep);font-size:1.1rem;text-align:center;margin:8px 0}
+  footer{text-align:center;font-size:.8rem;color:var(--muted);margin-top:4px}
+  body.preview-mode .story,body.preview-mode footer,body.preview-mode .hide-preview,body.preview-mode .glossary{display:none}
+  .bins{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:8px;margin:10px 0}
+  .bin{min-height:90px;border:2px dashed #C4B8A0;border-radius:14px;padding:8px;background:#FFFcf5;text-align:center}
+  .bin h3{font-size:.78rem;font-weight:800;color:var(--gold-deep);margin-bottom:4px}
+  .bin.ok{border-style:solid;border-color:var(--green);background:var(--green-soft)}
+  .chip{display:inline-block;margin:3px;padding:7px 10px;border-radius:999px;background:var(--blue-soft);border:2px solid var(--blue);font-weight:800;font-size:.75rem;color:var(--blue);cursor:pointer;user-select:none}
+  .pool{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin:8px 0;padding:8px;border:2px solid #E0D0A8;border-radius:12px;background:#fff}
+  .nav-steps{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin:8px 0}
+  .nav-steps button{padding:8px 12px;border-radius:999px;border:2px solid #D9D0C0;background:#fff;font-weight:800;font-size:.75rem;color:var(--muted);cursor:pointer}
+  .nav-steps button.on{border-color:var(--blue);background:var(--blue-soft);color:var(--blue)}
+  .narration{min-height:3.2em;background:#FFFcf5;border:2px solid #E0D0A8;border-radius:12px;padding:12px 14px;margin:10px 0;font-size:.98rem;line-height:1.45}
+  @keyframes pulseSoft{0%,100%{opacity:1}50%{opacity:.65}}
+  @keyframes floatY{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+  @keyframes spinSlow{to{transform:rotate(360deg)}}
+  @keyframes dashFlow{to{stroke-dashoffset:-40}}
+  .anim-float{animation:floatY 3s ease-in-out infinite}
+  .anim-pulse{animation:pulseSoft 2.4s ease-in-out infinite}
+</style></head><body><div class="wrap">
+<header>
+<div class="badge">Lección 02 · UD A Proyecto científico · CyL Decreto 39/2022</div>
+<h1>Fuentes veraces frente a bulos y pseudociencia</h1>
+<p class="subtitle">Distinguir información científica de rumores y disfraces de ciencia</p>
+</header>
+<div class="story">En un chat del cole circula un mensaje raro sobre «piedras que curan». <strong>Lucía</strong> saca la <strong>lupa</strong> (¿hay autor, datos, pruebas?) y deja la <strong>bola de cristal</strong> (pseudociencia). Clasifica cada afirmación.</div>
+
+<section class="card">
+<h2>Detective de fuentes</h2>
+<p class="hint">Clasifica cada afirmación: <strong>fuente veraz</strong>, <strong>bulo</strong> o <strong>pseudociencia</strong>.</p>
+<div class="stage"><svg viewBox="0 0 800 500" role="img">
+
+<defs>
+  <filter id="sh"><feDropShadow dx="0" dy="3" stdDeviation="3" flood-opacity=".18"/></filter>
+  <linearGradient id="desk" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#E0C49A"/><stop offset="100%" stop-color="#A8845C"/></linearGradient>
+  <pattern id="graniteTex" width="14" height="14" patternUnits="userSpaceOnUse">
+    <rect width="14" height="14" fill="#D4CCC0"/>
+    <circle cx="3" cy="4" r="2.2" fill="#F5F0E6"/><circle cx="9" cy="10" r="1.8" fill="#5C564C"/>
+    <circle cx="11" cy="3" r="1.4" fill="#C4A15A"/><circle cx="5" cy="11" r="1.1" fill="#8A9AAA"/>
+    <circle cx="7" cy="6" r="1.3" fill="#E8E0D4"/>
+  </pattern>
+  <pattern id="sandTex" width="10" height="10" patternUnits="userSpaceOnUse">
+    <rect width="10" height="10" fill="#E2C48A"/>
+    <circle cx="2" cy="3" r="1" fill="#C4A15A" opacity=".55"/><circle cx="7" cy="7" r=".9" fill="#A8845C" opacity=".5"/>
+    <circle cx="5" cy="2" r=".7" fill="#F0D8A8" opacity=".6"/>
+  </pattern>
+  <pattern id="slateTex" width="12" height="7" patternUnits="userSpaceOnUse">
+    <rect width="12" height="7" fill="#5A6A78"/>
+    <path d="M0 2 H12 M0 5 H12" stroke="#3A4550" stroke-width="1"/>
+    <path d="M0 3.5 H12" stroke="#7A8A98" stroke-width=".4" opacity=".5"/>
+  </pattern>
+  <pattern id="basaltTex" width="16" height="16" patternUnits="userSpaceOnUse">
+    <rect width="16" height="16" fill="#3A3F48"/>
+    <circle cx="4" cy="5" r="1.5" fill="#2A2E36"/><circle cx="11" cy="11" r="1.8" fill="#5A6270"/>
+    <circle cx="12" cy="4" r="1" fill="#4A5058"/>
+  </pattern>
+  <pattern id="marbleTex" width="20" height="20" patternUnits="userSpaceOnUse">
+    <rect width="20" height="20" fill="#F0ECE6"/>
+    <path d="M0 10 Q5 4 10 10 T20 10" fill="none" stroke="#C8C0B4" stroke-width="1.5"/>
+    <path d="M0 14 Q8 18 16 12" fill="none" stroke="#A89E90" stroke-width="1"/>
+  </pattern>
+  <pattern id="quartzTex" width="8" height="8" patternUnits="userSpaceOnUse">
+    <rect width="8" height="8" fill="#E8F4F8"/>
+    <path d="M0 0 L8 8 M8 0 L0 8" stroke="#B8D0DC" stroke-width=".8" opacity=".7"/>
+  </pattern>
+  <linearGradient id="crystalG" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#fff"/><stop offset="50%" stop-color="#C8E4F0"/><stop offset="100%" stop-color="#6A9AB0"/></linearGradient>
+  <radialGradient id="glowG" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="#C4A15A" stop-opacity=".45"/><stop offset="100%" stop-color="#C4A15A" stop-opacity="0"/></radialGradient>
+</defs>
+
+<rect width="800" height="300" fill="#DCEAF4"/>
+<rect y="300" width="800" height="200" fill="#EDE6D6"/>
+<!-- bookshelf -->
+<g filter="url(#sh)">
+  <rect x="36" y="48" width="170" height="230" rx="6" fill="#6E5030"/>
+  <rect x="44" y="56" width="154" height="14" fill="#8B6844"/>
+  <rect x="50" y="80" width="28" height="78" rx="2" fill="#2F5D7A"/>
+  <rect x="84" y="72" width="26" height="86" rx="2" fill="#9B3A4A"/>
+  <rect x="116" y="85" width="30" height="73" rx="2" fill="#3D6B4F"/>
+  <rect x="152" y="78" width="28" height="80" rx="2" fill="#C4A15A"/>
+  <rect x="44" y="164" width="154" height="10" fill="#8B6844"/>
+  <rect x="52" y="184" width="26" height="70" rx="2" fill="#5C564C"/>
+  <rect x="86" y="178" width="34" height="76" rx="2" fill="#2F5D7A"/>
+  <rect x="128" y="188" width="28" height="66" rx="2" fill="#8A6B2F"/>
+  <text x="121" y="268" text-anchor="middle" font-size="11" font-weight="700" fill="#F5EDD8">fuentes</text>
+</g>
+<!-- laptop -->
+<g filter="url(#sh)" transform="translate(270,200)">
+  <rect x="0" y="40" width="220" height="120" rx="10" fill="#2A3038"/>
+  <rect x="12" y="50" width="196" height="96" rx="4" fill="#E8F4FC"/>
+  <rect x="24" y="62" width="110" height="12" rx="2" fill="#2F5D7A"/>
+  <rect x="24" y="84" width="170" height="6" rx="1" fill="#A8B8C4"/>
+  <rect x="24" y="96" width="150" height="6" rx="1" fill="#A8B8C4"/>
+  <rect x="24" y="108" width="160" height="6" rx="1" fill="#A8B8C4"/>
+  <text x="110" y="136" text-anchor="middle" font-size="12" font-weight="800" fill="#2F5D7A">¿Fuente fiable?</text>
+  <rect x="-16" y="162" width="252" height="14" rx="3" fill="#5C564C"/>
+</g>
+<!-- lupa -->
+<g class="anim-float" filter="url(#sh)" transform="translate(150,240)">
+  <circle cx="42" cy="42" r="34" fill="#E3EEF4" fill-opacity=".6" stroke="#2F5D7A" stroke-width="7"/>
+  <circle cx="42" cy="42" r="24" fill="none" stroke="#fff" stroke-width="3.5" opacity=".55"/>
+  <line x1="68" y1="68" x2="108" y2="112" stroke="#8A6B2F" stroke-width="12" stroke-linecap="round"/>
+  <line x1="68" y1="68" x2="108" y2="112" stroke="#C4A15A" stroke-width="6" stroke-linecap="round"/>
+  <text x="42" y="140" text-anchor="middle" font-size="13" font-weight="800" fill="#2F5D7A">ciencia</text>
+</g>
+<!-- bola cristal -->
+<g class="anim-pulse" filter="url(#sh)" transform="translate(560,220)" opacity=".9">
+  <circle cx="55" cy="75" r="32" fill="url(#glowG)"/>
+  <ellipse cx="55" cy="118" rx="44" ry="13" fill="#5C564C"/>
+  <path d="M20 108 Q55 90 90 108 L84 124 L26 124 Z" fill="#8A6B2F"/>
+  <circle cx="55" cy="72" r="40" fill="#D8E8F8" fill-opacity=".7" stroke="#7A90A8" stroke-width="3.5"/>
+  <path d="M32 55 Q45 42 62 55" fill="none" stroke="#fff" stroke-width="3.5" opacity=".65"/>
+  <path d="M38 78 Q55 95 72 78" fill="none" stroke="#9B3A4A" stroke-width="2" opacity=".35"/>
+  <text x="55" y="150" text-anchor="middle" font-size="12" font-weight="800" fill="#9B3A4A">pseudociencia</text>
+</g>
+<rect x="60" y="360" width="680" height="30" rx="4" fill="url(#desk)" stroke="#7A5A38" stroke-width="2"/>
+<!-- claim card -->
+<g id="claimCard" filter="url(#sh)">
+  <rect x="180" y="28" width="440" height="100" rx="14" fill="#FFFCF5" stroke="#C4A15A" stroke-width="3"/>
+  <text x="400" y="55" text-anchor="middle" font-size="12" font-weight="800" fill="#8A6B2F">AFIRMACIÓN</text>
+  <foreignObject x="200" y="62" width="400" height="55">
+    <div xmlns="http://www.w3.org/1999/xhtml" id="claimText" style="font:700 15px system-ui;color:#2A2620;text-align:center;line-height:1.3"></div>
+  </foreignObject>
+</g>
+</svg></div>
+<p class="score" id="score">Afirmación 1/6 · Aciertos: 0</p>
+<div class="opts" id="opts"></div>
+<div class="verdict" id="verdict"></div>
+<div class="btn-row hide-preview">
+<button type="button" class="action secondary" id="btnPrev">← Anterior</button>
+<button type="button" class="action" id="btnNext">Siguiente →</button>
+<button type="button" class="action secondary" id="btnReset">Reiniciar</button>
+</div>
+<p class="mnemonic">Mnemónico: <strong>«VERAZ»</strong> → ¿Viene de experto? ¿Escrita con datos? ¿Replicable? ¿Autor claro? ¿Zona/contexto citado?</p>
+<div class="glossary hide-preview">
+<div><strong>Fuente veraz:</strong> autor, datos, se puede comprobar.</div>
+<div><strong>Bulo:</strong> rumor o noticia falsa.</div>
+<div><strong>Pseudociencia:</strong> disfraz de ciencia sin método.</div>
+</div>
+</section>
+
+<footer>1º ESO Biología y Geología · CyL Decreto 39/2022 · Offline file://</footer>
+</div>
+<script>
+(function(){
+const ITEMS=[
+{t:'La AEMET publica la temperatura media de León este mes con datos de estaciones.',a:'veraz',why:'Agencia oficial + datos medidos.'},
+{t:'«Bebe este zumo y nunca tendrás gripe» (sin estudios, solo un chat).',a:'bulo',why:'Promesa milagro sin evidencia.'},
+{t:'Los cristales de cuarzo «alinean tu energía» y predicen terremotos.',a:'pseudo',why:'Usa palabras científicas sin método comprobable.'},
+{t:'Un museo de Ciencias explica el ciclo del agua con diagramas y autoría.',a:'veraz',why:'Institución + explicación contrastable.'},
+{t:'«Lo soñé: mañana erupción en Salamanca» (sin datos).',a:'bulo',why:'Rumores/profecía sin pruebas.'},
+{t:'Tu signo zodiacal determina tu ADN.',a:'pseudo',why:'Mezcla astrología con biología sin ciencia.'}
+];
+const LABELS={veraz:'Fuente veraz',bulo:'Bulo',pseudo:'Pseudociencia'};
+let i=0,ok=0,locked=false;
+const claim=document.getElementById('claimText');
+const opts=document.getElementById('opts');
+const verdict=document.getElementById('verdict');
+const score=document.getElementById('score');
+function render(){
+  locked=false; verdict.className='verdict';
+  claim.textContent=ITEMS[i].t;
+  score.textContent='Afirmación '+(i+1)+'/6 · Aciertos: '+ok;
+  opts.innerHTML='';
+  ['veraz','bulo','pseudo'].forEach(k=>{
+    const b=document.createElement('button'); b.type='button'; b.className='opt'; b.textContent=LABELS[k];
+    b.onclick=()=>choose(k,b); opts.appendChild(b);
+  });
+}
+function choose(k,el){
+  if(locked)return; locked=true;
+  const right=ITEMS[i].a===k;
+  [...opts.children].forEach(c=>c.disabled=true);
+  if(right){el.classList.add('ok'); ok++; verdict.textContent='Bien. '+ITEMS[i].why; verdict.className='verdict show ok';}
+  else{el.classList.add('bad'); verdict.textContent='Casi. Era «'+LABELS[ITEMS[i].a]+'». '+ITEMS[i].why; verdict.className='verdict show bad';}
+  score.textContent='Afirmación '+(i+1)+'/6 · Aciertos: '+ok;
+}
+document.getElementById('btnNext').onclick=()=>{ if(i<ITEMS.length-1){i++; render();} };
+document.getElementById('btnPrev').onclick=()=>{ if(i>0){i--; render();} };
+document.getElementById('btnReset').onclick=()=>{ i=0; ok=0; render(); };
+if(/[?&]preview=1\b/.test(location.search)){
+  document.body.classList.add('preview-mode'); i=0; render();
+  // show correct highlight for preview
+  setTimeout(()=>{ const b=opts.children[0]; choose('veraz',b); },30);
+} else render();
+})();
+</script>
+</body></html>

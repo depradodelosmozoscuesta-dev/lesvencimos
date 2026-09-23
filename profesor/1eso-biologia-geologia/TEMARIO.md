@@ -73,5 +73,15 @@
 
 | Lección | Estado | Notas |
 |---|---|---|
-| L01 El método científico en experimentos sencillos | **Entregada (preview Jorge)** | `lecciones/01.md` + `l01-metodo-cientifico.html` + preview PNG + `_qa-l01.md`. Pendiente de aprobación antes de L02–L40. |
-| L02–L40 | Pendiente | No producir hasta OK de L01. |
+| L01 Método científico | **Entregada + rediseño visual ronda 2** | Lucía proporciones teen, reloj lab 60 ticks, termómetro lab, hielo melt. Preview regenerado 2026-09-23 20:30 CEST. |
+| L02 Fuentes veraces / bulos / pseudociencia | **Entregada** | Detective lupa↔bola; MD ampliado; preview |
+| L03 Laboratorio e instrumentos / normas | **Entregada** | Mesa con vaso/tubos/balanza/mechero/termómetro + normas B-G-O-A-N |
+| L04 Observar, datos, modelar, presentar | **Entregada** | Pasos O-D-M-P → tabla/modelo/póster |
+| L05 Científicas y científicos | **Entregada** | Galería Curie/Darwin/Margulis/geólogos (honesto) |
+| L06 Rocas y minerales (diferencia) | **Entregada** | Comparador texturizado + clasificación |
+| L07 Clasificar rocas | **Entregada** | I/S/M con texturas |
+| L08 Ciclo de las rocas | **Entregada** | Ciclo animado 6 pasos + flechas |
+| L09 Relevantes CyL | **Entregada** | Gra-Ca-Pi-Cuar-Ye (orientativo) |
+| L10 Extracción minera CyL | **Entregada** | Métodos/aplicaciones/futuro sin cifras inventadas |
+| L11–L40 | Pendiente | Siguiente: geosfera estructura/movimientos (L11) |
+| QA | **Bloque 01–10** | `lecciones/_qa-bloque-01-10.md` (2026-09-23 20:30 CEST) |

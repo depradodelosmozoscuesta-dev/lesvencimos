@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="es"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>L09 · Rocas y minerales CyL</title>
+<style>
+  :root{--bg:#FAF7F0;--ink:#2A2620;--muted:#5C564C;--card:#fff;--gold:#C4A15A;--gold-soft:#F5EDD8;--gold-deep:#8A6B2F;--green:#3D6B4F;--green-soft:#E4F0E8;--blue:#2F5D7A;--blue-soft:#E3EEF4;--rose:#9B3A4A;--rose-soft:#F8E8EB;--shadow:0 10px 32px rgba(42,38,32,.09);--radius:18px}
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{min-height:100%;background:var(--bg);color:var(--ink);font-family:"Segoe UI",system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+  body{display:flex;flex-direction:column;align-items:center;padding:14px 10px 36px}
+  .wrap{width:100%;max-width:980px}
+  header{text-align:center;margin-bottom:12px}
+  .badge{display:inline-block;font-size:.78rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--gold-deep);background:var(--gold-soft);padding:4px 12px;border-radius:999px;margin-bottom:8px}
+  h1{font-size:clamp(1.25rem,4.5vw,1.85rem);line-height:1.2;font-weight:800;color:#0E0E0C}
+  .subtitle{margin-top:6px;font-size:clamp(.9rem,2.8vw,1.05rem);color:var(--muted);font-weight:500}
+  .story{background:linear-gradient(135deg,#F5EDD8,#E3EEF4 55%,#E4F0E8);border:2px solid #E0D0A8;border-radius:var(--radius);padding:12px 14px;margin-bottom:14px;font-size:clamp(.9rem,2.5vw,1.02rem);line-height:1.45}
+  .story strong{color:var(--gold-deep)}
+  .card{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);padding:16px 14px 18px;margin-bottom:14px}
+  .card h2{font-size:clamp(1.05rem,3vw,1.25rem);font-weight:800;margin-bottom:8px}
+  .hint{font-size:clamp(.88rem,2.4vw,1rem);color:var(--muted);line-height:1.45;margin-bottom:10px}
+  .btn-row{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
+  button.action{appearance:none;border:none;border-radius:999px;padding:10px 18px;font-weight:800;font-size:.95rem;cursor:pointer;background:var(--gold);color:#fff;transition:transform .15s}
+  button.action:hover{transform:translateY(-1px)}
+  button.action.secondary{background:#fff;color:var(--gold-deep);border:2px solid var(--gold)}
+  button.action:disabled{opacity:.45;cursor:not-allowed}
+  .glossary{display:grid;gap:.4rem;margin:10px 0;padding:12px 14px;background:#FFFcf5;border-radius:12px;border:2px solid #E0D0A8;font-size:.95rem}
+  .glossary strong{color:var(--gold-deep)}
+  .mnemonic{font-size:.95rem;font-weight:700;color:var(--gold-deep);background:var(--gold-soft);border-left:4px solid var(--gold);padding:10px 14px;border-radius:0 12px 12px 0;margin-top:10px;line-height:1.4}
+  .verdict{text-align:center;font-size:1.05rem;font-weight:900;padding:12px;border-radius:14px;margin:10px 0;display:none;border:2px solid #E0D0A8}
+  .verdict.show{display:block}.verdict.ok{background:var(--green-soft);color:#2A5238;border-color:#9BC4A8}.verdict.bad{background:var(--rose-soft);color:#7A2A36;border-color:#E8A8B0}
+  .stage{position:relative;width:100%;aspect-ratio:16/10;background:linear-gradient(#E8F4FC 0%,#FFFcf5 55%,#EDE6D6 100%);border-radius:14px;overflow:hidden;border:2px solid #E0D0A8;margin-bottom:12px}
+  .stage svg{width:100%;height:100%;display:block}
+  .opts{display:grid;gap:8px;margin:10px 0}
+  .opt{padding:12px 14px;border:2px solid #D9D0C0;border-radius:12px;background:#fff;cursor:pointer;font-weight:700;text-align:left;font-size:.95rem;transition:border-color .2s,background .2s}
+  .opt:hover{border-color:var(--gold)}.opt.ok{border-color:var(--green);background:var(--green-soft)}.opt.bad{border-color:var(--rose);background:var(--rose-soft)}.opt.selected{border-color:var(--blue);background:var(--blue-soft)}
+  .score{font-weight:900;color:var(--gold-deep);font-size:1.1rem;text-align:center;margin:8px 0}
+  footer{text-align:center;font-size:.8rem;color:var(--muted);margin-top:4px}
+  body.preview-mode .story,body.preview-mode footer,body.preview-mode .hide-preview,body.preview-mode .glossary{display:none}
+  .bins{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:8px;margin:10px 0}
+  .bin{min-height:90px;border:2px dashed #C4B8A0;border-radius:14px;padding:8px;background:#FFFcf5;text-align:center}
+  .bin h3{font-size:.78rem;font-weight:800;color:var(--gold-deep);margin-bottom:4px}
+  .bin.ok{border-style:solid;border-color:var(--green);background:var(--green-soft)}
+  .chip{display:inline-block;margin:3px;padding:7px 10px;border-radius:999px;background:var(--blue-soft);border:2px solid var(--blue);font-weight:800;font-size:.75rem;color:var(--blue);cursor:pointer;user-select:none}
+  .pool{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin:8px 0;padding:8px;border:2px solid #E0D0A8;border-radius:12px;background:#fff}
+  .nav-steps{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin:8px 0}
+  .nav-steps button{padding:8px 12px;border-radius:999px;border:2px solid #D9D0C0;background:#fff;font-weight:800;font-size:.75rem;color:var(--muted);cursor:pointer}
+  .nav-steps button.on{border-color:var(--blue);background:var(--blue-soft);color:var(--blue)}
+  .narration{min-height:3.2em;background:#FFFcf5;border:2px solid #E0D0A8;border-radius:12px;padding:12px 14px;margin:10px 0;font-size:.98rem;line-height:1.45}
+  @keyframes pulseSoft{0%,100%{opacity:1}50%{opacity:.65}}
+  @keyframes floatY{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+  @keyframes spinSlow{to{transform:rotate(360deg)}}
+  @keyframes dashFlow{to{stroke-dashoffset:-40}}
+  .anim-float{animation:floatY 3s ease-in-out infinite}
+  .anim-pulse{animation:pulseSoft 2.4s ease-in-out infinite}
+
+#cycleArrows path{stroke-dasharray:8 6;animation:dashFlow 1.2s linear infinite}
+@keyframes dashFlow{to{stroke-dashoffset:-28}}
+.glow-node{filter:drop-shadow(0 0 6px rgba(196,161,90,.55))}
+</style></head><body><div class="wrap">
+<header><div class="badge">Lección 09 · UD B Geosfera · CyL Decreto 39/2022</div><h1>Rocas y minerales relevantes (foco Castilla y León)</h1><p class="subtitle">Granito, caliza, pizarra, cuarzo, yeso — sin inventar cifras</p></header>
+<div class="story">En <strong>Castilla y León</strong> hay materiales típicos del paisaje: granito (Gredos/Ávila), caliza (páramos), pizarra (cubiertas), cuarzo y yeso. Datos orientativos: contrastar con mapa/museo.</div>
+
+<section class="card">
+<h2>Mapa-muestras CyL</h2>
+<p class="hint">Pulsa cada muestra. Aprende tipo + nota territorial honesta.</p>
+<div class="stage"><svg viewBox="0 0 800 500" role="img">
+
+<defs>
+  <filter id="sh"><feDropShadow dx="0" dy="3" stdDeviation="3" flood-opacity=".18"/></filter>
+  <linearGradient id="desk" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#E0C49A"/><stop offset="100%" stop-color="#A8845C"/></linearGradient>
+  <pattern id="graniteTex" width="14" height="14" patternUnits="userSpaceOnUse">
+    <rect width="14" height="14" fill="#D4CCC0"/>
+    <circle cx="3" cy="4" r="2.2" fill="#F5F0E6"/><circle cx="9" cy="10" r="1.8" fill="#5C564C"/>
+    <circle cx="11" cy="3" r="1.4" fill="#C4A15A"/><circle cx="5" cy="11" r="1.1" fill="#8A9AAA"/>
+  </pattern>
+  <pattern id="sandTex" width="10" height="10" patternUnits="userSpaceOnUse">
+    <rect width="10" height="10" fill="#E2C48A"/>
+    <circle cx="2" cy="3" r="1" fill="#C4A15A" opacity=".55"/><circle cx="7" cy="7" r=".9" fill="#A8845C" opacity=".5"/>
+  </pattern>
+  <pattern id="slateTex" width="12" height="7" patternUnits="userSpaceOnUse">
+    <rect width="12" height="7" fill="#5A6A78"/>
+    <path d="M0 2 H12 M0 5 H12" stroke="#3A4550" stroke-width="1"/>
+  </pattern>
+  <pattern id="basaltTex" width="16" height="16" patternUnits="userSpaceOnUse">
+    <rect width="16" height="16" fill="#3A3F48"/>
+    <circle cx="4" cy="5" r="1.5" fill="#2A2E36"/><circle cx="11" cy="11" r="1.8" fill="#5A6270"/>
+  </pattern>
+  <pattern id="marbleTex" width="20" height="20" patternUnits="userSpaceOnUse">
+    <rect width="20" height="20" fill="#F0ECE6"/>
+    <path d="M0 10 Q5 4 10 10 T20 10" fill="none" stroke="#C8C0B4" stroke-width="1.5"/>
+  </pattern>
+  <linearGradient id="magmaG" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#FFE98A"/><stop offset="40%" stop-color="#F0A020"/><stop offset="100%" stop-color="#9B3A4A"/></linearGradient>
+  <linearGradient id="skyG" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#8EC4E8"/><stop offset="100%" stop-color="#E8F4FC"/></linearGradient>
+  <marker id="ah" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0 0 L8 4 L0 8 Z" fill="#8A6B2F"/></marker>
+</defs>
+
+<rect width="800" height="500" fill="#E8F4FC"/>
+<!-- simplified CyL-ish silhouette -->
+<path d="M220 80 L520 70 L580 160 L560 320 L400 380 L240 340 L180 200 Z" fill="#E4F0E8" stroke="#3D6B4F" stroke-width="3" opacity=".85"/>
+<text x="380" y="230" text-anchor="middle" font-size="18" font-weight="800" fill="#3D6B4F">Castilla y León</text>
+<text x="380" y="255" text-anchor="middle" font-size="12" fill="#5C564C">(esquema orientativo)</text>
+<!-- samples -->
+<g id="s0" style="cursor:pointer" transform="translate(80,60)" filter="url(#sh)">
+  <path d="M10 20 L90 10 L100 90 L20 100 Z" fill="url(#graniteTex)" stroke="#5C564C" stroke-width="2"/>
+  <text x="55" y="125" text-anchor="middle" font-size="12" font-weight="800" fill="#8A6B2F">Granito</text>
+</g>
+<g id="s1" style="cursor:pointer" transform="translate(620,60)" filter="url(#sh)">
+  <rect x="10" y="20" width="90" height="80" rx="6" fill="url(#marbleTex)" stroke="#A89070" stroke-width="2"/>
+  <text x="55" y="125" text-anchor="middle" font-size="12" font-weight="800" fill="#8A6B2F">Caliza</text>
+</g>
+<g id="s2" style="cursor:pointer" transform="translate(80,320)" filter="url(#sh)">
+  <rect x="10" y="10" width="90" height="70" rx="4" fill="url(#slateTex)" stroke="#3A4550" stroke-width="2"/>
+  <text x="55" y="105" text-anchor="middle" font-size="12" font-weight="800" fill="#2F5D7A">Pizarra</text>
+</g>
+<g id="s3" style="cursor:pointer" transform="translate(620,300)" filter="url(#sh)">
+  <path d="M40 10 L70 30 L60 90 L20 80 L10 40 Z" fill="#E8F4F8" stroke="#5A8AA0" stroke-width="2"/>
+  <path d="M30 30 L50 20 L55 50" fill="#fff" opacity=".4"/>
+  <text x="50" y="115" text-anchor="middle" font-size="12" font-weight="800" fill="#2F5D7A">Cuarzo</text>
+</g>
+<g id="s4" style="cursor:pointer" transform="translate(350,360)" filter="url(#sh)">
+  <rect x="0" y="0" width="100" height="60" rx="8" fill="#F0E8C8" stroke="#C4A15A" stroke-width="2"/>
+  <text x="50" y="35" text-anchor="middle" font-size="12" font-weight="800" fill="#8A6B2F">Yeso</text>
+</g>
+<rect x="200" y="420" width="400" height="60" rx="12" fill="#FFFCF5" stroke="#C4A15A" stroke-width="2"/>
+<text id="info09" x="400" y="455" text-anchor="middle" font-size="13" font-weight="700" fill="#5C564C">Pulsa una muestra</text>
+</svg></div>
+<div class="opts hide-preview" id="quiz"></div>
+<div class="verdict" id="verdict"></div>
+<p class="mnemonic">Mnemónico: <strong>«Gra-Ca-Pi-Cuar-Ye»</strong>.</p>
+<div class="glossary hide-preview">
+<div><strong>Páramo / berrocal:</strong> paisajes tipicos (caliza / granito).</div>
+<div><strong>Patrimonio geológico:</strong> valor científico y cultural de las rocas.</div>
+</div>
+</section>
+
+<footer>1º ESO Biología y Geología · CyL Decreto 39/2022 · Offline file://</footer>
+</div><script>
+(function(){
+const INFO=[
+{id:'s0',t:'Granito · roca ígnea · Sistema Central / Gredos (p. ej. Ávila) — orientativo'},
+{id:'s1',t:'Caliza · sedimentaria · páramos y cuestas de la Meseta'},
+{id:'s2',t:'Pizarra · metamórfica · tradición en cubiertas (comarcas leonesas)'},
+{id:'s3',t:'Cuarzo · mineral · abundante en granitos y arenas'},
+{id:'s4',t:'Yeso · mineral/evaporita · cuencas sedimentarias'}
+];
+INFO.forEach(o=>{
+  document.getElementById(o.id).onclick=()=>{document.getElementById('info09').textContent=o.t;};
+});
+const quiz=document.getElementById('quiz'), verdict=document.getElementById('verdict');
+quiz.innerHTML='<p class="hint"><strong>Mini-check:</strong> ¿La pizarra es…?</p>';
+[['Ígnea',false],['Sedimentaria',false],['Metamórfica',true]].forEach(([lab,ok])=>{
+  const b=document.createElement('button'); b.type='button'; b.className='opt'; b.textContent=lab;
+  b.onclick=()=>{ if(ok){b.classList.add('ok'); verdict.textContent='Correcto: pizarra = metamórfica.'; verdict.className='verdict show ok';}
+    else{b.classList.add('bad'); verdict.textContent='No: la pizarra es metamórfica (láminas).'; verdict.className='verdict show bad';} };
+  quiz.appendChild(b);
+});
+if(/[?&]preview=1\b/.test(location.search)){
+  document.body.classList.add('preview-mode');
+  document.getElementById('info09').textContent=INFO[0].t;
+}
+})();
+</script></body></html>

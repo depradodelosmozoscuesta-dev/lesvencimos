@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Build online shell + flat offline pack for 1º ESO Biología y Geología (L01 only)."""
+"""Build online shell + flat offline pack for 1º ESO Biología y Geología (L01–L10)."""
 from __future__ import annotations
 
 import html
@@ -21,9 +21,9 @@ ZIP_PATH = REPO / "downloads/1eso-biologia-geologia-offline.zip"
 COURSE_ICONS = COURSE_DIR / "icons"
 BRAND_ICONS = REPO / "brand/favicon"
 TOTAL = 40
-AVAILABLE = 1
+AVAILABLE = 10
 
-# Full temario titles (L02–L40 shown as próximamente on hub)
+# Full temario titles (L11–L40 shown as próximamente on hub)
 TEMARIO = [
     "El método científico en experimentos sencillos",
     "Fuentes veraces frente a bulos y pseudociencia",
@@ -133,6 +133,524 @@ LESSONS = [
             "<strong>Oso Pequeño Hace Experimentos De Ciencia.</strong> "
             "Observas → preguntas → hipotetizas → experimentas → tomas datos → concluyes. "
             "Una hipótesis no es un deseo: es una idea que se puede <strong>poner a prueba</strong>."
+        ),
+    },
+    {
+        "n": 2,
+        "slug": "fuentes-veraces-frente-a-bulos-y-pseudociencia",
+        "eyebrow": "Lección 02 · UD A · Proyecto científico",
+        "title_html": "<em>Fuentes veraces</em> frente a bulos y pseudociencia",
+        "title_plain": "Fuentes veraces frente a bulos y pseudociencia",
+        "meta": "1º ESO Biología y Geología · CyL Decreto 39/2022 · bloque A",
+        "curiosidad_t": "Lupa sí, bola de cristal no",
+        "curiosidad": (
+            "Antes de la prensa moderna, almanaques y curanderos mezclaban consejos útiles con "
+            "promesas milagro. La ciencia moderna exige <strong>autoría</strong>, <strong>datos</strong> "
+            "y la posibilidad de <strong>comprobar</strong>. Ese filtro —no el volumen de likes— "
+            "sigue siendo el mejor antídoto frente a bulos y pseudociencia."
+        ),
+        "curiosidad_fig": "ticket.svg",
+        "objetivos": [
+            "Explicar qué es una <strong>fuente veraz</strong> de información científica.",
+            "Distinguir <strong>bulo</strong> (noticia falsa/rumor) de <strong>pseudociencia</strong> (disfraz de ciencia).",
+            "Usar pistas simples: autor, datos, institución, posibilidad de comprobar.",
+            "Aplicar el criterio a mensajes del móvil, vídeos y titulares.",
+            "Valorar por qué en CyL necesitamos fuentes fiables sobre salud, clima y naturaleza.",
+        ],
+        "cuerpo": """
+    <h2>Explicación</h2>
+    <p>Internet y los chats van llenos de mensajes. Algunos son ciencia de verdad; otros son <strong>bulos</strong>; otros se disfrazan de ciencia (<strong>pseudociencia</strong>).</p>
+    <div class="tarjeta">
+      <p style="margin:0 0 0.5rem"><strong>Fuente veraz</strong> — autor claro, datos, institución seria (AEMET, museo, universidad).</p>
+      <p style="margin:0 0 0.5rem"><strong>Bulo</strong> — afirmación falsa o rumor sin pruebas («cura milagrosa en 24 h»).</p>
+      <p style="margin:0"><strong>Pseudociencia</strong> — palabras «científicas» sin método (cristales que «alinean energía»).</p>
+    </div>
+    <h2>Pistas rápidas</h2>
+    <ol>
+      <li>¿Quién lo firma? (nombre + cargo/institución)</li>
+      <li>¿Hay <strong>datos</strong> o solo opiniones?</li>
+      <li>¿Se puede <strong>comprobar</strong> o repetir?</li>
+      <li>¿Suena a milagro demasiado fácil?</li>
+    </ol>
+    <div class="tarjeta">
+      <p style="margin:0 0 0.5rem"><strong>Mnemónico VERAZ:</strong></p>
+      <p style="margin:0"><strong>V</strong>iene de experto · <strong>E</strong>scrita con datos · <strong>R</strong>eplicable · <strong>A</strong>utor claro · <strong>Z</strong>ona/contexto citado</p>
+    </div>
+""",
+        "vida_t": "Castilla y León",
+        "vida": [
+            "Consultar el tiempo en <strong>AEMET</strong>, no en un mensaje anónimo.",
+            "Leer carteles de un <strong>museo de Ciencias</strong> (Valladolid, León…) con autores y fechas.",
+            "Desconfiar de remedios «milagro» vendidos en redes sin ensayos.",
+            "Noticias de incendios o inundaciones: priorizar fuentes oficiales de la Junta / emergencias.",
+        ],
+        "vida_fig": "mapa.svg",
+        "widgets": [
+            ("Detective · fuentes veraces · bulos", "l02-fuentes-veraces.html"),
+        ],
+        "reto_t": "Clasifica un mensaje real",
+        "reto": (
+            "Elige un mensaje real (captura o copia) de redes/chat sobre salud o naturaleza. "
+            "Clasifícalo (veraz / bulo / pseudociencia) y justifica con 3 pistas <strong>VERAZ</strong>."
+        ),
+        "reto_id": "1eso-byg-L02",
+        "cierre": (
+            "<strong>VERAZ.</strong> Lupa sí, bola de cristal no. "
+            "Autor + datos + se puede comprobar."
+        ),
+    },
+    {
+        "n": 3,
+        "slug": "laboratorio-instrumentos-espacios-y-normas-de-seguridad",
+        "eyebrow": "Lección 03 · UD A · Proyecto científico",
+        "title_html": "<em>Laboratorio</em>: instrumentos, espacios y normas de seguridad",
+        "title_plain": "Laboratorio: instrumentos, espacios y normas de seguridad",
+        "meta": "1º ESO Biología y Geología · CyL Decreto 39/2022 · bloque A",
+        "curiosidad_t": "Bata antes que prisa",
+        "curiosidad": (
+            "Los primeros laboratorios escolares del siglo XIX ya insistían en orden y ropa de protección. "
+            "Hoy el <strong>EPI</strong> (bata, gafas) no es teatro: evita salpicaduras, cortes y "
+            "contaminación. Un laboratorio seguro es el que respeta normas antes de «hacer el experimento chulo»."
+        ),
+        "curiosidad_fig": "olla.svg",
+        "objetivos": [
+            "Nombrar instrumentos básicos del laboratorio (vaso de precipitados, tubos, balanza, mechero…).",
+            "Reconocer espacios: mesa de trabajo, fregadero, armario.",
+            "Distinguir normas <strong>obligatorias</strong> y <strong>prohibidas</strong>.",
+            "Explicar para qué sirven bata y gafas (<strong>EPI</strong>).",
+            "Actuar con prudencia: avisar en roturas o derrames.",
+        ],
+        "cuerpo": """
+    <h2>Explicación</h2>
+    <p>El <strong>laboratorio</strong> es un espacio preparado para experimentar con seguridad. No es el patio: hay material frágil, a veces calor o productos que no se tocan sin permiso.</p>
+    <h2>Instrumentos habituales (1º ESO)</h2>
+    <ul>
+      <li><strong>Vaso de precipitados</strong> — contiene líquidos.</li>
+      <li><strong>Tubos de ensayo + gradilla</strong> — pruebas pequeñas.</li>
+      <li><strong>Balanza</strong> — mide la <strong>masa</strong> (gramos).</li>
+      <li><strong>Mechero Bunsen</strong> — llama; solo con permiso y supervisión.</li>
+      <li><strong>Termómetro</strong> — temperatura.</li>
+    </ul>
+    <div class="tarjeta">
+      <p style="margin:0 0 0.5rem"><strong>Normas de oro:</strong> bata y gafas cuando toque; no comer ni beber; no correr; no pipetear con la boca; ordenar y lavar; avisar si algo se rompe.</p>
+      <p style="margin:0"><strong>Mnemónico B-G-O-A-N:</strong> Bata · Gafas · Orden · Agua · Nunca comas</p>
+    </div>
+""",
+        "vida_t": "Castilla y León",
+        "vida": [
+            "En el lab del IES: misma lógica que un taller — EPI y orden.",
+            "En una salida de campo (río, monte): también hay normas (no beber agua sin permiso, no tocar fauna…).",
+            "Cocina de casa ≠ laboratorio, pero sí: no mezclar productos de limpieza a ciegas.",
+            "Avisar al adulto responsable ante roturas o derrames: hábito de seguridad.",
+        ],
+        "vida_fig": "olla.svg",
+        "widgets": [
+            ("Laboratorio seguro · instrumentos y normas", "l03-laboratorio-seguridad.html"),
+        ],
+        "reto_t": "Plano del lab con normas",
+        "reto": (
+            "Dibuja el plano del lab de tu centro (o uno ideal) y señala "
+            "<strong>5 normas</strong> en carteles."
+        ),
+        "reto_id": "1eso-byg-L03",
+        "cierre": (
+            "<strong>B-G-O-A-N.</strong> Instrumentos con nombre; normas claras; "
+            "avisar si hay problema."
+        ),
+    },
+    {
+        "n": 4,
+        "slug": "observar-tomar-datos-modelar-y-presentar-resultados",
+        "eyebrow": "Lección 04 · UD A · Proyecto científico",
+        "title_html": "Observar, tomar <em>datos</em>, modelar y presentar resultados",
+        "title_plain": "Observar, tomar datos, modelar y presentar resultados",
+        "meta": "1º ESO Biología y Geología · CyL Decreto 39/2022 · bloque A",
+        "curiosidad_t": "El mapa no es el territorio",
+        "curiosidad": (
+            "Un mapa, una gráfica o una maqueta no «son» la realidad: la "
+            "<strong>representan</strong> de forma útil. Desde los primeros "
+            "cuadernos de campo, científicos y científicas anotan medidas con "
+            "unidades y luego dibujan modelos para que otros entiendan el hallazgo."
+        ),
+        "curiosidad_fig": "ticket.svg",
+        "objetivos": [
+            "Diferenciar <strong>observación</strong>, <strong>dato</strong>, <strong>modelo</strong> y <strong>presentación</strong>.",
+            "Registrar medidas en una <strong>tabla</strong>.",
+            "Construir un <strong>modelo</strong> sencillo (gráfica de barras).",
+            "Redactar un resultado claro para un póster o informe.",
+            "Analizar si los datos muestran un cambio (crece / no crece).",
+        ],
+        "cuerpo": """
+    <h2>Explicación</h2>
+    <p>Después de preguntar e hipotetizar (L01), hay que <strong>mirar con método</strong>:</p>
+    <ol>
+      <li><strong>Observar</strong> con un instrumento (regla, cronómetro…).</li>
+      <li><strong>Tomar datos</strong> (anotar números con unidades: cm, min, °C).</li>
+      <li><strong>Modelar</strong>: simplificar la realidad en tabla, gráfica o maqueta.</li>
+      <li><strong>Presentar</strong>: explicar a otros (póster, informe, exposición oral).</li>
+    </ol>
+    <div class="tarjeta">
+      <p style="margin:0 0 0.5rem">Un <strong>modelo</strong> no es la cosa real: es un «mapa» útil. La gráfica de barras no es la hoja; <strong>representa</strong> su longitud.</p>
+      <p style="margin:0"><strong>Mnemónico ODaMoPre:</strong> Observar · Datos · Modelo · Presentar</p>
+    </div>
+""",
+        "vida_t": "Castilla y León",
+        "vida": [
+            "Crecimiento de plantas del huerto escolar.",
+            "Temperatura diaria anotada en el pueblo (comparar con AEMET).",
+            "Contar especies en un tramo de río (salida de campo).",
+            "Póster o gráfica en papel: presentar sin depender de internet.",
+        ],
+        "vida_fig": "mapa.svg",
+        "widgets": [
+            ("De la planta a la gráfica · datos y modelo", "l04-observar-datos-modelo.html"),
+        ],
+        "reto_t": "Tabla + barras en 4 días",
+        "reto": (
+            "Mide algo 4 días (temperatura, altura de brote, minutos de lluvia). "
+            "Tabla + barras en papel + 3 líneas de conclusión."
+        ),
+        "reto_id": "1eso-byg-L04",
+        "cierre": (
+            "<strong>ODaMoPre.</strong> Sin datos no hay modelo serio; "
+            "sin presentación, el hallazgo no viaja."
+        ),
+    },
+    {
+        "n": 5,
+        "slug": "cientificas-y-cientificos-que-cambiaron-la-biologia-y-la-geologia",
+        "eyebrow": "Lección 05 · UD A · Proyecto científico",
+        "title_html": "<em>Científicas y científicos</em> que cambiaron la biología y la geología",
+        "title_plain": "Científicas y científicos que cambiaron la biología y la geología",
+        "meta": "1º ESO Biología y Geología · CyL Decreto 39/2022 · bloque A",
+        "curiosidad_t": "Ciencia colectiva, no mitos",
+        "curiosidad": (
+            "Mary Anning encontró fósiles que cambiaron la paleontología; Cajal dibujó neuronas "
+            "con rigor de orfebre; Franklin aportó evidencia clave del ADN. La historia honesta "
+            "incluye a más personas de las que caben en un meme: la ciencia avanza en equipo y se corrige."
+        ),
+        "curiosidad_fig": "fuego.svg",
+        "objetivos": [
+            "Nombrar al menos 5 figuras relevantes (con siglo y campo).",
+            "Relacionar cada persona con un <strong>aporte</strong> concreto (no solo fama).",
+            "Incluir científicas y al menos una figura española (Cajal).",
+            "Evitar mitos inventados: distinguir hecho histórico de leyenda.",
+            "Valorar que la ciencia es colectiva y se corrige con el tiempo.",
+        ],
+        "cuerpo": """
+    <h2>Explicación</h2>
+    <p>Las ciencias biológicas y geológicas avanzaron porque personas observaron, midieron, discutieron y publicaron pruebas.</p>
+    <div class="tarjeta">
+      <p style="margin:0 0 0.35rem"><strong>Mary Anning</strong> — paleontología · fósiles de reptiles marinos</p>
+      <p style="margin:0 0 0.35rem"><strong>Charles Lyell</strong> — geología · procesos lentos explican el pasado</p>
+      <p style="margin:0 0 0.35rem"><strong>Charles Darwin</strong> — biología · selección natural</p>
+      <p style="margin:0 0 0.35rem"><strong>Gregor Mendel</strong> — biología · herencia (guisantes)</p>
+      <p style="margin:0 0 0.35rem"><strong>Santiago Ramón y Cajal</strong> — neurociencia · neuronas (Nobel 1906)</p>
+      <p style="margin:0 0 0.35rem"><strong>Rosalind Franklin</strong> — biofísica · evidencia estructural del ADN</p>
+      <p style="margin:0"><strong>Barbara McClintock</strong> — genética · elementos genéticos móviles</p>
+    </div>
+    <div class="tarjeta">
+      <p style="margin:0"><strong>Mnemónico:</strong> «CaMe DaLy Ma» → Cajal · Mendel · Darwin · Lyell · Mary Anning (+ Franklin / McClintock)</p>
+    </div>
+""",
+        "vida_t": "Castilla y León",
+        "vida": [
+            "Buscar en biblioteca/museo fichas reales (no solo vídeos virales).",
+            "Cajal es referencia en institutos españoles: células nerviosas.",
+            "Geología de CyL (páramos, Cordillera) se entiende mejor con la idea de tiempo largo (Lyell).",
+            "Contrastar biografías con fuentes veraces (enlace con L02).",
+        ],
+        "vida_fig": "mapa.svg",
+        "widgets": [
+            ("Línea del tiempo · científicas y científicos", "l05-cientificas-cientificos.html"),
+        ],
+        "reto_t": "Mini-póster de una figura",
+        "reto": (
+            "Elige una figura y prepara un mini-póster A5: fechas, aporte, "
+            "una evidencia, una fuente bibliográfica real."
+        ),
+        "reto_id": "1eso-byg-L05",
+        "cierre": (
+            "Personas + pruebas + tiempo. <strong>Cajal</strong> en España; "
+            "<strong>Anning, Franklin, McClintock</strong> en el relato completo."
+        ),
+    },
+    {
+        "n": 6,
+        "slug": "rocas-y-minerales-que-son-y-en-que-se-diferencian",
+        "eyebrow": "Lección 06 · UD B · Geosfera",
+        "title_html": "<em>Rocas y minerales</em>: qué son y en qué se diferencian",
+        "title_plain": "Rocas y minerales: qué son y en qué se diferencian",
+        "meta": "1º ESO Biología y Geología · CyL Decreto 39/2022 · bloque B",
+        "curiosidad_t": "Ladrillo y muro",
+        "curiosidad": (
+            "Desde la Antigüedad se usaron piedras sin distinguir bien mineral y roca. "
+            "La geología moderna aclara: el <strong>mineral</strong> es el «ladrillo» "
+            "(composición definida); la <strong>roca</strong> es el «muro» (agregado de minerales). "
+            "Esa metáfora ordena lo que ves en el patio o en una cantera."
+        ),
+        "curiosidad_fig": "fuego.svg",
+        "objetivos": [
+            "Definir <strong>mineral</strong> y <strong>roca</strong> en español claro.",
+            "Explicar la metáfora <strong>ladrillo / muro</strong>.",
+            "Clasificar ejemplos sencillos (granito, cuarzo, arenisca, calcita…).",
+            "Reconocer que una roca puede contener varios minerales.",
+            "Situar ambos en la <strong>geosfera</strong>.",
+        ],
+        "cuerpo": """
+    <h2>Explicación</h2>
+    <p>La <strong>geosfera</strong> es la parte sólida de la Tierra. Está hecha de materiales naturales:</p>
+    <ul>
+      <li><strong>Mineral:</strong> sólido natural con composición química definida (y, a menudo, estructura cristalina). Ej.: <strong>cuarzo</strong>, <strong>calcita</strong>, <strong>mica</strong>.</li>
+      <li><strong>Roca:</strong> agregado natural de uno o varios minerales. Ej.: <strong>granito</strong> (cuarzo + feldespato + mica), <strong>arenisca</strong>, <strong>basalto</strong>.</li>
+    </ul>
+    <div class="tarjeta">
+      <p style="margin:0"><strong>Mnemónico:</strong> «Mineral = ladrillo; Roca = muro».</p>
+    </div>
+""",
+        "vida_t": "Castilla y León",
+        "vida": [
+            "Encimeras o bordillos de <strong>granito</strong> (roca).",
+            "Arena de río: muchos granos son minerales (p. ej. cuarzo).",
+            "Caliza de páramos: roca; su mineral principal suele ser calcita.",
+            "Una piedra del patio con granos distintos: pista de roca policomponente.",
+        ],
+        "vida_fig": "mapa.svg",
+        "widgets": [
+            ("Comparador · roca ↔ mineral", "l06-rocas-minerales.html"),
+        ],
+        "reto_t": "Dos muestras: roca y mineral",
+        "reto": (
+            "Trae (o dibuja) 2 muestras: una «tipo roca» y una «tipo mineral» y justifica."
+        ),
+        "reto_id": "1eso-byg-L06",
+        "cierre": (
+            "<strong>Ladrillo / muro.</strong> Sin minerales no hay rocas; "
+            "una roca cuenta una historia de minerales juntos."
+        ),
+    },
+    {
+        "n": 7,
+        "slug": "clasificar-rocas-sedimentarias-metamorficas-e-igneas",
+        "eyebrow": "Lección 07 · UD B · Geosfera",
+        "title_html": "Clasificar rocas: <em>sedimentarias, metamórficas e ígneas</em>",
+        "title_plain": "Clasificar rocas: sedimentarias, metamórficas e ígneas",
+        "meta": "1º ESO Biología y Geología · CyL Decreto 39/2022 · bloque B",
+        "curiosidad_t": "Tres familias, un origen",
+        "curiosidad": (
+            "Clasificar por color engaña: una roca negra puede ser basalto (ígnea) o una pizarra oscura "
+            "(metamórfica). La llave es el <strong>origen</strong>: magma/lava, sedimentos, o cambio "
+            "por presión y temperatura. Esa idea ordena el laboratorio de rocas desde el siglo XIX."
+        ),
+        "curiosidad_fig": "fuego.svg",
+        "objetivos": [
+            "Nombrar las <strong>tres familias</strong> de rocas.",
+            "Relacionar cada familia con su <strong>origen</strong>.",
+            "Clasificar ejemplos: granito, basalto, arenisca, caliza, pizarra, mármol.",
+            "Usar pistas visuales (capas, láminas, aspecto volcánico).",
+            "Evitar memorizar listas sin el «porqué».",
+        ],
+        "cuerpo": """
+    <h2>Explicación</h2>
+    <div class="tarjeta">
+      <p style="margin:0 0 0.35rem"><strong>Ígneas</strong> — magma o lava que se enfría · granito, basalto</p>
+      <p style="margin:0 0 0.35rem"><strong>Sedimentarias</strong> — sedimentos acumulados y compactados · arenisca, caliza</p>
+      <p style="margin:0"><strong>Metamórficas</strong> — roca previa cambiada por presión/temperatura · pizarra, mármol</p>
+    </div>
+    <div class="tarjeta">
+      <p style="margin:0"><strong>Mnemónico ISI-SE-ME:</strong> Ígneas · Sedimentarias · Metamórficas</p>
+    </div>
+    <p>Si ves <strong>estratos</strong>, piensa sedimentaria; si ves <strong>láminas</strong> tipo pizarra, metamórfica; si viene de <strong>enfriar fundido</strong>, ígnea.</p>
+""",
+        "vida_t": "Castilla y León",
+        "vida": [
+            "<strong>Pizarra</strong> en cubiertas (León y zonas próximas históricas).",
+            "<strong>Calizas</strong> y páramos sedimentarios.",
+            "<strong>Granitos</strong> del Sistema Central / Gredos (ígneas plutónicas).",
+            "Mármol = metamorfismo de calizas (pista de familia).",
+        ],
+        "vida_fig": "mapa.svg",
+        "widgets": [
+            ("Clasificar rocas · tres familias", "l07-clasificar-rocas.html"),
+        ],
+        "reto_t": "Tabla de 6 rocas",
+        "reto": (
+            "Haz una tabla de 6 rocas del entorno o del lab con familia + pista visual."
+        ),
+        "reto_id": "1eso-byg-L07",
+        "cierre": (
+            "<strong>ISI-SE-ME.</strong> Origen = llave de la clasificación."
+        ),
+    },
+    {
+        "n": 8,
+        "slug": "el-ciclo-de-las-rocas",
+        "eyebrow": "Lección 08 · UD B · Geosfera",
+        "title_html": "El <em>ciclo de las rocas</em>",
+        "title_plain": "El ciclo de las rocas",
+        "meta": "1º ESO Biología y Geología · CyL Decreto 39/2022 · bloque B",
+        "curiosidad_t": "Despacio, pero sin parar",
+        "curiosidad": (
+            "Hutton y Lyell ayudaron a ver que la Tierra cambia a escala de millones de años. "
+            "El <strong>ciclo de las rocas</strong> no es un microondas: enfriamiento, erosión, "
+            "sedimentación, metamorfismo y fusión tejen rutas lentas —y hay más de un camino posible."
+        ),
+        "curiosidad_fig": "fuego.svg",
+        "objetivos": [
+            "Explicar qué es el <strong>ciclo de las rocas</strong>.",
+            "Relacionar procesos: enfriamiento, erosión, sedimentación, metamorfismo, fusión.",
+            "Seguir al menos un recorrido completo en el diagrama.",
+            "Entender que los cambios son <strong>lentos</strong> a escala humana.",
+            "Conectar con la clasificación de L07.",
+        ],
+        "cuerpo": """
+    <h2>Explicación</h2>
+    <p>Las rocas no están «fijas para siempre». Procesos geológicos las transforman:</p>
+    <ul>
+      <li>Magma <strong>enfría</strong> → ígnea</li>
+      <li>Ígnea (u otras) se <strong>rompe/erosiona</strong> → sedimentos → <strong>sedimentaria</strong></li>
+      <li>Con <strong>presión y temperatura</strong> → <strong>metamórfica</strong></li>
+      <li>Si <strong>funde</strong> → magma otra vez</li>
+    </ul>
+    <div class="tarjeta">
+      <p style="margin:0"><strong>Mnemónico:</strong> «Enfría · Rompe · Enterra · Aprieta · Funde»</p>
+    </div>
+    <p>No hay un único círculo obligatorio: hay <strong>muchas rutas</strong>. L07 clasifica; L08 muestra cómo pasan de una a otra.</p>
+""",
+        "vida_t": "Castilla y León",
+        "vida": [
+            "Cantos de río = erosión en marcha.",
+            "Estratos de páramo = sedimentación antigua.",
+            "El tiempo geológico explica paisajes de la comunidad.",
+            "Inventar un «viaje» de 4 pasos con una roca local ayuda a fijar el ciclo.",
+        ],
+        "vida_fig": "mapa.svg",
+        "widgets": [
+            ("Ciclo de las rocas · rutas y procesos", "l08-ciclo-rocas.html"),
+        ],
+        "reto_t": "Viaje de 4 pasos",
+        "reto": (
+            "Elige una roca de CyL e inventa (con lógica) un «viaje» de 4 pasos por el ciclo."
+        ),
+        "reto_id": "1eso-byg-L08",
+        "cierre": (
+            "<strong>Enfría · Rompe · Enterra · Aprieta · Funde.</strong> "
+            "Despacio, pero sin parar."
+        ),
+    },
+    {
+        "n": 9,
+        "slug": "rocas-y-minerales-relevantes-con-foco-en-castilla-y-leon",
+        "eyebrow": "Lección 09 · UD B · Geosfera",
+        "title_html": "Rocas y minerales relevantes <em>(foco Castilla y León)</em>",
+        "title_plain": "Rocas y minerales relevantes (con foco en Castilla y León)",
+        "meta": "1º ESO Biología y Geología · CyL Decreto 39/2022 · bloque B",
+        "curiosidad_t": "Leer el territorio en piedra",
+        "curiosidad": (
+            "Páramos de caliza, berrocales de granito, cubiertas de pizarra: Castilla y León "
+            "se lee también en sus materiales. Sin inventar minas ni cifras: lo honesto es "
+            "decir «tradicional / frecuente» y contrastar con mapa o museo."
+        ),
+        "curiosidad_fig": "mapa.svg",
+        "objetivos": [
+            "Citar al menos 4 ejemplos relevantes (mundo + CyL).",
+            "Asociar <strong>granito, caliza, pizarra, cuarzo, yeso</strong> a una zona o uso típico en CyL.",
+            "Distinguir dato geológico de mito local inventado.",
+            "Relacionar con familias de L07.",
+            "Valorar el patrimonio geológico cercano.",
+        ],
+        "cuerpo": """
+    <h2>Explicación</h2>
+    <p><strong>En Castilla y León (orientativo y honesto):</strong></p>
+    <div class="tarjeta">
+      <p style="margin:0 0 0.35rem"><strong>Granito</strong> (ígnea) — Sistema Central / Gredos (p. ej. Ávila)</p>
+      <p style="margin:0 0 0.35rem"><strong>Caliza</strong> (sedimentaria) — páramos y cuestas de la Meseta</p>
+      <p style="margin:0 0 0.35rem"><strong>Pizarra</strong> (metamórfica) — tradición en comarcas leonesas (cubiertas)</p>
+      <p style="margin:0 0 0.35rem"><strong>Cuarzo</strong> (mineral) — abundante en granitos y arenas</p>
+      <p style="margin:0"><strong>Yeso</strong> (mineral / evaporita) — cuencas sedimentarias</p>
+    </div>
+    <div class="tarjeta">
+      <p style="margin:0"><strong>Mnemónico Gra-Ca-Pi-Cuar-Ye:</strong> Granito · Caliza · Pizarra · Cuarzo · Yeso</p>
+    </div>
+    <p>No inventamos minas «famosas» ni fechas falsas: si no hay dato seguro, se dice «tradicional / frecuente» y se contrastará en L10 con fuentes.</p>
+""",
+        "vida_t": "Castilla y León",
+        "vida": [
+            "Pueblo en páramo: muros/calizas.",
+            "Zona de Gredos: berrocales graníticos.",
+            "Cubiertas de pizarra en arquitectura tradicional.",
+            "Contrastar con atlas / museo / mapa geológico (IGME).",
+        ],
+        "vida_fig": "mapa.svg",
+        "widgets": [
+            ("Rocas y minerales CyL · mapa honesto", "l09-rocas-minerales-cyl.html"),
+        ],
+        "reto_t": "1 roca de tu provincia",
+        "reto": (
+            "Elige tu provincia y busca (web del centro / atlas) 1 roca típica. Cita la fuente."
+        ),
+        "reto_id": "1eso-byg-L09",
+        "cierre": (
+            "<strong>Gra-Ca-Pi-Cuar-Ye.</strong> CyL se lee también en sus rocas."
+        ),
+    },
+    {
+        "n": 10,
+        "slug": "extraccion-minera-aplicaciones-economia-y-sociedad-en-cyl",
+        "eyebrow": "Lección 10 · UD B · Geosfera",
+        "title_html": "<em>Extracción minera</em>: aplicaciones, economía y sociedad en CyL",
+        "title_plain": "Extracción minera: aplicaciones, economía y sociedad en CyL",
+        "meta": "1º ESO Biología y Geología · CyL Decreto 39/2022 · bloque B",
+        "curiosidad_t": "Usar y restaurar",
+        "curiosidad": (
+            "Extraer materiales del terreno alimenta obras y oficios, pero también deja huella. "
+            "En CyL el carbón de León–Palencia marcó generaciones; hoy pesan más áridos, "
+            "pizarra y la idea de <strong>restaurar</strong> espacios. Sin cifras inventadas: "
+            "beneficio + reto + fuente."
+        ),
+        "curiosidad_fig": "olla.svg",
+        "objetivos": [
+            "Describir métodos básicos: <strong>cielo abierto</strong> y <strong>subterráneo</strong>.",
+            "Relacionar extracción con <strong>aplicaciones</strong> (construcción, industria, energía histórica).",
+            "Explicar beneficios (empleo, materiales) y retos (paisaje, seguridad, emisiones).",
+            "Situar a CyL: tradición (carbón León-Palencia en declive; pizarra; áridos) sin cifras inventadas.",
+            "Hablar de <strong>perspectivas</strong>: restauración, diversificación, transición energética.",
+        ],
+        "cuerpo": """
+    <h2>Explicación</h2>
+    <p><strong>Extraer</strong> = sacar minerales/rocas del terreno con técnica y normas.</p>
+    <div class="tarjeta">
+      <p style="margin:0 0 0.35rem"><strong>Métodos</strong> — cielo abierto (canteras) / galerías subterráneas</p>
+      <p style="margin:0 0 0.35rem"><strong>Aplicaciones</strong> — áridos, piedra ornamental, pizarra, caliza, metales…</p>
+      <p style="margin:0 0 0.35rem"><strong>Economía</strong> — empleo e industria local (variable según recurso y época)</p>
+      <p style="margin:0 0 0.35rem"><strong>Sociedad</strong> — oficios, despoblación/reactivación, salud laboral</p>
+      <p style="margin:0"><strong>Futuro</strong> — menos carbón; más restauración y otras actividades</p>
+    </div>
+    <div class="tarjeta">
+      <p style="margin:0 0 0.5rem"><strong>Honestidad:</strong> el carbón fue central en cuencas de León y Palencia; hoy se reduce su uso energético. No afirmamos cifras exactas sin fuente del año en curso.</p>
+      <p style="margin:0"><strong>Mnemónico USA-RESTAURA:</strong> Usar · Seguridad · Aplicaciones · Restaurar</p>
+    </div>
+""",
+        "vida_t": "Castilla y León",
+        "vida": [
+            "Canteras de áridos cerca de obras.",
+            "Memoria minera en cuencas (museos / patrimonio industrial).",
+            "Debate local: empleo vs impacto ambiental.",
+            "L09 nombra materiales; L10 explica cómo salen del terreno.",
+        ],
+        "vida_fig": "mapa.svg",
+        "widgets": [
+            ("Extracción minera CyL · usos y sociedad", "l10-extraccion-minera-cyl.html"),
+        ],
+        "reto_t": "Beneficio + reto + fuente",
+        "reto": (
+            "Entrevista (o busca noticia con fuente) sobre una cantera/mina/patrimonio minero de CyL. "
+            "Resume beneficio + reto + fuente."
+        ),
+        "reto_id": "1eso-byg-L10",
+        "cierre": (
+            "<strong>USA-RESTAURA.</strong> Recursos del territorio, "
+            "con seguridad y mirada de futuro."
         ),
     },
 ]
@@ -607,14 +1125,14 @@ def render_hub(*, for_downloads: bool = False) -> str:
     <p class="eyebrow" style="display:block;font-size:0.72rem;letter-spacing:0.16em;text-transform:uppercase;color:var(--lv-acento);font-weight:600;margin:0 0 0.55rem">Decreto 39/2022 · Castilla y León</p>
     <h1 id="hub-titulo">1º ESO Biología y Geología</h1>
     <p class="hub-status">
-      <strong>Lección 01 disponible</strong> (método científico) en shell HTML.
-      El curso está <strong>en construcción</strong> (40 lecciones previstas).
+      <strong>Lecciones 01–{AVAILABLE:02d} disponibles</strong> (UD A proyecto científico + UD B geosfera) en shell HTML.
+      El curso está <strong>en construcción</strong> ({TOTAL} lecciones previstas).
       <strong>ZIP offline</strong> (sin instalar: descomprime y abre <code>ABRE-AQUI.html</code>) en <a href="{descargas}">Descargas</a>.
     </p>
     <a class="hub-cta" href="{lec_prefix}{l01}">Abrir lección 01 →</a>
   </section>
 
-  <p class="hub-nota">Índice del temario (40 lecciones previstas). Solo L01 como <code>leccion-01-….html</code> (alias <code>leccion-01.html</code>). L02–L40: próximamente.</p>
+  <p class="hub-nota">Índice del temario ({TOTAL} lecciones previstas). Disponibles L01–L{AVAILABLE:02d} como <code>leccion-NN-….html</code> (alias <code>leccion-NN.html</code>). L{AVAILABLE+1:02d}–L{TOTAL}: próximamente.</p>
 
   <ol class="hub-lista">
 {chr(10).join(items)}
@@ -622,11 +1140,11 @@ def render_hub(*, for_downloads: bool = False) -> str:
 
   <p class="hub-pie-nota">
     Educación obligatoria · currículo oficial CyL (Decreto 39/2022). Distinto del pack Profesor (multi-materia).
-    Interactivo L01: laboratorio del cubito de hielo.
+    Interactivos L01–L{AVAILABLE:02d}: método, fuentes, laboratorio, datos, científicas/os, rocas y minería CyL.
   </p>
 
   <footer class="leccion-pie">
-    <strong>Les vencimos</strong> · 1º ESO Biología y Geología · L01 de {TOTAL} · en construcción
+    <strong>Les vencimos</strong> · 1º ESO Biología y Geología · L01–L{AVAILABLE:02d} de {TOTAL} · en construcción
   </footer>
 </div>
 </body>
@@ -644,24 +1162,67 @@ def write_hub() -> None:
 
 def update_descargas() -> None:
     text = DESCARGAS.read_text(encoding="utf-8")
-    if "1eso-biologia-geologia-offline.zip" in text:
-        print("descargas already has ByG entry")
-        return
+    import re
 
-    # Soften Mate-only lead
+    # Lead line (Mate + ByG)
+    text = re.sub(
+        r"1º ESO Matemáticas y Biología y Geología \(L0?\d+(?:–L?\d+)?\)",
+        f"1º ESO Matemáticas y Biología y Geología (L01–L{AVAILABLE:02d})",
+        text,
+        count=1,
+    )
     text = text.replace(
         "Empieza por 1º ESO Matemáticas. <strong>No es el pack Profesor</strong>",
-        "1º ESO Matemáticas y Biología y Geología (L01). <strong>No es el pack Profesor</strong>",
+        f"1º ESO Matemáticas y Biología y Geología (L01–L{AVAILABLE:02d}). <strong>No es el pack Profesor</strong>",
     )
+
+    byg_body = (
+        f"<strong>No se instala.</strong> Descomprime y abre <code>ABRE-AQUI.html</code> / <code>index.html</code>.\n"
+        f"            L01–L{AVAILABLE:02d} disponibles (UD A + UD B geosfera); "
+        f"curso en construcción ({TOTAL} lecciones previstas). Sin nube ni servidor.\n"
+        f"            Distinto del pack Profesor."
+    )
+
+    if "1eso-biologia-geologia-offline.zip" in text:
+        text2, n = re.subn(
+            r"(<h2>1º ESO Biología y Geología</h2>\s*"
+            r'<p class="kicker">Oficial CyL · Decreto 39/2022 · en construcción \(40 lecciones\)</p>\s*'
+            r"<p>)(.*?)(</p>\s*"
+            r'<div class="actions">\s*'
+            r'<a class="btn-download" href="/downloads/1eso-biologia-geologia-offline\.zip")',
+            rf"\1{byg_body}\3",
+            text,
+            count=1,
+            flags=re.S,
+        )
+        if n:
+            text = text2
+            DESCARGAS.write_text(text, encoding="utf-8")
+            print("Updated descargas.html ByG L01–L%02d copy" % AVAILABLE)
+            return
+        # fallback: softer replaces
+        text = re.sub(
+            r"L01 disponible \(método científico\); curso en construcción \(40 lecciones previstas\)",
+            f"L01–L{AVAILABLE:02d} disponibles (UD A + UD B geosfera); curso en construcción ({TOTAL} lecciones previstas)",
+            text,
+            count=1,
+        )
+        text = re.sub(
+            r"1º ESO Matemáticas y Biología y Geología \(L01\)",
+            f"1º ESO Matemáticas y Biología y Geología (L01–L{AVAILABLE:02d})",
+            text,
+            count=1,
+        )
+        DESCARGAS.write_text(text, encoding="utf-8")
+        print("Updated descargas.html ByG copy (fallback)")
+        return
 
     byg_article = f"""        <article class="item">
           <div class="num">08b</div>
           <div>
             <h2>1º ESO Biología y Geología</h2>
             <p class="kicker">Oficial CyL · Decreto 39/2022 · en construcción (40 lecciones)</p>
-            <p><strong>No se instala.</strong> Descomprime y abre <code>ABRE-AQUI.html</code> / <code>index.html</code>.
-            L01 disponible (método científico); curso en construcción (40 lecciones previstas). Sin nube ni servidor.
-            Distinto del pack Profesor.</p>
+            <p>{byg_body.replace(chr(92)+'n', chr(10))}</p>
             <div class="actions">
               <a class="btn-download" href="/downloads/1eso-biologia-geologia-offline.zip" download="1eso-biologia-geologia-offline.zip">Descargar ZIP</a>
               <a class="textlink" href="/profesor/1eso-biologia-geologia/lecciones/{lesson_filename(1)}">Abrir lección 01</a>
@@ -671,7 +1232,6 @@ def update_descargas() -> None:
         </article>
 """
 
-    # Insert after Mate article (before closing </div> of that catalog)
     needle = """              <a class="textlink" href="/profesor/1eso-matematicas/1eso-matematicas.html">Índice del curso</a>
             </div>
           </div>
@@ -696,23 +1256,40 @@ def update_descargas() -> None:
 
 
 def update_index() -> None:
+    import re
     text = INDEX.read_text(encoding="utf-8")
-    old = "1º ESO Matemáticas (oficial CyL). L01 lista — descarga ZIP offline en Descargas."
-    new = (
-        "1º ESO Matemáticas + Biología y Geología L01 (oficial CyL). "
+    target = (
+        f"1º ESO Matemáticas + Biología y Geología L01–L{AVAILABLE:02d} (oficial CyL). "
         "Descarga ZIP offline en Descargas."
     )
-    if new in text:
+    if target in text:
         print("index already updated")
         return
-    if old not in text:
-        # try partial
-        if "Biología y Geología" in text and "Educación obligatoria" in text:
-            print("index already mentions ByG")
+    patterns = [
+        r"1º ESO Matemáticas \+ Biología y Geología L0?\d+(?:–L?\d+)? \(oficial CyL\)\. Descarga ZIP offline en Descargas\.?",
+        r"1º ESO Matemáticas \+ Biología y Geología L01 \(oficial CyL\)\. Descarga ZIP offline en Descargas\.?",
+        r"1º ESO Matemáticas \(oficial CyL\)\. L01 lista — descarga ZIP offline en Descargas\.?",
+    ]
+    for pat in patterns:
+        text2, n = re.subn(pat, target, text, count=1)
+        if n:
+            INDEX.write_text(text2, encoding="utf-8")
+            print("Updated index.html")
             return
-        raise SystemExit("index.html Educación obligatoria card text not found")
-    INDEX.write_text(text.replace(old, new, 1), encoding="utf-8")
-    print("Updated index.html")
+    if "Biología y Geología" in text and "Educación obligatoria" in text:
+        text2, n = re.subn(
+            r"(Biología y Geología )L0?\d+(?:–L?\d+)?",
+            rf"\1L01–L{AVAILABLE:02d}",
+            text,
+            count=1,
+        )
+        if n:
+            INDEX.write_text(text2, encoding="utf-8")
+            print("Updated index.html ByG range")
+            return
+        print("index already mentions ByG (no Lxx pattern)")
+        return
+    raise SystemExit("index.html Educación obligatoria card text not found")
 
 
 def build_offline_pack() -> None:
@@ -727,8 +1304,8 @@ def build_offline_pack() -> None:
 No hay que instalar nada. Descomprime y abre **ABRE-AQUI.html** (o index.html).
 
 **Qué es:** lecciones de **Educación obligatoria** (currículo oficial Castilla y León, Decreto 39/2022).
-Este pack trae la lección **01** (método científico) en HTML plano (shell + interactivo embebido).
-Curso en construcción: **40** lecciones previstas.
+Este pack trae las lecciones **01–{AVAILABLE:02d}** (UD A + UD B geosfera) en HTML plano (shell + interactivos embebidos).
+Curso en construcción: **{TOTAL}** lecciones previstas (no está completo).
 
 **Cómo abrir (Android / PC) — 4 pasos**
 
@@ -747,19 +1324,24 @@ En Chrome/Android: menú → **Añadir a pantalla de inicio**.
 Los interactivos van **embebidos** en cada lección (funcionan sin cargar iframes hermanos).
 Si hace falta, cada lección sigue teniendo el enlace «Abrir en pestaña →» al widget suelto.
 
-**Contenido:** `ABRE-AQUI.html`, `index.html`, `LEEME.md`, `leccion-01-….html`,
-alias `leccion-01.html`, widget `l01-metodo-cientifico.html`, calculadora, CSS/JS,
+**Contenido:** `ABRE-AQUI.html`, `index.html`, `LEEME.md`, `leccion-01`…`leccion-{AVAILABLE:02d}-….html`,
+alias `leccion-NN.html`, widgets `l01`…`l{AVAILABLE:02d}-….html`, calculadora, CSS/JS,
 `figuras/*.svg` e iconos — todo en la misma carpeta.
 """,
         encoding="utf-8",
     )
 
-    items = [
-        f'    <li class="ok"><a href="{lesson_filename(1)}"><strong>L01</strong> — {TEMARIO[0]}</a></li>'
-    ]
-    for n in range(2, min(7, TOTAL + 1)):
-        items.append(f'    <li class="soon"><span><strong>L{n:02d}</strong> — {html.escape(TEMARIO[n-1])} · próximamente</span></li>')
-    items.append(f'    <li class="soon"><span>… hasta L{TOTAL} — próximamente</span></li>')
+    items = []
+    for n in range(1, AVAILABLE + 1):
+        items.append(
+            f'    <li class="ok"><a href="{lesson_filename(n)}"><strong>L{n:02d}</strong> — {html.escape(TEMARIO[n-1])}</a></li>'
+        )
+    if AVAILABLE < TOTAL:
+        for n in range(AVAILABLE + 1, min(AVAILABLE + 6, TOTAL + 1)):
+            items.append(
+                f'    <li class="soon"><span><strong>L{n:02d}</strong> — {html.escape(TEMARIO[n-1])} · próximamente</span></li>'
+            )
+        items.append(f'    <li class="soon"><span>… hasta L{TOTAL} — próximamente</span></li>')
 
     hub_flat = f"""<!DOCTYPE html>
 <html lang="es">
@@ -792,7 +1374,7 @@ alias `leccion-01.html`, widget `l01-metodo-cientifico.html`, calculadora, CSS/J
   <header class="bloque-titulo">
     <span class="eyebrow">Educación obligatoria · CyL</span>
     <h1 class="titulo-leccion">1º ESO Biología y Geología</h1>
-    <p class="meta-leccion">L01 lista · curso en construcción (40 lecciones previstas)</p>
+    <p class="meta-leccion">L01–L{AVAILABLE:02d} listas · curso en construcción ({TOTAL} lecciones previstas)</p>
   </header>
   <div class="no-install">
     <strong>No hay que instalar nada.</strong> Abre <code>ABRE-AQUI.html</code> o <code>index.html</code> desde esta carpeta
@@ -803,7 +1385,7 @@ alias `leccion-01.html`, widget `l01-metodo-cientifico.html`, calculadora, CSS/J
   </div>
   <p><a class="big-cta" href="{lesson_filename(1)}">Abrir lección 01 →</a>
      &nbsp; <a href="calculadora.html">Calculadora</a></p>
-  <p class="hub-nota">L02–L40 próximamente. Usa siempre este índice.</p>
+  <p class="hub-nota">L{AVAILABLE+1:02d}–L{TOTAL} próximamente. Usa siempre este índice.</p>
   <section class="bloque-cuerpo">
     <h2>Lecciones</h2>
     <ol class="hub-lista-flat">

@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="es"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>L08 · Ciclo de las rocas</title>
+<style>
+  :root{--bg:#FAF7F0;--ink:#2A2620;--muted:#5C564C;--card:#fff;--gold:#C4A15A;--gold-soft:#F5EDD8;--gold-deep:#8A6B2F;--green:#3D6B4F;--green-soft:#E4F0E8;--blue:#2F5D7A;--blue-soft:#E3EEF4;--rose:#9B3A4A;--rose-soft:#F8E8EB;--shadow:0 10px 32px rgba(42,38,32,.09);--radius:18px}
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{min-height:100%;background:var(--bg);color:var(--ink);font-family:"Segoe UI",system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+  body{display:flex;flex-direction:column;align-items:center;padding:14px 10px 36px}
+  .wrap{width:100%;max-width:980px}
+  header{text-align:center;margin-bottom:12px}
+  .badge{display:inline-block;font-size:.78rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--gold-deep);background:var(--gold-soft);padding:4px 12px;border-radius:999px;margin-bottom:8px}
+  h1{font-size:clamp(1.25rem,4.5vw,1.85rem);line-height:1.2;font-weight:800;color:#0E0E0C}
+  .subtitle{margin-top:6px;font-size:clamp(.9rem,2.8vw,1.05rem);color:var(--muted);font-weight:500}
+  .story{background:linear-gradient(135deg,#F5EDD8,#E3EEF4 55%,#E4F0E8);border:2px solid #E0D0A8;border-radius:var(--radius);padding:12px 14px;margin-bottom:14px;font-size:clamp(.9rem,2.5vw,1.02rem);line-height:1.45}
+  .story strong{color:var(--gold-deep)}
+  .card{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);padding:16px 14px 18px;margin-bottom:14px}
+  .card h2{font-size:clamp(1.05rem,3vw,1.25rem);font-weight:800;margin-bottom:8px}
+  .hint{font-size:clamp(.88rem,2.4vw,1rem);color:var(--muted);line-height:1.45;margin-bottom:10px}
+  .btn-row{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
+  button.action{appearance:none;border:none;border-radius:999px;padding:10px 18px;font-weight:800;font-size:.95rem;cursor:pointer;background:var(--gold);color:#fff;transition:transform .15s}
+  button.action:hover{transform:translateY(-1px)}
+  button.action.secondary{background:#fff;color:var(--gold-deep);border:2px solid var(--gold)}
+  button.action:disabled{opacity:.45;cursor:not-allowed}
+  .glossary{display:grid;gap:.4rem;margin:10px 0;padding:12px 14px;background:#FFFcf5;border-radius:12px;border:2px solid #E0D0A8;font-size:.95rem}
+  .glossary strong{color:var(--gold-deep)}
+  .mnemonic{font-size:.95rem;font-weight:700;color:var(--gold-deep);background:var(--gold-soft);border-left:4px solid var(--gold);padding:10px 14px;border-radius:0 12px 12px 0;margin-top:10px;line-height:1.4}
+  .verdict{text-align:center;font-size:1.05rem;font-weight:900;padding:12px;border-radius:14px;margin:10px 0;display:none;border:2px solid #E0D0A8}
+  .verdict.show{display:block}.verdict.ok{background:var(--green-soft);color:#2A5238;border-color:#9BC4A8}.verdict.bad{background:var(--rose-soft);color:#7A2A36;border-color:#E8A8B0}
+  .stage{position:relative;width:100%;aspect-ratio:16/10;background:linear-gradient(#E8F4FC 0%,#FFFcf5 55%,#EDE6D6 100%);border-radius:14px;overflow:hidden;border:2px solid #E0D0A8;margin-bottom:12px}
+  .stage svg{width:100%;height:100%;display:block}
+  .opts{display:grid;gap:8px;margin:10px 0}
+  .opt{padding:12px 14px;border:2px solid #D9D0C0;border-radius:12px;background:#fff;cursor:pointer;font-weight:700;text-align:left;font-size:.95rem;transition:border-color .2s,background .2s}
+  .opt:hover{border-color:var(--gold)}.opt.ok{border-color:var(--green);background:var(--green-soft)}.opt.bad{border-color:var(--rose);background:var(--rose-soft)}.opt.selected{border-color:var(--blue);background:var(--blue-soft)}
+  .score{font-weight:900;color:var(--gold-deep);font-size:1.1rem;text-align:center;margin:8px 0}
+  footer{text-align:center;font-size:.8rem;color:var(--muted);margin-top:4px}
+  body.preview-mode .story,body.preview-mode footer,body.preview-mode .hide-preview,body.preview-mode .glossary{display:none}
+  .bins{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:8px;margin:10px 0}
+  .bin{min-height:90px;border:2px dashed #C4B8A0;border-radius:14px;padding:8px;background:#FFFcf5;text-align:center}
+  .bin h3{font-size:.78rem;font-weight:800;color:var(--gold-deep);margin-bottom:4px}
+  .bin.ok{border-style:solid;border-color:var(--green);background:var(--green-soft)}
+  .chip{display:inline-block;margin:3px;padding:7px 10px;border-radius:999px;background:var(--blue-soft);border:2px solid var(--blue);font-weight:800;font-size:.75rem;color:var(--blue);cursor:pointer;user-select:none}
+  .pool{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin:8px 0;padding:8px;border:2px solid #E0D0A8;border-radius:12px;background:#fff}
+  .nav-steps{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin:8px 0}
+  .nav-steps button{padding:8px 12px;border-radius:999px;border:2px solid #D9D0C0;background:#fff;font-weight:800;font-size:.75rem;color:var(--muted);cursor:pointer}
+  .nav-steps button.on{border-color:var(--blue);background:var(--blue-soft);color:var(--blue)}
+  .narration{min-height:3.2em;background:#FFFcf5;border:2px solid #E0D0A8;border-radius:12px;padding:12px 14px;margin:10px 0;font-size:.98rem;line-height:1.45}
+  @keyframes pulseSoft{0%,100%{opacity:1}50%{opacity:.65}}
+  @keyframes floatY{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+  @keyframes spinSlow{to{transform:rotate(360deg)}}
+  @keyframes dashFlow{to{stroke-dashoffset:-40}}
+  .anim-float{animation:floatY 3s ease-in-out infinite}
+  .anim-pulse{animation:pulseSoft 2.4s ease-in-out infinite}
+
+#cycleArrows path{stroke-dasharray:8 6;animation:dashFlow 1.2s linear infinite}
+@keyframes dashFlow{to{stroke-dashoffset:-28}}
+.glow-node{filter:drop-shadow(0 0 6px rgba(196,161,90,.55))}
+</style></head><body><div class="wrap">
+<header><div class="badge">Lección 08 · UD B Geosfera · CyL Decreto 39/2022</div><h1>El ciclo de las rocas</h1><p class="subtitle">Magma ↔ ígneas ↔ sedimentos ↔ sedimentarias ↔ metamórficas</p></header>
+<div class="story">Las rocas <strong>cambian</strong> con el tiempo geológico. Sigue las flechas: enfriamiento, erosión, compactación, metamorfismo y fusión. No es un círculo rígido: hay rutas alternativas.</div>
+
+<section class="card">
+<h2>Ciclo animado</h2>
+<p class="hint">Pulsa <strong>Siguiente paso</strong> o un nodo. Las flechas muestran el proceso.</p>
+<div class="stage"><svg viewBox="0 0 800 500" role="img">
+
+<defs>
+  <filter id="sh"><feDropShadow dx="0" dy="3" stdDeviation="3" flood-opacity=".18"/></filter>
+  <linearGradient id="desk" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#E0C49A"/><stop offset="100%" stop-color="#A8845C"/></linearGradient>
+  <pattern id="graniteTex" width="14" height="14" patternUnits="userSpaceOnUse">
+    <rect width="14" height="14" fill="#D4CCC0"/>
+    <circle cx="3" cy="4" r="2.2" fill="#F5F0E6"/><circle cx="9" cy="10" r="1.8" fill="#5C564C"/>
+    <circle cx="11" cy="3" r="1.4" fill="#C4A15A"/><circle cx="5" cy="11" r="1.1" fill="#8A9AAA"/>
+  </pattern>
+  <pattern id="sandTex" width="10" height="10" patternUnits="userSpaceOnUse">
+    <rect width="10" height="10" fill="#E2C48A"/>
+    <circle cx="2" cy="3" r="1" fill="#C4A15A" opacity=".55"/><circle cx="7" cy="7" r=".9" fill="#A8845C" opacity=".5"/>
+  </pattern>
+  <pattern id="slateTex" width="12" height="7" patternUnits="userSpaceOnUse">
+    <rect width="12" height="7" fill="#5A6A78"/>
+    <path d="M0 2 H12 M0 5 H12" stroke="#3A4550" stroke-width="1"/>
+  </pattern>
+  <pattern id="basaltTex" width="16" height="16" patternUnits="userSpaceOnUse">
+    <rect width="16" height="16" fill="#3A3F48"/>
+    <circle cx="4" cy="5" r="1.5" fill="#2A2E36"/><circle cx="11" cy="11" r="1.8" fill="#5A6270"/>
+  </pattern>
+  <pattern id="marbleTex" width="20" height="20" patternUnits="userSpaceOnUse">
+    <rect width="20" height="20" fill="#F0ECE6"/>
+    <path d="M0 10 Q5 4 10 10 T20 10" fill="none" stroke="#C8C0B4" stroke-width="1.5"/>
+  </pattern>
+  <linearGradient id="magmaG" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#FFE98A"/><stop offset="40%" stop-color="#F0A020"/><stop offset="100%" stop-color="#9B3A4A"/></linearGradient>
+  <linearGradient id="skyG" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#8EC4E8"/><stop offset="100%" stop-color="#E8F4FC"/></linearGradient>
+  <marker id="ah" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0 0 L8 4 L0 8 Z" fill="#8A6B2F"/></marker>
+</defs>
+
+<rect width="800" height="500" fill="url(#skyG)"/>
+<!-- volcano / magma -->
+<g id="nMagma" class="glow-node" style="cursor:pointer">
+  <ellipse cx="400" cy="430" rx="120" ry="28" fill="#5C4030"/>
+  <path d="M320 430 L360 300 L440 300 L480 430 Z" fill="#6A5040"/>
+  <ellipse cx="400" cy="300" rx="50" ry="18" fill="url(#magmaG)" class="anim-pulse"/>
+  <text x="400" y="470" text-anchor="middle" font-size="14" font-weight="800" fill="#9B3A4A">MAGMA</text>
+</g>
+<!-- igneous -->
+<g id="nIgn" style="cursor:pointer" transform="translate(560,80)">
+  <path d="M20 40 L120 20 L140 120 L40 140 Z" fill="url(#graniteTex)" stroke="#5C564C" stroke-width="2" filter="url(#sh)"/>
+  <text x="80" y="170" text-anchor="middle" font-size="13" font-weight="800" fill="#9B3A4A">ÍGNEA</text>
+</g>
+<!-- sediments -->
+<g id="nSed" style="cursor:pointer" transform="translate(560,280)">
+  <ellipse cx="80" cy="60" rx="70" ry="25" fill="url(#sandTex)" stroke="#A8845C" stroke-width="2" filter="url(#sh)"/>
+  <ellipse cx="80" cy="75" rx="60" ry="18" fill="#C4A15A" opacity=".5"/>
+  <text x="80" y="120" text-anchor="middle" font-size="13" font-weight="800" fill="#8A6B2F">SEDIMENTOS</text>
+</g>
+<!-- sedimentary rock -->
+<g id="nSedR" style="cursor:pointer" transform="translate(80,280)">
+  <rect x="20" y="20" width="140" height="90" rx="8" fill="url(#sandTex)" stroke="#8A6B2F" stroke-width="2" filter="url(#sh)"/>
+  <line x1="20" y1="50" x2="160" y2="50" stroke="#A8845C" stroke-width="2"/>
+  <line x1="20" y1="80" x2="160" y2="80" stroke="#A8845C" stroke-width="2"/>
+  <text x="90" y="140" text-anchor="middle" font-size="13" font-weight="800" fill="#8A6B2F">SEDIMENTARIA</text>
+</g>
+<!-- metamorphic -->
+<g id="nMet" style="cursor:pointer" transform="translate(80,80)">
+  <rect x="20" y="20" width="140" height="100" rx="6" fill="url(#slateTex)" stroke="#3A4550" stroke-width="2" filter="url(#sh)"/>
+  <text x="90" y="150" text-anchor="middle" font-size="13" font-weight="800" fill="#2F5D7A">METAMÓRFICA</text>
+</g>
+<!-- arrows -->
+<g id="cycleArrows" fill="none" stroke="#8A6B2F" stroke-width="3" marker-end="url(#ah)">
+  <path id="a1" d="M400 290 Q500 200 600 160" opacity=".35"/>
+  <path id="a2" d="M640 200 Q700 260 640 320" opacity=".35"/>
+  <path id="a3" d="M560 360 Q400 400 240 360" opacity=".35"/>
+  <path id="a4" d="M160 280 Q120 200 160 160" opacity=".35"/>
+  <path id="a5" d="M200 130 Q400 60 560 120" opacity=".35"/>
+  <path id="a6" d="M220 180 Q300 320 360 380" opacity=".35"/>
+</g>
+<rect x="220" y="200" width="360" height="70" rx="14" fill="#FFFCF5" stroke="#C4A15A" stroke-width="2"/>
+<text id="stepLabel" x="400" y="230" text-anchor="middle" font-size="14" font-weight="800" fill="#8A6B2F">Paso 1 · Enfriamiento</text>
+<text id="stepDesc" x="400" y="252" text-anchor="middle" font-size="12" fill="#5C564C">El magma se enfría → roca ígnea</text>
+</svg></div>
+<div class="btn-row">
+<button type="button" class="action secondary" id="prev">←</button>
+<button type="button" class="action" id="next">Siguiente paso →</button>
+<button type="button" class="action secondary" id="auto">▶ Auto</button>
+</div>
+<p class="mnemonic">Mnemónico: <strong>«M-I-S-Se-Me-F»</strong> → Magma · Ígnea · Sedimentos · Sedimentaria · Metamórfica · Fusión.</p>
+<div class="glossary hide-preview">
+<div><strong>Erosión / meteorización:</strong> rompe rocas en sedimentos.</div>
+<div><strong>Metamorfismo:</strong> cambio por presión y temperatura.</div>
+<div><strong>Fusión:</strong> la roca se vuelve magma otra vez.</div>
+</div>
+</section>
+
+<footer>1º ESO Biología y Geología · CyL Decreto 39/2022 · Offline file://</footer>
+</div><script>
+(function(){
+const STEPS=[
+{a:'a1',t:'Paso 1 · Enfriamiento',d:'El magma se enfría → roca ígnea',nodes:['nMagma','nIgn']},
+{a:'a2',t:'Paso 2 · Erosión',d:'La ígnea se rompe → sedimentos',nodes:['nIgn','nSed']},
+{a:'a3',t:'Paso 3 · Compactación',d:'Sedimentos → roca sedimentaria',nodes:['nSed','nSedR']},
+{a:'a4',t:'Paso 4 · Metamorfismo',d:'Presión/calor → metamórfica',nodes:['nSedR','nMet']},
+{a:'a5',t:'Paso 5 · Otras rutas',d:'También puede haber cambios entre familias',nodes:['nMet','nIgn']},
+{a:'a6',t:'Paso 6 · Fusión',d:'Si funde → magma otra vez (ciclo)',nodes:['nMet','nMagma']}
+];
+let i=0, timer=null;
+function go(n){
+  i=(n+STEPS.length)%STEPS.length;
+  const s=STEPS[i];
+  document.getElementById('stepLabel').textContent=s.t;
+  document.getElementById('stepDesc').textContent=s.d;
+  ['a1','a2','a3','a4','a5','a6'].forEach(id=>{
+    document.getElementById(id).setAttribute('opacity', id===s.a?'1':'.2');
+    document.getElementById(id).setAttribute('stroke-width', id===s.a?'4':'2');
+  });
+  ['nMagma','nIgn','nSed','nSedR','nMet'].forEach(id=>{
+    document.getElementById(id).classList.toggle('glow-node', s.nodes.includes(id));
+  });
+}
+document.getElementById('next').onclick=()=>go(i+1);
+document.getElementById('prev').onclick=()=>go(i-1);
+document.getElementById('auto').onclick=()=>{
+  if(timer){clearInterval(timer); timer=null; document.getElementById('auto').textContent='▶ Auto'; return;}
+  document.getElementById('auto').textContent='⏸ Pausar';
+  timer=setInterval(()=>go(i+1), 2200);
+};
+['nMagma','nIgn','nSed','nSedR','nMet'].forEach((id,idx)=>{
+  document.getElementById(id).onclick=()=>go(Math.min(idx,5));
+});
+go(0);
+if(/[?&]preview=1\b/.test(location.search)){document.body.classList.add('preview-mode'); go(0);}
+})();
+</script></body></html>

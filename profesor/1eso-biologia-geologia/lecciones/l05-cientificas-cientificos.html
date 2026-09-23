@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="es"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>L05 · Científicas y científicos</title>
+<style>
+  :root{--bg:#FAF7F0;--ink:#2A2620;--muted:#5C564C;--card:#fff;--gold:#C4A15A;--gold-soft:#F5EDD8;--gold-deep:#8A6B2F;--green:#3D6B4F;--green-soft:#E4F0E8;--blue:#2F5D7A;--blue-soft:#E3EEF4;--rose:#9B3A4A;--rose-soft:#F8E8EB;--shadow:0 10px 32px rgba(42,38,32,.09);--radius:18px}
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{min-height:100%;background:var(--bg);color:var(--ink);font-family:"Segoe UI",system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+  body{display:flex;flex-direction:column;align-items:center;padding:14px 10px 36px}
+  .wrap{width:100%;max-width:980px}
+  header{text-align:center;margin-bottom:12px}
+  .badge{display:inline-block;font-size:.78rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--gold-deep);background:var(--gold-soft);padding:4px 12px;border-radius:999px;margin-bottom:8px}
+  h1{font-size:clamp(1.25rem,4.5vw,1.85rem);line-height:1.2;font-weight:800;color:#0E0E0C}
+  .subtitle{margin-top:6px;font-size:clamp(.9rem,2.8vw,1.05rem);color:var(--muted);font-weight:500}
+  .story{background:linear-gradient(135deg,#F5EDD8,#E3EEF4 55%,#E4F0E8);border:2px solid #E0D0A8;border-radius:var(--radius);padding:12px 14px;margin-bottom:14px;font-size:clamp(.9rem,2.5vw,1.02rem);line-height:1.45}
+  .story strong{color:var(--gold-deep)}
+  .card{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);padding:16px 14px 18px;margin-bottom:14px}
+  .card h2{font-size:clamp(1.05rem,3vw,1.25rem);font-weight:800;margin-bottom:8px}
+  .hint{font-size:clamp(.88rem,2.4vw,1rem);color:var(--muted);line-height:1.45;margin-bottom:10px}
+  .btn-row{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
+  button.action{appearance:none;border:none;border-radius:999px;padding:10px 18px;font-weight:800;font-size:.95rem;cursor:pointer;background:var(--gold);color:#fff;transition:transform .15s}
+  button.action:hover{transform:translateY(-1px)}
+  button.action.secondary{background:#fff;color:var(--gold-deep);border:2px solid var(--gold)}
+  button.action:disabled{opacity:.45;cursor:not-allowed}
+  .glossary{display:grid;gap:.4rem;margin:10px 0;padding:12px 14px;background:#FFFcf5;border-radius:12px;border:2px solid #E0D0A8;font-size:.95rem}
+  .glossary strong{color:var(--gold-deep)}
+  .mnemonic{font-size:.95rem;font-weight:700;color:var(--gold-deep);background:var(--gold-soft);border-left:4px solid var(--gold);padding:10px 14px;border-radius:0 12px 12px 0;margin-top:10px;line-height:1.4}
+  .verdict{text-align:center;font-size:1.05rem;font-weight:900;padding:12px;border-radius:14px;margin:10px 0;display:none;border:2px solid #E0D0A8}
+  .verdict.show{display:block}.verdict.ok{background:var(--green-soft);color:#2A5238;border-color:#9BC4A8}.verdict.bad{background:var(--rose-soft);color:#7A2A36;border-color:#E8A8B0}
+  .stage{position:relative;width:100%;aspect-ratio:16/10;background:linear-gradient(#E8F4FC 0%,#FFFcf5 55%,#EDE6D6 100%);border-radius:14px;overflow:hidden;border:2px solid #E0D0A8;margin-bottom:12px}
+  .stage svg{width:100%;height:100%;display:block}
+  .opts{display:grid;gap:8px;margin:10px 0}
+  .opt{padding:12px 14px;border:2px solid #D9D0C0;border-radius:12px;background:#fff;cursor:pointer;font-weight:700;text-align:left;font-size:.95rem;transition:border-color .2s,background .2s}
+  .opt:hover{border-color:var(--gold)}.opt.ok{border-color:var(--green);background:var(--green-soft)}.opt.bad{border-color:var(--rose);background:var(--rose-soft)}.opt.selected{border-color:var(--blue);background:var(--blue-soft)}
+  .score{font-weight:900;color:var(--gold-deep);font-size:1.1rem;text-align:center;margin:8px 0}
+  footer{text-align:center;font-size:.8rem;color:var(--muted);margin-top:4px}
+  body.preview-mode .story,body.preview-mode footer,body.preview-mode .hide-preview,body.preview-mode .glossary{display:none}
+  .bins{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:8px;margin:10px 0}
+  .bin{min-height:90px;border:2px dashed #C4B8A0;border-radius:14px;padding:8px;background:#FFFcf5;text-align:center}
+  .bin h3{font-size:.78rem;font-weight:800;color:var(--gold-deep);margin-bottom:4px}
+  .bin.ok{border-style:solid;border-color:var(--green);background:var(--green-soft)}
+  .chip{display:inline-block;margin:3px;padding:7px 10px;border-radius:999px;background:var(--blue-soft);border:2px solid var(--blue);font-weight:800;font-size:.75rem;color:var(--blue);cursor:pointer;user-select:none}
+  .pool{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin:8px 0;padding:8px;border:2px solid #E0D0A8;border-radius:12px;background:#fff}
+  .nav-steps{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin:8px 0}
+  .nav-steps button{padding:8px 12px;border-radius:999px;border:2px solid #D9D0C0;background:#fff;font-weight:800;font-size:.75rem;color:var(--muted);cursor:pointer}
+  .nav-steps button.on{border-color:var(--blue);background:var(--blue-soft);color:var(--blue)}
+  .narration{min-height:3.2em;background:#FFFcf5;border:2px solid #E0D0A8;border-radius:12px;padding:12px 14px;margin:10px 0;font-size:.98rem;line-height:1.45}
+  @keyframes pulseSoft{0%,100%{opacity:1}50%{opacity:.65}}
+  @keyframes floatY{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+  @keyframes spinSlow{to{transform:rotate(360deg)}}
+  @keyframes dashFlow{to{stroke-dashoffset:-40}}
+  .anim-float{animation:floatY 3s ease-in-out infinite}
+  .anim-pulse{animation:pulseSoft 2.4s ease-in-out infinite}
+</style></head><body><div class="wrap">
+<header><div class="badge">Lección 05 · UD A Proyecto científico · CyL Decreto 39/2022</div><h1>Científicas y científicos que cambiaron la biología y la geología</h1><p class="subtitle">Personas, ideas y el papel de la ciencia (sin biografías inventadas)</p></header>
+<div class="story">La ciencia avanza porque personas <strong>observan, miden, publican y corrigen</strong>. Conoce ejemplos honestos (Curie, Darwin, Margulis, geólogos/as de campo) y elige qué aportaron.</div>
+
+<section class="card">
+<h2>Galería de aportaciones</h2>
+<p class="hint">Pulsa un perfil. Luego responde el mini-check.</p>
+<div class="stage"><svg viewBox="0 0 800 500" role="img">
+
+<defs>
+  <filter id="sh"><feDropShadow dx="0" dy="3" stdDeviation="3" flood-opacity=".18"/></filter>
+  <linearGradient id="desk" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#E0C49A"/><stop offset="100%" stop-color="#A8845C"/></linearGradient>
+  <linearGradient id="glassG" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#DCEEF8" stop-opacity=".5"/><stop offset="50%" stop-color="#fff" stop-opacity=".15"/><stop offset="100%" stop-color="#8EB0C4" stop-opacity=".4"/></linearGradient>
+  <pattern id="graniteTex" width="14" height="14" patternUnits="userSpaceOnUse">
+    <rect width="14" height="14" fill="#D4CCC0"/>
+    <circle cx="3" cy="4" r="2.2" fill="#F5F0E6"/><circle cx="9" cy="10" r="1.8" fill="#5C564C"/>
+    <circle cx="11" cy="3" r="1.4" fill="#C4A15A"/><circle cx="5" cy="11" r="1.1" fill="#8A9AAA"/>
+    <circle cx="7" cy="6" r="1.3" fill="#E8E0D4"/>
+  </pattern>
+  <pattern id="sandTex" width="10" height="10" patternUnits="userSpaceOnUse">
+    <rect width="10" height="10" fill="#E2C48A"/>
+    <circle cx="2" cy="3" r="1" fill="#C4A15A" opacity=".55"/><circle cx="7" cy="7" r=".9" fill="#A8845C" opacity=".5"/>
+  </pattern>
+  <pattern id="slateTex" width="12" height="7" patternUnits="userSpaceOnUse">
+    <rect width="12" height="7" fill="#5A6A78"/>
+    <path d="M0 2 H12 M0 5 H12" stroke="#3A4550" stroke-width="1"/>
+  </pattern>
+  <pattern id="basaltTex" width="16" height="16" patternUnits="userSpaceOnUse">
+    <rect width="16" height="16" fill="#3A3F48"/>
+    <circle cx="4" cy="5" r="1.5" fill="#2A2E36"/><circle cx="11" cy="11" r="1.8" fill="#5A6270"/>
+  </pattern>
+  <pattern id="marbleTex" width="20" height="20" patternUnits="userSpaceOnUse">
+    <rect width="20" height="20" fill="#F0ECE6"/>
+    <path d="M0 10 Q5 4 10 10 T20 10" fill="none" stroke="#C8C0B4" stroke-width="1.5"/>
+  </pattern>
+  <pattern id="quartzTex" width="8" height="8" patternUnits="userSpaceOnUse">
+    <rect width="8" height="8" fill="#E8F4F8"/>
+    <path d="M0 0 L8 8 M8 0 L0 8" stroke="#B8D0DC" stroke-width=".8" opacity=".7"/>
+  </pattern>
+  <linearGradient id="crystalG" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#fff"/><stop offset="50%" stop-color="#C8E4F0"/><stop offset="100%" stop-color="#6A9AB0"/></linearGradient>
+  <linearGradient id="magmaG" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#FFE98A"/><stop offset="40%" stop-color="#F0A020"/><stop offset="100%" stop-color="#9B3A4A"/></linearGradient>
+  <linearGradient id="skyG" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#8EC4E8"/><stop offset="100%" stop-color="#E8F4FC"/></linearGradient>
+</defs>
+
+<rect width="800" height="500" fill="#E8F4FC"/>
+<!-- four portrait cards -->
+<g id="cards">
+  <g class="pcard" data-i="0" transform="translate(40,60)" filter="url(#sh)" style="cursor:pointer">
+    <rect width="160" height="220" rx="14" fill="#FFFCF5" stroke="#C4A15A" stroke-width="3"/>
+    <circle cx="80" cy="70" r="40" fill="#E8D5A8"/>
+    <ellipse cx="80" cy="70" rx="28" ry="32" fill="#E4B48C"/>
+    <path d="M52 70 Q55 40 80 38 Q105 40 108 70 Q100 55 80 52 Q60 55 52 70Z" fill="#3A281C"/>
+    <text x="80" y="140" text-anchor="middle" font-size="13" font-weight="800" fill="#8A6B2F">Marie Curie</text>
+    <text x="80" y="165" text-anchor="middle" font-size="11" fill="#5C564C">radiactividad</text>
+    <text x="80" y="195" text-anchor="middle" font-size="11" font-weight="700" fill="#2F5D7A">laboratorio</text>
+  </g>
+  <g class="pcard" data-i="1" transform="translate(230,60)" filter="url(#sh)" style="cursor:pointer">
+    <rect width="160" height="220" rx="14" fill="#FFFCF5" stroke="#C4A15A" stroke-width="3"/>
+    <circle cx="80" cy="70" r="40" fill="#E8D5A8"/>
+    <ellipse cx="80" cy="70" rx="28" ry="32" fill="#D4A882"/>
+    <path d="M52 55 Q80 30 108 55 Q100 48 80 48 Q60 48 52 55Z" fill="#2A1C14"/>
+    <text x="80" y="140" text-anchor="middle" font-size="13" font-weight="800" fill="#8A6B2F">C. Darwin</text>
+    <text x="80" y="165" text-anchor="middle" font-size="11" fill="#5C564C">observación</text>
+    <text x="80" y="195" text-anchor="middle" font-size="11" font-weight="700" fill="#2F5D7A">seres vivos</text>
+  </g>
+  <g class="pcard" data-i="2" transform="translate(420,60)" filter="url(#sh)" style="cursor:pointer">
+    <rect width="160" height="220" rx="14" fill="#FFFCF5" stroke="#C4A15A" stroke-width="3"/>
+    <circle cx="80" cy="70" r="40" fill="#E8D5A8"/>
+    <ellipse cx="80" cy="70" rx="28" ry="32" fill="#E0B08A"/>
+    <path d="M52 65 Q55 38 80 36 Q105 38 108 65 Q98 50 80 48 Q62 50 52 65Z" fill="#4A3224"/>
+    <text x="80" y="140" text-anchor="middle" font-size="13" font-weight="800" fill="#8A6B2F">L. Margulis</text>
+    <text x="80" y="165" text-anchor="middle" font-size="11" fill="#5C564C">endosimbiosis</text>
+    <text x="80" y="195" text-anchor="middle" font-size="11" font-weight="700" fill="#2F5D7A">célula</text>
+  </g>
+  <g class="pcard" data-i="3" transform="translate(610,60)" filter="url(#sh)" style="cursor:pointer">
+    <rect width="160" height="220" rx="14" fill="#FFFCF5" stroke="#C4A15A" stroke-width="3"/>
+    <circle cx="80" cy="70" r="40" fill="#E8D5A8"/>
+    <ellipse cx="80" cy="70" rx="28" ry="32" fill="#D9A87E"/>
+    <path d="M55 50 Q80 28 105 50 L100 75 L60 75 Z" fill="#5A6E58"/>
+    <text x="80" y="140" text-anchor="middle" font-size="12" font-weight="800" fill="#8A6B2F">Geólogos/as</text>
+    <text x="80" y="165" text-anchor="middle" font-size="11" fill="#5C564C">mapa + campo</text>
+    <text x="80" y="195" text-anchor="middle" font-size="11" font-weight="700" fill="#2F5D7A">geosfera</text>
+  </g>
+</g>
+<rect x="100" y="320" width="600" height="120" rx="14" fill="#FFFCF5" stroke="#E0D0A8" stroke-width="2"/>
+<text id="bioTitle" x="400" y="355" text-anchor="middle" font-size="16" font-weight="800" fill="#8A6B2F">Pulsa un perfil</text>
+<foreignObject x="130" y="370" width="540" height="60"><div xmlns="http://www.w3.org/1999/xhtml" id="bioText" style="font:600 14px system-ui;color:#5C564C;text-align:center;line-height:1.35">La ciencia es trabajo de muchas personas a lo largo del tiempo.</div></foreignObject>
+</svg></div>
+<div class="opts hide-preview" id="quiz"></div>
+<div class="verdict" id="verdict"></div>
+<p class="mnemonic">Mnemónico: <strong>«O-P-C»</strong> → Observar · Publicar · Corregir.</p>
+<div class="glossary hide-preview">
+<div><strong>Aportación científica:</strong> idea o descubrimiento contrastable.</div>
+<div><strong>Publicar:</strong> compartir resultados para que otros los revisen.</div>
+</div>
+</section>
+
+<footer>1º ESO Biología y Geología · CyL Decreto 39/2022 · Offline file://</footer>
+</div><script>
+(function(){
+const P=[
+{n:'Marie Curie',d:'Estudió la radiactividad con rigor de laboratorio. Ejemplo de medición cuidadosa y persistencia (sin inventar anécdotas).'},
+{n:'Charles Darwin',d:'Observó seres vivos en distintos lugares y propuso ideas sobre evolución. Clave: observación paciente.'},
+{n:'Lynn Margulis',d:'Propuso la endosimbiosis (mitocondrias/cloroplastos). Idea audaz contrastada con más datos.'},
+{n:'Geólogos/as de campo',d:'Leen la geosfera: mapas, estratos, rocas. La geología también es ciencia de observar y medir.'}
+];
+const quiz=document.getElementById('quiz');
+const verdict=document.getElementById('verdict');
+document.querySelectorAll('.pcard').forEach(g=>{
+  g.addEventListener('click',()=>{
+    const i=+g.dataset.i;
+    document.getElementById('bioTitle').textContent=P[i].n;
+    document.getElementById('bioText').textContent=P[i].d;
+  });
+});
+const Q={t:'¿Qué tienen en común Curie, Darwin, Margulis y geólogos/as?',
+opts:[
+{t:'Observar, medir y contrastar ideas',ok:true},
+{t:'Adivinar sin datos',ok:false},
+{t:'Publicar bulos en chats',ok:false}
+]};
+function build(){
+  quiz.innerHTML='<p class="hint"><strong>Mini-check:</strong> '+Q.t+'</p>';
+  Q.opts.forEach(o=>{
+    const b=document.createElement('button'); b.type='button'; b.className='opt'; b.textContent=o.t;
+    b.onclick=()=>{ if(o.ok){b.classList.add('ok'); verdict.textContent='Correcto: la ciencia avanza con pruebas.'; verdict.className='verdict show ok';}
+      else{b.classList.add('bad'); verdict.textContent='No: sin datos no hay ciencia.'; verdict.className='verdict show bad';} };
+    quiz.appendChild(b);
+  });
+}
+build();
+if(/[?&]preview=1\b/.test(location.search)){
+  document.body.classList.add('preview-mode');
+  document.getElementById('bioTitle').textContent=P[0].n;
+  document.getElementById('bioText').textContent=P[0].d;
+}
+})();
+</script></body></html>

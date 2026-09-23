@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="es"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>L03 · Laboratorio: instrumentos, espacios y normas</title>
+<style>
+  :root{--bg:#FAF7F0;--ink:#2A2620;--muted:#5C564C;--card:#fff;--gold:#C4A15A;--gold-soft:#F5EDD8;--gold-deep:#8A6B2F;--green:#3D6B4F;--green-soft:#E4F0E8;--blue:#2F5D7A;--blue-soft:#E3EEF4;--rose:#9B3A4A;--rose-soft:#F8E8EB;--shadow:0 10px 32px rgba(42,38,32,.09);--radius:18px}
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{min-height:100%;background:var(--bg);color:var(--ink);font-family:"Segoe UI",system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+  body{display:flex;flex-direction:column;align-items:center;padding:14px 10px 36px}
+  .wrap{width:100%;max-width:980px}
+  header{text-align:center;margin-bottom:12px}
+  .badge{display:inline-block;font-size:.78rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--gold-deep);background:var(--gold-soft);padding:4px 12px;border-radius:999px;margin-bottom:8px}
+  h1{font-size:clamp(1.25rem,4.5vw,1.85rem);line-height:1.2;font-weight:800;color:#0E0E0C}
+  .subtitle{margin-top:6px;font-size:clamp(.9rem,2.8vw,1.05rem);color:var(--muted);font-weight:500}
+  .story{background:linear-gradient(135deg,#F5EDD8,#E3EEF4 55%,#E4F0E8);border:2px solid #E0D0A8;border-radius:var(--radius);padding:12px 14px;margin-bottom:14px;font-size:clamp(.9rem,2.5vw,1.02rem);line-height:1.45}
+  .story strong{color:var(--gold-deep)}
+  .card{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);padding:16px 14px 18px;margin-bottom:14px}
+  .card h2{font-size:clamp(1.05rem,3vw,1.25rem);font-weight:800;margin-bottom:8px}
+  .hint{font-size:clamp(.88rem,2.4vw,1rem);color:var(--muted);line-height:1.45;margin-bottom:10px}
+  .btn-row{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
+  button.action{appearance:none;border:none;border-radius:999px;padding:10px 18px;font-weight:800;font-size:.95rem;cursor:pointer;background:var(--gold);color:#fff;transition:transform .15s}
+  button.action:hover{transform:translateY(-1px)}
+  button.action.secondary{background:#fff;color:var(--gold-deep);border:2px solid var(--gold)}
+  button.action:disabled{opacity:.45;cursor:not-allowed}
+  .glossary{display:grid;gap:.4rem;margin:10px 0;padding:12px 14px;background:#FFFcf5;border-radius:12px;border:2px solid #E0D0A8;font-size:.95rem}
+  .glossary strong{color:var(--gold-deep)}
+  .mnemonic{font-size:.95rem;font-weight:700;color:var(--gold-deep);background:var(--gold-soft);border-left:4px solid var(--gold);padding:10px 14px;border-radius:0 12px 12px 0;margin-top:10px;line-height:1.4}
+  .verdict{text-align:center;font-size:1.05rem;font-weight:900;padding:12px;border-radius:14px;margin:10px 0;display:none;border:2px solid #E0D0A8}
+  .verdict.show{display:block}.verdict.ok{background:var(--green-soft);color:#2A5238;border-color:#9BC4A8}.verdict.bad{background:var(--rose-soft);color:#7A2A36;border-color:#E8A8B0}
+  .stage{position:relative;width:100%;aspect-ratio:16/10;background:linear-gradient(#E8F4FC 0%,#FFFcf5 55%,#EDE6D6 100%);border-radius:14px;overflow:hidden;border:2px solid #E0D0A8;margin-bottom:12px}
+  .stage svg{width:100%;height:100%;display:block}
+  .opts{display:grid;gap:8px;margin:10px 0}
+  .opt{padding:12px 14px;border:2px solid #D9D0C0;border-radius:12px;background:#fff;cursor:pointer;font-weight:700;text-align:left;font-size:.95rem;transition:border-color .2s,background .2s}
+  .opt:hover{border-color:var(--gold)}.opt.ok{border-color:var(--green);background:var(--green-soft)}.opt.bad{border-color:var(--rose);background:var(--rose-soft)}.opt.selected{border-color:var(--blue);background:var(--blue-soft)}
+  .score{font-weight:900;color:var(--gold-deep);font-size:1.1rem;text-align:center;margin:8px 0}
+  footer{text-align:center;font-size:.8rem;color:var(--muted);margin-top:4px}
+  body.preview-mode .story,body.preview-mode footer,body.preview-mode .hide-preview,body.preview-mode .glossary{display:none}
+  .bins{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:8px;margin:10px 0}
+  .bin{min-height:90px;border:2px dashed #C4B8A0;border-radius:14px;padding:8px;background:#FFFcf5;text-align:center}
+  .bin h3{font-size:.78rem;font-weight:800;color:var(--gold-deep);margin-bottom:4px}
+  .bin.ok{border-style:solid;border-color:var(--green);background:var(--green-soft)}
+  .chip{display:inline-block;margin:3px;padding:7px 10px;border-radius:999px;background:var(--blue-soft);border:2px solid var(--blue);font-weight:800;font-size:.75rem;color:var(--blue);cursor:pointer;user-select:none}
+  .pool{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin:8px 0;padding:8px;border:2px solid #E0D0A8;border-radius:12px;background:#fff}
+  .nav-steps{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin:8px 0}
+  .nav-steps button{padding:8px 12px;border-radius:999px;border:2px solid #D9D0C0;background:#fff;font-weight:800;font-size:.75rem;color:var(--muted);cursor:pointer}
+  .nav-steps button.on{border-color:var(--blue);background:var(--blue-soft);color:var(--blue)}
+  .narration{min-height:3.2em;background:#FFFcf5;border:2px solid #E0D0A8;border-radius:12px;padding:12px 14px;margin:10px 0;font-size:.98rem;line-height:1.45}
+  @keyframes pulseSoft{0%,100%{opacity:1}50%{opacity:.65}}
+  @keyframes floatY{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+  @keyframes spinSlow{to{transform:rotate(360deg)}}
+  @keyframes dashFlow{to{stroke-dashoffset:-40}}
+  .anim-float{animation:floatY 3s ease-in-out infinite}
+  .anim-pulse{animation:pulseSoft 2.4s ease-in-out infinite}
+</style></head><body><div class="wrap">
+<header><div class="badge">Lección 03 · UD A Proyecto científico · CyL Decreto 39/2022</div><h1>Laboratorio: instrumentos, espacios y normas de seguridad</h1><p class="subtitle">Identificar material, espacios y normas (bata, gafas, orden)</p></header>
+<div class="story">El <strong>laboratorio</strong> no es el patio: hay vidrio, calor y normas. Recorre la mesa: vaso, tubos, balanza, mechero, termómetro. Pulsa normas: ¿obligatorio u prohibido?</div>
+
+<section class="card">
+<h2>Mesa de laboratorio</h2>
+<p class="hint">Pulsa un instrumento o una norma. Aprende para qué sirve y qué está prohibido.</p>
+<div class="nav-steps" id="tabs">
+<button type="button" class="on" data-k="inst">Instrumentos</button>
+<button type="button" data-k="norm">Normas</button>
+</div>
+<div class="stage"><svg viewBox="0 0 800 500" role="img">
+
+<defs>
+  <filter id="sh"><feDropShadow dx="0" dy="3" stdDeviation="3" flood-opacity=".18"/></filter>
+  <linearGradient id="desk" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#E0C49A"/><stop offset="100%" stop-color="#A8845C"/></linearGradient>
+  <linearGradient id="glassG" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#DCEEF8" stop-opacity=".5"/><stop offset="50%" stop-color="#fff" stop-opacity=".15"/><stop offset="100%" stop-color="#8EB0C4" stop-opacity=".4"/></linearGradient>
+  <linearGradient id="metal" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#E8E4DC"/><stop offset="100%" stop-color="#9A9488"/></linearGradient>
+  <linearGradient id="flame" x1="0" y1="1" x2="0" y2="0"><stop offset="0%" stop-color="#C0392B"/><stop offset="55%" stop-color="#F0A020"/><stop offset="100%" stop-color="#FFE98A"/></linearGradient>
+  <pattern id="graniteTex" width="14" height="14" patternUnits="userSpaceOnUse">
+    <rect width="14" height="14" fill="#D4CCC0"/>
+    <circle cx="3" cy="4" r="2.2" fill="#F5F0E6"/><circle cx="9" cy="10" r="1.8" fill="#5C564C"/>
+    <circle cx="11" cy="3" r="1.4" fill="#C4A15A"/><circle cx="5" cy="11" r="1.1" fill="#8A9AAA"/>
+    <circle cx="7" cy="6" r="1.3" fill="#E8E0D4"/>
+  </pattern>
+  <pattern id="sandTex" width="10" height="10" patternUnits="userSpaceOnUse">
+    <rect width="10" height="10" fill="#E2C48A"/>
+    <circle cx="2" cy="3" r="1" fill="#C4A15A" opacity=".55"/><circle cx="7" cy="7" r=".9" fill="#A8845C" opacity=".5"/>
+  </pattern>
+  <pattern id="slateTex" width="12" height="7" patternUnits="userSpaceOnUse">
+    <rect width="12" height="7" fill="#5A6A78"/>
+    <path d="M0 2 H12 M0 5 H12" stroke="#3A4550" stroke-width="1"/>
+  </pattern>
+  <pattern id="basaltTex" width="16" height="16" patternUnits="userSpaceOnUse">
+    <rect width="16" height="16" fill="#3A3F48"/>
+    <circle cx="4" cy="5" r="1.5" fill="#2A2E36"/><circle cx="11" cy="11" r="1.8" fill="#5A6270"/>
+  </pattern>
+  <pattern id="marbleTex" width="20" height="20" patternUnits="userSpaceOnUse">
+    <rect width="20" height="20" fill="#F0ECE6"/>
+    <path d="M0 10 Q5 4 10 10 T20 10" fill="none" stroke="#C8C0B4" stroke-width="1.5"/>
+  </pattern>
+  <pattern id="quartzTex" width="8" height="8" patternUnits="userSpaceOnUse">
+    <rect width="8" height="8" fill="#E8F4F8"/>
+    <path d="M0 0 L8 8 M8 0 L0 8" stroke="#B8D0DC" stroke-width=".8" opacity=".7"/>
+  </pattern>
+  <linearGradient id="crystalG" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#fff"/><stop offset="50%" stop-color="#C8E4F0"/><stop offset="100%" stop-color="#6A9AB0"/></linearGradient>
+  <radialGradient id="glowG" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="#C4A15A" stop-opacity=".45"/><stop offset="100%" stop-color="#C4A15A" stop-opacity="0"/></radialGradient>
+</defs>
+
+<rect width="800" height="280" fill="#E8F0F6"/><rect y="280" width="800" height="220" fill="#EDE6D6"/>
+<!-- wall cabinets -->
+<rect x="40" y="40" width="120" height="160" rx="6" fill="#D8D0C4" stroke="#A89070" stroke-width="2" filter="url(#sh)"/>
+<text x="100" y="70" text-anchor="middle" font-size="11" font-weight="800" fill="#5C564C">armario</text>
+<rect x="55" y="85" width="40" height="50" fill="#E3EEF4" stroke="#2F5D7A"/><rect x="105" y="85" width="40" height="50" fill="#E3EEF4" stroke="#2F5D7A"/>
+<!-- sink -->
+<g filter="url(#sh)" transform="translate(620,60)">
+  <rect x="0" y="40" width="120" height="70" rx="8" fill="#A8B8C4" stroke="#5C6A74" stroke-width="2"/>
+  <ellipse cx="60" cy="75" rx="40" ry="18" fill="#6A8A9C"/>
+  <rect x="50" y="20" width="20" height="30" fill="#C4A15A"/>
+  <circle cx="60" cy="20" r="8" fill="#E8D5A8"/>
+  <text x="60" y="130" text-anchor="middle" font-size="12" font-weight="800" fill="#2F5D7A">fregadero</text>
+</g>
+<!-- table -->
+<rect x="50" y="360" width="700" height="36" rx="5" fill="url(#desk)" stroke="#7A5A38" stroke-width="2" filter="url(#sh)"/>
+<!-- beaker -->
+<g id="beaker" filter="url(#sh)" transform="translate(90,250)" style="cursor:pointer">
+  <path d="M20 40 L15 140 L85 140 L80 40 Z" fill="url(#glassG)" stroke="#5A7A8C" stroke-width="3"/>
+  <rect x="18" y="90" width="64" height="48" fill="#7EC8E8" opacity=".55"/>
+  <path d="M28 55 L28 120" stroke="#fff" stroke-opacity=".5" stroke-width="4"/>
+  <text x="50" y="165" text-anchor="middle" font-size="11" font-weight="800" fill="#2F5D7A">vaso precipitados</text>
+</g>
+<!-- test tubes -->
+<g id="tubes" filter="url(#sh)" transform="translate(220,270)" style="cursor:pointer">
+  <rect x="0" y="60" width="90" height="18" rx="3" fill="#8A6B2F"/>
+  <rect x="12" y="20" width="14" height="55" rx="4" fill="#B8DCF0" stroke="#5A7A8C"/>
+  <rect x="38" y="10" width="14" height="65" rx="4" fill="#F8C8B8" stroke="#5A7A8C"/>
+  <rect x="64" y="25" width="14" height="50" rx="4" fill="#C8E8C4" stroke="#5A7A8C"/>
+  <text x="45" y="100" text-anchor="middle" font-size="11" font-weight="800" fill="#2F5D7A">tubos + gradilla</text>
+</g>
+<!-- balance -->
+<g id="balance" filter="url(#sh)" transform="translate(360,260)" style="cursor:pointer">
+  <rect x="20" y="80" width="100" height="50" rx="6" fill="url(#metal)" stroke="#6A6458"/>
+  <rect x="35" y="40" width="70" height="40" rx="4" fill="#2A3038"/>
+  <text x="70" y="66" text-anchor="middle" font-size="14" font-weight="800" fill="#7EC8E8">0.0 g</text>
+  <ellipse cx="70" cy="35" rx="28" ry="6" fill="#C4A15A"/>
+  <text x="70" y="150" text-anchor="middle" font-size="11" font-weight="800" fill="#2F5D7A">balanza</text>
+</g>
+<!-- bunsen -->
+<g id="bunsen" filter="url(#sh)" transform="translate(520,250)" style="cursor:pointer">
+  <rect x="35" y="90" width="40" height="50" rx="4" fill="#5C564C"/>
+  <rect x="48" y="50" width="14" height="45" fill="#A8B8C4"/>
+  <path d="M48 50 Q55 10 62 50" fill="url(#flame)" class="anim-pulse"/>
+  <text x="55" y="160" text-anchor="middle" font-size="11" font-weight="800" fill="#9B3A4A">mechero</text>
+</g>
+<!-- thermo -->
+<g id="thermo" filter="url(#sh)" transform="translate(640,230)" style="cursor:pointer">
+  <rect x="20" y="20" width="36" height="150" rx="8" fill="#F0E8D8" stroke="#A89070"/>
+  <rect x="32" y="30" width="12" height="100" rx="6" fill="#E8F4FC" stroke="#5C6A74"/>
+  <circle cx="38" cy="145" r="14" fill="#E8F4FC" stroke="#5C6A74"/>
+  <rect x="35" y="70" width="6" height="70" rx="3" fill="#C0392B"/>
+  <circle cx="38" cy="145" r="9" fill="#C0392B"/>
+  <text x="38" y="185" text-anchor="middle" font-size="11" font-weight="800" fill="#2F5D7A">termómetro</text>
+</g>
+<!-- EPI icons -->
+<g id="epi" transform="translate(200,40)">
+  <rect x="0" y="0" width="200" height="70" rx="12" fill="#FFFCF5" stroke="#C4A15A" stroke-width="2"/>
+  <text x="100" y="28" text-anchor="middle" font-size="13" font-weight="800" fill="#8A6B2F">EPI</text>
+  <text x="100" y="52" text-anchor="middle" font-size="14" font-weight="700" fill="#2F5D7A">bata · gafas</text>
+</g>
+<text id="labLabel" x="400" y="340" text-anchor="middle" font-size="16" font-weight="800" fill="#2F5D7A">Pulsa un instrumento</text>
+</svg></div>
+<div class="narration" id="narr"></div>
+<div class="opts hide-preview" id="normOpts" style="display:none"></div>
+<div class="verdict" id="verdict"></div>
+<p class="mnemonic">Mnemónico: <strong>«Bata, Gafas, Orden, Agua, Nunca comas»</strong> (B-G-O-A-N).</p>
+<div class="glossary hide-preview">
+<div><strong>EPI:</strong> equipo de protección individual (bata, gafas…).</div>
+<div><strong>Vaso de precipitados:</strong> contiene líquidos.</div>
+<div><strong>Balanza:</strong> mide la masa (gramos).</div>
+</div>
+</section>
+
+<footer>1º ESO Biología y Geología · CyL Decreto 39/2022 · Offline file://</footer>
+</div><script>
+(function(){
+const INFO={
+beaker:{t:'Vaso de precipitados',d:'Contiene líquidos. No se calienta a la llama directa sin permiso.'},
+tubes:{t:'Tubos de ensayo + gradilla',d:'Pruebas pequeñas. La gradilla evita que se caigan.'},
+balance:{t:'Balanza',d:'Mide la masa en gramos. Pon el recipiente limpio y tara si hace falta.'},
+bunsen:{t:'Mechero Bunsen',d:'Produce llama. Solo con supervisión. Pelo recogido, bata.'},
+thermo:{t:'Termómetro',d:'Mide temperatura en °C. No lo agites como el clínico de casa.'}
+};
+const NORMS=[
+{t:'Comer un bocadillo en la mesa de experimentos',ok:false,why:'Prohibido: riesgo de contaminación.'},
+{t:'Ponerse bata y gafas cuando lo indique el profe',ok:true,why:'EPI obligatorio cuando toque.'},
+{t:'Correr entre mesas con material de vidrio',ok:false,why:'Prohibido: peligro de rotura.'},
+{t:'Avisar si se rompe un vaso',ok:true,why:'Obligatorio: seguridad de todos.'},
+{t:'Pipetear líquidos con la boca',ok:false,why:'Nunca: norma básica de seguridad.'},
+{t:'Lavar y ordenar el material al terminar',ok:true,why:'Orden = menos accidentes.'}
+];
+const narr=document.getElementById('narr');
+const verdict=document.getElementById('verdict');
+const normOpts=document.getElementById('normOpts');
+let mode='inst', ni=0, locked=false;
+Object.keys(INFO).forEach(id=>{
+  const el=document.getElementById(id);
+  if(el) el.addEventListener('click',()=>{
+    if(mode!=='inst')return;
+    narr.innerHTML='<strong>'+INFO[id].t+':</strong> '+INFO[id].d;
+    document.getElementById('labLabel').textContent=INFO[id].t;
+  });
+});
+function showNorm(){
+  locked=false; verdict.className='verdict';
+  const n=NORMS[ni];
+  narr.innerHTML='<strong>Norma '+(ni+1)+'/'+NORMS.length+':</strong> '+n.t+' ¿Es correcto o está prohibido?';
+  normOpts.style.display='grid'; normOpts.innerHTML='';
+  [['Correcto / obligatorio',true],['Prohibido / incorrecto',false]].forEach(([lab,val])=>{
+    const b=document.createElement('button'); b.type='button'; b.className='opt'; b.textContent=lab;
+    b.onclick=()=>{
+      if(locked)return; locked=true;
+      if(val===n.ok){b.classList.add('ok'); verdict.textContent='Bien. '+n.why; verdict.className='verdict show ok';}
+      else{b.classList.add('bad'); verdict.textContent='No. '+n.why; verdict.className='verdict show bad';}
+      setTimeout(()=>{ni=(ni+1)%NORMS.length; showNorm();},1400);
+    };
+    normOpts.appendChild(b);
+  });
+}
+document.getElementById('tabs').onclick=e=>{
+  const b=e.target.closest('button'); if(!b)return;
+  [...document.getElementById('tabs').children].forEach(x=>x.classList.toggle('on',x===b));
+  mode=b.dataset.k;
+  if(mode==='inst'){normOpts.style.display='none'; narr.textContent='Pulsa un instrumento de la mesa.'; verdict.className='verdict';}
+  else showNorm();
+};
+if(/[?&]preview=1\b/.test(location.search)){
+  document.body.classList.add('preview-mode');
+  narr.innerHTML='<strong>Vaso de precipitados:</strong> Contiene líquidos. Mira también balanza, mechero y termómetro.';
+  document.getElementById('labLabel').textContent='Vaso de precipitados';
+} else narr.textContent='Pulsa un instrumento de la mesa.';
+})();
+</script></body></html>
