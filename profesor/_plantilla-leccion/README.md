@@ -2,7 +2,7 @@
 
 Chrome compartido para presentaciones HTML offline. Los bots de Mate siguen creando los **interactivos**; este shell solo enmarca el contenido.
 
-**Colores:** charcoal `#0E0E0C` · acento `#C4A15A` · crema `#F2EDE3`  
+**Colores (tema luminoso):** fondo `#FAF7F0` · panel `#FFFFFF` · tinta `#2A2620` · título `#0E0E0C` · suave `#5C564C` · acento `#C4A15A` · verde `#3D6B4F` · azul `#2F5D7A`  
 **Restricciones:** sin Google Fonts, sin CDN, tipografía de sistema, `file://` seguro.
 
 ## Abrir la demo
@@ -102,7 +102,7 @@ Copiar o enlazar desde `figuras/`:
 - `mapa.svg` — camino / mapa  
 - `ticket.svg` — importe en €  
 
-Son SVG inline-friendly (palette charcoal/oro/crema). Se pueden pegar dentro de `.figura` o `.ilustracion-slot`.
+Son SVG inline-friendly (fondo crema `#FAF7F0` + oro `#C4A15A`). Se pueden pegar dentro de `.figura` o `.ilustracion-slot`.
 
 ## Qué no hacer
 
