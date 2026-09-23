@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Potencias y raíces · Torres y baldosas · 1º ESO</title>
+<style>
+  :root {
+    --bg: #f4f7fb; --ink: #1a2b3c; --muted: #5a6d7e; --card: #ffffff;
+    --blue: #3b82f6; --blue-soft: #dbeafe; --blue-deep: #1d4ed8;
+    --orange: #f59e0b; --orange-soft: #fef3c7; --orange-deep: #b45309;
+    --green: #10b981; --green-soft: #d1fae5; --green-deep: #047857;
+    --purple: #8b5cf6; --purple-soft: #ede9fe; --purple-deep: #6d28d9;
+    --rose: #f43f5e; --rose-soft: #ffe4e6;
+    --teal: #14b8a6; --teal-soft: #ccfbf1;
+    --shadow: 0 8px 28px rgba(26, 43, 60, 0.08); --radius: 18px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { min-height: 100%; background: var(--bg); color: var(--ink);
+    font-family: "Segoe UI", system-ui, -apple-system, sans-serif; -webkit-font-smoothing: antialiased; }
+  body { display: flex; flex-direction: column; align-items: center; padding: 14px 10px 36px; }
+  .wrap { width: 100%; max-width: 960px; }
+  header { text-align: center; margin-bottom: 12px; }
+  header .badge { display: inline-block; font-size: 0.78rem; font-weight: 600; letter-spacing: 0.04em;
+    text-transform: uppercase; color: var(--purple-deep); background: var(--purple-soft);
+    padding: 4px 12px; border-radius: 999px; margin-bottom: 8px; }
+  h1 { font-size: clamp(1.35rem, 4.5vw, 1.95rem); line-height: 1.2; font-weight: 800; }
+  .subtitle { margin-top: 6px; font-size: clamp(0.92rem, 2.8vw, 1.08rem); color: var(--muted); font-weight: 500; }
+  .story { background: linear-gradient(135deg, #ede9fe, #fce7f3 45%, #fef3c7);
+    border: 2px solid #d8b4fe; border-radius: var(--radius); padding: 12px 14px;
+    margin-bottom: 14px; display: flex; gap: 12px; align-items: flex-start; }
+  .story .emoji { font-size: 2rem; }
+  .story p { font-size: clamp(0.9rem, 2.5vw, 1.02rem); line-height: 1.45; }
+  .story strong { color: var(--purple-deep); }
+  .card { background: var(--card); border-radius: var(--radius); box-shadow: var(--shadow);
+    padding: 16px 14px 18px; margin-bottom: 14px; }
+  .card h2 { font-size: clamp(1.05rem, 3vw, 1.25rem); font-weight: 800; margin-bottom: 8px;
+    display: flex; align-items: center; gap: 8px; }
+  .hint { font-size: clamp(0.88rem, 2.4vw, 1rem); color: var(--muted); line-height: 1.45; margin-bottom: 12px; }
+  .ctrl-row { display: flex; flex-wrap: wrap; gap: 12px; align-items: flex-end; margin-bottom: 14px; }
+  .field { display: flex; flex-direction: column; gap: 6px; flex: 1 1 140px; }
+  .field label { font-size: 0.88rem; font-weight: 700; color: var(--muted); }
+  .field label .letter { display: inline-block; background: var(--purple-soft); color: var(--purple-deep);
+    padding: 1px 8px; border-radius: 8px; font-weight: 800; margin-right: 4px; }
+  .field input[type="number"] { width: 100%; max-width: 160px; font-size: 1.4rem; font-weight: 800;
+    font-variant-numeric: tabular-nums; padding: 10px 12px; border: 2.5px solid #cbd5e1; border-radius: 12px; }
+  .field input[type="number"]:focus { outline: none; border-color: var(--purple); box-shadow: 0 0 0 3px var(--purple-soft); }
+  .field input[type="range"] { width: 100%; max-width: 200px; }
+  .letters-legend { display: flex; flex-wrap: wrap; gap: 8px; margin: 10px 0 4px; }
+  .letters-legend span { background: var(--purple-soft); color: var(--purple-deep); font-size: 0.82rem;
+    font-weight: 700; padding: 4px 10px; border-radius: 999px; }
+  .results { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px; }
+  @media (max-width: 560px) { .results { grid-template-columns: 1fr; } }
+  .result-pill { border-radius: 14px; padding: 12px 14px; border: 2px solid #e2e8f0; }
+  .result-pill.pow { background: var(--purple-soft); border-color: #c4b5fd; }
+  .result-pill.root { background: var(--teal-soft); border-color: #5eead4; }
+  .result-pill .label { font-size: 0.82rem; font-weight: 700; color: var(--muted); text-transform: uppercase; }
+  .result-pill .eq { font-size: clamp(1.1rem, 3.5vw, 1.4rem); font-weight: 800; margin-top: 4px; line-height: 1.35; }
+  .result-pill .eq .sym { color: var(--muted); font-weight: 700; font-size: 0.85em; }
+  .mode-row, .ex-row { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; }
+  .chip { border: 2px solid #cbd5e1; background: #fff; border-radius: 999px; padding: 7px 14px;
+    font-size: 0.88rem; font-weight: 700; cursor: pointer; }
+  .chip.active { border-color: var(--purple); background: var(--purple-soft); color: var(--purple-deep); }
+  .chip.teal.active { border-color: var(--teal); background: var(--teal-soft); color: #0f766e; }
+  .stage { border-radius: 16px; padding: 14px 12px 16px; margin-bottom: 10px; border: 2px solid #c4b5fd;
+    background: linear-gradient(180deg, #faf5ff 0%, #ede9fe 60%, #ddd6fe 100%); min-height: 220px; }
+  .stage.root-mode { border-color: #5eead4; background: linear-gradient(180deg, #f0fdfa 0%, #ccfbf1 60%, #99f6e4 100%); }
+  .stage-header { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; }
+  .shop-name { font-weight: 800; font-size: 1.05rem; color: var(--purple-deep); }
+  .stage.root-mode .shop-name { color: #0f766e; }
+  .tower-area { display: flex; flex-direction: column-reverse; align-items: center; gap: 4px; min-height: 160px; padding: 8px; }
+  .block { display: flex; align-items: center; justify-content: center; font-weight: 800; color: #fff;
+    border-radius: 8px; border: 2px solid rgba(0,0,0,0.15); box-shadow: 0 2px 6px rgba(0,0,0,0.12);
+    font-size: 0.95rem; min-height: 36px; padding: 4px 10px; }
+  .mult-line { text-align: center; font-weight: 800; font-size: clamp(1rem, 3vw, 1.25rem);
+    margin-top: 10px; font-variant-numeric: tabular-nums; line-height: 1.4; }
+  .tiles-wrap { display: flex; flex-direction: column; align-items: center; gap: 8px; }
+  .tile-grid { display: grid; gap: 4px; background: rgba(255,255,255,0.7); padding: 12px;
+    border-radius: 12px; border: 2px dashed #2dd4bf; }
+  .tile { width: 28px; height: 28px; border-radius: 4px;
+    background: linear-gradient(135deg, #5eead4, #14b8a6); border: 2px solid #0f766e; }
+  .axis-note { font-size: 0.92rem; font-weight: 700; color: var(--muted); text-align: center; margin-top: 8px; line-height: 1.4; }
+  .demo-box { background: #f8fafc; border: 2px solid #e2e8f0; border-radius: 14px; padding: 12px 14px; }
+  .demo-box .formula { font-size: clamp(1.05rem, 3vw, 1.25rem); font-weight: 800; margin: 8px 0; padding: 10px 12px;
+    background: #fff; border-radius: 10px; border: 2px dashed #cbd5e1; text-align: center; line-height: 1.45; }
+  .demo-box .explain { font-size: 0.92rem; color: var(--muted); line-height: 1.45; }
+  .mnemonic { background: linear-gradient(135deg, var(--orange-soft), #fce7f3);
+    border: 2px solid #fcd34d; border-radius: 14px; padding: 12px 14px; margin-top: 10px; text-align: center; }
+  .mnemonic .tag { font-size: 0.75rem; font-weight: 800; text-transform: uppercase; color: var(--orange-deep); }
+  .mnemonic p { margin-top: 4px; font-size: clamp(1rem, 3vw, 1.15rem); font-weight: 800; color: var(--orange-deep); }
+  .btn { border: none; border-radius: 12px; padding: 10px 16px; font-size: 0.95rem; font-weight: 800; cursor: pointer; }
+  .btn-primary { background: var(--purple); color: #fff; }
+  .btn-ghost { background: #fff; color: var(--ink); border: 2px solid #cbd5e1; }
+  .check-panel { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-top: 10px; }
+  .check-result { flex: 1 1 200px; font-size: 0.95rem; font-weight: 700; line-height: 1.4;
+    padding: 10px 12px; border-radius: 12px; min-height: 44px; }
+  .check-result.idle { background: #f1f5f9; color: var(--muted); }
+  .check-result.pass { background: var(--green-soft); color: var(--green-deep); }
+  .check-result.fail { background: var(--rose-soft); color: #be123c; }
+  .glossary dt { font-weight: 800; font-size: 0.95rem; color: var(--purple-deep); margin-top: 6px; }
+  .glossary dd { font-size: 0.92rem; color: var(--muted); line-height: 1.4; margin-bottom: 4px; }
+  .sym-chip { display: inline-block; background: var(--teal-soft); color: #0f766e; font-weight: 800;
+    padding: 1px 7px; border-radius: 6px; font-family: "Courier New", ui-monospace, monospace; }
+  .pow-notation { font-size: 1.5rem; font-weight: 900; }
+  .pow-notation sup { font-size: 0.7em; color: var(--purple-deep); }
+  footer { text-align: center; font-size: 0.82rem; color: var(--muted); margin-top: 4px; }
+  .warn { background: var(--orange-soft); border: 2px solid #fbbf24; border-radius: 12px; padding: 10px 12px;
+    font-size: 0.92rem; font-weight: 600; color: var(--orange-deep); margin-top: 8px; line-height: 1.4; }
+  .sq-list { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+  .sq-chip { background: #fff; border: 2px solid #99f6e4; border-radius: 10px; padding: 8px 12px;
+    font-weight: 800; font-size: 0.9rem; cursor: pointer; }
+  .sq-chip:hover { background: var(--teal-soft); }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="badge">1º ESO · Lección 08 · Offline</div>
+    <h1>Potencias y raíces cuadradas</h1>
+    <p class="subtitle">Torres de factores · baldosas en cuadrado</p>
+  </header>
+
+  <div class="story">
+    <div class="emoji" aria-hidden="true">🏗️</div>
+    <p>
+      Imagina una <strong>torre de bloques iguales</strong> en el patio del instituto:
+      apilar <strong>n</strong> veces el mismo número <strong>a</strong> es una <strong>potencia</strong>
+      <span class="sym-chip">a<sup>n</sup></span> (se lee «a elevado a n»).
+      Si en el suelo pones baldosas formando un <strong>cuadrado perfecto</strong>, el lado del cuadrado
+      es la <strong>raíz cuadrada</strong> <span class="sym-chip">√</span> del total de baldosas.
+    </p>
+  </div>
+
+  <section class="card">
+    <h2>🎛️ Elige base y exponente (controles independientes)</h2>
+    <p class="hint">
+      <span class="sym-chip">a</span> = <strong>base</strong> (el número que se repite como factor).
+      <span class="sym-chip">n</span> = <strong>exponente</strong> (cuántas veces se multiplica a por sí misma).
+      Mover a no cambia n, y mover n no «reescala» a: son medidas distintas.
+    </p>
+    <div class="letters-legend">
+      <span>a = base (natural ≥ 1)</span>
+      <span>n = exponente natural (1–5 aquí, para ver la torre)</span>
+      <span>s = lado del cuadrado de baldosas</span>
+    </div>
+    <div class="mode-row">
+      <button type="button" class="chip active" id="modePow">aⁿ Potencia (torre)</button>
+      <button type="button" class="chip teal" id="modeRoot">√ Raíz cuadrada (baldosas)</button>
+    </div>
+    <div class="ctrl-row" id="powControls">
+      <div class="field">
+        <label><span class="letter">a</span> Base (1–9)</label>
+        <input type="number" id="numA" min="1" max="9" value="2" inputmode="numeric">
+        <input type="range" id="rangeA" min="1" max="9" value="2" aria-label="Base a">
+      </div>
+      <div class="field">
+        <label><span class="letter">n</span> Exponente (1–5)</label>
+        <input type="number" id="numN" min="1" max="5" value="3" inputmode="numeric">
+        <input type="range" id="rangeN" min="1" max="5" value="3" aria-label="Exponente n">
+      </div>
+    </div>
+    <div class="ctrl-row" id="rootControls" style="display:none">
+      <div class="field">
+        <label><span class="letter">s</span> Lado del cuadrado (1–10)</label>
+        <input type="number" id="numS" min="1" max="10" value="4" inputmode="numeric">
+        <input type="range" id="rangeS" min="1" max="10" value="4" aria-label="Lado s">
+      </div>
+    </div>
+    <div class="results">
+      <div class="result-pill pow">
+        <div class="label">Potencia</div>
+        <div class="eq" id="eqPow"><span class="pow-notation">2<sup>3</sup></span> <span class="sym">=</span> 8</div>
+      </div>
+      <div class="result-pill root">
+        <div class="label">Raíz / cuadrado</div>
+        <div class="eq" id="eqRoot"><span class="sym">√</span>16 <span class="sym">=</span> 4</div>
+      </div>
+    </div>
+    <div class="ex-row">
+      <button type="button" class="btn btn-ghost" id="ex23">2³</button>
+      <button type="button" class="btn btn-ghost" id="ex34">3⁴</button>
+      <button type="button" class="btn btn-ghost" id="ex52">5²</button>
+      <button type="button" class="btn btn-ghost" id="exSqrt9">√81 → 9</button>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2 id="stageTitle">🏗️ Torre de potencias</h2>
+    <p class="hint" id="stageHint">Cada piso es un factor a. La torre tiene n pisos: a × a × … (n veces).</p>
+    <div class="stage" id="stage">
+      <div class="stage-header">
+        <div class="shop-name" id="stageName">Patio · torre de factores</div>
+        <div class="shop-name" id="stageVal">Valor: 8</div>
+      </div>
+      <div id="powView">
+        <div class="tower-area" id="tower"></div>
+        <div class="mult-line" id="multLine">2 × 2 × 2 = 8</div>
+        <div class="axis-note" id="powNote">Se lee: «dos elevado a tres» · base a = 2 · exponente n = 3</div>
+      </div>
+      <div id="rootView" style="display:none">
+        <div class="tiles-wrap">
+          <div class="tile-grid" id="tileGrid"></div>
+          <div class="mult-line" id="tileLine">4 × 4 = 16 baldosas</div>
+          <div class="axis-note" id="rootNote">√16 = 4 porque 4² = 16. La raíz «deshace» el cuadrado.</div>
+        </div>
+      </div>
+    </div>
+    <div class="warn" id="powWarn" style="display:none"></div>
+  </section>
+
+  <section class="card">
+    <h2>📐 Cuadrados perfectos rápidos</h2>
+    <p class="hint">Un <strong>cuadrado perfecto</strong> es el resultado de elevar un natural al cuadrado (exponente 2): 1, 4, 9, 16, 25…</p>
+    <div class="sq-list" id="sqList"></div>
+    <div class="mnemonic">
+      <div class="tag">Truco mnemotécnico</div>
+      <p>«Exponente = pisos de la torre; raíz = lado del suelo cuadrado.»</p>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>🪞 Potencia y raíz como espejo (en cuadrados)</h2>
+    <p class="hint">
+      Si <span class="sym-chip">s² = q</span> (s al cuadrado = q), entonces <span class="sym-chip">√q = s</span>
+      (siempre que q sea cuadrado perfecto y hablemos de la raíz natural positiva).
+    </p>
+    <div class="check-panel">
+      <button type="button" class="btn btn-primary" id="btnCheck">Comprobar espejo s² ↔ √</button>
+      <div class="check-result idle" id="checkOut">Elige un lado s y comprueba.</div>
+    </div>
+    <div class="demo-box" style="margin-top:12px">
+      <div class="formula" id="mirrorFormula">4² = 16 &nbsp;·&nbsp; √16 = 4</div>
+      <p class="explain">El signo <span class="sym-chip">√</span> se llama <strong>radical</strong> o «raíz cuadrada». Pregunta: «¿qué número, multiplicado por sí mismo, da este total?»</p>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>📖 Glosario (sin símbolos sueltos)</h2>
+    <dl class="glossary">
+      <dt><span class="sym-chip">a</span></dt>
+      <dd>Base: el número que se multiplica por sí mismo.</dd>
+      <dt><span class="sym-chip">n</span></dt>
+      <dd>Exponente natural: cuántas veces aparece a como factor. En aⁿ, n va «arriba».</dd>
+      <dt><span class="sym-chip">aⁿ</span> (a elevado a n)</dt>
+      <dd>Potencia: a × a × … (n factores). Ejemplo: 2³ = 2 × 2 × 2 = 8.</dd>
+      <dt><span class="sym-chip">×</span></dt>
+      <dd>«Por» / multiplicado por.</dd>
+      <dt><span class="sym-chip">=</span></dt>
+      <dd>Igual: vale lo mismo.</dd>
+      <dt><span class="sym-chip">√</span></dt>
+      <dd>Raíz cuadrada: lado del cuadrado cuya área (en baldosas) es el número bajo el radical.</dd>
+      <dt><span class="sym-chip">s²</span></dt>
+      <dd>«s al cuadrado» = s × s. Es la potencia de exponente 2.</dd>
+      <dt>Cuadrado perfecto</dt>
+      <dd>Número que es el cuadrado de un natural (1, 4, 9, 16, 25, 36…).</dd>
+      <dt><span class="sym-chip">≠</span></dt>
+      <dd>Distinto de. Cuidado: 2³ ≠ 3² (8 ≠ 9): el orden base/exponente importa.</dd>
+    </dl>
+  </section>
+
+  <footer>Lección 08 · 1º ESO Matemáticas · Offline (file://) · Castilla y León · Jorge</footer>
+</div>
+<script>
+(function () {
+  'use strict';
+  var state = { mode: 'pow', a: 2, n: 3, s: 4 };
+  var COLORS = ['#8b5cf6','#6366f1','#3b82f6','#06b6d4','#10b981','#f59e0b','#f43f5e','#ec4899','#a855f7'];
+
+  var el = {
+    numA: document.getElementById('numA'), numN: document.getElementById('numN'), numS: document.getElementById('numS'),
+    rangeA: document.getElementById('rangeA'), rangeN: document.getElementById('rangeN'), rangeS: document.getElementById('rangeS'),
+    powControls: document.getElementById('powControls'), rootControls: document.getElementById('rootControls'),
+    eqPow: document.getElementById('eqPow'), eqRoot: document.getElementById('eqRoot'),
+    stage: document.getElementById('stage'), stageName: document.getElementById('stageName'),
+    stageVal: document.getElementById('stageVal'), stageTitle: document.getElementById('stageTitle'),
+    stageHint: document.getElementById('stageHint'),
+    powView: document.getElementById('powView'), rootView: document.getElementById('rootView'),
+    tower: document.getElementById('tower'), multLine: document.getElementById('multLine'), powNote: document.getElementById('powNote'),
+    tileGrid: document.getElementById('tileGrid'), tileLine: document.getElementById('tileLine'), rootNote: document.getElementById('rootNote'),
+    powWarn: document.getElementById('powWarn'), checkOut: document.getElementById('checkOut'),
+    mirrorFormula: document.getElementById('mirrorFormula'), sqList: document.getElementById('sqList'),
+    modePow: document.getElementById('modePow'), modeRoot: document.getElementById('modeRoot')
+  };
+
+  function clamp(n, lo, hi) { n = parseInt(n, 10); if (isNaN(n)) n = lo; return Math.max(lo, Math.min(hi, n)); }
+  function pow(a, n) { var r = 1; for (var i = 0; i < n; i++) r *= a; return r; }
+
+  function read() {
+    state.a = clamp(el.numA.value, 1, 9);
+    state.n = clamp(el.numN.value, 1, 5);
+    state.s = clamp(el.numS.value, 1, 10);
+    el.numA.value = state.a; el.numN.value = state.n; el.numS.value = state.s;
+    el.rangeA.value = state.a; el.rangeN.value = state.n; el.rangeS.value = state.s;
+  }
+
+  function renderPow() {
+    var a = state.a, n = state.n, v = pow(a, n);
+    el.tower.innerHTML = '';
+    var width = Math.min(280, 40 + a * 28);
+    for (var i = 0; i < n; i++) {
+      var b = document.createElement('div');
+      b.className = 'block';
+      b.style.width = width + 'px';
+      b.style.background = COLORS[i % COLORS.length];
+      b.textContent = '× ' + a + '  (piso ' + (i + 1) + ')';
+      el.tower.appendChild(b);
+    }
+    var parts = [];
+    for (var j = 0; j < n; j++) parts.push(String(a));
+    el.multLine.textContent = parts.join(' × ') + ' = ' + v;
+    el.powNote.textContent = 'Se lee: «' + a + ' elevado a ' + n + '» · base a = ' + a + ' · exponente n = ' + n;
+    el.stageVal.textContent = 'Valor: ' + v;
+    el.eqPow.innerHTML = '<span class="pow-notation">' + a + '<sup>' + n + '</sup></span> <span class="sym">=</span> ' + v;
+    if (v > 10000) {
+      el.powWarn.style.display = '';
+      el.powWarn.textContent = 'Número grande: en clase a veces usamos calculadora; aquí limitamos n para ver la torre.';
+    } else {
+      el.powWarn.style.display = 'none';
+    }
+    // also update root pill with s² for reference
+    var s = state.s, q = s * s;
+    el.eqRoot.innerHTML = '<span class="sym">√</span>' + q + ' <span class="sym">=</span> ' + s + ' &nbsp;·&nbsp; ' + s + '² = ' + q;
+  }
+
+  function renderRoot() {
+    var s = state.s, q = s * s;
+    el.tileGrid.style.gridTemplateColumns = 'repeat(' + s + ', 28px)';
+    var html = '';
+    for (var i = 0; i < q; i++) html += '<div class="tile" title="1 baldosa"></div>';
+    el.tileGrid.innerHTML = html;
+    el.tileLine.textContent = s + ' × ' + s + ' = ' + q + ' baldosas';
+    el.rootNote.textContent = '√' + q + ' = ' + s + ' porque ' + s + '² = ' + q + '. La raíz «deshace» el cuadrado.';
+    el.stageVal.textContent = 'Área: ' + q + ' baldosas';
+    el.eqRoot.innerHTML = '<span class="sym">√</span>' + q + ' <span class="sym">=</span> ' + s;
+    el.eqPow.innerHTML = '<span class="pow-notation">' + s + '<sup>2</sup></span> <span class="sym">=</span> ' + q;
+    el.mirrorFormula.innerHTML = s + '² = ' + q + ' &nbsp;·&nbsp; √' + q + ' = ' + s;
+  }
+
+  function refresh() {
+    read();
+    var isPow = state.mode === 'pow';
+    el.powControls.style.display = isPow ? '' : 'none';
+    el.rootControls.style.display = isPow ? 'none' : '';
+    el.powView.style.display = isPow ? '' : 'none';
+    el.rootView.style.display = isPow ? 'none' : '';
+    el.stage.classList.toggle('root-mode', !isPow);
+    el.modePow.classList.toggle('active', isPow);
+    el.modeRoot.classList.toggle('active', !isPow);
+    if (isPow) {
+      el.stageTitle.textContent = '🏗️ Torre de potencias';
+      el.stageHint.textContent = 'Cada piso es un factor a. La torre tiene n pisos: a × a × … (n veces).';
+      el.stageName.textContent = 'Patio · torre de factores';
+      renderPow();
+    } else {
+      el.stageTitle.textContent = '🟫 Baldosas en cuadrado (raíz)';
+      el.stageHint.textContent = 's filas y s columnas de baldosas. El total es s²; el lado es √(total).';
+      el.stageName.textContent = 'Patio · suelo cuadrado';
+      renderRoot();
+    }
+  }
+
+  // square chips
+  for (var k = 1; k <= 10; k++) {
+    var chip = document.createElement('button');
+    chip.type = 'button';
+    chip.className = 'sq-chip';
+    chip.textContent = k + '² = ' + (k * k);
+    chip.setAttribute('data-s', k);
+    chip.addEventListener('click', function (ev) {
+      state.mode = 'root';
+      el.numS.value = ev.currentTarget.getAttribute('data-s');
+      refresh();
+    });
+    el.sqList.appendChild(chip);
+  }
+
+  el.numA.addEventListener('input', refresh); el.numN.addEventListener('input', refresh); el.numS.addEventListener('input', refresh);
+  el.rangeA.addEventListener('input', function () { el.numA.value = el.rangeA.value; refresh(); });
+  el.rangeN.addEventListener('input', function () { el.numN.value = el.rangeN.value; refresh(); });
+  el.rangeS.addEventListener('input', function () { el.numS.value = el.rangeS.value; refresh(); });
+
+  el.modePow.addEventListener('click', function () { state.mode = 'pow'; refresh(); });
+  el.modeRoot.addEventListener('click', function () { state.mode = 'root'; refresh(); });
+
+  document.getElementById('ex23').addEventListener('click', function () { state.mode = 'pow'; el.numA.value = 2; el.numN.value = 3; refresh(); });
+  document.getElementById('ex34').addEventListener('click', function () { state.mode = 'pow'; el.numA.value = 3; el.numN.value = 4; refresh(); });
+  document.getElementById('ex52').addEventListener('click', function () { state.mode = 'pow'; el.numA.value = 5; el.numN.value = 2; refresh(); });
+  document.getElementById('exSqrt9').addEventListener('click', function () { state.mode = 'root'; el.numS.value = 9; refresh(); });
+
+  document.getElementById('btnCheck').addEventListener('click', function () {
+    read();
+    state.mode = 'root';
+    refresh();
+    var s = state.s, q = s * s;
+    el.checkOut.className = 'check-result pass';
+    el.checkOut.textContent = '✓ ' + s + '² = ' + q + ' y √' + q + ' = ' + s + '. Espejo perfecto (cuadrado ↔ raíz).';
+  });
+
+  refresh();
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,1399 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Recta numérica, orden y comparación · 1º ESO</title>
+<style>
+  :root {
+    --bg: #f4f7fb;
+    --ink: #1a2b3c;
+    --muted: #5a6d7e;
+    --card: #ffffff;
+    --blue: #3b82f6;
+    --blue-soft: #dbeafe;
+    --blue-deep: #1d4ed8;
+    --orange: #f59e0b;
+    --orange-soft: #fef3c7;
+    --orange-deep: #b45309;
+    --green: #10b981;
+    --green-soft: #d1fae5;
+    --green-deep: #047857;
+    --purple: #8b5cf6;
+    --purple-soft: #ede9fe;
+    --purple-deep: #6d28d9;
+    --rose: #f43f5e;
+    --rose-soft: #ffe4e6;
+    --teal: #14b8a6;
+    --teal-soft: #ccfbf1;
+    --shadow: 0 8px 28px rgba(26, 43, 60, 0.08);
+    --radius: 18px;
+    --line: #334155;
+    --thin-space: '\u2009';
+    --m0: #2563eb;
+    --m1: #d97706;
+    --m2: #7c3aed;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html, body {
+    min-height: 100%;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  body {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 14px 10px 36px;
+  }
+
+  .wrap {
+    width: 100%;
+    max-width: 960px;
+  }
+
+  header {
+    text-align: center;
+    margin-bottom: 12px;
+  }
+
+  header .badge {
+    display: inline-block;
+    font-size: 0.78rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--blue-deep);
+    background: var(--blue-soft);
+    padding: 4px 12px;
+    border-radius: 999px;
+    margin-bottom: 8px;
+  }
+
+  h1 {
+    font-size: clamp(1.35rem, 4.5vw, 1.95rem);
+    line-height: 1.2;
+    font-weight: 800;
+  }
+
+  .subtitle {
+    margin-top: 6px;
+    font-size: clamp(0.95rem, 2.8vw, 1.1rem);
+    color: var(--muted);
+    font-weight: 500;
+  }
+
+  .card {
+    background: var(--card);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 16px 14px 18px;
+    margin-bottom: 14px;
+  }
+
+  .card h2 {
+    font-size: clamp(1.05rem, 3vw, 1.25rem);
+    font-weight: 800;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .hint {
+    font-size: clamp(0.88rem, 2.4vw, 1rem);
+    color: var(--muted);
+    line-height: 1.45;
+    margin-bottom: 12px;
+  }
+
+  /* —— Range controls —— */
+  .range-bar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 8px;
+  }
+
+  .range-inputs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: center;
+  }
+
+  .range-inputs label {
+    font-size: 0.92rem;
+    font-weight: 700;
+    color: var(--muted);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .range-inputs input[type="number"] {
+    width: 4.5rem;
+    font-size: 1.1rem;
+    font-weight: 800;
+    font-variant-numeric: tabular-nums;
+    padding: 6px 8px;
+    border: 2px solid #cbd5e1;
+    border-radius: 10px;
+    color: var(--ink);
+    background: #fff;
+  }
+
+  .range-inputs input[type="number"]:focus {
+    outline: 3px solid var(--blue-soft);
+    border-color: var(--blue);
+  }
+
+  .tick-toggle {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+
+  .chip {
+    border: 2px solid #cbd5e1;
+    background: #fff;
+    border-radius: 999px;
+    padding: 6px 12px;
+    font-size: 0.88rem;
+    font-weight: 700;
+    cursor: pointer;
+    color: var(--ink);
+    transition: background 0.12s, border-color 0.12s;
+  }
+  .chip:hover { background: #f8fafc; }
+  .chip.active {
+    border-color: var(--blue);
+    background: var(--blue-soft);
+    color: var(--blue-deep);
+  }
+
+  /* —— Number line stage —— */
+  .line-stage {
+    position: relative;
+    margin: 8px 0 4px;
+    padding: 56px 8px 48px;
+    background: linear-gradient(180deg, #f8fafc 0%, #eef2f7 100%);
+    border-radius: 16px;
+    border: 2px solid #e2e8f0;
+    overflow: visible;
+    touch-action: none;
+    user-select: none;
+  }
+
+  .line-svg {
+    width: 100%;
+    height: 72px;
+    display: block;
+    overflow: visible;
+  }
+
+  .line-svg .rail {
+    stroke: var(--line);
+    stroke-width: 3.5;
+    stroke-linecap: round;
+  }
+
+  .line-svg .tick-major {
+    stroke: var(--line);
+    stroke-width: 2.5;
+    stroke-linecap: round;
+  }
+
+  .line-svg .tick-minor {
+    stroke: #64748b;
+    stroke-width: 1.6;
+    stroke-linecap: round;
+  }
+
+  .line-svg .tick-label {
+    fill: var(--ink);
+    font-family: "Segoe UI", system-ui, sans-serif;
+    font-weight: 750;
+    font-size: 13px;
+    text-anchor: middle;
+  }
+
+  .line-svg .arrow-head {
+    fill: var(--line);
+  }
+
+  .line-svg .zero-dot {
+    fill: var(--line);
+  }
+
+  .highlight-band {
+    fill: rgba(16, 185, 129, 0.18);
+    stroke: rgba(4, 120, 87, 0.35);
+    stroke-width: 1.5;
+    stroke-dasharray: 4 3;
+  }
+
+  .between-label {
+    fill: var(--green-deep);
+    font-family: "Segoe UI", system-ui, sans-serif;
+    font-weight: 800;
+    font-size: 12px;
+    text-anchor: middle;
+  }
+
+  /* Markers (HTML over SVG for drag) */
+  .markers-layer {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    pointer-events: none;
+  }
+
+  .marker {
+    position: absolute;
+    top: 8px;
+    transform: translateX(-50%);
+    pointer-events: auto;
+    cursor: grab;
+    touch-action: none;
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-width: 52px;
+  }
+  .marker:active, .marker.dragging { cursor: grabbing; z-index: 5; }
+  .marker:focus-visible {
+    outline: 3px solid var(--blue);
+    outline-offset: 2px;
+    border-radius: 10px;
+  }
+
+  .marker .flag {
+    font-size: clamp(0.95rem, 3vw, 1.15rem);
+    font-weight: 800;
+    font-variant-numeric: tabular-nums;
+    color: #fff;
+    padding: 5px 10px;
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.18);
+    white-space: nowrap;
+    line-height: 1.1;
+    border: 2px solid rgba(255,255,255,0.55);
+  }
+
+  .marker .stem {
+    width: 3px;
+    height: 42px;
+    margin-top: -1px;
+    border-radius: 2px;
+  }
+
+  .marker .dot {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    border: 3px solid #fff;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.25);
+    margin-top: -2px;
+  }
+
+  .marker.m0 .flag, .marker.m0 .stem, .marker.m0 .dot { background: var(--m0); }
+  .marker.m1 .flag, .marker.m1 .stem, .marker.m1 .dot { background: var(--m1); }
+  .marker.m2 .flag, .marker.m2 .stem, .marker.m2 .dot { background: var(--m2); }
+
+  .marker .name-tag {
+    margin-top: 4px;
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: var(--muted);
+    background: rgba(255,255,255,0.9);
+    padding: 1px 6px;
+    border-radius: 6px;
+  }
+
+  /* —— Live comparison —— */
+  .compare-box {
+    margin-top: 14px;
+    border-radius: 14px;
+    padding: 14px 14px 12px;
+    border: 2px solid #bfdbfe;
+    background: linear-gradient(180deg, #eff6ff, #f8fbff);
+    text-align: center;
+  }
+
+  .compare-box .label {
+    font-size: 0.78rem;
+    font-weight: 750;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--blue-deep);
+    margin-bottom: 6px;
+  }
+
+  .compare-sentence {
+    font-size: clamp(1.15rem, 4vw, 1.55rem);
+    font-weight: 800;
+    line-height: 1.4;
+    color: var(--ink);
+  }
+
+  .compare-sentence .sym {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 1.6em;
+    padding: 2px 8px;
+    margin: 0 4px;
+    border-radius: 8px;
+    font-size: 1.15em;
+    font-weight: 900;
+  }
+
+  .compare-sentence .sym.lt {
+    background: var(--rose-soft);
+    color: #9f1239;
+  }
+  .compare-sentence .sym.gt {
+    background: var(--green-soft);
+    color: var(--green-deep);
+  }
+  .compare-sentence .sym.eq {
+    background: var(--purple-soft);
+    color: var(--purple-deep);
+  }
+
+  .compare-name {
+    margin-top: 8px;
+    font-size: clamp(0.95rem, 2.8vw, 1.12rem);
+    font-weight: 650;
+    color: var(--muted);
+    line-height: 1.4;
+  }
+
+  .compare-name strong {
+    color: var(--ink);
+    font-weight: 800;
+  }
+
+  .order-row {
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px dashed #cbd5e1;
+    font-size: clamp(0.95rem, 2.6vw, 1.08rem);
+    font-weight: 700;
+    color: var(--ink);
+    line-height: 1.45;
+  }
+
+  .order-row .ord-label {
+    font-size: 0.78rem;
+    font-weight: 750;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--muted);
+    display: block;
+    margin-bottom: 4px;
+  }
+
+  /* —— Digit compare panel (for large numbers) —— */
+  .digit-panel {
+    display: none;
+    margin-top: 12px;
+    border-radius: 14px;
+    padding: 12px;
+    border: 2px solid #fcd34d;
+    background: linear-gradient(180deg, #fffbeb, #fffef8);
+  }
+  .digit-panel.visible { display: block; }
+
+  .digit-panel .d-title {
+    font-size: 0.78rem;
+    font-weight: 750;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--orange-deep);
+    margin-bottom: 8px;
+  }
+
+  .digit-grid {
+    display: grid;
+    grid-template-columns: auto repeat(4, 1fr);
+    gap: 6px;
+    align-items: center;
+    max-width: 420px;
+    margin: 0 auto;
+  }
+
+  .digit-grid .h {
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: var(--muted);
+    text-align: center;
+    line-height: 1.15;
+  }
+  .digit-grid .row-lab {
+    font-size: 0.85rem;
+    font-weight: 800;
+    color: var(--ink);
+    padding-right: 4px;
+  }
+  .digit-grid .cell {
+    text-align: center;
+    font-size: clamp(1.25rem, 4vw, 1.6rem);
+    font-weight: 800;
+    font-variant-numeric: tabular-nums;
+    padding: 8px 4px;
+    border-radius: 10px;
+    background: #fff;
+    border: 2px solid #e2e8f0;
+  }
+  .digit-grid .cell.win {
+    border-color: #34d399;
+    background: var(--green-soft);
+    color: var(--green-deep);
+  }
+  .digit-grid .cell.lose {
+    border-color: #fda4af;
+    background: var(--rose-soft);
+    color: #9f1239;
+    opacity: 0.85;
+  }
+  .digit-grid .cell.same {
+    border-color: #c4b5fd;
+    background: var(--purple-soft);
+    color: var(--purple-deep);
+  }
+
+  .digit-note {
+    margin-top: 8px;
+    text-align: center;
+    font-size: clamp(0.88rem, 2.4vw, 1rem);
+    color: var(--muted);
+    font-weight: 600;
+    line-height: 1.4;
+  }
+
+  /* —— Marker value steppers —— */
+  .marker-controls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 12px;
+    justify-content: center;
+  }
+
+  .m-ctrl {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: #f8fafc;
+    border: 2px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 6px 8px;
+  }
+
+  .m-ctrl .swatch {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    border: 2px solid #fff;
+    box-shadow: 0 0 0 1px rgba(0,0,0,0.12);
+  }
+  .m-ctrl.m0 .swatch { background: var(--m0); }
+  .m-ctrl.m1 .swatch { background: var(--m1); }
+  .m-ctrl.m2 .swatch { background: var(--m2); }
+
+  .m-ctrl button {
+    width: 34px;
+    height: 34px;
+    border-radius: 8px;
+    border: 2px solid #cbd5e1;
+    background: #fff;
+    font-size: 1.2rem;
+    font-weight: 800;
+    cursor: pointer;
+    color: var(--ink);
+    line-height: 1;
+  }
+  .m-ctrl button:hover { background: #f1f5f9; }
+  .m-ctrl button:active { transform: scale(0.94); }
+
+  .m-ctrl .val {
+    min-width: 3.2rem;
+    text-align: center;
+    font-size: 1.15rem;
+    font-weight: 800;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .m-ctrl .chk {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: var(--muted);
+    cursor: pointer;
+    margin-left: 2px;
+  }
+  .m-ctrl .chk input { width: 16px; height: 16px; accent-color: var(--blue); }
+
+  /* —— Examples —— */
+  .examples {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 2px;
+  }
+
+  .ex-btn {
+    border: 2px solid #cbd5e1;
+    background: #fff;
+    border-radius: 999px;
+    padding: 10px 14px;
+    font-size: clamp(0.92rem, 2.6vw, 1.05rem);
+    font-weight: 700;
+    cursor: pointer;
+    color: var(--ink);
+    line-height: 1.25;
+    transition: background 0.12s, border-color 0.12s, transform 0.1s;
+    text-align: left;
+  }
+  .ex-btn:hover { background: #f8fafc; border-color: var(--blue); }
+  .ex-btn:active { transform: scale(0.98); }
+  .ex-btn.active {
+    border-color: var(--blue);
+    background: var(--blue-soft);
+    color: var(--blue-deep);
+  }
+
+  /* —— Symbols legend —— */
+  .sym-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 10px;
+  }
+
+  .sym-card {
+    border-radius: 14px;
+    padding: 12px 14px;
+    border: 2px solid;
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+  }
+
+  .sym-card .big {
+    font-size: 2rem;
+    font-weight: 900;
+    line-height: 1;
+    min-width: 1.4em;
+    text-align: center;
+  }
+
+  .sym-card .s-name {
+    font-size: 1.05rem;
+    font-weight: 800;
+    margin-bottom: 2px;
+  }
+
+  .sym-card .s-ex {
+    font-size: 0.92rem;
+    color: var(--muted);
+    font-weight: 600;
+    line-height: 1.35;
+  }
+
+  .sym-card.lt { background: var(--rose-soft); border-color: #fda4af; }
+  .sym-card.lt .big, .sym-card.lt .s-name { color: #9f1239; }
+  .sym-card.gt { background: var(--green-soft); border-color: #6ee7b7; }
+  .sym-card.gt .big, .sym-card.gt .s-name { color: var(--green-deep); }
+  .sym-card.eq { background: var(--purple-soft); border-color: #c4b5fd; }
+  .sym-card.eq .big, .sym-card.eq .s-name { color: var(--purple-deep); }
+
+  /* —— Glossary —— */
+  .glossary {
+    display: grid;
+    gap: 8px;
+  }
+
+  .glossary dt {
+    font-weight: 800;
+    font-size: clamp(0.98rem, 2.6vw, 1.08rem);
+    color: var(--blue-deep);
+  }
+
+  .glossary dd {
+    font-size: clamp(0.9rem, 2.4vw, 1.02rem);
+    color: var(--muted);
+    font-weight: 550;
+    line-height: 1.4;
+    margin-bottom: 4px;
+    padding-left: 2px;
+  }
+
+  .between-box {
+    display: none;
+    margin-top: 12px;
+    border-radius: 14px;
+    padding: 12px 14px;
+    border: 2px solid #6ee7b7;
+    background: linear-gradient(180deg, #ecfdf5, #f7fffc);
+    text-align: center;
+  }
+  .between-box.visible { display: block; }
+
+  .between-box .b-label {
+    font-size: 0.78rem;
+    font-weight: 750;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--green-deep);
+    margin-bottom: 4px;
+  }
+
+  .between-box .b-nums {
+    font-size: clamp(1.25rem, 4vw, 1.7rem);
+    font-weight: 800;
+    color: var(--green-deep);
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 0.04em;
+  }
+
+  .between-box .b-note {
+    margin-top: 4px;
+    font-size: 0.9rem;
+    color: var(--muted);
+    font-weight: 600;
+  }
+
+  footer.note {
+    text-align: center;
+    font-size: 0.82rem;
+    color: var(--muted);
+    margin-top: 4px;
+    line-height: 1.4;
+  }
+
+  @media (max-width: 480px) {
+    .line-stage { padding: 52px 4px 44px; }
+    .marker .flag { padding: 4px 8px; font-size: 0.9rem; }
+    .digit-grid { max-width: 100%; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div class="badge">1º ESO Matemáticas · Jorge · Lección 04</div>
+    <h1>Orden, comparación y recta numérica</h1>
+    <p class="subtitle">Arrastra los marcadores · lee la frase con el nombre del símbolo</p>
+  </header>
+
+  <!-- Symbols first so students never see bare < > = -->
+  <section class="card" aria-label="Símbolos de comparación">
+    <h2>🔀 Los tres símbolos (con su nombre)</h2>
+    <p class="hint">Nunca leas solo el dibujo: di siempre el <strong>nombre en español</strong>.</p>
+    <div class="sym-grid">
+      <div class="sym-card lt">
+        <div class="big" aria-hidden="true">&lt;</div>
+        <div>
+          <div class="s-name">menor que</div>
+          <div class="s-ex">3 &lt; 8 → «tres es menor que ocho»</div>
+        </div>
+      </div>
+      <div class="sym-card gt">
+        <div class="big" aria-hidden="true">&gt;</div>
+        <div>
+          <div class="s-name">mayor que</div>
+          <div class="s-ex">9 &gt; 2 → «nueve es mayor que dos»</div>
+        </div>
+      </div>
+      <div class="sym-card eq">
+        <div class="big" aria-hidden="true">=</div>
+        <div>
+          <div class="s-name">igual</div>
+          <div class="s-ex">5 = 5 → «cinco es igual a cinco»</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="card" aria-label="Recta numérica interactiva">
+    <h2>📏 Recta numérica</h2>
+    <p class="hint">Cada marca es un número natural. <strong>Más a la derecha = mayor</strong>. Arrastra un marcador o usa + / −.</p>
+
+    <div class="range-bar">
+      <div class="range-inputs">
+        <label>Desde <input type="number" id="minInput" value="0" step="1"></label>
+        <label>Hasta <input type="number" id="maxInput" value="40" step="1"></label>
+      </div>
+      <div class="tick-toggle" role="group" aria-label="Marcas">
+        <button type="button" class="chip active" data-tick="5" id="tick5">Marcas cada 5</button>
+        <button type="button" class="chip" data-tick="10" id="tick10">Marcas cada 10</button>
+      </div>
+    </div>
+
+    <div class="line-stage" id="lineStage">
+      <svg class="line-svg" id="lineSvg" viewBox="0 0 900 72" preserveAspectRatio="none" aria-hidden="true"></svg>
+      <div class="markers-layer" id="markersLayer"></div>
+    </div>
+
+    <div class="marker-controls" id="markerControls"></div>
+
+    <div class="compare-box" id="compareBox">
+      <div class="label">Frase de comparación (en vivo)</div>
+      <div class="compare-sentence" id="compareSentence"></div>
+      <div class="compare-name" id="compareName"></div>
+      <div class="order-row" id="orderRow"></div>
+    </div>
+
+    <div class="digit-panel" id="digitPanel" aria-live="polite">
+      <div class="d-title">Comparación cifra a cifra (de izquierda a derecha)</div>
+      <div class="digit-grid" id="digitGrid"></div>
+      <div class="digit-note" id="digitNote"></div>
+    </div>
+
+    <div class="between-box" id="betweenBox">
+      <div class="b-label">Números naturales estrictamente entre los extremos</div>
+      <div class="b-nums" id="betweenNums"></div>
+      <div class="b-note" id="betweenNote"></div>
+    </div>
+  </section>
+
+  <section class="card" aria-label="Ejemplos de la lección">
+    <h2>📌 Ejemplos de la lección</h2>
+    <p class="hint">Pulsa un botón para cargar el ejemplo. Luego mueve los marcadores si quieres explorar.</p>
+    <div class="examples">
+      <button type="button" class="ex-btn" id="exCompare" data-ex="compare">
+        Comparar 4&nbsp;582 y 4&nbsp;528
+      </button>
+      <button type="button" class="ex-btn" id="exPlace" data-ex="place">
+        Colocar 5, 22 y 39 (recta 0–40)
+      </button>
+      <button type="button" class="ex-btn" id="exBetween" data-ex="between">
+        Naturales entre 18 y 22
+      </button>
+    </div>
+  </section>
+
+  <section class="card" aria-label="
+<section class="card tip-memo" style="background:#fff7ed;border:1px solid #fdba74;border-radius:14px;padding:0.9rem 1rem;margin:1rem 0">
+  <strong>Truco mnemotécnico</strong>
+  <p style="margin:0.4rem 0 0">El signo &lt; o &gt; es una <strong>bocita</strong>: siempre come al número más grande. El lado estrecho toca al pequeño; el ancho, al grande. Ejemplo: 3 &lt; 7 (la boca mira al 7).</p>
+</section>
+
+Glosario">
+    <h2>📖 Glosario</h2>
+    <dl class="glossary">
+      <dt>Recta numérica</dt>
+      <dd>Línea horizontal donde situamos los números. Suele llevar una flecha a la derecha (hacia los números mayores).</dd>
+      <dt>Menor que (&lt;)</dt>
+      <dd>El número de la izquierda es más pequeño. Ejemplo: 4&nbsp;528 &lt; 4&nbsp;582.</dd>
+      <dt>Mayor que (&gt;)</dt>
+      <dd>El número de la izquierda es más grande. Ejemplo: 4&nbsp;582 &gt; 4&nbsp;528.</dd>
+      <dt>Igual (=)</dt>
+      <dd>Los dos números valen exactamente lo mismo. Ejemplo: 22 = 22.</dd>
+      <dt>Orden</dt>
+      <dd>Colocar varios números de menor a mayor (o de mayor a menor) según su valor.</dd>
+    </dl>
+  </section>
+
+  <p class="footer note">Archivo único offline · abre con doble clic (file://) · miles con espacio fino europeo</p>
+</div>
+
+<script>
+(function () {
+  'use strict';
+
+  const THIN = '\u2009';
+
+  function fmt(n) {
+    n = Math.round(Number(n));
+    const neg = n < 0;
+    let s = String(Math.abs(n));
+    let out = '';
+    while (s.length > 3) {
+      out = THIN + s.slice(-3) + out;
+      s = s.slice(0, -3);
+    }
+    out = s + out;
+    return neg ? '−' + out : out;
+  }
+
+  const state = {
+    min: 0,
+    max: 40,
+    tickEvery: 5,
+    markers: [
+      { id: 0, value: 5, active: true, label: 'A' },
+      { id: 1, value: 22, active: true, label: 'B' },
+      { id: 2, value: 39, active: true, label: 'C' }
+    ],
+    padL: 36,
+    padR: 48,
+    betweenMode: false,
+    betweenLo: null,
+    betweenHi: null,
+    activeExample: 'place'
+  };
+
+  const el = {
+    stage: document.getElementById('lineStage'),
+    svg: document.getElementById('lineSvg'),
+    layer: document.getElementById('markersLayer'),
+    controls: document.getElementById('markerControls'),
+    sentence: document.getElementById('compareSentence'),
+    name: document.getElementById('compareName'),
+    order: document.getElementById('orderRow'),
+    digitPanel: document.getElementById('digitPanel'),
+    digitGrid: document.getElementById('digitGrid'),
+    digitNote: document.getElementById('digitNote'),
+    betweenBox: document.getElementById('betweenBox'),
+    betweenNums: document.getElementById('betweenNums'),
+    betweenNote: document.getElementById('betweenNote'),
+    minInput: document.getElementById('minInput'),
+    maxInput: document.getElementById('maxInput'),
+    tick5: document.getElementById('tick5'),
+    tick10: document.getElementById('tick10'),
+    exCompare: document.getElementById('exCompare'),
+    exPlace: document.getElementById('exPlace'),
+    exBetween: document.getElementById('exBetween')
+  };
+
+  let drag = null;
+
+  function clamp(v, a, b) {
+    return Math.max(a, Math.min(b, v));
+  }
+
+  function xToValue(clientX) {
+    const rect = el.stage.getBoundingClientRect();
+    const w = rect.width;
+    const usable = w - state.padL - state.padR;
+    let t = (clientX - rect.left - state.padL) / usable;
+    t = clamp(t, 0, 1);
+    const raw = state.min + t * (state.max - state.min);
+    return Math.round(raw);
+  }
+
+  function valueToPct(v) {
+    const span = state.max - state.min;
+    if (span === 0) return 50;
+    const t = (v - state.min) / span;
+    const pxPadL = state.padL;
+    const pxPadR = state.padR;
+    // Use percentage of stage width for marker left
+    // left% = (padL + t * (W - padL - padR)) / W * 100
+    // We compute via CSS custom: use calc in style
+    return { t: clamp(t, 0, 1) };
+  }
+
+  function markerLeftCss(v) {
+    const { t } = valueToPct(v);
+    // left = padL + t*(100% - padL - padR)  → use calc
+    return 'calc(' + state.padL + 'px + (100% - ' + (state.padL + state.padR) + 'px) * ' + t + ')';
+  }
+
+  function buildSvg() {
+    const W = 900;
+    const H = 72;
+    const y = 28;
+    const x0 = state.padL;
+    const x1 = W - state.padR;
+    const span = state.max - state.min;
+    const svgPadScale = W; // viewBox width matches our pad units approximately for labels
+
+    // Map value → svg x using same pad ratio as CSS
+    function vx(v) {
+      if (span === 0) return (x0 + x1) / 2;
+      return x0 + ((v - state.min) / span) * (x1 - x0);
+    }
+
+    let parts = [];
+
+    // Highlight band for between mode
+    if (state.betweenMode && state.betweenLo != null && state.betweenHi != null) {
+      const lo = Math.min(state.betweenLo, state.betweenHi);
+      const hi = Math.max(state.betweenLo, state.betweenHi);
+      const xa = vx(lo);
+      const xb = vx(hi);
+      parts.push('<rect class="highlight-band" x="' + xa + '" y="' + (y - 14) + '" width="' + Math.max(0, xb - xa) + '" height="28" rx="6"/>');
+    }
+
+    // Main rail
+    parts.push('<line class="rail" x1="' + x0 + '" y1="' + y + '" x2="' + x1 + '" y2="' + y + '"/>');
+
+    // Arrow head (right)
+    const ah = 11;
+    parts.push('<polygon class="arrow-head" points="' + x1 + ',' + y + ' ' + (x1 - ah) + ',' + (y - 7) + ' ' + (x1 - ah) + ',' + (y + 7) + '"/>');
+
+    // Zero / origin emphasis if in range
+    if (state.min <= 0 && state.max >= 0) {
+      parts.push('<circle class="zero-dot" cx="' + vx(0) + '" cy="' + y + '" r="4.5"/>');
+    }
+
+    // Ticks
+    const step = state.tickEvery;
+    const startTick = Math.ceil(state.min / step) * step;
+    for (let v = startTick; v <= state.max; v += step) {
+      const x = vx(v);
+      const isMajor = (v % (step * 2) === 0) || v === state.min || v === state.max || step >= 10;
+      const tickH = isMajor ? 12 : 7;
+      parts.push('<line class="' + (isMajor ? 'tick-major' : 'tick-minor') + '" x1="' + x + '" y1="' + (y - tickH) + '" x2="' + x + '" y2="' + (y + tickH) + '"/>');
+      // Label every major-ish tick; always label ends and multiples of tickEvery
+      if (v === state.min || v === state.max || v % step === 0) {
+        // Avoid overcrowding: if span/step > 12, only label every 2*step except ends
+        const many = (span / step) > 12;
+        if (!many || v === state.min || v === state.max || v % (step * 2) === 0) {
+          parts.push('<text class="tick-label" x="' + x + '" y="' + (y + 26) + '">' + fmt(v) + '</text>');
+        }
+      }
+    }
+    // Always ensure min and max labeled if not already on a tick
+    if (state.min % step !== 0) {
+      parts.push('<line class="tick-major" x1="' + vx(state.min) + '" y1="' + (y - 12) + '" x2="' + vx(state.min) + '" y2="' + (y + 12) + '"/>');
+      parts.push('<text class="tick-label" x="' + vx(state.min) + '" y="' + (y + 26) + '">' + fmt(state.min) + '</text>');
+    }
+    if (state.max % step !== 0) {
+      parts.push('<line class="tick-major" x1="' + vx(state.max) + '" y1="' + (y - 12) + '" x2="' + vx(state.max) + '" y2="' + (y + 12) + '"/>');
+      parts.push('<text class="tick-label" x="' + vx(state.max) + '" y="' + (y + 26) + '">' + fmt(state.max) + '</text>');
+    }
+
+    // Small left stub (no arrow left — classic number line style with origin feel)
+    parts.push('<line class="rail" x1="' + (x0 - 8) + '" y1="' + y + '" x2="' + x0 + '" y2="' + y + '"/>');
+
+    el.svg.setAttribute('viewBox', '0 0 ' + W + ' ' + H);
+    el.svg.innerHTML = parts.join('');
+  }
+
+  function renderMarkers() {
+    el.layer.innerHTML = '';
+    state.markers.forEach(function (m) {
+      if (!m.active) return;
+      const div = document.createElement('div');
+      div.className = 'marker m' + m.id;
+      div.dataset.id = String(m.id);
+      div.style.left = markerLeftCss(m.value);
+      div.setAttribute('role', 'slider');
+      div.setAttribute('tabindex', '0');
+      div.setAttribute('aria-valuemin', String(state.min));
+      div.setAttribute('aria-valuemax', String(state.max));
+      div.setAttribute('aria-valuenow', String(m.value));
+      div.setAttribute('aria-label', 'Marcador ' + m.label + ', valor ' + fmt(m.value));
+
+      div.innerHTML =
+        '<div class="flag">' + fmt(m.value) + '</div>' +
+        '<div class="stem"></div>' +
+        '<div class="dot"></div>' +
+        '<div class="name-tag">' + m.label + '</div>';
+
+      div.addEventListener('pointerdown', onPointerDown);
+      div.addEventListener('keydown', onMarkerKey);
+
+      el.layer.appendChild(div);
+    });
+  }
+
+  function renderControls() {
+    el.controls.innerHTML = '';
+    state.markers.forEach(function (m) {
+      const box = document.createElement('div');
+      box.className = 'm-ctrl m' + m.id;
+
+      const minus = document.createElement('button');
+      minus.type = 'button';
+      minus.setAttribute('aria-label', 'Bajar ' + m.label);
+      minus.textContent = '−';
+      minus.disabled = !m.active;
+      minus.addEventListener('click', function () {
+        if (!m.active) return;
+        m.value = clamp(m.value - 1, state.min, state.max);
+        refresh();
+      });
+
+      const plus = document.createElement('button');
+      plus.type = 'button';
+      plus.setAttribute('aria-label', 'Subir ' + m.label);
+      plus.textContent = '+';
+      plus.disabled = !m.active;
+      plus.addEventListener('click', function () {
+        if (!m.active) return;
+        m.value = clamp(m.value + 1, state.min, state.max);
+        refresh();
+      });
+
+      const val = document.createElement('span');
+      val.className = 'val';
+      val.textContent = m.active ? fmt(m.value) : '—';
+
+      const chkLabel = document.createElement('label');
+      chkLabel.className = 'chk';
+      const chk = document.createElement('input');
+      chk.type = 'checkbox';
+      chk.checked = m.active;
+      chk.setAttribute('aria-label', 'Activar marcador ' + m.label);
+      chk.addEventListener('change', function () {
+        m.active = chk.checked;
+        if (m.active) m.value = clamp(m.value, state.min, state.max);
+        refresh();
+      });
+      chkLabel.appendChild(chk);
+      chkLabel.appendChild(document.createTextNode(m.label));
+
+      const swatch = document.createElement('span');
+      swatch.className = 'swatch';
+      swatch.setAttribute('aria-hidden', 'true');
+
+      box.appendChild(swatch);
+      box.appendChild(minus);
+      box.appendChild(val);
+      box.appendChild(plus);
+      box.appendChild(chkLabel);
+      el.controls.appendChild(box);
+    });
+  }
+
+  function activeMarkers() {
+    return state.markers.filter(function (m) { return m.active; });
+  }
+
+  function symbolInfo(a, b) {
+    if (a < b) return { sym: '<', cls: 'lt', name: 'menor que', phrase: 'es menor que' };
+    if (a > b) return { sym: '>', cls: 'gt', name: 'mayor que', phrase: 'es mayor que' };
+    return { sym: '=', cls: 'eq', name: 'igual', phrase: 'es igual a' };
+  }
+
+  function updateCompare() {
+    const act = activeMarkers().slice().sort(function (x, y) {
+      return x.id - y.id;
+    });
+
+    if (act.length < 2) {
+      el.sentence.innerHTML = 'Activa al menos <strong>dos</strong> marcadores.';
+      el.name.textContent = '';
+      el.order.innerHTML = '';
+      el.digitPanel.classList.remove('visible');
+      updateBetween();
+      return;
+    }
+
+    // Primary pair: first two by label order (A vs B), or A vs C if B off
+    const a = act[0];
+    const b = act[1];
+    const info = symbolInfo(a.value, b.value);
+
+    el.sentence.innerHTML =
+      fmt(a.value) +
+      ' <span class="sym ' + info.cls + '" title="' + info.name + '">' + info.sym + '</span> ' +
+      fmt(b.value);
+
+    el.name.innerHTML =
+      'Se lee: «' + fmt(a.value) + ' <strong>' + info.phrase + '</strong> ' + fmt(b.value) + '» ' +
+      '· el símbolo <strong>' + info.sym + '</strong> se llama <strong>' + info.name + '</strong>.';
+
+    // Full order of all active
+    const ordered = act.slice().sort(function (x, y) { return x.value - y.value; });
+    const orderStr = ordered.map(function (m) {
+      return '<span style="color:var(--m' + m.id + ')">' + fmt(m.value) + '</span>';
+    }).join(' <span style="color:var(--muted);font-weight:700">→</span> ');
+
+    el.order.innerHTML =
+      '<span class="ord-label">Orden de menor a mayor</span>' +
+      orderStr +
+      ' <span style="color:var(--muted);font-weight:600"> · de izquierda a derecha en la recta (flecha = «luego el siguiente»)</span>';
+
+    // Digit panel when numbers look "large" or example compare
+    maybeDigitCompare(a.value, b.value);
+    updateBetween();
+  }
+
+  function maybeDigitCompare(va, vb) {
+    // Show digit-by-digit when both ≥ 100 or span outside "small" line feeling
+    const show = (Math.abs(va) >= 100 || Math.abs(vb) >= 100) && activeMarkers().length >= 2;
+    if (!show) {
+      el.digitPanel.classList.remove('visible');
+      return;
+    }
+
+    const sa = String(Math.abs(Math.round(va)));
+    const sb = String(Math.abs(Math.round(vb)));
+    const len = Math.max(sa.length, sb.length);
+    const pa = sa.padStart(len, '0');
+    const pb = sb.padStart(len, '0');
+
+    const placeNames = {
+      1: 'U',
+      2: 'D',
+      3: 'C',
+      4: 'UM',
+      5: 'DM',
+      6: 'CM'
+    };
+    // Full names for aria / note
+    const placeFull = {
+      1: 'unidades',
+      2: 'decenas',
+      3: 'centenas',
+      4: 'unidades de millar',
+      5: 'decenas de millar',
+      6: 'centenas de millar'
+    };
+
+    let headers = '<div></div>';
+    for (let i = 0; i < len; i++) {
+      const fromRight = len - i;
+      headers += '<div class="h">' + (placeNames[fromRight] || ('×' + Math.pow(10, fromRight - 1))) + '</div>';
+    }
+
+    // Find first differing digit
+    let diffAt = -1;
+    for (let i = 0; i < len; i++) {
+      if (pa[i] !== pb[i]) { diffAt = i; break; }
+    }
+
+    function row(lab, digits, other) {
+      let html = '<div class="row-lab">' + lab + '</div>';
+      for (let i = 0; i < len; i++) {
+        let cls = 'cell';
+        if (diffAt === -1) cls += ' same';
+        else if (i < diffAt) cls += ' same';
+        else if (i === diffAt) cls += (Number(digits[i]) > Number(other[i]) ? ' win' : ' lose');
+        html += '<div class="' + cls + '">' + digits[i] + '</div>';
+      }
+      return html;
+    }
+
+    el.digitGrid.innerHTML = headers + row(fmt(va), pa, pb) + row(fmt(vb), pb, pa);
+
+    let note;
+    if (diffAt === -1) {
+      note = 'Todas las cifras coinciden → los números son <strong>iguales</strong> (=).';
+    } else {
+      const fromRight = len - diffAt;
+      const pname = placeFull[fromRight] || ('posición ×' + Math.pow(10, fromRight - 1));
+      const da = Number(pa[diffAt]);
+      const db = Number(pb[diffAt]);
+      const who = da > db ? fmt(va) + ' es <strong>mayor que</strong> (>) ' + fmt(vb)
+                          : fmt(va) + ' es <strong>menor que</strong> (<) ' + fmt(vb);
+      note = 'Primera diferencia en las <strong>' + pname + '</strong>: ' +
+             da + ' frente a ' + db + '. Por eso ' + who + '.';
+    }
+    el.digitNote.innerHTML = note;
+    el.digitPanel.classList.add('visible');
+  }
+
+  function updateBetween() {
+    if (!state.betweenMode) {
+      el.betweenBox.classList.remove('visible');
+      return;
+    }
+    const lo = Math.min(state.betweenLo, state.betweenHi);
+    const hi = Math.max(state.betweenLo, state.betweenHi);
+    const nums = [];
+    for (let n = lo + 1; n < hi; n++) nums.push(n);
+
+    el.betweenBox.classList.add('visible');
+    if (nums.length === 0) {
+      el.betweenNums.textContent = '(ninguno)';
+      el.betweenNote.textContent = 'No hay naturales estrictamente entre ' + fmt(lo) + ' y ' + fmt(hi) + '.';
+    } else {
+      el.betweenNums.textContent = nums.map(fmt).join(' · ');
+      el.betweenNote.innerHTML =
+        'Entre ' + fmt(lo) + ' y ' + fmt(hi) + ' (sin contar los extremos) hay ' +
+        nums.length + ' número' + (nums.length === 1 ? '' : 's') +
+        '. En la recta: la franja verde.';
+    }
+  }
+
+  function setExampleButtons(which) {
+    state.activeExample = which;
+    [el.exCompare, el.exPlace, el.exBetween].forEach(function (btn) {
+      btn.classList.toggle('active', btn.dataset.ex === which);
+    });
+  }
+
+  function refresh() {
+    // Keep values in range
+    state.markers.forEach(function (m) {
+      m.value = clamp(m.value, state.min, state.max);
+    });
+    el.minInput.value = state.min;
+    el.maxInput.value = state.max;
+    buildSvg();
+    renderMarkers();
+    renderControls();
+    updateCompare();
+  }
+
+  function onPointerDown(e) {
+    e.preventDefault();
+    const id = Number(e.currentTarget.dataset.id);
+    const m = state.markers.find(function (x) { return x.id === id; });
+    if (!m || !m.active) return;
+    drag = { id: id, pointerId: e.pointerId };
+    e.currentTarget.classList.add('dragging');
+    try { e.currentTarget.setPointerCapture(e.pointerId); } catch (err) {}
+  }
+
+  function onPointerMove(e) {
+    if (!drag) return;
+    const m = state.markers.find(function (x) { return x.id === drag.id; });
+    if (!m) return;
+    m.value = xToValue(e.clientX);
+    // Live update flag position without full rebuild of controls spam
+    buildSvg();
+    renderMarkers();
+    const draggingEl = el.layer.querySelector('.marker[data-id="' + drag.id + '"]');
+    if (draggingEl) draggingEl.classList.add('dragging');
+    updateCompare();
+    // Update control val text
+    const ctrlVal = el.controls.querySelector('.m-ctrl.m' + m.id + ' .val');
+    if (ctrlVal) ctrlVal.textContent = fmt(m.value);
+  }
+
+  function onPointerUp(e) {
+    if (!drag) return;
+    drag = null;
+    renderMarkers();
+    renderControls();
+    updateCompare();
+  }
+
+  function onMarkerKey(e) {
+    const id = Number(e.currentTarget.dataset.id);
+    const m = state.markers.find(function (x) { return x.id === id; });
+    if (!m) return;
+    let delta = 0;
+    if (e.key === 'ArrowLeft' || e.key === 'ArrowDown') delta = -1;
+    if (e.key === 'ArrowRight' || e.key === 'ArrowUp') delta = 1;
+    if (e.key === 'PageDown') delta = -state.tickEvery;
+    if (e.key === 'PageUp') delta = state.tickEvery;
+    if (e.key === 'Home') { m.value = state.min; refresh(); e.preventDefault(); return; }
+    if (e.key === 'End') { m.value = state.max; refresh(); e.preventDefault(); return; }
+    if (delta !== 0) {
+      m.value = clamp(m.value + delta, state.min, state.max);
+      refresh();
+      e.preventDefault();
+      // Restore focus
+      const again = el.layer.querySelector('.marker[data-id="' + id + '"]');
+      if (again) again.focus();
+    }
+  }
+
+  el.stage.addEventListener('pointermove', onPointerMove);
+  el.stage.addEventListener('pointerup', onPointerUp);
+  el.stage.addEventListener('pointercancel', onPointerUp);
+
+  function applyRangeFromInputs() {
+    let a = Number(el.minInput.value);
+    let b = Number(el.maxInput.value);
+    if (!Number.isFinite(a)) a = 0;
+    if (!Number.isFinite(b)) b = 40;
+    a = Math.round(a);
+    b = Math.round(b);
+    if (a === b) b = a + 1;
+    if (a > b) { const t = a; a = b; b = t; }
+    // Cap absurd spans for UI sanity
+    if (b - a > 100000) b = a + 100000;
+    state.min = a;
+    state.max = b;
+    // Auto tick
+    const span = b - a;
+    if (span > 80 && state.tickEvery === 5) {
+      // keep user choice
+    }
+    refresh();
+  }
+
+  el.minInput.addEventListener('change', applyRangeFromInputs);
+  el.maxInput.addEventListener('change', applyRangeFromInputs);
+
+  el.tick5.addEventListener('click', function () {
+    state.tickEvery = 5;
+    el.tick5.classList.add('active');
+    el.tick10.classList.remove('active');
+    refresh();
+  });
+  el.tick10.addEventListener('click', function () {
+    state.tickEvery = 10;
+    el.tick10.classList.add('active');
+    el.tick5.classList.remove('active');
+    refresh();
+  });
+
+  // —— Lesson examples ——
+  el.exCompare.addEventListener('click', function () {
+    setExampleButtons('compare');
+    state.betweenMode = false;
+    state.min = 4500;
+    state.max = 4600;
+    state.tickEvery = 10;
+    el.tick5.classList.remove('active');
+    el.tick10.classList.add('active');
+    state.markers[0].value = 4582;
+    state.markers[0].active = true;
+    state.markers[1].value = 4528;
+    state.markers[1].active = true;
+    state.markers[2].active = false;
+    refresh();
+  });
+
+  el.exPlace.addEventListener('click', function () {
+    setExampleButtons('place');
+    state.betweenMode = false;
+    state.min = 0;
+    state.max = 40;
+    state.tickEvery = 5;
+    el.tick5.classList.add('active');
+    el.tick10.classList.remove('active');
+    state.markers[0].value = 5;
+    state.markers[0].active = true;
+    state.markers[1].value = 22;
+    state.markers[1].active = true;
+    state.markers[2].value = 39;
+    state.markers[2].active = true;
+    refresh();
+  });
+
+  el.exBetween.addEventListener('click', function () {
+    setExampleButtons('between');
+    state.betweenMode = true;
+    state.betweenLo = 18;
+    state.betweenHi = 22;
+    state.min = 0;
+    state.max = 40;
+    state.tickEvery = 5;
+    el.tick5.classList.add('active');
+    el.tick10.classList.remove('active');
+    state.markers[0].value = 18;
+    state.markers[0].active = true;
+    state.markers[1].value = 22;
+    state.markers[1].active = true;
+    state.markers[2].active = false;
+    refresh();
+  });
+
+  window.addEventListener('resize', function () {
+    buildSvg();
+    renderMarkers();
+  });
+
+  // Default: place example
+  setExampleButtons('place');
+  refresh();
+})();
+</script>
+</body>
+</html>

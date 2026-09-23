@@ -1,0 +1,860 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Valor posicional — Números naturales · 1º ESO</title>
+<style>
+  :root {
+    --bg: #f4f7fb;
+    --ink: #1a2b3c;
+    --muted: #5a6d7e;
+    --card: #ffffff;
+    --blue: #3b82f6;
+    --blue-soft: #dbeafe;
+    --blue-deep: #1d4ed8;
+    --orange: #f59e0b;
+    --orange-soft: #fef3c7;
+    --orange-deep: #b45309;
+    --green: #10b981;
+    --green-soft: #d1fae5;
+    --green-deep: #047857;
+    --purple: #8b5cf6;
+    --purple-soft: #ede9fe;
+    --purple-deep: #6d28d9;
+    --rose: #f43f5e;
+    --rose-soft: #ffe4e6;
+    --teal: #14b8a6;
+    --teal-soft: #ccfbf1;
+    --shadow: 0 8px 28px rgba(26, 43, 60, 0.08);
+    --radius: 18px;
+    --thin-space: '\u2009';
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html, body {
+    min-height: 100%;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  body {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 14px 10px 32px;
+  }
+
+  .wrap {
+    width: 100%;
+    max-width: 960px;
+  }
+
+  header {
+    text-align: center;
+    margin-bottom: 12px;
+  }
+
+  header .badge {
+    display: inline-block;
+    font-size: 0.78rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--blue-deep);
+    background: var(--blue-soft);
+    padding: 4px 12px;
+    border-radius: 999px;
+    margin-bottom: 8px;
+  }
+
+  h1 {
+    font-size: clamp(1.4rem, 4.5vw, 1.95rem);
+    line-height: 1.2;
+    font-weight: 800;
+  }
+
+  .subtitle {
+    margin-top: 6px;
+    font-size: clamp(0.95rem, 2.8vw, 1.1rem);
+    color: var(--muted);
+    font-weight: 500;
+  }
+
+  .card {
+    background: var(--card);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 16px 14px 18px;
+    margin-bottom: 14px;
+  }
+
+  .card h2 {
+    font-size: clamp(1.05rem, 3vw, 1.25rem);
+    font-weight: 800;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .hint {
+    font-size: clamp(0.88rem, 2.4vw, 1rem);
+    color: var(--muted);
+    line-height: 1.4;
+    margin-bottom: 14px;
+  }
+
+  /* —— Place-value street of houses —— */
+  .street {
+    display: flex;
+    justify-content: center;
+    align-items: flex-end;
+    gap: 8px;
+    flex-wrap: wrap;
+    padding: 8px 2px 4px;
+  }
+
+  .house {
+    flex: 1 1 0;
+    min-width: 72px;
+    max-width: 120px;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    user-select: none;
+  }
+
+  .roof {
+    height: 28px;
+    clip-path: polygon(50% 0%, 100% 100%, 0% 100%);
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    padding-bottom: 2px;
+  }
+
+  .roof-label {
+    font-size: 0.55rem;
+    font-weight: 800;
+    letter-spacing: 0.02em;
+    color: #fff;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.25);
+    text-transform: uppercase;
+    line-height: 1;
+    margin-bottom: 3px;
+  }
+
+  .walls {
+    border: 2.5px solid;
+    border-top: none;
+    border-radius: 0 0 12px 12px;
+    background: #fff;
+    padding: 8px 4px 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    min-height: 148px;
+    box-shadow: 0 4px 12px rgba(26,43,60,0.06);
+  }
+
+  .place-name {
+    font-size: clamp(0.62rem, 1.8vw, 0.78rem);
+    font-weight: 750;
+    text-align: center;
+    line-height: 1.15;
+    min-height: 2.4em;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 2px;
+  }
+
+  .digit-box {
+    width: 100%;
+    aspect-ratio: 1;
+    max-width: 64px;
+    border-radius: 12px;
+    border: 2.5px solid;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: clamp(1.6rem, 6vw, 2.2rem);
+    font-weight: 800;
+    font-variant-numeric: tabular-nums;
+    background: #fff;
+    cursor: pointer;
+    transition: transform 0.12s ease, box-shadow 0.12s ease;
+  }
+
+  .digit-box:active { transform: scale(0.96); }
+  .digit-box:focus-visible {
+    outline: 3px solid var(--blue);
+    outline-offset: 2px;
+  }
+
+  .controls {
+    display: flex;
+    gap: 6px;
+    width: 100%;
+    justify-content: center;
+  }
+
+  .btn-step {
+    flex: 1;
+    max-width: 36px;
+    height: 32px;
+    border-radius: 8px;
+    border: 2px solid;
+    background: #fff;
+    font-size: 1.15rem;
+    font-weight: 800;
+    line-height: 1;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.12s;
+  }
+  .btn-step:active { transform: scale(0.94); }
+
+  /* House color themes (left → right: DM, UM, C, D, U) */
+  .house.dm .roof { background: #7c3aed; }
+  .house.dm .walls { border-color: #a78bfa; background: linear-gradient(180deg, #f5f3ff, #fff); }
+  .house.dm .place-name { color: var(--purple-deep); }
+  .house.dm .digit-box { border-color: #a78bfa; color: var(--purple-deep); background: var(--purple-soft); }
+  .house.dm .btn-step { border-color: #c4b5fd; color: var(--purple-deep); }
+  .house.dm .btn-step:hover { background: var(--purple-soft); }
+
+  .house.um .roof { background: #2563eb; }
+  .house.um .walls { border-color: #93c5fd; background: linear-gradient(180deg, #eff6ff, #fff); }
+  .house.um .place-name { color: var(--blue-deep); }
+  .house.um .digit-box { border-color: #93c5fd; color: var(--blue-deep); background: var(--blue-soft); }
+  .house.um .btn-step { border-color: #bfdbfe; color: var(--blue-deep); }
+  .house.um .btn-step:hover { background: var(--blue-soft); }
+
+  .house.c .roof { background: #0d9488; }
+  .house.c .walls { border-color: #5eead4; background: linear-gradient(180deg, #f0fdfa, #fff); }
+  .house.c .place-name { color: #0f766e; }
+  .house.c .digit-box { border-color: #5eead4; color: #0f766e; background: var(--teal-soft); }
+  .house.c .btn-step { border-color: #99f6e4; color: #0f766e; }
+  .house.c .btn-step:hover { background: var(--teal-soft); }
+
+  .house.d .roof { background: #d97706; }
+  .house.d .walls { border-color: #fcd34d; background: linear-gradient(180deg, #fffbeb, #fff); }
+  .house.d .place-name { color: var(--orange-deep); }
+  .house.d .digit-box { border-color: #fcd34d; color: var(--orange-deep); background: var(--orange-soft); }
+  .house.d .btn-step { border-color: #fde68a; color: var(--orange-deep); }
+  .house.d .btn-step:hover { background: var(--orange-soft); }
+
+  .house.u .roof { background: #e11d48; }
+  .house.u .walls { border-color: #fda4af; background: linear-gradient(180deg, #fff1f2, #fff); }
+  .house.u .place-name { color: #9f1239; }
+  .house.u .digit-box { border-color: #fda4af; color: #9f1239; background: var(--rose-soft); }
+  .house.u .btn-step { border-color: #fecdd3; color: #9f1239; }
+  .house.u .btn-step:hover { background: var(--rose-soft); }
+
+  .value-chip {
+    font-size: 0.68rem;
+    font-weight: 650;
+    color: var(--muted);
+    text-align: center;
+    line-height: 1.2;
+  }
+
+  /* —— Live readouts —— */
+  .readouts {
+    display: grid;
+    gap: 10px;
+    margin-top: 16px;
+  }
+
+  .readout {
+    border-radius: 14px;
+    padding: 12px 14px;
+    border: 2px solid;
+  }
+
+  .readout .label {
+    font-size: 0.78rem;
+    font-weight: 750;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    margin-bottom: 4px;
+  }
+
+  .readout .value {
+    font-size: clamp(1.15rem, 3.8vw, 1.55rem);
+    font-weight: 800;
+    line-height: 1.35;
+    font-variant-numeric: tabular-nums;
+    word-break: break-word;
+  }
+
+  .readout .note {
+    margin-top: 4px;
+    font-size: 0.85rem;
+    color: var(--muted);
+    font-weight: 500;
+    line-height: 1.35;
+  }
+
+  .readout.compact {
+    background: linear-gradient(180deg, #eff6ff, #f8fbff);
+    border-color: #bfdbfe;
+  }
+  .readout.compact .label { color: var(--blue-deep); }
+  .readout.compact .value { color: var(--blue-deep); font-size: clamp(1.6rem, 5.5vw, 2.35rem); letter-spacing: 0.02em; }
+
+  .readout.developed {
+    background: linear-gradient(180deg, #f0fdfa, #f7fffc);
+    border-color: #99f6e4;
+  }
+  .readout.developed .label { color: #0f766e; }
+  .readout.developed .value { color: #134e4a; font-size: clamp(0.95rem, 2.8vw, 1.2rem); font-weight: 700; }
+
+  .readout.reading {
+    background: linear-gradient(180deg, #faf5ff, #fcfaff);
+    border-color: #d8b4fe;
+  }
+  .readout.reading .label { color: var(--purple-deep); }
+  .readout.reading .value { color: #4c1d95; font-style: italic; font-weight: 700; }
+
+  .factor {
+    display: inline;
+  }
+  .factor .words {
+    font-weight: 600;
+    color: var(--muted);
+    font-size: 0.92em;
+  }
+
+  /* —— Examples —— */
+  .examples {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 4px;
+  }
+
+  .ex-btn {
+    border: 2px solid #cbd5e1;
+    background: #fff;
+    border-radius: 999px;
+    padding: 8px 14px;
+    font-size: clamp(0.95rem, 2.6vw, 1.08rem);
+    font-weight: 750;
+    font-variant-numeric: tabular-nums;
+    cursor: pointer;
+    color: var(--ink);
+    transition: background 0.12s, border-color 0.12s, transform 0.1s;
+  }
+  .ex-btn:hover { background: var(--blue-soft); border-color: var(--blue); }
+  .ex-btn:active { transform: scale(0.97); }
+  .ex-btn.active {
+    background: var(--blue);
+    border-color: var(--blue-deep);
+    color: #fff;
+  }
+
+  .reset-btn {
+    border: 2px dashed #94a3b8;
+    background: transparent;
+    border-radius: 999px;
+    padding: 8px 14px;
+    font-size: 0.92rem;
+    font-weight: 650;
+    cursor: pointer;
+    color: var(--muted);
+  }
+  .reset-btn:hover { border-color: var(--ink); color: var(--ink); }
+
+  /* —— Mini check —— */
+  .check-box {
+    background: linear-gradient(180deg, #fffbeb, #fffdf7);
+    border: 2px solid #fde68a;
+    border-radius: 14px;
+    padding: 14px;
+  }
+
+  .check-box p.q {
+    font-size: clamp(1rem, 3vw, 1.2rem);
+    font-weight: 750;
+    margin-bottom: 10px;
+    line-height: 1.35;
+  }
+
+  .check-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: center;
+  }
+
+  .check-row input {
+    width: 88px;
+    font-size: 1.25rem;
+    font-weight: 800;
+    padding: 8px 10px;
+    border-radius: 10px;
+    border: 2px solid #fbbf24;
+    text-align: center;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .check-go, .check-reveal {
+    border: none;
+    border-radius: 10px;
+    padding: 10px 14px;
+    font-size: 0.95rem;
+    font-weight: 750;
+    cursor: pointer;
+  }
+  .check-go { background: var(--orange); color: #fff; }
+  .check-reveal { background: var(--orange-soft); color: var(--orange-deep); }
+
+  .feedback {
+    margin-top: 10px;
+    font-size: clamp(0.95rem, 2.6vw, 1.05rem);
+    font-weight: 650;
+    line-height: 1.4;
+    min-height: 1.4em;
+  }
+  .feedback.ok { color: var(--green-deep); }
+  .feedback.bad { color: #b91c1c; }
+  .feedback.hint { color: var(--orange-deep); }
+
+  /* —— Glossary —— */
+  .glossary {
+    display: grid;
+    gap: 8px;
+  }
+
+  details.term {
+    background: #fff;
+    border: 1.5px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 0;
+    overflow: hidden;
+  }
+  details.term summary {
+    list-style: none;
+    cursor: pointer;
+    padding: 11px 14px;
+    font-weight: 750;
+    font-size: clamp(0.95rem, 2.6vw, 1.05rem);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  details.term summary::-webkit-details-marker { display: none; }
+  details.term summary::before {
+    content: "▸";
+    color: var(--blue);
+    font-size: 0.9em;
+    transition: transform 0.15s;
+  }
+  details.term[open] summary::before { transform: rotate(90deg); }
+  details.term .def {
+    padding: 0 14px 12px 32px;
+    font-size: clamp(0.9rem, 2.4vw, 1rem);
+    color: var(--muted);
+    line-height: 1.45;
+  }
+  .abbr {
+    display: inline-block;
+    background: var(--blue-soft);
+    color: var(--blue-deep);
+    font-weight: 800;
+    font-size: 0.78em;
+    padding: 1px 7px;
+    border-radius: 6px;
+    margin-left: 4px;
+  }
+
+  footer.note {
+    text-align: center;
+    font-size: 0.82rem;
+    color: var(--muted);
+    margin-top: 4px;
+    line-height: 1.4;
+  }
+
+  @media (max-width: 520px) {
+    .street { gap: 5px; }
+    .house { min-width: 58px; }
+    .walls { min-height: 132px; padding: 6px 2px 8px; }
+    .roof { height: 22px; }
+    .roof-label { font-size: 0.48rem; }
+    .btn-step { height: 28px; max-width: 30px; font-size: 1rem; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div class="badge">1º ESO · Matemáticas · Lección 03</div>
+    <h1>Números naturales y valor posicional</h1>
+    <p class="subtitle">Construye un número casita a casita y míralo en tres formas</p>
+  </header>
+
+  <!-- BUILDER -->
+  <section class="card" aria-labelledby="builder-title">
+    <h2 id="builder-title">🏠 Las casitas del valor posicional</h2>
+    <p class="hint">
+      Cada casita es un <strong>lugar</strong>. Toca la cifra o usa <strong>+</strong> / <strong>−</strong>
+      para cambiarla. De derecha a izquierda: unidades → decenas → centenas → millares.
+    </p>
+
+    <div class="street" id="street" role="group" aria-label="Casitas de valor posicional">
+      <!-- filled by JS -->
+    </div>
+
+    <div class="readouts">
+      <div class="readout compact">
+        <div class="label">Forma compacta</div>
+        <div class="value" id="compact" aria-live="polite">0</div>
+        <div class="note">El número «junto», con espacio fino entre los miles (estilo europeo).</div>
+      </div>
+      <div class="readout developed">
+        <div class="label">Forma desarrollada</div>
+        <div class="value" id="developed" aria-live="polite">0 × 1 (cero unidades)</div>
+        <div class="note">Cada cifra × el valor de su casita, nombrado en palabras.</div>
+      </div>
+      <div class="readout reading">
+        <div class="label">Lectura en español</div>
+        <div class="value" id="reading" aria-live="polite">cero</div>
+        <div class="note">Así se dice el número en voz alta.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- EXAMPLES -->
+  <section class="card" aria-labelledby="ex-title">
+    <h2 id="ex-title">📌 Ejemplos rápidos</h2>
+    <p class="hint">Pulsa un número para cargarlo en las casitas.</p>
+    <div class="examples" id="examples">
+      <button type="button" class="ex-btn" data-n="5082">5&thinsp;082</button>
+      <button type="button" class="ex-btn" data-n="703">703</button>
+      <button type="button" class="ex-btn" data-n="34205">34&thinsp;205</button>
+      <button type="button" class="ex-btn" data-n="8005">8&thinsp;005</button>
+      <button type="button" class="reset-btn" id="reset">Poner a cero</button>
+    </div>
+  </section>
+
+  <!-- MINI CHECK -->
+  <section class="card" aria-labelledby="check-title">
+    <h2 id="check-title">✅ Mini comprobación</h2>
+    <div class="check-box">
+      <p class="q">¿Cuántas <strong>centenas</strong> hay en <strong>4&thinsp;560</strong>?</p>
+      <div class="check-row">
+        <input type="number" id="check-input" inputmode="numeric" min="0" max="99999" placeholder="?" aria-label="Tu respuesta: número de centenas">
+        <button type="button" class="check-go" id="check-go">Comprobar</button>
+        <button type="button" class="check-reveal" id="check-reveal">Ver pista</button>
+      </div>
+      <div class="feedback" id="check-fb" aria-live="polite"></div>
+    </div>
+  </section>
+
+  <!-- GLOSSARY -->
+  <section class="card" aria-labelledby="gloss-title">
+    <h2 id="gloss-title">📖 Glosario</h2>
+    <p class="hint">Si ves una abreviatura (U, D, C, M), aquí está su significado completo.</p>
+    <div class="glossary">
+      <details class="term">
+        <summary>Cifra</summary>
+        <div class="def">Cada uno de los símbolos <strong>0, 1, 2, 3, 4, 5, 6, 7, 8, 9</strong>. Un número se escribe con una o varias cifras.</div>
+      </details>
+      <details class="term">
+        <summary>Número</summary>
+        <div class="def">La cantidad completa. Por ejemplo, el número <strong>5&thinsp;082</strong> está formado por las cifras 5, 0, 8 y 2.</div>
+      </details>
+      <details class="term">
+        <summary>Unidades <span class="abbr">U</span></summary>
+        <div class="def">La casita de la derecha. Cada unidad vale <strong>1</strong>. En 5&thinsp;082 hay <strong>2 unidades</strong>.</div>
+      </details>
+      <details class="term">
+        <summary>Decenas <span class="abbr">D</span></summary>
+        <div class="def">La segunda casita desde la derecha. Cada decena vale <strong>10</strong> (diez unidades). En 5&thinsp;082 hay <strong>8 decenas</strong>.</div>
+      </details>
+      <details class="term">
+        <summary>Centenas <span class="abbr">C</span></summary>
+        <div class="def">La tercera casita desde la derecha. Cada centena vale <strong>100</strong> (cien unidades). En 5&thinsp;082 hay <strong>0 centenas</strong>.</div>
+      </details>
+      <details class="term">
+        <summary>Millares <span class="abbr">M</span></summary>
+        <div class="def">Las casitas de los miles: <strong>unidades de millar</strong> (×&nbsp;1&nbsp;000) y <strong>decenas de millar</strong> (×&nbsp;10&nbsp;000). En 34&thinsp;205 hay <strong>3 decenas de millar</strong> y <strong>4 unidades de millar</strong>.</div>
+      </details>
+      <details class="term">
+        <summary>Forma desarrollada</summary>
+        <div class="def">Escribir el número como suma de cada cifra por el valor de su casita.
+          Ejemplo: 5&thinsp;082 = <strong>5×1&nbsp;000 + 0×100 + 8×10 + 2×1</strong>.</div>
+      </details>
+      <details class="term">
+        <summary>Forma compacta</summary>
+        <div class="def">El número escrito de la forma habitual, con las cifras juntas y espacio fino en los miles: <strong>5&thinsp;082</strong>, <strong>34&thinsp;205</strong>.</div>
+      </details>
+    </div>
+  </section>
+
+  <p class="footer note">Lección 03 · Jorge · 1º ESO Matemáticas · Archivo único offline (<code>file://</code>)</p>
+</div>
+
+<script>
+(function () {
+  'use strict';
+
+  const THIN = '\u2009'; // thin space for European thousands
+
+  /** Places from LEFT (highest) to RIGHT (units) */
+  const PLACES = [
+    { key: 'dm', cls: 'dm', name: 'Decenas de millar', short: 'DM', value: 10000, valueWords: 'diez mil' },
+    { key: 'um', cls: 'um', name: 'Unidades de millar', short: 'UM', value: 1000, valueWords: 'mil' },
+    { key: 'c',  cls: 'c',  name: 'Centenas',           short: 'C',  value: 100,   valueWords: 'cien' },
+    { key: 'd',  cls: 'd',  name: 'Decenas',            short: 'D',  value: 10,    valueWords: 'diez' },
+    { key: 'u',  cls: 'u',  name: 'Unidades',           short: 'U',  value: 1,     valueWords: 'uno' }
+  ];
+
+  const digits = { dm: 0, um: 0, c: 0, d: 0, u: 0 };
+
+  const street = document.getElementById('street');
+  const elCompact = document.getElementById('compact');
+  const elDeveloped = document.getElementById('developed');
+  const elReading = document.getElementById('reading');
+
+  /* —— Spanish number reading (0 … 99 999) —— */
+  const UNITS = ['cero','uno','dos','tres','cuatro','cinco','seis','siete','ocho','nueve'];
+  const TEENS = ['diez','once','doce','trece','catorce','quince','dieciséis','diecisiete','dieciocho','diecinueve'];
+  const TENS = ['','','veinte','treinta','cuarenta','cincuenta','sesenta','setenta','ochenta','noventa'];
+  const HUNDREDS = ['','ciento','doscientos','trescientos','cuatrocientos','quinientos','seiscientos','setecientos','ochocientos','novecientos'];
+
+  function under100(n) {
+    if (n < 10) return UNITS[n];
+    if (n < 20) return TEENS[n - 10];
+    if (n === 20) return 'veinte';
+    if (n < 30) return 'veinti' + (n === 21 ? 'uno' : UNITS[n - 20]);
+    const t = Math.floor(n / 10), u = n % 10;
+    return u === 0 ? TENS[t] : TENS[t] + ' y ' + UNITS[u];
+  }
+
+  function under1000(n) {
+    if (n < 100) return under100(n);
+    if (n === 100) return 'cien';
+    const h = Math.floor(n / 100), rest = n % 100;
+    const head = HUNDREDS[h];
+    return rest === 0 ? head : head + ' ' + under100(rest);
+  }
+
+  function readSpanish(n) {
+    if (n === 0) return 'cero';
+    if (n < 1000) return under1000(n);
+    const miles = Math.floor(n / 1000);
+    const rest = n % 1000;
+    let head;
+    if (miles === 1) head = 'mil';
+    else head = under1000(miles) + ' mil';
+    if (rest === 0) return head;
+    return head + ' ' + under1000(rest);
+  }
+
+  function formatCompact(n) {
+    const s = String(n);
+    if (s.length <= 3) return s;
+    // group from the right by thousands with thin space
+    const parts = [];
+    for (let i = s.length; i > 0; i -= 3) {
+      parts.unshift(s.slice(Math.max(0, i - 3), i));
+    }
+    return parts.join(THIN);
+  }
+
+  function formatPlaceValue(v) {
+    return formatCompact(v);
+  }
+
+  function singularName(place, digit) {
+    // name the contribution in words, e.g. "tres centenas"
+    const names = {
+      u:  ['unidades', 'unidad', 'unidades'],
+      d:  ['decenas', 'decena', 'decenas'],
+      c:  ['centenas', 'centena', 'centenas'],
+      um: ['unidades de millar', 'unidad de millar', 'unidades de millar'],
+      dm: ['decenas de millar', 'decena de millar', 'decenas de millar']
+    };
+    const trio = names[place.key];
+    const noun = digit === 1 ? trio[1] : trio[2];
+    const adj = digit === 1 && (place.key === 'u' || place.key === 'um')
+      ? 'una'
+      : digit === 1 && (place.key === 'd' || place.key === 'dm' || place.key === 'c')
+        ? 'una'
+        : UNITS[digit];
+    // "una" for feminine nouns when digit is 1
+    let word = UNITS[digit];
+    if (digit === 1) {
+      if (place.key === 'u' || place.key === 'um') word = 'una';
+      else word = 'una'; // decena/centena/decena de millar are feminine
+    }
+    return word + ' ' + noun;
+  }
+
+  function buildStreet() {
+    street.innerHTML = '';
+    PLACES.forEach(function (place) {
+      const house = document.createElement('div');
+      house.className = 'house ' + place.cls;
+      house.dataset.key = place.key;
+
+      house.innerHTML =
+        '<div class="roof" aria-hidden="true"><span class="roof-label">' + place.short + '</span></div>' +
+        '<div class="walls">' +
+          '<div class="place-name">' + place.name + '</div>' +
+          '<div class="digit-box" role="spinbutton" tabindex="0" ' +
+            'aria-valuemin="0" aria-valuemax="9" aria-valuenow="0" ' +
+            'aria-label="' + place.name + '" data-key="' + place.key + '">0</div>' +
+          '<div class="controls">' +
+            '<button type="button" class="btn-step" data-dir="-1" data-key="' + place.key + '" aria-label="Bajar ' + place.name + '">−</button>' +
+            '<button type="button" class="btn-step" data-dir="1" data-key="' + place.key + '" aria-label="Subir ' + place.name + '">+</button>' +
+          '</div>' +
+          '<div class="value-chip">vale ×&nbsp;' + formatPlaceValue(place.value) + '</div>' +
+        '</div>';
+
+      street.appendChild(house);
+    });
+
+    street.addEventListener('click', function (e) {
+      const step = e.target.closest('.btn-step');
+      if (step) {
+        bump(step.dataset.key, parseInt(step.dataset.dir, 10));
+        return;
+      }
+      const box = e.target.closest('.digit-box');
+      if (box) bump(box.dataset.key, 1);
+    });
+
+    street.addEventListener('keydown', function (e) {
+      const box = e.target.closest('.digit-box');
+      if (!box) return;
+      if (e.key === 'ArrowUp' || e.key === '+' || e.key === '=') {
+        e.preventDefault(); bump(box.dataset.key, 1);
+      } else if (e.key === 'ArrowDown' || e.key === '-') {
+        e.preventDefault(); bump(box.dataset.key, -1);
+      } else if (e.key >= '0' && e.key <= '9') {
+        e.preventDefault();
+        setDigit(box.dataset.key, parseInt(e.key, 10));
+      }
+    });
+  }
+
+  function bump(key, dir) {
+    setDigit(key, (digits[key] + dir + 10) % 10);
+  }
+
+  function setDigit(key, val) {
+    digits[key] = ((val % 10) + 10) % 10;
+    syncUI();
+  }
+
+  function currentNumber() {
+    return PLACES.reduce(function (sum, p) {
+      return sum + digits[p.key] * p.value;
+    }, 0);
+  }
+
+  function syncUI() {
+    PLACES.forEach(function (p) {
+      const box = street.querySelector('.digit-box[data-key="' + p.key + '"]');
+      if (box) {
+        box.textContent = String(digits[p.key]);
+        box.setAttribute('aria-valuenow', String(digits[p.key]));
+      }
+    });
+
+    const n = currentNumber();
+    elCompact.textContent = formatCompact(n);
+
+    // Developed form — skip zero terms except when whole number is 0
+    const parts = [];
+    PLACES.forEach(function (p) {
+      const d = digits[p.key];
+      if (d === 0 && n !== 0) return;
+      if (n === 0 && p.key !== 'u') return;
+      const named = singularName(p, d);
+      parts.push(
+        '<span class="factor">' +
+          d + '&nbsp;×&nbsp;' + formatPlaceValue(p.value) +
+          ' <span class="words">(' + named + ')</span>' +
+        '</span>'
+      );
+    });
+    elDeveloped.innerHTML = parts.join(' + ');
+
+    elReading.textContent = readSpanish(n);
+
+    // highlight matching example button
+    document.querySelectorAll('.ex-btn').forEach(function (btn) {
+      btn.classList.toggle('active', parseInt(btn.dataset.n, 10) === n);
+    });
+  }
+
+  function loadNumber(n) {
+    n = Math.max(0, Math.min(99999, n | 0));
+    let rem = n;
+    PLACES.forEach(function (p) {
+      digits[p.key] = Math.floor(rem / p.value);
+      rem = rem % p.value;
+    });
+    syncUI();
+  }
+
+  document.getElementById('examples').addEventListener('click', function (e) {
+    const btn = e.target.closest('.ex-btn');
+    if (btn) loadNumber(parseInt(btn.dataset.n, 10));
+  });
+
+  document.getElementById('reset').addEventListener('click', function () {
+    loadNumber(0);
+  });
+
+  /* Mini check: how many hundreds in 4560 → 45 */
+  const checkInput = document.getElementById('check-input');
+  const checkFb = document.getElementById('check-fb');
+
+  document.getElementById('check-go').addEventListener('click', function () {
+    const val = parseInt(checkInput.value, 10);
+    if (isNaN(val)) {
+      checkFb.className = 'feedback hint';
+      checkFb.textContent = 'Escribe un número y pulsa Comprobar.';
+      return;
+    }
+    if (val === 45) {
+      checkFb.className = 'feedback ok';
+      checkFb.textContent = '¡Correcto! En 4' + THIN + '560 hay 45 centenas, porque 45 × 100 = 4' + THIN + '560.';
+    } else if (val === 5) {
+      checkFb.className = 'feedback bad';
+      checkFb.textContent = 'Casi… 5 es la cifra de las centenas, pero la pregunta pide cuántas centenas caben en todo el número. Prueba otra vez.';
+    } else {
+      checkFb.className = 'feedback bad';
+      checkFb.textContent = 'No es ' + val + '. Piensa: ¿cuántas veces cabe 100 en 4' + THIN + '560?';
+    }
+  });
+
+  document.getElementById('check-reveal').addEventListener('click', function () {
+    checkFb.className = 'feedback hint';
+    checkFb.textContent = 'Pista: divide 4' + THIN + '560 entre 100 (o quita las dos últimas cifras). El resultado son las centenas que hay.';
+  });
+
+  checkInput.addEventListener('keydown', function (e) {
+    if (e.key === 'Enter') document.getElementById('check-go').click();
+  });
+
+  buildStreet();
+  loadNumber(5082); // start with a rich example
+})();
+</script>
+</body>
+</html>

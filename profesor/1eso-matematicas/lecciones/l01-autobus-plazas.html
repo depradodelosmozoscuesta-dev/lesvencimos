@@ -69,6 +69,12 @@
   .seat.filled{background:#3b82f6;border-color:#1d4ed8}
   .seat.boarding{background:#f59e0b;border-color:#d97706}
   .seat.empty{background:#f8fafc;border-color:#94a3b8}
+  .waiting-area{
+    margin-top:10px;padding:8px;border-radius:10px;background:#fffbeb;border:1px dashed #f59e0b;
+  }
+  .waiting-area .title{font-size:0.8rem;font-weight:700;color:#92400e;margin-bottom:6px}
+  .waiting-seats{display:flex;flex-wrap:wrap;gap:5px}
+  .waiting-seats .seat{width:28px;height:28px;background:#f59e0b;border-color:#d97706}
   .overflow-box{
     margin-top:10px;padding:8px;border-radius:10px;background:#fff1f2;border:1px dashed #fda4af;
     display:none;
@@ -120,6 +126,10 @@
           <div class="nose">Morro</div>
         </div>
         <div class="rows" id="rows"></div>
+        <div class="waiting-area" id="waitingArea">
+          <div class="title" id="waitingTitle">Fuera · quieren subir (aún no han entrado)</div>
+          <div class="waiting-seats" id="waitingSeats"></div>
+        </div>
         <div class="overflow-box" id="overflowBox">
           <div class="title">Fuera del autobús (no caben)</div>
           <div class="overflow-seats" id="overflowSeats"></div>
@@ -128,9 +138,9 @@
       <p class="meta" id="layoutMeta">Planta: 12 filas de 2+2 + banco trasero de 5 = 53 + … ajustado a la cabida</p>
 
       <div class="legend">
-        <span><i class="sw f"></i> Ya iban</span>
-        <span><i class="sw b"></i> Quieren subir</span>
-        <span><i class="sw o"></i> No caben</span>
+        <span><i class="sw f"></i> Ya iban (dentro)</span>
+        <span><i class="sw b"></i> Han entrado ahora</span>
+        <span><i class="sw o"></i> No caben (fuera)</span>
         <span><i class="sw e"></i> Libres</span>
         <span><i class="sw dr"></i> Conductor</span>
         <span><i class="sw du"></i> Puerta</span>
@@ -139,11 +149,11 @@
 
     <div class="row"><label for="cap">Cabida</label><input id="cap" type="range" min="20" max="61" value="55"/><output id="oCap">55</output></div>
     <div class="row"><label for="hay">Ya hay</label><input id="hay" type="range" min="0" max="61" value="38"/><output id="oHay">38</output></div>
-    <div class="row"><label for="grupos">Grupos</label><input id="grupos" type="range" min="1" max="6" value="3"/><output id="oG">3</output></div>
-    <div class="row"><label for="tam">Por grupo</label><input id="tam" type="range" min="1" max="10" value="6"/><output id="oTam">6</output></div>
+    <div class="row"><label for="grupos">Grupos</label><input id="grupos" type="range" min="0" max="6" value="3"/><output id="oG">3</output></div>
+    <div class="row"><label for="tam">Por grupo</label><input id="tam" type="range" min="0" max="10" value="6"/><output id="oTam">6</output></div>
     <button type="button" id="reset">Volver al ejemplo</button>
     <button type="button" class="secondary" id="anim">Ver cómo suben</button>
-    <p class="hint">Pasillo en el centro, dos asientos a cada lado, y atrás un banco de cinco. El conductor no cuenta como plaza de viajero.</p>
+    <p class="hint">Pasillo en el centro, filas 2+2 y banco de 5. Los que quieren subir empiezan FUERA; pulsa «Ver cómo suben» para mandarlos entrar. El rojo solo aparece fuera (no caben). El conductor no cuenta como plaza.</p>
   </section>
 
   <section class="card" aria-live="polite">
@@ -152,7 +162,7 @@
     <div class="line" id="p2">2) Total si suben: 38 + 18 = 56</div>
     <div class="line hi" id="p3">3) Comparo con la cabida: 56 &gt; 55 → falta 1 plaza</div>
     <div class="verdict bad" id="verdict">No caben todos.</div>
-    <p class="hint">Comprobación: plazas libres = cabida − ya hay. Si libres &lt; los que suben, no caben.</p>
+    <p class="hint">Comprobación: caben si (ya hay + quieren subir) ≤ cabida. Puedes poner 0 grupos o 0 personas por grupo (entonces no sube nadie).</p>
   </section>
 </main>
 <script>
@@ -220,10 +230,13 @@
     // if planLayout produced fewer (shouldn't), pad as extra back seats
     while(slots.length < C) slots.push({row:-1, pos:'extra'});
 
+    // Dentro del bus: solo azules (ya iban) + naranjas (los que YA HAN ENTRADO).
+    // Nunca pintamos rojo dentro: los que no caben están FUERA.
+    const entered = Math.min(showBoard, fit);
     const states=[];
     for(let i=0;i<C;i++){
       if(i<H) states.push('filled');
-      else if(i<H+Math.min(showBoard, fit)) states.push('boarding');
+      else if(i<H+entered) states.push('boarding');
       else states.push('empty');
     }
 
@@ -282,15 +295,17 @@
   }
 
   function render(boardedExtra){
+    // Capacidad: viajeros. El conductor no cuenta.
     clampHay();
+    hay.max = cap.value; // no puede haber más gente que plazas
     const C=Number(cap.value), H=Number(hay.value), G=Number(grupos.value), T=Number(tam.value);
-    const want=G*T;
-    const total=H+want;
-    const free=Math.max(0, C-H);
-    const fit=Math.min(want, free);
+    const want = G * T; // 0 grupos o 0 por grupo → nadie nuevo
+    const free = Math.max(0, C - H);
+    const total = H + want;
+    const fit = Math.min(want, free);
     const showBoard = boardedExtra===undefined ? want : boardedExtra;
-    const showFit=Math.min(showBoard, fit);
-    const showOver=Math.max(0, showBoard - fit);
+    const showFit = Math.min(showBoard, fit);
+    const showOver = Math.max(0, showBoard - fit);
 
     document.getElementById('oCap').textContent=C;
     document.getElementById('oHay').textContent=H;
@@ -302,34 +317,84 @@
     document.getElementById('tTam').textContent=T;
     document.getElementById('ocupacion').textContent=(H+showFit)+' / '+C;
 
-    document.getElementById('p1').textContent='1) Quieren subir: '+G+' × '+T+' = '+want;
-    document.getElementById('p2').textContent='2) Total si suben: '+H+' + '+want+' = '+total;
-    const cmp = total>C ? (total+' > '+C+' → faltan '+(total-C)+' plaza'+(total-C===1?'':'s'))
-              : total===C ? (total+' = '+C+' → justo lleno')
-              : (total+' < '+C+' → sobran '+(C-total)+' plaza'+(C-total===1?'':'s'));
-    document.getElementById('p3').textContent='3) Comparo con la cabida: '+cmp;
+    if (want === 0) {
+      document.getElementById('p1').textContent='1) Quieren subir: '+G+' × '+T+' = 0 (no sube nadie nuevo)';
+      document.getElementById('p2').textContent='2) Se quedan los que ya iban: '+H;
+      document.getElementById('p3').textContent='3) Plazas libres = '+C+' − '+H+' = '+free+' · Comparo: '+H+(H<=C?' ≤ ':' > ')+C;
+    } else {
+      document.getElementById('p1').textContent='1) Quieren subir: '+G+' × '+T+' = '+want;
+      document.getElementById('p2').textContent='2) Total si suben: '+H+' + '+want+' = '+total+' · Libres ahora: '+free;
+      const cmp = total>C ? (total+' > '+C+' → faltan '+(total-C)+' plaza'+(total-C===1?'':'s'))
+                : total===C ? (total+' = '+C+' → justo lleno')
+                : (total+' < '+C+' → sobran '+(C-total)+' plaza'+(C-total===1?'':'s'));
+      document.getElementById('p3').textContent='3) Comparo con la cabida: '+cmp;
+    }
 
     const v=document.getElementById('verdict');
-    if(total>C){ v.textContent='No caben todos.'; v.className='verdict bad'; }
-    else if(total===C){ v.textContent='Caben justo: el autobús queda lleno.'; v.className='verdict ok'; }
-    else { v.textContent='Sí caben todos.'; v.className='verdict ok'; }
+    // Regla clara: caben si (ya hay + quieren subir) ≤ cabida
+    if (H > C) {
+      // no debería pasar tras clamp, pero por si acaso
+      v.textContent='Error: ya hay más viajeros que plazas. Baja «Ya hay» o sube la cabida.';
+      v.className='verdict bad';
+    } else if (total > C) {
+      v.textContent='No caben todos: faltan '+(total-C)+' plaza'+(total-C===1?'':'s')+'.';
+      v.className='verdict bad';
+    } else if (want === 0) {
+      v.textContent='Sí: no sube nadie nuevo y los '+H+' que ya van caben (cabida '+C+').';
+      v.className='verdict ok';
+    } else if (total === C) {
+      v.textContent='Caben justo: el autobús queda lleno.';
+      v.className='verdict ok';
+    } else {
+      v.textContent='Sí caben todos. Sobran '+(C-total)+' plaza'+(C-total===1?'':'s')+'.';
+      v.className='verdict ok';
+    }
 
     drawBus(C, H, showBoard, fit);
 
-    overflowSeats.innerHTML='';
-    if(showOver>0){
+    // Cola FUERA: los que aún no han entrado (want - showBoard, clamped)
+    // + los que no caben siempre fuera en rojo
+    const waitingEl = document.getElementById('waitingSeats');
+    const waitingArea = document.getElementById('waitingArea');
+    const waitingTitle = document.getElementById('waitingTitle');
+    const stillWaiting = Math.max(0, want - showBoard); // aún no han intentado entrar
+    const cannotEnter = Math.max(0, want - fit); // no caben nunca
+    // En cola naranja: los que esperan turno y aún podrían entrar
+    const queueOrange = Math.max(0, Math.min(stillWaiting, fit - Math.min(showBoard, fit)));
+    // En realidad más simple para el alumno:
+    // - Naranjas fuera = los que quieren subir y todavía no están dentro
+    // - Rojos fuera = los que no caben (faltan plazas)
+    const outsideStill = Math.max(0, want - Math.min(showBoard, fit)); // not yet inside
+    const redOut = cannotEnter;
+    const orangeOut = Math.max(0, outsideStill - redOut);
+
+    waitingEl.innerHTML = '';
+    for (let i = 0; i < orangeOut; i++) {
+      const s = document.createElement('div');
+      s.className = 'seat';
+      waitingEl.appendChild(s);
+    }
+    waitingTitle.textContent = orangeOut
+      ? ('Fuera · cola: ' + orangeOut + ' quieren subir (pulsa «Ver cómo suben»)')
+      : (want === 0 ? 'Fuera · nadie en cola' : 'Fuera · la cola ya ha pasado por la puerta');
+    waitingArea.style.display = (want > 0) ? 'block' : 'none';
+
+    overflowSeats.innerHTML = '';
+    if (redOut > 0) {
       overflowBox.classList.add('show');
-      for(let i=0;i<showOver;i++){
-        const s=document.createElement('div');
-        s.className='seat';
+      for (let i = 0; i < redOut; i++) {
+        const s = document.createElement('div');
+        s.className = 'seat';
         overflowSeats.appendChild(s);
       }
+      document.querySelector('#overflowBox .title').textContent =
+        'Fuera · no caben (' + redOut + ') — no entran en el autobús';
     } else {
       overflowBox.classList.remove('show');
     }
   }
 
-  function update(){ if(!animating) render(); }
+  function update(){ if(!animating) render(0); } // 0 = nadie ha entrado aún; todos los nuevos están fuera
 
   ['input','change'].forEach(ev=>{
     cap.addEventListener(ev,update);
@@ -341,21 +406,23 @@
   document.getElementById('reset').onclick=()=>{
     animating=false;
     cap.value=55; hay.value=38; grupos.value=3; tam.value=6;
-    render();
+    render(0);
   };
 
   document.getElementById('anim').onclick=async ()=>{
     animating=true;
     const want=Number(grupos.value)*Number(tam.value);
-    for(let k=0;k<=want;k++){
-      render(k);
-      await new Promise(r=>setTimeout(r,90));
+    render(0); // todos fuera
+    await new Promise(r=>setTimeout(r,200));
+    for(let k=1;k<=want;k++){
+      render(k); // van entrando de uno en uno (si hay plaza)
+      await new Promise(r=>setTimeout(r,110));
     }
     animating=false;
-    render();
+    render(want); // estado final: dentro los que caben, fuera en rojo los que no
   };
 
-  render();
+  render(0);
 })();
 </script>
 </body>

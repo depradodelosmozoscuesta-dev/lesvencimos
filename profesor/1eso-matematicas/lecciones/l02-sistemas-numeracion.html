@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>L02 · Sistemas de numeración</title>
+<style>
+  :root {
+    --bg:#f7f8fb; --ink:#1e293b; --muted:#64748b; --card:#fff;
+    --blue:#2563eb; --blue-d:#1d4ed8; --ok:#059669;
+    --line:#e2e8f0; --soft:#eff6ff;
+    --rom:#7c3aed; --rom-bg:#f5f3ff; --rom-bd:#ddd6fe;
+    --egy:#b45309; --egy-bg:#fffbeb; --egy-bd:#fde68a;
+    --dec:#0d9488; --dec-bg:#f0fdfa; --dec-bd:#99f6e4;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;background:var(--bg);color:var(--ink);line-height:1.45}
+  header,main{max-width:860px;margin:0 auto;padding:1rem 1.1rem}
+  header{padding-bottom:0.2rem}
+  h1{font-size:1.3rem;margin:0 0 0.35rem}
+  header p{margin:0;color:var(--muted);font-size:0.95rem}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:1rem 1.1rem;margin-bottom:1rem}
+  .enunciado{background:var(--soft);border-left:4px solid var(--blue)}
+  .enunciado strong{display:block;margin-bottom:0.25rem}
+  .controls{display:grid;gap:0.65rem}
+  .row{display:grid;grid-template-columns:minmax(7rem,9rem) 1fr 3.2rem;align-items:center;gap:0.55rem}
+  label{font-weight:700;font-size:1rem}
+  output{font-weight:800;text-align:right;font-variant-numeric:tabular-nums;color:var(--blue-d);font-size:1.25rem}
+  input[type=range]{width:100%;accent-color:var(--blue);height:1.4rem}
+  .big-num{
+    text-align:center;font-size:2.4rem;font-weight:900;letter-spacing:0.04em;
+    padding:0.55rem;border-radius:14px;background:linear-gradient(#dbeafe,#eff6ff);
+    border:1px solid var(--line);margin:0.4rem 0 0.2rem;font-variant-numeric:tabular-nums;
+  }
+  .panels{
+    display:grid;grid-template-columns:1fr;gap:0.85rem;
+  }
+  @media (min-width:700px){
+    .panels{grid-template-columns:1fr 1fr 1fr}
+  }
+  .panel{
+    border-radius:14px;border:2px solid var(--line);padding:0.85rem 0.75rem;
+    display:flex;flex-direction:column;gap:0.45rem;min-height:210px;
+  }
+  .panel.dec{background:var(--dec-bg);border-color:var(--dec-bd)}
+  .panel.rom{background:var(--rom-bg);border-color:var(--rom-bd)}
+  .panel.egy{background:var(--egy-bg);border-color:var(--egy-bd)}
+  .panel h2{
+    margin:0;font-size:0.95rem;font-weight:800;display:flex;align-items:center;gap:0.4rem;
+  }
+  .panel.dec h2{color:var(--dec)}
+  .panel.rom h2{color:var(--rom)}
+  .panel.egy h2{color:var(--egy)}
+  .civ{font-size:0.78rem;font-weight:600;color:var(--muted);margin:0}
+  .glyph-area{
+    flex:1;display:flex;flex-wrap:wrap;align-items:center;justify-content:center;
+    gap:0.35rem;min-height:72px;padding:0.4rem;border-radius:10px;background:#fff;
+    border:1px dashed var(--line);
+  }
+  .result-text{
+    text-align:center;font-size:1.55rem;font-weight:900;letter-spacing:0.06em;
+    font-variant-numeric:tabular-nums;word-break:break-word;
+  }
+  .panel.dec .result-text{color:var(--dec)}
+  .panel.rom .result-text{color:var(--rom);font-family:Georgia,"Times New Roman",serif;letter-spacing:0.12em}
+  .panel.egy .result-text{color:var(--egy)}
+  .place-boxes{display:flex;gap:0.5rem;justify-content:center;width:100%}
+  .place{
+    flex:1;max-width:110px;background:#fff;border:2px solid var(--dec);border-radius:10px;
+    padding:0.35rem 0.25rem;text-align:center;
+  }
+  .place .digit{font-size:1.8rem;font-weight:900;color:var(--dec);line-height:1.1}
+  .place .name{font-size:0.72rem;font-weight:700;color:var(--muted);text-transform:uppercase}
+  .place .val{font-size:0.78rem;font-weight:600;color:var(--ink);margin-top:0.15rem}
+  .egy-glyphs{display:flex;flex-wrap:wrap;justify-content:center;align-items:flex-end;gap:4px}
+  .egy-glyphs svg{display:block}
+  .steps{margin:0;padding-left:1.15rem;font-size:0.92rem}
+  .steps li{margin:0.25rem 0}
+  .steps .op{font-weight:700;color:var(--blue-d)}
+  .glossary details{cursor:pointer}
+  .glossary summary{font-weight:800;font-size:1rem;outline:none}
+  .glos-grid{display:grid;gap:0.55rem;margin-top:0.7rem}
+  @media (min-width:560px){.glos-grid{grid-template-columns:1fr 1fr}}
+  .glos-item{
+    display:flex;gap:0.65rem;align-items:center;padding:0.55rem 0.65rem;
+    border-radius:12px;background:#f8fafc;border:1px solid var(--line);font-size:0.9rem;
+  }
+  .glos-sym{
+    min-width:2.6rem;height:2.6rem;border-radius:10px;display:flex;align-items:center;justify-content:center;
+    font-weight:900;font-size:1.25rem;background:#fff;border:1px solid var(--line);
+  }
+  .glos-sym.rom{color:var(--rom);font-family:Georgia,serif}
+  .glos-sym.dec{color:var(--dec)}
+  .hint{font-size:0.9rem;color:var(--muted);margin:0.35rem 0 0}
+  button{
+    appearance:none;border:none;border-radius:999px;padding:0.55rem 1rem;
+    font-weight:700;cursor:pointer;background:var(--blue);color:#fff;
+    margin-right:0.4rem;margin-top:0.35rem;font-size:0.95rem;
+  }
+  button.secondary{background:#fff;color:var(--blue-d);border:1px solid var(--blue)}
+  .note{font-size:0.82rem;color:var(--muted);margin:0.2rem 0 0;text-align:center}
+</style>
+</head>
+<body>
+<header>
+  <h1>Lección 02 · Origen de las cifras y otros sistemas</h1>
+  <p>Elige un número y míralo a la vez en nuestro sistema, en romano y en egipcio antiguo.</p>
+</header>
+<main>
+  <section class="card enunciado">
+    <strong>Situación.</strong>
+    En una placa de una iglesia de León aparece un número. Tú lo lees en cifras modernas (10, 20, 42…).
+    ¿Cómo lo escribirían los romanos? ¿Y los egipcios antiguos, con palitos y «tacones»?
+    Mueve el deslizador y compara los tres sistemas en vivo.
+  </section>
+
+  <section class="card">
+    <div class="controls">
+      <div class="row">
+        <label for="n">Número</label>
+        <input id="n" type="range" min="1" max="99" value="42" aria-valuemin="1" aria-valuemax="99" aria-valuenow="42"/>
+        <output id="nOut" for="n">42</output>
+      </div>
+      <div class="big-num" id="bigNum" aria-live="polite">42</div>
+      <div>
+        <button type="button" id="btn42" class="secondary">Ejemplo XLII → 42</button>
+        <button type="button" id="btn23" class="secondary">Probar 23</button>
+        <button type="button" id="btn78" class="secondary">Práctica: 78</button>
+      </div>
+      <p class="hint">Rango 1–99 (como en la lección: cajas hasta XX, años cortos, ejercicios de romanos).</p>
+    </div>
+  </section>
+
+  <section class="panels" aria-live="polite">
+    <!-- Decimal -->
+    <article class="panel dec">
+      <h2>① Nuestro sistema</h2>
+      <p class="civ">Decimal posicional (el de todos los días)</p>
+      <div class="glyph-area" id="decGlyphs"></div>
+      <div class="result-text" id="decText">42</div>
+      <ol class="steps" id="decSteps"></ol>
+      <p class="note">La <strong>posición</strong> de cada cifra cambia su valor. El cero marca «nada en esa posición».</p>
+    </article>
+
+    <!-- Roman -->
+    <article class="panel rom">
+      <h2>② Romano</h2>
+      <p class="civ">Roma antigua · no es posicional decimal</p>
+      <div class="glyph-area"><div class="result-text" id="romText">XLII</div></div>
+      <ol class="steps" id="romSteps"></ol>
+      <p class="note">Si una cifra menor va <em>antes</em> de una mayor, se <strong>resta</strong> (IV = 5−1). Si va después, se suma.</p>
+    </article>
+
+    <!-- Egyptian -->
+    <article class="panel egy">
+      <h2>③ Egipcio antiguo</h2>
+      <p class="civ">Egipto · sistema aditivo (solo sumar)</p>
+      <div class="glyph-area" id="egyGlyphs"></div>
+      <ol class="steps" id="egySteps"></ol>
+      <p class="note">No hay «posición»: cada símbolo vale siempre lo mismo. Se repiten y se suman.</p>
+    </article>
+  </section>
+
+  <section class="card glossary">
+    <details open>
+      <summary>Glosario de símbolos (léelo si ves una letra o dibujo nuevo)</summary>
+      <div class="glos-grid" id="glossary"></div>
+    </details>
+  </section>
+
+  <section class="card">
+    <strong style="display:block;margin-bottom:0.35rem">¿Por qué base 10?</strong>
+    <p class="hint" style="margin:0">Seguramente por contar con los dedos de las manos. Los babilonios usaron base 60 (sexagesimal): aún vive en las <strong>horas</strong> (60 minutos) y en los <strong>grados</strong> (360°). Eso lo verás en la lección; aquí comparamos escritura, no bases distintas.</p>
+  </section>
+</main>
+
+<script>
+(function () {
+  const nEl = document.getElementById('n');
+  const nOut = document.getElementById('nOut');
+  const bigNum = document.getElementById('bigNum');
+
+  function toRoman(n) {
+    const map = [
+      [90, 'XC'], [50, 'L'], [40, 'XL'], [10, 'X'],
+      [9, 'IX'], [5, 'V'], [4, 'IV'], [1, 'I']
+    ];
+    let rest = n, out = '';
+    const parts = [];
+    for (const [val, sym] of map) {
+      while (rest >= val) {
+        out += sym;
+        parts.push({ sym, val });
+        rest -= val;
+      }
+    }
+    return { str: out, parts };
+  }
+
+  function svgHeel(i) {
+    // Heel bone (10): arched ∩ shape — looks like the Egyptian hieroglyph
+    return `<svg width="28" height="36" viewBox="0 0 28 36" aria-hidden="true" title="Taco = 10">
+      <path d="M4 32 V14 Q4 4 14 4 Q24 4 24 14 V32" fill="none" stroke="#b45309" stroke-width="3.2" stroke-linecap="round"/>
+    </svg>`;
+  }
+  function svgStroke(i) {
+    // Vertical stroke (1)
+    return `<svg width="12" height="36" viewBox="0 0 12 36" aria-hidden="true" title="Palito = 1">
+      <line x1="6" y1="4" x2="6" y2="32" stroke="#b45309" stroke-width="3.2" stroke-linecap="round"/>
+    </svg>`;
+  }
+
+  function renderEgyptian(n) {
+    const tens = Math.floor(n / 10);
+    const units = n % 10;
+    let html = '<div class="egy-glyphs" role="img" aria-label="' + tens + ' tacos de 10 y ' + units + ' palitos de 1">';
+    for (let i = 0; i < tens; i++) html += svgHeel(i);
+    for (let i = 0; i < units; i++) html += svgStroke(i);
+    if (n === 0) html += '<span style="color:#94a3b8">—</span>';
+    html += '</div>';
+    return { html, tens, units };
+  }
+
+  function renderDecimal(n) {
+    const tens = Math.floor(n / 10);
+    const units = n % 10;
+    const html = `
+      <div class="place-boxes">
+        <div class="place">
+          <div class="digit">${tens}</div>
+          <div class="name">Decenas</div>
+          <div class="val">${tens} × 10 = ${tens * 10}</div>
+        </div>
+        <div class="place">
+          <div class="digit">${units}</div>
+          <div class="name">Unidades</div>
+          <div class="val">${units} × 1 = ${units}</div>
+        </div>
+      </div>`;
+    return { html, tens, units };
+  }
+
+  function explainRoman(n, parts) {
+    const lis = [];
+    if (!parts.length) {
+      lis.push('<li>0 no se escribe en romano clásico de este rango.</li>');
+      return lis;
+    }
+    // Group consecutive same symbols
+    const groups = [];
+    for (const p of parts) {
+      const last = groups[groups.length - 1];
+      if (last && last.sym === p.sym) last.count++;
+      else groups.push({ sym: p.sym, val: p.val, count: 1 });
+    }
+    for (const g of groups) {
+      const subtractive = (g.sym === 'IV' || g.sym === 'IX' || g.sym === 'XL' || g.sym === 'XC');
+      if (subtractive) {
+        const a = g.sym[0], b = g.sym[1];
+        const av = { I:1, X:10 }[a];
+        const bv = { V:5, X:10, L:50, C:100 }[b];
+        lis.push(`<li><span class="op">${g.sym}</span> = ${b}(${bv}) − ${a}(${av}) = <strong>${g.val}</strong></li>`);
+      } else if (g.count === 1) {
+        lis.push(`<li><span class="op">${g.sym}</span> = <strong>${g.val}</strong></li>`);
+      } else {
+        lis.push(`<li><span class="op">${g.sym.repeat(g.count)}</span> = ${g.count}×${g.val} = <strong>${g.count * g.val}</strong></li>`);
+      }
+    }
+    const sumExpr = groups.map(g => g.count * g.val).join(' + ');
+    lis.push(`<li>Total: ${sumExpr} = <strong>${n}</strong></li>`);
+    return lis;
+  }
+
+  const GLOSSARY = [
+    { cls:'dec', sym:'10', title:'Decena', text:'Grupo de 10 unidades. En 42, el 4 está en las decenas → vale 40.' },
+    { cls:'dec', sym:'1', title:'Unidad', text:'Lo que cuenta de uno en uno. En 42, el 2 está en las unidades → vale 2.' },
+    { cls:'dec', sym:'0', title:'Cero', text:'Marca «no hay nada en esa posición». Sin él, 405 y 45 se confunden.' },
+    { cls:'rom', sym:'I', title:'I (uno)', text:'Palito romano = 1. III = 3.' },
+    { cls:'rom', sym:'V', title:'V (cinco)', text:'Como una mano abierta = 5.' },
+    { cls:'rom', sym:'X', title:'X (diez)', text:'Dos manos o cruce = 10. XX = 20.' },
+    { cls:'rom', sym:'L', title:'L (cincuenta)', text:'Símbolo romano = 50.' },
+    { cls:'rom', sym:'C', title:'C (cien)', text:'De «centum» (cien en latín) = 100. Aquí aparece en XC = 90.' },
+    { cls:'rom', sym:'IV', title:'Resta', text:'Cifra menor antes de mayor: IV = 5−1 = 4; XL = 50−10 = 40.' },
+    { cls:'', sym:'∩', title:'Taco (10)', text:'Jeroglífico egipcio del «hueso del talón». Cada taco vale siempre 10.' },
+    { cls:'', sym:'|', title:'Palito (1)', text:'Trazo vertical egipcio. Cada palito vale siempre 1. Se repiten y se suman.' },
+  ];
+
+  function renderGlossary() {
+    const box = document.getElementById('glossary');
+    box.innerHTML = GLOSSARY.map(g => {
+      const symClass = g.cls === 'rom' ? 'rom' : (g.cls === 'dec' ? 'dec' : '');
+      let symHtml = g.sym;
+      if (g.sym === '∩') {
+        symHtml = `<svg width="22" height="26" viewBox="0 0 28 36"><path d="M4 32 V14 Q4 4 14 4 Q24 4 24 14 V32" fill="none" stroke="#b45309" stroke-width="3.2" stroke-linecap="round"/></svg>`;
+      } else if (g.sym === '|') {
+        symHtml = `<svg width="10" height="26" viewBox="0 0 12 36"><line x1="6" y1="4" x2="6" y2="32" stroke="#b45309" stroke-width="3.2" stroke-linecap="round"/></svg>`;
+      }
+      return `<div class="glos-item">
+        <div class="glos-sym ${symClass}">${symHtml}</div>
+        <div><strong>${g.title}.</strong> ${g.text}</div>
+      </div>`;
+    }).join('');
+  }
+
+  function update() {
+    const n = Math.max(1, Math.min(99, parseInt(nEl.value, 10) || 1));
+    nEl.value = n;
+    nEl.setAttribute('aria-valuenow', String(n));
+    nOut.textContent = String(n);
+    bigNum.textContent = String(n);
+
+    // Decimal
+    const dec = renderDecimal(n);
+    document.getElementById('decGlyphs').innerHTML = dec.html;
+    document.getElementById('decText').textContent = String(n);
+    document.getElementById('decSteps').innerHTML =
+      `<li>Cifra de las <strong>decenas</strong>: ${dec.tens} → <span class="op">${dec.tens}×10 = ${dec.tens * 10}</span></li>` +
+      `<li>Cifra de las <strong>unidades</strong>: ${dec.units} → <span class="op">${dec.units}×1 = ${dec.units}</span></li>` +
+      `<li>Suma: ${dec.tens * 10} + ${dec.units} = <strong>${n}</strong></li>`;
+
+    // Roman
+    const rom = toRoman(n);
+    document.getElementById('romText').textContent = rom.str;
+    document.getElementById('romSteps').innerHTML = explainRoman(n, rom.parts).join('');
+
+    // Egyptian
+    const egy = renderEgyptian(n);
+    document.getElementById('egyGlyphs').innerHTML = egy.html;
+    const egyLis = [];
+    if (egy.tens > 0) {
+      egyLis.push(`<li>Dibujo <strong>${egy.tens}</strong> taco${egy.tens === 1 ? '' : 's'} (cada uno = 10) → <span class="op">${egy.tens * 10}</span></li>`);
+    }
+    if (egy.units > 0) {
+      egyLis.push(`<li>Dibujo <strong>${egy.units}</strong> palito${egy.units === 1 ? '' : 's'} (cada uno = 1) → <span class="op">${egy.units}</span></li>`);
+    }
+    egyLis.push(`<li>Solo sumo: ${egy.tens * 10} + ${egy.units} = <strong>${n}</strong> (no hay posiciones ni cero)</li>`);
+    document.getElementById('egySteps').innerHTML = egyLis.join('');
+  }
+
+  nEl.addEventListener('input', update);
+  document.getElementById('btn42').addEventListener('click', () => { nEl.value = 42; update(); });
+  document.getElementById('btn23').addEventListener('click', () => { nEl.value = 23; update(); });
+  document.getElementById('btn78').addEventListener('click', () => { nEl.value = 78; update(); });
+
+  renderGlossary();
+  update();
+})();
+</script>
+</body>
+</html>

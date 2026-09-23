@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Problemas aritméticos · Excursión CyL · 1º ESO</title>
+<style>
+  :root {
+    --bg: #f4f7fb; --ink: #1a2b3c; --muted: #5a6d7e; --card: #ffffff;
+    --blue: #3b82f6; --blue-soft: #dbeafe; --blue-deep: #1d4ed8;
+    --orange: #f59e0b; --orange-soft: #fef3c7; --orange-deep: #b45309;
+    --green: #10b981; --green-soft: #d1fae5; --green-deep: #047857;
+    --purple: #8b5cf6; --purple-soft: #ede9fe; --purple-deep: #6d28d9;
+    --rose: #f43f5e; --rose-soft: #ffe4e6;
+    --teal: #14b8a6; --teal-soft: #ccfbf1;
+    --shadow: 0 8px 28px rgba(26, 43, 60, 0.08); --radius: 18px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { min-height: 100%; background: var(--bg); color: var(--ink);
+    font-family: "Segoe UI", system-ui, -apple-system, sans-serif; -webkit-font-smoothing: antialiased; }
+  body { display: flex; flex-direction: column; align-items: center; padding: 14px 10px 36px; }
+  .wrap { width: 100%; max-width: 960px; }
+  header { text-align: center; margin-bottom: 12px; }
+  header .badge { display: inline-block; font-size: 0.78rem; font-weight: 600; letter-spacing: 0.04em;
+    text-transform: uppercase; color: var(--orange-deep); background: var(--orange-soft);
+    padding: 4px 12px; border-radius: 999px; margin-bottom: 8px; }
+  h1 { font-size: clamp(1.35rem, 4.5vw, 1.95rem); line-height: 1.2; font-weight: 800; }
+  .subtitle { margin-top: 6px; font-size: clamp(0.92rem, 2.8vw, 1.08rem); color: var(--muted); font-weight: 500; }
+  .story { background: linear-gradient(135deg, #fff7ed, #dbeafe 50%, #d1fae5);
+    border: 2px solid #fdba74; border-radius: var(--radius); padding: 12px 14px;
+    margin-bottom: 14px; display: flex; gap: 12px; align-items: flex-start; }
+  .story .emoji { font-size: 2rem; }
+  .story p { font-size: clamp(0.9rem, 2.5vw, 1.02rem); line-height: 1.45; }
+  .story strong { color: var(--orange-deep); }
+  .card { background: var(--card); border-radius: var(--radius); box-shadow: var(--shadow);
+    padding: 16px 14px 18px; margin-bottom: 14px; }
+  .card h2 { font-size: clamp(1.05rem, 3vw, 1.25rem); font-weight: 800; margin-bottom: 8px; display: flex; gap: 8px; align-items: center; }
+  .hint { font-size: clamp(0.88rem, 2.4vw, 1rem); color: var(--muted); line-height: 1.45; margin-bottom: 12px; }
+  .problem-pick { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 14px; }
+  .chip { border: 2px solid #cbd5e1; background: #fff; border-radius: 999px; padding: 8px 14px;
+    font-size: 0.88rem; font-weight: 700; cursor: pointer; }
+  .chip.active { border-color: var(--orange); background: var(--orange-soft); color: var(--orange-deep); }
+  .scene { border-radius: 16px; border: 2px solid #fdba74; padding: 14px;
+    background: linear-gradient(180deg, #fffbeb 0%, #ffedd5 40%, #fed7aa 100%); margin-bottom: 12px; min-height: 200px; }
+  .scene.bus { background: linear-gradient(180deg, #eff6ff 0%, #dbeafe 50%, #bfdbfe 100%); border-color: #60a5fa; }
+  .scene.shop { background: linear-gradient(180deg, #ecfdf5 0%, #d1fae5 50%, #a7f3d0 100%); border-color: #34d399; }
+  .scene-title { font-weight: 800; font-size: 1.05rem; margin-bottom: 8px; color: var(--orange-deep); }
+  .scene.bus .scene-title { color: var(--blue-deep); }
+  .scene.shop .scene-title { color: var(--green-deep); }
+  .problem-text { background: rgba(255,255,255,0.85); border-radius: 12px; padding: 12px 14px;
+    font-size: clamp(0.95rem, 2.6vw, 1.08rem); line-height: 1.5; font-weight: 600; margin-bottom: 12px; border: 2px solid rgba(0,0,0,0.06); }
+  .visual-row { display: flex; flex-wrap: wrap; gap: 10px; align-items: flex-end; justify-content: center; margin: 10px 0; }
+  .person { width: 22px; height: 36px; border-radius: 10px 10px 4px 4px;
+    background: linear-gradient(180deg, #fcd34d, #f59e0b); border: 2px solid #b45309; position: relative; }
+  .person::before { content: ""; position: absolute; top: -10px; left: 50%; transform: translateX(-50%);
+    width: 14px; height: 14px; border-radius: 50%; background: #fde68a; border: 2px solid #b45309; }
+  .person.blue { background: linear-gradient(180deg, #93c5fd, #3b82f6); border-color: #1d4ed8; }
+  .person.blue::before { background: #dbeafe; border-color: #1d4ed8; }
+  .bag { width: 26px; height: 30px; border-radius: 4px 4px 8px 8px;
+    background: linear-gradient(180deg, #6ee7b7, #059669); border: 2px solid #047857; position: relative; }
+  .bag::after { content: "€"; position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+    font-size: 0.7rem; font-weight: 900; color: #ecfdf5; }
+  .ticket { background: #fff; border: 2px dashed #3b82f6; border-radius: 8px; padding: 8px 12px;
+    font-weight: 800; font-size: 0.9rem; color: var(--blue-deep); min-width: 70px; text-align: center; }
+  .bus-body { width: 100%; max-width: 420px; height: 70px; margin: 8px auto; border-radius: 12px 12px 8px 8px;
+    background: linear-gradient(180deg, #60a5fa, #2563eb); border: 3px solid #1e40af; position: relative;
+    display: flex; align-items: flex-end; justify-content: center; padding: 6px; gap: 3px; flex-wrap: wrap; overflow: hidden; }
+  .bus-body::before { content: ""; position: absolute; left: 8px; top: 10px; width: 36px; height: 28px;
+    background: #dbeafe; border-radius: 6px; border: 2px solid #1e3a8a; }
+  .ctrl-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 12px; margin-bottom: 12px; }
+  .field { display: flex; flex-direction: column; gap: 6px; }
+  .field label { font-size: 0.85rem; font-weight: 700; color: var(--muted); }
+  .field label .letter { display: inline-block; background: var(--blue-soft); color: var(--blue-deep);
+    padding: 1px 8px; border-radius: 8px; font-weight: 800; margin-right: 4px; }
+  .field input[type="number"] { font-size: 1.25rem; font-weight: 800; padding: 8px 10px;
+    border: 2.5px solid #cbd5e1; border-radius: 12px; max-width: 140px; }
+  .field input[type="range"] { width: 100%; max-width: 180px; }
+  .steps { display: grid; gap: 8px; margin-top: 8px; }
+  .step { display: flex; gap: 10px; align-items: flex-start; background: #fff; border-radius: 12px;
+    padding: 10px 12px; border: 2px solid #e2e8f0; }
+  .step.done { border-color: #6ee7b7; background: var(--green-soft); }
+  .step .n { flex: 0 0 28px; height: 28px; border-radius: 50%; background: var(--orange); color: #fff;
+    font-weight: 800; display: flex; align-items: center; justify-content: center; font-size: 0.85rem; }
+  .step p { font-size: 0.95rem; line-height: 1.4; }
+  .step strong { color: var(--orange-deep); }
+  .answer-box { margin-top: 12px; padding: 14px; border-radius: 14px; border: 2px solid #86efac;
+    background: var(--green-soft); text-align: center; }
+  .answer-box .label { font-size: 0.8rem; font-weight: 800; text-transform: uppercase; color: var(--green-deep); }
+  .answer-box .val { font-size: clamp(1.4rem, 4vw, 1.9rem); font-weight: 900; color: var(--green-deep);
+    margin-top: 4px; font-variant-numeric: tabular-nums; }
+  .answer-box .unit { font-size: 1rem; font-weight: 700; }
+  .expr { font-family: "Courier New", ui-monospace, monospace; font-weight: 800; font-size: 1.05rem;
+    background: #fff; padding: 8px 12px; border-radius: 10px; border: 2px dashed #cbd5e1; text-align: center; margin: 10px 0; }
+  .btn { border: none; border-radius: 12px; padding: 10px 16px; font-size: 0.95rem; font-weight: 800; cursor: pointer; }
+  .btn-primary { background: var(--orange); color: #fff; }
+  .btn-ghost { background: #fff; border: 2px solid #cbd5e1; }
+  .check-panel { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-top: 10px; }
+  .check-result { flex: 1 1 200px; font-size: 0.95rem; font-weight: 700; line-height: 1.4;
+    padding: 10px 12px; border-radius: 12px; }
+  .check-result.idle { background: #f1f5f9; color: var(--muted); }
+  .check-result.pass { background: var(--green-soft); color: var(--green-deep); }
+  .check-result.fail { background: var(--rose-soft); color: #be123c; }
+  .mnemonic { background: linear-gradient(135deg, var(--purple-soft), #fce7f3);
+    border: 2px solid #d8b4fe; border-radius: 14px; padding: 12px 14px; margin-top: 10px; text-align: center; }
+  .mnemonic .tag { font-size: 0.75rem; font-weight: 800; text-transform: uppercase; color: var(--purple-deep); }
+  .mnemonic p { margin-top: 4px; font-size: clamp(1rem, 3vw, 1.1rem); font-weight: 800; color: var(--purple-deep); }
+  .glossary dt { font-weight: 800; font-size: 0.95rem; color: var(--blue-deep); margin-top: 6px; }
+  .glossary dd { font-size: 0.92rem; color: var(--muted); line-height: 1.4; margin-bottom: 4px; }
+  .sym-chip { display: inline-block; background: var(--teal-soft); color: #0f766e; font-weight: 800;
+    padding: 1px 7px; border-radius: 6px; font-family: "Courier New", ui-monospace, monospace; }
+  .letters-legend { display: flex; flex-wrap: wrap; gap: 8px; margin: 8px 0; }
+  .letters-legend span { background: var(--blue-soft); color: var(--blue-deep); font-size: 0.8rem;
+    font-weight: 700; padding: 4px 10px; border-radius: 999px; }
+  .order-box { background: #f8fafc; border: 2px solid #e2e8f0; border-radius: 12px; padding: 12px; margin-top: 8px; }
+  .order-box h3 { font-size: 0.95rem; margin-bottom: 6px; }
+  footer { text-align: center; font-size: 0.82rem; color: var(--muted); margin-top: 4px; }
+  .guess-row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-top: 10px; }
+  .guess-row input { font-size: 1.2rem; font-weight: 800; padding: 8px 12px; border: 2.5px solid #cbd5e1;
+    border-radius: 12px; width: 120px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="badge">1º ESO · Lección 09 · Offline</div>
+    <h1>Problemas aritméticos contextualizados</h1>
+    <p class="subtitle">Mezcla de operaciones · datos → plan → cuenta → frase</p>
+  </header>
+
+  <div class="story">
+    <div class="emoji" aria-hidden="true">🚌</div>
+    <p>
+      Un <strong>problema</strong> cuenta una historia con números. Tú decides
+      <strong>qué operaciones</strong> usar (+, −, ×, ÷) y en qué <strong>orden</strong>.
+      Aquí la escena <strong>se parece</strong> a la situación (autobús, mercadillo, merienda).
+      Cada control mueve <strong>solo su dato</strong>: no se reescalan mal los demás.
+    </p>
+  </div>
+
+  <section class="card">
+    <h2>📚 Elige el problema</h2>
+    <div class="problem-pick">
+      <button type="button" class="chip active" data-p="bus" id="pickBus">🚌 Autobús escolar</button>
+      <button type="button" class="chip" data-p="shop" id="pickShop">🧃 Mercadillo de zumos</button>
+      <button type="button" class="chip" data-p="snack" id="pickSnack">🥪 Merienda del grupo</button>
+    </div>
+    <div class="letters-legend" id="legend"></div>
+    <div class="ctrl-grid" id="controls"></div>
+  </section>
+
+  <section class="card">
+    <h2>🎬 La escena (se ve el problema)</h2>
+    <div class="scene" id="scene">
+      <div class="scene-title" id="sceneTitle">—</div>
+      <div class="problem-text" id="problemText">—</div>
+      <div id="visual"></div>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>🪜 Plan paso a paso</h2>
+    <p class="hint">Cadena de oro: <strong>dato → representación → operación → comprobación → frase con unidades</strong>.</p>
+    <div class="steps" id="steps"></div>
+    <div class="expr" id="expr">—</div>
+    <div class="answer-box">
+      <div class="label">Respuesta</div>
+      <div class="val" id="answerVal">—</div>
+    </div>
+    <div class="mnemonic">
+      <div class="tag">Truco mnemotécnico</div>
+      <p>«Lee dos veces, dibuja una, calcula despacio, comprueba al revés.»</p>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>🧠 ¿Lo tienes? Comprueba tu número</h2>
+    <p class="hint">Escribe tu resultado (solo el número) y comprueba. Las unidades van en la frase final.</p>
+    <div class="guess-row">
+      <input type="number" id="guess" inputmode="numeric" placeholder="¿?">
+      <button type="button" class="btn btn-primary" id="btnCheck">Comprobar</button>
+      <button type="button" class="btn btn-ghost" id="btnReveal">Ver solución</button>
+    </div>
+    <div class="check-panel">
+      <div class="check-result idle" id="checkOut">Tu intento aparecerá aquí.</div>
+    </div>
+    <div class="order-box">
+      <h3>Orden de operaciones (recordatorio)</h3>
+      <p class="hint" style="margin:0">
+        Primero <span class="sym-chip">( )</span>, luego <span class="sym-chip">×</span> y <span class="sym-chip">÷</span> (de izquierda a derecha),
+        después <span class="sym-chip">+</span> y <span class="sym-chip">−</span>.
+        En un problema, el <strong>significado</strong> manda: «primero compramos… luego…».
+      </p>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>📖 Glosario (sin símbolos sueltos)</h2>
+    <dl class="glossary">
+      <dt>Problema contextualizado</dt>
+      <dd>Historia con datos reales (precios en €, personas, paquetes) que pide una respuesta con sentido.</dd>
+      <dt><span class="sym-chip">+</span> <span class="sym-chip">−</span> <span class="sym-chip">×</span> <span class="sym-chip">÷</span></dt>
+      <dd>Más, menos, por, dividido entre. Se eligen según la historia (juntar, quitar, grupos iguales, repartir).</dd>
+      <dt><span class="sym-chip">( )</span></dt>
+      <dd>Paréntesis: qué haces primero.</dd>
+      <dt><span class="sym-chip">=</span></dt>
+      <dd>Igual: el valor de la expresión.</dd>
+      <dt>Dato</dt>
+      <dd>Número que da el enunciado (a, b, c… son nombres cortos de esos datos).</dd>
+      <dt>Incógnita (pregunta)</dt>
+      <dd>Lo que hay que hallar; al final se dice en una frase con unidades (€, personas, paquetes…).</dd>
+      <dt>Comprobación</dt>
+      <dd>Releer el enunciado y ver si el número tiene sentido (¿cabe? ¿sobra? ¿unidades OK?).</dd>
+    </dl>
+  </section>
+
+  <footer>Lección 09 · 1º ESO Matemáticas · Offline (file://) · Castilla y León · Jorge</footer>
+</div>
+<script>
+(function () {
+  'use strict';
+
+  var PROBLEMS = {
+    bus: {
+      title: 'Autobús escolar (Burgos → museo)',
+      sceneClass: 'bus',
+      legend: [
+        { id: 'a', text: 'a = plazas por fila' },
+        { id: 'b', text: 'b = filas ocupadas' },
+        { id: 'c', text: 'c = alumnos que se bajan en una parada' }
+      ],
+      fields: [
+        { id: 'a', label: 'Plazas por fila', min: 2, max: 6, val: 4 },
+        { id: 'b', label: 'Filas ocupadas', min: 2, max: 10, val: 5 },
+        { id: 'c', label: 'Se bajan', min: 0, max: 20, val: 6 }
+      ],
+      text: function (d) {
+        return 'El autobús escolar tiene ' + d.a + ' plazas por fila y ' + d.b +
+          ' filas ocupadas. En una parada se bajan ' + d.c +
+          ' alumnos. ¿Cuántos alumnos quedan en el bus?';
+      },
+      visual: function (d, root) {
+        root.innerHTML = '';
+        var bus = document.createElement('div');
+        bus.className = 'bus-body';
+        var total = d.a * d.b;
+        var remain = Math.max(0, total - d.c);
+        for (var i = 0; i < remain; i++) {
+          var p = document.createElement('div');
+          p.className = 'person blue';
+          p.title = '1 alumno';
+          bus.appendChild(p);
+        }
+        root.appendChild(bus);
+        var row = document.createElement('div');
+        row.className = 'visual-row';
+        row.innerHTML = '<div class="ticket">Salían: ' + total + '</div>' +
+          '<div class="ticket">Bajan: ' + d.c + '</div>' +
+          '<div class="ticket">Quedan: ' + remain + '</div>';
+        root.appendChild(row);
+      },
+      steps: function (d) {
+        var total = d.a * d.b;
+        var remain = total - d.c;
+        return [
+          'Datos: a = ' + d.a + ' plazas/fila, b = ' + d.b + ' filas, c = ' + d.c + ' bajan.',
+          'Primero el total que viajaban: a × b = ' + d.a + ' × ' + d.b + ' = <strong>' + total + '</strong> alumnos.',
+          'Luego restamos los que bajan: ' + total + ' − ' + d.c + ' = <strong>' + remain + '</strong>.',
+          'Frase: Quedan <strong>' + remain + ' alumnos</strong> en el bus.',
+          'Comprobación: ' + remain + ' + ' + d.c + ' = ' + (remain + d.c) + ' (vuelve al total).'
+        ];
+      },
+      expr: function (d) { return '(' + d.a + ' × ' + d.b + ') − ' + d.c + ' = ' + ((d.a * d.b) - d.c); },
+      answer: function (d) { return { n: (d.a * d.b) - d.c, unit: 'alumnos' }; },
+      valid: function (d) { return d.a * d.b >= d.c; },
+      invalidMsg: 'Si bajan más alumnos de los que hay, el enunciado no encaja en naturales. Baja c o sube a×b.'
+    },
+    shop: {
+      title: 'Mercadillo: cajas de zumo',
+      sceneClass: 'shop',
+      legend: [
+        { id: 'a', text: 'a = botellas por caja' },
+        { id: 'b', text: 'b = cajas compradas' },
+        { id: 'c', text: 'c = precio de 1 botella (€)' }
+      ],
+      fields: [
+        { id: 'a', label: 'Botellas por caja', min: 2, max: 8, val: 6 },
+        { id: 'b', label: 'Cajas', min: 1, max: 5, val: 3 },
+        { id: 'c', label: 'Precio botella (€)', min: 1, max: 5, val: 2 }
+      ],
+      text: function (d) {
+        return 'Compras ' + d.b + ' cajas con ' + d.a +
+          ' botellas cada una. Cada botella cuesta ' + d.c +
+          ' €. ¿Cuánto pagas en total?';
+      },
+      visual: function (d, root) {
+        root.innerHTML = '';
+        var row = document.createElement('div');
+        row.className = 'visual-row';
+        var bottles = d.a * d.b;
+        for (var i = 0; i < Math.min(bottles, 24); i++) {
+          var bag = document.createElement('div');
+          bag.className = 'bag';
+          bag.title = '1 botella';
+          row.appendChild(bag);
+        }
+        if (bottles > 24) {
+          var more = document.createElement('div');
+          more.className = 'ticket';
+          more.textContent = '+' + (bottles - 24) + ' más';
+          row.appendChild(more);
+        }
+        root.appendChild(row);
+        var t = document.createElement('div');
+        t.className = 'visual-row';
+        t.innerHTML = '<div class="ticket">' + bottles + ' botellas</div>' +
+          '<div class="ticket">' + d.c + ' €/u</div>';
+        root.appendChild(t);
+      },
+      steps: function (d) {
+        var bottles = d.a * d.b;
+        var total = bottles * d.c;
+        return [
+          'Datos: a = ' + d.a + ' botellas/caja, b = ' + d.b + ' cajas, c = ' + d.c + ' € por botella.',
+          'Total de botellas: a × b = ' + d.a + ' × ' + d.b + ' = <strong>' + bottles + '</strong>.',
+          'Coste: botellas × precio = ' + bottles + ' × ' + d.c + ' = <strong>' + total + ' €</strong>.',
+          'Frase: Pagas <strong>' + total + ' euros</strong> en total.',
+          'Otra vía: coste de una caja = a × c = ' + (d.a * d.c) + ' €; luego × b cajas = ' + total + ' € (asociativa).'
+        ];
+      },
+      expr: function (d) { return '(' + d.a + ' × ' + d.b + ') × ' + d.c + ' = ' + (d.a * d.b * d.c); },
+      answer: function (d) { return { n: d.a * d.b * d.c, unit: 'euros (€)' }; },
+      valid: function () { return true; }
+    },
+    snack: {
+      title: 'Merienda del grupo (León)',
+      sceneClass: '',
+      legend: [
+        { id: 'a', text: 'a = alumnos' },
+        { id: 'b', text: 'b = bocadillos por alumno' },
+        { id: 'c', text: 'c = bocadillos que sobran en la nevera' }
+      ],
+      fields: [
+        { id: 'a', label: 'Alumnos', min: 2, max: 12, val: 8 },
+        { id: 'b', label: 'Bocadillos/alumno', min: 1, max: 3, val: 2 },
+        { id: 'c', label: 'Sobran (nevera)', min: 0, max: 15, val: 5 }
+      ],
+      text: function (d) {
+        return 'Hay ' + d.a + ' alumnos y cada uno toma ' + d.b +
+          ' bocadillos. Además sobran ' + d.c +
+          ' en la nevera. ¿Cuántos bocadillos había al empezar?';
+      },
+      visual: function (d, root) {
+        root.innerHTML = '';
+        var row = document.createElement('div');
+        row.className = 'visual-row';
+        for (var i = 0; i < d.a; i++) {
+          var p = document.createElement('div');
+          p.className = 'person';
+          p.title = 'alumno';
+          row.appendChild(p);
+        }
+        root.appendChild(row);
+        var row2 = document.createElement('div');
+        row2.className = 'visual-row';
+        var eaten = d.a * d.b;
+        row2.innerHTML = '<div class="ticket">Comen: ' + eaten + '</div>' +
+          '<div class="ticket">Sobran: ' + d.c + '</div>' +
+          '<div class="ticket">Total inicial: ' + (eaten + d.c) + '</div>';
+        root.appendChild(row2);
+      },
+      steps: function (d) {
+        var eaten = d.a * d.b;
+        var total = eaten + d.c;
+        return [
+          'Datos: a = ' + d.a + ' alumnos, b = ' + d.b + ' bocadillos/alumno, c = ' + d.c + ' sobran.',
+          'Bocadillos comidos: a × b = ' + d.a + ' × ' + d.b + ' = <strong>' + eaten + '</strong>.',
+          'Al empezar había comidos + sobrantes: ' + eaten + ' + ' + d.c + ' = <strong>' + total + '</strong>.',
+          'Frase: Había <strong>' + total + ' bocadillos</strong> al empezar.',
+          'Comprobación: ' + total + ' − ' + eaten + ' = ' + d.c + ' (coinciden los que sobran).'
+        ];
+      },
+      expr: function (d) { return '(' + d.a + ' × ' + d.b + ') + ' + d.c + ' = ' + (d.a * d.b + d.c); },
+      answer: function (d) { return { n: d.a * d.b + d.c, unit: 'bocadillos' }; },
+      valid: function () { return true; }
+    }
+  };
+
+  var state = { problem: 'bus', data: { a: 4, b: 5, c: 6 } };
+  var el = {
+    legend: document.getElementById('legend'),
+    controls: document.getElementById('controls'),
+    scene: document.getElementById('scene'),
+    sceneTitle: document.getElementById('sceneTitle'),
+    problemText: document.getElementById('problemText'),
+    visual: document.getElementById('visual'),
+    steps: document.getElementById('steps'),
+    expr: document.getElementById('expr'),
+    answerVal: document.getElementById('answerVal'),
+    guess: document.getElementById('guess'),
+    checkOut: document.getElementById('checkOut')
+  };
+
+  function clamp(n, lo, hi) { n = parseInt(n, 10); if (isNaN(n)) n = lo; return Math.max(lo, Math.min(hi, n)); }
+
+  function buildControls() {
+    var P = PROBLEMS[state.problem];
+    el.legend.innerHTML = '';
+    P.legend.forEach(function (L) {
+      var s = document.createElement('span');
+      s.textContent = L.text;
+      el.legend.appendChild(s);
+    });
+    el.controls.innerHTML = '';
+    P.fields.forEach(function (f) {
+      if (state.data[f.id] === undefined) state.data[f.id] = f.val;
+      state.data[f.id] = clamp(state.data[f.id], f.min, f.max);
+      var wrap = document.createElement('div');
+      wrap.className = 'field';
+      wrap.innerHTML = '<label><span class="letter">' + f.id + '</span> ' + f.label +
+        ' (' + f.min + '–' + f.max + ')</label>' +
+        '<input type="number" id="f_' + f.id + '" min="' + f.min + '" max="' + f.max +
+        '" value="' + state.data[f.id] + '" inputmode="numeric">' +
+        '<input type="range" id="r_' + f.id + '" min="' + f.min + '" max="' + f.max +
+        '" value="' + state.data[f.id] + '" aria-label="' + f.label + '">';
+      el.controls.appendChild(wrap);
+    });
+    P.fields.forEach(function (f) {
+      var ni = document.getElementById('f_' + f.id);
+      var ri = document.getElementById('r_' + f.id);
+      function sync() {
+        state.data[f.id] = clamp(ni.value, f.min, f.max);
+        ni.value = state.data[f.id];
+        ri.value = state.data[f.id];
+        refresh();
+      }
+      ni.addEventListener('input', sync);
+      ri.addEventListener('input', function () { ni.value = ri.value; sync(); });
+    });
+  }
+
+  function refresh() {
+    var P = PROBLEMS[state.problem];
+    // re-clamp
+    P.fields.forEach(function (f) {
+      state.data[f.id] = clamp(state.data[f.id], f.min, f.max);
+    });
+    el.scene.className = 'scene ' + P.sceneClass;
+    el.sceneTitle.textContent = P.title;
+    el.problemText.textContent = P.text(state.data);
+    P.visual(state.data, el.visual);
+
+    el.steps.innerHTML = '';
+    if (!P.valid(state.data)) {
+      el.steps.innerHTML = '<div class="step"><div class="n">!</div><p>' + P.invalidMsg + '</p></div>';
+      el.expr.textContent = 'Enunciado no válido con estos datos';
+      el.answerVal.innerHTML = '—';
+      return;
+    }
+    P.steps(state.data).forEach(function (t, i) {
+      var div = document.createElement('div');
+      div.className = 'step done';
+      div.innerHTML = '<div class="n">' + (i + 1) + '</div><p>' + t + '</p>';
+      el.steps.appendChild(div);
+    });
+    el.expr.textContent = P.expr(state.data);
+    var ans = P.answer(state.data);
+    el.answerVal.innerHTML = ans.n + ' <span class="unit">' + ans.unit + '</span>';
+    el.checkOut.className = 'check-result idle';
+    el.checkOut.textContent = 'Tu intento aparecerá aquí.';
+  }
+
+  document.querySelectorAll('.problem-pick .chip').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      document.querySelectorAll('.problem-pick .chip').forEach(function (b) { b.classList.remove('active'); });
+      btn.classList.add('active');
+      state.problem = btn.getAttribute('data-p');
+      // reset defaults for that problem
+      var P = PROBLEMS[state.problem];
+      state.data = {};
+      P.fields.forEach(function (f) { state.data[f.id] = f.val; });
+      buildControls();
+      refresh();
+    });
+  });
+
+  document.getElementById('btnCheck').addEventListener('click', function () {
+    var P = PROBLEMS[state.problem];
+    if (!P.valid(state.data)) {
+      el.checkOut.className = 'check-result fail';
+      el.checkOut.textContent = P.invalidMsg;
+      return;
+    }
+    var ans = P.answer(state.data).n;
+    var g = parseInt(el.guess.value, 10);
+    if (isNaN(g)) {
+      el.checkOut.className = 'check-result fail';
+      el.checkOut.textContent = 'Escribe un número entero.';
+      return;
+    }
+    if (g === ans) {
+      el.checkOut.className = 'check-result pass';
+      el.checkOut.textContent = '✓ ¡Correcto! ' + ans + ' ' + P.answer(state.data).unit + '.';
+    } else {
+      el.checkOut.className = 'check-result fail';
+      el.checkOut.textContent = '✗ No es ' + g + '. Revisa los pasos (¿hiciste × antes que −/+?).';
+    }
+  });
+
+  document.getElementById('btnReveal').addEventListener('click', function () {
+    var P = PROBLEMS[state.problem];
+    if (!P.valid(state.data)) return;
+    var ans = P.answer(state.data);
+    el.guess.value = ans.n;
+    el.checkOut.className = 'check-result pass';
+    el.checkOut.textContent = 'Solución: ' + ans.n + ' ' + ans.unit + '. Expresión: ' + P.expr(state.data);
+  });
+
+  buildControls();
+  refresh();
+})();
+</script>
+</body>
+</html>

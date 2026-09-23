@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Multiplicación y división · Cajas de zumo · 1º ESO</title>
+<style>
+  :root {
+    --bg: #f4f7fb; --ink: #1a2b3c; --muted: #5a6d7e; --card: #ffffff;
+    --blue: #3b82f6; --blue-soft: #dbeafe; --blue-deep: #1d4ed8;
+    --orange: #f59e0b; --orange-soft: #fef3c7; --orange-deep: #b45309;
+    --green: #10b981; --green-soft: #d1fae5; --green-deep: #047857;
+    --purple: #8b5cf6; --purple-soft: #ede9fe; --purple-deep: #6d28d9;
+    --rose: #f43f5e; --rose-soft: #ffe4e6;
+    --teal: #14b8a6; --teal-soft: #ccfbf1;
+    --shadow: 0 8px 28px rgba(26, 43, 60, 0.08); --radius: 18px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { min-height: 100%; background: var(--bg); color: var(--ink);
+    font-family: "Segoe UI", system-ui, -apple-system, sans-serif; -webkit-font-smoothing: antialiased; }
+  body { display: flex; flex-direction: column; align-items: center; padding: 14px 10px 36px; }
+  .wrap { width: 100%; max-width: 960px; }
+  header { text-align: center; margin-bottom: 12px; }
+  header .badge { display: inline-block; font-size: 0.78rem; font-weight: 600; letter-spacing: 0.04em;
+    text-transform: uppercase; color: var(--blue-deep); background: var(--blue-soft);
+    padding: 4px 12px; border-radius: 999px; margin-bottom: 8px; }
+  h1 { font-size: clamp(1.35rem, 4.5vw, 1.95rem); line-height: 1.2; font-weight: 800; }
+  .subtitle { margin-top: 6px; font-size: clamp(0.92rem, 2.8vw, 1.08rem); color: var(--muted); font-weight: 500; }
+  .story { background: linear-gradient(135deg, #fff7ed, #fef3c7 40%, #ecfdf5);
+    border: 2px solid #fde68a; border-radius: var(--radius); padding: 12px 14px;
+    margin-bottom: 14px; display: flex; gap: 12px; align-items: flex-start; }
+  .story .emoji { font-size: 2rem; line-height: 1; }
+  .story p { font-size: clamp(0.9rem, 2.5vw, 1.02rem); line-height: 1.45; }
+  .story strong { color: var(--orange-deep); }
+  .card { background: var(--card); border-radius: var(--radius); box-shadow: var(--shadow);
+    padding: 16px 14px 18px; margin-bottom: 14px; }
+  .card h2 { font-size: clamp(1.05rem, 3vw, 1.25rem); font-weight: 800; margin-bottom: 8px;
+    display: flex; align-items: center; gap: 8px; }
+  .hint { font-size: clamp(0.88rem, 2.4vw, 1rem); color: var(--muted); line-height: 1.45; margin-bottom: 12px; }
+  .ctrl-row { display: flex; flex-wrap: wrap; gap: 12px; align-items: flex-end; margin-bottom: 14px; }
+  .field { display: flex; flex-direction: column; gap: 6px; flex: 1 1 120px; }
+  .field label { font-size: 0.88rem; font-weight: 700; color: var(--muted); }
+  .field label .letter { display: inline-block; background: var(--blue-soft); color: var(--blue-deep);
+    padding: 1px 8px; border-radius: 8px; font-weight: 800; margin-right: 4px; }
+  .field input[type="number"], .field input[type="range"] { width: 100%; max-width: 180px; }
+  .field input[type="number"] { font-size: 1.4rem; font-weight: 800; font-variant-numeric: tabular-nums;
+    padding: 10px 12px; border: 2.5px solid #cbd5e1; border-radius: 12px; color: var(--ink); background: #fff; }
+  .field input[type="number"]:focus { outline: none; border-color: var(--blue); box-shadow: 0 0 0 3px var(--blue-soft); }
+  .field .val { font-size: 1.1rem; font-weight: 800; color: var(--blue-deep); }
+  .results { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px; }
+  @media (max-width: 560px) { .results { grid-template-columns: 1fr; } }
+  .result-pill { border-radius: 14px; padding: 12px 14px; border: 2px solid #e2e8f0; }
+  .result-pill.prod { background: var(--green-soft); border-color: #6ee7b7; }
+  .result-pill.quot { background: var(--teal-soft); border-color: #5eead4; }
+  .result-pill .label { font-size: 0.82rem; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.03em; }
+  .result-pill .eq { font-size: clamp(1.1rem, 3.5vw, 1.4rem); font-weight: 800; font-variant-numeric: tabular-nums; margin-top: 4px; line-height: 1.35; }
+  .result-pill .eq .sym { color: var(--muted); font-weight: 700; font-size: 0.85em; }
+  .stage { background: linear-gradient(180deg, #ecfdf5 0%, #d1fae5 50%, #a7f3d0 100%);
+    border: 2px solid #34d399; border-radius: 16px; padding: 14px 12px 16px; margin-bottom: 14px; position: relative; overflow: hidden; }
+  .stage-header { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; margin-bottom: 10px; }
+  .shop-name { font-weight: 800; font-size: 1.05rem; color: var(--green-deep); }
+  .crate-label { font-size: 0.85rem; font-weight: 700; color: var(--muted); margin-bottom: 6px; }
+  .grid-wrap { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+  .bottle-grid { display: grid; gap: 6px; background: rgba(255,255,255,0.65); padding: 12px;
+    border-radius: 14px; border: 2px dashed #6ee7b7; max-width: 100%; }
+  .bottle { width: 28px; height: 36px; border-radius: 6px 6px 8px 8px;
+    background: linear-gradient(180deg, #fde68a 0%, #f59e0b 40%, #ea580c 100%);
+    border: 2px solid #9a3412; position: relative; box-shadow: inset 0 2px 0 rgba(255,255,255,0.35);
+    display: flex; align-items: flex-end; justify-content: center; padding-bottom: 2px; }
+  .bottle::before { content: ""; position: absolute; top: -6px; left: 50%; transform: translateX(-50%);
+    width: 10px; height: 8px; background: #78716c; border-radius: 2px 2px 0 0; }
+  .bottle .cap { font-size: 0.55rem; font-weight: 800; color: #7c2d12; }
+  .axis-note { font-size: 0.9rem; font-weight: 700; color: var(--green-deep); text-align: center; }
+  .div-visual { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-top: 8px; }
+  .group-box { background: #fff; border: 2px solid #5eead4; border-radius: 12px; padding: 8px;
+    min-width: 70px; text-align: center; }
+  .group-box .g-title { font-size: 0.75rem; font-weight: 800; color: #0f766e; margin-bottom: 4px; }
+  .group-box .g-bottles { display: flex; flex-wrap: wrap; gap: 3px; justify-content: center; }
+  .group-box .bottle { width: 18px; height: 24px; }
+  .group-box .bottle::before { width: 7px; height: 5px; top: -4px; }
+  .mode-row, .ex-row { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; }
+  .chip { border: 2px solid #cbd5e1; background: #fff; border-radius: 999px; padding: 7px 14px;
+    font-size: 0.88rem; font-weight: 700; cursor: pointer; color: var(--ink); }
+  .chip:hover { background: #f8fafc; }
+  .chip.active { border-color: var(--blue); background: var(--blue-soft); color: var(--blue-deep); }
+  .chip.green.active { border-color: var(--green); background: var(--green-soft); color: var(--green-deep); }
+  .chip.purple.active { border-color: var(--purple); background: var(--purple-soft); color: var(--purple-deep); }
+  .chip.orange.active { border-color: var(--orange); background: var(--orange-soft); color: var(--orange-deep); }
+  .demo-box { background: #f8fafc; border: 2px solid #e2e8f0; border-radius: 14px; padding: 12px 14px; margin-top: 4px; }
+  .demo-box h3 { font-size: 1rem; font-weight: 800; margin-bottom: 6px; }
+  .demo-box .formula { font-size: clamp(1.05rem, 3vw, 1.3rem); font-weight: 800; font-variant-numeric: tabular-nums;
+    margin: 8px 0; padding: 10px 12px; background: #fff; border-radius: 10px; border: 2px dashed #cbd5e1;
+    text-align: center; line-height: 1.4; }
+  .demo-box .formula .ok { color: var(--green-deep); }
+  .demo-box .explain { font-size: 0.92rem; color: var(--muted); line-height: 1.45; }
+  .letters-legend { display: flex; flex-wrap: wrap; gap: 8px; margin: 10px 0 4px; }
+  .letters-legend span { background: var(--purple-soft); color: var(--purple-deep); font-size: 0.82rem;
+    font-weight: 700; padding: 4px 10px; border-radius: 999px; }
+  .btn { border: none; border-radius: 12px; padding: 10px 16px; font-size: 0.95rem; font-weight: 800;
+    cursor: pointer; transition: transform 0.1s; }
+  .btn:active { transform: scale(0.97); }
+  .btn-primary { background: var(--blue); color: #fff; box-shadow: 0 4px 12px rgba(59,130,246,0.35); }
+  .btn-primary:hover { background: var(--blue-deep); }
+  .btn-ghost { background: #fff; color: var(--ink); border: 2px solid #cbd5e1; }
+  .btn-success { background: var(--green); color: #fff; }
+  .check-panel { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-top: 10px; }
+  .check-result { flex: 1 1 200px; font-size: 0.95rem; font-weight: 700; line-height: 1.4;
+    padding: 10px 12px; border-radius: 12px; min-height: 44px; }
+  .check-result.idle { background: #f1f5f9; color: var(--muted); }
+  .check-result.pass { background: var(--green-soft); color: var(--green-deep); }
+  .check-result.fail { background: var(--rose-soft); color: #be123c; }
+  .mnemonic { background: linear-gradient(135deg, var(--purple-soft), #fce7f3);
+    border: 2px solid #d8b4fe; border-radius: 14px; padding: 12px 14px; margin-top: 10px; text-align: center; }
+  .mnemonic .tag { font-size: 0.75rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; color: var(--purple-deep); }
+  .mnemonic p { margin-top: 4px; font-size: clamp(1rem, 3vw, 1.15rem); font-weight: 800; color: var(--purple-deep); }
+  .glossary { display: grid; gap: 8px; }
+  .glossary dt { font-weight: 800; font-size: 0.95rem; color: var(--blue-deep); }
+  .glossary dd { font-size: 0.92rem; color: var(--muted); line-height: 1.4; margin-bottom: 4px; padding-left: 2px; }
+  .sym-chip { display: inline-block; background: var(--teal-soft); color: #0f766e; font-weight: 800;
+    padding: 1px 7px; border-radius: 6px; font-family: "Courier New", ui-monospace, monospace; }
+  footer { text-align: center; font-size: 0.82rem; color: var(--muted); margin-top: 4px; }
+  /* Cryptogram */
+  .crypto-stage { background: linear-gradient(135deg, #1e1b4b, #312e81 50%, #4c1d95);
+    border-radius: 16px; padding: 16px 14px; color: #e0e7ff; margin-bottom: 12px; }
+  .crypto-stage h3 { color: #fde68a; font-size: 1.1rem; margin-bottom: 8px; }
+  .crypto-stage p { font-size: 0.92rem; line-height: 1.45; margin-bottom: 10px; opacity: 0.95; }
+  .cipher-row { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin: 12px 0; }
+  .cipher-cell { background: rgba(255,255,255,0.12); border: 2px solid #a5b4fc; border-radius: 10px;
+    min-width: 48px; padding: 8px 6px; text-align: center; }
+  .cipher-cell .num { font-size: 1.15rem; font-weight: 800; color: #fde68a; font-variant-numeric: tabular-nums; }
+  .cipher-cell input { width: 36px; margin-top: 4px; font-size: 1.1rem; font-weight: 800; text-align: center;
+    text-transform: uppercase; border: 2px solid #818cf8; border-radius: 6px; background: #fff; color: #1e1b4b; }
+  .cipher-cell.space { background: transparent; border: none; min-width: 16px; }
+  .cipher-cell.space .num { display: none; }
+  .clue-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 8px; margin: 10px 0; }
+  .clue { background: #fff; border: 2px solid #c4b5fd; border-radius: 12px; padding: 10px; color: var(--ink); }
+  .clue .letter-big { font-size: 1.4rem; font-weight: 900; color: var(--purple-deep); }
+  .clue .prod { font-size: 0.95rem; font-weight: 700; margin-top: 4px; }
+  .clue input { width: 56px; font-size: 1.1rem; font-weight: 800; padding: 4px 6px; border: 2px solid #cbd5e1;
+    border-radius: 8px; margin-top: 6px; }
+  .clue.ok { border-color: var(--green); background: var(--green-soft); }
+  .decoded { margin-top: 12px; padding: 12px; background: rgba(253,230,138,0.2); border-radius: 12px;
+    border: 2px dashed #fde68a; text-align: center; font-size: 1.15rem; font-weight: 800; color: #fef3c7; min-height: 48px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="badge">1º ESO · Lección 07 · Offline</div>
+    <h1>Multiplicación y división</h1>
+    <p class="subtitle">Propiedades · eficiencia · mensaje secreto</p>
+  </header>
+
+  <div class="story">
+    <div class="emoji" aria-hidden="true">🧃</div>
+    <p>
+      En el <strong>mercadillo de Salamanca</strong> preparan <strong>cajas de zumo</strong>.
+      Cada caja es un <strong>rectángulo de botellas</strong>: filas por columnas.
+      Multiplicar es <strong>contar el total sin contar una a una</strong>.
+      Dividir es <strong>repartir</strong> el total en grupos iguales.
+      ¡Y al final hay un <strong>criptograma</strong> (mensaje en clave) para descifrar!
+    </p>
+  </div>
+
+  <section class="card">
+    <h2>🎛️ Elige tus números (independientes)</h2>
+    <p class="hint">
+      <span class="sym-chip">a</span> = número de <strong>filas</strong> (natural).
+      <span class="sym-chip">b</span> = número de <strong>columnas</strong> (natural).
+      Cada control mueve solo su medida: la rejilla no se «estira» rara; cambia filas o columnas de verdad.
+    </p>
+    <div class="letters-legend">
+      <span id="legA">a = filas (natural)</span>
+      <span id="legB">b = columnas (natural)</span>
+      <span id="legC" style="display:none">c = un tercer natural (asociativa / distributiva)</span>
+    </div>
+    <div class="ctrl-row">
+      <div class="field">
+        <label><span class="letter">a</span> Filas (1–8)</label>
+        <input type="number" id="numA" min="1" max="8" value="3" inputmode="numeric">
+        <input type="range" id="rangeA" min="1" max="8" value="3" aria-label="Filas a">
+      </div>
+      <div class="field">
+        <label><span class="letter">b</span> Columnas (1–8)</label>
+        <input type="number" id="numB" min="1" max="8" value="4" inputmode="numeric">
+        <input type="range" id="rangeB" min="1" max="8" value="4" aria-label="Columnas b">
+      </div>
+      <div class="field" id="fieldC" style="display:none">
+        <label><span class="letter">c</span> Tercer número (1–6)</label>
+        <input type="number" id="numC" min="1" max="6" value="2" inputmode="numeric">
+      </div>
+    </div>
+    <div class="mode-row">
+      <button type="button" class="chip green active" id="modeMul" data-mode="mul">× Multiplicar (caja)</button>
+      <button type="button" class="chip" id="modeDiv" data-mode="div">÷ Dividir (repartir)</button>
+    </div>
+    <div class="results">
+      <div class="result-pill prod">
+        <div class="label">Producto (total de botellas)</div>
+        <div class="eq" id="eqProd">3 <span class="sym">×</span> 4 <span class="sym">=</span> 12</div>
+      </div>
+      <div class="result-pill quot">
+        <div class="label">Cociente (si repartes)</div>
+        <div class="eq" id="eqQuot">12 <span class="sym">÷</span> 4 <span class="sym">=</span> 3</div>
+      </div>
+    </div>
+    <div class="ex-row">
+      <button type="button" class="btn btn-ghost" id="ex34">Ej. 3 × 4</button>
+      <button type="button" class="btn btn-ghost" id="ex25">Ej. 2 × 5</button>
+      <button type="button" class="btn btn-ghost" id="exRand">Aleatorio</button>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>🧃 La caja de zumos (se ve la cuenta)</h2>
+    <p class="hint" id="stageHint">Cada botella es una unidad. Filas × columnas = total.</p>
+    <div class="stage">
+      <div class="stage-header">
+        <div class="shop-name">🛒 Puesto «Zumo CyL»</div>
+        <div class="shop-name" id="stageTotal">Total: 12 botellas</div>
+      </div>
+      <div id="mulView">
+        <div class="crate-label">Vista en rejilla (filas × columnas)</div>
+        <div class="grid-wrap">
+          <div class="bottle-grid" id="bottleGrid" style="grid-template-columns: repeat(4, 28px);"></div>
+          <div class="axis-note" id="axisNote">a = 3 filas · b = 4 columnas · a × b = 12</div>
+        </div>
+      </div>
+      <div id="divView" style="display:none">
+        <div class="crate-label">Reparto: el total se parte en <strong>b</strong> grupos iguales</div>
+        <div class="div-visual" id="divGroups"></div>
+        <div class="axis-note" id="divNote">12 ÷ 4 = 3 botellas por grupo</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>🔀 Propiedades (para calcular más rápido)</h2>
+    <p class="hint">La multiplicación con naturales es flexible: puedes cambiar orden y agrupamiento.</p>
+    <div class="mode-row">
+      <button type="button" class="chip purple" id="demoComm">Conmutativa</button>
+      <button type="button" class="chip purple" id="demoAssoc">Asociativa</button>
+      <button type="button" class="chip orange" id="demoDist">Distributiva</button>
+      <button type="button" class="chip" id="demoOff">Ocultar demo</button>
+    </div>
+    <div class="demo-box" id="demoBox" style="display:none">
+      <h3 id="demoTitle">—</h3>
+      <div class="formula" id="demoFormula">—</div>
+      <p class="explain" id="demoExplain">—</p>
+    </div>
+    <div class="mnemonic">
+      <div class="tag">Truco mnemotécnico</div>
+      <p>«Filas por columnas, el total no se enfada si giras la caja.»</p>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>🪞 Inversas: multiplicar ↔ dividir</h2>
+    <p class="hint">
+      Si <span class="sym-chip">a × b = p</span> (p = producto / total), entonces
+      <span class="sym-chip">p ÷ a = b</span> y <span class="sym-chip">p ÷ b = a</span>.
+      El signo <span class="sym-chip">÷</span> se lee «dividido entre». El signo <span class="sym-chip">×</span> se lee «por» o «multiplicado por».
+    </p>
+    <div class="check-panel">
+      <button type="button" class="btn btn-primary" id="btnCheckInv">Comprobar inversa</button>
+      <div class="check-result idle" id="checkInv">Pulsa para ver si el espejo cuadra.</div>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>🔐 Criptograma: mensaje secreto del mercadillo</h2>
+    <p class="hint">
+      Un <strong>criptograma</strong> es un mensaje escrito con números en lugar de letras.
+      Aquí cada letra «vale» el resultado de un <strong>producto</strong> (multiplicación).
+      Primero resuelves las pistas (×); luego escribes la letra debajo de cada número del mensaje.
+    </p>
+    <div class="crypto-stage">
+      <h3>📜 Cómo funciona la clave</h3>
+      <p>
+        1) Calcula cada pista: por ejemplo «M = 3 × 4» → M vale <strong>12</strong>.<br>
+        2) En el mensaje verás números (12, 15, 20…). Sustituye cada número por su letra.<br>
+        3) Los huecos en blanco son espacios entre palabras. ¡No inventes letras: solo las de las pistas!
+      </p>
+      <div class="clue-grid" id="clueGrid"></div>
+      <p style="margin-top:10px;font-weight:700;color:#fde68a">Mensaje cifrado (números → letras):</p>
+      <div class="cipher-row" id="cipherRow"></div>
+      <div class="check-panel" style="margin-top:12px">
+        <button type="button" class="btn btn-success" id="btnCrypto">Comprobar mensaje</button>
+        <button type="button" class="btn btn-ghost" id="btnCryptoHint" style="color:#1e1b4b;border-color:#a5b4fc">Pista (1 letra)</button>
+      </div>
+      <div class="decoded" id="decodedOut">Tu mensaje aparecerá aquí…</div>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>📖 Glosario (sin símbolos sueltos)</h2>
+    <dl class="glossary">
+      <dt><span class="sym-chip">a</span>, <span class="sym-chip">b</span>, <span class="sym-chip">c</span></dt>
+      <dd>Letras = números naturales que tú eliges (filas, columnas, un tercer factor…). No son unidades raras.</dd>
+      <dt><span class="sym-chip">×</span></dt>
+      <dd>Multiplicación («por» / «multiplicado por»): juntar grupos iguales. Ejemplo: 3 × 4 = 12.</dd>
+      <dt><span class="sym-chip">÷</span></dt>
+      <dd>División («dividido entre»): repartir en partes iguales. Ejemplo: 12 ÷ 4 = 3.</dd>
+      <dt><span class="sym-chip">=</span></dt>
+      <dd>Igual: «vale lo mismo» a ambos lados.</dd>
+      <dt><span class="sym-chip">≠</span></dt>
+      <dd>Distinto de: no vale lo mismo. Ejemplo: 10 ÷ 2 ≠ 2 ÷ 10 en el sentido de la operación con naturales (el orden importa en la división).</dd>
+      <dt><span class="sym-chip">( )</span></dt>
+      <dd>Paréntesis: indican qué calculas primero.</dd>
+      <dt>Producto</dt>
+      <dd>Resultado de multiplicar (el total de botellas).</dd>
+      <dt>Cociente</dt>
+      <dd>Resultado de dividir (cuántas botellas por grupo, o cuántos grupos).</dd>
+      <dt>Conmutativa</dt>
+      <dd>En la multiplicación, a × b = b × a (girar la caja no cambia el total).</dd>
+      <dt>Asociativa</dt>
+      <dd>(a × b) × c = a × (b × c): puedes agrupar factores como te convenga.</dd>
+      <dt>Distributiva</dt>
+      <dd>a × (b + c) = a × b + a × c: reparte la multiplicación sobre una suma.</dd>
+      <dt>Criptograma</dt>
+      <dd>Mensaje en clave: aquí los números son productos que revelan letras.</dd>
+    </dl>
+  </section>
+
+  <footer>Lección 07 · 1º ESO Matemáticas · Offline (file://) · Castilla y León · Jorge</footer>
+</div>
+<script>
+(function () {
+  'use strict';
+  var state = { a: 3, b: 4, c: 2, mode: 'mul', demo: null };
+
+  var el = {
+    numA: document.getElementById('numA'), numB: document.getElementById('numB'), numC: document.getElementById('numC'),
+    rangeA: document.getElementById('rangeA'), rangeB: document.getElementById('rangeB'),
+    fieldC: document.getElementById('fieldC'), legC: document.getElementById('legC'),
+    eqProd: document.getElementById('eqProd'), eqQuot: document.getElementById('eqQuot'),
+    bottleGrid: document.getElementById('bottleGrid'), axisNote: document.getElementById('axisNote'),
+    stageTotal: document.getElementById('stageTotal'), stageHint: document.getElementById('stageHint'),
+    mulView: document.getElementById('mulView'), divView: document.getElementById('divView'),
+    divGroups: document.getElementById('divGroups'), divNote: document.getElementById('divNote'),
+    modeMul: document.getElementById('modeMul'), modeDiv: document.getElementById('modeDiv'),
+    demoBox: document.getElementById('demoBox'), demoTitle: document.getElementById('demoTitle'),
+    demoFormula: document.getElementById('demoFormula'), demoExplain: document.getElementById('demoExplain'),
+    checkInv: document.getElementById('checkInv'),
+    clueGrid: document.getElementById('clueGrid'), cipherRow: document.getElementById('cipherRow'),
+    decodedOut: document.getElementById('decodedOut')
+  };
+
+  function clamp(n, lo, hi) { n = parseInt(n, 10); if (isNaN(n)) n = lo; return Math.max(lo, Math.min(hi, n)); }
+  function fmt(n) { return String(n); }
+
+  function readInputs() {
+    state.a = clamp(el.numA.value, 1, 8);
+    state.b = clamp(el.numB.value, 1, 8);
+    state.c = clamp(el.numC.value, 1, 6);
+    el.numA.value = state.a; el.numB.value = state.b; el.numC.value = state.c;
+    el.rangeA.value = state.a; el.rangeB.value = state.b;
+  }
+
+  function bottleHTML(small) {
+    return '<div class="bottle" title="1 botella"' + (small ? ' style="width:18px;height:24px"' : '') + '><span class="cap">1</span></div>';
+  }
+
+  function renderGrid() {
+    var a = state.a, b = state.b, p = a * b;
+    el.bottleGrid.style.gridTemplateColumns = 'repeat(' + b + ', 28px)';
+    var html = '';
+    for (var i = 0; i < p; i++) html += bottleHTML(false);
+    el.bottleGrid.innerHTML = html;
+    el.axisNote.textContent = 'a = ' + a + ' filas · b = ' + b + ' columnas · a × b = ' + p;
+    el.stageTotal.textContent = 'Total: ' + p + ' botellas';
+  }
+
+  function renderDiv() {
+    var a = state.a, b = state.b, p = a * b;
+    // Interpret: total p bottles, divide into b groups → a per group (since p/b = a)
+    el.divGroups.innerHTML = '';
+    for (var g = 0; g < b; g++) {
+      var box = document.createElement('div');
+      box.className = 'group-box';
+      var bottles = '';
+      for (var k = 0; k < a; k++) bottles += bottleHTML(true);
+      box.innerHTML = '<div class="g-title">Grupo ' + (g + 1) + '</div><div class="g-bottles">' + bottles + '</div>';
+      el.divGroups.appendChild(box);
+    }
+    el.divNote.textContent = p + ' ÷ ' + b + ' = ' + a + ' botellas por grupo (cociente)';
+    el.stageTotal.textContent = 'Total: ' + p + ' → ' + b + ' grupos';
+  }
+
+  function renderResults() {
+    var a = state.a, b = state.b, p = a * b;
+    el.eqProd.innerHTML = fmt(a) + ' <span class="sym">×</span> ' + fmt(b) + ' <span class="sym">=</span> ' + fmt(p);
+    el.eqQuot.innerHTML = fmt(p) + ' <span class="sym">÷</span> ' + fmt(b) + ' <span class="sym">=</span> ' + fmt(a);
+  }
+
+  function renderDemo() {
+    var a = state.a, b = state.b, c = state.c;
+    var showC = state.demo === 'assoc' || state.demo === 'dist';
+    el.fieldC.style.display = showC ? '' : 'none';
+    el.legC.style.display = showC ? '' : 'none';
+    if (!state.demo) { el.demoBox.style.display = 'none'; return; }
+    el.demoBox.style.display = '';
+    if (state.demo === 'comm') {
+      el.demoTitle.textContent = 'Conmutativa (cambiar el orden)';
+      el.demoFormula.innerHTML = a + ' × ' + b + ' = ' + (a * b) + ' &nbsp;·&nbsp; ' + b + ' × ' + a + ' = ' + (b * a) +
+        ' <span class="ok">✓ iguales</span>';
+      el.demoExplain.textContent = 'Girar la caja: las filas pasan a ser columnas. El total de botellas no cambia. × es conmutativa en naturales.';
+    } else if (state.demo === 'assoc') {
+      var left = (a * b) * c, right = a * (b * c);
+      el.demoTitle.textContent = 'Asociativa (cambiar el agrupamiento)';
+      el.demoFormula.innerHTML = '(' + a + ' × ' + b + ') × ' + c + ' = ' + left +
+        ' &nbsp;·&nbsp; ' + a + ' × (' + b + ' × ' + c + ') = ' + right +
+        ' <span class="ok">✓ iguales</span>';
+      el.demoExplain.textContent = 'Puedes multiplicar primero a×b o primero b×c. Los ( ) dicen el orden. Útil para cálculo mental.';
+    } else if (state.demo === 'dist') {
+      var left2 = a * (b + c), right2 = a * b + a * c;
+      el.demoTitle.textContent = 'Distributiva (repartir × sobre +)';
+      el.demoFormula.innerHTML = a + ' × (' + b + ' + ' + c + ') = ' + left2 +
+        ' &nbsp;·&nbsp; ' + a + ' × ' + b + ' + ' + a + ' × ' + c + ' = ' + right2 +
+        ' <span class="ok">✓ iguales</span>';
+      el.demoExplain.textContent = '«a veces (b+c)» = «a veces b» más «a veces c». Sirve para descomponer: 7×16 = 7×10 + 7×6.';
+    }
+  }
+
+  function refresh() {
+    readInputs();
+    renderResults();
+    if (state.mode === 'mul') {
+      el.mulView.style.display = ''; el.divView.style.display = 'none';
+      el.stageHint.textContent = 'Cada botella es una unidad. Filas × columnas = total (producto).';
+      renderGrid();
+    } else {
+      el.mulView.style.display = 'none'; el.divView.style.display = '';
+      el.stageHint.textContent = 'Repartes el total en b grupos iguales. El cociente es cuántas botellas hay en cada grupo.';
+      renderDiv();
+    }
+    renderDemo();
+    el.modeMul.classList.toggle('active', state.mode === 'mul');
+    el.modeDiv.classList.toggle('active', state.mode === 'div');
+  }
+
+  // —— Cryptogram ——
+  // Clues: letter = factor1 × factor2 → value. Message: MATE ES FACIL
+  var CLUES = [
+    { L: 'M', f1: 3, f2: 4, v: 12 },
+    { L: 'A', f1: 3, f2: 5, v: 15 },
+    { L: 'T', f1: 4, f2: 5, v: 20 },
+    { L: 'E', f1: 3, f2: 7, v: 21 },
+    { L: 'S', f1: 4, f2: 6, v: 24 },
+    { L: 'F', f1: 5, f2: 5, v: 25 },
+    { L: 'C', f1: 4, f2: 7, v: 28 },
+    { L: 'I', f1: 5, f2: 6, v: 30 },
+    { L: 'L', f1: 5, f2: 7, v: 35 }
+  ];
+  var MESSAGE = [12, 15, 20, 21, null, 21, 24, null, 25, 15, 28, 30, 35]; // MATE ES FACIL
+  var SECRET = 'MATE ES FACIL';
+  var hintCount = 0;
+
+  function buildCrypto() {
+    el.clueGrid.innerHTML = '';
+    CLUES.forEach(function (c, idx) {
+      var d = document.createElement('div');
+      d.className = 'clue';
+      d.innerHTML = '<div class="letter-big">' + c.L + '</div>' +
+        '<div class="prod">' + c.L + ' = ' + c.f1 + ' × ' + c.f2 + '</div>' +
+        '<label style="font-size:0.8rem;font-weight:700;color:#5a6d7e">Resultado</label><br>' +
+        '<input type="number" inputmode="numeric" data-idx="' + idx + '" aria-label="Valor de ' + c.L + '" min="1" max="99">';
+      el.clueGrid.appendChild(d);
+    });
+    el.cipherRow.innerHTML = '';
+    MESSAGE.forEach(function (n, i) {
+      var cell = document.createElement('div');
+      if (n === null) {
+        cell.className = 'cipher-cell space';
+        cell.innerHTML = '&nbsp;';
+      } else {
+        cell.className = 'cipher-cell';
+        cell.innerHTML = '<div class="num">' + n + '</div>' +
+          '<input maxlength="1" data-pos="' + i + '" aria-label="Letra para ' + n + '" autocomplete="off">';
+      }
+      el.cipherRow.appendChild(cell);
+    });
+  }
+
+  function valueToLetter() {
+    var map = {};
+    CLUES.forEach(function (c) { map[c.v] = c.L; });
+    return map;
+  }
+
+  function checkClues() {
+    var inputs = el.clueGrid.querySelectorAll('input');
+    var allOk = true;
+    inputs.forEach(function (inp) {
+      var idx = parseInt(inp.getAttribute('data-idx'), 10);
+      var ok = parseInt(inp.value, 10) === CLUES[idx].v;
+      inp.parentElement.classList.toggle('ok', ok);
+      if (!ok) allOk = false;
+    });
+    return allOk;
+  }
+
+  function checkMessage() {
+    var map = valueToLetter();
+    var inputs = el.cipherRow.querySelectorAll('input');
+    var got = '';
+    var ok = true;
+    MESSAGE.forEach(function (n) {
+      if (n === null) { got += ' '; return; }
+    });
+    // rebuild from inputs in order
+    got = '';
+    var mi = 0;
+    MESSAGE.forEach(function (n, i) {
+      if (n === null) { got += ' '; return; }
+      var inp = el.cipherRow.querySelector('input[data-pos="' + i + '"]');
+      var ch = (inp && inp.value ? inp.value : '?').toUpperCase();
+      got += ch;
+      if (ch !== map[n]) ok = false;
+    });
+    var cluesOk = checkClues();
+    if (!cluesOk) {
+      el.decodedOut.textContent = 'Primero acierta todas las pistas (productos). Luego completa el mensaje.';
+      return;
+    }
+    if (ok && got.replace(/\s+/g, ' ').trim() === SECRET) {
+      el.decodedOut.textContent = '✓ ¡Correcto! Mensaje: «' + SECRET + '» — Mate es fácil cuando × y ÷ tienen sentido.';
+    } else {
+      el.decodedOut.textContent = 'Aún no: lees «' + got + '». Revisa números → letras con tus pistas.';
+    }
+  }
+
+  // Events
+  ['numA', 'numB', 'numC'].forEach(function (id) {
+    document.getElementById(id).addEventListener('input', refresh);
+    document.getElementById(id).addEventListener('change', refresh);
+  });
+  el.rangeA.addEventListener('input', function () { el.numA.value = el.rangeA.value; refresh(); });
+  el.rangeB.addEventListener('input', function () { el.numB.value = el.rangeB.value; refresh(); });
+
+  el.modeMul.addEventListener('click', function () { state.mode = 'mul'; refresh(); });
+  el.modeDiv.addEventListener('click', function () { state.mode = 'div'; refresh(); });
+
+  document.getElementById('demoComm').addEventListener('click', function () { state.demo = 'comm'; refresh(); });
+  document.getElementById('demoAssoc').addEventListener('click', function () { state.demo = 'assoc'; refresh(); });
+  document.getElementById('demoDist').addEventListener('click', function () { state.demo = 'dist'; refresh(); });
+  document.getElementById('demoOff').addEventListener('click', function () { state.demo = null; refresh(); });
+
+  document.getElementById('btnCheckInv').addEventListener('click', function () {
+    readInputs();
+    var a = state.a, b = state.b, p = a * b;
+    var back = p / b;
+    var ok = back === a;
+    el.checkInv.className = 'check-result ' + (ok ? 'pass' : 'fail');
+    el.checkInv.textContent = ok
+      ? '✓ ' + a + ' × ' + b + ' = ' + p + '. Espejo: ' + p + ' ÷ ' + b + ' = ' + a + '. Inversas OK.'
+      : '✗ Algo no cuadra.';
+  });
+
+  document.getElementById('ex34').addEventListener('click', function () { el.numA.value = 3; el.numB.value = 4; refresh(); });
+  document.getElementById('ex25').addEventListener('click', function () { el.numA.value = 2; el.numB.value = 5; refresh(); });
+  document.getElementById('exRand').addEventListener('click', function () {
+    el.numA.value = 1 + Math.floor(Math.random() * 6);
+    el.numB.value = 1 + Math.floor(Math.random() * 6);
+    refresh();
+  });
+
+  document.getElementById('btnCrypto').addEventListener('click', checkMessage);
+  document.getElementById('btnCryptoHint').addEventListener('click', function () {
+    checkClues();
+    // fill next empty cipher cell correctly
+    var map = valueToLetter();
+    for (var i = 0; i < MESSAGE.length; i++) {
+      if (MESSAGE[i] === null) continue;
+      var inp = el.cipherRow.querySelector('input[data-pos="' + i + '"]');
+      if (inp && !inp.value) {
+        inp.value = map[MESSAGE[i]];
+        hintCount++;
+        el.decodedOut.textContent = 'Pista usada: posición con número ' + MESSAGE[i] + ' → «' + map[MESSAGE[i]] + '».';
+        return;
+      }
+    }
+    el.decodedOut.textContent = 'No quedan huecos vacíos. Pulsa Comprobar mensaje.';
+  });
+
+  el.clueGrid.addEventListener('change', checkClues);
+  el.clueGrid.addEventListener('input', checkClues);
+
+  buildCrypto();
+  refresh();
+})();
+</script>
+</body>
+</html>

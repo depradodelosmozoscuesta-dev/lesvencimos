@@ -1,0 +1,1106 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Estimaciones y redondeo · 1º ESO</title>
+<style>
+  :root {
+    --bg: #f4f7fb;
+    --ink: #1a2b3c;
+    --muted: #5a6d7e;
+    --card: #ffffff;
+    --blue: #3b82f6;
+    --blue-soft: #dbeafe;
+    --blue-deep: #1d4ed8;
+    --orange: #f59e0b;
+    --orange-soft: #fef3c7;
+    --orange-deep: #b45309;
+    --green: #10b981;
+    --green-soft: #d1fae5;
+    --green-deep: #047857;
+    --purple: #8b5cf6;
+    --purple-soft: #ede9fe;
+    --purple-deep: #6d28d9;
+    --rose: #f43f5e;
+    --rose-soft: #ffe4e6;
+    --teal: #14b8a6;
+    --teal-soft: #ccfbf1;
+    --shadow: 0 8px 28px rgba(26, 43, 60, 0.08);
+    --radius: 18px;
+    --target: #2563eb;
+    --look: #d97706;
+    --zero: #94a3b8;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html, body {
+    min-height: 100%;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  body {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 14px 10px 36px;
+  }
+
+  .wrap { width: 100%; max-width: 960px; }
+
+  header { text-align: center; margin-bottom: 12px; }
+
+  header .badge {
+    display: inline-block;
+    font-size: 0.78rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--blue-deep);
+    background: var(--blue-soft);
+    padding: 4px 12px;
+    border-radius: 999px;
+    margin-bottom: 8px;
+  }
+
+  h1 {
+    font-size: clamp(1.35rem, 4.5vw, 1.95rem);
+    line-height: 1.2;
+    font-weight: 800;
+  }
+
+  .subtitle {
+    margin-top: 6px;
+    font-size: clamp(0.95rem, 2.8vw, 1.1rem);
+    color: var(--muted);
+    font-weight: 500;
+  }
+
+  .card {
+    background: var(--card);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 16px 14px 18px;
+    margin-bottom: 14px;
+  }
+
+  .card h2 {
+    font-size: clamp(1.05rem, 3vw, 1.25rem);
+    font-weight: 800;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .hint {
+    font-size: clamp(0.88rem, 2.4vw, 1rem);
+    color: var(--muted);
+    line-height: 1.45;
+    margin-bottom: 12px;
+  }
+
+  /* —— Controls —— */
+  .ctrl-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    align-items: flex-end;
+    margin-bottom: 14px;
+  }
+
+  .field { display: flex; flex-direction: column; gap: 6px; flex: 1 1 140px; }
+
+  .field label {
+    font-size: 0.88rem;
+    font-weight: 700;
+    color: var(--muted);
+  }
+
+  .field input[type="number"] {
+    width: 100%;
+    max-width: 180px;
+    font-size: 1.35rem;
+    font-weight: 800;
+    font-variant-numeric: tabular-nums;
+    padding: 10px 12px;
+    border: 2.5px solid #cbd5e1;
+    border-radius: 12px;
+    color: var(--ink);
+    background: #fff;
+  }
+
+  .field input[type="number"]:focus {
+    outline: none;
+    border-color: var(--blue);
+    box-shadow: 0 0 0 3px var(--blue-soft);
+  }
+
+  .slider-wrap { flex: 2 1 220px; }
+
+  .slider-wrap input[type="range"] {
+    width: 100%;
+    height: 8px;
+    accent-color: var(--blue);
+    cursor: pointer;
+  }
+
+  .order-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 14px;
+  }
+
+  .order-btn {
+    flex: 1 1 100px;
+    appearance: none;
+    border: 2.5px solid #cbd5e1;
+    background: #fff;
+    border-radius: 14px;
+    padding: 12px 10px;
+    cursor: pointer;
+    font-family: inherit;
+    text-align: center;
+    transition: border-color 0.15s, background 0.15s, transform 0.1s;
+  }
+
+  .order-btn:hover { border-color: var(--blue); }
+  .order-btn:active { transform: scale(0.98); }
+  .order-btn.active {
+    border-color: var(--blue-deep);
+    background: var(--blue-soft);
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+  }
+
+  .order-btn .ord-name {
+    display: block;
+    font-size: clamp(0.95rem, 2.8vw, 1.1rem);
+    font-weight: 800;
+    color: var(--ink);
+  }
+
+  .order-btn .ord-desc {
+    display: block;
+    margin-top: 4px;
+    font-size: 0.78rem;
+    color: var(--muted);
+    font-weight: 600;
+  }
+
+  .ex-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 4px;
+  }
+
+  .ex-btn, .chip {
+    appearance: none;
+    border: 2px solid #cbd5e1;
+    background: #fff;
+    border-radius: 999px;
+    padding: 8px 14px;
+    font-family: inherit;
+    font-size: 0.88rem;
+    font-weight: 700;
+    color: var(--ink);
+    cursor: pointer;
+    transition: background 0.15s, border-color 0.15s;
+  }
+
+  .ex-btn:hover, .chip:hover { border-color: var(--purple); background: var(--purple-soft); }
+  .ex-btn.active {
+    border-color: var(--purple-deep);
+    background: var(--purple-soft);
+    color: var(--purple-deep);
+  }
+
+  /* —— Digit street —— */
+  .street {
+    display: flex;
+    justify-content: center;
+    align-items: flex-end;
+    gap: 8px;
+    flex-wrap: wrap;
+    padding: 6px 2px 4px;
+    margin-bottom: 10px;
+  }
+
+  .house {
+    flex: 1 1 0;
+    min-width: 64px;
+    max-width: 110px;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .roof {
+    height: 26px;
+    clip-path: polygon(50% 0%, 100% 100%, 0% 100%);
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+  }
+
+  .walls {
+    border: 2.5px solid;
+    border-top: none;
+    border-radius: 0 0 12px 12px;
+    background: #fff;
+    padding: 8px 4px 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+    min-height: 120px;
+    transition: box-shadow 0.2s, transform 0.2s;
+  }
+
+  .house.target .walls {
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.35);
+    transform: translateY(-2px);
+  }
+
+  .house.look .walls {
+    box-shadow: 0 0 0 3px rgba(217, 119, 6, 0.4);
+    transform: translateY(-2px);
+  }
+
+  .house.trail .walls { opacity: 0.72; }
+
+  .place-name {
+    font-size: clamp(0.58rem, 1.7vw, 0.74rem);
+    font-weight: 750;
+    text-align: center;
+    line-height: 1.15;
+    min-height: 2.3em;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 2px;
+  }
+
+  .digit-box {
+    width: 100%;
+    aspect-ratio: 1;
+    max-width: 58px;
+    border-radius: 12px;
+    border: 2.5px solid;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: clamp(1.5rem, 5.5vw, 2.1rem);
+    font-weight: 800;
+    font-variant-numeric: tabular-nums;
+    background: #fff;
+    transition: background 0.2s, color 0.2s;
+  }
+
+  .house.target .digit-box {
+    background: var(--blue-soft);
+    border-color: var(--target) !important;
+    color: var(--blue-deep);
+  }
+
+  .house.look .digit-box {
+    background: var(--orange-soft);
+    border-color: var(--look) !important;
+    color: var(--orange-deep);
+  }
+
+  .house.trail .digit-box {
+    background: #f1f5f9;
+    color: var(--zero);
+  }
+
+  .tag {
+    font-size: 0.62rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    padding: 2px 6px;
+    border-radius: 6px;
+    line-height: 1.2;
+    min-height: 1.4em;
+  }
+
+  .tag.target-tag { background: var(--blue-soft); color: var(--blue-deep); }
+  .tag.look-tag { background: var(--orange-soft); color: var(--orange-deep); }
+  .tag.zero-tag { background: #f1f5f9; color: var(--muted); }
+
+  .legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px 16px;
+    justify-content: center;
+    font-size: 0.82rem;
+    font-weight: 650;
+    color: var(--muted);
+    margin-bottom: 12px;
+  }
+
+  .legend span { display: inline-flex; align-items: center; gap: 6px; }
+
+  .swatch {
+    width: 14px; height: 14px; border-radius: 4px; border: 2px solid;
+  }
+
+  .swatch.target { background: var(--blue-soft); border-color: var(--target); }
+  .swatch.look { background: var(--orange-soft); border-color: var(--look); }
+  .swatch.zero { background: #f1f5f9; border-color: var(--zero); }
+
+  /* —— Rule panel —— */
+  .rule-panel {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 10px;
+    margin-bottom: 12px;
+  }
+
+  @media (min-width: 560px) {
+    .rule-panel { grid-template-columns: 1fr 1fr; }
+  }
+
+  .rule-box {
+    border-radius: 14px;
+    padding: 12px 14px;
+    border: 2px solid transparent;
+  }
+
+  .rule-box.up {
+    background: var(--green-soft);
+    border-color: #6ee7b7;
+  }
+
+  .rule-box.stay {
+    background: var(--rose-soft);
+    border-color: #fda4af;
+  }
+
+  .rule-box.neutral {
+    background: #f8fafc;
+    border-color: #e2e8f0;
+  }
+
+  .rule-box h3 {
+    font-size: 0.95rem;
+    font-weight: 800;
+    margin-bottom: 4px;
+  }
+
+  .rule-box p {
+    font-size: 0.88rem;
+    line-height: 1.4;
+    color: var(--ink);
+  }
+
+  .rule-box.active-decision {
+    box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.25);
+    transform: scale(1.01);
+  }
+
+  .rule-box.stay.active-decision {
+    box-shadow: 0 0 0 3px rgba(244, 63, 94, 0.22);
+  }
+
+  /* —— Result —— */
+  .result-bar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 10px 16px;
+    padding: 14px 12px;
+    background: linear-gradient(135deg, #eff6ff, #f0fdf4);
+    border-radius: 14px;
+    border: 2px solid #bfdbfe;
+    margin-bottom: 8px;
+  }
+
+  .result-bar .num {
+    font-size: clamp(1.5rem, 5vw, 2.2rem);
+    font-weight: 900;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 0.02em;
+  }
+
+  .result-bar .arrow {
+    font-size: 1.6rem;
+    color: var(--green-deep);
+    font-weight: 800;
+  }
+
+  .result-bar .rounded {
+    color: var(--green-deep);
+  }
+
+  .phrase {
+    text-align: center;
+    font-size: clamp(0.92rem, 2.6vw, 1.05rem);
+    line-height: 1.45;
+    font-weight: 650;
+    color: var(--ink);
+  }
+
+  .phrase strong { color: var(--blue-deep); }
+  .phrase .hl-look { color: var(--orange-deep); }
+  .phrase .hl-ok { color: var(--green-deep); }
+
+  /* —— Number line —— */
+  .line-toggle {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 10px;
+    font-size: 0.92rem;
+    font-weight: 700;
+    color: var(--muted);
+  }
+
+  .line-toggle input { width: 18px; height: 18px; accent-color: var(--teal); }
+
+  .line-stage {
+    position: relative;
+    width: 100%;
+    height: 110px;
+    background: #f8fafc;
+    border-radius: 14px;
+    border: 2px solid #e2e8f0;
+    overflow: hidden;
+    margin-bottom: 6px;
+  }
+
+  .line-stage.hidden { display: none; }
+
+  .line-stage svg { width: 100%; height: 100%; display: block; }
+
+  .line-note {
+    font-size: 0.82rem;
+    color: var(--muted);
+    text-align: center;
+    line-height: 1.35;
+  }
+
+  /* —— Context cards —— */
+  .contexts {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  @media (min-width: 640px) {
+    .contexts { grid-template-columns: repeat(3, 1fr); }
+  }
+
+  .ctx {
+    appearance: none;
+    border: 2.5px solid #e2e8f0;
+    background: #fff;
+    border-radius: 16px;
+    padding: 14px 12px;
+    text-align: left;
+    cursor: pointer;
+    font-family: inherit;
+    transition: border-color 0.15s, box-shadow 0.15s, transform 0.1s;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    min-height: 100%;
+  }
+
+  .ctx:hover { border-color: var(--teal); }
+  .ctx:active { transform: scale(0.98); }
+  .ctx.active {
+    border-color: var(--teal);
+    background: var(--teal-soft);
+    box-shadow: 0 0 0 3px rgba(20, 184, 166, 0.2);
+  }
+
+  .ctx-icon {
+    width: 56px;
+    height: 56px;
+    align-self: center;
+  }
+
+  .ctx-title {
+    font-size: 1.05rem;
+    font-weight: 800;
+    text-align: center;
+    color: var(--ink);
+  }
+
+  .ctx-body {
+    font-size: 0.84rem;
+    line-height: 1.4;
+    color: var(--muted);
+    text-align: center;
+  }
+
+  .ctx-pill {
+    align-self: center;
+    font-size: 0.75rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    background: #fff;
+    border: 2px solid var(--teal);
+    color: #0f766e;
+    padding: 3px 10px;
+    border-radius: 999px;
+  }
+
+  /* —— Glossary —— */
+  .glossary { display: flex; flex-direction: column; gap: 6px; }
+
+  details.term {
+    background: #f8fafc;
+    border-radius: 12px;
+    border: 1.5px solid #e2e8f0;
+    padding: 2px 0;
+  }
+
+  details.term summary {
+    list-style: none;
+    cursor: pointer;
+    font-weight: 750;
+    font-size: 0.95rem;
+    padding: 10px 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  details.term summary::-webkit-details-marker { display: none; }
+
+  details.term summary::before {
+    content: "▸";
+    color: var(--blue);
+    font-size: 0.85rem;
+    transition: transform 0.15s;
+  }
+
+  details.term[open] summary::before { transform: rotate(90deg); }
+
+  details.term .def {
+    padding: 0 12px 12px 28px;
+    font-size: 0.9rem;
+    line-height: 1.45;
+    color: var(--muted);
+  }
+
+  footer {
+    text-align: center;
+    font-size: 0.78rem;
+    color: var(--muted);
+    margin-top: 4px;
+    line-height: 1.4;
+  }
+
+  .sr-only {
+    position: absolute; width: 1px; height: 1px;
+    padding: 0; margin: -1px; overflow: hidden;
+    clip: rect(0,0,0,0); border: 0;
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="badge">1º ESO · Matemáticas · Lección 05</div>
+    <h1>Estimaciones y redondeo</h1>
+<div style="background:#fff7ed;border:2px solid #f59e0b;border-radius:14px;padding:12px;margin:12px 0;color:#78350f"><strong>Truco:</strong> «Cinco o más, ¡a subir!; cuatro o menos, ¡a dormir!»</div>
+    <p class="subtitle">Elige el orden · mira la siguiente cifra · decide si sube o se queda</p>
+  </header>
+
+  <section class="card" aria-labelledby="play-title">
+    <h2 id="play-title">🎯 Redondea un natural</h2>
+    <p class="hint">Escribe o desliza un número. Elige <strong>decenas</strong>, <strong>centenas</strong> o <strong>millares</strong>. Observa la cifra del orden y la <strong>siguiente cifra</strong>.</p>
+
+    <div class="ctrl-row">
+      <div class="field">
+        <label for="numInput">Número natural</label>
+        <input type="number" id="numInput" min="0" max="99999" step="1" value="3746" inputmode="numeric">
+      </div>
+      <div class="field slider-wrap">
+        <label for="numSlider">Deslizar (0 – 9 999)</label>
+        <input type="range" id="numSlider" min="0" max="9999" step="1" value="3746">
+      </div>
+    </div>
+
+    <div class="order-group" role="group" aria-label="Orden de redondeo">
+      <button type="button" class="order-btn" data-order="10" id="ordDecenas">
+        <span class="ord-name">Decenas</span>
+        <span class="ord-desc">múltiplos de 10 · mira unidades</span>
+      </button>
+      <button type="button" class="order-btn active" data-order="100" id="ordCentenas">
+        <span class="ord-name">Centenas</span>
+        <span class="ord-desc">múltiplos de 100 · mira decenas</span>
+      </button>
+      <button type="button" class="order-btn" data-order="1000" id="ordMillares">
+        <span class="ord-name">Millares</span>
+        <span class="ord-desc">múltiplos de 1 000 · mira centenas</span>
+      </button>
+    </div>
+
+    <div class="ex-row" aria-label="Ejemplos de la lección">
+      <button type="button" class="ex-btn" id="ex3746" data-n="3746" data-order="100">Ejemplo: 3 746 → 3 700</button>
+      <button type="button" class="ex-btn" id="ex3760" data-n="3760" data-order="100">Ejemplo: 3 760 → 3 800</button>
+      <button type="button" class="chip" id="exRand" title="Número al azar">Otro número</button>
+    </div>
+  </section>
+
+  <section class="card" aria-labelledby="digits-title">
+    <h2 id="digits-title">🏠 Cifras y casitas de valor</h2>
+    <p class="hint">Cada casita es una posición. Azul = orden al que redondeamos. Naranja = <em>siguiente cifra</em> (decide). Gris = se convertirán en ceros.</p>
+
+    <div class="street" id="street" aria-live="polite"></div>
+
+    <div class="legend" aria-hidden="true">
+      <span><i class="swatch target"></i> Orden (cifra que puede subir)</span>
+      <span><i class="swatch look"></i> Siguiente cifra</span>
+      <span><i class="swatch zero"></i> Ceros del redondeo</span>
+    </div>
+
+    <div class="rule-panel">
+      <div class="rule-box up" id="ruleUp">
+        <h3>▲ Si siguiente ≥ 5 → sube</h3>
+        <p>La cifra del orden aumenta 1. A la derecha se escriben ceros.</p>
+      </div>
+      <div class="rule-box stay" id="ruleStay">
+        <h3>■ Si siguiente ≤ 4 → se queda</h3>
+        <p>La cifra del orden no cambia. A la derecha se escriben ceros.</p>
+      </div>
+    </div>
+
+    <div class="result-bar" aria-live="polite">
+      <span class="num" id="numBefore">3 746</span>
+      <span class="arrow" aria-hidden="true">→</span>
+      <span class="num rounded" id="numAfter">3 700</span>
+    </div>
+    <p class="phrase" id="phrase"></p>
+  </section>
+
+  <section class="card" aria-labelledby="line-title">
+    <h2 id="line-title">📏 Recta numérica (zoom)</h2>
+    <label class="line-toggle">
+      <input type="checkbox" id="showLine" checked>
+      Mostrar la zona entre el múltiplo anterior y el siguiente
+    </label>
+    <div class="line-stage" id="lineStage">
+      <svg id="lineSvg" viewBox="0 0 800 110" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Recta numérica del redondeo"></svg>
+    </div>
+    <p class="line-note" id="lineNote"></p>
+  </section>
+
+  <section class="card" aria-labelledby="ctx-title">
+    <h2 id="ctx-title">🧭 Precisión adecuada al contexto</h2>
+    <p class="hint">Toca una tarjeta: sugiere un orden típico y un número de ejemplo. La precisión «buena» depende de la situación.</p>
+    <div class="contexts">
+      <button type="button" class="ctx" id="ctxAula" data-order="10" data-n="27">
+        <svg class="ctx-icon" viewBox="0 0 64 64" aria-hidden="true">
+          <!-- classroom: chalkboard + desk -->
+          <rect x="6" y="8" width="52" height="32" rx="3" fill="#1e3a5f"/>
+          <rect x="10" y="12" width="44" height="24" rx="1" fill="#047857"/>
+          <text x="32" y="28" text-anchor="middle" fill="#ecfdf5" font-size="9" font-weight="700" font-family="Segoe UI,sans-serif">27≈30</text>
+          <rect x="18" y="44" width="28" height="6" rx="1" fill="#92400e"/>
+          <rect x="28" y="50" width="8" height="8" fill="#78350f"/>
+          <circle cx="14" cy="50" r="5" fill="#fbbf24"/>
+          <circle cx="50" cy="50" r="5" fill="#60a5fa"/>
+        </svg>
+        <div class="ctx-title">Aula</div>
+        <div class="ctx-body">«¿Cuántos somos hoy?» Bastan las <strong>decenas</strong>: 27 ≈ 30 alumnos.</div>
+        <span class="ctx-pill">→ decenas</span>
+      </button>
+
+      <button type="button" class="ctx" id="ctxCompra" data-order="10" data-n="48">
+        <svg class="ctx-icon" viewBox="0 0 64 64" aria-hidden="true">
+          <!-- shopping basket -->
+          <path d="M12 22 h40 l-4 28 H16 z" fill="#f59e0b" stroke="#b45309" stroke-width="2"/>
+          <path d="M20 22 V16 a12 12 0 0 1 24 0 v6" fill="none" stroke="#b45309" stroke-width="3" stroke-linecap="round"/>
+          <circle cx="24" cy="56" r="4" fill="#78716c"/>
+          <circle cx="42" cy="56" r="4" fill="#78716c"/>
+          <text x="32" y="42" text-anchor="middle" fill="#fff" font-size="10" font-weight="800" font-family="Segoe UI,sans-serif">48€</text>
+        </svg>
+        <div class="ctx-title">Compra</div>
+        <div class="ctx-body">Precio aproximado en la tienda: 48 € ≈ 50 € → suele bastar redondear a <strong>decenas</strong>.</div>
+        <span class="ctx-pill">→ decenas</span>
+      </button>
+
+      <button type="button" class="ctx" id="ctxProvincia" data-order="1000" data-n="8746">
+        <svg class="ctx-icon" viewBox="0 0 64 64" aria-hidden="true">
+          <!-- province / map pin + hills -->
+          <ellipse cx="32" cy="52" rx="22" ry="6" fill="#bbf7d0"/>
+          <path d="M8 48 Q20 28 32 40 Q44 20 56 48 Z" fill="#86efac" stroke="#16a34a" stroke-width="1.5"/>
+          <path d="M32 8 c-8 0-14 6-14 14 0 10 14 22 14 22s14-12 14-22c0-8-6-14-14-14z" fill="#ef4444"/>
+          <circle cx="32" cy="22" r="5" fill="#fff"/>
+        </svg>
+        <div class="ctx-title">Provincia</div>
+        <div class="ctx-body">Habitantes de un pueblo: 8 746 ≈ 9 000. Aquí encajan los <strong>millares</strong>.</div>
+        <span class="ctx-pill">→ millares</span>
+      </button>
+    </div>
+  </section>
+
+  <section class="card" aria-label="Glosario">
+    <h2>📖 Glosario</h2>
+    <div class="glossary">
+      <details class="term">
+        <summary>Estimación</summary>
+        <div class="def">Valor aproximado de una cantidad. No es exacto, pero es útil para decidir o comunicar con rapidez.</div>
+      </details>
+      <details class="term">
+        <summary>Redondeo</summary>
+        <div class="def">Sustituir un número por el múltiplo más cercano del orden elegido (decenas, centenas o millares), dejando ceros a la derecha.</div>
+      </details>
+      <details class="term">
+        <summary>Decenas</summary>
+        <div class="def">Orden ×10. Redondear a las decenas produce …0. Se mira la cifra de las <strong>unidades</strong>.</div>
+      </details>
+      <details class="term">
+        <summary>Centenas</summary>
+        <div class="def">Orden ×100. Redondear a las centenas produce …00. Se mira la cifra de las <strong>decenas</strong>.</div>
+      </details>
+      <details class="term">
+        <summary>Millares</summary>
+        <div class="def">Orden ×1 000 (unidades de millar). Redondear a los millares produce …000. Se mira la cifra de las <strong>centenas</strong>.</div>
+      </details>
+      <details class="term">
+        <summary>Siguiente cifra</summary>
+        <div class="def">La cifra justo a la derecha del orden al que redondeamos. Si es ≥ 5, la del orden <em>sube</em>; si es ≤ 4, <em>se queda</em>.</div>
+      </details>
+      <details class="term">
+        <summary>Precisión adecuada</summary>
+        <div class="def">Elegir el orden según el contexto: aula y compra suelen usar decenas; poblaciones grandes, millares.</div>
+      </details>
+    </div>
+  </section>
+
+  <footer>Offline · file:// · Lección 05 · 1º ESO Matemáticas · Jorge<br>Miles con espacio fino (estilo europeo).</footer>
+</div>
+
+<script>
+(function () {
+  'use strict';
+
+  var PLACES = [
+    { key: 'um', name: 'unidades\nde millar', short: 'millares', factor: 1000, color: '#8b5cf6', border: '#6d28d9' },
+    { key: 'c',  name: 'centenas', short: 'centenas', factor: 100, color: '#3b82f6', border: '#1d4ed8' },
+    { key: 'd',  name: 'decenas', short: 'decenas', factor: 10, color: '#14b8a6', border: '#0f766e' },
+    { key: 'u',  name: 'unidades', short: 'unidades', factor: 1, color: '#f59e0b', border: '#b45309' }
+  ];
+
+  var ORDER_NAMES = {
+    10: { name: 'decenas', lookName: 'unidades', zeros: 1 },
+    100: { name: 'centenas', lookName: 'decenas', zeros: 2 },
+    1000: { name: 'millares', lookName: 'centenas', zeros: 3 }
+  };
+
+  var state = {
+    n: 3746,
+    order: 100,
+    showLine: true,
+    activeEx: '3746'
+  };
+
+  var el = {
+    numInput: document.getElementById('numInput'),
+    numSlider: document.getElementById('numSlider'),
+    street: document.getElementById('street'),
+    ruleUp: document.getElementById('ruleUp'),
+    ruleStay: document.getElementById('ruleStay'),
+    numBefore: document.getElementById('numBefore'),
+    numAfter: document.getElementById('numAfter'),
+    phrase: document.getElementById('phrase'),
+    showLine: document.getElementById('showLine'),
+    lineStage: document.getElementById('lineStage'),
+    lineSvg: document.getElementById('lineSvg'),
+    lineNote: document.getElementById('lineNote'),
+    ordBtns: document.querySelectorAll('.order-btn'),
+    ex3746: document.getElementById('ex3746'),
+    ex3760: document.getElementById('ex3760'),
+    exRand: document.getElementById('exRand'),
+    ctxAula: document.getElementById('ctxAula'),
+    ctxCompra: document.getElementById('ctxCompra'),
+    ctxProvincia: document.getElementById('ctxProvincia')
+  };
+
+  function fmt(n) {
+    n = Math.abs(Math.trunc(n));
+    var s = String(n);
+    var parts = [];
+    while (s.length > 3) {
+      parts.unshift(s.slice(-3));
+      s = s.slice(0, -3);
+    }
+    if (s.length) parts.unshift(s);
+    return parts.join('\u2009');
+  }
+
+  function clamp(n, lo, hi) {
+    return Math.max(lo, Math.min(hi, n));
+  }
+
+  function digitsOf(n) {
+    // Always 4 places for display: UM C D U (pad left)
+    var s = String(Math.trunc(Math.abs(n)));
+    while (s.length < 4) s = '0' + s;
+    if (s.length > 4) s = s.slice(-4); // keep last 4 for house display; full n used in math
+    return s.split('').map(Number);
+  }
+
+  function roundNatural(n, order) {
+    var half = order / 2;
+    return Math.floor((n + half) / order) * order;
+  }
+
+  function lookDigit(n, order) {
+    // digit immediately to the right of the order place
+    return Math.floor(n / (order / 10)) % 10;
+  }
+
+  function targetDigit(n, order) {
+    return Math.floor(n / order) % 10;
+  }
+
+  function roleForPlace(factor) {
+    var order = state.order;
+    if (factor === order) return 'target';
+    if (factor === order / 10) return 'look';
+    if (factor < order) return 'trail';
+    return 'plain';
+  }
+
+  function renderStreet() {
+    var digs = digitsOf(state.n);
+    // If number >= 10000, show last 4 but still compute from full n
+    var showN = state.n;
+    if (showN > 9999) {
+      // expand street? keep 4 houses of last 4 digits for simplicity; note in phrase
+    }
+    var html = '';
+    for (var i = 0; i < 4; i++) {
+      var p = PLACES[i];
+      var role = roleForPlace(p.factor);
+      var tag = '';
+      if (role === 'target') tag = '<span class="tag target-tag">orden</span>';
+      else if (role === 'look') tag = '<span class="tag look-tag">siguiente</span>';
+      else if (role === 'trail') tag = '<span class="tag zero-tag">→ 0</span>';
+      else tag = '<span class="tag" style="visibility:hidden">·</span>';
+
+      html +=
+        '<div class="house ' + role + '" data-place="' + p.key + '">' +
+          '<div class="roof" style="background:' + p.border + '"></div>' +
+          '<div class="walls" style="border-color:' + p.border + '">' +
+            '<div class="place-name" style="color:' + p.border + '">' + p.name.replace('\n', '<br>') + '</div>' +
+            '<div class="digit-box" style="border-color:' + p.border + '">' + digs[i] + '</div>' +
+            tag +
+          '</div>' +
+        '</div>';
+    }
+    el.street.innerHTML = html;
+  }
+
+  function renderRulesAndPhrase() {
+    var order = state.order;
+    var info = ORDER_NAMES[order];
+    var look = lookDigit(state.n, order);
+    var rounded = roundNatural(state.n, order);
+    var goesUp = look >= 5;
+
+    el.ruleUp.classList.toggle('active-decision', goesUp);
+    el.ruleStay.classList.toggle('active-decision', !goesUp);
+
+    el.numBefore.textContent = fmt(state.n);
+    el.numAfter.textContent = fmt(rounded);
+
+    var decision = goesUp
+      ? 'La siguiente cifra es <span class="hl-look">' + look + '</span> (≥ 5) → la de las <strong>' + info.name + '</strong> <span class="hl-ok">sube</span>.'
+      : 'La siguiente cifra es <span class="hl-look">' + look + '</span> (≤ 4) → la de las <strong>' + info.name + '</strong> <span class="hl-ok">se queda</span>.';
+
+    el.phrase.innerHTML =
+      'Redondeo a las <strong>' + info.name + '</strong>: miramos las <span class="hl-look">' + info.lookName + '</span>. ' +
+      decision +
+      ' Resultado: <span class="hl-ok">' + fmt(rounded) + '</span>.';
+  }
+
+  function renderLine() {
+    if (!state.showLine) {
+      el.lineStage.classList.add('hidden');
+      el.lineNote.textContent = '';
+      return;
+    }
+    el.lineStage.classList.remove('hidden');
+
+    var order = state.order;
+    var n = state.n;
+    var rounded = roundNatural(n, order);
+    var lo = Math.floor(n / order) * order;
+    var hi = lo + order;
+    // Edge: if n is exact multiple, show previous–next around it
+    if (n % order === 0) {
+      lo = n - order;
+      hi = n + order;
+      if (lo < 0) lo = 0;
+    }
+    var mid = lo + order / 2;
+
+    var W = 800, H = 110;
+    var pad = 48;
+    var y = 58;
+
+    function xOf(v) {
+      return pad + ((v - lo) / (hi - lo)) * (W - 2 * pad);
+    }
+
+    var parts = [];
+    // baseline
+    parts.push('<line x1="' + pad + '" y1="' + y + '" x2="' + (W - pad) + '" y2="' + y + '" stroke="#334155" stroke-width="3" stroke-linecap="round"/>');
+    // arrow tip
+    parts.push('<polygon points="' + (W - pad) + ',' + y + ' ' + (W - pad - 12) + ',' + (y - 6) + ' ' + (W - pad - 12) + ',' + (y + 6) + '" fill="#334155"/>');
+
+    // ticks at lo, mid, hi
+    [lo, mid, hi].forEach(function (v) {
+      var x = xOf(v);
+      parts.push('<line x1="' + x + '" y1="' + (y - 10) + '" x2="' + x + '" y2="' + (y + 10) + '" stroke="#64748b" stroke-width="2"/>');
+      var label = (v === mid) ? 'mitad (' + fmt(v) + ')' : fmt(v);
+      var dy = (v === mid) ? y + 28 : y + 28;
+      parts.push('<text x="' + x + '" y="' + dy + '" text-anchor="middle" font-size="13" font-weight="700" fill="#5a6d7e" font-family="Segoe UI,sans-serif">' + label + '</text>');
+    });
+
+    // zone shading: left of mid = stay, right = up
+    var xLo = xOf(lo), xMid = xOf(mid), xHi = xOf(hi);
+    parts.push('<rect x="' + xLo + '" y="' + (y - 22) + '" width="' + (xMid - xLo) + '" height="16" fill="#ffe4e6" opacity="0.85" rx="4"/>');
+    parts.push('<rect x="' + xMid + '" y="' + (y - 22) + '" width="' + (xHi - xMid) + '" height="16" fill="#d1fae5" opacity="0.85" rx="4"/>');
+    parts.push('<text x="' + ((xLo + xMid) / 2) + '" y="' + (y - 26) + '" text-anchor="middle" font-size="11" font-weight="800" fill="#be123c" font-family="Segoe UI,sans-serif">se queda → ' + fmt(lo) + '</text>');
+    parts.push('<text x="' + ((xMid + xHi) / 2) + '" y="' + (y - 26) + '" text-anchor="middle" font-size="11" font-weight="800" fill="#047857" font-family="Segoe UI,sans-serif">sube → ' + fmt(hi) + '</text>');
+
+    // original marker
+    var xn = xOf(clamp(n, lo, hi));
+    parts.push('<circle cx="' + xn + '" cy="' + y + '" r="9" fill="#3b82f6" stroke="#fff" stroke-width="3"/>');
+    parts.push('<text x="' + xn + '" y="' + (y - 36) + '" text-anchor="middle" font-size="14" font-weight="800" fill="#1d4ed8" font-family="Segoe UI,sans-serif">' + fmt(n) + '</text>');
+
+    // rounded marker
+    var xr = xOf(clamp(rounded, lo, hi));
+    if (Math.abs(xr - xn) > 8) {
+      parts.push('<circle cx="' + xr + '" cy="' + y + '" r="8" fill="#10b981" stroke="#fff" stroke-width="3"/>');
+      parts.push('<text x="' + xr + '" y="' + (y + 48) + '" text-anchor="middle" font-size="13" font-weight="800" fill="#047857" font-family="Segoe UI,sans-serif">≈ ' + fmt(rounded) + '</text>');
+    } else {
+      parts.push('<text x="' + xr + '" y="' + (y + 48) + '" text-anchor="middle" font-size="13" font-weight="800" fill="#047857" font-family="Segoe UI,sans-serif">≈ ' + fmt(rounded) + '</text>');
+    }
+
+    el.lineSvg.innerHTML = parts.join('');
+    el.lineNote.textContent =
+      'Entre ' + fmt(lo) + ' y ' + fmt(hi) + ' la mitad es ' + fmt(mid) +
+      '. Si el número está a la izquierda de la mitad → se queda en ' + fmt(lo) +
+      '; si está a la derecha (o justo en la mitad) → sube a ' + fmt(hi) + '.';
+  }
+
+  function setOrder(order) {
+    state.order = order;
+    el.ordBtns.forEach(function (btn) {
+      btn.classList.toggle('active', Number(btn.dataset.order) === order);
+    });
+  }
+
+  function setExActive(which) {
+    state.activeEx = which;
+    el.ex3746.classList.toggle('active', which === '3746');
+    el.ex3760.classList.toggle('active', which === '3760');
+  }
+
+  function clearCtx() {
+    [el.ctxAula, el.ctxCompra, el.ctxProvincia].forEach(function (b) {
+      b.classList.remove('active');
+    });
+  }
+
+  function refresh() {
+    state.n = clamp(Math.round(state.n), 0, 99999);
+    el.numInput.value = state.n;
+    el.numSlider.value = clamp(state.n, 0, 9999);
+    renderStreet();
+    renderRulesAndPhrase();
+    renderLine();
+  }
+
+  // Events
+  el.numInput.addEventListener('input', function () {
+    var v = Number(el.numInput.value);
+    if (!Number.isFinite(v)) return;
+    state.n = v;
+    setExActive('');
+    clearCtx();
+    refresh();
+  });
+
+  el.numSlider.addEventListener('input', function () {
+    state.n = Number(el.numSlider.value);
+    setExActive('');
+    clearCtx();
+    refresh();
+  });
+
+  el.ordBtns.forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      setOrder(Number(btn.dataset.order));
+      setExActive('');
+      refresh();
+    });
+  });
+
+  el.ex3746.addEventListener('click', function () {
+    state.n = 3746;
+    setOrder(100);
+    setExActive('3746');
+    clearCtx();
+    refresh();
+  });
+
+  el.ex3760.addEventListener('click', function () {
+    state.n = 3760;
+    setOrder(100);
+    setExActive('3760');
+    clearCtx();
+    refresh();
+  });
+
+  el.exRand.addEventListener('click', function () {
+    state.n = Math.floor(Math.random() * 9000) + 100;
+    setExActive('');
+    clearCtx();
+    refresh();
+  });
+
+  el.showLine.addEventListener('change', function () {
+    state.showLine = el.showLine.checked;
+    renderLine();
+  });
+
+  function bindCtx(btn) {
+    btn.addEventListener('click', function () {
+      clearCtx();
+      btn.classList.add('active');
+      state.n = Number(btn.dataset.n);
+      setOrder(Number(btn.dataset.order));
+      setExActive('');
+      refresh();
+    });
+  }
+  bindCtx(el.ctxAula);
+  bindCtx(el.ctxCompra);
+  bindCtx(el.ctxProvincia);
+
+  // Init with lesson example 3746 → 3700
+  setOrder(100);
+  setExActive('3746');
+  refresh();
+})();
+</script>
+</body>
+</html>

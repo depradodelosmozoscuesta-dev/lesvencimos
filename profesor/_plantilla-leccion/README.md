@@ -11,7 +11,7 @@ Chrome compartido para presentaciones HTML offline. Los bots de Mate siguen crea
    - `profesor/_plantilla-leccion/demo-bloques.html`
    - o `profesor/_plantilla-leccion/leccion-shell.html` (mismo demo)
 2. Mock de lección 01 con iframes reales:
-   - `profesor/1eso-matematicas/lecciones/01-presentacion.html`
+   - `profesor/1eso-matematicas/lecciones/leccion-01.html`
 
 Rutas relativas: funciona desde disco o desde el sitio estático.
 
@@ -151,6 +151,20 @@ Copiar o enlazar desde `figuras/`:
 - `ticket.svg` — importe en €  
 
 Son SVG inline-friendly (fondo crema `#FAF7F0` + oro `#C4A15A`). Se pueden pegar dentro de `.figura` o `.ilustracion-slot`.
+
+
+
+## Naming canónico · `leccion-NN.html` + pack offline plano
+
+- **Online (sitio):** `profesor/1eso-matematicas/lecciones/leccion-01.html` … `leccion-47.html` (cero-padded).
+  CSS/JS: `../../_plantilla-leccion/leccion-shell.css` (+ `leccion-shell-nav.js`).
+  Calculadora: `../../../modulos/calculadora.html`.
+  Prev/next: `leccion-0N-1.html` / `leccion-0N+1.html`. Iframes: `l0N-….html` en la misma carpeta.
+- **Offline (ZIP plano):** una sola carpeta con `index.html`, `LEEME.md`, `leccion-NN.html`, widgets `l0N-….html`,
+  y **vendor** de `leccion-shell.css`, `leccion-shell-nav.js`, `calculadora.html`, `figuras/*.svg`
+  (mismas rutas relativas en la raíz del pack: sin carpetas `profesor/` anidadas).
+- Alias antiguos (`01-presentacion.html`) redirigen a `leccion-01.html` para no romper enlaces.
+- El alumno **no instala nada**: descomprime el ZIP y abre `index.html`.
 
 ## Qué no hacer
 
