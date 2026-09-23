@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Problemas con fracciones · CyL · 1º ESO</title>
+<style>
+  :root {
+    --bg:#f4f7fb; --ink:#1a2b3c; --muted:#5a6d7e; --card:#fff;
+    --blue:#3b82f6; --blue-soft:#dbeafe; --blue-deep:#1d4ed8;
+    --orange:#f59e0b; --orange-soft:#fef3c7; --orange-deep:#b45309;
+    --green:#10b981; --green-soft:#d1fae5; --green-deep:#047857;
+    --purple:#8b5cf6; --purple-soft:#ede9fe; --purple-deep:#6d28d9;
+    --rose:#f43f5e; --rose-soft:#ffe4e6; --rose-deep:#be123c;
+    --teal:#14b8a6; --teal-soft:#ccfbf1; --teal-deep:#0f766e;
+    --shadow:0 8px 28px rgba(26,43,60,.08); --radius:18px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{min-height:100%;background:var(--bg);color:var(--ink);
+    font-family:"Segoe UI",system-ui,-apple-system,sans-serif;-webkit-font-smoothing:antialiased}
+  body{display:flex;flex-direction:column;align-items:center;padding:14px 10px 36px}
+  .wrap{width:100%;max-width:980px}
+  header{text-align:center;margin-bottom:12px}
+  header .badge{display:inline-block;font-size:.78rem;font-weight:600;letter-spacing:.04em;
+    text-transform:uppercase;color:var(--teal-deep);background:var(--teal-soft);
+    padding:4px 12px;border-radius:999px;margin-bottom:8px}
+  h1{font-size:clamp(1.3rem,4.5vw,1.9rem);line-height:1.2;font-weight:800}
+  .subtitle{margin-top:6px;font-size:clamp(.9rem,2.8vw,1.05rem);color:var(--muted);font-weight:500}
+  .story{background:linear-gradient(135deg,#ccfbf1,#fef3c7 50%,#dbeafe);
+    border:2px solid #5eead4;border-radius:var(--radius);padding:12px 14px;
+    margin-bottom:14px;display:flex;gap:12px;align-items:flex-start}
+  .story .emoji{font-size:2rem}
+  .story p{font-size:clamp(.9rem,2.5vw,1.02rem);line-height:1.45}
+  .story strong{color:var(--teal-deep)}
+  .card{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);
+    padding:16px 14px 18px;margin-bottom:14px}
+  .card h2{font-size:clamp(1.05rem,3vw,1.25rem);font-weight:800;margin-bottom:8px}
+  .hint{font-size:clamp(.88rem,2.4vw,1rem);color:var(--muted);line-height:1.45;margin-bottom:12px}
+  .chooser{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px}
+  .chip{border:2px solid #cbd5e1;background:#fff;border-radius:999px;padding:8px 14px;
+    font-size:.86rem;font-weight:700;cursor:pointer}
+  .chip.active{border-color:var(--teal);background:var(--teal-soft);color:var(--teal-deep)}
+  .problem-box{background:linear-gradient(135deg,#f0fdfa,#fff);border:2px solid #99f6e4;
+    border-radius:14px;padding:14px 16px;margin-bottom:14px}
+  .problem-box .place{font-size:.78rem;font-weight:800;text-transform:uppercase;letter-spacing:.04em;color:var(--teal-deep)}
+  .problem-box .enun{font-size:clamp(1rem,3vw,1.15rem);font-weight:700;line-height:1.45;margin-top:6px}
+  .ctrl-row{display:flex;flex-wrap:wrap;gap:12px;align-items:flex-end;margin-bottom:12px}
+  .field{display:flex;flex-direction:column;gap:4px;flex:1 1 100px}
+  .field label{font-size:.8rem;font-weight:700;color:var(--muted)}
+  .field label .letter{display:inline-block;padding:1px 7px;border-radius:8px;font-weight:800;margin-right:3px;background:#fff;color:var(--blue-deep)}
+  .field input[type="number"]{width:100%;font-size:1.25rem;font-weight:800;padding:8px 10px;
+    border:2.5px solid #cbd5e1;border-radius:12px;background:#fff}
+  .field input:focus{outline:none;border-color:var(--teal);box-shadow:0 0 0 3px #99f6e4}
+  .step-nav{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px;align-items:center}
+  .step-btn{padding:10px 16px;border-radius:12px;border:2px solid #cbd5e1;background:#fff;
+    font-weight:800;cursor:pointer;font-size:.95rem}
+  .step-btn:disabled{opacity:.4;cursor:default}
+  .step-btn.primary{border-color:var(--teal);background:var(--teal-soft);color:var(--teal-deep)}
+  .step-ind{font-weight:800;color:var(--muted);font-size:.9rem}
+  .stage{border-radius:16px;padding:14px 12px 16px;margin-bottom:12px;border:2px solid #5eead4;
+    background:linear-gradient(180deg,#f0fdfa 0%,#ccfbf1 60%,#99f6e4 100%)}
+  .tape{display:flex;height:48px;border:3px solid #334155;border-radius:10px;overflow:hidden;background:#fff;margin:8px 0}
+  .tape-seg{display:flex;align-items:center;justify-content:center;font-size:.78rem;font-weight:800;color:#fff;min-width:0;text-align:center;padding:2px}
+  .tape-seg.used{background:linear-gradient(180deg,#60a5fa,#3b82f6)}
+  .tape-seg.second{background:linear-gradient(180deg,#fbbf24,#f59e0b)}
+  .tape-seg.left{background:linear-gradient(180deg,#34d399,#10b981)}
+  .tape-seg.empty{background:#f1f5f9;color:var(--muted)}
+  .tape-lab{font-size:.88rem;font-weight:800;margin-top:4px}
+  .steps-list{display:flex;flex-direction:column;gap:8px;margin-top:10px}
+  .step-card{background:rgba(255,255,255,.9);border-radius:12px;padding:10px 12px;border:2px solid #99f6e4}
+  .step-card.dim{opacity:.45}
+  .step-card h4{font-size:.75rem;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);margin-bottom:4px}
+  .step-card p{font-size:.95rem;font-weight:700;line-height:1.4}
+  .answer{background:var(--green-soft);border:2px solid #6ee7b7;border-radius:14px;padding:12px 14px;margin-top:10px}
+  .answer .lab{font-size:.75rem;font-weight:800;text-transform:uppercase;color:var(--green-deep)}
+  .answer .val{font-size:clamp(1.1rem,3.5vw,1.4rem);font-weight:900;color:var(--green-deep);margin-top:4px}
+  .keys{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
+  @media(max-width:560px){.keys{grid-template-columns:1fr}}
+  .key{background:#fff;border:2px solid #e2e8f0;border-radius:12px;padding:10px}
+  .key strong{display:block;color:var(--blue-deep);font-size:.9rem}
+  .key span{font-size:.85rem;color:var(--muted);font-weight:600}
+  .mnemonic{background:linear-gradient(135deg,var(--purple-soft),#fce7f3);
+    border:2px solid #d8b4fe;border-radius:14px;padding:12px 14px;margin-top:10px;text-align:center}
+  .mnemonic .tag{font-size:.75rem;font-weight:800;text-transform:uppercase;letter-spacing:.05em;color:var(--purple-deep)}
+  .mnemonic p{margin-top:4px;font-size:clamp(.95rem,3vw,1.1rem);font-weight:800;color:var(--purple-deep)}
+  .glossary{display:grid;gap:8px}
+  .glossary dt{font-weight:800;font-size:.95rem;color:var(--blue-deep)}
+  .glossary dd{font-size:.92rem;color:var(--muted);line-height:1.4;margin-bottom:4px}
+  .sym-chip{display:inline-block;background:var(--teal-soft);color:var(--teal-deep);font-weight:800;
+    padding:1px 7px;border-radius:6px;font-family:"Courier New",ui-monospace,monospace}
+  footer.note{text-align:center;font-size:.8rem;color:var(--muted);margin-top:8px}
+  .callout{font-size:.9rem;font-weight:700;color:var(--teal-deep);background:#f0fdfa;
+    border-left:4px solid var(--teal);padding:8px 12px;border-radius:0 10px 10px 0;margin-top:10px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="badge">1º ESO · UD5 Fracciones · L20</div>
+    <h1>Problemas con fracciones</h1>
+    <p class="subtitle">Diagrama de cinta · contextos Castilla y León</p>
+  </header>
+
+  <div class="story">
+    <div class="emoji">🚌📚</div>
+    <p>Lee dos veces: ¿la fracción es del <strong>total</strong> o de <strong>lo que queda</strong>?
+      Dibuja la cinta, marca la primera parte, y aplica la segunda solo al resto. Ambientado en CyL.</p>
+  </div>
+
+  <div class="card">
+    <h2>🗺️ Elige un problema</h2>
+    <p class="hint">Cada escenario tiene controles propios (total y fracciones). Avanza paso a paso.</p>
+    <div class="chooser" id="presets">
+      <button class="chip active" data-id="bus" type="button">🚌 Bus Valladolid</button>
+      <button class="chip" data-id="deposito" type="button">💧 Depósito León</button>
+      <button class="chip" data-id="mercadillo" type="button">💶 Mercadillo Burgos</button>
+      <button class="chip" data-id="libro" type="button">📖 Libro Salamanca</button>
+      <button class="chip" data-id="oferta" type="button">🏷️ Oferta Ávila</button>
+      <button class="chip" data-id="pizza" type="button">🍕 Pizza Segovia</button>
+    </div>
+
+    <div class="problem-box">
+      <div class="place" id="place">Valladolid · transporte escolar</div>
+      <div class="enun" id="enun">—</div>
+    </div>
+
+    <div class="ctrl-row" id="controls"></div>
+
+    <div class="step-nav">
+      <button type="button" class="step-btn" id="btnPrev">← Anterior</button>
+      <span class="step-ind" id="stepInd">Paso 0 / 0</span>
+      <button type="button" class="step-btn primary" id="btnNext">Siguiente →</button>
+      <button type="button" class="step-btn" id="btnAll">Ver todo</button>
+    </div>
+
+    <div class="stage">
+      <div style="font-weight:800;color:var(--teal-deep);margin-bottom:6px">Diagrama de cinta (barra)</div>
+      <div id="tape"></div>
+      <div class="steps-list" id="steps"></div>
+      <div class="answer" id="answer" style="display:none">
+        <div class="lab">Respuesta completa</div>
+        <div class="val" id="answerVal">—</div>
+      </div>
+      <div class="callout" id="callout"></div>
+    </div>
+
+    <div class="keys">
+      <div class="key"><strong>«fracción de»</strong><span>→ producto (×)</span></div>
+      <div class="key"><strong>«en total / juntos»</strong><span>→ suma (+)</span></div>
+      <div class="key"><strong>«queda / diferencia»</strong><span>→ resta (−)</span></div>
+      <div class="key"><strong>«de lo que queda»</strong><span>→ aplica al resto, no al total</span></div>
+    </div>
+
+    <div class="mnemonic">
+      <div class="tag">Truco mnemotécnico</div>
+      <p>«¿Del todo o del resto? Si dice “de lo que queda”, cambia el todo a mitad de problema.»</p>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>📖 Letras y símbolos (en español)</h2>
+    <dl class="glossary">
+      <dt><span class="sym-chip">a/b</span> de N</dt>
+      <dd>Fracción de una cantidad: <span class="sym-chip">(a/b)×N</span>. Ejemplo: 3/5 de 240 = 144.</dd>
+      <dt><span class="sym-chip">×</span> <span class="sym-chip">+</span> <span class="sym-chip">−</span> <span class="sym-chip">÷</span></dt>
+      <dd>Elige según el enunciado (de / juntos / queda / repartir). No memorices a ciegas: dibuja.</dd>
+      <dt>Todo / resto</dt>
+      <dd>El <strong>todo</strong> es la unidad del problema. Tras quitar una parte, el nuevo todo es lo que <em>queda</em>.</dd>
+      <dt><span class="sym-chip">=</span></dt>
+      <dd>Igualdad del cálculo. La respuesta final lleva <strong>unidades</strong> y frase completa.</dd>
+      <dt>Diagrama de cinta</dt>
+      <dd>Barra del todo partida en trozos iguales; sombrea lo usado y lo que queda.</dd>
+      <dt>Error típico</dt>
+      <dd>Aplicar la 2.ª fracción al total original cuando el texto dice «de lo que queda».</dd>
+    </dl>
+  </div>
+
+  <footer class="note">Offline · file:// · 1º ESO Matemáticas CyL UD5 · L20 · Jorge</footer>
+</div>
+<script>
+(function(){
+  const $ = (id)=>document.getElementById(id);
+  let step = 0;
+  let curId = 'bus';
+  const state = { N:240, f1n:3, f1d:5, f2n:1, f2d:3 };
+
+  const PROBLEMS = {
+    bus: {
+      place: 'Valladolid · transporte escolar',
+      emoji: '🚌',
+      buildEnun: (s)=>`En un instituto de Valladolid hay <strong>${s.N}</strong> alumnos. Usan el bus escolar <strong>${s.f1n}/${s.f1d}</strong>. ¿Cuántos van en bus? ¿Cuántos no?`,
+      fields: [
+        {key:'N', lab:'N Total alumnos', min:60, max:600, step:10},
+        {key:'f1n', lab:'a Numerador (bus)', min:1, max:9},
+        {key:'f1d', lab:'b Denominador', min:2, max:10}
+      ],
+      defaults: {N:240, f1n:3, f1d:5},
+      compute(s){
+        const bus = Math.round(s.N * s.f1n / s.f1d);
+        const resto = s.N - bus;
+        return {
+          answer: `Van en bus <strong>${bus}</strong> alumnos; no usan bus <strong>${resto}</strong>.`,
+          tip: '«Fracción de» → producto. El resto es el total menos lo usado.',
+          steps: [
+            {t:'1 · Identifica el todo', p:`Todo = ${s.N} alumnos del instituto.`},
+            {t:'2 · Fracción de cantidad', p:`Bus = (${s.f1n}/${s.f1d}) × ${s.N} = <strong>${bus}</strong>.`},
+            {t:'3 · Resta lo que queda', p:`No bus = ${s.N} − ${bus} = <strong>${resto}</strong>.`},
+            {t:'4 · Frase completa', p:`De ${s.N} alumnos, ${bus} van en bus y ${resto} no.`}
+          ],
+          tape: ()=>{
+            const u = s.f1n/s.f1d, r = 1-u;
+            return `<div class="tape">
+              <div class="tape-seg used" style="flex:${u}">bus ${s.f1n}/${s.f1d}</div>
+              <div class="tape-seg left" style="flex:${r}">resto</div>
+            </div>
+            <div class="tape-lab">${bus} en bus · ${resto} sin bus · total ${s.N}</div>`;
+          }
+        };
+      }
+    },
+    deposito: {
+      place: 'León · depósito de agua',
+      emoji: '💧',
+      buildEnun: (s)=>`Un depósito en una granja cerca de León tiene <strong>${s.N}</strong> L. Se gastan <strong>${s.f1n}/${s.f1d}</strong>. ¿Cuántos litros quedan?`,
+      fields: [
+        {key:'N', lab:'N Capacidad (L)', min:40, max:400, step:10},
+        {key:'f1n', lab:'a Numerador gastado', min:1, max:9},
+        {key:'f1d', lab:'b Denominador', min:2, max:12}
+      ],
+      defaults: {N:120, f1n:3, f1d:8},
+      compute(s){
+        const gast = Math.round(s.N * s.f1n / s.f1d);
+        const queda = s.N - gast;
+        return {
+          answer: `Quedan <strong>${queda} L</strong> (se gastaron ${gast} L).`,
+          tip: 'Gastado = fracción × total; queda = total − gastado.',
+          steps: [
+            {t:'1 · Todo', p:`Depósito lleno = ${s.N} L.`},
+            {t:'2 · Gastado', p:`(${s.f1n}/${s.f1d})×${s.N} = <strong>${gast} L</strong>.`},
+            {t:'3 · Queda', p:`${s.N} − ${gast} = <strong>${queda} L</strong>.`},
+            {t:'4 · Frase', p:`Tras gastar ${s.f1n}/${s.f1d}, quedan ${queda} litros.`}
+          ],
+          tape: ()=>{
+            const u = s.f1n/s.f1d;
+            return `<div class="tape">
+              <div class="tape-seg used" style="flex:${u}">gastado</div>
+              <div class="tape-seg left" style="flex:${1-u}">queda</div>
+            </div>
+            <div class="tape-lab">${gast} L gastados · ${queda} L quedan</div>`;
+          }
+        };
+      }
+    },
+    mercadillo: {
+      place: 'Burgos · mercadillo',
+      emoji: '💶',
+      buildEnun: (s)=>`Llevas <strong>${s.N} €</strong> al mercadillo de Burgos. Gastas <strong>${s.f1n}/${s.f1d}</strong> en fruta y <strong>${s.f2n}/${s.f2d}</strong> (del total) en pan. ¿Cuánto gastaste? ¿Cuánto te queda?`,
+      fields: [
+        {key:'N', lab:'N Dinero (€)', min:12, max:60, step:2},
+        {key:'f1n', lab:'a Fruta num.', min:1, max:5},
+        {key:'f1d', lab:'b Fruta den.', min:2, max:8},
+        {key:'f2n', lab:'c Pan num.', min:1, max:5},
+        {key:'f2d', lab:'d Pan den.', min:2, max:8}
+      ],
+      defaults: {N:18, f1n:1, f1d:2, f2n:1, f2d:3},
+      compute(s){
+        const fruta = Math.round(s.N * s.f1n / s.f1d * 100)/100;
+        const pan = Math.round(s.N * s.f2n / s.f2d * 100)/100;
+        const gast = Math.round((fruta+pan)*100)/100;
+        const queda = Math.round((s.N - gast)*100)/100;
+        return {
+          answer: `Gastaste <strong>${gast} €</strong> (fruta ${fruta} € + pan ${pan} €); te quedan <strong>${queda} €</strong>.`,
+          tip: 'Ambas fracciones son del mismo total → suma de «fracciones de».',
+          steps: [
+            {t:'1 · Todo', p:`Presupuesto = ${s.N} €.`},
+            {t:'2 · Fruta', p:`(${s.f1n}/${s.f1d})×${s.N} = <strong>${fruta} €</strong>.`},
+            {t:'3 · Pan', p:`(${s.f2n}/${s.f2d})×${s.N} = <strong>${pan} €</strong>.`},
+            {t:'4 · Total gastado y resto', p:`${fruta}+${pan}=<strong>${gast} €</strong>; quedan ${s.N}−${gast}=<strong>${queda} €</strong>.`}
+          ],
+          tape: ()=>{
+            const u1 = s.f1n/s.f1d, u2 = s.f2n/s.f2d, r = Math.max(0,1-u1-u2);
+            return `<div class="tape">
+              <div class="tape-seg used" style="flex:${u1}">fruta</div>
+              <div class="tape-seg second" style="flex:${u2}">pan</div>
+              <div class="tape-seg left" style="flex:${r||0.001}">queda</div>
+            </div>
+            <div class="tape-lab">${fruta} € + ${pan} € = ${gast} € · quedan ${queda} €</div>`;
+          }
+        };
+      }
+    },
+    libro: {
+      place: 'Salamanca · lectura',
+      emoji: '📖',
+      buildEnun: (s)=>`Un libro de <strong>${s.N}</strong> páginas (biblioteca escolar de Salamanca). Lees <strong>${s.f1n}/${s.f1d}</strong> y luego <strong>${s.f2n}/${s.f2d}</strong> <em>de lo que queda</em>. ¿Cuántas páginas has leído en total?`,
+      fields: [
+        {key:'N', lab:'N Páginas', min:60, max:300, step:10},
+        {key:'f1n', lab:'a 1.ª fracción num.', min:1, max:5},
+        {key:'f1d', lab:'b 1.ª den.', min:2, max:8},
+        {key:'f2n', lab:'c De lo que queda num.', min:1, max:5},
+        {key:'f2d', lab:'d De lo que queda den.', min:2, max:8}
+      ],
+      defaults: {N:120, f1n:1, f1d:4, f2n:1, f2d:3},
+      compute(s){
+        const p1 = Math.round(s.N * s.f1n / s.f1d);
+        const queda1 = s.N - p1;
+        const p2 = Math.round(queda1 * s.f2n / s.f2d);
+        const total = p1 + p2;
+        const finalLeft = s.N - total;
+        return {
+          answer: `Has leído <strong>${total} páginas</strong> (${p1} + ${p2}). Quedan ${finalLeft} por leer.`,
+          tip: '¡Cuidado! La 2.ª fracción es del <strong>resto</strong>, no del total original.',
+          steps: [
+            {t:'1 · Todo original', p:`Libro = ${s.N} páginas.`},
+            {t:'2 · Primera lectura', p:`(${s.f1n}/${s.f1d})×${s.N} = <strong>${p1}</strong>. Queda ${queda1}.`},
+            {t:'3 · Segunda (del resto)', p:`(${s.f2n}/${s.f2d})×${queda1} = <strong>${p2}</strong>.`},
+            {t:'4 · Total leído', p:`${p1}+${p2}=<strong>${total}</strong> páginas. Frase: leí ${total} de ${s.N}.`}
+          ],
+          tape: ()=>{
+            const u1 = p1/s.N, u2 = p2/s.N, r = finalLeft/s.N;
+            return `<div class="tape">
+              <div class="tape-seg used" style="flex:${u1}">1.ª ${p1}</div>
+              <div class="tape-seg second" style="flex:${u2}">2.ª ${p2}</div>
+              <div class="tape-seg left" style="flex:${r}">quedan ${finalLeft}</div>
+            </div>
+            <div class="tape-lab">La franja naranja es fracción <em>del resto</em> (no del libro entero)</div>`;
+          }
+        };
+      }
+    },
+    oferta: {
+      place: 'Ávila · tienda',
+      emoji: '🏷️',
+      buildEnun: (s)=>`Una sudadera en Ávila cuesta <strong>${s.N} €</strong>. Te descuentan <strong>${s.f1n}/${s.f1d}</strong>. ¿Cuál es el precio final?`,
+      fields: [
+        {key:'N', lab:'N Precio (€)', min:20, max:100, step:5},
+        {key:'f1n', lab:'a Descuento num.', min:1, max:5},
+        {key:'f1d', lab:'b Descuento den.', min:2, max:10}
+      ],
+      defaults: {N:40, f1n:1, f1d:5},
+      compute(s){
+        const desc = Math.round(s.N * s.f1n / s.f1d * 100)/100;
+        const final = Math.round((s.N - desc)*100)/100;
+        return {
+          answer: `Precio final: <strong>${final} €</strong> (descuento ${desc} €).`,
+          tip: 'Descuento = fracción × precio; final = precio − descuento.',
+          steps: [
+            {t:'1 · Precio original', p:`${s.N} €.`},
+            {t:'2 · Descuento', p:`(${s.f1n}/${s.f1d})×${s.N} = <strong>${desc} €</strong>.`},
+            {t:'3 · Precio final', p:`${s.N} − ${desc} = <strong>${final} €</strong>.`},
+            {t:'4 · Frase', p:`Con el ${s.f1n}/${s.f1d} de descuento, pagas ${final} €.`}
+          ],
+          tape: ()=>{
+            const u = s.f1n/s.f1d;
+            return `<div class="tape">
+              <div class="tape-seg used" style="flex:${u}">descuento</div>
+              <div class="tape-seg left" style="flex:${1-u}">pagas</div>
+            </div>
+            <div class="tape-lab">−${desc} € → pagas ${final} €</div>`;
+          }
+        };
+      }
+    },
+    pizza: {
+      place: 'Segovia · merienda',
+      emoji: '🍕',
+      buildEnun: (s)=>`Quedan <strong>${s.f1n}/${s.f1d}</strong> de una pizza en Segovia. Comes <strong>${s.f2n}/${s.f2d}</strong> <em>de lo que queda</em>. ¿Qué fracción de la pizza original comiste?`,
+      fields: [
+        {key:'f1n', lab:'a Quedaba num.', min:1, max:5},
+        {key:'f1d', lab:'b Quedaba den.', min:2, max:8},
+        {key:'f2n', lab:'c Comes num.', min:1, max:5},
+        {key:'f2d', lab:'d Comes den.', min:2, max:8}
+      ],
+      defaults: {f1n:3, f1d:4, f2n:1, f2d:2},
+      compute(s){
+        const rn = s.f2n * s.f1n, rd = s.f2d * s.f1d;
+        const g = (function gcd(x,y){x=Math.abs(x);y=Math.abs(y);while(y){const t=y;y=x%y;x=t;}return x||1;})(rn,rd);
+        const sn = rn/g, sd = rd/g;
+        return {
+          answer: `Comiste <strong>${sn}/${sd}</strong> de la pizza original (${s.f2n}/${s.f2d} × ${s.f1n}/${s.f1d}).`,
+          tip: '«Parte de una parte» → producto de fracciones.',
+          steps: [
+            {t:'1 · Lo que había', p:`Quedaban ${s.f1n}/${s.f1d} de la pizza.`},
+            {t:'2 · Fracción de esa parte', p:`Comes ${s.f2n}/${s.f2d} de esos ${s.f1n}/${s.f1d}.`},
+            {t:'3 · Producto', p:`(${s.f2n}/${s.f2d})×(${s.f1n}/${s.f1d}) = ${rn}/${rd}${g>1?` → ${sn}/${sd}`:''}.`},
+            {t:'4 · Frase', p:`Respecto a la pizza entera, comiste ${sn}/${sd}.`}
+          ],
+          tape: ()=>{
+            const left = s.f1n/s.f1d;
+            const eaten = (s.f2n/s.f2d)*left;
+            const still = left - eaten;
+            const goneBefore = 1 - left;
+            return `<div class="tape">
+              <div class="tape-seg empty" style="flex:${goneBefore}">ya no estaba</div>
+              <div class="tape-seg second" style="flex:${eaten}">comes</div>
+              <div class="tape-seg left" style="flex:${still}">sigue</div>
+            </div>
+            <div class="tape-lab">Producto: ${sn}/${sd} de la pizza original</div>`;
+          }
+        };
+      }
+    }
+  };
+
+  function loadProblem(id){
+    curId = id;
+    const P = PROBLEMS[id];
+    Object.assign(state, P.defaults);
+    // clear unused
+    step = 0;
+    document.querySelectorAll('#presets .chip').forEach(ch=>{
+      ch.classList.toggle('active', ch.dataset.id===id);
+    });
+    $('place').textContent = P.place;
+    buildControls(P);
+    render();
+  }
+
+  function buildControls(P){
+    const box = $('controls');
+    box.innerHTML = '';
+    P.fields.forEach(f=>{
+      const div = document.createElement('div');
+      div.className = 'field';
+      const letter = f.lab.charAt(0);
+      div.innerHTML = `<label><span class="letter">${letter}</span> ${f.lab.slice(2) || f.lab}</label>
+        <input type="number" data-key="${f.key}" min="${f.min}" max="${f.max}" step="${f.step||1}" value="${state[f.key]}">`;
+      box.appendChild(div);
+    });
+    box.querySelectorAll('input').forEach(inp=>{
+      inp.addEventListener('input', ()=>{
+        let v = parseFloat(inp.value);
+        const f = P.fields.find(x=>x.key===inp.dataset.key);
+        if(isNaN(v)) v = f.min;
+        v = Math.max(f.min, Math.min(f.max, v));
+        state[inp.dataset.key] = f.step && f.step>=1 ? Math.round(v) : v;
+        inp.value = state[inp.dataset.key];
+        step = 0;
+        render();
+      });
+    });
+  }
+
+  function render(){
+    const P = PROBLEMS[curId];
+    // validate denoms
+    if(state.f1d < 1) state.f1d = 1;
+    if(state.f2d < 1) state.f2d = 1;
+    $('enun').innerHTML = P.buildEnun(state);
+    const R = P.compute(state);
+    const n = R.steps.length;
+    if(step > n) step = n;
+    $('stepInd').textContent = `Paso ${step} / ${n}`;
+    $('btnPrev').disabled = step<=0;
+    $('btnNext').disabled = step>=n;
+
+    $('tape').innerHTML = step===0
+      ? `<div class="tape"><div class="tape-seg empty" style="flex:1">todo · pulsa Siguiente</div></div>
+         <div class="tape-lab">Primero lee el enunciado; luego dibujamos la cinta.</div>`
+      : R.tape();
+
+    $('steps').innerHTML = R.steps.map((s,i)=>{
+      const show = i < step;
+      return `<div class="step-card ${show?'':'dim'}"><h4>${s.t}</h4><p>${show?s.p:'…'}</p></div>`;
+    }).join('');
+
+    const showAns = step >= n;
+    $('answer').style.display = showAns ? 'block' : 'none';
+    $('answerVal').innerHTML = R.answer;
+    $('callout').innerHTML = step===0
+      ? 'Lee el enunciado. ¿La fracción es del <strong>total</strong> o de <strong>lo que queda</strong>?'
+      : R.tip;
+  }
+
+  $('btnPrev').addEventListener('click', ()=>{ if(step>0){ step--; render(); }});
+  $('btnNext').addEventListener('click', ()=>{
+    const n = PROBLEMS[curId].compute(state).steps.length;
+    if(step<n){ step++; render(); }
+  });
+  $('btnAll').addEventListener('click', ()=>{
+    step = PROBLEMS[curId].compute(state).steps.length;
+    render();
+  });
+  document.querySelectorAll('#presets .chip').forEach(ch=>{
+    ch.addEventListener('click', ()=> loadProblem(ch.dataset.id));
+  });
+
+  const params = new URLSearchParams(location.search);
+  const start = params.get('p') || 'bus';
+  loadProblem(start);
+  if(params.get('all')==='1'){
+    step = PROBLEMS[curId].compute(state).steps.length;
+    render();
+  }
+})();
+</script>
+</body>
+</html>

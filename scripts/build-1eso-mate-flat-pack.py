@@ -15,7 +15,7 @@ DESCARGAS = REPO / "descargas.html"
 PACK_DIR = REPO / "downloads/_build-1eso-mate-flat"
 ZIP_PATH = REPO / "downloads/1eso-matematicas-offline.zip"
 TOTAL = 47
-AVAILABLE = 18  # L01–L18
+AVAILABLE = 21  # L01–L21
 
 # (num, short_ud, title, meta, curiosidad_title, curiosidad_text, figura_cur,
 #  objetivos[list], cuerpo_extra_html, vida_title, vida_items, vida_figura,
@@ -736,6 +736,126 @@ LESSONS = [
     "reto": "Parte un día laborable en fracciones (cole, deberes, ocio, sueño…). Súmalas y mira si te acercas a 1. Ajusta y comenta qué te sorprendió.",
     "reto_id": "1eso-mate-L18",
     "cierre": "Solo se suman o restan fracciones con el mismo denominador. El mcm es tu herramienta.",
+  },
+  {
+    "n": 19,
+    "eyebrow": "Lección 19 · UD5 · Fracciones",
+    "title_html": "Multiplicación y división de <em>fracciones</em>",
+    "title_plain": "Multiplicación y división de fracciones",
+    "meta": "Saberes CyL (Decreto 39/2022): A.3 Operaciones (fracciones)",
+    "curiosidad_t": "Parte de una parte",
+    "curiosidad": "Multiplicar fracciones puede significar tomar una parte de otra parte. Para dividir, dale la vuelta solo a la segunda fracción y multiplica por su inversa.",
+    "curiosidad_fig": "olla.svg",
+    "objetivos": [
+      "Multiplicar fracciones y simplificar el resultado.",
+      "Calcular una fracción de una cantidad.",
+      "Dividir fracciones multiplicando por la inversa.",
+      "Resolver problemas de parte de parte y repartos.",
+    ],
+    "cuerpo": """
+    <h2>Explicación breve</h2>
+    <p>Para multiplicar, multiplica numerador por numerador y denominador por denominador. Puedes <strong>cancelar</strong> antes para trabajar con números pequeños. Para dividir, multiplica por la <strong>inversa</strong> de la segunda fracción.</p>
+    <div class="tarjeta">
+      <p style="margin:0"><strong>Ejemplo:</strong> 2/3 ÷ 4/5 = 2/3 × 5/4 = 10/12 = <strong>5/6</strong>. Se da la vuelta solo al segundo número.</p>
+    </div>
+""",
+    "cuerpo_after_widgets": "",
+    "widget_split": False,
+    "vida_t": "Aplicaciones",
+    "vida": [
+      "Calcular una parte de una receta o de un depósito.",
+      "Repartir 3/4 de litro entre varias personas.",
+      "Descuentos encadenados y ofertas sencillas.",
+      "Escalas de fotos, planos y croquis.",
+    ],
+    "vida_fig": "mapa.svg",
+    "widgets": [
+      ("Interactivo · producto y división con área", "l19-fracciones-producto.html"),
+    ],
+    "reto_t": "Parte de parte",
+    "reto": "Describe una situación casera de «parte de una parte» (nevera, playlist, depósito). Escríbela con un producto de fracciones y calcúlala.",
+    "reto_id": "1eso-mate-L19",
+    "cierre": "Multiplicar: arriba×arriba, abajo×abajo. Dividir: multiplica por la inversa. «Fracción de» suele significar producto.",
+  },
+  {
+    "n": 20,
+    "eyebrow": "Lección 20 · UD5 · Fracciones",
+    "title_html": "Problemas con <em>fracciones</em>",
+    "title_plain": "Problemas con fracciones",
+    "meta": "Saberes CyL (Decreto 39/2022): A.3 Operaciones contextualizadas",
+    "curiosidad_t": "¿Del todo o del resto?",
+    "curiosidad": "En un problema, el todo puede cambiar. Si dice «de lo que queda», dibuja una cinta, marca lo que has quitado y usa el resto como nuevo todo.",
+    "curiosidad_fig": "mapa.svg",
+    "objetivos": [
+      "Elegir la operación adecuada según el enunciado.",
+      "Combinar fracción de cantidad con sumas y restas.",
+      "Detectar si el todo cambia a mitad del problema.",
+      "Explicar la solución con una frase y sus unidades.",
+    ],
+    "cuerpo": """
+    <h2>Explicación breve</h2>
+    <p>«Fracción de» suele indicar un producto; «en total» suma; «queda» resta; «repartir» divide. No son palabras mágicas: dibuja o escribe los datos y comprueba cuál es el todo en cada paso.</p>
+    <div class="tarjeta">
+      <p style="margin:0"><strong>Ejemplo:</strong> de 120 páginas lees 1/4 = 30; quedan 90. Después lees 1/3 de 90 = 30. En total has leído <strong>60 páginas</strong>.</p>
+    </div>
+""",
+    "cuerpo_after_widgets": "",
+    "widget_split": False,
+    "vida_t": "Aplicaciones",
+    "vida": [
+      "Presupuestos familiares: fracción de un dinero disponible.",
+      "Excursiones, autobuses y depósitos de agua.",
+      "Repartir material o comida sin hacerlo «a ojo».",
+      "Comparar tiempos de estudio, deporte y ocio.",
+    ],
+    "vida_fig": "ticket.svg",
+    "widgets": [
+      ("Interactivo · problemas CyL con cinta", "l20-problemas-fracciones.html"),
+    ],
+    "reto_t": "Problema para un compañero",
+    "reto": "Escribe un problema con fracciones ambientado en tu instituto o pueblo. Incluye la solución al dorso (o al final). Debe necesitar al menos dos pasos.",
+    "reto_id": "1eso-mate-L20",
+    "cierre": "Lee dos veces: ¿la fracción es del total o del resto? Un dibujo o esquema evita muchos fallos.",
+  },
+  {
+    "n": 21,
+    "eyebrow": "Lección 21 · UD6 · Decimales",
+    "title_html": "Números decimales: lectura, escritura y <em>operaciones</em>",
+    "title_plain": "Números decimales: lectura, escritura y operaciones",
+    "meta": "Saberes CyL (Decreto 39/2022): A.2 Cantidad (decimales); A.3 Operaciones",
+    "curiosidad_t": "La coma guarda los puestos",
+    "curiosidad": "La coma separa unidades y partes: décimas, centésimas y milésimas. En una suma, alinea la coma; no alinees simplemente el último dígito.",
+    "curiosidad_fig": "ticket.svg",
+    "objetivos": [
+      "Leer y escribir decimales con valor posicional.",
+      "Ordenar decimales y usar &lt;, &gt; e =.",
+      "Sumar, restar, multiplicar y dividir decimales sencillos.",
+      "Usar decimales en euros y medidas cotidianas.",
+    ],
+    "cuerpo": """
+    <h2>Explicación breve</h2>
+    <p>En España usamos la <strong>coma decimal</strong>: 3,14. Para sumar o restar, alinea las comas. Para multiplicar, cuenta las cifras decimales; para dividir, puedes convertir el divisor en natural desplazando la coma en ambos números.</p>
+    <div class="tarjeta">
+      <p style="margin:0"><strong>Ejemplo:</strong> 2,45 + 0,8 = 2,45 + 0,80 = <strong>3,25</strong>. En dinero, redondea a céntimos cuando sea necesario.</p>
+    </div>
+""",
+    "cuerpo_after_widgets": "",
+    "widget_split": False,
+    "vida_t": "Aplicaciones",
+    "vida": [
+      "Precios de supermercado, tickets y cambio en euros.",
+      "Alturas, distancias y medidas en metros.",
+      "Gasolina expresada en euros por litro.",
+      "Tiempos deportivos y marcas con centésimas.",
+    ],
+    "vida_fig": "ticket.svg",
+    "widgets": [
+      ("Interactivo · rejilla posicional y dinero €", "l21-decimales-euro.html"),
+    ],
+    "reto_t": "Detective de comas",
+    "reto": "Recoge 5 precios reales (foto mental) y ordénalos. Calcula el total y propón un billete o pago con el que pagarías.",
+    "reto_id": "1eso-mate-L21",
+    "cierre": "Los decimales extienden el sistema posicional a la derecha de la coma. En dinero, trabaja a céntimos y comprueba el cambio.",
   },
 ]
 
