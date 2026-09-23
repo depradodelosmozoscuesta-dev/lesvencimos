@@ -1,0 +1,613 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>L01 · Método científico · El cubito que se derrite</title>
+<style>
+  :root {
+    --bg:#FAF7F0; --ink:#2A2620; --muted:#5C564C; --card:#fff;
+    --gold:#C4A15A; --gold-soft:#F5EDD8; --gold-deep:#8A6B2F;
+    --green:#3D6B4F; --green-soft:#E4F0E8; --blue:#2F5D7A; --blue-soft:#E3EEF4;
+    --rose:#9B3A4A; --rose-soft:#F8E8EB; --ice:#A8D4F0; --water:#4A90B8;
+    --shadow:0 8px 28px rgba(42,38,32,.08); --radius:18px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{min-height:100%;background:var(--bg);color:var(--ink);
+    font-family:"Segoe UI",system-ui,-apple-system,sans-serif;-webkit-font-smoothing:antialiased}
+  body{display:flex;flex-direction:column;align-items:center;padding:14px 10px 36px}
+  .wrap{width:100%;max-width:980px}
+  header{text-align:center;margin-bottom:12px}
+  .badge{display:inline-block;font-size:.78rem;font-weight:700;letter-spacing:.04em;
+    text-transform:uppercase;color:var(--gold-deep);background:var(--gold-soft);
+    padding:4px 12px;border-radius:999px;margin-bottom:8px}
+  h1{font-size:clamp(1.25rem,4.5vw,1.85rem);line-height:1.2;font-weight:800;color:#0E0E0C}
+  .subtitle{margin-top:6px;font-size:clamp(.9rem,2.8vw,1.05rem);color:var(--muted);font-weight:500}
+  .story{background:linear-gradient(135deg,#F5EDD8,#E3EEF4 55%,#E4F0E8);
+    border:2px solid #E0D0A8;border-radius:var(--radius);padding:12px 14px;
+    margin-bottom:14px;display:flex;gap:12px;align-items:flex-start}
+  .story .emoji{font-size:2rem;line-height:1}
+  .story p{font-size:clamp(.9rem,2.5vw,1.02rem);line-height:1.45}
+  .story strong{color:var(--gold-deep)}
+  .card{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);
+    padding:16px 14px 18px;margin-bottom:14px}
+  .card h2{font-size:clamp(1.05rem,3vw,1.25rem);font-weight:800;margin-bottom:8px}
+  .hint{font-size:clamp(.88rem,2.4vw,1rem);color:var(--muted);line-height:1.45;margin-bottom:10px}
+  .steps{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin:8px 0 12px}
+  .step-pill{padding:8px 11px;border-radius:999px;border:2px solid #D9D0C0;background:#fff;
+    font-weight:800;font-size:.75rem;color:var(--muted);cursor:pointer;transition:all .25s ease}
+  .step-pill:hover{border-color:var(--gold)}
+  .step-pill.on{border-color:var(--blue);background:var(--blue-soft);color:var(--blue);transform:scale(1.04)}
+  .step-pill.done{border-color:var(--green);background:var(--green-soft);color:#2A5238}
+  .stage{position:relative;width:100%;aspect-ratio:16/10;background:linear-gradient(#E8F4FC 0%,#FFFcf5 55%,#EDE6D6 100%);
+    border-radius:14px;overflow:hidden;border:2px solid #E0D0A8;margin-bottom:12px}
+  .stage svg{width:100%;height:100%;display:block}
+  .narration{min-height:4.2em;background:#FFFcf5;border:2px solid #E0D0A8;border-radius:12px;
+    padding:12px 14px;margin-bottom:12px;font-size:clamp(.92rem,2.5vw,1.05rem);line-height:1.45;
+    transition:opacity .35s ease, transform .35s ease}
+  .narration .step-label{display:inline-block;font-size:.72rem;font-weight:800;text-transform:uppercase;
+    letter-spacing:.04em;color:var(--blue);background:var(--blue-soft);padding:2px 8px;border-radius:999px;margin-bottom:6px}
+  .narration.fade{opacity:0;transform:translateY(6px)}
+  .ctrl-row{display:flex;flex-wrap:wrap;gap:12px;align-items:flex-end;margin-bottom:12px}
+  .field{display:flex;flex-direction:column;gap:4px;flex:1 1 160px}
+  .field label{font-size:.8rem;font-weight:700;color:var(--muted)}
+  .field label .letter{display:inline-block;padding:1px 7px;border-radius:8px;font-weight:800;
+    margin-right:3px;background:var(--gold-soft);color:var(--gold-deep)}
+  .field input[type="range"]{width:100%;accent-color:var(--gold)}
+  .field output{font-weight:900;font-variant-numeric:tabular-nums;color:var(--gold-deep);font-size:1.05rem}
+  .btn-row{display:flex;flex-wrap:wrap;gap:8px;margin-top:4px}
+  button.action{appearance:none;border:none;border-radius:999px;padding:10px 18px;
+    font-weight:800;font-size:.95rem;cursor:pointer;background:var(--gold);color:#fff}
+  button.action.secondary{background:#fff;color:var(--gold-deep);border:2px solid var(--gold)}
+  button.action:disabled{opacity:.45;cursor:not-allowed}
+  .props{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px;margin:10px 0}
+  .prop{background:#FFFcf5;border:2px solid #E8DFD0;border-radius:12px;padding:10px 12px;text-align:center}
+  .prop .lab{font-size:.75rem;font-weight:700;color:var(--muted);text-transform:uppercase}
+  .prop .val{font-size:1.05rem;font-weight:900;color:var(--gold-deep);margin-top:2px}
+  .mnemonic{font-size:.95rem;font-weight:700;color:var(--gold-deep);background:var(--gold-soft);
+    border-left:4px solid var(--gold);padding:10px 14px;border-radius:0 12px 12px 0;margin-top:10px;line-height:1.4}
+  .glossary{display:grid;gap:.4rem;margin:10px 0;padding:12px 14px;background:#FFFcf5;
+    border-radius:12px;border:2px solid #E0D0A8;font-size:.95rem}
+  .glossary strong{color:var(--gold-deep)}
+  .check{margin-top:8px}
+  .check h3{font-size:1.05rem;font-weight:800;margin-bottom:8px}
+  .check-opts{display:grid;gap:8px}
+  .check-opt{display:flex;align-items:flex-start;gap:10px;padding:10px 12px;border:2px solid #D9D0C0;
+    border-radius:12px;background:#fff;cursor:pointer;font-weight:600;line-height:1.35;transition:border-color .2s}
+  .check-opt:hover{border-color:var(--gold)}
+  .check-opt.ok{border-color:var(--green);background:var(--green-soft)}
+  .check-opt.bad{border-color:var(--rose);background:var(--rose-soft)}
+  .check-opt input{margin-top:3px;accent-color:var(--blue)}
+  .verdict{text-align:center;font-size:clamp(1.0rem,2.6vw,1.15rem);font-weight:900;padding:12px;
+    border-radius:14px;margin:10px 0;background:var(--gold-soft);color:var(--gold-deep);border:2px solid #E0D0A8;display:none}
+  .verdict.show{display:block}
+  .verdict.ok{background:var(--green-soft);color:#2A5238;border-color:#9BC4A8}
+  .verdict.bad{background:var(--rose-soft);color:#7A2A36;border-color:#E8A8B0}
+  .reorder{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin:10px 0;min-height:48px}
+  .chip{padding:8px 12px;border-radius:999px;background:var(--blue-soft);border:2px solid var(--blue);
+    font-weight:800;font-size:.82rem;color:var(--blue);cursor:grab;user-select:none}
+  .chip.placed{background:var(--green-soft);border-color:var(--green);color:#2A5238}
+  .drop-row{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin:8px 0;padding:10px;
+    border:2px dashed #D9D0C0;border-radius:12px;min-height:52px;background:#FFFcf5}
+  .drop-slot{min-width:88px;min-height:36px;border-radius:999px;border:2px dashed #C4B8A0;
+    display:flex;align-items:center;justify-content:center;font-size:.7rem;font-weight:700;color:#A09070;padding:4px 8px}
+  .drop-slot.filled{border-style:solid;border-color:var(--green);background:var(--green-soft);color:#2A5238;font-size:.78rem}
+  footer{text-align:center;font-size:.8rem;color:var(--muted);margin-top:4px}
+  /* SVG animation helpers */
+  #sunRays{animation:none} #sunGroup{transform-origin:620px 95px;animation:spinSlow 36s linear infinite}
+  @keyframes spinSlow{to{transform:rotate(360deg)}}
+  #steam path{animation:steamRise 3.2s ease-in-out infinite}
+  #steam path:nth-child(2){animation-delay:.6s}
+  #steam path:nth-child(3){animation-delay:1.2s}
+  @keyframes steamRise{
+    0%{opacity:0;transform:translateY(8px)}
+    40%{opacity:.55}
+    100%{opacity:0;transform:translateY(-28px)}
+  }
+  .paused #sunGroup,.paused #steam path{animation-play-state:paused}
+  body.preview-mode .story{display:none}
+  body.preview-mode .check{display:none}
+  body.preview-mode footer{display:none}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="badge">Lección 01 · UD A Proyecto científico · CyL Decreto 39/2022</div>
+    <h1>El método científico en experimentos sencillos</h1>
+    <p class="subtitle">Observar → preguntar → hipotetizar → experimentar → datos → concluir</p>
+  </header>
+
+  <div class="story">
+    <div class="emoji" aria-hidden="true">🧊</div>
+    <p>En el laboratorio del cole (Valladolid), <strong>Lucía</strong> deja un <strong>cubito de hielo</strong> en un vaso.
+    Al rato… ¡cambia! ¿Se derrite por el calor? Recorre el <strong>método científico</strong> paso a paso
+    con una escena que se ve de verdad: vaso, hielo, agua, termómetro y reloj.
+    Mnemónico: <strong>«Oso Pequeño Hace Experimentos De Ciencia»</strong>.</p>
+  </div>
+
+  <section class="card">
+    <h2>Laboratorio del cubito</h2>
+    <p class="hint">Pulsa los pasos o usa <strong>Siguiente</strong>. Mueve la <strong>temperatura</strong> (variable) y el <strong>tiempo</strong>; el hielo se derrite ante tus ojos. Lo demás (vaso, tamaño inicial) es el <strong>control</strong>.</p>
+
+    <div class="steps" id="stepPills" role="tablist" aria-label="Pasos del método científico"></div>
+
+    <div class="stage paused" id="stage" aria-label="Escena del experimento: vaso con cubito de hielo">
+      <svg id="svg" viewBox="0 0 800 500" role="img" aria-labelledby="svgTitle">
+        <title id="svgTitle">Vaso con cubito de hielo sobre mesa de laboratorio, ventana y sol</title>
+        <defs>
+          <linearGradient id="skyG" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#B8D9F0"/>
+            <stop offset="100%" stop-color="#E8F4FC"/>
+          </linearGradient>
+          <linearGradient id="glassG" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0%" stop-color="#DCEef8" stop-opacity=".55"/>
+            <stop offset="40%" stop-color="#ffffff" stop-opacity=".15"/>
+            <stop offset="100%" stop-color="#A8C8D8" stop-opacity=".35"/>
+          </linearGradient>
+          <linearGradient id="waterG" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#7EC8E8"/>
+            <stop offset="100%" stop-color="#3A7EA8"/>
+          </linearGradient>
+          <linearGradient id="iceG" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stop-color="#F2FBFF"/>
+            <stop offset="45%" stop-color="#C5E8F8"/>
+            <stop offset="100%" stop-color="#7EB8D8"/>
+          </linearGradient>
+          <linearGradient id="woodG" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#D4B896"/>
+            <stop offset="100%" stop-color="#A8845C"/>
+          </linearGradient>
+          <filter id="softGlow" x="-40%" y="-40%" width="180%" height="180%">
+            <feGaussianBlur stdDeviation="4" result="b"/>
+            <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+          </filter>
+          <clipPath id="glassClip">
+            <path d="M318 210 C318 210 312 390 312 390 L488 390 C488 390 482 210 482 210 Z"/>
+          </clipPath>
+        </defs>
+
+        <!-- Wall / sky through window -->
+        <rect x="0" y="0" width="800" height="320" fill="url(#skyG)"/>
+        <rect x="0" y="320" width="800" height="180" fill="#E5DCC8"/>
+
+        <!-- Window frame -->
+        <g id="window">
+          <rect x="520" y="40" width="240" height="200" rx="6" fill="#8EB8D0" stroke="#5A7060" stroke-width="8"/>
+          <rect x="535" y="55" width="100" height="80" fill="#C5E4F5" opacity=".9"/>
+          <rect x="645" y="55" width="100" height="80" fill="#C5E4F5" opacity=".9"/>
+          <rect x="535" y="145" width="100" height="80" fill="#B5D8EC" opacity=".9"/>
+          <rect x="645" y="145" width="100" height="80" fill="#B5D8EC" opacity=".9"/>
+          <!-- sun -->
+          <g id="sunGroup">
+            <g id="sunRays" opacity="0.9" stroke="#F6D36A" stroke-width="3" stroke-linecap="round" transform="translate(620,95)">
+              <line x1="0" y1="-28" x2="0" y2="-42"/><line x1="0" y1="28" x2="0" y2="42"/>
+              <line x1="28" y1="0" x2="42" y2="0"/><line x1="-28" y1="0" x2="-42" y2="0"/>
+              <line x1="20" y1="20" x2="32" y2="32"/><line x1="-20" y1="-20" x2="-32" y2="-32"/>
+              <line x1="20" y1="-20" x2="32" y2="-32"/><line x1="-20" y1="20" x2="-32" y2="32"/>
+            </g>
+            <circle id="sunDisk" cx="620" cy="95" r="22" fill="#F8E07A" filter="url(#softGlow)"/>
+          </g>
+          <!-- distant hills CyL-ish -->
+          <path d="M535 210 Q580 175 620 195 T745 200 L745 225 L535 225 Z" fill="#8FAE7E" opacity=".7"/>
+        </g>
+
+        <!-- Sunbeam into room (opacity tied to temp) -->
+        <polygon id="sunbeam" points="642,115 420,280 500,300 700,200" fill="#FFE9A0" opacity="0.18"/>
+
+        <!-- Lab shelf / poster -->
+        <g id="poster">
+          <rect x="40" y="50" width="130" height="90" rx="8" fill="#FFFCF5" stroke="#C4A15A" stroke-width="3"/>
+          <text x="105" y="78" text-anchor="middle" font-size="11" font-weight="800" fill="#8A6B2F">MÉTODO</text>
+          <text x="105" y="94" text-anchor="middle" font-size="10" font-weight="700" fill="#5C564C">O · P · H</text>
+          <text x="105" y="110" text-anchor="middle" font-size="10" font-weight="700" fill="#5C564C">E · D · C</text>
+          <text x="105" y="128" text-anchor="middle" font-size="9" fill="#3D6B4F">¡paso a paso!</text>
+        </g>
+
+        <!-- Table -->
+        <rect x="80" y="360" width="520" height="28" rx="4" fill="url(#woodG)" stroke="#7A5A38" stroke-width="2"/>
+        <rect x="120" y="388" width="28" height="90" fill="#8B6844"/>
+        <rect x="520" y="388" width="28" height="90" fill="#8B6844"/>
+        <ellipse cx="340" y="368" rx="200" ry="8" fill="#000" opacity=".06"/>
+
+        <!-- Notebook -->
+        <g id="notebook" transform="translate(100,300)">
+          <rect x="0" y="0" width="90" height="62" rx="4" fill="#FFFCF5" stroke="#C4A15A" stroke-width="2"/>
+          <line x1="12" y1="16" x2="78" y2="16" stroke="#D9D0C0" stroke-width="2"/>
+          <line x1="12" y1="28" x2="78" y2="28" stroke="#D9D0C0" stroke-width="2"/>
+          <line x1="12" y1="40" x2="60" y2="40" stroke="#D9D0C0" stroke-width="2"/>
+          <text x="45" y="56" text-anchor="middle" font-size="9" font-weight="700" fill="#8A6B2F">datos</text>
+        </g>
+
+        <!-- Thermometer -->
+        <g id="thermo" transform="translate(200,175)">
+          <rect x="18" y="0" width="14" height="150" rx="7" fill="#F0F4F8" stroke="#5C564C" stroke-width="2"/>
+          <circle cx="25" cy="160" r="18" fill="#F0F4F8" stroke="#5C564C" stroke-width="2"/>
+          <rect id="mercuryBar" x="22" y="80" width="6" height="70" rx="3" fill="#C44"/>
+          <circle id="mercuryBulb" cx="25" cy="160" r="12" fill="#C44"/>
+          <text x="50" y="30" font-size="12" font-weight="800" fill="#5C564C">°C</text>
+          <text id="thermoLabel" x="50" y="50" font-size="16" font-weight="900" fill="#9B3A4A">18°</text>
+        </g>
+
+        <!-- Clock -->
+        <g id="clock" transform="translate(700,280)">
+          <circle cx="40" cy="40" r="36" fill="#FFFCF5" stroke="#5C564C" stroke-width="3"/>
+          <circle cx="40" cy="40" r="3" fill="#2A2620"/>
+          <line id="clockHand" x1="40" y1="40" x2="40" y2="18" stroke="#9B3A4A" stroke-width="3" stroke-linecap="round"/>
+          <text id="clockLabel" x="40" y="92" text-anchor="middle" font-size="13" font-weight="800" fill="#2F5D7A">0 min</text>
+        </g>
+
+        <!-- Glass + water + ice (clipped) -->
+        <g id="glassGroup">
+          <!-- water behind glass tint -->
+          <g clip-path="url(#glassClip)">
+            <rect id="waterRect" x="312" y="320" width="176" height="70" fill="url(#waterG)" opacity="0.85"/>
+            <!-- ripples -->
+            <path id="ripple1" d="M330 330 Q400 338 470 330" fill="none" stroke="#fff" stroke-opacity=".25" stroke-width="2"/>
+            <path id="ripple2" d="M335 345 Q400 352 465 345" fill="none" stroke="#fff" stroke-opacity=".18" stroke-width="1.5"/>
+            <!-- ice cube -->
+            <g id="iceCube" transform="translate(370,250)">
+              <path id="iceBody" d="M0 40 L55 20 L110 40 L110 95 L55 115 L0 95 Z" fill="url(#iceG)" stroke="#5A9AB8" stroke-width="2" opacity="0.95"/>
+              <path d="M0 40 L55 60 L110 40" fill="none" stroke="#fff" stroke-opacity=".5" stroke-width="2"/>
+              <path d="M55 60 L55 115" fill="none" stroke="#5A9AB8" stroke-opacity=".35" stroke-width="1.5"/>
+              <!-- sparkle -->
+              <circle cx="30" cy="55" r="3" fill="#fff" opacity=".7"/>
+              <circle cx="75" cy="48" r="2" fill="#fff" opacity=".6"/>
+            </g>
+            <!-- melt droplets -->
+            <g id="droplets" opacity="0">
+              <ellipse cx="360" cy="300" rx="4" ry="6" fill="#7EC8E8" opacity=".8"/>
+              <ellipse cx="420" cy="310" rx="3.5" ry="5" fill="#7EC8E8" opacity=".7"/>
+              <ellipse cx="390" cy="295" rx="3" ry="4.5" fill="#A8D4F0" opacity=".75"/>
+            </g>
+          </g>
+          <!-- glass outline -->
+          <path d="M318 210 C318 210 312 390 312 390 L488 390 C488 390 482 210 482 210"
+                fill="url(#glassG)" stroke="#7A9AAC" stroke-width="3"/>
+          <path d="M318 210 L482 210" fill="none" stroke="#A8C4D4" stroke-width="4" stroke-linecap="round"/>
+          <!-- glass highlight -->
+          <path d="M330 220 L328 370" fill="none" stroke="#fff" stroke-opacity=".45" stroke-width="4" stroke-linecap="round"/>
+          <!-- label on glass -->
+          <text x="400" y="410" text-anchor="middle" font-size="12" font-weight="700" fill="#5C564C">vaso con hielo</text>
+        </g>
+
+        <!-- Steam / cool air when melting -->
+        <g id="steam" opacity="0" fill="none" stroke="#A8C8D8" stroke-width="2" stroke-linecap="round">
+          <path d="M360 200 Q368 180 360 160"/>
+          <path d="M400 195 Q410 175 400 155"/>
+          <path d="M440 200 Q448 178 440 158"/>
+        </g>
+
+        <!-- Student Lucía (simple figure watching) -->
+        <g id="lucia" transform="translate(620,320)">
+          <circle cx="40" cy="20" r="16" fill="#F0C8A0" stroke="#C4A15A" stroke-width="1.5"/>
+          <path d="M20 18 Q40 0 60 18" fill="#3D4A6B"/>
+          <rect x="22" y="38" width="36" height="48" rx="10" fill="#2F5D7A"/>
+          <text x="40" y="105" text-anchor="middle" font-size="11" font-weight="800" fill="#2F5D7A">Lucía</text>
+        </g>
+
+        <!-- Step highlight banner inside SVG -->
+        <g id="svgBanner">
+          <rect x="200" y="12" width="400" height="28" rx="14" fill="#2F5D7A" opacity=".92"/>
+          <text id="svgBannerText" x="400" y="31" text-anchor="middle" font-size="14" font-weight="800" fill="#fff">1 · Observar</text>
+        </g>
+      </svg>
+    </div>
+
+    <div class="narration" id="narration" aria-live="polite"></div>
+
+    <div class="ctrl-row">
+      <div class="field">
+        <label><span class="letter">T</span> Temperatura del aula (variable) — <output id="outTemp">18 °C</output></label>
+        <input type="range" id="temp" min="5" max="35" value="18" step="1"/>
+      </div>
+      <div class="field">
+        <label><span class="letter">t</span> Tiempo del experimento — <output id="outTime">0 min</output></label>
+        <input type="range" id="time" min="0" max="30" value="0" step="1"/>
+      </div>
+    </div>
+
+    <div class="btn-row">
+      <button type="button" class="action" id="btnPrev">← Anterior</button>
+      <button type="button" class="action" id="btnNext">Siguiente →</button>
+      <button type="button" class="action secondary" id="btnPlay">▶ Auto-avance</button>
+      <button type="button" class="action secondary" id="btnReset">Reiniciar</button>
+    </div>
+
+    <div class="props" id="props"></div>
+    <p class="mnemonic">Mnemónico: <strong>«Oso Pequeño Hace Experimentos De Ciencia»</strong> → Observar · Preguntar · Hipotetizar · Experimentar · Datos · Concluir.</p>
+  </section>
+
+  <section class="card check" id="checkSection">
+    <h2>Mini-check</h2>
+
+    <div class="check" id="checkReorder">
+      <h3>1) Ordena los pasos (pulsa en orden correcto)</h3>
+      <p class="hint">Pulsa las pastillas en el orden del método. Si te equivocas, se reinicia.</p>
+      <div class="reorder" id="chipPool"></div>
+      <div class="drop-row" id="dropRow" aria-label="Tu orden"></div>
+      <div class="verdict" id="reorderVerdict"></div>
+    </div>
+
+    <div class="check" id="checkHyp" style="margin-top:18px">
+      <h3>2) ¿Cuál es una hipótesis buena?</h3>
+      <p class="hint">Una hipótesis es una explicación <strong>comprobable</strong> (se puede medir).</p>
+      <div class="check-opts" id="hypOpts"></div>
+      <div class="verdict" id="hypVerdict"></div>
+    </div>
+
+    <div class="glossary">
+      <div><strong>Observar:</strong> mirar y anotar lo que ves, sin inventar aún la causa.</div>
+      <div><strong>Hipótesis:</strong> posible explicación comprobable.</div>
+      <div><strong>Variable:</strong> lo que cambias (aquí, la temperatura).</div>
+      <div><strong>Control:</strong> lo que dejas igual (vaso, tamaño inicial del cubito).</div>
+      <div><strong>Datos:</strong> medidas anotadas (tiempo, °C, tamaño del hielo).</div>
+      <div><strong>Conclusión:</strong> respuesta final basada en los datos.</div>
+    </div>
+  </section>
+
+  <footer>1º ESO Biología y Geología · Castilla y León · Decreto 39/2022 · Bloque A (método científico) · Offline file://</footer>
+</div>
+
+<script>
+(function(){
+  const STEPS = [
+    {
+      id:'obs', short:'Observar', full:'1 · Observar',
+      text:'Lucía mira el vaso: el cubito es sólido, brillante y frío. El agua llega a una marca. <strong>Observar</strong> = anotar lo que ves con los sentidos, sin inventar todavía la causa.'
+    },
+    {
+      id:'preg', short:'Preguntar', full:'2 · Preguntar',
+      text:'Convierte la curiosidad en pregunta: <em>«¿El cubito se derrite más rápido si la temperatura del aula es más alta?»</em> Una buena pregunta se puede investigar.'
+    },
+    {
+      id:'hip', short:'Hipotetizar', full:'3 · Hipotetizar',
+      text:'<strong>Hipótesis</strong> (explicación comprobable): «Si subo la temperatura, el cubito se derrite en menos minutos.» No es un deseo ni magia: se puede medir.'
+    },
+    {
+      id:'exp', short:'Experimentar', full:'4 · Experimentar',
+      text:'Diseña la prueba: cambia solo la <strong>variable</strong> (temperatura) y deja igual el <strong>control</strong> (mismo vaso, mismo tamaño de cubito). Usa el deslizador de temperatura.'
+    },
+    {
+      id:'dat', short:'Datos', full:'5 · Datos',
+      text:'Avanza el <strong>tiempo</strong> y anota: minutos, °C y qué tamaño tiene el hielo. Los <strong>datos</strong> son números y dibujos, no opiniones.'
+    },
+    {
+      id:'con', short:'Concluir', full:'6 · Concluir',
+      text:'Compara: a más temperatura, ¿queda menos hielo en el mismo tiempo? Si sí, los datos <strong>apoyan</strong> la hipótesis. Si no, la rechazas con honestidad: eso también es ciencia.'
+    }
+  ];
+
+  let step = 0;
+  let playing = false;
+  let playTimer = null;
+  let melt = 0; // 0..1 derived from temp & time
+
+  const pills = document.getElementById('stepPills');
+  const narration = document.getElementById('narration');
+  const tempEl = document.getElementById('temp');
+  const timeEl = document.getElementById('time');
+  const outTemp = document.getElementById('outTemp');
+  const outTime = document.getElementById('outTime');
+  const props = document.getElementById('props');
+  const stage = document.getElementById('stage');
+  const btnPlay = document.getElementById('btnPlay');
+
+  STEPS.forEach((s,i)=>{
+    const b=document.createElement('button');
+    b.type='button';
+    b.className='step-pill'+(i===0?' on':'');
+    b.textContent=(i+1)+' · '+s.short;
+    b.dataset.i=i;
+    b.setAttribute('role','tab');
+    b.addEventListener('click',()=>{ stopPlay(); goStep(+b.dataset.i); });
+    pills.appendChild(b);
+  });
+
+  function applyStep(){
+    const s=STEPS[step];
+    narration.innerHTML='<div class="step-label">'+s.full+'</div><div>'+s.text+'</div>';
+    narration.classList.remove('fade');
+    document.getElementById('svgBannerText').textContent=s.full;
+    [...pills.children].forEach((el,idx)=>{
+      el.classList.toggle('on', idx===step);
+      el.classList.toggle('done', idx<step);
+    });
+    document.getElementById('btnPrev').disabled = step===0;
+    document.getElementById('btnNext').disabled = step===STEPS.length-1;
+    if(step>=4 && +timeEl.value<8){ timeEl.value=8; }
+    if(step>=5 && +timeEl.value<15){ timeEl.value=15; }
+    updateScene();
+  }
+  function goStep(i, instant){
+    step = Math.max(0, Math.min(STEPS.length-1, i));
+    if(instant){ applyStep(); return; }
+    narration.classList.add('fade');
+    setTimeout(applyStep, 180);
+  }
+
+  function meltProgress(temp, minutes){
+    // physical-ish toy model: melt rate rises with temp above 0
+    const rate = Math.max(0, (temp - 0) / 28); // 0..~1.25
+    const raw = (minutes / 30) * rate * 1.35;
+    return Math.max(0, Math.min(1, raw));
+  }
+
+  function updateScene(){
+    const T = +tempEl.value;
+    const t = +timeEl.value;
+    melt = meltProgress(T, t);
+    outTemp.textContent = T + ' °C';
+    outTime.textContent = t + ' min';
+
+    // thermometer mercury 5..35 -> bar height
+    const frac = (T - 5) / 30;
+    const barH = 20 + frac * 100;
+    const barY = 150 - barH;
+    const mercuryBar = document.getElementById('mercuryBar');
+    mercuryBar.setAttribute('y', barY);
+    mercuryBar.setAttribute('height', barH);
+    const col = T < 12 ? '#3A7EA8' : (T < 22 ? '#C4782A' : '#C44');
+    mercuryBar.setAttribute('fill', col);
+    document.getElementById('mercuryBulb').setAttribute('fill', col);
+    document.getElementById('thermoLabel').textContent = T + '°';
+    document.getElementById('thermoLabel').setAttribute('fill', col);
+
+    // clock hand
+    const ang = (t / 30) * 360;
+    document.getElementById('clockHand').setAttribute('transform', 'rotate('+ang+' 40 40)');
+    document.getElementById('clockLabel').textContent = t + ' min';
+
+    // sunbeam & sun intensity
+    document.getElementById('sunbeam').setAttribute('opacity', (0.08 + frac * 0.28).toFixed(3));
+    document.getElementById('sunDisk').setAttribute('r', 18 + frac * 10);
+
+    // water level rises as ice melts (starts ~70px tall at y=320)
+    const waterH = 55 + melt * 45;
+    const waterY = 390 - waterH;
+    document.getElementById('waterRect').setAttribute('y', waterY);
+    document.getElementById('waterRect').setAttribute('height', waterH);
+
+    // ice shrinks and sinks
+    const scale = Math.max(0.05, 1 - melt * 0.92);
+    const sink = melt * 55;
+    const ice = document.getElementById('iceCube');
+    ice.setAttribute('transform', 'translate(370,'+(250+sink)+') scale('+scale+')');
+    ice.setAttribute('opacity', melt > 0.95 ? 0.15 : 0.95);
+    document.getElementById('droplets').setAttribute('opacity', melt > 0.15 && melt < 0.95 ? Math.min(1, melt*1.4) : 0);
+    document.getElementById('steam').setAttribute('opacity', melt > 0.2 ? Math.min(0.9, melt) : 0);
+
+    // ripples more when melting
+    document.getElementById('ripple1').setAttribute('stroke-opacity', 0.2 + melt*0.35);
+
+    // props
+    const icePct = Math.round((1-melt)*100);
+    const state = melt < 0.08 ? 'casi intacto' : melt < 0.45 ? 'derritiéndose' : melt < 0.9 ? 'casi líquido' : 'fundido';
+    props.innerHTML =
+      '<div class="prop"><div class="lab">Variable</div><div class="val">'+T+' °C</div></div>'+
+      '<div class="prop"><div class="lab">Tiempo</div><div class="val">'+t+' min</div></div>'+
+      '<div class="prop"><div class="lab">Hielo restante</div><div class="val">'+icePct+' %</div></div>'+
+      '<div class="prop"><div class="lab">Estado</div><div class="val">'+state+'</div></div>';
+  }
+
+  tempEl.addEventListener('input', updateScene);
+  timeEl.addEventListener('input', updateScene);
+
+  document.getElementById('btnPrev').addEventListener('click', ()=>{ stopPlay(); goStep(step-1); });
+  document.getElementById('btnNext').addEventListener('click', ()=>{ stopPlay(); goStep(step+1); });
+  document.getElementById('btnReset').addEventListener('click', ()=>{
+    stopPlay(); tempEl.value=18; timeEl.value=0; goStep(0); resetChecks();
+  });
+
+  function stopPlay(){
+    playing=false; clearInterval(playTimer); playTimer=null;
+    btnPlay.textContent='▶ Auto-avance';
+    stage.classList.add('paused');
+  }
+  function startPlay(){
+    playing=true; btnPlay.textContent='⏸ Pausar';
+    stage.classList.remove('paused');
+    playTimer=setInterval(()=>{
+      // gently advance time while playing
+      if(+timeEl.value < 30){ timeEl.value = +timeEl.value + 1; updateScene(); }
+      if(step < STEPS.length-1){ goStep(step+1); }
+      else { stopPlay(); }
+    }, 2800);
+  }
+  btnPlay.addEventListener('click', ()=>{ if(playing) stopPlay(); else startPlay(); });
+
+  /* ---- Mini-check: reorder ---- */
+  const ORDER = ['Observar','Preguntar','Hipotetizar','Experimentar','Datos','Concluir'];
+  const chipPool = document.getElementById('chipPool');
+  const dropRow = document.getElementById('dropRow');
+  const reorderVerdict = document.getElementById('reorderVerdict');
+  let placed = [];
+  let poolOrder = ORDER.slice().sort(()=>Math.random()-0.5);
+
+  function buildReorder(){
+    chipPool.innerHTML=''; dropRow.innerHTML=''; placed=[];
+    reorderVerdict.className='verdict';
+    poolOrder = ORDER.slice().sort(()=>Math.random()-0.5);
+    poolOrder.forEach(name=>{
+      const c=document.createElement('button');
+      c.type='button'; c.className='chip'; c.textContent=name;
+      c.addEventListener('click',()=>placeChip(name,c));
+      chipPool.appendChild(c);
+    });
+    for(let i=0;i<6;i++){
+      const s=document.createElement('div');
+      s.className='drop-slot'; s.textContent=(i+1)+'º'; s.dataset.i=i;
+      dropRow.appendChild(s);
+    }
+  }
+  function placeChip(name, el){
+    if(placed.length >= 6) return;
+    const expect = ORDER[placed.length];
+    if(name !== expect){
+      reorderVerdict.textContent='Ups: el paso '+ (placed.length+1) +' no es «'+name+'». Recuerda: Oso Pequeño Hace Experimentos De Ciencia.';
+      reorderVerdict.className='verdict show bad';
+      // reset
+      setTimeout(buildReorder, 900);
+      return;
+    }
+    placed.push(name);
+    el.remove();
+    const slot = dropRow.children[placed.length-1];
+    slot.textContent = (placed.length)+' · '+name;
+    slot.classList.add('filled');
+    if(placed.length===6){
+      reorderVerdict.textContent='¡Correcto! Observar → Preguntar → Hipotetizar → Experimentar → Datos → Concluir.';
+      reorderVerdict.className='verdict show ok';
+    } else {
+      reorderVerdict.className='verdict';
+    }
+  }
+
+  /* ---- Mini-check: hypothesis ---- */
+  const hypOpts = document.getElementById('hypOpts');
+  const hypVerdict = document.getElementById('hypVerdict');
+  const HYPS = [
+    {t:'Si la temperatura del aula es más alta, el cubito se derrite en menos tiempo.', ok:true, why:'Relaciona una causa medible (temperatura) con un efecto medible (tiempo).'},
+    {t:'El hielo odia el calor y se pone triste.', ok:false, why:'No se puede medir el «odio» ni la tristeza del hielo: no es comprobable.'},
+    {t:'Quiero que el cubito no se derrita nunca.', ok:false, why:'Eso es un deseo, no una hipótesis científica.'},
+    {t:'A los 0 minutos el cubito es sólido y brillante.', ok:false, why:'Eso es una observación, no una hipótesis.'}
+  ];
+  function buildHyp(){
+    hypOpts.innerHTML=''; hypVerdict.className='verdict';
+    HYPS.forEach((h,i)=>{
+      const lab=document.createElement('label');
+      lab.className='check-opt';
+      lab.innerHTML='<input type="radio" name="hyp" value="'+i+'"/> <span>'+h.t+'</span>';
+      lab.addEventListener('click',()=>{
+        [...hypOpts.children].forEach(c=>c.classList.remove('ok','bad'));
+        if(h.ok){
+          lab.classList.add('ok');
+          hypVerdict.textContent='Bien: es una hipótesis comprobable. '+h.why;
+          hypVerdict.className='verdict show ok';
+        } else {
+          lab.classList.add('bad');
+          hypVerdict.textContent='No del todo. '+h.why;
+          hypVerdict.className='verdict show bad';
+        }
+      });
+      hypOpts.appendChild(lab);
+    });
+  }
+  function resetChecks(){ buildReorder(); buildHyp(); }
+
+  buildReorder(); buildHyp();
+
+  /* ---- Preview mode ---- */
+  if(/[?&]preview=1\b/.test(location.search)){
+    document.body.classList.add('preview-mode');
+    tempEl.value=26; timeEl.value=14;
+    goStep(3, true); // Experimentar — mid-melt frame, sync for screenshot
+    stage.classList.remove('paused');
+    updateScene();
+  } else {
+    goStep(0, true);
+  }
+})();
+</script>
+</body>
+</html>
