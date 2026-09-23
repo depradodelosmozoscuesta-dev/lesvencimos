@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Build online shell + flat offline pack for 1º ESO Biología y Geología (L01–L10)."""
+"""Build online shell + flat offline pack for 1º ESO Biología y Geología (L01–L20)."""
 from __future__ import annotations
 
 import html
@@ -21,7 +21,7 @@ ZIP_PATH = REPO / "downloads/1eso-biologia-geologia-offline.zip"
 COURSE_ICONS = COURSE_DIR / "icons"
 BRAND_ICONS = REPO / "brand/favicon"
 TOTAL = 40
-AVAILABLE = 10
+AVAILABLE = 20
 
 # Full temario titles (L11–L40 shown as próximamente on hub)
 TEMARIO = [
@@ -653,6 +653,559 @@ LESSONS = [
             "con seguridad y mirada de futuro."
         ),
     },
+
+    {
+        "n": 11,
+        "slug": "estructura-de-la-geosfera-y-movimientos-de-la-tierra",
+        "eyebrow": "Lección 11 · UD B · Geosfera",
+        "title_html": "<em>Estructura de la geosfera</em> y movimientos de la Tierra",
+        "title_plain": "Estructura de la geosfera y movimientos de la Tierra",
+        "meta": "1º ESO Biología y Geología · CyL Decreto 39/2022 · bloque B",
+        "curiosidad_t": "Naranja abierta, planeta vivo",
+        "curiosidad": (
+            "Desde Wegener hasta la sismología moderna, la Tierra se entiende mejor en "
+            "<strong>corte</strong>: capas con distinta composición y comportamiento. "
+            "Rotación y traslación —conocidas desde la Antigüedad, precisadas después— "
+            "explican día/noche y, con el eje inclinado, las estaciones que notamos en CyL."
+        ),
+        "curiosidad_fig": "fuego.svg",
+        "objetivos": [
+            "Identificar las capas del corte: <strong>corteza, manto, núcleo externo e interno</strong>.",
+            "Distinguir modelo <strong>geodinámico</strong> (comportamiento) y <strong>geoquímico</strong> (composición).",
+            "Explicar <strong>rotación</strong> (día/noche) y <strong>traslación</strong> (año / estaciones con eje inclinado).",
+            "Relacionar el corte con lo que «vivimos» en la corteza.",
+            "Usar el mnemónico Co-Man-NuEx-NuIn y RoTa.",
+        ],
+        "cuerpo": """
+    <h2>Explicación</h2>
+    <p>La <strong>geosfera</strong> es la parte sólida de la Tierra. En un <strong>corte</strong> (como naranja abierta) ves:</p>
+    <div class="tarjeta">
+      <p style="margin:0 0 0.35rem"><strong>Corteza</strong> — fina y rocosa; vivimos aquí</p>
+      <p style="margin:0 0 0.35rem"><strong>Manto</strong> — la más gruesa; rocas calientes</p>
+      <p style="margin:0 0 0.35rem"><strong>Núcleo externo</strong> — Fe+Ni <strong>líquido</strong></p>
+      <p style="margin:0"><strong>Núcleo interno</strong> — Fe+Ni <strong>sólido</strong> (por la presión)</p>
+    </div>
+    <p><strong>Modelo geodinámico:</strong> capas según cómo se comportan (litosfera rígida, astenosfera plástica…).
+    <strong>Modelo geoquímico:</strong> según de qué están hechas (silicatos, hierro-níquel…).</p>
+    <p><strong>Rotación</strong> ≈ 24 h → día y noche. <strong>Traslación</strong> ≈ 365 días + eje inclinado → estaciones.</p>
+    <div class="tarjeta">
+      <p style="margin:0"><strong>Mnemónico:</strong> «Co-Man-NuEx-NuIn» y «RoTa» (Rotación / Traslación).</p>
+    </div>
+""",
+        "vida_t": "Castilla y León",
+        "vida": [
+            "Invierno/verano marcados por <strong>traslación</strong> + inclinación del eje.",
+            "Día y noche = <strong>rotación</strong> (reloj solar o la sombra del recreo).",
+            "Sismos lejanos nos recuerdan un planeta en capas (ondas que viajan por el interior).",
+            "L06–L10 hablan de rocas de la corteza; L11 sitúa esa corteza en el corte completo.",
+        ],
+        "vida_fig": "mapa.svg",
+        "widgets": [
+            ("Geosfera · corte y movimientos", "l11-geosfera-movimientos.html"),
+        ],
+        "reto_t": "Explica el corte en 1 minuto",
+        "reto": (
+            "Explica a un compañero, con el dibujo del interactivo, la idea más importante "
+            "de esta lección en 1 minuto."
+        ),
+        "reto_id": "1eso-byg-L11",
+        "cierre": (
+            "<strong>Co-Man-NuEx-NuIn · RoTa.</strong> "
+            "Corteza fina; núcleo externo líquido; rotación = día/noche."
+        ),
+    },
+    {
+        "n": 12,
+        "slug": "atmosfera-composicion-y-estructura",
+        "eyebrow": "Lección 12 · UD C · Atmósfera e hidrosfera",
+        "title_html": "<em>Atmósfera</em>: composición y estructura",
+        "title_plain": "Atmósfera: composición y estructura",
+        "meta": "1º ESO Biología y Geología · CyL Decreto 39/2022 · bloque C",
+        "curiosidad_t": "Capas de aire, no de magia",
+        "curiosidad": (
+            "Hasta el siglo XX se pensaba a veces en una atmósfera «uniforme». "
+            "Globos, cohetes y satélites mostraron <strong>capas</strong> con distinto "
+            "comportamiento térmico. El clima que sentimos ocurre abajo, en la "
+            "<strong>troposfera</strong>; el ozono protector, en gran parte, más arriba."
+        ),
+        "curiosidad_fig": "ticket.svg",
+        "objetivos": [
+            "Nombrar las capas principales de la atmósfera (de abajo a arriba).",
+            "Recordar que el aire seco es ~<strong>78 % N₂</strong> y ~<strong>21 % O₂</strong>.",
+            "Situar el clima en la <strong>troposfera</strong> y el ozono (en gran parte) en la <strong>estratosfera</strong>.",
+            "Relacionar composición con lo que respiramos.",
+            "Usar el mnemónico Tri-Es-Me-Ter-Ex · Ni-Oxi.",
+        ],
+        "cuerpo": """
+    <h2>Explicación</h2>
+    <p>La <strong>atmósfera</strong> es la envoltura de gases.</p>
+    <div class="tarjeta">
+      <p style="margin:0 0 0.35rem"><strong>Capas (abajo → arriba):</strong> troposfera → estratosfera → mesosfera → termosfera → exosfera</p>
+      <p style="margin:0"><strong>Composición (aire seco, aprox.):</strong> N₂ ~78 %, O₂ ~21 %, argón ~0,9 %, CO₂ ~0,04 %, más vapor de agua variable</p>
+    </div>
+    <p>El <strong>tiempo</strong> (nubes, lluvia) ocurre en la troposfera. Gran parte del <strong>ozono</strong> protector está en la estratosfera.</p>
+    <div class="tarjeta">
+      <p style="margin:0"><strong>Mnemónico:</strong> «Tri-Es-Me-Ter-Ex» · «Ni-Oxi» (78 / 21).</p>
+    </div>
+""",
+        "vida_t": "Castilla y León",
+        "vida": [
+            "El tiempo en Valladolid, León o Burgos ocurre en la <strong>troposfera</strong>.",
+            "Partículas y nieblas de valle: fenómenos de la capa más baja.",
+            "AEMET informa del tiempo troposférico, no de la termosfera.",
+            "Respiramos ~21 % de oxígeno: dato útil frente a mitos de «aire puro» mágicos.",
+        ],
+        "vida_fig": "mapa.svg",
+        "widgets": [
+            ("Atmósfera · capas y composición", "l12-atmosfera-composicion-estructura.html"),
+        ],
+        "reto_t": "Capas en 1 minuto",
+        "reto": (
+            "Explica a un compañero, con el dibujo del interactivo, la idea más importante "
+            "de esta lección en 1 minuto."
+        ),
+        "reto_id": "1eso-byg-L12",
+        "cierre": (
+            "<strong>Tri-Es-Me-Ter-Ex · Ni-Oxi.</strong> "
+            "Clima abajo; ozono (en gran parte) en estratosfera."
+        ),
+    },
+    {
+        "n": 13,
+        "slug": "contaminacion-efecto-invernadero-ozono-y-agenda-2030",
+        "eyebrow": "Lección 13 · UD C · Atmósfera e hidrosfera",
+        "title_html": "Contaminación, efecto invernadero, ozono y <em>Agenda 2030</em>",
+        "title_plain": "Contaminación, efecto invernadero, ozono y Agenda 2030",
+        "meta": "1º ESO Biología y Geología · CyL Decreto 39/2022 · bloque C",
+        "curiosidad_t": "Invernadero natural, exceso humano",
+        "curiosidad": (
+            "Fourier y Tyndall intuían que ciertos gases retienen calor; Arrhenius calculó "
+            "el papel del CO₂. El <strong>efecto invernadero natural</strong> permite la vida; "
+            "el exceso lo desequilibra. La capa de ozono y la Agenda 2030 añaden otra lección: "
+            "ciencia + cooperación internacional."
+        ),
+        "curiosidad_fig": "fuego.svg",
+        "objetivos": [
+            "Ejemplificar <strong>contaminación</strong> del aire.",
+            "Explicar efecto invernadero (<strong>natural vs exceso</strong>).",
+            "Diferenciar ozono «bueno» (alto) y su papel frente a UV.",
+            "Relacionar medidas con <strong>Agenda 2030</strong> / ODS.",
+            "Usar el mnemónico COIA.",
+        ],
+        "cuerpo": """
+    <h2>Explicación</h2>
+    <div class="tarjeta">
+      <p style="margin:0 0 0.35rem"><strong>Contaminación atmosférica</strong> — partículas y gases nocivos (tráfico, industrias…)</p>
+      <p style="margin:0 0 0.35rem"><strong>Efecto invernadero</strong> — gases retienen calor; el natural permite vida; el exceso calienta de más</p>
+      <p style="margin:0 0 0.35rem"><strong>Capa de ozono</strong> — O₃ en estratosfera filtra UV</p>
+      <p style="margin:0"><strong>Agenda 2030</strong> — plan ONU; ODS 13 (clima), 7 (energía limpia), 11 (ciudades)…</p>
+    </div>
+    <div class="tarjeta">
+      <p style="margin:0"><strong>Mnemónico COIA:</strong> Contaminación · invernadero · Ozono · Agenda 2030</p>
+    </div>
+""",
+        "vida_t": "Castilla y León",
+        "vida": [
+            "Medidas locales: transporte, energía, calidad del aire.",
+            "Contrastar titulares con fuentes oficiales (Junta, AEMET, ministerios).",
+            "ODS en el centro: proyectos escolares de ahorro y movilidad.",
+            "L12 sitúa capas; L13 explica riesgos y respuestas.",
+        ],
+        "vida_fig": "mapa.svg",
+        "widgets": [
+            ("COIA · contaminación, invernadero, ozono", "l13-contaminacion-invernadero-ozono-agenda2030.html"),
+        ],
+        "reto_t": "COIA en 1 minuto",
+        "reto": (
+            "Explica a un compañero, con el dibujo del interactivo, la idea más importante "
+            "de esta lección en 1 minuto."
+        ),
+        "reto_id": "1eso-byg-L13",
+        "cierre": (
+            "<strong>COIA.</strong> Invernadero natural ≠ exceso. "
+            "Ozono alto filtra UV; Agenda 2030 = medidas."
+        ),
+    },
+    {
+        "n": 14,
+        "slug": "hidrosfera-y-el-ciclo-del-agua",
+        "eyebrow": "Lección 14 · UD C · Atmósfera e hidrosfera",
+        "title_html": "<em>Hidrosfera</em> y el ciclo del agua",
+        "title_plain": "Hidrosfera y el ciclo del agua",
+        "meta": "1º ESO Biología y Geología · CyL Decreto 39/2022 · bloque C",
+        "curiosidad_t": "El mismo vaso, otra nube",
+        "curiosidad": (
+            "Desde Aristóteles hasta los modelos climáticos actuales, el <strong>ciclo del agua</strong> "
+            "explica que el agua no «desaparece»: cambia de estado y de lugar. "
+            "Casi toda está en océanos; el agua dulce usable es escasa —por eso importa en CyL."
+        ),
+        "curiosidad_fig": "olla.svg",
+        "objetivos": [
+            "Definir <strong>hidrosfera</strong>.",
+            "Ordenar evaporación, condensación, precipitación, escorrentía e infiltración.",
+            "Comprender que casi toda el agua está en océanos y el agua dulce usable es escasa.",
+            "Relacionar el ciclo con ríos y nubes del entorno.",
+            "Usar el mnemónico EVaCoPEsIn.",
+        ],
+        "cuerpo": """
+    <h2>Explicación</h2>
+    <p><strong>Hidrosfera</strong> = toda el agua del planeta.</p>
+    <div class="tarjeta">
+      <p style="margin:0 0 0.35rem"><strong>Ciclo:</strong> evaporación → condensación (nubes) → precipitación → escorrentía / infiltración</p>
+      <p style="margin:0"><strong>Distribución:</strong> océanos ≈ 97 %; el resto incluye hielo, subterránea, lagos, ríos, vapor…</p>
+    </div>
+    <div class="tarjeta">
+      <p style="margin:0"><strong>Mnemónico:</strong> «EVaCoPEsIn».</p>
+    </div>
+""",
+        "vida_t": "Castilla y León",
+        "vida": [
+            "Piensa en el <strong>Duero</strong>: evaporación, nubes, lluvia, río otra vez.",
+            "Embalses y sequías: el ciclo no garantiza agua dulce «infinita».",
+            "Niebla y rocío: condensación a escala local.",
+            "L12–L13 = aire; L14 = agua en movimiento.",
+        ],
+        "vida_fig": "mapa.svg",
+        "widgets": [
+            ("Hidrosfera · ciclo del agua", "l14-hidrosfera-ciclo-agua.html"),
+        ],
+        "reto_t": "Ciclo en 1 minuto",
+        "reto": (
+            "Explica a un compañero, con el dibujo del interactivo, la idea más importante "
+            "de esta lección en 1 minuto."
+        ),
+        "reto_id": "1eso-byg-L14",
+        "cierre": (
+            "<strong>EVaCoPEsIn.</strong> Hidrosfera = toda el agua; "
+            "océanos dominan; dulce usable es escasa."
+        ),
+    },
+    {
+        "n": 15,
+        "slug": "mares-aguas-continentales-contaminacion-y-uso-sostenible",
+        "eyebrow": "Lección 15 · UD C · Atmósfera e hidrosfera",
+        "title_html": "Mares, aguas continentales, contaminación y <em>uso sostenible</em>",
+        "title_plain": "Mares, aguas continentales, contaminación y uso sostenible",
+        "meta": "1º ESO Biología y Geología · CyL Decreto 39/2022 · bloque C",
+        "curiosidad_t": "Mar salado, río de pueblo",
+        "curiosidad": (
+            "Romanos y pueblos de la Meseta ya distinguían pozos, ríos y mar. "
+            "Hoy añadimos <strong>acuíferos</strong>, depuradoras y el reto de no ensuciar "
+            "lo que bebe el territorio. Sostenibilidad no es eslogan: es no vertir y sí ahorrar."
+        ),
+        "curiosidad_fig": "mapa.svg",
+        "objetivos": [
+            "Distinguir aguas <strong>marinas</strong> y <strong>continentales</strong> (superficiales/subterráneas).",
+            "Ejemplificar <strong>contaminación</strong> del agua.",
+            "Proponer <strong>usos sostenibles</strong>.",
+            "Situar ríos y embalses de CyL en el mapa mental.",
+            "Usar Ma-Su-Sub · No-Viertas / Sí-Ahorras.",
+        ],
+        "cuerpo": """
+    <h2>Explicación</h2>
+    <div class="tarjeta">
+      <p style="margin:0 0 0.35rem"><strong>Marinas</strong> — saladas (mares/océanos)</p>
+      <p style="margin:0 0 0.35rem"><strong>Continentales superficiales</strong> — ríos, lagos, embalses…</p>
+      <p style="margin:0 0 0.35rem"><strong>Subterráneas</strong> — acuíferos</p>
+      <p style="margin:0 0 0.35rem"><strong>Contaminación</strong> — vertidos, plásticos, abonos en exceso…</p>
+      <p style="margin:0"><strong>Uso sostenible</strong> — ahorrar, depurar, no ensuciar, riego eficiente</p>
+    </div>
+    <div class="tarjeta">
+      <p style="margin:0"><strong>Mnemónico:</strong> «Ma-Su-Sub» · «No-Viertas / Sí-Ahorras».</p>
+    </div>
+""",
+        "vida_t": "Castilla y León",
+        "vida": [
+            "<strong>Duero</strong>, Tajo, embalses y acuíferos: agua para pueblos y campos.",
+            "Depuradoras municipales: ejemplo de «sí depuras».",
+            "Plásticos en cauces: contaminación visible en salidas de campo.",
+            "Riego por goteo en huertos escolares = uso sostenible concreto.",
+        ],
+        "vida_fig": "mapa.svg",
+        "widgets": [
+            ("Aguas · mares, continentales, sostenible", "l15-mares-continentales-contaminacion.html"),
+        ],
+        "reto_t": "Agua local en 1 minuto",
+        "reto": (
+            "Explica a un compañero, con el dibujo del interactivo, la idea más importante "
+            "de esta lección en 1 minuto."
+        ),
+        "reto_id": "1eso-byg-L15",
+        "cierre": (
+            "<strong>Ma-Su-Sub · No-Viertas / Sí-Ahorras.</strong> "
+            "Salada ≠ dulce; cuidar lo que bebemos."
+        ),
+    },
+    {
+        "n": 16,
+        "slug": "por-que-atmosfera-e-hidrosfera-hacen-posible-la-vida",
+        "eyebrow": "Lección 16 · UD C · Atmósfera e hidrosfera",
+        "title_html": "Por qué atmósfera e hidrosfera hacen posible la <em>vida</em>",
+        "title_plain": "Por qué atmósfera e hidrosfera hacen posible la vida",
+        "meta": "1º ESO Biología y Geología · CyL Decreto 39/2022 · bloque C",
+        "curiosidad_t": "No es decorado",
+        "curiosidad": (
+            "Comparar la Tierra con Marte o la Luna deja claro: sin atmósfera protectora "
+            "ni agua líquida estable, la vida compleja no encaja. "
+            "Oxígeno, escudo UV, temperatura habitable, ciclo del agua y clima "
+            "no son adorno: son condiciones."
+        ),
+        "curiosidad_fig": "fuego.svg",
+        "objetivos": [
+            "Relacionar oxígeno, escudo, temperatura, agua y clima con la vida.",
+            "Argumentar por qué atmósfera e hidrosfera no son «decorado».",
+            "Integrar ideas de L12–L15 en un relato único.",
+            "Imaginar qué fallaría sin atmósfera o sin agua líquida.",
+            "Usar O-Es-Te-Agua-Cli.",
+        ],
+        "cuerpo": """
+    <h2>Explicación</h2>
+    <p>Funciones clave de atmósfera e hidrosfera para la vida:</p>
+    <ol>
+      <li><strong>Oxígeno</strong> para respirar</li>
+      <li><strong>Escudo</strong> (UV / meteoros)</li>
+      <li><strong>Temperatura</strong> habitable (invernadero natural)</li>
+      <li><strong>Agua líquida</strong> y ciclo</li>
+      <li><strong>Clima</strong> y transporte de calor/agua</li>
+    </ol>
+    <div class="tarjeta">
+      <p style="margin:0"><strong>Mnemónico:</strong> «O-Es-Te-Agua-Cli».</p>
+    </div>
+""",
+        "vida_t": "Castilla y León",
+        "vida": [
+            "Sin lluvia ni aire limpio, campos y ciudades de CyL no funcionarían igual.",
+            "Sequía + calor extremo: se nota qué es «planeta habitable».",
+            "Bosques y cultivos dependen del ciclo del agua troposférico.",
+            "Cierre de UD C antes de entrar en la célula (UD D).",
+        ],
+        "vida_fig": "mapa.svg",
+        "widgets": [
+            ("Atmósfera + hidrosfera → vida", "l16-atmosfera-hidrosfera-vida.html"),
+        ],
+        "reto_t": "5 funciones en 1 minuto",
+        "reto": (
+            "Explica a un compañero, con el dibujo del interactivo, la idea más importante "
+            "de esta lección en 1 minuto."
+        ),
+        "reto_id": "1eso-byg-L16",
+        "cierre": (
+            "<strong>O-Es-Te-Agua-Cli.</strong> "
+            "Atmósfera e hidrosfera no son decorado: hacen posible la vida."
+        ),
+    },
+    {
+        "n": 17,
+        "slug": "la-celula-unidad-estructural-y-funcional",
+        "eyebrow": "Lección 17 · UD D · La célula",
+        "title_html": "La célula: <em>unidad estructural y funcional</em>",
+        "title_plain": "La célula: unidad estructural y funcional",
+        "meta": "1º ESO Biología y Geología · CyL Decreto 39/2022 · bloque D",
+        "curiosidad_t": "Ladrillos vivos",
+        "curiosidad": (
+            "Hooke vio «celdas» en el corcho (1665); Schleiden y Schwann formularon la "
+            "<strong>teoría celular</strong> en el XIX: todos los seres vivos están hechos de células. "
+            "Estructural = construyen; funcional = hacen las funciones vitales. "
+            "Procariota vs eucariota es el siguiente mapa (L18–L20)."
+        ),
+        "curiosidad_fig": "ticket.svg",
+        "objetivos": [
+            "Definir <strong>célula</strong>.",
+            "Explicar unidad <strong>estructural</strong> y <strong>funcional</strong>.",
+            "Reconocer <strong>procariota</strong> vs <strong>eucariota</strong> (preview L18–L20).",
+            "Relacionar célula con tejidos y órganos.",
+            "Usar el mnemónico CE-FU.",
+        ],
+        "cuerpo": """
+    <h2>Explicación</h2>
+    <p>La <strong>célula</strong> es la unidad básica de los seres vivos.</p>
+    <div class="tarjeta">
+      <p style="margin:0 0 0.35rem"><strong>Estructural</strong> — forma tejidos y órganos (ladrillos)</p>
+      <p style="margin:0 0 0.35rem"><strong>Funcional</strong> — realiza nutrición, relación y reproducción</p>
+      <p style="margin:0"><strong>Procariota</strong> — sin núcleo · <strong>Eucariota</strong> — con núcleo (animal / vegetal)</p>
+    </div>
+    <div class="tarjeta">
+      <p style="margin:0"><strong>Mnemónico:</strong> «CE-FU».</p>
+    </div>
+""",
+        "vida_t": "Castilla y León",
+        "vida": [
+            "En el lab del instituto observaréis células (L21); hoy la idea base.",
+            "Piel, sangre, hoja de encina: todo arranca en células.",
+            "Yogur/compost: mundo microbiano (procariotas) en tu entorno.",
+            "Puente UD C → UD D: de planeta habitable a unidad de la vida.",
+        ],
+        "vida_fig": "mapa.svg",
+        "widgets": [
+            ("Célula · unidad estructural y funcional", "l17-celula-unidad.html"),
+        ],
+        "reto_t": "CE-FU en 1 minuto",
+        "reto": (
+            "Explica a un compañero, con el dibujo del interactivo, la idea más importante "
+            "de esta lección en 1 minuto."
+        ),
+        "reto_id": "1eso-byg-L17",
+        "cierre": (
+            "<strong>CE-FU.</strong> Célula = ladrillo + motor. "
+            "Pro sin núcleo; eu con núcleo."
+        ),
+    },
+    {
+        "n": 18,
+        "slug": "celula-procariota-y-sus-partes",
+        "eyebrow": "Lección 18 · UD D · La célula",
+        "title_html": "Célula <em>procariota</em> y sus partes",
+        "title_plain": "Célula procariota y sus partes",
+        "meta": "1º ESO Biología y Geología · CyL Decreto 39/2022 · bloque D",
+        "curiosidad_t": "Sin núcleo, con historia",
+        "curiosidad": (
+            "Las bacterias son procariotas: ADN en un <strong>nucleoide</strong>, sin membrana nuclear. "
+            "Leeuwenhoek las intuyó con lentes simples; hoy sabemos que también pueden tener "
+            "cápsula, pared, flagelo o plásmidos. Pequeñas, pero cruciales en yogur, compost e higiene."
+        ),
+        "curiosidad_fig": "olla.svg",
+        "objetivos": [
+            "Identificar partes: cápsula, pared, membrana, nucleoide, ribosomas, plásmido, flagelo, pili.",
+            "Entender que <strong>no hay núcleo</strong> con membrana.",
+            "Relacionar flagelo con movimiento.",
+            "Distinguir de la eucariota (L19–L20).",
+            "Usar Pro-SIN-núcleo · Ca-Pa-Me-Nu-Ri-Fla.",
+        ],
+        "cuerpo": """
+    <h2>Explicación</h2>
+    <p><strong>Procariota</strong> (p. ej. bacteria): ADN en <strong>nucleoide</strong> (sin membrana nuclear).
+    Puede tener cápsula, pared, membrana, ribosomas, plásmidos, flagelo y pili.</p>
+    <div class="tarjeta">
+      <p style="margin:0"><strong>Mnemónico:</strong> «Pro-SIN-núcleo» · «Ca-Pa-Me-Nu-Ri-Fla».</p>
+    </div>
+""",
+        "vida_t": "Castilla y León",
+        "vida": [
+            "Yogur, compost, infecciones… el mundo microbiano está en tu entorno (con higiene).",
+            "Fermentación en cocina = procariotas trabajando.",
+            "No confundir «bacteria = siempre mala»: muchas son útiles.",
+            "L17 define; L18 dibuja la pro.",
+        ],
+        "vida_fig": "mapa.svg",
+        "widgets": [
+            ("Célula procariota · partes", "l18-celula-procariota.html"),
+        ],
+        "reto_t": "Nucleoide en 1 minuto",
+        "reto": (
+            "Explica a un compañero, con el dibujo del interactivo, la idea más importante "
+            "de esta lección en 1 minuto."
+        ),
+        "reto_id": "1eso-byg-L18",
+        "cierre": (
+            "<strong>Pro-SIN-núcleo · Ca-Pa-Me-Nu-Ri-Fla.</strong> "
+            "ADN en nucleoide; flagelo para moverse."
+        ),
+    },
+    {
+        "n": 19,
+        "slug": "celula-eucariota-animal-y-sus-partes",
+        "eyebrow": "Lección 19 · UD D · La célula",
+        "title_html": "Célula eucariota <em>animal</em> y sus partes",
+        "title_plain": "Célula eucariota animal y sus partes",
+        "meta": "1º ESO Biología y Geología · CyL Decreto 39/2022 · bloque D",
+        "curiosidad_t": "Núcleo con puerta",
+        "curiosidad": (
+            "La célula animal eucariota guarda el ADN en un <strong>núcleo</strong> con membrana. "
+            "Mitocondrias (energía), RE, Golgi y lisosomas organizan el trabajo interno. "
+            "A diferencia de la vegetal: sin pared rígida ni cloroplastos."
+        ),
+        "curiosidad_fig": "ticket.svg",
+        "objetivos": [
+            "Localizar núcleo, membrana, mitocondrias, RE, Golgi, lisosomas, centriolos, ribosomas.",
+            "Notar <strong>ausencia</strong> de pared y cloroplastos.",
+            "Asociar mitocondria con energía.",
+            "Comparar con procariota (L18).",
+            "Usar Nu-Mi-RE-Go-Li-Ce.",
+        ],
+        "cuerpo": """
+    <h2>Explicación</h2>
+    <p>Célula <strong>animal</strong> = eucariota. Forma flexible. Orgánulos: núcleo, mitocondrias (energía),
+    RE, Golgi, lisosomas, centriolos, ribosomas, membrana.</p>
+    <div class="tarjeta">
+      <p style="margin:0"><strong>Mnemónico:</strong> «Nu-Mi-RE-Go-Li-Ce».</p>
+    </div>
+    <p>Sin <strong>pared</strong> de celulosa ni <strong>cloroplastos</strong> (eso es vegetal, L20).</p>
+""",
+        "vida_t": "Castilla y León",
+        "vida": [
+            "Tus células de la piel o de la sangre son animales eucariotas.",
+            "Herida que cicatriza: células trabajando (nutrición, relación).",
+            "Microscopio escolar (L21): células de mucosa/epitelio como ejemplo.",
+            "L18 pro · L19 animal · L20 vegetal.",
+        ],
+        "vida_fig": "mapa.svg",
+        "widgets": [
+            ("Célula animal · orgánulos", "l19-celula-eucariota-animal.html"),
+        ],
+        "reto_t": "Orgánulos en 1 minuto",
+        "reto": (
+            "Explica a un compañero, con el dibujo del interactivo, la idea más importante "
+            "de esta lección en 1 minuto."
+        ),
+        "reto_id": "1eso-byg-L19",
+        "cierre": (
+            "<strong>Nu-Mi-RE-Go-Li-Ce.</strong> "
+            "Núcleo + mitocondrias; sin pared ni cloroplastos."
+        ),
+    },
+    {
+        "n": 20,
+        "slug": "celula-eucariota-vegetal-y-sus-partes",
+        "eyebrow": "Lección 20 · UD D · La célula",
+        "title_html": "Célula eucariota <em>vegetal</em> y sus partes",
+        "title_plain": "Célula eucariota vegetal y sus partes",
+        "meta": "1º ESO Biología y Geología · CyL Decreto 39/2022 · bloque D",
+        "curiosidad_t": "Pared, verde y vacuola",
+        "curiosidad": (
+            "La célula vegetal añade tres pistas frente a la animal: "
+            "<strong>pared</strong> (celulosa), <strong>cloroplastos</strong> (fotosíntesis) y "
+            "<strong>vacuola</strong> central grande. Forma más rectangular/fija. "
+            "Pa-Clo-Va resume la diferencia que verás al microscopio."
+        ),
+        "curiosidad_fig": "mapa.svg",
+        "objetivos": [
+            "Reconocer <strong>pared</strong>, <strong>cloroplastos</strong> y <strong>vacuola</strong> grande.",
+            "Comparar claramente con la animal (L19).",
+            "Explicar fotosíntesis a nivel de orgánulo.",
+            "Notar forma más fija/rectangular.",
+            "Usar Pa-Clo-Va.",
+        ],
+        "cuerpo": """
+    <h2>Explicación</h2>
+    <p>Célula <strong>vegetal</strong>: pared (celulosa), cloroplastos (fotosíntesis), vacuola central grande
+    + núcleo, mitocondrias, etc. Forma más rectangular/fija.</p>
+    <div class="tarjeta">
+      <p style="margin:0"><strong>Mnemónico:</strong> «Pa-Clo-Va».</p>
+    </div>
+    <p><strong>Tres diferencias clave vs animal:</strong> pared · cloroplastos · vacuola grande.</p>
+""",
+        "vida_t": "Castilla y León",
+        "vida": [
+            "Hojas de encina o lechuga del huerto escolar: tejidos de células vegetales.",
+            "Verde = cloroplastos trabajando (luz + CO₂ → materia orgánica).",
+            "Célula vegetal «hinchada»: vacuola y turgencia.",
+            "Cierra el bloque L17–L20 antes del microscopio (L21).",
+        ],
+        "vida_fig": "mapa.svg",
+        "widgets": [
+            ("Célula vegetal · pared, cloroplasto, vacuola", "l20-celula-eucariota-vegetal.html"),
+        ],
+        "reto_t": "Pa-Clo-Va en 1 minuto",
+        "reto": (
+            "Explica a un compañero, con el dibujo del interactivo, la idea más importante "
+            "de esta lección en 1 minuto."
+        ),
+        "reto_id": "1eso-byg-L20",
+        "cierre": (
+            "<strong>Pa-Clo-Va.</strong> "
+            "Pared · cloroplastos · vacuola: la firma vegetal."
+        ),
+    },
 ]
 
 
@@ -1125,7 +1678,7 @@ def render_hub(*, for_downloads: bool = False) -> str:
     <p class="eyebrow" style="display:block;font-size:0.72rem;letter-spacing:0.16em;text-transform:uppercase;color:var(--lv-acento);font-weight:600;margin:0 0 0.55rem">Decreto 39/2022 · Castilla y León</p>
     <h1 id="hub-titulo">1º ESO Biología y Geología</h1>
     <p class="hub-status">
-      <strong>Lecciones 01–{AVAILABLE:02d} disponibles</strong> (UD A proyecto científico + UD B geosfera) en shell HTML.
+      <strong>Lecciones 01–{AVAILABLE:02d} disponibles</strong> (UD A–D: proyecto científico, geosfera, atmósfera/hidrosfera, célula) en shell HTML.
       El curso está <strong>en construcción</strong> ({TOTAL} lecciones previstas).
       <strong>ZIP offline</strong> (sin instalar: descomprime y abre <code>ABRE-AQUI.html</code>) en <a href="{descargas}">Descargas</a>.
     </p>
@@ -1140,7 +1693,7 @@ def render_hub(*, for_downloads: bool = False) -> str:
 
   <p class="hub-pie-nota">
     Educación obligatoria · currículo oficial CyL (Decreto 39/2022). Distinto del pack Profesor (multi-materia).
-    Interactivos L01–L{AVAILABLE:02d}: método, fuentes, laboratorio, datos, científicas/os, rocas y minería CyL.
+    Interactivos L01–L{AVAILABLE:02d}: método, geosfera, atmósfera/hidrosfera y célula (UD A–D).
   </p>
 
   <footer class="leccion-pie">
@@ -1178,7 +1731,7 @@ def update_descargas() -> None:
 
     byg_body = (
         f"<strong>No se instala.</strong> Descomprime y abre <code>ABRE-AQUI.html</code> / <code>index.html</code>.\n"
-        f"            L01–L{AVAILABLE:02d} disponibles (UD A + UD B geosfera); "
+        f"            L01–L{AVAILABLE:02d} disponibles (UD A–D: proyecto científico, geosfera, atmósfera/hidrosfera, célula); "
         f"curso en construcción ({TOTAL} lecciones previstas). Sin nube ni servidor.\n"
         f"            Distinto del pack Profesor."
     )
@@ -1203,7 +1756,7 @@ def update_descargas() -> None:
         # fallback: softer replaces
         text = re.sub(
             r"L01 disponible \(método científico\); curso en construcción \(40 lecciones previstas\)",
-            f"L01–L{AVAILABLE:02d} disponibles (UD A + UD B geosfera); curso en construcción ({TOTAL} lecciones previstas)",
+            f"L01–L{AVAILABLE:02d} disponibles (UD A–D: proyecto científico, geosfera, atmósfera/hidrosfera, célula); curso en construcción ({TOTAL} lecciones previstas)",
             text,
             count=1,
         )
@@ -1304,7 +1857,7 @@ def build_offline_pack() -> None:
 No hay que instalar nada. Descomprime y abre **ABRE-AQUI.html** (o index.html).
 
 **Qué es:** lecciones de **Educación obligatoria** (currículo oficial Castilla y León, Decreto 39/2022).
-Este pack trae las lecciones **01–{AVAILABLE:02d}** (UD A + UD B geosfera) en HTML plano (shell + interactivos embebidos).
+Este pack trae las lecciones **01–{AVAILABLE:02d}** (UD A–D: proyecto científico, geosfera, atmósfera/hidrosfera, célula) en HTML plano (shell + interactivos embebidos).
 Curso en construcción: **{TOTAL}** lecciones previstas (no está completo).
 
 **Cómo abrir (Android / PC) — 4 pasos**

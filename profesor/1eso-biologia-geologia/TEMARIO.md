@@ -73,15 +73,25 @@
 
 | Lección | Estado | Notas |
 |---|---|---|
-| L01 Método científico | **Entregada + rediseño visual ronda 2** | Lucía proporciones teen, reloj lab 60 ticks, termómetro lab, hielo melt. Preview regenerado 2026-09-23 20:30 CEST. |
-| L02 Fuentes veraces / bulos / pseudociencia | **Entregada** | Detective lupa↔bola; MD ampliado; preview |
-| L03 Laboratorio e instrumentos / normas | **Entregada** | Mesa con vaso/tubos/balanza/mechero/termómetro + normas B-G-O-A-N |
-| L04 Observar, datos, modelar, presentar | **Entregada** | Pasos O-D-M-P → tabla/modelo/póster |
-| L05 Científicas y científicos | **Entregada** | Galería Curie/Darwin/Margulis/geólogos (honesto) |
-| L06 Rocas y minerales (diferencia) | **Entregada** | Comparador texturizado + clasificación |
-| L07 Clasificar rocas | **Entregada** | I/S/M con texturas |
-| L08 Ciclo de las rocas | **Entregada** | Ciclo animado 6 pasos + flechas |
-| L09 Relevantes CyL | **Entregada** | Gra-Ca-Pi-Cuar-Ye (orientativo) |
-| L10 Extracción minera CyL | **Entregada** | Métodos/aplicaciones/futuro sin cifras inventadas |
-| L11–L40 | Pendiente | Siguiente: geosfera estructura/movimientos (L11) |
-| QA | **Bloque 01–10** | `lecciones/_qa-bloque-01-10.md` (2026-09-23 20:30 CEST) |
+| L01 Método científico | **Entregada + rediseño visual** | Lucía/reloj/termómetro/hielo SVG mejorados tras feedback Jorge. `01.md` + `l01-metodo-cientifico.html` + preview. |
+| L02 Fuentes veraces / bulos / pseudociencia | **Entregada** | `02.md` + `l02-fuentes-veraces.html` + preview |
+| L03 Laboratorio e instrumentos / normas | **Entregada** | `03.md` + `l03-laboratorio-seguridad.html` + preview |
+| L04 Observar, datos, modelar, presentar | **Entregada** | `04.md` + `l04-observar-datos-modelo.html` + preview |
+| L05 Científicas y científicos | **Entregada** | `05.md` + `l05-cientificas-cientificos.html` + preview |
+| L06 Rocas y minerales (diferencia) | **Entregada** | `06.md` + `l06-rocas-minerales.html` + preview (texturas) |
+| L07 Clasificar rocas | **Entregada** | `07.md` + `l07-clasificar-rocas.html` + preview |
+| L08 Ciclo de las rocas | **Entregada** | `08.md` + `l08-ciclo-rocas.html` + preview animado |
+| L09 Relevantes CyL | **Entregada** | `09.md` + `l09-rocas-minerales-cyl.html` + preview |
+| L10 Extracción minera CyL | **Entregada** | `10.md` + `l10-extraccion-minera-cyl.html` + preview (honesto) |
+| L11 Geosfera estructura / movimientos | **Entregada** | `11.md` + `l11-geosfera-movimientos.html` + preview (corte 3D) |
+| L12 Atmósfera composición / estructura | **Entregada** | `12.md` + `l12-atmosfera-composicion-estructura.html` + preview |
+| L13 Contaminación / invernadero / ozono / Agenda 2030 | **Entregada** | `13.md` + `l13-contaminacion-invernadero-ozono-agenda2030.html` + preview |
+| L14 Hidrosfera / ciclo del agua | **Entregada** | `14.md` + `l14-hidrosfera-ciclo-agua.html` + preview animado |
+| L15 Mares / continentales / contaminación / sostenible | **Entregada** | `15.md` + `l15-mares-continentales-contaminacion.html` + preview |
+| L16 Atmósfera e hidrosfera → vida | **Entregada** | `16.md` + `l16-atmosfera-hidrosfera-vida.html` + preview |
+| L17 Célula unidad estructural y funcional | **Entregada** | `17.md` + `l17-celula-unidad.html` + preview |
+| L18 Célula procariota | **Entregada** | `18.md` + `l18-celula-procariota.html` + preview HQ |
+| L19 Célula eucariota animal | **Entregada** | `19.md` + `l19-celula-eucariota-animal.html` + preview HQ |
+| L20 Célula eucariota vegetal | **Entregada** | `20.md` + `l20-celula-eucariota-vegetal.html` + preview HQ |
+| L21–L40 | Pendiente | Siguiente: observar/comparar células al microscopio (L21) |
+| QA | **Bloques 01–10 y 11–20** | `_qa-bloque-01-10.md` · `_qa-bloque-11-20.md` |

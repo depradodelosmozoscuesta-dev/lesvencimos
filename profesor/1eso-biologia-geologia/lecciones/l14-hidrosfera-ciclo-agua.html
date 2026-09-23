@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>L14 · Hidrosfera y el ciclo del agua</title>
+<style>
+
+:root{--bg:#FAF7F0;--ink:#2A2620;--muted:#5C564C;--card:#fff;--gold:#C4A15A;--gold-soft:#F5EDD8;--gold-deep:#8A6B2F;--green:#3D6B4F;--green-soft:#E4F0E8;--blue:#2F5D7A;--blue-soft:#E3EEF4;--rose:#9B3A4A;--rose-soft:#F8E8EB;--shadow:0 10px 32px rgba(42,38,32,.09);--radius:18px}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{min-height:100%;background:var(--bg);color:var(--ink);font-family:"Segoe UI",system-ui,-apple-system,sans-serif;-webkit-font-smoothing:antialiased}
+body{display:flex;flex-direction:column;align-items:center;padding:14px 10px 36px}
+.wrap{width:100%;max-width:980px}
+header{text-align:center;margin-bottom:12px}
+.badge{display:inline-block;font-size:.78rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--gold-deep);background:var(--gold-soft);padding:4px 12px;border-radius:999px;margin-bottom:8px}
+h1{font-size:clamp(1.25rem,4.5vw,1.85rem);line-height:1.2;font-weight:800;color:#0E0E0C}
+.subtitle{margin-top:6px;font-size:clamp(.9rem,2.8vw,1.05rem);color:var(--muted);font-weight:500}
+.story{background:linear-gradient(135deg,#F5EDD8,#E3EEF4 55%,#E4F0E8);border:2px solid #E0D0A8;border-radius:var(--radius);padding:12px 14px;margin-bottom:14px;font-size:clamp(.9rem,2.5vw,1.02rem);line-height:1.45;display:flex;gap:14px;align-items:center}
+.story-avatar{flex:0 0 auto;width:72px;height:72px}
+.story-avatar svg{width:72px;height:72px;display:block;filter:drop-shadow(0 2px 4px rgba(0,0,0,.12))}
+.story strong{color:var(--gold-deep)}
+.card{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);padding:16px 14px 18px;margin-bottom:14px}
+.card h2{font-size:clamp(1.05rem,3vw,1.25rem);font-weight:800;margin-bottom:8px}
+.hint{font-size:clamp(.88rem,2.4vw,1rem);color:var(--muted);line-height:1.45;margin-bottom:10px}
+.btn-row{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
+button.action{appearance:none;border:none;border-radius:999px;padding:10px 18px;font-weight:800;font-size:.95rem;cursor:pointer;background:var(--gold);color:#fff;transition:transform .15s ease,box-shadow .15s ease}
+button.action:hover{transform:translateY(-1px);box-shadow:0 4px 12px rgba(196,161,90,.35)}
+button.action.secondary{background:#fff;color:var(--gold-deep);border:2px solid var(--gold)}
+button.action:disabled{opacity:.45;cursor:not-allowed;transform:none;box-shadow:none}
+.nav-steps{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin:8px 0}
+.nav-steps button{padding:8px 12px;border-radius:999px;border:2px solid #D9D0C0;background:#fff;font-weight:800;font-size:.75rem;color:var(--muted);cursor:pointer;transition:all .2s}
+.nav-steps button:hover{border-color:var(--gold)}
+.nav-steps button.on{border-color:var(--blue);background:var(--blue-soft);color:var(--blue);transform:scale(1.04)}
+.stage{position:relative;width:100%;aspect-ratio:16/10;background:linear-gradient(#E8F4FC 0%,#FFFcf5 55%,#EDE6D6 100%);border-radius:14px;overflow:hidden;border:2px solid #E0D0A8;margin-bottom:12px}
+.stage svg{width:100%;height:100%;display:block}
+.glossary{display:grid;gap:.4rem;margin:10px 0;padding:12px 14px;background:#FFFcf5;border-radius:12px;border:2px solid #E0D0A8;font-size:.95rem}
+.glossary strong{color:var(--gold-deep)}
+.mnemonic{font-size:.95rem;font-weight:700;color:var(--gold-deep);background:var(--gold-soft);border-left:4px solid var(--gold);padding:10px 14px;border-radius:0 12px 12px 0;margin-top:10px;line-height:1.4}
+.verdict{text-align:center;font-size:1.05rem;font-weight:900;padding:12px;border-radius:14px;margin:10px 0;display:none;border:2px solid #E0D0A8}
+.verdict.show{display:block}.verdict.ok{background:var(--green-soft);color:#2A5238;border-color:#9BC4A8}.verdict.bad{background:var(--rose-soft);color:#7A2A36;border-color:#E8A8B0}
+.opts{display:grid;gap:8px;margin:10px 0}
+.opt{padding:12px 14px;border:2px solid #D9D0C0;border-radius:12px;background:#fff;cursor:pointer;font-weight:700;text-align:left;font-size:.95rem}
+.opt:hover{border-color:var(--gold)}.opt.ok{border-color:var(--green);background:var(--green-soft)}.opt.bad{border-color:var(--rose);background:var(--rose-soft)}.opt.selected{border-color:var(--blue);background:var(--blue-soft)}
+.info-panel{min-height:3.6em;background:#FFFcf5;border:2px solid #E0D0A8;border-radius:12px;padding:12px 14px;margin-bottom:10px;font-size:clamp(.92rem,2.5vw,1.05rem);line-height:1.45}
+.info-panel .tag{display:inline-block;font-size:.72rem;font-weight:800;text-transform:uppercase;letter-spacing:.04em;color:var(--blue);background:var(--blue-soft);padding:2px 8px;border-radius:999px;margin-bottom:6px}
+.pool{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin:8px 0;padding:8px;border:2px solid #E0D0A8;border-radius:12px;background:#fff}
+.chip{display:inline-block;margin:3px;padding:7px 10px;border-radius:999px;background:var(--blue-soft);border:2px solid var(--blue);font-weight:800;font-size:.75rem;color:var(--blue);cursor:pointer;user-select:none}
+.bins{display:grid;gap:8px;margin:10px 0}
+.bin{min-height:90px;border:2px dashed #C4B8A0;border-radius:14px;padding:8px;background:#FFFcf5;text-align:center}
+.bin h3{font-size:.8rem;font-weight:800;color:var(--gold-deep);margin-bottom:4px}
+.bin.ok{border-style:solid;border-color:var(--green);background:var(--green-soft)}
+footer{text-align:center;font-size:.8rem;color:var(--muted);margin-top:4px}
+body.preview-mode .story,body.preview-mode footer,body.preview-mode .hide-preview,body.preview-mode .glossary{display:none}
+@media (max-width:640px){.story{flex-direction:column;text-align:center}}
+
+
+#vaporUp path{animation:rise 3s ease-in-out infinite}
+#vaporUp path:nth-child(2){animation-delay:.5s}
+#vaporUp path:nth-child(3){animation-delay:1s}
+@keyframes rise{0%{opacity:0;transform:translateY(10px)}40%{opacity:.7}100%{opacity:0;transform:translateY(-40px)}}
+#cloudBob{animation:bob 4s ease-in-out infinite}
+@keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+#rainDrops ellipse{animation:fall 1.4s linear infinite}
+#rainDrops ellipse:nth-child(2){animation-delay:.3s}
+#rainDrops ellipse:nth-child(3){animation-delay:.6s}
+#rainDrops ellipse:nth-child(4){animation-delay:.9s}
+@keyframes fall{0%{opacity:0;transform:translateY(0)}20%{opacity:.9}100%{opacity:0;transform:translateY(50px)}}
+#runFlow{stroke-dasharray:8 6;animation:dash 1s linear infinite}
+@keyframes dash{to{stroke-dashoffset:-28}}
+#infiltrate{animation:seep 2.5s ease-in-out infinite}
+@keyframes seep{0%,100%{opacity:.35}50%{opacity:.85}}
+
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="badge">Lección 14 · UD C Atmósfera e hidrosfera · CyL Decreto 39/2022</div>
+    <h1>Hidrosfera y el ciclo del agua</h1>
+    <p class="subtitle">Evaporación → nubes → lluvia → ríos y acuíferos</p>
+  </header>
+  <div class="story">
+    <div class="story-avatar">
+<svg viewBox="0 0 80 80" aria-hidden="true">
+  <defs>
+    <linearGradient id="skinAv" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#F3D0AE"/><stop offset="100%" stop-color="#E2B48A"/></linearGradient>
+    <linearGradient id="hairAv" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#4A3428"/><stop offset="100%" stop-color="#2A1C14"/></linearGradient>
+  </defs>
+  <circle cx="40" cy="40" r="38" fill="#F5EDD8"/>
+  <ellipse cx="40" cy="72" rx="22" ry="10" fill="#E8F0F6"/>
+  <path d="M22 72 Q40 52 58 72" fill="#2F5D7A"/>
+  <ellipse cx="40" cy="38" rx="18" ry="20" fill="url(#skinAv)"/>
+  <path d="M22 34 Q24 12 40 10 Q56 12 58 34 Q52 22 40 20 Q28 22 22 34Z" fill="url(#hairAv)"/>
+  <path d="M54 28 Q66 34 64 52 Q58 44 54 38Z" fill="url(#hairAv)"/>
+  <ellipse cx="33" cy="40" rx="2.2" ry="2.6" fill="#2A2620"/>
+  <ellipse cx="47" cy="40" rx="2.2" ry="2.6" fill="#2A2620"/>
+  <path d="M37 46 Q40 49 43 46" fill="none" stroke="#C4785A" stroke-width="1.4" stroke-linecap="round"/>
+  <circle cx="28" cy="44" r="3" fill="#F0A090" opacity=".45"/>
+  <circle cx="52" cy="44" r="3" fill="#F0A090" opacity=".45"/>
+</svg>
+</div>
+    <div>El agua no se “acaba”: <strong>circula</strong>. Lucía sigue una gota desde el Duero hasta una nube y de vuelta. Luego ve que casi toda el agua está en los <strong>mares</strong>.</div>
+  </div>
+  
+<section class="card">
+  <h2>Hidrosfera y ciclo del agua</h2>
+  <p class="hint">Sigue el agua: <strong>evaporación</strong> → <strong>condensación</strong> → <strong>precipitación</strong> → <strong>escorrentía</strong> / <strong>infiltración</strong>. Luego mira cuánta agua hay en mares, hielo, ríos…</p>
+  <div class="nav-steps" id="steps">
+    <button type="button" class="on" data-i="0">1 · Ciclo animado</button>
+    <button type="button" data-i="1">2 · Distribución</button>
+  </div>
+  <div class="info-panel" id="info"><span class="tag">Ciclo</span> El Sol mueve el agua: sube como vapor, forma nubes y cae otra vez.</div>
+  <div class="stage"><svg viewBox="0 0 800 500" role="img">
+    <defs>
+      <linearGradient id="sky14" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#8EC4E8"/><stop offset="100%" stop-color="#D8ECF8"/></linearGradient>
+      <linearGradient id="sea14" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#5AB0D8"/><stop offset="100%" stop-color="#1E5A78"/></linearGradient>
+      <linearGradient id="sun14" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#FFF2A0"/><stop offset="100%" stop-color="#F0A830"/></linearGradient>
+      <linearGradient id="ground" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#C4A070"/><stop offset="100%" stop-color="#6E5030"/></linearGradient>
+      <filter id="sh"><feDropShadow dx="0" dy="2" stdDeviation="2" flood-opacity=".18"/></filter>
+    </defs>
+    <g id="sc0">
+      <rect width="800" height="500" fill="url(#sky14)"/>
+      <g id="sunRays" opacity=".5">
+      <line x1="680" y1="20" x2="680" y2="8" stroke="#F5C84A" stroke-width="3"/>
+      <line x1="730" y1="50" x2="748" y2="38" stroke="#F5C84A" stroke-width="3"/>
+      <line x1="630" y1="50" x2="612" y2="38" stroke="#F5C84A" stroke-width="3"/>
+      <line x1="720" y1="110" x2="738" y2="122" stroke="#F5C84A" stroke-width="3"/>
+    </g>
+    <circle cx="680" cy="80" r="42" fill="url(#sun14)"/>
+      <circle cx="680" cy="80" r="55" fill="#F5C84A" opacity=".25"/>
+      <!-- sea -->
+      <path d="M0 320 Q200 300 400 320 T800 310 L800 500 L0 500 Z" fill="url(#sea14)"/>
+      <!-- land -->
+      <path d="M420 320 L520 220 L620 240 L700 320 L700 500 L420 500 Z" fill="url(#ground)"/>
+      <ellipse cx="560" cy="250" rx="50" ry="70" fill="#4A8A48"/>
+      <rect x="540" y="280" width="16" height="50" fill="#6E5030"/>
+      <!-- vapor -->
+      <g id="vaporUp" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" opacity=".7">
+        <path d="M180 300 Q190 260 180 220"/>
+        <path d="M220 310 Q235 270 220 230"/>
+        <path d="M260 305 Q250 265 260 225"/>
+      </g>
+      <text x="220" y="200" text-anchor="middle" font-size="12" font-weight="800" fill="#2F5D7A">Evaporación</text>
+      <!-- cloud -->
+      <g opacity=".85">
+        <ellipse cx="420" cy="95" rx="40" ry="18" fill="#fff"/>
+        <ellipse cx="445" cy="90" rx="28" ry="16" fill="#fff"/>
+        <ellipse cx="400" cy="92" rx="22" ry="14" fill="#F0F6FA"/>
+      </g>
+      <!-- cloud -->
+      <g id="cloudBob">
+        <ellipse cx="280" cy="110" rx="55" ry="28" fill="#fff" filter="url(#sh)"/>
+        <ellipse cx="320" cy="100" rx="40" ry="25" fill="#fff"/>
+        <ellipse cx="250" cy="105" rx="35" ry="22" fill="#F0F6FA"/>
+        <text x="290" y="115" text-anchor="middle" font-size="11" font-weight="800" fill="#2F5D7A">Condensación</text>
+      </g>
+      <!-- rain -->
+      <g id="rainDrops" fill="#4A90B8">
+        <ellipse cx="480" cy="160" rx="3" ry="8"/>
+        <ellipse cx="500" cy="150" rx="3" ry="8"/>
+        <ellipse cx="520" cy="165" rx="3" ry="8"/>
+        <ellipse cx="540" cy="155" rx="3" ry="8"/>
+      </g>
+      <text x="560" y="145" font-size="12" font-weight="800" fill="#2F5D7A">Precipitación</text>
+      <!-- runoff -->
+      <path id="runFlow" d="M560 320 Q500 340 420 330" fill="none" stroke="#7EC8E8" stroke-width="6" stroke-linecap="round"/>
+      <text x="500" y="365" font-size="12" font-weight="800" fill="#1E5A78">Escorrentía</text>
+      <!-- infiltration -->
+      <g id="infiltrate">
+        <path d="M580 340 L575 400 M600 345 L605 410 M620 350 L618 405" stroke="#5A8AB0" stroke-width="3" stroke-linecap="round"/>
+      </g>
+      <text x="660" y="390" font-size="12" font-weight="800" fill="#5A4030">Infiltración</text>
+      <text x="400" y="40" text-anchor="middle" font-size="15" font-weight="800" fill="#8A6B2F">Ciclo del agua (siempre en marcha)</text>
+    </g>
+    <g id="sc1" opacity="0">
+      <rect width="800" height="500" fill="#E8F0F4"/>
+      <text x="400" y="50" text-anchor="middle" font-size="15" font-weight="800" fill="#8A6B2F">Distribución del agua en la Tierra (idea)</text>
+      <!-- big ocean bar visual as stacked water drops sizes -->
+      <rect x="80" y="100" width="640" height="70" rx="12" fill="#1E5A78"/>
+      <text x="400" y="142" text-anchor="middle" font-size="16" font-weight="900" fill="#fff">Océanos y mares ≈ 97 %</text>
+      <rect x="80" y="190" width="200" height="55" rx="10" fill="#A8D4F0"/>
+      <text x="180" y="223" text-anchor="middle" font-size="13" font-weight="800" fill="#1E5A78">Hielo / glaciares</text>
+      <rect x="300" y="190" width="160" height="55" rx="10" fill="#5AB0D8"/>
+      <text x="380" y="223" text-anchor="middle" font-size="13" font-weight="800" fill="#fff">Subterránea</text>
+      <rect x="480" y="190" width="100" height="55" rx="10" fill="#7EC8E8"/>
+      <text x="530" y="223" text-anchor="middle" font-size="12" font-weight="800" fill="#1E5A78">Lagos</text>
+      <rect x="600" y="190" width="120" height="55" rx="10" fill="#C8E8F8"/>
+      <text x="660" y="215" text-anchor="middle" font-size="11" font-weight="800" fill="#1E5A78">Ríos +</text>
+      <text x="660" y="232" text-anchor="middle" font-size="11" font-weight="800" fill="#1E5A78">vapor…</text>
+      <rect x="120" y="290" width="560" height="120" rx="14" fill="#FFFCF5" stroke="#C4A15A" stroke-width="2"/>
+      <text x="400" y="335" text-anchor="middle" font-size="14" font-weight="800" fill="#8A6B2F">¡Casi toda el agua dulce fácil de usar es poca!</text>
+      <text x="400" y="365" text-anchor="middle" font-size="13" fill="#5C564C">Por eso cuidar ríos, acuíferos y no contaminar importa tanto.</text>
+      <text x="400" y="395" text-anchor="middle" font-size="12" fill="#5C564C">Hidrosfera = toda el agua del planeta (líquida, sólida y vapor).</text>
+    </g>
+  </svg></div>
+  <div class="btn-row">
+    <button type="button" class="action secondary" id="btnPrev">Anterior</button>
+    <button type="button" class="action" id="btnNext">Siguiente</button>
+  </div>
+  <div class="opts hide-preview" id="quiz">
+    <p style="font-weight:800;margin-bottom:6px">¿Qué proceso del ciclo convierte el vapor en gotitas de nube?</p>
+    <button type="button" class="opt" data-ok="0">Escorrentía</button>
+    <button type="button" class="opt" data-ok="1">Condensación</button>
+    <button type="button" class="opt" data-ok="0">Infiltración</button>
+  </div>
+  <div class="verdict" id="verdict"></div>
+  <p class="mnemonic">Mnemónico ciclo: <strong>«EVaCoPEsIn»</strong> = EVaporación · Condensación · Precipitación · EScorrentía · INfiltración.</p>
+  <div class="glossary hide-preview">
+    <div><strong>Hidrosfera:</strong> conjunto de aguas de la Tierra.</div>
+    <div><strong>Evaporación:</strong> agua líquida → vapor.</div>
+    <div><strong>Condensación:</strong> vapor → gotitas (nubes).</div>
+    <div><strong>Precipitación:</strong> lluvia, nieve, granizo…</div>
+    <div><strong>Escorrentía / infiltración:</strong> agua que corre en superficie / que se cuela al suelo.</div>
+  </div>
+</section>
+
+  <footer>1º ESO ByG · CyL Decreto 39/2022 · Bloque C (hidrosfera / ciclo del agua / distribución) · Offline file://</footer>
+</div>
+<script>
+(function(){
+if(/[?&]preview=1\b/.test(location.search)){document.body.classList.add('preview-mode');}
+
+let i=0;const steps=[...document.querySelectorAll('#steps button')];
+function show(n){i=Math.max(0,Math.min(1,n));steps.forEach((b,idx)=>b.classList.toggle('on',idx===i));
+['sc0','sc1'].forEach((id,idx)=>{const el=document.getElementById(id);if(el)el.setAttribute('opacity',idx===i?'1':'0');});
+document.getElementById('info').innerHTML=i===0?'<span class="tag">Ciclo</span> Observa vapor, nube, lluvia, río e infiltración animados.':'<span class="tag">Distribución</span> Casi toda el agua está en los océanos; el agua dulce usable es escasa.';}
+steps.forEach(b=>b.onclick=()=>show(+b.dataset.i));
+document.getElementById('btnPrev').onclick=()=>show(i-1);
+document.getElementById('btnNext').onclick=()=>show(i+1);
+document.querySelectorAll('#quiz .opt').forEach(btn=>btn.onclick=()=>{const ok=btn.dataset.ok==='1';document.querySelectorAll('#quiz .opt').forEach(b=>b.classList.remove('ok','bad'));btn.classList.add(ok?'ok':'bad');const v=document.getElementById('verdict');v.className='verdict show '+(ok?'ok':'bad');v.textContent=ok?'¡Exacto! Condensación = nubes.':'Mira la nube del dibujo: ahí condensa el vapor.';});
+show(0);
+
+})();
+</script>
+</body>
+</html>
