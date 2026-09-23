@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Magnitudes y unidades · 1º ESO</title>
+<style>
+  :root {
+    --bg:#f0f9ff; --ink:#1a2b3c; --muted:#5a6d7e; --card:#fff;
+    --teal:#0d9488; --teal-soft:#ccfbf1; --teal-deep:#0f766e;
+    --blue:#2563eb; --blue-soft:#dbeafe; --blue-deep:#1d4ed8;
+    --amber:#d97706; --amber-soft:#fef3c7; --amber-deep:#b45309;
+    --rose:#e11d48; --rose-soft:#ffe4e6; --rose-deep:#be123c;
+    --purple:#7c3aed; --purple-soft:#ede9fe; --purple-deep:#5b21b6;
+    --green:#059669; --green-soft:#d1fae5; --green-deep:#047857;
+    --shadow:0 8px 28px rgba(26,43,60,.08); --radius:18px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{min-height:100%;background:var(--bg);color:var(--ink);
+    font-family:"Segoe UI",system-ui,-apple-system,sans-serif;-webkit-font-smoothing:antialiased}
+  body{display:flex;flex-direction:column;align-items:center;padding:14px 10px 36px}
+  .wrap{width:100%;max-width:960px}
+  header{text-align:center;margin-bottom:12px}
+  header .badge{display:inline-block;font-size:.78rem;font-weight:700;letter-spacing:.04em;
+    text-transform:uppercase;color:var(--teal-deep);background:var(--teal-soft);
+    padding:4px 12px;border-radius:999px;margin-bottom:8px}
+  h1{font-size:clamp(1.25rem,4.5vw,1.85rem);line-height:1.2;font-weight:800}
+  .subtitle{margin-top:6px;font-size:clamp(.9rem,2.8vw,1.05rem);color:var(--muted);font-weight:500}
+  .story{background:linear-gradient(135deg,#ccfbf1,#dbeafe 55%,#fef3c7);
+    border:2px solid #99f6e4;border-radius:var(--radius);padding:12px 14px;
+    margin-bottom:14px;display:flex;gap:12px;align-items:flex-start}
+  .story .emoji{font-size:2rem;line-height:1}
+  .story p{font-size:clamp(.9rem,2.5vw,1.02rem);line-height:1.45}
+  .story strong{color:var(--teal-deep)}
+  .card{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);
+    padding:16px 14px 18px;margin-bottom:14px}
+  .card h2{font-size:clamp(1.05rem,3vw,1.25rem);font-weight:800;margin-bottom:8px}
+  .hint{font-size:clamp(.88rem,2.4vw,1rem);color:var(--muted);line-height:1.45;margin-bottom:12px}
+  .mode-row{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px;justify-content:center}
+  .mode-btn{padding:10px 14px;border-radius:12px;border:3px solid #cbd5e1;background:#fff;
+    font-size:.88rem;font-weight:800;cursor:pointer;color:var(--ink)}
+  .mode-btn.active{border-color:var(--teal);background:var(--teal-soft);color:var(--teal-deep)}
+  .chooser{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px;justify-content:center}
+  .chip{border:2px solid #cbd5e1;background:#fff;border-radius:999px;padding:7px 14px;
+    font-size:.86rem;font-weight:700;cursor:pointer}
+  .chip.active{border-color:var(--blue);background:var(--blue-soft);color:var(--blue-deep)}
+  .stage{position:relative;width:100%;aspect-ratio:16/10;background:#e8f4fc;
+    border-radius:14px;overflow:hidden;border:2px solid #bae6fd;margin-bottom:12px}
+  .stage svg{width:100%;height:100%;display:block}
+  .ctrl-row{display:flex;flex-wrap:wrap;gap:12px;align-items:flex-end;margin-bottom:12px}
+  .field{display:flex;flex-direction:column;gap:4px;flex:1 1 120px}
+  .field label{font-size:.8rem;font-weight:700;color:var(--muted)}
+  .field label .letter{display:inline-block;padding:1px 7px;border-radius:8px;font-weight:800;
+    margin-right:3px;background:var(--teal-soft);color:var(--teal-deep)}
+  .field input,.field select{width:100%;font-size:1.1rem;font-weight:800;font-variant-numeric:tabular-nums;
+    padding:8px 10px;border:2.5px solid #cbd5e1;border-radius:12px;background:#fff}
+  .field input:focus,.field select:focus{outline:none;border-color:var(--teal);box-shadow:0 0 0 3px #99f6e4}
+  .verdict{text-align:center;font-size:clamp(1.05rem,2.8vw,1.35rem);font-weight:900;padding:14px;
+    border-radius:14px;margin:10px 0;background:var(--teal-soft);color:var(--teal-deep);border:2px solid #5eead4}
+  .verdict.warn{background:var(--amber-soft);color:var(--amber-deep);border-color:#fcd34d}
+  .verdict.ok{background:var(--green-soft);color:var(--green-deep);border-color:#6ee7b7}
+  .steps{display:grid;gap:10px;margin:12px 0}
+  .step{display:flex;gap:12px;align-items:flex-start;background:#f8fafc;border:2px solid #e2e8f0;
+    border-radius:14px;padding:12px 14px}
+  .step .n{flex:0 0 36px;height:36px;border-radius:50%;background:var(--teal);color:#fff;
+    font-weight:900;display:flex;align-items:center;justify-content:center}
+  .step .body .t{font-weight:800;font-size:1rem}
+  .step .body .d{font-size:.92rem;color:var(--muted);margin-top:2px;line-height:1.4}
+  .step.hl{border-color:#5eead4;background:var(--teal-soft)}
+  .glossary{display:grid;gap:.4rem;margin:10px 0;padding:12px 14px;background:#f0fdfa;
+    border-radius:12px;border:2px solid #99f6e4;font-size:.95rem}
+  .glossary div{font-variant-numeric:tabular-nums}
+  .glossary strong{color:var(--teal-deep)}
+  .mnemonic{font-size:.95rem;font-weight:700;color:var(--purple-deep);background:var(--purple-soft);
+    border-left:4px solid var(--purple);padding:10px 14px;border-radius:0 12px 12px 0;margin-top:10px;line-height:1.4}
+  .callout{font-size:.9rem;font-weight:700;color:var(--amber-deep);background:var(--amber-soft);
+    border-left:4px solid var(--amber);padding:8px 12px;border-radius:0 10px 10px 0;margin-top:10px}
+  .factor-pill{display:inline-block;background:var(--blue-soft);color:var(--blue-deep);
+    font-weight:900;padding:4px 10px;border-radius:999px;font-size:.9rem;margin:0 2px}
+  footer{text-align:center;font-size:.8rem;color:var(--muted);margin-top:4px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="badge">Lección 28 · UD9 Medida en el plano</div>
+    <h1>Magnitudes, unidades y elección de unidad</h1>
+    <p class="subtitle">Longitud · amplitud (ángulo) · área — elige la unidad justa y convierte sin liarte</p>
+  </header>
+
+  <div class="story">
+    <div class="emoji">📐</div>
+    <p><strong>Magnitud</strong> = lo que mides. <strong>Unidad</strong> = el patrón (metro, grado, metro cuadrado).
+    <strong>Cantidad</strong> = número × unidad (3,5 m). Elige unidad según el tamaño del objeto: folio → mm; patio → m; León–Astorga → km.</p>
+  </div>
+
+  <section class="card">
+    <h2>1. ¿Qué magnitud miramos?</h2>
+    <p class="hint">Cambia de estación. El dibujo debe parecerse a lo que nombra: regla, transportador o cuadrícula de área — no una mancha sin sentido.</p>
+    <div class="mode-row" role="tablist">
+      <button type="button" class="mode-btn active" data-mode="longitud" aria-pressed="true">📏 Longitud</button>
+      <button type="button" class="mode-btn" data-mode="amplitud" aria-pressed="false">∠ Amplitud</button>
+      <button type="button" class="mode-btn" data-mode="area" aria-pressed="false">▦ Área</button>
+    </div>
+
+    <div class="chooser" id="objetos" aria-label="Objetos de ejemplo"></div>
+
+    <div class="stage" aria-label="Escena de medida">
+      <svg id="svg" viewBox="0 0 800 500" role="img"></svg>
+    </div>
+
+    <div class="verdict" id="veredicto">—</div>
+  </section>
+
+  <section class="card">
+    <h2>2. Convertidor (misma magnitud)</h2>
+    <p class="hint">Cambia el número y las unidades. El factor sale en la pizarra. En área, los factores se <strong>cuadran</strong>: 1 m = 100 cm ⇒ 1 m² = 10 000 cm².</p>
+    <div class="ctrl-row">
+      <div class="field">
+        <label for="cant"><span class="letter">N</span> Cantidad (número)</label>
+        <input id="cant" type="number" min="0" step="any" value="2.3"/>
+      </div>
+      <div class="field">
+        <label for="fromU"><span class="letter">de</span> Unidad de partida</label>
+        <select id="fromU"></select>
+      </div>
+      <div class="field">
+        <label for="toU"><span class="letter">a</span> Unidad de llegada</label>
+        <select id="toU"></select>
+      </div>
+    </div>
+    <div class="steps" id="pasos"></div>
+    <div class="verdict ok" id="resultado">—</div>
+    <div class="callout" id="avisoArea" hidden>⚠️ En área no divides solo entre 100: (100 cm)² = <strong>10 000</strong> cm² en 1 m².</div>
+  </section>
+
+  <section class="card">
+    <h2>Letras y símbolos (léelos en español)</h2>
+    <div class="glossary">
+      <div><strong>Magnitud</strong> = lo que medimos (longitud, amplitud, área).</div>
+      <div><strong>Unidad</strong> = patrón acordado (m, °, m²…).</div>
+      <div><strong>Cantidad</strong> = número × unidad (ej. 45 cm).</div>
+      <div><strong>m</strong> = metro · <strong>cm</strong> = centímetro (1/100 m) · <strong>mm</strong> = milímetro (1/1000 m) · <strong>km</strong> = kilómetro (1000 m).</div>
+      <div><strong>m²</strong> = metro cuadrado · <strong>cm²</strong> = centímetro cuadrado (1 m² = 10 000 cm²).</div>
+      <div><strong>°</strong> = grado sexagesimal (círculo completo = 360°; ángulo recto = 90°; llano = 180°).</div>
+      <div><strong>SIM</strong> = Sistema Internacional de Unidades (el metro es la base de longitud).</div>
+    </div>
+    <div class="mnemonic">🧠 Truco: «Magnitud + unidad justa = medida útil. Longitud: ×/÷ 10, 100, 1000. Área: ×/÷ 10 000 entre m² y cm².»</div>
+  </section>
+
+  <footer>Offline · file:// · 1º ESO Matemáticas · CyL Decreto 39/2022 B.1</footer>
+</div>
+<script>
+(function(){
+  const modeBtns = document.querySelectorAll('.mode-btn');
+  const objetosEl = document.getElementById('objetos');
+  const svg = document.getElementById('svg');
+  const veredicto = document.getElementById('veredicto');
+  const cant = document.getElementById('cant');
+  const fromU = document.getElementById('fromU');
+  const toU = document.getElementById('toU');
+  const pasos = document.getElementById('pasos');
+  const resultado = document.getElementById('resultado');
+  const avisoArea = document.getElementById('avisoArea');
+
+  let mode = 'longitud';
+  let objId = 'folio';
+
+  const OBJETOS = {
+    longitud: [
+      {id:'folio', nombre:'Grosor de un folio', unidad:'mm', valor:0.1, ctx:'Cuaderno · Burgos'},
+      {id:'lapiz', nombre:'Lápiz', unidad:'cm', valor:18, ctx:'Estuche · Segovia'},
+      {id:'mesa', nombre:'Mesa del aula', unidad:'m', valor:1.2, ctx:'Instituto · Valladolid'},
+      {id:'patio', nombre:'Patio del cole', unidad:'m', valor:45, ctx:'Recreo · Salamanca'},
+      {id:'carretera', nombre:'León → Astorga', unidad:'km', valor:48, ctx:'Castilla y León'}
+    ],
+    amplitud: [
+      {id:'recto', nombre:'Esquina del cuaderno', unidad:'°', valor:90, ctx:'Ángulo recto'},
+      {id:'agudo', nombre:'Porción de pizza', unidad:'°', valor:45, ctx:'Ángulo agudo'},
+      {id:'obtuso', nombre:'Apertura de puerta', unidad:'°', valor:120, ctx:'Ángulo obtuso'},
+      {id:'llano', nombre:'Ángulo llano', unidad:'°', valor:180, ctx:'Media vuelta'},
+      {id:'completo', nombre:'Vuelta completa', unidad:'°', valor:360, ctx:'Círculo'}
+    ],
+    area: [
+      {id:'sello', nombre:'Sello de correos', unidad:'cm²', valor:6, ctx:'≈ 2×3 cm'},
+      {id:'goma', nombre:'Goma de borrar', unidad:'cm²', valor:12, ctx:'≈ 3×4 cm'},
+      {id:'folioA4', nombre:'Folio A4', unidad:'cm²', valor:623.7, ctx:'21×29,7 cm'},
+      {id:'pizarra', nombre:'Pizarra del aula', unidad:'m²', valor:3.2, ctx:'≈ 2×1,6 m'},
+      {id:'campo', nombre:'Campo de fútbol (idea)', unidad:'m²', valor:7140, ctx:'≈ 105×68 m'}
+    ]
+  };
+
+  const UNITS = {
+    longitud: [
+      {id:'mm', label:'mm (milímetro)', toM:0.001},
+      {id:'cm', label:'cm (centímetro)', toM:0.01},
+      {id:'m', label:'m (metro)', toM:1},
+      {id:'km', label:'km (kilómetro)', toM:1000}
+    ],
+    amplitud: [
+      {id:'°', label:'° (grado)', toM:1}
+    ],
+    area: [
+      {id:'cm²', label:'cm²', toM:0.0001},
+      {id:'m²', label:'m²', toM:1},
+      {id:'km²', label:'km²', toM:1e6}
+    ]
+  };
+
+  function setMode(m){
+    mode = m;
+    modeBtns.forEach(b=>{
+      const on = b.dataset.mode===m;
+      b.classList.toggle('active', on);
+      b.setAttribute('aria-pressed', on?'true':'false');
+    });
+    objId = OBJETOS[m][0].id;
+    fillChips();
+    fillUnitSelects();
+    // preset converter from first object
+    const o = OBJETOS[m][0];
+    cant.value = o.valor;
+    fromU.value = o.unidad;
+    toU.value = UNITS[m].find(u=>u.id!==o.unidad)?.id || o.unidad;
+    draw();
+    convert();
+  }
+
+  function fillChips(){
+    objetosEl.innerHTML = '';
+    OBJETOS[mode].forEach(o=>{
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'chip'+(o.id===objId?' active':'');
+      b.textContent = o.nombre;
+      b.addEventListener('click', ()=>{
+        objId = o.id;
+        fillChips();
+        cant.value = o.valor;
+        fromU.value = o.unidad;
+        draw();
+        convert();
+      });
+      objetosEl.appendChild(b);
+    });
+  }
+
+  function fillUnitSelects(){
+    const list = UNITS[mode];
+    fromU.innerHTML = '';
+    toU.innerHTML = '';
+    list.forEach(u=>{
+      const o1 = document.createElement('option'); o1.value=u.id; o1.textContent=u.label; fromU.appendChild(o1);
+      const o2 = document.createElement('option'); o2.value=u.id; o2.textContent=u.label; toU.appendChild(o2);
+    });
+  }
+
+  function currentObj(){
+    return OBJETOS[mode].find(o=>o.id===objId) || OBJETOS[mode][0];
+  }
+
+  function fmt(n){
+    if(!isFinite(n)) return '—';
+    const a = Math.abs(n);
+    let s;
+    if(a!==0 && (a<0.001 || a>=1e6)) s = n.toExponential(3);
+    else if(Number.isInteger(n)) s = String(n);
+    else s = String(Math.round(n*1e6)/1e6);
+    return s.replace('.', ',');
+  }
+
+  /* —— DRAWING —— */
+  function draw(){
+    const o = currentObj();
+    svg.innerHTML = '';
+    if(mode==='longitud') drawLongitud(o);
+    else if(mode==='amplitud') drawAmplitud(o);
+    else drawArea(o);
+
+    const buena = o.unidad;
+    veredicto.className = 'verdict ok';
+    veredicto.innerHTML = 'Unidad justa para <em>'+o.nombre+'</em>: <strong>'+buena+'</strong> · '+o.ctx+
+      '<br><span style="font-size:.9rem;font-weight:700">Cantidad tipica ≈ '+fmt(o.valor)+' '+buena+'</span>';
+  }
+
+  function el(tag, attrs, text){
+    const e = document.createElementNS('http://www.w3.org/2000/svg', tag);
+    if(attrs) Object.entries(attrs).forEach(([k,v])=>e.setAttribute(k,v));
+    if(text!=null) e.textContent = text;
+    return e;
+  }
+
+  function drawLongitud(o){
+    // Background desk
+    svg.appendChild(el('rect',{x:0,y:0,width:800,height:500,fill:'#e0f2fe'}));
+    svg.appendChild(el('text',{x:24,y:36,fill:'#0369a1','font-size':18,'font-weight':700,'font-family':'Segoe UI,sans-serif'},
+      'Estación longitud — regla real (cm / mm)'));
+
+    // Object representation by type
+    if(o.id==='folio'){
+      // stack of paper edge-on with mm callout
+      svg.appendChild(el('rect',{x:180,y:160,width:280,height:18,rx:2,fill:'#f8fafc',stroke:'#94a3b8','stroke-width':2}));
+      svg.appendChild(el('rect',{x:180,y:178,width:280,height:14,rx:1,fill:'#e2e8f0',stroke:'#94a3b8','stroke-width':1}));
+      svg.appendChild(el('rect',{x:180,y:192,width:280,height:12,rx:1,fill:'#cbd5e1',stroke:'#64748b','stroke-width':1}));
+      svg.appendChild(el('text',{x:320,y:140,fill:'#334155','font-size':16,'font-weight':700,'text-anchor':'middle','font-family':'Segoe UI,sans-serif'},'Grosor de un folio'));
+      drawRuler(120, 240, 560, true); // mm emphasis
+      svg.appendChild(el('text',{x:400,y:420,fill:'#0f766e','font-size':20,'font-weight':800,'text-anchor':'middle','font-family':'Segoe UI,sans-serif'},
+        'Unidad justa: mm (milímetros)'));
+    } else if(o.id==='lapiz'){
+      // Ruler first (20 cm scale), pencil spans exactly 0→18 cm on that scale
+      const rx=140, ry=280, rlen=500; // 20 cm across rlen px
+      const pxPerCm = (rlen-20)/20;
+      const x0 = rx+10;
+      const pencilLen = 18*pxPerCm;
+      const py = 200;
+      const g = el('g',{});
+      g.appendChild(el('rect',{x:x0,y:py,width:pencilLen-36,height:28,rx:4,fill:'#fbbf24',stroke:'#b45309','stroke-width':2}));
+      g.appendChild(el('rect',{x:x0,y:py,width:30,height:28,rx:3,fill:'#f87171',stroke:'#b91c1c','stroke-width':2}));
+      g.appendChild(el('rect',{x:x0+34,y:py+8,width:pencilLen-90,height:12,fill:'#78350f',opacity:.25}));
+      const tipX = x0+pencilLen-36;
+      g.appendChild(el('polygon',{points: tipX+','+py+' '+(x0+pencilLen)+','+(py+14)+' '+tipX+','+(py+28), fill:'#fde68a', stroke:'#b45309','stroke-width':2}));
+      g.appendChild(el('polygon',{points: (x0+pencilLen-18)+','+(py+8)+' '+(x0+pencilLen)+','+(py+14)+' '+(x0+pencilLen-18)+','+(py+20), fill:'#57534e'}));
+      svg.appendChild(g);
+      svg.appendChild(el('text',{x:x0+pencilLen/2,y:py-16,fill:'#92400e','font-size':16,'font-weight':700,'text-anchor':'middle','font-family':'Segoe UI,sans-serif'},'Lápiz ≈ 18 cm (alineado 0→18)'));
+      drawRuler(rx, ry, rlen, false);
+      svg.appendChild(el('line',{x1:x0,y1:py+32,x2:x0,y2:ry+8,stroke:'#0f766e','stroke-width':2,'stroke-dasharray':'4 3'}));
+      svg.appendChild(el('line',{x1:x0+pencilLen,y1:py+32,x2:x0+pencilLen,y2:ry+8,stroke:'#0f766e','stroke-width':2,'stroke-dasharray':'4 3'}));
+      svg.appendChild(el('text',{x:400,y:420,fill:'#0f766e','font-size':20,'font-weight':800,'text-anchor':'middle','font-family':'Segoe UI,sans-serif'},
+        'Unidad justa: cm'));
+    } else if(o.id==='mesa' || o.id==='patio'){
+      // top-down table / patio with meter tape
+      const w = o.id==='mesa' ? 360 : 520;
+      const h = o.id==='mesa' ? 200 : 260;
+      const x = (800-w)/2, y = 90;
+      svg.appendChild(el('rect',{x:x,y:y,width:w,height:h,rx:8,fill:o.id==='mesa'?'#d6b48a':'#86efac',stroke:o.id==='mesa'?'#92400e':'#15803d','stroke-width':3}));
+      if(o.id==='patio'){
+        svg.appendChild(el('circle',{cx:x+80,cy:y+60,r:28,fill:'#4ade80',opacity:.5}));
+        svg.appendChild(el('text',{x:x+w/2,y:y+h/2+6,fill:'#14532d','font-size':18,'font-weight':700,'text-anchor':'middle','font-family':'Segoe UI,sans-serif'},'césped del patio'));
+      } else {
+        svg.appendChild(el('rect',{x:x+40,y:y+30,width:w-80,height:h-60,rx:4,fill:'#f5e6c8',stroke:'#a16207','stroke-width':1.5}));
+        svg.appendChild(el('text',{x:x+w/2,y:y+h/2+6,fill:'#78350f','font-size':18,'font-weight':700,'text-anchor':'middle','font-family':'Segoe UI,sans-serif'},'tablero de la mesa'));
+      }
+      // measuring tape (looks like a tape, not a blob)
+      drawTape(x, y+h+20, w, o.valor+(o.id==='mesa'?' m':' m'));
+      svg.appendChild(el('text',{x:400,y:460,fill:'#0f766e','font-size':20,'font-weight':800,'text-anchor':'middle','font-family':'Segoe UI,sans-serif'},
+        'Unidad justa: m (metros)'));
+    } else {
+      // road León-Astorga
+      svg.appendChild(el('rect',{x:0,y:180,width:800,height:120,fill:'#64748b'}));
+      svg.appendChild(el('rect',{x:0,y:232,width:800,height:16,fill:'#f8fafc'}));
+      for(let i=0;i<12;i++){
+        svg.appendChild(el('rect',{x:30+i*70,y:235,width:36,height:10,rx:2,fill:'#fbbf24'}));
+      }
+      svg.appendChild(el('text',{x:80,y:160,fill:'#1e293b','font-size':18,'font-weight':800,'font-family':'Segoe UI,sans-serif'},'León'));
+      svg.appendChild(el('text',{x:680,y:160,fill:'#1e293b','font-size':18,'font-weight':800,'font-family':'Segoe UI,sans-serif'},'Astorga'));
+      svg.appendChild(el('line',{x1:100,y1:150,x2:700,y2:150,stroke:'#0d9488','stroke-width':4,'stroke-dasharray':'10 8'}));
+      svg.appendChild(el('text',{x:400,y:140,fill:'#0f766e','font-size':22,'font-weight':900,'text-anchor':'middle','font-family':'Segoe UI,sans-serif'},'≈ 48 km'));
+      svg.appendChild(el('text',{x:400,y:360,fill:'#be123c','font-size':16,'font-weight':700,'text-anchor':'middle','font-family':'Segoe UI,sans-serif'},
+        '❌ No uses mm aquí — la cantidad sería ridícula'));
+      svg.appendChild(el('text',{x:400,y:420,fill:'#0f766e','font-size':20,'font-weight':800,'text-anchor':'middle','font-family':'Segoe UI,sans-serif'},
+        'Unidad justa: km'));
+    }
+  }
+
+  function drawRuler(x, y, lengthPx, fine){
+    // Realistic ruler body
+    svg.appendChild(el('rect',{x:x,y:y,width:lengthPx,height:56,rx:4,fill:'#fef9c3',stroke:'#ca8a04','stroke-width':2}));
+    svg.appendChild(el('rect',{x:x+4,y:y+4,width:lengthPx-8,height:48,rx:2,fill:'#fefce8',stroke:'#eab308','stroke-width':1}));
+    const cmCount = 20;
+    const step = (lengthPx-20)/cmCount;
+    for(let i=0;i<=cmCount;i++){
+      const px = x+10+i*step;
+      const tall = (i%5===0)?40:28;
+      svg.appendChild(el('line',{x1:px,y1:y+52,x2:px,y2:y+52-tall,stroke:'#1e293b','stroke-width':i%5===0?2:1}));
+      if(fine && i<cmCount){
+        for(let m=1;m<10;m++){
+          const mx = px + step*m/10;
+          svg.appendChild(el('line',{x1:mx,y1:y+52,x2:mx,y2:y+40,stroke:'#64748b','stroke-width':0.7}));
+        }
+      }
+      if(i%5===0){
+        svg.appendChild(el('text',{x:px,y:y+18,fill:'#1e293b','font-size':12,'font-weight':700,'text-anchor':'middle','font-family':'Segoe UI,sans-serif'}, String(i)));
+      }
+    }
+    svg.appendChild(el('text',{x:x+lengthPx-8,y:y+18,fill:'#92400e','font-size':11,'font-weight':800,'text-anchor':'end','font-family':'Segoe UI,sans-serif'},'cm'));
+    // 0 mark callout
+    svg.appendChild(el('text',{x:x+10,y:y+72,fill:'#0f766e','font-size':12,'font-weight':700,'text-anchor':'middle','font-family':'Segoe UI,sans-serif'},'0'));
+  }
+
+  function drawTape(x, y, w, label){
+    svg.appendChild(el('rect',{x:x,y:y,width:w,height:22,rx:3,fill:'#fbbf24',stroke:'#b45309','stroke-width':2}));
+    for(let i=0;i<=10;i++){
+      const px = x + (w*i)/10;
+      svg.appendChild(el('line',{x1:px,y1:y,x2:px,y2:y+10,stroke:'#78350f','stroke-width':1}));
+    }
+    svg.appendChild(el('text',{x:x+w/2,y:y+42,fill:'#92400e','font-size':15,'font-weight':800,'text-anchor':'middle','font-family':'Segoe UI,sans-serif'},
+      'cinta métrica → '+label));
+  }
+
+  function drawAmplitud(o){
+    svg.appendChild(el('rect',{x:0,y:0,width:800,height:500,fill:'#faf5ff'}));
+    svg.appendChild(el('text',{x:24,y:36,fill:'#6d28d9','font-size':18,'font-weight':700,'font-family':'Segoe UI,sans-serif'},
+      'Estación amplitud — transportador (grados °)'));
+
+    const cx=400, cy=320, R=200;
+    // Protractor body (semicircle) — looks like a real protractor
+    svg.appendChild(el('path',{
+      d:'M '+(cx-R)+' '+cy+' A '+R+' '+R+' 0 0 1 '+(cx+R)+' '+cy+' L '+(cx+R)+' '+(cy+18)+' L '+(cx-R)+' '+(cy+18)+' Z',
+      fill:'#ede9fe', stroke:'#7c3aed', 'stroke-width':3
+    }));
+    svg.appendChild(el('path',{
+      d:'M '+(cx-R+28)+' '+cy+' A '+(R-28)+' '+(R-28)+' 0 0 1 '+(cx+R-28)+' '+cy,
+      fill:'none', stroke:'#c4b5fd', 'stroke-width':2
+    }));
+    // Degree ticks
+    for(let deg=0; deg<=180; deg+=5){
+      const rad = Math.PI*(1 - deg/180); // 0° at right? Standard school: 0 at right for inner, or 0 at left.
+      // School protractor often has 0° on the RIGHT for the inner scale going counter-clockwise...
+      // We'll put 0° on the LEFT (outer common) going clockwise to 180 on the right — actually Spanish school: 0 left and 0 right dual.
+      // Draw: 0° at LEFT, 180° at RIGHT (bottom baseline), measuring counter-clockwise from left...
+      // Better classic: baseline, 0° RIGHT, increasing counter-clockwise (math).
+      const a = Math.PI * (deg/180); // from positive x-axis CCW... wait for semicircle above baseline:
+      // point at angle deg from RIGHT baseline, going counter-clockwise (up into semicircle):
+      const ang = Math.PI - (deg * Math.PI/180); // 0° → left? Let's do: 0° at RIGHT end of baseline.
+      // ang from positive x: 0 at right, CCW. Semicircle upper: 0 to 180.
+      const ang2 = deg * Math.PI/180;
+      const x1 = cx + R * Math.cos(ang2);
+      const y1 = cy - R * Math.sin(ang2);
+      const tick = (deg%10===0)?16:8;
+      const x2 = cx + (R-tick) * Math.cos(ang2);
+      const y2 = cy - (R-tick) * Math.sin(ang2);
+      svg.appendChild(el('line',{x1:x1,y1:y1,x2:x2,y2:y2,stroke:'#5b21b6','stroke-width':deg%10===0?2:1}));
+      if(deg%20===0){
+        const tx = cx + (R-32) * Math.cos(ang2);
+        const ty = cy - (R-32) * Math.sin(ang2);
+        svg.appendChild(el('text',{x:tx,y:ty+4,fill:'#5b21b6','font-size':11,'font-weight':700,'text-anchor':'middle','font-family':'Segoe UI,sans-serif'}, String(deg)));
+      }
+    }
+    // Baseline and center mark
+    svg.appendChild(el('line',{x1:cx-R,y1:cy,x2:cx+R,y2:cy,stroke:'#5b21b6','stroke-width':3}));
+    svg.appendChild(el('circle',{cx:cx,cy:cy,r:5,fill:'#7c3aed'}));
+    svg.appendChild(el('text',{x:cx,y:cy+40,fill:'#5b21b6','font-size':13,'font-weight':800,'text-anchor':'middle','font-family':'Segoe UI,sans-serif'},'vértice (origen)'));
+
+    // Angle rays
+    const ang = o.valor * Math.PI/180;
+    // fixed side along 0° (right)
+    svg.appendChild(el('line',{x1:cx,y1:cy,x2:cx+R-10,y2:cy,stroke:'#ea580c','stroke-width':4,'stroke-linecap':'round'}));
+    // moving side
+    const mx = cx + (R-10)*Math.cos(ang);
+    const my = cy - (R-10)*Math.sin(ang);
+    svg.appendChild(el('line',{x1:cx,y1:cy,x2:mx,y2:my,stroke:'#ea580c','stroke-width':4,'stroke-linecap':'round'}));
+    // arc highlight
+    const arcR = 70;
+    const large = o.valor>180?1:0;
+    const ax = cx + arcR*Math.cos(ang);
+    const ay = cy - arcR*Math.sin(ang);
+    svg.appendChild(el('path',{
+      d:'M '+(cx+arcR)+' '+cy+' A '+arcR+' '+arcR+' 0 '+large+' 0 '+ax+' '+ay,
+      fill:'none', stroke:'#f59e0b', 'stroke-width':5
+    }));
+    svg.appendChild(el('text',{x:cx+arcR+20,y:cy-arcR/2,fill:'#c2410c','font-size':28,'font-weight':900,'font-family':'Segoe UI,sans-serif'},
+      o.valor+'°'));
+
+    let tipo = 'agudo';
+    if(o.valor===90) tipo='recto';
+    else if(o.valor>90 && o.valor<180) tipo='obtuso';
+    else if(o.valor===180) tipo='llano';
+    else if(o.valor===360) tipo='completo';
+    else if(o.valor<90) tipo='agudo';
+    svg.appendChild(el('text',{x:400,y:470,fill:'#6d28d9','font-size':18,'font-weight':800,'text-anchor':'middle','font-family':'Segoe UI,sans-serif'},
+      o.nombre+' → ángulo '+tipo+' · unidad: grado (°)'));
+  }
+
+  function drawArea(o){
+    svg.appendChild(el('rect',{x:0,y:0,width:800,height:500,fill:'#ecfdf5'}));
+    svg.appendChild(el('text',{x:24,y:36,fill:'#047857','font-size':18,'font-weight':700,'font-family':'Segoe UI,sans-serif'},
+      'Estación área — cuadrícula (cm² / m²), no un «charco»'));
+
+    // Show a rectangle with visible unit squares
+    let cols, rows, cell, labelU, title;
+    if(o.id==='sello'){ cols=3; rows=2; cell=70; labelU='cm²'; title='Sello ≈ 3 cm × 2 cm = 6 cm²'; }
+    else if(o.id==='goma'){ cols=4; rows=3; cell=55; labelU='cm²'; title='Goma ≈ 4 cm × 3 cm = 12 cm²'; }
+    else if(o.id==='folioA4'){ cols=10; rows=14; cell=22; labelU='cm²'; title='Folio A4 (esquema 10×14 celdas de idea)'; }
+    else if(o.id==='pizarra'){ cols=4; rows=3; cell=70; labelU='m²'; title='Pizarra ≈ 2 m × 1,6 m → usa m²'; }
+    else { cols=8; rows=5; cell=50; labelU='m²'; title='Campo (esquema) → miles de m²'; }
+
+    const gridW = cols*cell, gridH = rows*cell;
+    const gx = (800-gridW)/2, gy = 70;
+    svg.appendChild(el('rect',{x:gx-4,y:gy-4,width:gridW+8,height:gridH+8,rx:6,fill:'#fff',stroke:'#059669','stroke-width':3}));
+    for(let r=0;r<rows;r++){
+      for(let c=0;c<cols;c++){
+        const shade = (r+c)%2===0 ? '#a7f3d0' : '#d1fae5';
+        svg.appendChild(el('rect',{x:gx+c*cell,y:gy+r*cell,width:cell,height:cell,fill:shade,stroke:'#047857','stroke-width':1}));
+      }
+    }
+    // Labels base × altura
+    svg.appendChild(el('text',{x:gx+gridW/2,y:gy-14,fill:'#b45309','font-size':14,'font-weight':800,'text-anchor':'middle','font-family':'Segoe UI,sans-serif'},
+      'base (b)'));
+    svg.appendChild(el('text',{x:gx+gridW+18,y:gy+gridH/2,fill:'#b45309','font-size':14,'font-weight':800,'text-anchor':'start','font-family':'Segoe UI,sans-serif',
+      transform:'rotate(90 '+(gx+gridW+18)+' '+(gy+gridH/2)+')'},'altura (h)'));
+
+    svg.appendChild(el('text',{x:400,y:gy+gridH+36,fill:'#065f46','font-size':16,'font-weight':800,'text-anchor':'middle','font-family':'Segoe UI,sans-serif'}, title));
+    svg.appendChild(el('text',{x:400,y:gy+gridH+64,fill:'#0f766e','font-size':20,'font-weight':900,'text-anchor':'middle','font-family':'Segoe UI,sans-serif'},
+      'Cada cuadradito = 1 '+labelU+' · Área = contar cuadrados (o b×h)'));
+    svg.appendChild(el('text',{x:400,y:470,fill:'#047857','font-size':16,'font-weight':700,'text-anchor':'middle','font-family':'Segoe UI,sans-serif'},
+      'Unidad justa: '+o.unidad+' · Recuerda: 1 m² = 10 000 cm²'));
+  }
+
+  /* —— CONVERT —— */
+  function convert(){
+    const n = Number(String(cant.value).replace(',','.'));
+    const fu = UNITS[mode].find(u=>u.id===fromU.value);
+    const tu = UNITS[mode].find(u=>u.id===toU.value);
+    if(!fu||!tu||!isFinite(n)){ resultado.textContent='—'; return; }
+
+    const base = n * fu.toM;
+    const out = base / tu.toM;
+    const factor = fu.toM / tu.toM;
+
+    avisoArea.hidden = !(mode==='area' && ((fu.id==='m²'&&tu.id==='cm²')||(fu.id==='cm²'&&tu.id==='m²')));
+
+    let stepHtml = '';
+    stepHtml += step(1, 'Identifica la magnitud', mode==='longitud'?'Longitud (1D)':mode==='amplitud'?'Amplitud angular': 'Área (2D — factores al cuadrado)');
+    stepHtml += step(2, 'Escribe la cantidad', fmt(n)+' '+fu.id);
+    if(mode==='amplitud'){
+      stepHtml += step(3, 'Misma unidad', 'En 1º ESO casi siempre trabajamos en grados (°). 1° = 60′ (minutos), pero aquí no hace falta.', true);
+    } else {
+      stepHtml += step(3, 'Aplica el factor',
+        fmt(n)+' × <span class="factor-pill">'+fmt(factor)+'</span> = <strong>'+fmt(out)+' '+tu.id+'</strong>', true);
+    }
+    if(mode==='area' && (fu.id==='m²'||tu.id==='m²') && (fu.id==='cm²'||tu.id==='cm²')){
+      stepHtml += step(4, '¿Por qué 10 000?', '1 m = 100 cm → 1 m² = 100×100 = 10 000 cm². No uses solo 100.');
+    }
+    pasos.innerHTML = stepHtml;
+
+    if(mode==='amplitud'){
+      resultado.innerHTML = fmt(n)+' ° = '+fmt(out)+' ° <span style="font-size:.85rem">(misma unidad)</span>';
+    } else {
+      resultado.innerHTML = fmt(n)+' '+fu.id+' = <strong>'+fmt(out)+' '+tu.id+'</strong>';
+    }
+  }
+
+  function step(n, t, d, hl){
+    return '<div class="step'+(hl?' hl':'')+'"><div class="n">'+n+'</div><div class="body"><div class="t">'+t+'</div><div class="d">'+d+'</div></div></div>';
+  }
+
+  modeBtns.forEach(b=>b.addEventListener('click',()=>setMode(b.dataset.mode)));
+  cant.addEventListener('input', convert);
+  fromU.addEventListener('change', convert);
+  toU.addEventListener('change', convert);
+
+  setMode('longitud');
+  // Preview mode for screenshots
+  if (/[?&]preview=1\b/.test(location.search)) {
+    objId = 'lapiz';
+    fillChips();
+    cant.value = 18;
+    fromU.value = 'cm';
+    toU.value = 'mm';
+    draw();
+    convert();
+  }
+})();
+</script>
+</body>
+</html>

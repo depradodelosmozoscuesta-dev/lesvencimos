@@ -15,7 +15,7 @@ DESCARGAS = REPO / "descargas.html"
 PACK_DIR = REPO / "downloads/_build-1eso-mate-flat"
 ZIP_PATH = REPO / "downloads/1eso-matematicas-offline.zip"
 TOTAL = 47
-AVAILABLE = 27  # L01–L27
+AVAILABLE = 30  # L01–L30
 
 # (num, short_ud, title, meta, curiosidad_title, curiosidad_text, figura_cur,
 #  objetivos[list], cuerpo_extra_html, vida_title, vida_items, vida_figura,
@@ -1104,6 +1104,126 @@ LESSONS = [
     "reto": "Elige un producto que quieras o necesites. Compara dos opciones con precio, duración estimada y un criterio personal. Publica tu decisión razonada.",
     "reto_id": "1eso-mate-L27",
     "cierre": "Decidir bien mezcla números (precio, €/uso) y valores (necesidad, ética, gusto). El consumo responsable también se calcula.",
+  },
+  {
+    "n": 28,
+    "eyebrow": "Lección 28 · UD9 · Medida en el plano",
+    "title_html": "Magnitudes, <em>unidades</em> y elección de unidad (longitud, amplitud, área)",
+    "title_plain": "Magnitudes, unidades y elección de unidad (longitud, amplitud, área)",
+    "meta": "Saberes CyL (Decreto 39/2022): B.1 Magnitud",
+    "curiosidad_t": "La unidad justa",
+    "curiosidad": "Medir no es solo escribir un número: hace falta decir con qué patrón lo comparas. Un folio pide milímetros, un patio metros y una provincia kilómetros; elegir bien la unidad hace que el dato se entienda.",
+    "curiosidad_fig": "mapa.svg",
+    "objetivos": [
+      "Distinguir magnitud de unidad y de cantidad.",
+      "Manejar unidades de longitud, amplitud angular y área.",
+      "Convertir unidades habituales (m, cm, mm, km; m², cm²).",
+      "Elegir la unidad adecuada al objeto medido.",
+    ],
+    "cuerpo": """
+    <h2>Explicación breve</h2>
+    <p><strong>Magnitud</strong> es lo que medimos; <strong>unidad</strong> es el patrón; <strong>cantidad</strong> es número × unidad. En longitud usamos km, m, cm y mm; en área, m² y cm²; los ángulos se expresan en grados (°).</p>
+    <div class="tarjeta">
+      <p style="margin:0"><strong>Ejemplo:</strong> 1 m = 100 cm = 1000 mm y 1 m² = 10 000 cm². En áreas el factor también se «cuadra».</p>
+    </div>
+""",
+    "cuerpo_after_widgets": "",
+    "widget_split": False,
+    "vida_t": "Aplicaciones",
+    "vida": [
+      "Medir un mueble antes de comprarlo.",
+      "Elegir cm para una goma, m para un patio y km para una ruta.",
+      "Describir el ángulo de una puerta o de una rampa.",
+      "Calcular superficies de habitaciones, sellos o pistas.",
+    ],
+    "vida_fig": "mapa.svg",
+    "widgets": [
+      ("Interactivo · estaciones de magnitud", "l28-magnitudes-unidades.html"),
+    ],
+    "reto_t": "Unidad justa",
+    "reto": "Elige 5 objetos y escribe la magnitud y la unidad más razonable para cada uno. Uno debe ser un ángulo.",
+    "reto_id": "1eso-mate-L28",
+    "cierre": "Magnitud + unidad adecuada = medida útil. Domina los factores 10, 100, 1000 y el 10 000 del m²↔cm².",
+  },
+  {
+    "n": 29,
+    "eyebrow": "Lección 29 · UD9 · Medida en el plano",
+    "title_html": "Medir longitudes y ángulos; <em>precisión</em> y estimación",
+    "title_plain": "Medir longitudes y ángulos; precisión y estimación",
+    "meta": "Saberes CyL (Decreto 39/2022): B.2 Medición; B.3 Estimación y relaciones",
+    "curiosidad_t": "Estima antes de medir",
+    "curiosidad": "Una estimación es una conjetura comprobable, no una adivinanza definitiva. Alinear el cero, centrar el vértice y mirar de frente permite que la regla y el transportador cuenten una historia fiable.",
+    "curiosidad_fig": "mapa.svg",
+    "objetivos": [
+      "Usar regla, cinta métrica y transportador con buena técnica.",
+      "Estimar longitudes y ángulos antes de medir.",
+      "Expresar una medida con la precisión adecuada.",
+      "Formular conjeturas sobre medidas y contrastarlas.",
+    ],
+    "cuerpo": """
+    <h2>Explicación breve</h2>
+    <p>Para medir una longitud, alinea el <strong>0</strong> de la regla con un extremo y mira de frente. Para medir un ángulo, coloca el vértice en el centro del transportador y un lado sobre 0°. Estima antes y calcula el error absoluto <strong>|E−M|</strong>.</p>
+    <div class="tarjeta">
+      <p style="margin:0"><strong>Precisión:</strong> si una regla aprecia milímetros, no tiene sentido escribir 12,387 cm. Informa solo las cifras que realmente ves.</p>
+    </div>
+""",
+    "cuerpo_after_widgets": "",
+    "widget_split": False,
+    "vida_t": "Aplicaciones",
+    "vida": [
+      "Colgar un cuadro o montar una estantería nivelada.",
+      "Estimar y comprobar el ancho de una puerta.",
+      "Medir el ángulo de una rampa por seguridad.",
+      "Dibujar un croquis del patio y contrastarlo con una cinta.",
+    ],
+    "vida_fig": "mapa.svg",
+    "widgets": [
+      ("Interactivo · regla y transportador", "l29-regla-transportador.html"),
+    ],
+    "reto_t": "Ojo de medidor",
+    "reto": "Estima tres longitudes y un ángulo en tu entorno, mídelos y calcula los errores. ¿En qué tipo de magnitud fallas más?",
+    "reto_id": "1eso-mate-L29",
+    "cierre": "Estimar → medir → contrastar. La precisión la marca el instrumento y el uso.",
+  },
+  {
+    "n": 30,
+    "eyebrow": "Lección 30 · UD9 · Medida en el plano",
+    "title_html": "Áreas de figuras planas elementales: <em>deducción</em> y aplicación",
+    "title_plain": "Áreas de figuras planas elementales: deducción y aplicación",
+    "meta": "Saberes CyL (Decreto 39/2022): B.2 Medición (áreas); B.3 Estimación y relaciones",
+    "curiosidad_t": "Todo nace del rectángulo",
+    "curiosidad": "El área de un triángulo aparece al partir un paralelogramo en dos mitades iguales. El dibujo ayuda a recordar por qué aparece el 1/2 y a no confundir la altura perpendicular con un lado inclinado.",
+    "curiosidad_fig": "mapa.svg",
+    "objetivos": [
+      "Deducir y usar áreas de rectángulo, cuadrado, triángulo, paralelogramo y trapecio.",
+      "Descomponer figuras compuestas.",
+      "Distinguir perímetro (u) de área (u²).",
+      "Resolver problemas de pintura, suelos y cartulinas.",
+    ],
+    "cuerpo": """
+    <h2>Explicación breve</h2>
+    <p>Rectángulo y paralelogramo: <strong>A=b×h</strong>; cuadrado: <strong>A=L²</strong>; triángulo: <strong>A=½×b×h</strong>; trapecio: <strong>A=½(B+b)×h</strong>. La altura siempre es perpendicular a la base.</p>
+    <div class="tarjeta">
+      <p style="margin:0"><strong>Perímetro ≠ área:</strong> el perímetro mide el contorno en unidades (u); el área mide la superficie en unidades cuadradas (u²). Las figuras compuestas se suman o se restan.</p>
+    </div>
+""",
+    "cuerpo_after_widgets": "",
+    "widget_split": False,
+    "vida_t": "Aplicaciones",
+    "vida": [
+      "Comprar césped artificial, baldosas o cartulina.",
+      "Pintar una pared descontando puertas y ventanas.",
+      "Descomponer el plano de una habitación en rectángulos.",
+      "Comparar perímetro y superficie de una pista.",
+    ],
+    "vida_fig": "mapa.svg",
+    "widgets": [
+      ("Interactivo · áreas con deducción", "l30-areas-figuras.html"),
+    ],
+    "reto_t": "Área de mi sitio",
+    "reto": "Calcula el área aproximada de tu mesa de estudio o de tu habitación (croquis). Explica para qué te serviría ese dato en casa.",
+    "reto_id": "1eso-mate-L30",
+    "cierre": "Área mide superficie. Fórmulas básicas + descomposición resuelven casi todo el plano elemental de 1º.",
   },
 ]
 

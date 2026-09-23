@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Regla y transportador · 1º ESO</title>
+<style>
+  :root {
+    --bg:#fff7ed; --ink:#1a2b3c; --muted:#5a6d7e; --card:#fff;
+    --teal:#0d9488; --teal-soft:#ccfbf1; --teal-deep:#0f766e;
+    --orange:#ea580c; --orange-soft:#ffedd5; --orange-deep:#c2410c;
+    --blue:#2563eb; --blue-soft:#dbeafe; --blue-deep:#1d4ed8;
+    --amber:#d97706; --amber-soft:#fef3c7; --amber-deep:#b45309;
+    --green:#059669; --green-soft:#d1fae5; --green-deep:#047857;
+    --rose:#e11d48; --rose-soft:#ffe4e6; --rose-deep:#be123c;
+    --purple:#7c3aed; --purple-soft:#ede9fe;
+    --shadow:0 8px 28px rgba(26,43,60,.08); --radius:18px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{min-height:100%;background:var(--bg);color:var(--ink);
+    font-family:"Segoe UI",system-ui,-apple-system,sans-serif;-webkit-font-smoothing:antialiased}
+  body{display:flex;flex-direction:column;align-items:center;padding:14px 10px 36px}
+  .wrap{width:100%;max-width:960px}
+  header{text-align:center;margin-bottom:12px}
+  header .badge{display:inline-block;font-size:.78rem;font-weight:700;letter-spacing:.04em;
+    text-transform:uppercase;color:var(--orange-deep);background:var(--orange-soft);
+    padding:4px 12px;border-radius:999px;margin-bottom:8px}
+  h1{font-size:clamp(1.25rem,4.5vw,1.85rem);line-height:1.2;font-weight:800}
+  .subtitle{margin-top:6px;font-size:clamp(.9rem,2.8vw,1.05rem);color:var(--muted);font-weight:500}
+  .story{background:linear-gradient(135deg,#ffedd5,#fef3c7 50%,#dbeafe);
+    border:2px solid #fed7aa;border-radius:var(--radius);padding:12px 14px;
+    margin-bottom:14px;display:flex;gap:12px;align-items:flex-start}
+  .story .emoji{font-size:2rem}
+  .story p{font-size:clamp(.9rem,2.5vw,1.02rem);line-height:1.45}
+  .story strong{color:var(--orange-deep)}
+  .card{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);
+    padding:16px 14px 18px;margin-bottom:14px}
+  .card h2{font-size:clamp(1.05rem,3vw,1.25rem);font-weight:800;margin-bottom:8px}
+  .hint{font-size:clamp(.88rem,2.4vw,1rem);color:var(--muted);line-height:1.45;margin-bottom:12px}
+  .mode-row{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px;justify-content:center}
+  .mode-btn{padding:10px 14px;border-radius:12px;border:3px solid #cbd5e1;background:#fff;
+    font-size:.88rem;font-weight:800;cursor:pointer}
+  .mode-btn.active{border-color:var(--orange);background:var(--orange-soft);color:var(--orange-deep)}
+  .stage{position:relative;width:100%;aspect-ratio:16/10;background:#fffbeb;
+    border-radius:14px;overflow:hidden;border:2px solid #fde68a;margin-bottom:12px}
+  .stage svg{width:100%;height:100%;display:block}
+  .ctrl-row{display:flex;flex-wrap:wrap;gap:12px;align-items:flex-end;margin-bottom:12px}
+  .field{display:flex;flex-direction:column;gap:4px;flex:1 1 140px}
+  .field label{font-size:.8rem;font-weight:700;color:var(--muted)}
+  .field label .letter{display:inline-block;padding:1px 7px;border-radius:8px;font-weight:800;
+    margin-right:3px;background:var(--orange-soft);color:var(--orange-deep)}
+  .field input[type="range"]{width:100%;accent-color:var(--orange)}
+  .field output{font-weight:900;font-variant-numeric:tabular-nums;color:var(--orange-deep);font-size:1.1rem}
+  .btn-row{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0 4px}
+  button.action{appearance:none;border:none;border-radius:999px;padding:10px 18px;
+    font-weight:800;font-size:.95rem;cursor:pointer;background:var(--orange);color:#fff}
+  button.action.secondary{background:#fff;color:var(--orange-deep);border:2px solid var(--orange)}
+  button.action:active{transform:scale(.98)}
+  .verdict{text-align:center;font-size:clamp(1.05rem,2.8vw,1.3rem);font-weight:900;padding:14px;
+    border-radius:14px;margin:10px 0;background:var(--orange-soft);color:var(--orange-deep);border:2px solid #fdba74}
+  .verdict.ok{background:var(--green-soft);color:var(--green-deep);border-color:#6ee7b7}
+  .verdict.warn{background:var(--rose-soft);color:var(--rose-deep);border-color:#fda4af}
+  .steps{display:grid;gap:10px;margin:12px 0}
+  .step{display:flex;gap:12px;align-items:flex-start;background:#f8fafc;border:2px solid #e2e8f0;
+    border-radius:14px;padding:12px 14px}
+  .step .n{flex:0 0 36px;height:36px;border-radius:50%;background:var(--orange);color:#fff;
+    font-weight:900;display:flex;align-items:center;justify-content:center}
+  .step .body .t{font-weight:800;font-size:1rem}
+  .step .body .d{font-size:.92rem;color:var(--muted);margin-top:2px;line-height:1.4}
+  .step.hl{border-color:#fdba74;background:var(--orange-soft)}
+  .glossary{display:grid;gap:.4rem;margin:10px 0;padding:12px 14px;background:#fff7ed;
+    border-radius:12px;border:2px solid #fed7aa;font-size:.95rem}
+  .glossary strong{color:var(--orange-deep)}
+  .mnemonic{font-size:.95rem;font-weight:700;color:#5b21b6;background:var(--purple-soft);
+    border-left:4px solid #7c3aed;padding:10px 14px;border-radius:0 12px 12px 0;margin-top:10px;line-height:1.4}
+  .callout{font-size:.9rem;font-weight:700;color:var(--amber-deep);background:var(--amber-soft);
+    border-left:4px solid var(--amber);padding:8px 12px;border-radius:0 10px 10px 0;margin-top:10px}
+  .hidden-measure{filter:blur(6px);user-select:none;opacity:.55}
+  footer{text-align:center;font-size:.8rem;color:var(--muted);margin-top:4px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="badge">Lección 29 · UD9 Medida en el plano</div>
+    <h1>Medir longitudes y ángulos</h1>
+    <p class="subtitle">Estima → mide con regla o transportador → mira el error y la precisión</p>
+  </header>
+
+  <div class="story">
+    <div class="emoji">👀</div>
+    <p><strong>Primero estima</strong> (entrena el ojo). Luego alinea el <strong>0</strong> de la regla o el <strong>vértice</strong> del transportador.
+    No digas más decimales de los que el instrumento permite (regla escolar → mm).</p>
+  </div>
+
+  <section class="card">
+    <h2>Instrumento</h2>
+    <div class="mode-row">
+      <button type="button" class="mode-btn active" data-mode="longitud">📏 Regla (longitud)</button>
+      <button type="button" class="mode-btn" data-mode="angulo">∠ Transportador (ángulo)</button>
+    </div>
+
+    <div class="stage" aria-label="Instrumento de medida">
+      <svg id="svg" viewBox="0 0 800 500" role="img"></svg>
+    </div>
+
+    <div class="ctrl-row">
+      <div class="field" id="fieldEst">
+        <label for="estimacion"><span class="letter">E</span> Tu estimación</label>
+        <input id="estimacion" type="range" min="5" max="25" step="0.5" value="12"/>
+        <output id="outEst" for="estimacion">12 cm</output>
+      </div>
+      <div class="field" id="fieldReal">
+        <label for="real"><span class="letter">M</span> Medida real (instrumento)</label>
+        <input id="real" type="range" min="5" max="25" step="0.1" value="14.6"/>
+        <output id="outReal" for="real" class="hidden-measure">?? cm</output>
+      </div>
+    </div>
+    <div class="btn-row">
+      <button type="button" class="action" id="btnRevelar">Revelar medida y error</button>
+      <button type="button" class="action secondary" id="btnNuevo">Nuevo objeto al azar</button>
+      <button type="button" class="action secondary" id="btnOcultar">Volver a ocultar</button>
+    </div>
+    <p class="hint" id="objHint">Objeto: segmento azul sobre la mesa. Estima su longitud en cm; luego revela.</p>
+  </section>
+
+  <section class="card">
+    <h2>Resultado</h2>
+    <div class="steps" id="pasos"></div>
+    <div class="verdict" id="veredicto">Estima primero. Cuando digas «ya», pulsa <em>Revelar</em>.</div>
+    <div class="callout" id="precision">Precisión de la regla escolar: normalmente <strong>1 mm = 0,1 cm</strong>. Escribir 14,6000 cm sería fingir precisión que no tienes.</div>
+  </section>
+
+  <section class="card">
+    <h2>Letras y símbolos (en español)</h2>
+    <div class="glossary">
+      <div><strong>E</strong> = estimación → lo que crees <em>antes</em> de medir.</div>
+      <div><strong>M</strong> = medida → lo que lee el instrumento (regla o transportador).</div>
+      <div><strong>Error absoluto</strong> = |E − M| (siempre positivo).</div>
+      <div><strong>cm</strong> = centímetro · <strong>mm</strong> = milímetro (10 mm = 1 cm).</div>
+      <div><strong>°</strong> = grado · agudo (&lt;90°) · recto (90°) · obtuso (&gt;90° y &lt;180°) · llano (180°).</div>
+      <div><strong>0 de la regla</strong> = extremo que alineas con el objeto (¡no empieces en el 1!).</div>
+      <div><strong>Vértice</strong> = punto del ángulo que va al centro del transportador.</div>
+    </div>
+    <div class="mnemonic">🧠 Truco: «Estima → alinea el 0 / el vértice → mira de frente (sin parallax) → escribe solo las cifras que ves.»</div>
+  </section>
+
+  <footer>Offline · file:// · 1º ESO Matemáticas · CyL Decreto 39/2022 B.2–B.3</footer>
+</div>
+<script>
+(function(){
+  const svg = document.getElementById('svg');
+  const estimacion = document.getElementById('estimacion');
+  const real = document.getElementById('real');
+  const outEst = document.getElementById('outEst');
+  const outReal = document.getElementById('outReal');
+  const veredicto = document.getElementById('veredicto');
+  const pasos = document.getElementById('pasos');
+  const objHint = document.getElementById('objHint');
+  const precision = document.getElementById('precision');
+  const modeBtns = document.querySelectorAll('.mode-btn');
+
+  let mode = 'longitud';
+  let revealed = false;
+  let objName = 'lápiz del estuche';
+
+  const LONG_OBJS = [
+    {name:'lápiz del estuche', min:10, max:20},
+    {name:'ancho de un folio A4', min:20, max:22},
+    {name:'goma de borrar', min:3, max:6},
+    {name:'móvil (alto)', min:14, max:17},
+    {name:'lado corto del cuaderno', min:14, max:16}
+  ];
+  const ANG_OBJS = [
+    {name:'esquina del cuaderno', min:85, max:95},
+    {name:'porción de pizza', min:30, max:50},
+    {name:'apertura de carpeta', min:100, max:140},
+    {name:'ángulo de una rampa (idea)', min:10, max:25},
+    {name:'escuadra de dibujo', min:40, max:50}
+  ];
+
+  function el(tag, attrs, text){
+    const e = document.createElementNS('http://www.w3.org/2000/svg', tag);
+    if(attrs) Object.entries(attrs).forEach(([k,v])=>e.setAttribute(k,v));
+    if(text!=null) e.textContent = text;
+    return e;
+  }
+  function fmt(n, d){
+    const x = Number(n);
+    const s = (d!=null ? x.toFixed(d) : String(x)).replace(/\.?0+$/,'').replace('.',',');
+    // keep one decimal for lengths often
+    if(d===1) return x.toFixed(1).replace('.',',');
+    if(d===0) return String(Math.round(x));
+    return String(Math.round(x*10)/10).replace('.',',');
+  }
+
+  function setMode(m){
+    mode = m;
+    revealed = false;
+    modeBtns.forEach(b=>{
+      const on=b.dataset.mode===m;
+      b.classList.toggle('active',on);
+    });
+    if(m==='longitud'){
+      estimacion.min=2; estimacion.max=30; estimacion.step=0.5; estimacion.value=12;
+      real.min=2; real.max=30; real.step=0.1; real.value=14.6;
+      precision.innerHTML='Precisión de la regla escolar: normalmente <strong>1 mm = 0,1 cm</strong>. Escribir 14,6000 cm sería fingir precisión que no tienes.';
+    } else {
+      estimacion.min=5; estimacion.max=175; estimacion.step=1; estimacion.value=80;
+      real.min=5; real.max=175; real.step=1; real.value=90;
+      precision.innerHTML='Transportador escolar: suele apreciar <strong>1°</strong> (a veces 0,5°). No digas 37,428°. Lee la corona correcta (agudo vs obtuso).';
+    }
+    randomObj(false);
+    updateLabels();
+    draw();
+    showHidden();
+  }
+
+  function randomObj(rerollReal){
+    const list = mode==='longitud'?LONG_OBJS:ANG_OBJS;
+    const o = list[Math.floor(Math.random()*list.length)];
+    objName = o.name;
+    if(rerollReal!==false){
+      const v = o.min + Math.random()*(o.max-o.min);
+      real.value = mode==='longitud' ? (Math.round(v*10)/10) : Math.round(v);
+    } else {
+      // keep but clamp into range-ish
+      const v = o.min + Math.random()*(o.max-o.min);
+      real.value = mode==='longitud' ? (Math.round(v*10)/10) : Math.round(v);
+    }
+    objHint.textContent = mode==='longitud'
+      ? ('Objeto: '+objName+' (segmento azul). Estima en cm; alinea el 0 de la regla.')
+      : ('Objeto: '+objName+' (rayos naranjas). Estima en grados; vértice al centro del transportador.');
+    revealed = false;
+    updateLabels();
+    draw();
+    showHidden();
+  }
+
+  function updateLabels(){
+    const u = mode==='longitud'?' cm':'°';
+    const ed = mode==='longitud'?1:0;
+    outEst.textContent = fmt(estimacion.value, ed)+u;
+    if(revealed){
+      outReal.textContent = fmt(real.value, ed)+u;
+      outReal.classList.remove('hidden-measure');
+    } else {
+      outReal.textContent = '??'+u;
+      outReal.classList.add('hidden-measure');
+    }
+  }
+
+  function showHidden(){
+    veredicto.className='verdict';
+    veredicto.innerHTML='Estima primero (<strong>E</strong> = '+outEst.textContent+'). Cuando digas «ya», pulsa <em>Revelar</em>.';
+    pasos.innerHTML = step(1,'Técnica', mode==='longitud'
+      ? 'Alinea el <strong>0</strong> de la regla con un extremo. Mira de frente (evita el error de parallax).'
+      : 'Pon el <strong>vértice</strong> en el origen del transportador; un lado en el 0°; lee el otro lado.')
+      + step(2,'Estimación','Tu ojo dice E = <strong>'+outEst.textContent+'</strong>.')
+      + step(3,'Medida','Aún oculta — pulsa Revelar.');
+  }
+
+  function reveal(){
+    revealed = true;
+    updateLabels();
+    draw();
+    const E = Number(estimacion.value);
+    const M = Number(real.value);
+    const err = Math.abs(E-M);
+    const u = mode==='longitud'?' cm':'°';
+    const ed = mode==='longitud'?1:0;
+    let tip='';
+    if(mode==='longitud'){
+      if(err<=0.5) tip='¡Muy buen ojo! (error ≤ 5 mm)';
+      else if(err<=2) tip='Bien: estás cerca. Sigue entrenando.';
+      else tip='Lejos: ¿empezaste la regla en el 0? ¿Miraste de frente?';
+    } else {
+      if(err<=5) tip='¡Buen ojo angular!';
+      else if(err<=15) tip='Aceptable. Compara con 90° (escuadra) como ancla.';
+      else tip='Practica anclas: 90° (recto), 45°, 180° (llano).';
+    }
+    const ok = (mode==='longitud' && err<=2) || (mode==='angulo' && err<=15);
+    veredicto.className = 'verdict '+(ok?'ok':'warn');
+    veredicto.innerHTML = 'E = '+fmt(E,ed)+u+' · M = '+fmt(M,ed)+u+' · error |E−M| = <strong>'+fmt(err,ed)+u+'</strong><br><span style="font-size:.92rem">'+tip+'</span>';
+
+    let tipo='';
+    if(mode==='angulo'){
+      const a=M;
+      if(a<90) tipo='agudo';
+      else if(a===90) tipo='recto';
+      else if(a<180) tipo='obtuso';
+      else if(a===180) tipo='llano';
+      else tipo='mayor que llano';
+    }
+    pasos.innerHTML = step(1,'Estimación','E = '+fmt(E,ed)+u+' ('+objName+')')
+      + step(2,'Medida con instrumento','M = '+fmt(M,ed)+u+(tipo?' → ángulo '+tipo:''), true)
+      + step(3,'Error absoluto','|E − M| = |'+fmt(E,ed)+' − '+fmt(M,ed)+'| = <strong>'+fmt(err,ed)+u+'</strong>')
+      + step(4,'Precisión', mode==='longitud'
+        ? 'Redondea al mm: escribe '+fmt(M,1)+' cm, no una cola de ceros inventados.'
+        : 'Redondea al grado (o medio grado si el transportador lo marca).');
+  }
+
+  function step(n,t,d,hl){
+    return '<div class="step'+(hl?' hl':'')+'"><div class="n">'+n+'</div><div class="body"><div class="t">'+t+'</div><div class="d">'+d+'</div></div></div>';
+  }
+
+  function draw(){
+    svg.innerHTML='';
+    if(mode==='longitud') drawRulerScene();
+    else drawProtractorScene();
+  }
+
+  function drawRulerScene(){
+    svg.appendChild(el('rect',{x:0,y:0,width:800,height:500,fill:'#fff7ed'}));
+    svg.appendChild(el('text',{x:24,y:36,fill:'#c2410c','font-size':18,'font-weight':700,'font-family':'Segoe UI,sans-serif'},
+      'Regla escolar — el dibujo ES una regla (marcas cm / mm)'));
+
+    // Desk
+    svg.appendChild(el('rect',{x:40,y:80,width:720,height:360,rx:12,fill:'#fde68a',stroke:'#d97706','stroke-width':2,opacity:.35}));
+
+    // Object segment — length in cm maps to pixels with INDEPENDENT scale (not coupled to anything else)
+    const M = Number(real.value);
+    const maxCm = 30;
+    const avail = 560;
+    const pxPerCm = avail / maxCm; // fixed scale so changing M only lengthens the segment, never shrinks other dims oddly
+    const segLen = M * pxPerCm;
+    const segX = 100, segY = 160;
+
+    // blue bar = object
+    svg.appendChild(el('rect',{x:segX,y:segY,width:segLen,height:22,rx:4,fill:'#3b82f6',stroke:'#1d4ed8','stroke-width':2}));
+    svg.appendChild(el('text',{x:segX+segLen/2,y:segY-12,fill:'#1e40af','font-size':14,'font-weight':800,'text-anchor':'middle','font-family':'Segoe UI,sans-serif'},
+      objName+(revealed?'':' (estima…)')));
+
+    // End ticks
+    svg.appendChild(el('line',{x1:segX,y1:segY-8,x2:segX,y2:segY+40,stroke:'#1d4ed8','stroke-width':2}));
+    svg.appendChild(el('line',{x1:segX+segLen,y1:segY-8,x2:segX+segLen,y2:segY+40,stroke:'#1d4ed8','stroke-width':2}));
+
+    // REALISTIC RULER below object, aligned at 0
+    const rx=segX, ry=220, rw=maxCm*pxPerCm, rh=64;
+    svg.appendChild(el('rect',{x:rx-6,y:ry,width:rw+12,height:rh,rx:5,fill:'#fef08a',stroke:'#ca8a04','stroke-width':2.5}));
+    svg.appendChild(el('rect',{x:rx,y:ry+6,width:rw,height:rh-12,rx:3,fill:'#fefce8',stroke:'#eab308','stroke-width':1}));
+
+    for(let cm=0; cm<=maxCm; cm++){
+      const px = rx + cm*pxPerCm;
+      const tall = (cm%5===0)?44:30;
+      svg.appendChild(el('line',{x1:px,y1:ry+rh-8,x2:px,y2:ry+rh-8-tall,stroke:'#1e293b','stroke-width':cm%5===0?2.2:1}));
+      // mm ticks
+      if(cm<maxCm){
+        for(let m=1;m<=9;m++){
+          const mx = px + pxPerCm*m/10;
+          const mt = m===5?20:12;
+          svg.appendChild(el('line',{x1:mx,y1:ry+rh-8,x2:mx,y2:ry+rh-8-mt,stroke:'#64748b','stroke-width':0.8}));
+        }
+      }
+      if(cm%5===0){
+        svg.appendChild(el('text',{x:px,y:ry+22,fill:'#1e293b','font-size':13,'font-weight':800,'text-anchor':'middle','font-family':'Segoe UI,sans-serif'}, String(cm)));
+      }
+    }
+    svg.appendChild(el('text',{x:rx+rw-4,y:ry+22,fill:'#92400e','font-size':12,'font-weight':900,'text-anchor':'end','font-family':'Segoe UI,sans-serif'},'cm'));
+
+    // Arrow pointing at 0
+    svg.appendChild(el('text',{x:rx,y:ry+rh+28,fill:'#0f766e','font-size':15,'font-weight':900,'text-anchor':'middle','font-family':'Segoe UI,sans-serif'},'↑ 0 aquí'));
+    svg.appendChild(el('text',{x:rx+segLen,y:ry+rh+28,fill:revealed?'#0f766e':'#94a3b8','font-size':15,'font-weight':900,'text-anchor':'middle','font-family':'Segoe UI,sans-serif'},
+      revealed?('↑ lee '+fmt(M,1)+' cm'):'↑ ¿cuánto?'));
+
+    // Estimation ghost mark
+    const ePx = rx + Number(estimacion.value)*pxPerCm;
+    svg.appendChild(el('line',{x1:ePx,y1:ry-20,x2:ePx,y2:ry+rh+8,stroke:'#ea580c','stroke-width':2,'stroke-dasharray':'6 5'}));
+    svg.appendChild(el('text',{x:ePx,y:ry-28,fill:'#c2410c','font-size':13,'font-weight':800,'text-anchor':'middle','font-family':'Segoe UI,sans-serif'},
+      'E='+fmt(estimacion.value,1)));
+
+    svg.appendChild(el('text',{x:400,y:460,fill:'#9a3412','font-size':15,'font-weight':700,'text-anchor':'middle','font-family':'Segoe UI,sans-serif'},
+      'Error típico: empezar a medir desde el 1 (no desde el 0) · parallax si miras de lado'));
+  }
+
+  function drawProtractorScene(){
+    svg.appendChild(el('rect',{x:0,y:0,width:800,height:500,fill:'#faf5ff'}));
+    svg.appendChild(el('text',{x:24,y:36,fill:'#6d28d9','font-size':18,'font-weight':700,'font-family':'Segoe UI,sans-serif'},
+      'Transportador — semicírculo con grados (no un abanico decorativo)'));
+
+    const cx=400, cy=340, R=210;
+    const M = Number(real.value);
+
+    // Protractor body
+    svg.appendChild(el('path',{
+      d:'M '+(cx-R)+' '+cy+' A '+R+' '+R+' 0 0 1 '+(cx+R)+' '+cy+' L '+(cx+R+8)+' '+(cy+22)+' L '+(cx-R-8)+' '+(cy+22)+' Z',
+      fill:'#ede9fe', stroke:'#7c3aed', 'stroke-width':3
+    }));
+    // Inner hollow-ish arc
+    svg.appendChild(el('path',{
+      d:'M '+(cx-R+34)+' '+cy+' A '+(R-34)+' '+(R-34)+' 0 0 1 '+(cx+R-34)+' '+cy,
+      fill:'#faf5ff', stroke:'#c4b5fd', 'stroke-width':2
+    }));
+
+    for(let deg=0; deg<=180; deg+=5){
+      const ang = deg * Math.PI/180;
+      const x1 = cx + R * Math.cos(ang);
+      const y1 = cy - R * Math.sin(ang);
+      const tick = (deg%10===0)?18:9;
+      const x2 = cx + (R-tick) * Math.cos(ang);
+      const y2 = cy - (R-tick) * Math.sin(ang);
+      svg.appendChild(el('line',{x1:x1,y1:y1,x2:x2,y2:y2,stroke:'#5b21b6','stroke-width':deg%10===0?2:1}));
+      if(deg%20===0){
+        const tx = cx + (R-36) * Math.cos(ang);
+        const ty = cy - (R-36) * Math.sin(ang);
+        svg.appendChild(el('text',{x:tx,y:ty+4,fill:'#5b21b6','font-size':12,'font-weight':800,'text-anchor':'middle','font-family':'Segoe UI,sans-serif'}, String(deg)));
+      }
+    }
+    svg.appendChild(el('line',{x1:cx-R,y1:cy,x2:cx+R,y2:cy,stroke:'#5b21b6','stroke-width':3}));
+    svg.appendChild(el('circle',{cx:cx,cy:cy,r:6,fill:'#7c3aed'}));
+    svg.appendChild(el('text',{x:cx,y:cy+48,fill:'#5b21b6','font-size':13,'font-weight':800,'text-anchor':'middle','font-family':'Segoe UI,sans-serif'},'vértice'));
+
+    // Angle rays (object)
+    const ang = M * Math.PI/180;
+    svg.appendChild(el('line',{x1:cx,y1:cy,x2:cx+R-8,y2:cy,stroke:'#ea580c','stroke-width':5,'stroke-linecap':'round'}));
+    const mx = cx + (R-8)*Math.cos(ang);
+    const my = cy - (R-8)*Math.sin(ang);
+    svg.appendChild(el('line',{x1:cx,y1:cy,x2:mx,y2:my,stroke:'#ea580c','stroke-width':5,'stroke-linecap':'round'}));
+
+    const arcR=78;
+    const ax=cx+arcR*Math.cos(ang), ay=cy-arcR*Math.sin(ang);
+    svg.appendChild(el('path',{
+      d:'M '+(cx+arcR)+' '+cy+' A '+arcR+' '+arcR+' 0 0 0 '+ax+' '+ay,
+      fill:'none', stroke:'#f59e0b', 'stroke-width':5
+    }));
+
+    // Estimation ray (ghost)
+    const eAng = Number(estimacion.value)*Math.PI/180;
+    const ex = cx + (R-40)*Math.cos(eAng);
+    const ey = cy - (R-40)*Math.sin(eAng);
+    svg.appendChild(el('line',{x1:cx,y1:cy,x2:ex,y2:ey,stroke:'#fb923c','stroke-width':2,'stroke-dasharray':'7 6',opacity:.9}));
+    svg.appendChild(el('text',{x:ex,y:ey-8,fill:'#c2410c','font-size':14,'font-weight':800,'text-anchor':'middle','font-family':'Segoe UI,sans-serif'},
+      'E='+fmt(estimacion.value,0)+'°'));
+
+    if(revealed){
+      svg.appendChild(el('text',{x:cx+90,y:cy-100,fill:'#c2410c','font-size':28,'font-weight':900,'font-family':'Segoe UI,sans-serif'},
+        fmt(M,0)+'°'));
+    } else {
+      svg.appendChild(el('text',{x:cx+90,y:cy-100,fill:'#94a3b8','font-size':28,'font-weight':900,'font-family':'Segoe UI,sans-serif'},
+        '¿?°'));
+    }
+
+    svg.appendChild(el('text',{x:400,y:470,fill:'#6d28d9','font-size':15,'font-weight':700,'text-anchor':'middle','font-family':'Segoe UI,sans-serif'},
+      objName+' · Error típico: no centrar el vértice · leer la escala al revés'));
+  }
+
+  modeBtns.forEach(b=>b.addEventListener('click',()=>setMode(b.dataset.mode)));
+  estimacion.addEventListener('input',()=>{ updateLabels(); draw(); if(!revealed) showHidden(); });
+  real.addEventListener('input',()=>{ updateLabels(); draw(); if(revealed) reveal(); });
+  document.getElementById('btnRevelar').addEventListener('click', reveal);
+  document.getElementById('btnNuevo').addEventListener('click',()=>randomObj(true));
+  document.getElementById('btnOcultar').addEventListener('click',()=>{ revealed=false; updateLabels(); draw(); showHidden(); });
+
+  setMode('longitud');
+  if (/[?&]preview=1\b/.test(location.search)) {
+    objName = 'lápiz del estuche';
+    objHint.textContent = 'Objeto: lápiz del estuche (segmento azul). Estima en cm; alinea el 0 de la regla.';
+    estimacion.value = 14;
+    real.value = 14.6;
+    updateLabels();
+    draw();
+    reveal();
+  }
+})();
+</script>
+</body>
+</html>
