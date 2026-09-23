@@ -15,7 +15,7 @@ DESCARGAS = REPO / "descargas.html"
 PACK_DIR = REPO / "downloads/_build-1eso-mate-flat"
 ZIP_PATH = REPO / "downloads/1eso-matematicas-offline.zip"
 TOTAL = 47
-AVAILABLE = 15  # L01–L15
+AVAILABLE = 18  # L01–L18
 
 # (num, short_ud, title, meta, curiosidad_title, curiosidad_text, figura_cur,
 #  objetivos[list], cuerpo_extra_html, vida_title, vida_items, vida_figura,
@@ -616,6 +616,126 @@ LESSONS = [
     "reto": "Elige un origen 0 en tu casa (termo, hucha, planta del edificio) y escribe un problema de 3 acciones con enteros. Ofrece la solución.",
     "reto_id": "1eso-mate-L15",
     "cierre": "Los enteros modelan ida y vuelta respecto de un origen. La interpretación final importa tanto como la cuenta.",
+  },
+  {
+    "n": 16,
+    "eyebrow": "Lección 16 · UD5 · Fracciones",
+    "title_html": "Fracciones: significado, <em>equivalencia</em> y simplificación",
+    "title_plain": "Fracciones: significado, equivalencia y simplificación",
+    "meta": "Saberes CyL (Decreto 39/2022): A.2 Cantidad (fracciones); A.3",
+    "curiosidad_t": "El todo manda",
+    "curiosidad": "Una fracción puede ser parte de un todo, un cociente o una razón. El denominador dice en cuántos trozos iguales se parte el todo; el numerador, cuántos tomamos. Si no identificas el todo, 3/4 no cuenta toda la historia.",
+    "curiosidad_fig": "fuego.svg",
+    "objetivos": [
+      "Interpretar una fracción como parte de un todo, cociente y razón sencilla.",
+      "Reconocer y construir fracciones equivalentes.",
+      "Simplificar fracciones dividiendo por el mcd.",
+      "Usar vocabulario: numerador, denominador, fracción irreducible.",
+    ],
+    "cuerpo": """
+    <h2>Explicación breve</h2>
+    <p>Una fracción <strong>a/b</strong> (b≠0) puede significar parte de un todo, cociente a ÷ b o razón «a por cada b». Amplificar multiplica arriba y abajo por el mismo número; simplificar divide ambos por el <strong>mcd</strong>, sin cambiar el valor.</p>
+    <div class="tarjeta">
+      <p style="margin:0"><strong>Ejemplo:</strong> 18/24 = 3/4 porque mcd(18,24)=6. Fracciones mayores que 1 también son válidas: 9/4 son dos enteros y un cuarto.</p>
+    </div>
+""",
+    "cuerpo_after_widgets": "",
+    "widget_split": False,
+    "vida_t": "Aplicaciones",
+    "vida": [
+      "Recetas: 3/4 de taza de harina.",
+      "Ofertas: la segunda unidad a mitad de precio.",
+      "Progreso de una serie: llevas 5/8 capítulos.",
+      "Repartir una pizza o un bocadillo en partes iguales.",
+    ],
+    "vida_fig": "ticket.svg",
+    "widgets": [
+      ("Interactivo · pizza, equivalencia y simplificar", "l16-fracciones-pizza.html"),
+    ],
+    "reto_t": "Fracción del recreo",
+    "reto": "Mide o estima qué fracción del recreo usas en tres actividades (hablar, jugar, merendar…). Simplifica si puedes y comenta si el total da aproximadamente 1.",
+    "reto_id": "1eso-mate-L16",
+    "cierre": "Fracción = parte, cociente o razón. Equivalentes = mismo valor. Simplificar se hace con el mcd.",
+  },
+  {
+    "n": 17,
+    "eyebrow": "Lección 17 · UD5 · Fracciones",
+    "title_html": "Comparación y representación de fracciones en la <em>recta</em>",
+    "title_plain": "Comparación y representación de fracciones en la recta",
+    "meta": "Saberes CyL (Decreto 39/2022): A.2 Cantidad (recta / representaciones)",
+    "curiosidad_t": "La recta no deja huecos",
+    "curiosidad": "En la recta, más a la derecha significa mayor. Con el mismo denominador gana el numerador; con el mismo numerador, un denominador mayor hace trozos más pequeños. Las anclas 0, 1/2 y 1 ayudan a no perderse.",
+    "curiosidad_fig": "mapa.svg",
+    "objetivos": [
+      "Comparar fracciones de igual denominador o igual numerador.",
+      "Comparar con distinto denominador mediante equivalentes o decimales sencillos.",
+      "Situar fracciones en la recta numérica.",
+      "Reconocer fracciones propias, impropias y números mixtos sencillos.",
+    ],
+    "cuerpo": """
+    <h2>Explicación breve</h2>
+    <p>Con igual denominador, mayor numerador → mayor fracción. Con igual numerador, mayor denominador → menor fracción. Si son distintos, usa equivalentes con <strong>mcm</strong> o una referencia como 1/2. Una propia tiene a&lt;b; una impropia, a≥b.</p>
+    <div class="tarjeta">
+      <p style="margin:0"><strong>Ejemplo:</strong> 3/4=9/12 y 5/6=10/12; por tanto 3/4 &lt; 5/6. En la recta, 1/2 queda justo entre 0 y 1.</p>
+    </div>
+""",
+    "cuerpo_after_widgets": "",
+    "widget_split": False,
+    "vida_t": "Aplicaciones",
+    "vida": [
+      "Comparar medio depósito con 3/8 de depósito.",
+      "Tiempo: tres cuartos de hora frente a 40 minutos.",
+      "Raciones en un comedor: qué parte del plato se ha comido.",
+      "Progreso de la batería del móvil en fracciones aproximadas.",
+    ],
+    "vida_fig": "mapa.svg",
+    "widgets": [
+      ("Interactivo · comparar en la recta", "l17-fracciones-recta.html"),
+    ],
+    "reto_t": "Recta del bocadillo",
+    "reto": "Dibuja una recta de 0 a 1 y marca cuánto bocadillo (o merienda) sueles comer. Pregunta a dos personas y márcalo: ¿quién come más fracción?",
+    "reto_id": "1eso-mate-L17",
+    "cierre": "Comparar fracciones exige el mismo tamaño de trozo o una buena referencia. La recta fija la intuición.",
+  },
+  {
+    "n": 18,
+    "eyebrow": "Lección 18 · UD5 · Fracciones",
+    "title_html": "Suma y resta de <em>fracciones</em>",
+    "title_plain": "Suma y resta de fracciones",
+    "meta": "Saberes CyL (Decreto 39/2022): A.3 Operaciones (fracciones)",
+    "curiosidad_t": "Alinea los trozos",
+    "curiosidad": "El denominador dice el tamaño del trozo. Por eso 2/8 + 3/8 = 5/8: se suman numeradores porque ya hablamos de octavos. Con denominadores distintos, primero alinea los tamaños con el mcm.",
+    "curiosidad_fig": "ticket.svg",
+    "objetivos": [
+      "Sumar y restar fracciones con igual denominador.",
+      "Sumar y restar con distinto denominador usando el mcm.",
+      "Simplificar el resultado.",
+      "Resolver problemas de partes de un mismo todo.",
+    ],
+    "cuerpo": """
+    <h2>Explicación breve</h2>
+    <p>Con igual denominador, suma o resta numeradores y conserva el denominador. Con distinto denominador, calcula el <strong>mcm</strong>, amplifica, opera y simplifica.</p>
+    <div class="tarjeta">
+      <p style="margin:0"><strong>Ejemplo:</strong> 1/4 + 1/6 → mcm(4,6)=12 → 3/12 + 2/12 = 5/12. Error típico: 1/2 + 1/3 ≠ 2/5.</p>
+    </div>
+""",
+    "cuerpo_after_widgets": "",
+    "widget_split": False,
+    "vida_t": "Aplicaciones",
+    "vida": [
+      "Recetas: añadir 1/2 taza y 1/3 de taza de leche.",
+      "Tiempo de estudio: 3/4 de hora + 1/2 hora.",
+      "Obras: pintar partes de una pared en días distintos.",
+      "Progreso de un viaje: sumar tramos ya recorridos.",
+    ],
+    "vida_fig": "olla.svg",
+    "widgets": [
+      ("Interactivo · suma y resta con barras", "l18-fracciones-suma.html"),
+    ],
+    "reto_t": "Suma de partes del día",
+    "reto": "Parte un día laborable en fracciones (cole, deberes, ocio, sueño…). Súmalas y mira si te acercas a 1. Ajusta y comenta qué te sorprendió.",
+    "reto_id": "1eso-mate-L18",
+    "cierre": "Solo se suman o restan fracciones con el mismo denominador. El mcm es tu herramienta.",
   },
 ]
 

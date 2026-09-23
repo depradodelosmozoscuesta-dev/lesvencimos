@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Fracciones · Pizza, equivalencia y simplificar · 1º ESO</title>
+<style>
+  :root {
+    --bg:#f4f7fb; --ink:#1a2b3c; --muted:#5a6d7e; --card:#fff;
+    --blue:#3b82f6; --blue-soft:#dbeafe; --blue-deep:#1d4ed8;
+    --orange:#f59e0b; --orange-soft:#fef3c7; --orange-deep:#b45309;
+    --green:#10b981; --green-soft:#d1fae5; --green-deep:#047857;
+    --purple:#8b5cf6; --purple-soft:#ede9fe; --purple-deep:#6d28d9;
+    --rose:#f43f5e; --rose-soft:#ffe4e6; --rose-deep:#be123c;
+    --teal:#14b8a6; --teal-soft:#ccfbf1; --teal-deep:#0f766e;
+    --pizza:#fbbf24; --pizza-crust:#b45309; --pizza-shade:#ef4444;
+    --shadow:0 8px 28px rgba(26,43,60,.08); --radius:18px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{min-height:100%;background:var(--bg);color:var(--ink);
+    font-family:"Segoe UI",system-ui,-apple-system,sans-serif;-webkit-font-smoothing:antialiased}
+  body{display:flex;flex-direction:column;align-items:center;padding:14px 10px 36px}
+  .wrap{width:100%;max-width:980px}
+  header{text-align:center;margin-bottom:12px}
+  header .badge{display:inline-block;font-size:.78rem;font-weight:600;letter-spacing:.04em;
+    text-transform:uppercase;color:var(--orange-deep);background:var(--orange-soft);
+    padding:4px 12px;border-radius:999px;margin-bottom:8px}
+  h1{font-size:clamp(1.3rem,4.5vw,1.9rem);line-height:1.2;font-weight:800}
+  .subtitle{margin-top:6px;font-size:clamp(.9rem,2.8vw,1.05rem);color:var(--muted);font-weight:500}
+  .story{background:linear-gradient(135deg,#fef3c7,#ffe4e6 50%,#ede9fe);
+    border:2px solid #fcd34d;border-radius:var(--radius);padding:12px 14px;
+    margin-bottom:14px;display:flex;gap:12px;align-items:flex-start}
+  .story .emoji{font-size:2rem}
+  .story p{font-size:clamp(.9rem,2.5vw,1.02rem);line-height:1.45}
+  .story strong{color:var(--orange-deep)}
+  .card{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);
+    padding:16px 14px 18px;margin-bottom:14px}
+  .card h2{font-size:clamp(1.05rem,3vw,1.25rem);font-weight:800;margin-bottom:8px;
+    display:flex;align-items:center;gap:8px}
+  .hint{font-size:clamp(.88rem,2.4vw,1rem);color:var(--muted);line-height:1.45;margin-bottom:12px}
+  .ctrl-row{display:flex;flex-wrap:wrap;gap:12px;align-items:flex-end;margin-bottom:14px}
+  .field{display:flex;flex-direction:column;gap:6px;flex:1 1 120px}
+  .field label{font-size:.88rem;font-weight:700;color:var(--muted)}
+  .field label .letter{display:inline-block;background:var(--blue-soft);color:var(--blue-deep);
+    padding:1px 8px;border-radius:8px;font-weight:800;margin-right:4px}
+  .field label .letter.den{background:var(--rose-soft);color:var(--rose-deep)}
+  .field label .letter.k{background:var(--purple-soft);color:var(--purple-deep)}
+  .field input[type="number"],.field input[type="range"]{width:100%;max-width:160px}
+  .field input[type="number"]{font-size:1.4rem;font-weight:800;font-variant-numeric:tabular-nums;
+    padding:10px 12px;border:2.5px solid #cbd5e1;border-radius:12px}
+  .field input[type="number"]:focus{outline:none;border-color:var(--blue);box-shadow:0 0 0 3px var(--blue-soft)}
+  .field .range-val{font-weight:800;font-size:1.1rem;color:var(--purple-deep)}
+  .chooser{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px}
+  .chip{border:2px solid #cbd5e1;background:#fff;border-radius:999px;padding:7px 14px;
+    font-size:.88rem;font-weight:700;cursor:pointer}
+  .chip.active{border-color:var(--orange);background:var(--orange-soft);color:var(--orange-deep)}
+  .btn{border:none;border-radius:12px;padding:8px 14px;font-size:.88rem;font-weight:800;cursor:pointer}
+  .btn-ghost{background:#fff;color:var(--ink);border:2px solid #cbd5e1}
+  .btn-ghost:hover{border-color:var(--blue)}
+  .btn-prim{background:var(--blue);color:#fff}
+  .frac-big{display:inline-flex;flex-direction:column;align-items:center;justify-content:center;
+    font-weight:900;font-variant-numeric:tabular-nums;line-height:1.05;vertical-align:middle}
+  .frac-big .n{font-size:clamp(1.4rem,4vw,1.9rem);color:var(--blue-deep)}
+  .frac-big .bar{width:100%;min-width:1.6em;height:3px;background:var(--ink);margin:3px 0;border-radius:2px}
+  .frac-big .d{font-size:clamp(1.4rem,4vw,1.9rem);color:var(--rose-deep)}
+  .frac-big.sm .n,.frac-big.sm .d{font-size:1.15rem}
+  .eq-row{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:center;
+    font-size:clamp(1.1rem,3vw,1.5rem);font-weight:800;margin:10px 0 14px;min-height:64px}
+  .eq-row .sym{color:var(--muted);font-size:1.4rem;padding:0 4px}
+  .eq-row .ok{color:var(--green-deep)}
+  .eq-row .bad{color:var(--rose-deep)}
+  .stage{border-radius:16px;padding:14px 12px 16px;margin-bottom:12px;border:2px solid #fcd34d;
+    background:linear-gradient(180deg,#fffbeb 0%,#fef3c7 55%,#fde68a 100%);overflow:hidden}
+  .stage-header{display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:12px}
+  .shop-name{font-weight:800;font-size:1.05rem;color:var(--orange-deep)}
+  .viz-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:center}
+  @media(max-width:700px){.viz-grid{grid-template-columns:1fr}}
+  .viz-panel{background:rgba(255,255,255,.75);border-radius:14px;padding:12px;border:2px solid #fde68a;
+    display:flex;flex-direction:column;align-items:center;gap:8px;min-height:220px}
+  .viz-panel h3{font-size:.85rem;font-weight:800;text-transform:uppercase;letter-spacing:.04em;color:var(--muted)}
+  .pizza-wrap{position:relative;width:180px;height:180px}
+  .pizza-wrap svg{width:100%;height:100%;filter:drop-shadow(0 4px 8px rgba(180,83,9,.25))}
+  .bar-wrap{width:100%;max-width:260px}
+  .bar-track{display:flex;height:48px;border:3px solid var(--pizza-crust);border-radius:10px;overflow:hidden;background:#fff}
+  .bar-cell{flex:1;border-right:2px solid var(--pizza-crust);transition:background .2s}
+  .bar-cell:last-child{border-right:none}
+  .bar-cell.on{background:linear-gradient(180deg,#f87171,#ef4444)}
+  .bar-cell.off{background:linear-gradient(180deg,#fde68a,#fbbf24)}
+  .rect-wrap{width:100%;max-width:220px}
+  .rect-grid{display:grid;gap:3px;border:3px solid var(--pizza-crust);border-radius:8px;padding:3px;background:#fff}
+  .rect-cell{aspect-ratio:1;border-radius:4px;transition:background .2s}
+  .rect-cell.on{background:linear-gradient(135deg,#f87171,#dc2626)}
+  .rect-cell.off{background:linear-gradient(135deg,#fde68a,#fbbf24)}
+  .dual-eq{display:grid;grid-template-columns:1fr auto 1fr;gap:10px;align-items:center}
+  @media(max-width:640px){.dual-eq{grid-template-columns:1fr;}}
+  .results{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:14px}
+  @media(max-width:640px){.results{grid-template-columns:1fr}}
+  .result-pill{border-radius:14px;padding:12px 14px;border:2px solid #e2e8f0}
+  .result-pill.part{background:var(--orange-soft);border-color:#fcd34d}
+  .result-pill.eq{background:var(--green-soft);border-color:#6ee7b7}
+  .result-pill.simp{background:var(--purple-soft);border-color:#d8b4fe}
+  .result-pill .label{font-size:.78rem;font-weight:700;color:var(--muted);text-transform:uppercase}
+  .result-pill .eq{font-size:clamp(1.05rem,3.2vw,1.35rem);font-weight:800;margin-top:4px;line-height:1.35}
+  .result-pill .sub{font-size:.85rem;font-weight:600;color:var(--muted);margin-top:4px}
+  .music{background:linear-gradient(135deg,#ede9fe,#cffafe);border:2px solid #c4b5fd;
+    border-radius:14px;padding:12px 14px;margin-top:4px}
+  .music h3{font-size:.95rem;font-weight:800;color:var(--purple-deep);margin-bottom:6px}
+  .music p{font-size:.9rem;color:var(--muted);line-height:1.4;margin-bottom:8px}
+  .notes{display:flex;flex-wrap:wrap;gap:12px;justify-content:center;align-items:flex-end}
+  .note{text-align:center;background:#fff;border:2px solid #ddd6fe;border-radius:12px;padding:10px 14px;min-width:100px}
+  .note .glyph{font-size:2rem;line-height:1}
+  .note .name{font-weight:800;font-size:.85rem;margin-top:4px}
+  .note .as-frac{margin-top:6px}
+  .mnemonic{background:linear-gradient(135deg,var(--purple-soft),#fce7f3);
+    border:2px solid #d8b4fe;border-radius:14px;padding:12px 14px;margin-top:10px;text-align:center}
+  .mnemonic .tag{font-size:.75rem;font-weight:800;text-transform:uppercase;letter-spacing:.05em;color:var(--purple-deep)}
+  .mnemonic p{margin-top:4px;font-size:clamp(.95rem,3vw,1.1rem);font-weight:800;color:var(--purple-deep)}
+  .glossary{display:grid;gap:8px}
+  .glossary dt{font-weight:800;font-size:.95rem;color:var(--blue-deep)}
+  .glossary dd{font-size:.92rem;color:var(--muted);line-height:1.4;margin-bottom:4px}
+  .sym-chip{display:inline-block;background:var(--teal-soft);color:var(--teal-deep);font-weight:800;
+    padding:1px 7px;border-radius:6px;font-family:"Courier New",ui-monospace,monospace}
+  footer.note{text-align:center;font-size:.8rem;color:var(--muted);margin-top:8px}
+  .callout{font-size:.9rem;font-weight:700;color:var(--orange-deep);background:#fff7ed;
+    border-left:4px solid var(--orange);padding:8px 12px;border-radius:0 10px 10px 0;margin-top:8px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="badge">1º ESO · UD5 Fracciones · L16</div>
+    <h1>Pizza, equivalencia y simplificar</h1>
+    <p class="subtitle">Numerador, denominador y trozos que se ven de verdad</p>
+  </header>
+
+  <div class="story">
+    <div class="emoji">🍕</div>
+    <p>Una fracción <strong>a/b</strong> es «tomo <strong>a</strong> trozos de un todo partido en <strong>b</strong> partes iguales».
+      Cambia el <strong>denominador</strong> y los trozos cambian de tamaño — el rectángulo y la barra no se encogen por arte de magia:
+      cada control manda solo sobre su número.</p>
+  </div>
+
+  <div class="card">
+    <h2>🎛️ Tu fracción</h2>
+    <p class="hint">Elige <span class="sym-chip">a</span> (numerador) y <span class="sym-chip">b</span> (denominador). Luego amplifica con <span class="sym-chip">k</span> o simplifica con el mcd.</p>
+    <div class="ctrl-row">
+      <div class="field">
+        <label><span class="letter">a</span> Numerador (trozos que tomo)</label>
+        <input type="number" id="num" min="0" max="24" value="2" step="1">
+      </div>
+      <div class="field">
+        <label><span class="letter den">b</span> Denominador (trozos del todo)</label>
+        <input type="number" id="den" min="1" max="16" value="4" step="1">
+      </div>
+      <div class="field">
+        <label><span class="letter k">k</span> Amplificar ×k</label>
+        <input type="range" id="k" min="1" max="6" value="1" step="1">
+        <span class="range-val" id="kLab">×1</span>
+      </div>
+      <div class="field" style="flex:0 0 auto">
+        <label>&nbsp;</label>
+        <button class="btn btn-prim" id="btnSimp" type="button">Simplificar (÷mcd)</button>
+      </div>
+    </div>
+    <div class="chooser" id="presets">
+      <button class="chip" data-a="1" data-b="2" type="button">1/2</button>
+      <button class="chip active" data-a="2" data-b="4" type="button">2/4</button>
+      <button class="chip" data-a="3" data-b="4" type="button">3/4</button>
+      <button class="chip" data-a="2" data-b="3" type="button">2/3</button>
+      <button class="chip" data-a="3" data-b="6" type="button">3/6</button>
+      <button class="chip" data-a="5" data-b="8" type="button">5/8</button>
+      <button class="chip" data-a="6" data-b="4" type="button">6/4 &gt;1</button>
+    </div>
+
+    <div class="eq-row" id="eqRow"></div>
+
+    <div class="results">
+      <div class="result-pill part">
+        <div class="label">Parte del todo</div>
+        <div class="eq" id="rPart">—</div>
+        <div class="sub" id="rPartSub">trozos tomados</div>
+      </div>
+      <div class="result-pill eq">
+        <div class="label">Equivalente ×k</div>
+        <div class="eq" id="rEq">—</div>
+        <div class="sub" id="rEqSub">mismo valor</div>
+      </div>
+      <div class="result-pill simp">
+        <div class="label">Irreducible</div>
+        <div class="eq" id="rSimp">—</div>
+        <div class="sub" id="rSimpSub">÷ mcd</div>
+      </div>
+    </div>
+
+    <div class="chooser" id="viewMode">
+      <button class="chip active" data-view="pizza" type="button">🍕 Pizza</button>
+      <button class="chip" data-view="barra" type="button">▰ Barra</button>
+      <button class="chip" data-view="rect" type="button">▦ Rectángulo</button>
+      <button class="chip" data-view="ambas" type="button">🍕↔🍕 Equivalentes</button>
+    </div>
+
+    <div class="stage">
+      <div class="stage-header">
+        <div class="shop-name" id="stageTitle">Pizza partida en partes iguales</div>
+        <div style="font-weight:800;color:var(--muted)" id="stageSub">sombreado = numerador</div>
+      </div>
+      <div id="stageBody"></div>
+      <div class="callout" id="callout"></div>
+    </div>
+
+    <div class="mnemonic">
+      <div class="tag">Truco mnemotécnico</div>
+      <p>«Mismo tamaño de pizza, más trozos = trozos más pequeños.»</p>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>🎵 Fracciones en la música (panel corto)</h2>
+    <div class="music">
+      <h3>Negra y corchea = partes de un tiempo</h3>
+      <p>En un compás sencillo, la <strong>negra</strong> vale 1 tiempo y la <strong>corchea</strong> vale la mitad: <strong>1/2</strong>.
+        Dos corcheas = una negra. ¡Misma idea que 2/4 = 1/2!</p>
+      <div class="notes">
+        <div class="note">
+          <div class="glyph">♩</div>
+          <div class="name">Negra</div>
+          <div class="as-frac"><span class="frac-big sm"><span class="n">1</span><span class="bar"></span><span class="d">1</span></span> tiempo</div>
+        </div>
+        <div class="note">
+          <div class="glyph">♪</div>
+          <div class="name">Corchea</div>
+          <div class="as-frac"><span class="frac-big sm"><span class="n">1</span><span class="bar"></span><span class="d">2</span></span> tiempo</div>
+        </div>
+        <div class="note">
+          <div class="glyph">♪♪</div>
+          <div class="name">2 corcheas</div>
+          <div class="as-frac"><span class="frac-big sm"><span class="n">2</span><span class="bar"></span><span class="d">2</span></span> = 1 negra</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>📖 Letras y símbolos (en español)</h2>
+    <dl class="glossary">
+      <dt><span class="sym-chip">a</span> Numerador</dt>
+      <dd>Arriba de la barra. Cuántos trozos <em>tomo</em>.</dd>
+      <dt><span class="sym-chip">b</span> Denominador</dt>
+      <dd>Abajo de la barra. En cuántas partes iguales se parte el todo. (b ≠ 0)</dd>
+      <dt><span class="sym-chip">—</span> Barra de fracción</dt>
+      <dd>Línea que separa numerador y denominador. También se lee «partido por» o «entre».</dd>
+      <dt><span class="sym-chip">a/b</span> Fracción</dt>
+      <dd>Parte de un todo, cociente a÷b, o razón «a por cada b».</dd>
+      <dt><span class="sym-chip">=</span> Equivalente</dt>
+      <dd>Mismo valor: 2/4 = 1/2. Amplificar ×k o simplificar ÷mcd no cambia el valor.</dd>
+      <dt><span class="sym-chip">≠</span> Distinto</dt>
+      <dd>No equivalen: 2/3 ≠ 3/4.</dd>
+      <dt><span class="sym-chip">k</span> Factor</dt>
+      <dd>Multiplicas arriba y abajo por el mismo k para amplificar.</dd>
+      <dt><span class="sym-chip">mcd</span> Máximo común divisor</dt>
+      <dd>El mayor número que divide a y b. Sirve para dejar la fracción irreducible.</dd>
+    </dl>
+  </div>
+
+  <footer class="note">Offline · file:// · 1º ESO Matemáticas CyL UD5 · L16 · Jorge</footer>
+</div>
+<script>
+(function(){
+  const $ = (id) => document.getElementById(id);
+  const numEl = $('num'), denEl = $('den'), kEl = $('k'), kLab = $('kLab');
+  let view = 'pizza';
+
+  function gcd(a,b){a=Math.abs(a|0);b=Math.abs(b|0);while(b){const t=b;b=a%b;a=t;}return a||1;}
+  function clamp(v,lo,hi){return Math.max(lo,Math.min(hi,v));}
+
+  function fracHTML(n,d,cls){
+    return `<span class="frac-big ${cls||''}"><span class="n">${n}</span><span class="bar"></span><span class="d">${d}</span></span>`;
+  }
+
+  function pizzaSVG(n,d,size){
+    n = clamp(n,0,d); d = Math.max(1,d);
+    const R=90, cx=100, cy=100;
+    let slices='';
+    for(let i=0;i<d;i++){
+      const a0=-Math.PI/2 + (i/d)*2*Math.PI;
+      const a1=-Math.PI/2 + ((i+1)/d)*2*Math.PI;
+      const x0=cx+R*Math.cos(a0), y0=cy+R*Math.sin(a0);
+      const x1=cx+R*Math.cos(a1), y1=cy+R*Math.sin(a1);
+      const large = (2*Math.PI/d) > Math.PI ? 1 : 0;
+      const fill = i < n ? '#ef4444' : '#fbbf24';
+      if(d===1){
+        slices += `<circle cx="${cx}" cy="${cy}" r="${R}" fill="${fill}" stroke="#b45309" stroke-width="4"/>`;
+      } else {
+        slices += `<path d="M${cx},${cy} L${x0},${y0} A${R},${R} 0 ${large} 1 ${x1},${y1} Z" fill="${fill}" stroke="#b45309" stroke-width="2.5"/>`;
+      }
+    }
+    // crust ring
+    const crust = `<circle cx="${cx}" cy="${cy}" r="${R}" fill="none" stroke="#92400e" stroke-width="8"/>`;
+    // pepperoni dots on taken slices
+    let dots='';
+    for(let i=0;i<Math.min(n,d);i++){
+      const mid=-Math.PI/2 + ((i+0.5)/d)*2*Math.PI;
+      const rr=R*0.55;
+      dots += `<circle cx="${cx+rr*Math.cos(mid)}" cy="${cy+rr*Math.sin(mid)}" r="5" fill="#7f1d1d" opacity=".85"/>`;
+    }
+    return `<div class="pizza-wrap" style="width:${size||180}px;height:${size||180}px"><svg viewBox="0 0 200 200">${crust}${slices}${dots}</svg></div>`;
+  }
+
+  function barHTML(n,d){
+    n=clamp(n,0,Math.max(d*2,n)); // allow improper visual via extra note
+    d=Math.max(1,d);
+    const cells=[];
+    const show = Math.max(d, n); // if improper, show more cells? Better: show d cells and label overflow
+    for(let i=0;i<d;i++){
+      cells.push(`<div class="bar-cell ${i<Math.min(n,d)?'on':'off'}"></div>`);
+    }
+    let extra='';
+    if(n>d){
+      extra = `<div style="margin-top:6px;font-weight:800;color:var(--rose-deep)">+ ${n-d} trozo(s) de otra pizza (= impropia)</div>`;
+    }
+    return `<div class="bar-wrap"><div class="bar-track">${cells.join('')}</div>${extra}</div>`;
+  }
+
+  function rectHTML(n,d){
+    d=Math.max(1,d); n=clamp(n,0,Math.max(n,d));
+    // arrange in near-square grid of d cells
+    const cols = Math.ceil(Math.sqrt(d));
+    const cells=[];
+    for(let i=0;i<d;i++){
+      cells.push(`<div class="rect-cell ${i<Math.min(n,d)?'on':'off'}"></div>`);
+    }
+    let extra='';
+    if(n>d) extra=`<div style="margin-top:6px;font-weight:800;color:var(--rose-deep)">Impropia: ${n}/${d} &gt; 1</div>`;
+    return `<div class="rect-wrap"><div class="rect-grid" style="grid-template-columns:repeat(${cols},1fr)">${cells.join('')}</div>${extra}</div>`;
+  }
+
+  function render(){
+    let a = parseInt(numEl.value,10); if(isNaN(a)) a=0;
+    let b = parseInt(denEl.value,10); if(isNaN(b)||b<1) b=1;
+    let k = parseInt(kEl.value,10); if(isNaN(k)||k<1) k=1;
+    a = clamp(a,0,24); b = clamp(b,1,16); k = clamp(k,1,6);
+    numEl.value=a; denEl.value=b; kEl.value=k; kLab.textContent='×'+k;
+
+    const ak=a*k, bk=b*k;
+    const g=gcd(a,b);
+    const sa=a/g, sb=b/g;
+
+    $('eqRow').innerHTML =
+      fracHTML(a,b) +
+      `<span class="sym ok">=</span>` +
+      fracHTML(ak,bk) +
+      (g>1 ? `<span class="sym">→</span>` + fracHTML(sa,sb) + `<span class="sym" style="font-size:.9rem;color:var(--purple-deep)">(irreducible)</span>` : '');
+
+    $('rPart').innerHTML = fracHTML(a,b,'sm') + ` de la pizza`;
+    $('rPartSub').textContent = a===0 ? 'ningún trozo' : (a===1 ? '1 trozo de '+b : a+' trozos de '+b);
+    $('rEq').innerHTML = fracHTML(ak,bk,'sm');
+    $('rEqSub').textContent = k===1 ? 'sin amplificar (k=1)' : 'amplificada ×'+k+' (mismo valor)';
+    $('rSimp').innerHTML = fracHTML(sa,sb,'sm');
+    $('rSimpSub').textContent = g===1 ? 'ya irreducible (mcd=1)' : '÷ mcd='+g;
+
+    const body = $('stageBody');
+    if(view==='pizza'){
+      $('stageTitle').textContent='Pizza partida en '+b+' trozos';
+      $('stageSub').textContent='Rojo = tomados ('+a+')';
+      body.innerHTML = `<div style="display:flex;justify-content:center;padding:8px">${pizzaSVG(Math.min(a,b),b,200)}</div>`;
+    } else if(view==='barra'){
+      $('stageTitle').textContent='Barra del todo (longitud fija)';
+      $('stageSub').textContent='Misma longitud · '+b+' partes';
+      body.innerHTML = `<div style="display:flex;justify-content:center;padding:12px">${barHTML(a,b)}</div>`;
+    } else if(view==='rect'){
+      $('stageTitle').textContent='Rectángulo partido en '+b;
+      $('stageSub').textContent='Celdas iguales · '+Math.min(a,b)+' sombreadas';
+      body.innerHTML = `<div style="display:flex;justify-content:center;padding:8px">${rectHTML(a,b)}</div>`;
+    } else {
+      $('stageTitle').textContent='Equivalentes: mismo sombreado relativo';
+      $('stageSub').textContent=a+'/'+b+' = '+ak+'/'+bk;
+      body.innerHTML = `<div class="dual-eq">
+        <div class="viz-panel"><h3>Original</h3>${pizzaSVG(Math.min(a,b),b,160)}${fracHTML(a,b,'sm')}</div>
+        <div style="font-size:2rem;font-weight:900;color:var(--green-deep);text-align:center">=</div>
+        <div class="viz-panel"><h3>Amplificada ×${k}</h3>${pizzaSVG(Math.min(ak,bk),bk,160)}${fracHTML(ak,bk,'sm')}</div>
+      </div>
+      <div style="margin-top:10px;display:flex;justify-content:center;gap:16px;flex-wrap:wrap">
+        <div class="viz-panel" style="min-height:auto"><h3>Barra original</h3>${barHTML(a,b)}</div>
+        <div class="viz-panel" style="min-height:auto"><h3>Barra ×${k}</h3>${barHTML(ak,bk)}</div>
+      </div>`;
+    }
+
+    let tip='';
+    if(a>b) tip='Es <strong>impropia</strong> (a≥b): hay más de un todo. Válida en medidas y recetas.';
+    else if(a===b) tip='a=b → toda la pizza = <strong>1</strong>.';
+    else if(a===0) tip='Numerador 0 → no tomas ningún trozo (= 0).';
+    else if(b>a && b>=8) tip='Denominador grande → trozos <strong>más pequeños</strong> (la pizza no cambia de tamaño).';
+    else tip='Amplifica con k y mira: el sombreado relativo se mantiene (= equivalentes).';
+    $('callout').innerHTML=tip;
+
+    // preset active state
+    document.querySelectorAll('#presets .chip').forEach(c=>{
+      c.classList.toggle('active', +c.dataset.a===a && +c.dataset.b===b);
+    });
+  }
+
+  numEl.addEventListener('input', render);
+  denEl.addEventListener('input', render);
+  kEl.addEventListener('input', render);
+
+  $('btnSimp').addEventListener('click', ()=>{
+    let a=parseInt(numEl.value,10)||0, b=parseInt(denEl.value,10)||1;
+    const g=gcd(a,b);
+    numEl.value=a/g; denEl.value=b/g; kEl.value=1;
+    render();
+  });
+
+  document.querySelectorAll('#presets .chip').forEach(c=>{
+    c.addEventListener('click', ()=>{
+      numEl.value=c.dataset.a; denEl.value=c.dataset.b; kEl.value=1;
+      render();
+    });
+  });
+  document.querySelectorAll('#viewMode .chip').forEach(c=>{
+    c.addEventListener('click', ()=>{
+      view=c.dataset.view;
+      document.querySelectorAll('#viewMode .chip').forEach(x=>x.classList.toggle('active',x===c));
+      render();
+    });
+  });
+
+  render();
+})();
+</script>
+</body>
+</html>
