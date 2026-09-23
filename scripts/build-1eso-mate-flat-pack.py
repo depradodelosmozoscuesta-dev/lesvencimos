@@ -2,9 +2,11 @@
 """Build leccion-NN.html shells (online + flat offline pack) for 1º ESO Mate."""
 from __future__ import annotations
 
+import json
 import pathlib
 import re
 import shutil
+import unicodedata
 import zipfile
 
 REPO = pathlib.Path("/workspace/lesvencimos")
@@ -14,6 +16,9 @@ HUB = REPO / "profesor/1eso-matematicas/1eso-matematicas.html"
 DESCARGAS = REPO / "descargas.html"
 PACK_DIR = REPO / "downloads/_build-1eso-mate-flat"
 ZIP_PATH = REPO / "downloads/1eso-matematicas-offline.zip"
+COURSE_DIR = REPO / "profesor/1eso-matematicas"
+COURSE_ICONS = COURSE_DIR / "icons"
+BRAND_ICONS = REPO / "brand/favicon"
 TOTAL = 47
 AVAILABLE = 47  # L01–L47
 
@@ -1937,6 +1942,54 @@ LESSONS = [
 ]
 
 
+def slugify(title_plain: str, max_len: int = 40) -> str:
+    """Return a short, filesystem-safe Spanish topic slug."""
+    text = unicodedata.normalize("NFKD", title_plain)
+    text = "".join(ch for ch in text if not unicodedata.combining(ch))
+    # In titles such as L02, the phrase after “y otros” is the useful topic.
+    text = re.split(r"\s+y\s+otros?\s+", text, maxsplit=1, flags=re.IGNORECASE)[-1]
+    text = text.lower()
+    text = re.sub(r"[^a-z0-9]+", "-", text).strip("-")
+    if len(text) <= max_len:
+        return text
+    text = text[:max_len].rstrip("-")
+    return text.rsplit("-", 1)[0] or text
+
+
+def lesson_filename(n: int) -> str:
+    """Canonical lesson filename; the NN prefix keeps Downloads sorted."""
+    lesson = next((item for item in LESSONS if item["n"] == n), None)
+    if lesson is None:
+        raise KeyError(f"unknown lesson {n}")
+    return f"leccion-{n:02d}-{slugify(lesson['title_plain'])}.html"
+
+
+def manifest_text() -> str:
+    return json.dumps({
+        "name": "1º ESO Matemáticas · Les vencimos",
+        "short_name": "1º ESO Matemáticas",
+        "start_url": "./index.html",
+        "scope": "./",
+        "display": "standalone",
+        "theme_color": "#FAF7F0",
+        "background_color": "#FAF7F0",
+        "accent_color": "#C4A15A",
+        "icons": [
+            {"src": "icons/favicon.svg", "sizes": "any", "type": "image/svg+xml"},
+            {"src": "icons/favicon-32.png", "sizes": "32x32", "type": "image/png"},
+            {"src": "icons/apple-touch-icon.png", "sizes": "180x180", "type": "image/png"},
+            {"src": "icons/app-icon-512.png", "sizes": "512x512", "type": "image/png"},
+        ],
+    }, ensure_ascii=False, indent=2) + "\n"
+
+
+def ensure_course_branding() -> None:
+    COURSE_ICONS.mkdir(parents=True, exist_ok=True)
+    for name in ("favicon.svg", "favicon-32.png", "apple-touch-icon.png", "app-icon-512.png"):
+        shutil.copy2(BRAND_ICONS / name, COURSE_ICONS / name)
+    (COURSE_DIR / "manifest.webmanifest").write_text(manifest_text(), encoding="utf-8")
+
+
 def progress_pct(n: int) -> str:
     return f"{(n / TOTAL) * 100:.2f}".rstrip("0").rstrip(".")
 
@@ -1946,14 +1999,14 @@ def nav_html(n: int, *, offline: bool) -> str:
     if n <= 1:
         prev = '<span class="atajo atajo-prev is-disabled" aria-disabled="true" title="Primera lección">← Anterior</span>'
     else:
-        prev = f'<a class="atajo atajo-prev" href="leccion-{n-1:02d}.html" title="Lección {n-1:02d}">← Anterior</a>'
+        prev = f'<a class="atajo atajo-prev" href="{lesson_filename(n - 1)}" title="Lección {n-1:02d}">← Anterior</a>'
     if n >= TOTAL:
         hub = "index.html" if offline else "../1eso-matematicas.html"
         nxt = f'<a class="atajo atajo-next" href="{hub}" title="Volver al índice">Fin del curso</a>'
     elif n >= AVAILABLE:
         nxt = '<span class="atajo atajo-next is-disabled" aria-disabled="true" title="Próximamente">Siguiente →</span>'
     else:
-        nxt = f'<a class="atajo atajo-next" href="leccion-{n+1:02d}.html" title="Lección {n+1:02d}">Siguiente →</a>'
+        nxt = f'<a class="atajo atajo-next" href="{lesson_filename(n + 1)}" title="Lección {n+1:02d}">Siguiente →</a>'
     return f"""  <nav class="leccion-barra" aria-label="Navegación de lección"
        data-actual="{n}" data-total="{TOTAL}">
     <div class="leccion-progreso" role="status">
@@ -1988,6 +2041,8 @@ def render_lesson(lesson: dict, *, offline: bool) -> str:
     fig = (lambda f: f"figuras/{f}" if offline else f"../../_plantilla-leccion/figuras/{f}")
     home = "index.html" if offline else "../../../index.html"
     marca_meta = "1º ESO Matemáticas · offline" if offline else "1º ESO Matemáticas"
+    icon_root = "icons" if offline else "../../../brand/favicon"
+    manifest_href = "manifest.webmanifest" if offline else "../manifest.webmanifest"
 
     objs = "".join(f"      <li>{o}</li>\n" for o in lesson["objetivos"])
     vida_lis = "".join(f"        <li>{v}</li>\n" for v in lesson["vida"])
@@ -2022,7 +2077,12 @@ def render_lesson(lesson: dict, *, offline: bool) -> str:
 <head>
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
+<meta name="theme-color" content="#FAF7F0"/>
 <title>Lección {n:02d} · {lesson['title_plain']} · Les vencimos</title>
+<link rel="icon" href="{icon_root}/favicon.svg" type="image/svg+xml"/>
+<link rel="icon" href="{icon_root}/favicon-32.png" sizes="32x32" type="image/png"/>
+<link rel="apple-touch-icon" href="{icon_root}/apple-touch-icon.png"/>
+<link rel="manifest" href="{manifest_href}"/>
 <link rel="stylesheet" href="{css}"/>
 <script src="{js}" defer></script>
 </head>
@@ -2143,17 +2203,32 @@ def update_hub() -> None:
     )
     text = text.replace(
         'href="lecciones/01-presentacion.html">Abrir lección 01 · Presentación →</a>',
-        'href="lecciones/leccion-01.html">Abrir lección 01 →</a>',
+        f'href="lecciones/{lesson_filename(1)}">Abrir lección 01 →</a>',
     )
     text = re.sub(
+        r'href="lecciones/leccion-01(?:-[^"]+)?\.html"',
+        f'href="lecciones/{lesson_filename(1)}"',
+        text, count=1,
+    )
+    if 'rel="manifest"' not in text:
+        text = text.replace(
+            '</title>',
+            '</title>\n<meta name="theme-color" content="#FAF7F0"/>\n'
+            '<link rel="icon" href="../../brand/favicon/favicon.svg" type="image/svg+xml"/>\n'
+            '<link rel="icon" href="../../brand/favicon/favicon-32.png" sizes="32x32" type="image/png"/>\n'
+            '<link rel="apple-touch-icon" href="../../brand/favicon/apple-touch-icon.png"/>\n'
+            '<link rel="manifest" href="manifest.webmanifest"/>',
+            1,
+        )
+    text = re.sub(
         r"Disponibles L01–L\d{2} como <code>leccion-NN\.html</code>\.",
-        f"Disponibles L01–L{AVAILABLE:02d} como <code>leccion-NN.html</code>.",
+        f"Disponibles L01–L{AVAILABLE:02d} como <code>leccion-NN-titulo.html</code> (con alias <code>leccion-NN.html</code>).",
         text,
         count=1,
     )
     text = text.replace(
         "Solo enlazan las que ya tienen HTML de shell.",
-        f"Disponibles L01–L{AVAILABLE:02d} como <code>leccion-NN.html</code>.",
+        f"Disponibles L01–L{AVAILABLE:02d} como <code>leccion-NN-titulo.html</code> (con alias <code>leccion-NN.html</code>).",
     )
     if AVAILABLE >= TOTAL:
         text = text.replace("      El resto aparece como <strong>próximamente</strong>.\n", "")
@@ -2166,7 +2241,7 @@ def update_hub() -> None:
     def item_available(n: int) -> str:
         return (
             f'      <li class="hub-item hub-disponible">\n'
-            f'        <a href="lecciones/leccion-{n:02d}.html">\n'
+            f'        <a href="lecciones/{lesson_filename(n)}">\n'
             f'          <span class="hub-num">{n:02d}</span>\n'
             f'          <span class="hub-titulo">{titles[n]}</span>\n'
             f'          <span class="hub-estado">Disponible</span>\n'
@@ -2201,6 +2276,8 @@ def update_hub() -> None:
     hub_dl = hub_dl.replace('href="../../index.html"', 'href="../index.html"')
     hub_dl = hub_dl.replace('href="../../descargas.html"', 'href="../descargas.html"')
     hub_dl = hub_dl.replace('href="lecciones/', 'href="../profesor/1eso-matematicas/lecciones/')
+    hub_dl = hub_dl.replace('href="../../brand/favicon/', 'href="../brand/favicon/')
+    hub_dl = hub_dl.replace('href="manifest.webmanifest"', 'href="../profesor/1eso-matematicas/manifest.webmanifest"')
     (REPO / "downloads/1eso-matematicas.html").write_text(hub_dl, encoding="utf-8")
     print("Updated hub (+ downloads copy)")
 
@@ -2215,9 +2292,10 @@ def update_descargas() -> None:
         text,
         count=1,
     )
-    text = text.replace(
-        'href="/profesor/1eso-matematicas/lecciones/01-presentacion.html"',
-        'href="/profesor/1eso-matematicas/lecciones/leccion-01.html"',
+    text = re.sub(
+        r'href="/profesor/1eso-matematicas/lecciones/leccion-01(?:-[^"]+)?\.html"',
+        f'href="/profesor/1eso-matematicas/lecciones/{lesson_filename(1)}"',
+        text, count=1,
     )
     text = text.replace(">Descargar 1º ESO Matemáticas</a>", ">Descargar ZIP</a>")
     needle = f"Pack plano con lecciones <strong>01–{AVAILABLE:02d}</strong>"
@@ -2249,33 +2327,26 @@ def update_plantilla_readme() -> None:
     text = readme.read_text(encoding="utf-8")
     block = """
 
-## Naming canónico · `leccion-NN.html` + pack offline plano
+## Naming canónico · `leccion-NN-titulo.html` + pack offline plano
 
-- **Online (sitio):** `profesor/1eso-matematicas/lecciones/leccion-01.html` … `leccion-47.html` (cero-padded).
+- **Online (sitio):** `profesor/1eso-matematicas/lecciones/leccion-01-tema.html` … `leccion-47-tema.html`; el prefijo NN conserva el orden en Descargas.
   CSS/JS: `../../_plantilla-leccion/leccion-shell.css` (+ `leccion-shell-nav.js`).
   Calculadora: `../../../modulos/calculadora.html`.
-  Prev/next: `leccion-0N-1.html` / `leccion-0N+1.html`. Iframes: `l0N-….html` en la misma carpeta.
-- **Offline (ZIP plano):** una sola carpeta con `index.html`, `LEEME.md`, `leccion-NN.html`, widgets `l0N-….html`,
-  y **vendor** de `leccion-shell.css`, `leccion-shell-nav.js`, `calculadora.html`, `figuras/*.svg`
-  (mismas rutas relativas en la raíz del pack: sin carpetas `profesor/` anidadas).
-- Alias antiguos (`01-presentacion.html`) redirigen a `leccion-01.html` para no romper enlaces.
-- El alumno **no instala nada**: descomprime el ZIP y abre `index.html`.
+  Prev/next: usan siempre el nombre con slug; los iframes `l0N-….html` siguen en la misma carpeta.
+- **Offline (ZIP plano):** una sola carpeta con `index.html`, `LEEME.md`, `leccion-NN-titulo.html`, alias `leccion-NN.html`, widgets `l0N-….html`,
+  y **vendor** de `leccion-shell.css`, `leccion-shell-nav.js`, `calculadora.html`, `figuras/*.svg` e `icons/*`.
+- Los alias antiguos (`leccion-NN.html`, `01-presentacion.html`) redirigen al archivo con slug para no romper enlaces.
+- El alumno **no instala nada**: descomprime el ZIP y abre `index.html` desde la carpeta descomprimida (`file://`).
 """
-    if "Naming canónico" not in text:
-        # insert before "## Qué no hacer"
-        if "## Qué no hacer" in text:
-            text = text.replace("## Qué no hacer", block + "\n## Qué no hacer")
-        else:
-            text += block
-        # update demo paths mention
-        text = text.replace(
-            "`profesor/1eso-matematicas/lecciones/01-presentacion.html`",
-            "`profesor/1eso-matematicas/lecciones/leccion-01.html`",
-        )
-        readme.write_text(text, encoding="utf-8")
-        print("Updated plantilla README")
+    section_re = re.compile(r"\n## Naming canónico .*?(?=\n## Qué no hacer)", re.S)
+    if section_re.search(text):
+        text = section_re.sub(block.rstrip("\n"), text, count=1)
+    elif "## Qué no hacer" in text:
+        text = text.replace("## Qué no hacer", block + "\n## Qué no hacer", 1)
     else:
-        print("Plantilla README already has naming section")
+        text += block
+    readme.write_text(text, encoding="utf-8")
+    print("Updated plantilla README")
 
 
 def build_offline_pack() -> None:
@@ -2301,10 +2372,11 @@ Este pack trae las lecciones **01–{AVAILABLE:02d}** en HTML plano (shell + int
 
 Todo funciona **offline**, sin nube ni servidor (`file://`). Sin instalación, sin app store, sin «setup».
 
-**Android:** descomprime con **Archivos / Mis archivos** y abre `index.html` desde ahí (`file://`).
-Abrir desde la lista «Descargas» del navegador a veces usa `content://` y falla peor.
+**Android:** descomprime con **Archivos / Mis archivos** y abre **`index.html` desde la carpeta descomprimida** (`file://`).
+En Chrome/Android: menú → **Añadir a pantalla de inicio**.
+No abras una lección individual desde Android **Descargas** mediante `content://`: así pueden fallar imágenes e iframes (abre siempre el hub `index.html`).
 
-**Contenido:** `leccion-01.html` … `leccion-{AVAILABLE:02d}.html`, widgets `lNN-….html`, calculadora, CSS/JS del shell y figuras SVG — todo en la misma carpeta.
+**Contenido:** `leccion-NN-titulo.html` (con slugs reales), alias `leccion-NN.html`, widgets `lNN-….html`, calculadora, CSS/JS, figuras SVG e iconos — todo en la misma carpeta.
 """,
         encoding="utf-8",
     )
@@ -2313,7 +2385,7 @@ Abrir desde la lista «Descargas» del navegador a veces usa `content://` y fall
     items = []
     for L in LESSONS:
         items.append(
-            f'    <li class="ok"><a href="leccion-{L["n"]:02d}.html"><strong>L{L["n"]:02d}</strong> — {L["title_plain"]}</a></li>'
+            f'    <li class="ok"><a href="{lesson_filename(L["n"])}"><strong>L{L["n"]:02d}</strong> — {L["title_plain"]}</a></li>'
         )
     if AVAILABLE < TOTAL:
         for n in range(AVAILABLE + 1, min(AVAILABLE + 6, TOTAL + 1)):
@@ -2326,7 +2398,12 @@ Abrir desde la lista «Descargas» del navegador a veces usa `content://` y fall
 <head>
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
+<meta name="theme-color" content="#FAF7F0"/>
 <title>1º ESO Matemáticas · offline · Les vencimos</title>
+<link rel="icon" href="icons/favicon.svg" type="image/svg+xml"/>
+<link rel="icon" href="icons/favicon-32.png" sizes="32x32" type="image/png"/>
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png"/>
+<link rel="manifest" href="manifest.webmanifest"/>
 <link rel="stylesheet" href="leccion-shell.css"/>
 <style>
   .hub-lista-flat{{list-style:none;padding:0;margin:1.25rem 0 0;display:grid;gap:0.55rem}}
@@ -2350,11 +2427,14 @@ Abrir desde la lista «Descargas» del navegador a veces usa `content://` y fall
     <p class="meta-leccion">Lecciones 01–{AVAILABLE:02d} listas · curso completo</p>
   </header>
   <div class="no-install">
-    <strong>No hay que instalar nada.</strong> Descomprime y abre <code>index.html</code>.
+    <strong>No hay que instalar nada.</strong> Descomprime y abre <code>index.html</code> desde esta carpeta.
     Todo es HTML que se abre en el navegador (<code>file://</code>).
+    En Chrome/Android: menú → <strong>Añadir a pantalla de inicio</strong>.
+    No abras lecciones sueltas desde Descargas mediante <code>content://</code>.
   </div>
-  <p><a class="big-cta" href="leccion-01.html">Abrir lección 01 →</a>
+  <p><a class="big-cta" href="{lesson_filename(1)}">Abrir lección 01 →</a>
      &nbsp; <a href="calculadora.html">Calculadora</a></p>
+  <p class="hub-nota">Los nombres incluyen un slug del tema para reconocer cada archivo en Archivos/Descargas; usa siempre este índice.</p>
   <section class="bloque-cuerpo">
     <h2>Lecciones</h2>
     <ol class="hub-lista-flat">
@@ -2369,10 +2449,16 @@ Abrir desde la lista «Descargas» del navegador a veces usa `content://` y fall
         encoding="utf-8",
     )
 
-    # vendor css/js/figuras/calc
+    # vendor css/js/figuras/calc/icons
     shutil.copy2(PLANTILLA / "leccion-shell.css", root / "leccion-shell.css")
     shutil.copy2(PLANTILLA / "leccion-shell-nav.js", root / "leccion-shell-nav.js")
     shutil.copy2(REPO / "modulos/calculadora.html", root / "calculadora.html")
+    icons_dst = root / "icons"
+    icons_dst.mkdir()
+    for name in ("favicon.svg", "favicon-32.png", "apple-touch-icon.png", "app-icon-512.png"):
+        shutil.copy2(BRAND_ICONS / name, icons_dst / name)
+    (root / "manifest.webmanifest").write_text(manifest_text(), encoding="utf-8")
+
     fig_dst = root / "figuras"
     fig_dst.mkdir()
     for svg in (PLANTILLA / "figuras").glob("*.svg"):
@@ -2381,9 +2467,10 @@ Abrir desde la lista «Descargas» del navegador a veces usa `content://` y fall
     # lessons + widgets
     widget_files = set()
     for L in LESSONS:
-        (root / f"leccion-{L['n']:02d}.html").write_text(
+        (root / lesson_filename(L["n"])).write_text(
             render_lesson(L, offline=True), encoding="utf-8"
         )
+        write_redirect(root / f"leccion-{L['n']:02d}.html", lesson_filename(L["n"]), f"Lección {L['n']:02d}")
         for _, wf in L["widgets"]:
             widget_files.add(wf)
     for wf in sorted(widget_files):
@@ -2408,13 +2495,15 @@ Abrir desde la lista «Descargas» del navegador a veces usa `content://` y fall
 
 def main() -> None:
     # Online lesson pages
+    ensure_course_branding()
     for L in LESSONS:
-        out = LEC / f"leccion-{L['n']:02d}.html"
+        out = LEC / lesson_filename(L["n"])
         out.write_text(render_lesson(L, offline=False), encoding="utf-8")
+        write_redirect(LEC / f"leccion-{L['n']:02d}.html", out.name, f"Lección {L['n']:02d} (alias)")
         print("Wrote", out.name)
 
-    write_redirect(LEC / "01-presentacion.html", "leccion-01.html", "Lección 01 (alias)")
-    write_redirect(LEC / "02-presentacion.html", "leccion-02.html", "Lección 02 (alias)")
+    write_redirect(LEC / "01-presentacion.html", lesson_filename(1), "Lección 01 (alias)")
+    write_redirect(LEC / "02-presentacion.html", lesson_filename(2), "Lección 02 (alias)")
 
     update_hub()
     update_descargas()

@@ -154,18 +154,18 @@ Son SVG inline-friendly (fondo crema `#FAF7F0` + oro `#C4A15A`). Se pueden pegar
 
 
 
-## Naming canónico · `leccion-NN.html` + pack offline plano
 
-- **Online (sitio):** `profesor/1eso-matematicas/lecciones/leccion-01.html` … `leccion-47.html` (cero-padded).
+
+## Naming canónico · `leccion-NN-titulo.html` + pack offline plano
+
+- **Online (sitio):** `profesor/1eso-matematicas/lecciones/leccion-01-tema.html` … `leccion-47-tema.html`; el prefijo NN conserva el orden en Descargas.
   CSS/JS: `../../_plantilla-leccion/leccion-shell.css` (+ `leccion-shell-nav.js`).
   Calculadora: `../../../modulos/calculadora.html`.
-  Prev/next: `leccion-0N-1.html` / `leccion-0N+1.html`. Iframes: `l0N-….html` en la misma carpeta.
-- **Offline (ZIP plano):** una sola carpeta con `index.html`, `LEEME.md`, `leccion-NN.html`, widgets `l0N-….html`,
-  y **vendor** de `leccion-shell.css`, `leccion-shell-nav.js`, `calculadora.html`, `figuras/*.svg`
-  (mismas rutas relativas en la raíz del pack: sin carpetas `profesor/` anidadas).
-- Alias antiguos (`01-presentacion.html`) redirigen a `leccion-01.html` para no romper enlaces.
-- El alumno **no instala nada**: descomprime el ZIP y abre `index.html`.
-
+  Prev/next: usan siempre el nombre con slug; los iframes `l0N-….html` siguen en la misma carpeta.
+- **Offline (ZIP plano):** una sola carpeta con `index.html`, `LEEME.md`, `leccion-NN-titulo.html`, alias `leccion-NN.html`, widgets `l0N-….html`,
+  y **vendor** de `leccion-shell.css`, `leccion-shell-nav.js`, `calculadora.html`, `figuras/*.svg` e `icons/*`.
+- Los alias antiguos (`leccion-NN.html`, `01-presentacion.html`) redirigen al archivo con slug para no romper enlaces.
+- El alumno **no instala nada**: descomprime el ZIP y abre `index.html` desde la carpeta descomprimida (`file://`).
 ## Qué no hacer
 
 - No reescribir los 47 `.md` desde aquí; el shell es para **presentación HTML**.
