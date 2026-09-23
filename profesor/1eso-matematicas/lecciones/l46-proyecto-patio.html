@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Proyecto patio · 1º ESO</title>
+<style>
+  :root {
+    --bg:#FAF7F0; --ink:#2A2620; --muted:#5C564C; --card:#fff;
+    --gold:#C4A15A; --gold-soft:#F5EDD8; --gold-deep:#8A6B2F;
+    --green:#3D6B4F; --green-soft:#E4F0E8; --blue:#2F5D7A; --blue-soft:#E3EEF4;
+    --rose:#9B3A4A; --rose-soft:#F8E8EB; --sand:#E8D9B8;
+    --shadow:0 8px 28px rgba(42,38,32,.08); --radius:18px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{min-height:100%;background:var(--bg);color:var(--ink);
+    font-family:"Segoe UI",system-ui,-apple-system,sans-serif;-webkit-font-smoothing:antialiased}
+  body{display:flex;flex-direction:column;align-items:center;padding:14px 10px 36px}
+  .wrap{width:100%;max-width:980px}
+  header{text-align:center;margin-bottom:12px}
+  .badge{display:inline-block;font-size:.78rem;font-weight:700;letter-spacing:.04em;
+    text-transform:uppercase;color:var(--gold-deep);background:var(--gold-soft);
+    padding:4px 12px;border-radius:999px;margin-bottom:8px}
+  h1{font-size:clamp(1.25rem,4.5vw,1.85rem);line-height:1.2;font-weight:800;color:#0E0E0C}
+  .subtitle{margin-top:6px;font-size:clamp(.9rem,2.8vw,1.05rem);color:var(--muted);font-weight:500}
+  .story{background:linear-gradient(135deg,#F5EDD8,#E3EEF4 55%,#E4F0E8);
+    border:2px solid #E0D0A8;border-radius:var(--radius);padding:12px 14px;
+    margin-bottom:14px;display:flex;gap:12px;align-items:flex-start}
+  .story .emoji{font-size:2rem}
+  .story p{font-size:clamp(.9rem,2.5vw,1.02rem);line-height:1.45}
+  .story strong{color:var(--gold-deep)}
+  .card{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);
+    padding:16px 14px 18px;margin-bottom:14px}
+  .card h2{font-size:clamp(1.05rem,3vw,1.25rem);font-weight:800;margin-bottom:8px}
+  .hint{font-size:clamp(.88rem,2.4vw,1rem);color:var(--muted);line-height:1.45;margin-bottom:12px}
+  .mode-row{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px;justify-content:center}
+  .mode-btn{padding:10px 12px;border-radius:12px;border:3px solid #D9D0C0;background:#fff;
+    font-size:.78rem;font-weight:800;cursor:pointer;color:var(--ink)}
+  .mode-btn.active{border-color:var(--gold);background:var(--gold-soft);color:var(--gold-deep)}
+  .mode-btn.done{border-color:#9BC4A8;background:var(--green-soft)}
+  .stage{position:relative;width:100%;aspect-ratio:16/10;background:#FFFcf5;
+    border-radius:14px;overflow:hidden;border:2px solid #E0D0A8;margin-bottom:12px}
+  .stage svg{width:100%;height:100%;display:block}
+  .ctrl-row{display:flex;flex-wrap:wrap;gap:12px;align-items:flex-end;margin-bottom:12px}
+  .field{display:flex;flex-direction:column;gap:4px;flex:1 1 140px}
+  .field label{font-size:.8rem;font-weight:700;color:var(--muted)}
+  .field label .letter{display:inline-block;padding:1px 7px;border-radius:8px;font-weight:800;
+    margin-right:3px;background:var(--gold-soft);color:var(--gold-deep)}
+  .field input[type="range"]{width:100%;accent-color:var(--gold)}
+  .field output{font-weight:900;font-variant-numeric:tabular-nums;color:var(--gold-deep);font-size:1.05rem}
+  .toggle{display:flex;align-items:center;gap:8px;margin:8px 0;font-weight:700;font-size:.92rem}
+  .toggle input{width:18px;height:18px;accent-color:var(--blue)}
+  .verdict{text-align:center;font-size:clamp(1.0rem,2.6vw,1.25rem);font-weight:900;padding:14px;
+    border-radius:14px;margin:10px 0;background:var(--gold-soft);color:var(--gold-deep);border:2px solid #E0D0A8}
+  .verdict.ok{background:var(--green-soft);color:#2A5238;border-color:#9BC4A8}
+  .verdict.bad{background:var(--rose-soft);color:#7A2A36;border-color:#E8A8B0}
+  .props{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px;margin:10px 0}
+  .prop{background:#FFFcf5;border:2px solid #E8DFD0;border-radius:12px;padding:10px 12px;text-align:center}
+  .prop .lab{font-size:.75rem;font-weight:700;color:var(--muted);text-transform:uppercase}
+  .prop .val{font-size:1.05rem;font-weight:900;color:var(--gold-deep);margin-top:2px}
+  .glossary{display:grid;gap:.4rem;margin:10px 0;padding:12px 14px;background:#FFFcf5;
+    border-radius:12px;border:2px solid #E0D0A8;font-size:.95rem}
+  .glossary strong{color:var(--gold-deep)}
+  .mnemonic{font-size:.95rem;font-weight:700;color:var(--gold-deep);background:var(--gold-soft);
+    border-left:4px solid var(--gold);padding:10px 14px;border-radius:0 12px 12px 0;margin-top:10px;line-height:1.4}
+  .hist{font-size:.9rem;color:#334155;background:var(--blue-soft);border-left:4px solid var(--blue);
+    padding:10px 14px;border-radius:0 12px 12px 0;margin-top:10px;line-height:1.45}
+  .callout{font-size:.9rem;font-weight:700;color:var(--rose);background:var(--rose-soft);
+    border-left:4px solid var(--rose);padding:8px 12px;border-radius:0 10px 10px 0;margin-top:10px}
+  .socio{font-size:.95rem;font-weight:600;color:#2A5238;background:var(--green-soft);
+    border-left:4px solid var(--green);padding:10px 14px;border-radius:0 12px 12px 0;margin-top:10px;line-height:1.45}
+  .btn-row{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px}
+  button.action{appearance:none;border:none;border-radius:999px;padding:10px 18px;
+    font-weight:800;font-size:.95rem;cursor:pointer;background:var(--gold);color:#fff}
+  button.action.secondary{background:#fff;color:var(--gold-deep);border:2px solid var(--gold)}
+  footer{text-align:center;font-size:.8rem;color:var(--muted);margin-top:4px}
+  .choice-row{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin:8px 0}
+  .choice{padding:10px 14px;border-radius:12px;border:3px solid #D9D0C0;background:#fff;
+    font-weight:800;cursor:pointer;font-size:.92rem}
+  .choice.ok{border-color:var(--green);background:var(--green-soft)}
+  .choice.bad{border-color:var(--rose);background:var(--rose-soft)}
+  .choice.picked{border-color:var(--blue);background:var(--blue-soft)}
+  .checkpoints{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0 12px;justify-content:center}
+  .cp{padding:6px 10px;border-radius:999px;background:#E8DFD0;font-size:.78rem;font-weight:800;color:#5C564C}
+  .cp.on{background:var(--gold-soft);color:var(--gold-deep);border:2px solid var(--gold)}
+  .cp.done{background:var(--green-soft);color:#2A5238;border:2px solid #9BC4A8}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="badge">Lección 46 · UD15 Cierre · Proyecto integrador</div>
+    <h1>Rediseño del patio (Valladolid)</h1>
+    <p class="subtitle">Estimar → escala → área/perímetro → ecuación → presupuesto</p>
+  </header>
+
+  <div class="story">
+    <div class="emoji">🏫</div>
+    <p>El <strong>IES de Valladolid</strong> quiere repintar la pista y arreglar la valla del patio.
+    Tú eres el equipo de mates: <strong>estimas</strong>, mides a <strong>escala</strong>, calculas
+    <strong>área</strong> y <strong>perímetro</strong>, y resuelves una <strong>ecuación</strong>
+    para los botes de pintura. Número + medida + geometría + álgebra en un solo problema real.</p>
+  </div>
+
+  <section class="card">
+    <h2>Mini-proyecto: patio del cole</h2>
+    <div class="checkpoints" id="cps">
+      <span class="cp" data-s="0">1 · Estimar</span>
+      <span class="cp" data-s="1">2 · Escala</span>
+      <span class="cp" data-s="2">3 · Área / P</span>
+      <span class="cp" data-s="3">4 · Ecuación</span>
+      <span class="cp" data-s="4">5 · Presupuesto</span>
+    </div>
+    <div class="mode-row" id="modos">
+      <button type="button" class="mode-btn active" data-mode="0">1 Estimar</button>
+      <button type="button" class="mode-btn" data-mode="1">2 Escala</button>
+      <button type="button" class="mode-btn" data-mode="2">3 Área/P</button>
+      <button type="button" class="mode-btn" data-mode="3">4 Pintura</button>
+      <button type="button" class="mode-btn" data-mode="4">5 Valla €</button>
+    </div>
+
+    <div class="stage" aria-label="Patio escolar a escala con datos">
+      <svg id="svg" viewBox="0 0 800 500" role="img"></svg>
+    </div>
+
+    <div class="ctrl-row" id="ctrls"></div>
+    <div class="choice-row" id="choices"></div>
+    <label class="toggle"><input type="checkbox" id="showNames" checked/> Nombres en castellano (Largo, Ancho, Escala…)</label>
+    <label class="toggle"><input type="checkbox" id="showCalc" checked/> Mostrar fórmulas y cuentas</label>
+    <div class="btn-row">
+      <button type="button" class="action" id="btnNext">Validar checkpoint →</button>
+      <button type="button" class="action secondary" id="btnEj">Ejemplo del libro</button>
+      <button type="button" class="action secondary" id="btnReset">Reiniciar</button>
+    </div>
+    <p class="hint">Controles <strong>independientes</strong>: largo, ancho, escala 1:n, cobertura del bote y precio de valla no se mueven juntos.</p>
+    <div class="props" id="props"></div>
+    <div class="verdict" id="veredicto">Checkpoint 1: estima el área del patio mirando el croquis.</div>
+  </section>
+
+  <section class="card">
+    <h2>Letras y símbolos (en español)</h2>
+    <div class="glossary">
+      <div><strong>Largo (L)</strong> = lado más largo del patio, en metros.</div>
+      <div><strong>Ancho (A)</strong> = lado más corto del patio, en metros.</div>
+      <div><strong>Área (S)</strong> = superficie = Largo × Ancho (m²). ¡No es el contorno!</div>
+      <div><strong>Perímetro (P)</strong> = contorno = 2·(Largo + Ancho) (m).</div>
+      <div><strong>Escala 1 : n</strong> = 1 cm en el plano = n cm reales (misma unidad) → en metros: real = plano·n / 100.</div>
+      <div><strong>Cobertura (C)</strong> = m² que pinta un bote.</div>
+      <div><strong>nº de botes</strong> = redondeo hacia arriba de (Área ÷ Cobertura). Ecuación: C·n ≥ S.</div>
+      <div><strong>Descuento (%)</strong> = tanto por ciento que te quitan del precio.</div>
+    </div>
+    <div class="mnemonic">«Estimo · mido a escala · área y contorno · ecuación del bote · presupuesto con % · ¿tiene sentido?»</div>
+    <div class="hist"><strong>CyL:</strong> patio tipo IES en Valladolid (pista + hierba + valla). Medidas escolares de ejemplo, no plano oficial del centro.</div>
+    <div class="socio">Roles suaves: quien mide, quien calcula, quien dibuja, quien explica. Si alguien se atasca: «¿miramos juntos el checkpoint 3?»</div>
+    <div class="callout">Error típico: confundir área con perímetro · mezclar cm del plano con m reales · olvidar redondear botes hacia arriba.</div>
+  </section>
+  <footer>1º ESO Matemáticas · CyL Decreto 39/2022 · A–D integrados · E · offline · file://</footer>
+</div>
+<script>
+(function(){
+  const svg = document.getElementById('svg');
+  const ctrls = document.getElementById('ctrls');
+  const props = document.getElementById('props');
+  const choices = document.getElementById('choices');
+  const veredicto = document.getElementById('veredicto');
+  const showNames = document.getElementById('showNames');
+  const showCalc = document.getElementById('showCalc');
+
+  let step = 0; // 0..4
+  let L = 35, W = 20;       // m reales
+  let escalaN = 200;        // 1:n
+  let cobertura = 40;       // m²/bote
+  let precioValla = 12;     // €/m
+  let dto = 10;             // %
+  let estimatePick = null;  // student's estimate choice
+  let done = [false,false,false,false,false];
+
+  function el(tag, attrs, text){
+    const n = document.createElementNS('http://www.w3.org/2000/svg', tag);
+    for (const k in attrs) n.setAttribute(k, attrs[k]);
+    if (text != null) n.textContent = text;
+    return n;
+  }
+  function fmt(n){ return Number.isInteger(n) ? String(n) : (+n.toFixed(2)).toString(); }
+  function ceilDiv(a,b){ return Math.ceil(a/b); }
+
+  function area(){ return L * W; }
+  function peri(){ return 2 * (L + W); }
+  function botes(){ return ceilDiv(area(), cobertura); }
+  function costeValla(){
+    const bruto = peri() * precioValla;
+    return bruto * (1 - dto/100);
+  }
+
+  function buildCtrls(){
+    ctrls.innerHTML = '';
+    function add(letter, lab, val, setter, min, max, stepV){
+      const f = document.createElement('div'); f.className='field';
+      f.innerHTML = `<label><span class="letter">${letter}</span>${lab}</label>
+        <input type="range" min="${min}" max="${max}" step="${stepV||1}" value="${val}"/>
+        <output>${fmt(val)}</output>`;
+      const inp = f.querySelector('input'); const out = f.querySelector('output');
+      inp.addEventListener('input',()=>{ setter(+inp.value); out.textContent=fmt(+inp.value); draw(); });
+      ctrls.appendChild(f);
+    }
+    if (step === 0 || step === 2){
+      add('L','Largo real (m)', L, v=>L=v, 15, 50, 1);
+      add('A','Ancho real (m)', W, v=>W=v, 10, 35, 1);
+    } else if (step === 1){
+      add('L','Largo real (m)', L, v=>L=v, 15, 50, 1);
+      add('A','Ancho real (m)', W, v=>W=v, 10, 35, 1);
+      add('n','Escala 1 : n', escalaN, v=>escalaN=v, 50, 500, 10);
+    } else if (step === 3){
+      add('L','Largo (m)', L, v=>L=v, 15, 50, 1);
+      add('A','Ancho (m)', W, v=>W=v, 10, 35, 1);
+      add('C','Cobertura (m²/bote)', cobertura, v=>cobertura=v, 20, 60, 5);
+    } else {
+      add('L','Largo (m)', L, v=>L=v, 15, 50, 1);
+      add('A','Ancho (m)', W, v=>W=v, 10, 35, 1);
+      add('€','Precio valla (€/m)', precioValla, v=>precioValla=v, 5, 25, 1);
+      add('%','Descuento (%)', dto, v=>dto=v, 0, 30, 5);
+    }
+  }
+
+  function buildChoices(){
+    choices.innerHTML = '';
+    if (step !== 0) return;
+    const real = area();
+    const opts = [
+      {v: Math.round(real*0.55), lab: 'poca'},
+      {v: real, lab: 'justa'},
+      {v: Math.round(real*1.6), lab: 'de más'}
+    ].sort((a,b)=>a.v-b.v);
+    // ensure unique & include exact
+    const seen = new Set();
+    opts.forEach(o=>{
+      if (seen.has(o.v)) o.v += 50;
+      seen.add(o.v);
+      const b = document.createElement('button');
+      b.type='button'; b.className='choice';
+      if (estimatePick === o.v) b.classList.add('picked');
+      b.textContent = `≈ ${o.v} m²`;
+      b.addEventListener('click',()=>{
+        estimatePick = o.v;
+        draw();
+      });
+      choices.appendChild(b);
+    });
+  }
+
+  function updateCps(){
+    document.querySelectorAll('#cps .cp').forEach(el=>{
+      const s = +el.dataset.s;
+      el.classList.toggle('on', s === step);
+      el.classList.toggle('done', done[s]);
+    });
+    document.querySelectorAll('.mode-btn').forEach(b=>{
+      const s = +b.dataset.mode;
+      b.classList.toggle('active', s === step);
+      b.classList.toggle('done', done[s]);
+    });
+  }
+
+  function drawPatioBase(){
+    svg.innerHTML = '';
+    // sky/ground frame
+    svg.appendChild(el('rect',{x:0,y:0,width:800,height:500,fill:'#FAF7F0'}));
+    svg.appendChild(el('rect',{x:20,y:20,width:760,height:460,rx:14,fill:'#FFFCF5',stroke:'#E0D0A8','stroke-width':3}));
+
+    // Title banner
+    const titles = [
+      '1 · Estima el área del patio',
+      '2 · Plano a escala 1 : n',
+      '3 · Área y perímetro',
+      '4 · Botes de pintura (ecuación)',
+      '5 · Presupuesto de la valla'
+    ];
+    svg.appendChild(el('rect',{x:36,y:36,width:420,height:40,rx:10,fill:'#F5EDD8',stroke:'#C4A15A','stroke-width':2}));
+    svg.appendChild(el('text',{x:50,y:62,fill:'#8A6B2F','font-size':16,'font-weight':900}, titles[step]));
+
+    // City pin
+    svg.appendChild(el('circle',{cx:740,cy:56,r:24,fill:'#F8E8EB',stroke:'#9B3A4A','stroke-width':2}));
+    svg.appendChild(el('text',{x:740,y:52,fill:'#9B3A4A','font-size':10,'font-weight':900,'text-anchor':'middle'},'VA'));
+    svg.appendChild(el('text',{x:740,y:64,fill:'#9B3A4A','font-size':9,'font-weight':700,'text-anchor':'middle'},'CyL'));
+
+    // Patio rectangle scaled to fit
+    const maxW = 520, maxH = 280;
+    const scale = Math.min(maxW/L, maxH/W);
+    const pw = L * scale, ph = W * scale;
+    const ox = 80, oy = 120;
+
+    // Grass outside fence strip
+    svg.appendChild(el('rect',{x:ox-18,y:oy-18,width:pw+36,height:ph+36,rx:8,fill:'#C8E0C0',stroke:'#3D6B4F','stroke-width':2}));
+
+    // Fence posts
+    for (let i=0;i<=8;i++){
+      const fx = ox-18 + i*(pw+36)/8;
+      svg.appendChild(el('line',{x1:fx,y1:oy-18,x2:fx,y2:oy-30,stroke:'#5C564C','stroke-width':3}));
+      svg.appendChild(el('line',{x1:fx,y1:oy+ph+18,x2:fx,y2:oy+ph+30,stroke:'#5C564C','stroke-width':3}));
+    }
+
+    // Main patio (sand/concrete)
+    svg.appendChild(el('rect',{x:ox,y:oy,width:pw,height:ph,rx:4,fill:'#E8D9B8',stroke:'#8A6B2F','stroke-width':2.5}));
+
+    // Basketball court (looks like a court)
+    const cx = ox + pw*0.55, cy = oy + ph*0.5;
+    const cw = Math.min(pw*0.55, 200), ch = Math.min(ph*0.7, 120);
+    svg.appendChild(el('rect',{x:cx-cw/2,y:cy-ch/2,width:cw,height:ch,rx:2,fill:'#D4C4A0',stroke:'#fff','stroke-width':2}));
+    svg.appendChild(el('line',{x1:cx,y1:cy-ch/2,x2:cx,y2:cy+ch/2,stroke:'#fff','stroke-width':2}));
+    svg.appendChild(el('circle',{cx:cx,cy:cy,r:Math.min(22,ch/4),fill:'none',stroke:'#fff','stroke-width':2}));
+    // Hoops
+    svg.appendChild(el('rect',{x:cx-cw/2,y:cy-14,width:10,height:28,fill:'#9B3A4A'}));
+    svg.appendChild(el('rect',{x:cx+cw/2-10,y:cy-14,width:10,height:28,fill:'#9B3A4A'}));
+
+    // Trees (look like trees)
+    function tree(tx,ty){
+      svg.appendChild(el('rect',{x:tx-3,y:ty,width:6,height:18,fill:'#6B4F2A'}));
+      svg.appendChild(el('circle',{cx:tx,cy:ty-8,r:14,fill:'#3D6B4F'}));
+      svg.appendChild(el('circle',{cx:tx-8,cy:ty-2,r:10,fill:'#4A7A5A'}));
+      svg.appendChild(el('circle',{cx:tx+8,cy:ty-2,r:10,fill:'#4A7A5A'}));
+    }
+    tree(ox + 28, oy + ph - 28);
+    tree(ox + pw - 30, oy + 40);
+
+    // Building strip (school wall)
+    svg.appendChild(el('rect',{x:ox,y:oy-8,width:pw,height:10,fill:'#C4A15A'}));
+    svg.appendChild(el('text',{x:ox+pw/2,y:oy-14,fill:'#8A6B2F','font-size':11,'font-weight':800,'text-anchor':'middle'},'edificio del IES'));
+
+    // Dimension labels
+    if (showNames.checked){
+      // Largo bottom
+      svg.appendChild(el('line',{x1:ox,y1:oy+ph+48,x2:ox+pw,y2:oy+ph+48,stroke:'#2F5D7A','stroke-width':2}));
+      svg.appendChild(el('line',{x1:ox,y1:oy+ph+42,x2:ox,y2:oy+ph+54,stroke:'#2F5D7A','stroke-width':2}));
+      svg.appendChild(el('line',{x1:ox+pw,y1:oy+ph+42,x2:ox+pw,y2:oy+ph+54,stroke:'#2F5D7A','stroke-width':2}));
+      svg.appendChild(el('text',{x:ox+pw/2,y:oy+ph+68,fill:'#2F5D7A','font-size':14,'font-weight':900,'text-anchor':'middle'},
+        `Largo L = ${L} m`));
+      // Ancho left
+      svg.appendChild(el('line',{x1:ox-40,y1:oy,x2:ox-40,y2:oy+ph,stroke:'#2F5D7A','stroke-width':2}));
+      svg.appendChild(el('line',{x1:ox-46,y1:oy,x2:ox-34,y2:oy,stroke:'#2F5D7A','stroke-width':2}));
+      svg.appendChild(el('line',{x1:ox-46,y1:oy+ph,x2:ox-34,y2:oy+ph,stroke:'#2F5D7A','stroke-width':2}));
+      svg.appendChild(el('text',{x:ox-52,y:oy+ph/2,fill:'#2F5D7A','font-size':13,'font-weight':900,'text-anchor':'middle',
+        transform:`rotate(-90 ${ox-52} ${oy+ph/2})`}, `Ancho A = ${W} m`));
+    }
+
+    // Scale inset (step 1)
+    if (step === 1){
+      const planoL = L * 100 / escalaN; // cm on paper
+      const planoA = W * 100 / escalaN;
+      svg.appendChild(el('rect',{x:560,y:100,width:200,height:160,rx:10,fill:'#E3EEF4',stroke:'#2F5D7A','stroke-width':2}));
+      svg.appendChild(el('text',{x:660,y:122,fill:'#2F5D7A','font-size':12,'font-weight':900,'text-anchor':'middle'},`Plano 1 : ${escalaN}`));
+      const iw = Math.min(160, planoL*3), ih = Math.min(90, planoA*3);
+      svg.appendChild(el('rect',{x:660-iw/2,y:140,width:iw,height:ih,fill:'#F5EDD8',stroke:'#8A6B2F','stroke-width':2}));
+      if (showCalc.checked){
+        svg.appendChild(el('text',{x:660,y:160+ih,fill:'#2A2620','font-size':11,'font-weight':700,'text-anchor':'middle'},
+          `${fmt(planoL)} cm × ${fmt(planoA)} cm`));
+        svg.appendChild(el('text',{x:660,y:178+ih,fill:'#5C564C','font-size':10,'font-weight':600,'text-anchor':'middle'},
+          `real = plano·${escalaN}/100`));
+      }
+    }
+
+    // Formula box
+    if (showCalc.checked && step >= 2){
+      let lines = [];
+      if (step === 2){
+        lines = [`Área S = L·A = ${L}·${W} = ${area()} m²`, `Perímetro P = 2(L+A) = ${peri()} m`];
+      } else if (step === 3){
+        lines = [`C·n ≥ S → ${cobertura}·n ≥ ${area()}`, `n = ⌈${area()}/${cobertura}⌉ = ${botes()} botes`];
+      } else if (step === 4){
+        const bruto = peri()*precioValla;
+        lines = [`P·precio = ${peri()}·${precioValla} = ${bruto} €`, `con ${dto}% dto → ${fmt(costeValla())} €`];
+      }
+      svg.appendChild(el('rect',{x:520,y:300,width:250,height:28+lines.length*22,rx:10,fill:'#E4F0E8',stroke:'#3D6B4F','stroke-width':2}));
+      lines.forEach((t,i)=>{
+        svg.appendChild(el('text',{x:534,y:324+i*22,fill:'#2A5238','font-size':12,'font-weight':800}, t));
+      });
+    }
+
+    // Paint cans visual (step 3)
+    if (step === 3){
+      const n = botes();
+      for (let i=0;i<Math.min(n,8);i++){
+        const bx = 540 + (i%4)*55, by = 120 + Math.floor(i/4)*70;
+        svg.appendChild(el('rect',{x:bx,y:by,width:40,height:48,rx:4,fill:'#2F5D7A',stroke:'#1a3a4e','stroke-width':2}));
+        svg.appendChild(el('rect',{x:bx+4,y:by-8,width:32,height:12,rx:3,fill:'#C4A15A'}));
+        svg.appendChild(el('text',{x:bx+20,y:by+28,fill:'#fff','font-size':11,'font-weight':900,'text-anchor':'middle'},'5 L'));
+      }
+      if (n > 8){
+        svg.appendChild(el('text',{x:650,y:270,fill:'#2F5D7A','font-size':14,'font-weight':900,'text-anchor':'middle'},`+${n-8} más`));
+      }
+    }
+
+    // Euro coins hint (step 4)
+    if (step === 4){
+      svg.appendChild(el('circle',{cx:620,cy:160,r:28,fill:'#F5EDD8',stroke:'#C4A15A','stroke-width':3}));
+      svg.appendChild(el('text',{x:620,y:166,fill:'#8A6B2F','font-size':18,'font-weight':900,'text-anchor':'middle'},'€'));
+      svg.appendChild(el('text',{x:680,y:166,fill:'#8A6B2F','font-size':16,'font-weight':900}, fmt(costeValla())+' €'));
+    }
+  }
+
+  function updateProps(){
+    const items = [
+      {lab:'Largo L', val: L+' m'},
+      {lab:'Ancho A', val: W+' m'},
+      {lab:'Área S', val: area()+' m²'},
+      {lab:'Perímetro P', val: peri()+' m'}
+    ];
+    if (step === 1) items.push({lab:'Escala', val:'1 : '+escalaN});
+    if (step === 3) items.push({lab:'Botes n', val: String(botes())});
+    if (step === 4) items.push({lab:'Coste valla', val: fmt(costeValla())+' €'});
+    props.innerHTML = items.map(p=>`<div class="prop"><div class="lab">${p.lab}</div><div class="val">${p.val}</div></div>`).join('');
+  }
+
+  function updateVerdict(){
+    veredicto.className = 'verdict';
+    if (step === 0){
+      if (estimatePick == null){
+        veredicto.textContent = 'Elige una estimación del área (m²). Luego valida el checkpoint.';
+      } else if (estimatePick === area()){
+        veredicto.classList.add('ok');
+        veredicto.textContent = `¡Bien! Área real S = ${L}·${W} = ${area()} m². Estimación justa.`;
+      } else {
+        const rel = estimatePick < area() ? 'te quedaste corto/a' : 'te pasaste';
+        veredicto.classList.add('bad');
+        veredicto.textContent = `Tu estima ${estimatePick} m² · real ${area()} m² (${rel}). Ajusta L y A o vuelve a estimar.`;
+      }
+    } else if (step === 1){
+      const pL = L*100/escalaN, pA = W*100/escalaN;
+      veredicto.classList.add('ok');
+      veredicto.textContent = `Escala 1:${escalaN} → en el plano mides ${fmt(pL)} cm × ${fmt(pA)} cm. Comprueba: plano·n/100 = metros reales.`;
+    } else if (step === 2){
+      veredicto.classList.add('ok');
+      veredicto.textContent = `S = ${area()} m² (pintar) · P = ${peri()} m (valla). Área ≠ contorno.`;
+    } else if (step === 3){
+      veredicto.classList.add('ok');
+      veredicto.textContent = `Ecuación: ${cobertura}·n ≥ ${area()} → n = ${botes()} botes (redondeo hacia arriba).`;
+    } else {
+      veredicto.classList.add('ok');
+      veredicto.textContent = `Valla: ${peri()} m × ${precioValla} €/m = ${peri()*precioValla} € · con ${dto}% dto → ${fmt(costeValla())} €.`;
+    }
+  }
+
+  function draw(){
+    drawPatioBase();
+    buildChoices();
+    updateProps();
+    updateVerdict();
+    updateCps();
+  }
+
+  document.querySelectorAll('.mode-btn').forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      step = +btn.dataset.mode;
+      estimatePick = null;
+      buildCtrls(); draw();
+    });
+  });
+  showNames.addEventListener('change', draw);
+  showCalc.addEventListener('change', draw);
+
+  document.getElementById('btnNext').addEventListener('click',()=>{
+    if (step === 0 && estimatePick !== area()){
+      veredicto.className = 'verdict bad';
+      veredicto.textContent = 'Antes de avanzar: elige la estimación que coincida con L·A (o ajusta L y A).';
+      return;
+    }
+    done[step] = true;
+    if (step < 4){ step++; estimatePick = null; buildCtrls(); }
+    draw();
+  });
+  document.getElementById('btnEj').addEventListener('click',()=>{
+    L=35; W=20; escalaN=200; cobertura=40; precioValla=12; dto=10;
+    estimatePick = area();
+    buildCtrls(); draw();
+  });
+  document.getElementById('btnReset').addEventListener('click',()=>{
+    step=0; done=[false,false,false,false,false];
+    L=35; W=20; escalaN=200; cobertura=40; precioValla=12; dto=10;
+    estimatePick=null; buildCtrls(); draw();
+  });
+
+  buildCtrls(); draw();
+
+  if (/[?&]preview=1\b/.test(location.search)) {
+    step = 2; // Área/P — richest patio viz with formulas
+    L=35; W=20; escalaN=200; cobertura=40; precioValla=12; dto=10;
+    done=[true,true,true,false,false];
+    estimatePick = area();
+    showNames.checked=true; showCalc.checked=true;
+    buildCtrls(); draw();
+  }
+})();
+</script>
+</body>
+</html>

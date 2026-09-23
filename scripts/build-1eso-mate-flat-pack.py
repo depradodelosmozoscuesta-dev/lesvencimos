@@ -15,7 +15,7 @@ DESCARGAS = REPO / "descargas.html"
 PACK_DIR = REPO / "downloads/_build-1eso-mate-flat"
 ZIP_PATH = REPO / "downloads/1eso-matematicas-offline.zip"
 TOTAL = 47
-AVAILABLE = 45  # L01–L45
+AVAILABLE = 47  # L01–L47
 
 # (num, short_ud, title, meta, curiosidad_title, curiosidad_text, figura_cur,
 #  objetivos[list], cuerpo_extra_html, vida_title, vida_items, vida_figura,
@@ -1849,6 +1849,90 @@ LESSONS = [
     "reto_id": "1eso-mate-L45",
     "cierre": "Algoritmo = pasos claros y finitos. Interpretar, probar y modificar es pensamiento computacional en 1º ESO.",
   },
+  {
+    "n": 46,
+    "eyebrow": "Lección 46 · UD15 · Cierre de curso",
+    "title_html": "Proyecto integrador: <em>un problema real</em>",
+    "title_plain": "Proyecto integrador: un problema real",
+    "meta": "Saberes CyL (Decreto 39/2022): A–D integrados; E (trabajo en equipo)",
+    "curiosidad_t": "Las matemáticas salen al patio",
+    "curiosidad": "Medir un patio, dibujarlo a escala, calcular su superficie y decidir un presupuesto convierte una pregunta real en un proyecto matemático. Los datos y la revisión ayudan a que el modelo tenga sentido.",
+    "curiosidad_fig": "mapa.svg",
+    "objetivos": [
+      "Elegir y delimitar un problema real abordable.",
+      "Movilizar al menos tres sentidos: numérico, medida, espacial o algebraico.",
+      "Presentar un informe claro con croquis, cálculos y conclusiones.",
+      "Trabajar en equipo con roles y respeto.",
+    ],
+    "cuerpo": """
+    <h2>Explicación breve</h2>
+    <p>Un proyecto integra lo aprendido: primero se formula una pregunta, después se recogen datos, se elige un modelo, se calculan resultados y se revisa si tienen sentido. Puede tratarse del rediseño del patio, un viaje, un huerto o una tienda solidaria.</p>
+    <div class="tarjeta">
+      <p style="margin:0 0 0.45rem"><strong>Cadena:</strong> propuesta → datos → modelo → cálculos → revisión → exposición.</p>
+      <p style="margin:0"><strong>Ejemplo:</strong> para un patio de 20×35 m, el área es 700 m² y el perímetro 110 m. Si un bote cubre 40 m², el número de botes se redondea hacia arriba.</p>
+    </div>
+    <p>Recuerda distinguir área y perímetro, convertir la escala con cuidado y escribir unidades. Un buen resultado también explica el límite del modelo.</p>
+""",
+    "cuerpo_after_widgets": "",
+    "widget_split": False,
+    "vida_t": "Matemáticas para mejorar lo cercano",
+    "vida": [
+      "Proponer una mejora medible del centro o del barrio.",
+      "Organizar una merienda solidaria con cuentas claras.",
+      "Planificar un entrenamiento con tiempos y distancias.",
+      "Montar un puesto en un mercadillo benéfico.",
+    ],
+    "vida_fig": "mapa.svg",
+    "widgets": [
+      ("Interactivo · proyecto patio", "l46-proyecto-patio.html"),
+    ],
+    "reto_t": "Pitch de mi proyecto",
+    "reto": "Resume tu proyecto en 8–10 líneas: problema, matemáticas usadas, resultado y qué mejorarías. Aporta una idea concreta de tu centro, barrio o localidad.",
+    "reto_id": "1eso-mate-L46",
+    "cierre": "Un proyecto convierte datos reales en un modelo que se calcula, se revisa y se explica. Calidad matemática y conexión con la vida van juntas.",
+  },
+  {
+    "n": 47,
+    "eyebrow": "Lección 47 · UD15 · Cierre de curso",
+    "title_html": "Autoevaluación, portfolio y <em>hábitos matemáticos</em>",
+    "title_plain": "Autoevaluación, portfolio y hábitos matemáticos",
+    "meta": "Saberes CyL (Decreto 39/2022): E Sentido socioafectivo; metacognición",
+    "curiosidad_t": "Las evidencias cuentan una historia",
+    "curiosidad": "Decir «se me dan mal las mates» cambia cuando miras evidencias: tres ejercicios de fracciones corregidos, un croquis y un proyecto muestran qué sabes y qué puedes practicar después.",
+    "curiosidad_fig": "fuego.svg",
+    "objetivos": [
+      "Revisar evidencias de aprendizaje del curso en un portfolio.",
+      "Identificar fortalezas y lagunas con honestidad.",
+      "Formular hábitos de estudio matemático sostenibles.",
+      "Valorar el error, la perseverancia y la colaboración.",
+    ],
+    "cuerpo": """
+    <h2>Explicación breve</h2>
+    <p>Un <strong>portfolio</strong> reúne 6–10 piezas: problemas corregidos, croquis, proyectos, retos y reflexiones. La autoevaluación con una rúbrica de 1 a 4 mira comprensión, cálculo, geometría, álgebra, explicación y actitud.</p>
+    <div class="tarjeta">
+      <p style="margin:0 0 0.45rem"><strong>Hábitos:</strong> leer todo antes de calcular, estimar y comprobar, anotar el error y rehacer, y pedir ayuda concreta («no entiendo el paso 2»).</p>
+      <p style="margin:0"><strong>Plan:</strong> 10–15 minutos cada dos días con problemas variados mantiene mejor que un atracón el último día.</p>
+    </div>
+    <p>Tu valor no es tu última nota: es tu capacidad de seguir aprendiendo con otros. El portfolio señala qué repasar al empezar 2º ESO.</p>
+""",
+    "cuerpo_after_widgets": "",
+    "widget_split": False,
+    "vida_t": "Hábitos que caben en la vida real",
+    "vida": [
+      "Preparar la carpeta para septiembre y 2º ESO.",
+      "Explicar a la familia lo aprendido con evidencias.",
+      "Organizar el tiempo de estudio entre materias.",
+      "Cuidar la salud emocional: respirar y planificar.",
+    ],
+    "vida_fig": "fuego.svg",
+    "widgets": [
+      ("Interactivo · portfolio y hábitos", "l47-portfolio-habitos.html"),
+    ],
+    "reto_t": "Mi mejor idea del curso",
+    "reto": "Elige la idea, truco o proyecto del año del que más orgulloso/a estés. Explícalo en 6–8 frases con un ejemplo concreto para la galería de retos.",
+    "reto_id": "1eso-mate-L47",
+    "cierre": "Saber mates incluye saber cómo aprendes. Portfolio, hábitos pequeños, error útil y respeto forman un buen cierre de 1º ESO.",
+  },
 
 ]
 
@@ -1863,7 +1947,10 @@ def nav_html(n: int, *, offline: bool) -> str:
         prev = '<span class="atajo atajo-prev is-disabled" aria-disabled="true" title="Primera lección">← Anterior</span>'
     else:
         prev = f'<a class="atajo atajo-prev" href="leccion-{n-1:02d}.html" title="Lección {n-1:02d}">← Anterior</a>'
-    if n >= AVAILABLE:
+    if n >= TOTAL:
+        hub = "index.html" if offline else "../1eso-matematicas.html"
+        nxt = f'<a class="atajo atajo-next" href="{hub}" title="Volver al índice">Fin del curso</a>'
+    elif n >= AVAILABLE:
         nxt = '<span class="atajo atajo-next is-disabled" aria-disabled="true" title="Próximamente">Siguiente →</span>'
     else:
         nxt = f'<a class="atajo atajo-next" href="leccion-{n+1:02d}.html" title="Lección {n+1:02d}">Siguiente →</a>'
@@ -2068,6 +2155,11 @@ def update_hub() -> None:
         "Solo enlazan las que ya tienen HTML de shell.",
         f"Disponibles L01–L{AVAILABLE:02d} como <code>leccion-NN.html</code>.",
     )
+    if AVAILABLE >= TOTAL:
+        text = text.replace("      El resto aparece como <strong>próximamente</strong>.\n", "")
+        text = text.replace("Índice del temario (47 lecciones previstas).", "Índice completo del temario (47 lecciones).")
+        text = text.replace("1º ESO Matemáticas · curso en marcha", "1º ESO Matemáticas · curso completo")
+
     # replace first AVAILABLE list items to link to leccion-NN
     titles = {L["n"]: L["title_plain"] for L in LESSONS}
 
@@ -2133,8 +2225,8 @@ def update_descargas() -> None:
         text2 = re.sub(
             r'(<h2>1º ESO Matemáticas</h2>\s*<p class="kicker">[^<]*</p>\s*)<p>.*?</p>',
             rf'\1<p><strong>No se instala.</strong> Descomprime y abre <code>index.html</code>. '
-            rf'Pack plano con lecciones <strong>01–{AVAILABLE:02d}</strong> (HTML + interactivos); '
-            rf'resto próximamente. Sin nube ni servidor.</p>',
+            rf'Pack plano con lecciones <strong>01–{AVAILABLE:02d}</strong> (HTML + interactivos)'
+            rf'{("; resto próximamente" if AVAILABLE < TOTAL else ", curso completo")}. Sin nube ni servidor.</p>',
             text,
             count=1,
             flags=re.S,
@@ -2142,6 +2234,9 @@ def update_descargas() -> None:
         if needle not in text2:
             raise SystemExit("descargas.html pattern not found")
         text = text2
+    if AVAILABLE >= TOTAL:
+        text = text.replace("(HTML + interactivos); resto próximamente.", "(HTML + interactivos), curso completo.")
+        text = text.replace("Oficial CyL · Decreto 39/2022 · en marcha", "Oficial CyL · Decreto 39/2022 · curso completo")
     if text != before:
         DESCARGAS.write_text(text, encoding="utf-8")
         print("Updated descargas")
@@ -2196,7 +2291,7 @@ def build_offline_pack() -> None:
 No hay que instalar nada. Descomprime y abre index.html
 
 **Qué es:** lecciones de **Educación obligatoria** (currículo oficial Castilla y León, Decreto 39/2022).
-Este pack trae las lecciones **01–{AVAILABLE:02d}** en HTML plano (shell + interactivos Mate). El resto irá entrando como *próximamente*.
+Este pack trae las lecciones **01–{AVAILABLE:02d}** en HTML plano (shell + interactivos Mate).
 
 **Cómo abrir (3 pasos)**
 
@@ -2220,9 +2315,10 @@ Abrir desde la lista «Descargas» del navegador a veces usa `content://` y fall
         items.append(
             f'    <li class="ok"><a href="leccion-{L["n"]:02d}.html"><strong>L{L["n"]:02d}</strong> — {L["title_plain"]}</a></li>'
         )
-    for n in range(AVAILABLE + 1, min(AVAILABLE + 6, TOTAL + 1)):
-        items.append(f'    <li class="soon"><span><strong>L{n:02d}</strong> — próximamente</span></li>')
-    items.append(f'    <li class="soon"><span>… hasta L{TOTAL} — próximamente</span></li>')
+    if AVAILABLE < TOTAL:
+        for n in range(AVAILABLE + 1, min(AVAILABLE + 6, TOTAL + 1)):
+            items.append(f'    <li class="soon"><span><strong>L{n:02d}</strong> — próximamente</span></li>')
+        items.append(f'    <li class="soon"><span>… hasta L{TOTAL} — próximamente</span></li>')
 
     (root / "index.html").write_text(
         f"""<!DOCTYPE html>
@@ -2251,7 +2347,7 @@ Abrir desde la lista «Descargas» del navegador a veces usa `content://` y fall
   <header class="bloque-titulo">
     <span class="eyebrow">Educación obligatoria · CyL</span>
     <h1 class="titulo-leccion">1º ESO Matemáticas</h1>
-    <p class="meta-leccion">Lecciones 01–{AVAILABLE:02d} listas · resto próximamente · {TOTAL} previstas</p>
+    <p class="meta-leccion">Lecciones 01–{AVAILABLE:02d} listas · curso completo</p>
   </header>
   <div class="no-install">
     <strong>No hay que instalar nada.</strong> Descomprime y abre <code>index.html</code>.
