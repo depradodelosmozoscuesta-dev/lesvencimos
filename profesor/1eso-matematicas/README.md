@@ -157,8 +157,9 @@ Todos los retos llevan `reto_id` estable `1eso-mate-LXX` y el marcador HTML `<!-
 
 ## Lectura offline
 
-- Markdown en `lecciones/01.md` … `47.md` (prioridad de este pack).
-- Visor HTML ligero: `1eso-matematicas.html` (embebe o carga el índice; ver archivo).
+- **ZIP alumno:** `downloads/1eso-matematicas-offline.zip` (Descargas → Educación obligatoria). Descomprimir y abrir `lecciones/01-presentacion.html` o el índice HTML; funciona en `file://` sin nube.
+- Markdown en `lecciones/01.md` … `47.md` (andamio / temario del equipo Mate).
+- Índice HTML del curso: `1eso-matematicas.html` (shell; L01 disponible).
 
 ## Notas de calidad
 
