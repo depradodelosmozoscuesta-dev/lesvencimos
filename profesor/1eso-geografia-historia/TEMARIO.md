@@ -61,6 +61,20 @@
 | L08 Ecosistemas, patrimonio y huella humana | **Entregada** | `08.md` + `l08-ecosistemas-patrimonio-huella-humana.html` + preview |
 | L09 TIC, redes seguras y lectura crítica | **Entregada** | `09.md` + `l09-tic-redes-seguras-lectura-critica.html` + preview |
 | L10 Ciencias sociales: objetivos, términos, plataformas | **Entregada** | `10.md` + `l10-ciencias-sociales-objetivos-terminos.html` + preview |
-| L11–L24 | Pendiente | Bloque B — Sociedades y territorios |
+| L11 Pensar como geógrafo y como historiador | **Entregada** | `11.md` + `l11-pensar-geografo-historiador.html` + preview |
+| L12 Fuentes; museos, archivos y bibliotecas | **Entregada** | `12.md` + `l12-fuentes-museos-archivos-bibliotecas.html` + preview |
+| L13 Origen del ser humano y grandes migraciones | **Entregada** | `13.md` + `l13-origen-humano-migraciones.html` + preview |
+| L14 Paleolítico: supervivencia y primeras culturas | **Entregada** | `14.md` + `l14-paleolitico-supervivencia-culturas.html` + preview |
+| L15 Neolítico y Edad de los Metales | **Entregada** | `15.md` + `l15-neolitico-edad-metales.html` + preview |
+| L16 Nacimiento de las civilizaciones y rutas | **Entregada** | `16.md` + `l16-civilizaciones-rutas-comerciales.html` + preview |
+| L17 Arte, cultura y patrimonio (primeras civ.) | **Entregada** | `17.md` + `l17-arte-cultura-patrimonio-civilizaciones.html` + preview |
+| L18 Grecia: de las polis a Alejandro Magno | **Entregada** | `18.md` + `l18-grecia-polis-alejandro.html` + preview |
+| L19 Roma: monarquía, república e imperio | **Entregada** | `19.md` + `l19-roma-monarquia-republica-imperio.html` + preview |
+| L20 Religión, poder e identidades | **Entregada** | `20.md` + `l20-religion-poder-identidades-antiguedad.html` + preview |
+| L21 Personas invisibilizadas | **Entregada** | `21.md` + `l21-invisibilizados-mujeres-esclavos-extranjeros.html` + preview |
+| L22 Prehistoria en la Península: Atapuerca | **Entregada** | `22.md` + `l22-prehistoria-peninsula-atapuerca.html` + preview |
+| L23 Pueblos prerromanos e Hispania romana | **Entregada** | `23.md` + `l23-pueblos-prerromanos-hispania-romana.html` + preview |
+| L24 Romanización y patrimonio en CyL | **Entregada** | `24.md` + `l24-romanizacion-patrimonio-cyl.html` + preview |
+| QA L11–L24 | **Hecho** | `lecciones/_qa-bloque-11-24.md` |
 | L25–L36 | Pendiente | Bloque C + cierre |
 | QA L01–L10 | **Hecho** | `lecciones/_qa-bloque-01-10.md` |

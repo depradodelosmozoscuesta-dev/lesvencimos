@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Build online shell + flat offline pack for 1º ESO Geografía e Historia (L01–L10 / 36)."""
+"""Build online shell + flat offline pack for 1º ESO Geografía e Historia (L01–L24 / 36)."""
 from __future__ import annotations
 
 import html
@@ -22,13 +22,37 @@ ZIP_PATH = REPO / "downloads/1eso-geografia-historia-offline.zip"
 COURSE_ICONS = COURSE_DIR / "icons"
 BRAND_ICONS = REPO / "brand/favicon"
 TOTAL = 36
-AVAILABLE = 10
+AVAILABLE = 24
 
 COURSE_NAME = "1º ESO Geografía e Historia"
 COURSE_SHORT = "1º ESO GeoHistoria"
-META = "1º ESO Geografía e Historia · CyL Decreto 39/2022 · bloque A"
-EYEBROW_UD = "UD A · Retos del mundo actual"
 ZIP_FOLDER = "1eso-geografia-historia-offline"
+
+# UD ranges: A = L01–L10, B = L11–L24, C = L25–L36 (helper ready for later)
+UD_BLOCKS = {
+    "A": ("UD A · Retos del mundo actual", "bloque A"),
+    "B": ("UD B · Sociedades y territorios", "bloque B"),
+    "C": ("UD C · Compromiso cívico", "bloque C"),
+}
+
+
+def ud_for_lesson(n: int) -> str:
+    if 1 <= n <= 10:
+        return "A"
+    if 11 <= n <= 24:
+        return "B"
+    if 25 <= n <= 36:
+        return "C"
+    raise ValueError(f"lesson out of range: {n}")
+
+
+def eyebrow_ud(n: int) -> str:
+    return UD_BLOCKS[ud_for_lesson(n)][0]
+
+
+def meta_for_lesson(n: int) -> str:
+    bloque = UD_BLOCKS[ud_for_lesson(n)][1]
+    return f"1º ESO Geografía e Historia · CyL Decreto 39/2022 · {bloque}"
 
 # Full temario titles (curso completo L01–L36) — from TEMARIO.md
 TEMARIO = [
@@ -81,6 +105,20 @@ TITLE_HTML = {
     8: "Ecosistemas, patrimonio natural y <em>huella humana</em>",
     9: "Buscar y leer información: TIC, redes seguras y <em>pensamiento crítico</em>",
     10: "Ciencias sociales: objetivos, términos y <em>plataformas digitales</em>",
+    11: "Pensar como <em>geógrafo</em> y como <em>historiador</em>",
+    12: "Fuentes históricas; <em>museos</em>, archivos y bibliotecas",
+    13: "Origen del ser humano y <em>grandes migraciones</em>",
+    14: "<em>Paleolítico</em>: supervivencia y primeras culturas",
+    15: "<em>Neolítico</em> y Edad de los Metales: territorio, desigualdad y poder",
+    16: "Nacimiento de las <em>civilizaciones</em> y rutas comerciales",
+    17: "Arte, cultura y <em>patrimonio</em> en las primeras civilizaciones",
+    18: "<em>Grecia</em>: de las polis a Alejandro Magno",
+    19: "<em>Roma</em>: monarquía, república e imperio; Mediterráneo",
+    20: "Religión, poder e <em>identidades</em> en el mundo antiguo",
+    21: "Personas <em>invisibilizadas</em>: mujeres, esclavos y extranjeros",
+    22: "Prehistoria en la Península: <em>Atapuerca</em> y arte prehistórico",
+    23: "Pueblos prerromanos e <em>Hispania</em> romana",
+    24: "<em>Romanización</em> y patrimonio en Castilla y León",
 }
 
 WIDGETS = {
@@ -94,6 +132,20 @@ WIDGETS = {
     8: ("Laboratorio · ecosistemas, patrimonio y huella", "l08-ecosistemas-patrimonio-huella-humana.html"),
     9: ("Laboratorio · TIC, redes seguras y lectura crítica", "l09-tic-redes-seguras-lectura-critica.html"),
     10: ("Laboratorio · ciencias sociales: objetivos y términos", "l10-ciencias-sociales-objetivos-terminos.html"),
+    11: ("Laboratorio · pensar como geógrafo e historiador", "l11-pensar-geografo-historiador.html"),
+    12: ("Laboratorio · fuentes, museos, archivos y bibliotecas", "l12-fuentes-museos-archivos-bibliotecas.html"),
+    13: ("Laboratorio · origen humano y migraciones", "l13-origen-humano-migraciones.html"),
+    14: ("Laboratorio · Paleolítico: supervivencia y culturas", "l14-paleolitico-supervivencia-culturas.html"),
+    15: ("Laboratorio · Neolítico y Edad de los Metales", "l15-neolitico-edad-metales.html"),
+    16: ("Laboratorio · civilizaciones y rutas comerciales", "l16-civilizaciones-rutas-comerciales.html"),
+    17: ("Laboratorio · arte, cultura y patrimonio", "l17-arte-cultura-patrimonio-civilizaciones.html"),
+    18: ("Laboratorio · Grecia: polis y Alejandro", "l18-grecia-polis-alejandro.html"),
+    19: ("Laboratorio · Roma: monarquía, república e imperio", "l19-roma-monarquia-republica-imperio.html"),
+    20: ("Laboratorio · religión, poder e identidades", "l20-religion-poder-identidades-antiguedad.html"),
+    21: ("Laboratorio · personas invisibilizadas", "l21-invisibilizados-mujeres-esclavos-extranjeros.html"),
+    22: ("Laboratorio · Prehistoria peninsular y Atapuerca", "l22-prehistoria-peninsula-atapuerca.html"),
+    23: ("Laboratorio · prerromanos e Hispania romana", "l23-pueblos-prerromanos-hispania-romana.html"),
+    24: ("Laboratorio · romanización y patrimonio CyL", "l24-romanizacion-patrimonio-cyl.html"),
 }
 
 # Short curiosidades (MD sources lack a dedicated block)
@@ -163,6 +215,90 @@ CURIOSIDADES = {
         "Gafas para leer el mundo",
         "Las Ciencias Sociales no son un cajón de datos sueltos. Son <strong>gafas</strong> para leer "
         "el espacio, el tiempo y la convivencia: mapa, fuente, término preciso y plataforma fiable.",
+        "mapa.svg",
+    ),
+    11: (
+        "Dos gafas, un mapa",
+        "El geógrafo pregunta <strong>dónde</strong>; el historiador, <strong>cuándo y por qué</strong>. "
+        "Juntas, esas gafas convierten un paisaje o una noticia en una lección de Ciencias Sociales.",
+        "mapa.svg",
+    ),
+    12: (
+        "El archivo no es un almacén muerto",
+        "Una carta, una moneda o un hueso en un museo son <strong>fuentes</strong>. Sin archivo, biblioteca "
+        "y museo, el pasado se vuelve rumor: el patrimonio es memoria compartida.",
+        "ticket.svg",
+    ),
+    13: (
+        "De África al mundo",
+        "El modelo científico actual sitúa el origen de <strong>Homo sapiens</strong> en África. "
+        "Las migraciones duraron decenas de miles de años: poblar la Tierra no fue un viaje de fin de semana.",
+        "mapa.svg",
+    ),
+    14: (
+        "Piedra, fuego y cooperación",
+        "En el Paleolítico no había ciudades: había grupos que cazaban, recolectaban y tallaban piedra. "
+        "El <strong>arte rupestre</strong> ya era cultura, no solo decoración de cueva.",
+        "fuego.svg",
+    ),
+    15: (
+        "Cuando la tierra se guarda",
+        "Con la agricultura llegan aldeas, almacenes… y a menudo <strong>desigualdad</strong>. "
+        "Controlar cosechas y metales cambia el poder mucho antes de que existan «países» modernos.",
+        "olla.svg",
+    ),
+    16: (
+        "Rutas antes de carreteras",
+        "Las primeras civilizaciones no vivían aisladas: grano, metales y textiles viajaban por "
+        "<strong>rutas</strong> terrestres y marítimas. El Mediterráneo ya era un mar de conexiones.",
+        "mapa.svg",
+    ),
+    17: (
+        "Arte que manda mensaje",
+        "Templo, palacio o tumba no eran solo edificios bonitos: comunicaban <strong>poder</strong> y "
+        "creencias. Por eso hoy hablamos de patrimonio cultural que hay que proteger.",
+        "ticket.svg",
+    ),
+    18: (
+        "Muchas polis, no un solo país",
+        "La Grecia antigua era un mosaico de <strong>polis</strong> (ciudades-Estado). Atenas y Esparta "
+        "fueron famosas, pero Alejandro Magno llevó ideas helenísticas mucho más lejos.",
+        "mapa.svg",
+    ),
+    19: (
+        "753 a.C.: tradición, no laboratorio",
+        "La fundación de Roma en <strong>753 a.C.</strong> es fecha legendaria escolar. Lo histórico "
+        "sí es el paso de monarquía a república e imperio… y el Mediterráneo como <em>mare nostrum</em>.",
+        "fuego.svg",
+    ),
+    20: (
+        "Dioses en la plaza",
+        "En el mundo antiguo, religión e identidad no vivían solo en privado: templos, fiestas y "
+        "cultos públicos reforzaban la <strong>comunidad</strong> y, a menudo, el poder.",
+        "olla.svg",
+    ),
+    21: (
+        "Más que reyes y batallas",
+        "Si solo cuentas emperadores, <strong>invisibilizas</strong> a mujeres, esclavos y extranjeros. "
+        "La Historia completa incluye a quienes casi no dejan su nombre en las fuentes.",
+        "ticket.svg",
+    ),
+    22: (
+        "Atapuerca en el mapa de CyL",
+        "La sierra de <strong>Atapuerca</strong> (Burgos) es UNESCO: fósiles y herramientas de muchas "
+        "épocas. Las dataciones se revisan; no son un DNI grabado en piedra.",
+        "mapa.svg",
+    ),
+    23: (
+        "Hispania no nació en un día",
+        "Íberos, celtíberos y otros pueblos vivían en la Península antes de Roma. La conquista "
+        "desde <strong>218 a.C.</strong> fue larga: Numancia (Soria) es solo un capítulo.",
+        "fuego.svg",
+    ),
+    24: (
+        "Roma bajo tus pies en CyL",
+        "Acueducto de Segovia, León campamental, Clunia, Las Médulas… La <strong>romanización</strong> "
+        "dejó vías, latín y ciudades; no borró del todo lo anterior ni fue homogénea.",
         "mapa.svg",
     ),
 }
@@ -414,10 +550,10 @@ def load_lesson(n: int) -> dict:
     return {
         "n": n,
         "slug": slug,
-        "eyebrow": f"Lección {n:02d} · {EYEBROW_UD}",
+        "eyebrow": f"Lección {n:02d} · {eyebrow_ud(n)}",
         "title_html": TITLE_HTML[n],
         "title_plain": title_plain,
-        "meta": META,
+        "meta": meta_for_lesson(n),
         "curiosidad_t": cur_t,
         "curiosidad": cur,
         "curiosidad_fig": cur_fig,
@@ -907,7 +1043,7 @@ def render_hub(*, for_downloads: bool = False) -> str:
     <p class="eyebrow" style="display:block;font-size:0.72rem;letter-spacing:0.16em;text-transform:uppercase;color:var(--lv-acento);font-weight:600;margin:0 0 0.55rem">Decreto 39/2022 · Castilla y León</p>
     <h1 id="hub-titulo">{COURSE_NAME}</h1>
     <p class="hub-status">
-      <strong>Lecciones 01–{AVAILABLE:02d} disponibles</strong> (UD A · Retos del mundo actual) en shell HTML.
+      <strong>Lecciones 01–{AVAILABLE:02d} disponibles</strong> (UD A · Retos del mundo actual + UD B · Sociedades y territorios) en shell HTML.
       Curso en construcción ({AVAILABLE}/{TOTAL} lecciones).
       <strong>ZIP offline</strong> (sin instalar: descomprime y abre <code>ABRE-AQUI.html</code>) en <a href="{descargas}">Descargas</a>.
     </p>
@@ -922,7 +1058,7 @@ def render_hub(*, for_downloads: bool = False) -> str:
 
   <p class="hub-pie-nota">
     Educación obligatoria · currículo oficial CyL (Decreto 39/2022). Misma familia que Mate y ByG; distinto del pack Profesor (multi-materia).
-    Interactivos L01–L{AVAILABLE:02d}: orientación y mapas, relieve, clima, emergencia climática, biodiversidad, TIC y ciencias sociales (UD A).
+    Interactivos L01–L{AVAILABLE:02d}: mapas, relieve y clima (UD A); pensamiento histórico, Prehistoria, civilizaciones, Grecia–Roma y patrimonio CyL (UD B).
   </p>
 
   <footer class="leccion-pie">
@@ -947,6 +1083,7 @@ def update_descargas() -> None:
     lead_old_patterns = [
         r"Currículo oficial Castilla y León \(LOMLOE\)\. 1º ESO Matemáticas y Biología y Geología \(L01–L40\)\. <strong>No es el pack Profesor</strong> \(ese es otro: muchas materias, más sencillo\)\.",
         r"Currículo oficial Castilla y León \(LOMLOE\)\. 1º ESO Matemáticas y Biología y Geología \(L01–L\d+\)\. <strong>No es el pack Profesor</strong> \(ese es otro: muchas materias, más sencillo\)\.",
+        r"Currículo oficial Castilla y León \(LOMLOE\)\. 1º ESO Matemáticas, Biología y Geología y Geografía e Historia \(L01–L\d+ de \d+\)\. <strong>No es el pack Profesor</strong> \(ese es otro: muchas materias, más sencillo\)\.",
     ]
     lead_new = (
         "Currículo oficial Castilla y León (LOMLOE). 1º ESO Matemáticas, Biología y Geología "
@@ -965,7 +1102,7 @@ def update_descargas() -> None:
             <h2>1º ESO Geografía e Historia</h2>
             <p class="kicker">Oficial CyL · Decreto 39/2022 · L01–L{AVAILABLE:02d} (de {TOTAL} previstas)</p>
             <p><strong>No se instala.</strong> Descomprime y abre <code>ABRE-AQUI.html</code> / <code>index.html</code>.
-            Pack plano L01–L{AVAILABLE:02d} (UD A · Retos del mundo actual: mapas, relieve, clima, biodiversidad, TIC y ciencias sociales).
+            Pack plano L01–L{AVAILABLE:02d} (UD A + UD B: mapas y clima; pensamiento histórico, Prehistoria, civilizaciones, Grecia–Roma y patrimonio CyL).
             Curso en construcción ({AVAILABLE}/{TOTAL}). Sin nube ni servidor.
             Distinto del pack Profesor.</p>
             <div class="actions">
@@ -1041,8 +1178,8 @@ def build_offline_pack() -> None:
 No hay que instalar nada. Descomprime y abre **ABRE-AQUI.html** (o index.html).
 
 **Qué es:** lecciones de **Educación obligatoria** (currículo oficial Castilla y León, Decreto 39/2022).
-Este pack trae las lecciones **01–{AVAILABLE:02d}/{TOTAL}** (UD A · Retos del mundo actual) en HTML plano (shell + interactivos embebidos).
-L{AVAILABLE + 1:02d}–L{TOTAL} próximamente.
+Este pack trae las lecciones **01–{AVAILABLE:02d}/{TOTAL}** (UD A · Retos del mundo actual + UD B · Sociedades y territorios) en HTML plano (shell + interactivos embebidos).
+L{AVAILABLE + 1:02d}–L{TOTAL} próximamente (UD C · Compromiso cívico).
 
 **Cómo abrir (Android / PC) — 4 pasos**
 
@@ -1111,7 +1248,7 @@ alias `leccion-NN.html`, widgets `l01`…`l{AVAILABLE:02d}-….html`, calculador
   <header class="bloque-titulo">
     <span class="eyebrow">Educación obligatoria · CyL</span>
     <h1 class="titulo-leccion">{COURSE_NAME}</h1>
-    <p class="meta-leccion">L01–L{AVAILABLE:02d}/{TOTAL} · UD A · curso en construcción</p>
+    <p class="meta-leccion">L01–L{AVAILABLE:02d}/{TOTAL} · UD A + UD B · curso en construcción</p>
   </header>
   <div class="no-install">
     <strong>No hay que instalar nada.</strong> Abre <code>ABRE-AQUI.html</code> o <code>index.html</code> desde esta carpeta
