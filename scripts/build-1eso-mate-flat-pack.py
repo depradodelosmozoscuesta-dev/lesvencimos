@@ -15,7 +15,7 @@ DESCARGAS = REPO / "descargas.html"
 PACK_DIR = REPO / "downloads/_build-1eso-mate-flat"
 ZIP_PATH = REPO / "downloads/1eso-matematicas-offline.zip"
 TOTAL = 47
-AVAILABLE = 21  # L01–L21
+AVAILABLE = 24  # L01–L24
 
 # (num, short_ud, title, meta, curiosidad_title, curiosidad_text, figura_cur,
 #  objetivos[list], cuerpo_extra_html, vida_title, vida_items, vida_figura,
@@ -856,6 +856,127 @@ LESSONS = [
     "reto": "Recoge 5 precios reales (foto mental) y ordénalos. Calcula el total y propón un billete o pago con el que pagarías.",
     "reto_id": "1eso-mate-L21",
     "cierre": "Los decimales extienden el sistema posicional a la derecha de la coma. En dinero, trabaja a céntimos y comprueba el cambio.",
+  },
+
+  {
+    "n": 22,
+    "eyebrow": "Lección 22 · UD6 · Decimales y porcentajes",
+    "title_html": "Relación entre <em>fracciones, decimales y porcentajes</em>",
+    "title_plain": "Relación entre fracciones, decimales y porcentajes",
+    "meta": "Saberes CyL (Decreto 39/2022): A.2 Cantidad; A.5 Razonamiento proporcional (porcentajes intro)",
+    "curiosidad_t": "Tres trajes, un número",
+    "curiosidad": "Una misma cantidad puede vestirse de fracción, decimal o porcentaje. El símbolo % recuerda «por ciento»: cuántas partes hay si el todo se divide en 100.",
+    "curiosidad_fig": "ticket.svg",
+    "objetivos": [
+      "Pasar de fracción a decimal y viceversa en casos sencillos.",
+      "Entender % como «de cada 100».",
+      "Convertir entre fracción, decimal y porcentaje habituales.",
+      "Elegir la representación más cómoda según el problema.",
+    ],
+    "cuerpo": """
+    <h2>Explicación breve</h2>
+    <p>Una cantidad puede expresarse de varias formas equivalentes: <strong>1/2 = 0,5 = 50 %</strong>. De fracción a decimal dividimos; de decimal a porcentaje multiplicamos por 100; de porcentaje a decimal dividimos entre 100.</p>
+    <div class="tarjeta">
+      <p style="margin:0"><strong>Ejemplo:</strong> 3/4 = 0,75 = <strong>75 %</strong>. El porcentaje significa 75 de cada 100.</p>
+    </div>
+""",
+    "cuerpo_after_widgets": "",
+    "widget_split": False,
+    "vida_t": "Aplicaciones",
+    "vida": [
+      "Etiquetas de descuento e IVA en tickets.",
+      "Estadísticas deportivas: porcentaje de tiros convertidos.",
+      "Batería del móvil al 85 %.",
+      "Comparar precios y cantidades sin perder la escala.",
+    ],
+    "vida_fig": "ticket.svg",
+    "widgets": [
+      ("Interactivo · fracción, decimal y porcentaje", "l22-fraccion-decimal-porcentaje.html"),
+    ],
+    "reto_t": "Tres trajes de un número",
+    "reto": "Elige un porcentaje de una noticia o anuncio. Escríbelo también como decimal y como fracción. ¿En qué forma se entiende mejor?",
+    "reto_id": "1eso-mate-L22",
+    "cierre": "Fracción, decimal y % son tres trajes del mismo número. Elige el traje cómodo; traduce sin perder valor.",
+  },
+  {
+    "n": 23,
+    "eyebrow": "Lección 23 · UD7 · Proporcionalidad",
+    "title_html": "<em>Razones y proporciones</em>",
+    "title_plain": "Razones y proporciones",
+    "meta": "Saberes CyL (Decreto 39/2022): A.5 Razonamiento proporcional",
+    "curiosidad_t": "Comparar de cada en cada",
+    "curiosidad": "Una razón compara dos cantidades mediante una división. Una proporción afirma que dos razones son iguales; por eso los productos cruzados coinciden.",
+    "curiosidad_fig": "mapa.svg",
+    "objetivos": [
+      "Definir razón como cociente comparado.",
+      "Reconocer una proporción como igualdad de dos razones.",
+      "Calcular el término desconocido en una proporción.",
+      "Distinguir razón de diferencia («3 más» no es «razón 3»).",
+    ],
+    "cuerpo": """
+    <h2>Explicación breve</h2>
+    <p>La razón entre <strong>a</strong> y <strong>b</strong> se escribe <strong>a:b</strong> o <strong>a/b</strong>. En una proporción, <strong>a/b = c/d</strong>, y la propiedad fundamental dice que <strong>a×d = b×c</strong>.</p>
+    <div class="tarjeta">
+      <p style="margin:0"><strong>Ejemplo:</strong> 3/4 = x/12 → 3×12 = 4x → <strong>x = 9</strong>. «3 € más» es una diferencia, no una razón.</p>
+    </div>
+""",
+    "cuerpo_after_widgets": "",
+    "widget_split": False,
+    "vida_t": "Aplicaciones",
+    "vida": [
+      "Mezclas de pintura o zumo concentrado.",
+      "Mapas: razón de escala (introducción).",
+      "Recetas: huevos por cada gramos de harina.",
+      "Deporte: ratio de puntos por partido.",
+    ],
+    "vida_fig": "mapa.svg",
+    "widgets": [
+      ("Interactivo · razones, proporciones y recta doble", "l23-razones-proporciones.html"),
+    ],
+    "reto_t": "Razón en mi cocina o deporte",
+    "reto": "Enuncia una razón real (ingredientes, goles o distancias). Formúlala a:b, simplifícala y di qué informa.",
+    "reto_id": "1eso-mate-L23",
+    "cierre": "Razón compara dividiendo. Proporción: dos razones iguales; usa productos cruzados para hallar la incógnita.",
+  },
+  {
+    "n": 24,
+    "eyebrow": "Lección 24 · UD7 · Proporcionalidad",
+    "title_html": "Proporcionalidad <em>directa</em>: igualdad de razones y reducción a la unidad",
+    "title_plain": "Proporcionalidad directa: igualdad de razones y reducción a la unidad",
+    "meta": "Saberes CyL (Decreto 39/2022): A.5 Proporcionalidad directa",
+    "curiosidad_t": "La constante que acompaña",
+    "curiosidad": "En una proporcionalidad directa, al multiplicar una cantidad por k la otra también se multiplica por k. La razón y/x permanece constante y la recta pasa por el origen.",
+    "curiosidad_fig": "ticket.svg",
+    "objetivos": [
+      "Reconocer magnitudes directamente proporcionales.",
+      "Completar tablas de proporcionalidad directa.",
+      "Resolver problemas por reducción a la unidad y por proporción.",
+      "Detectar cuándo no hay proporcionalidad directa.",
+    ],
+    "cuerpo": """
+    <h2>Explicación breve</h2>
+    <p>Si <strong>y = k·x</strong>, la razón y/x es constante. Para resolver un problema, reduce primero a una unidad y después multiplica por lo pedido.</p>
+    <div class="tarjeta">
+      <p style="margin:0"><strong>Ejemplo:</strong> 4 cuadernos = 12 € → 1 cuaderno = 3 € → <strong>7 cuadernos = 21 €</strong>. Un taxi con bajada de bandera no es directa pura: no pasa por el origen.</p>
+    </div>
+""",
+    "cuerpo_after_widgets": "",
+    "widget_split": False,
+    "vida_t": "Aplicaciones",
+    "vida": [
+      "Compra a granel (euros por kilogramo).",
+      "Fotocopias a precio fijo por página.",
+      "Escalado de ingredientes al cambiar comensales.",
+      "Distancias recorridas a ritmo constante.",
+    ],
+    "vida_fig": "ticket.svg",
+    "widgets": [
+      ("Interactivo · unidad, tabla k y razones", "l24-proporcionalidad-directa.html"),
+    ],
+    "reto_t": "¿Es proporcional?",
+    "reto": "Pon un ejemplo de tu barrio que sí sea proporcionalidad directa y otro que lo parezca pero no lo sea. Justifica con números pequeños.",
+    "reto_id": "1eso-mate-L24",
+    "cierre": "Directa ⇒ razón constante. Reduce a 1 y multiplica, o monta una proporción. Primero pregunta: ¿es proporcional?",
   },
 ]
 
