@@ -15,7 +15,7 @@ DESCARGAS = REPO / "descargas.html"
 PACK_DIR = REPO / "downloads/_build-1eso-mate-flat"
 ZIP_PATH = REPO / "downloads/1eso-matematicas-offline.zip"
 TOTAL = 47
-AVAILABLE = 33  # L01–L33
+AVAILABLE = 36  # L01–L36
 
 # (num, short_ud, title, meta, curiosidad_title, curiosidad_text, figura_cur,
 #  objetivos[list], cuerpo_extra_html, vida_title, vida_items, vida_figura,
@@ -1348,6 +1348,131 @@ LESSONS = [
     "reto": "Construye en papel o GeoGebra un triángulo o un cuadrado con medidas concretas. Lista 3 comprobaciones que demuestren que está bien.",
     "reto_id": "1eso-mate-L33",
     "cierre": "Construir es demostrar con las manos (o el software) que una figura existe y cumple propiedades. Precisión + desigualdad triangular.",
+  },
+
+  {
+    "n": 34,
+    "eyebrow": "Lección 34 · UD11 · Semejanza, Tales y Pitágoras",
+    "title_html": "Congruencia, <em>semejanza y escalas</em>",
+    "title_plain": "Congruencia, semejanza y escalas",
+    "meta": "Saberes CyL (Decreto 39/2022): C.1 Congruencia, semejanza, escalas",
+    "curiosidad_t": "El mapa cabe en el bolsillo",
+    "curiosidad": "Un mapa no conserva el tamaño de una ciudad: conserva sus proporciones. La escala convierte una distancia enorme en un dibujo manejable, pero solo si respetamos unidades y razón de semejanza.",
+    "curiosidad_fig": "mapa.svg",
+    "objetivos": [
+      "Distinguir figuras congruentes y semejantes.",
+      "Usar la razón de semejanza k.",
+      "Interpretar escalas numéricas y gráficas en mapas y planos.",
+      "Calcular medidas reales a partir de un plano y viceversa.",
+    ],
+    "cuerpo": """
+    <h2>Explicación breve</h2>
+    <p>Dos figuras son <strong>congruentes</strong> si tienen la misma forma y tamaño. Son <strong>semejantes</strong> si mantienen la forma: sus ángulos son iguales y sus lados homólogos guardan la misma proporción.</p>
+    <div class="tarjeta">
+      <p style="margin:0"><strong>Razón k:</strong> k = lado de la imagen ÷ lado original. Si k = 2, cada longitud se duplica y cada área se multiplica por k² = 4.</p>
+    </div>
+    <p>En una escala <strong>1:500</strong>, 1 unidad en el plano representa 500 unidades reales. Convierte primero a la misma unidad: 3 cm en un plano 1:1000 son 3000 cm = 30 m.</p>
+""",
+    "cuerpo_after_widgets": "",
+    "widget_split": False,
+    "vida_t": "Planos y mapas",
+    "vida": [
+      "Planos de viviendas y catastro.",
+      "Mapas de senderismo de la sierra de Gredos o Picos.",
+      "Maquetas y modelismo con escalas como 1:43.",
+      "Ampliar un dibujo en una fotocopiadora.",
+    ],
+    "vida_fig": "mapa.svg",
+    "widgets": [
+      ("Interactivo · semejanza y escalas", "l34-semejanza-escalas.html"),
+    ],
+    "reto_t": "Plano de bolsillo",
+    "reto": "Haz un croquis a escala simple de tu mesa o de un balcón/patio pequeño. Indica la escala y una medida real comprobada.",
+    "reto_id": "1eso-mate-L34",
+    "cierre": "Semejanza = misma forma + lados proporcionales. Escala = semejanza entre dibujo y realidad; las áreas usan k².",
+  },
+  {
+    "n": 35,
+    "eyebrow": "Lección 35 · UD11 · Semejanza, Tales y Pitágoras",
+    "title_html": "Teorema de Tales y <em>criterios de semejanza</em>",
+    "title_plain": "Teorema de Tales y criterios de semejanza de triángulos",
+    "meta": "Saberes CyL (Decreto 39/2022): C.1 Teorema de Tales; criterios de semejanza",
+    "curiosidad_t": "Medir sin trepar",
+    "curiosidad": "Con una sombra y una regla podemos estimar la altura de una farola o un árbol. La luz del Sol llega casi con rayos paralelos y crea triángulos semejantes.",
+    "curiosidad_fig": "mapa.svg",
+    "objetivos": [
+      "Aplicar el teorema de Tales cuando paralelas cortan un haz.",
+      "Reconocer los criterios AA, LAL y LLL.",
+      "Calcular segmentos desconocidos mediante proporciones.",
+      "Usar Tales en problemas introductorios de alturas y sombras.",
+    ],
+    "cuerpo": """
+    <h2>Explicación breve</h2>
+    <p>Si varias <strong>paralelas</strong> cortan dos rectas transversales, los segmentos correspondientes son proporcionales. En un triángulo, una paralela a un lado forma un triángulo pequeño semejante al grande.</p>
+    <div class="tarjeta">
+      <p style="margin:0"><strong>Criterios:</strong> AA (dos ángulos iguales), LAL (dos lados proporcionales y ángulo comprendido igual) y LLL (tres lados proporcionales). Alinea siempre lados homólogos.</p>
+    </div>
+    <p>Para una sombra solar, persona y edificio forman triángulos semejantes: altura persona / sombra persona = altura edificio / sombra edificio. No mezcles sombras de horas distintas.</p>
+""",
+    "cuerpo_after_widgets": "",
+    "widget_split": False,
+    "vida_t": "Sombras y dibujo técnico",
+    "vida": [
+      "Estimar la altura de una farola sin trepar.",
+      "Rampas y triángulos semejantes en planos.",
+      "Perspectiva en fotografías y tamaños aparentes.",
+      "Dividir segmentos con paralelas en carpintería o dibujo.",
+    ],
+    "vida_fig": "mapa.svg",
+    "widgets": [
+      ("Interactivo · Tales y criterios", "l35-tales-semejanza.html"),
+    ],
+    "reto_t": "Altura sin trepar",
+    "reto": "Diseña, con números razonables, un experimento de sombras para estimar una farola o un muro. Indica medidas y la proporción.",
+    "reto_id": "1eso-mate-L35",
+    "cierre": "Tales relaciona segmentos proporcionales; la semejanza de triángulos se reconoce con AA, LAL o LLL.",
+  },
+  {
+    "n": 36,
+    "eyebrow": "Lección 36 · UD11 · Semejanza, Tales y Pitágoras",
+    "title_html": "Relación <em>pitagórica</em>: identificación y problemas",
+    "title_plain": "Relación pitagórica: identificación y problemas",
+    "meta": "Saberes CyL (Decreto 39/2022): C.1 Relación pitagórica",
+    "curiosidad_t": "La escuadra de una cuerda",
+    "curiosidad": "Una cuerda marcada en 3, 4 y 5 unidades permite comprobar una esquina de 90 grados. Las ternas pitagóricas convierten una regla geométrica en una herramienta práctica.",
+    "curiosidad_fig": "mapa.svg",
+    "objetivos": [
+      "Enunciar el teorema de Pitágoras en triángulos rectángulos.",
+      "Reconocer ternas pitagóricas sencillas y sus múltiplos.",
+      "Calcular un lado desconocido.",
+      "Aplicar la relación a diagonales, escaleras y distancias.",
+    ],
+    "cuerpo": """
+    <h2>Explicación breve</h2>
+    <p>En un triángulo rectángulo, los <strong>catetos</strong> a y b forman el ángulo de 90° y la <strong>hipotenusa</strong> c es el lado mayor, frente a ese ángulo:</p>
+    <div class="tarjeta">
+      <p style="margin:0;text-align:center;font-size:1.15rem"><strong>a² + b² = c²</strong></p>
+      <p style="margin:.5rem 0 0">Para hallar un cateto: a = √(c² − b²). Comprueba antes que c es la hipotenusa.</p>
+    </div>
+    <p>Las ternas 3-4-5, 5-12-13 y sus múltiplos ayudan a reconocer resultados. Solo aplicamos esta relación cuando hay un ángulo recto.</p>
+""",
+    "cuerpo_after_widgets": "",
+    "widget_split": False,
+    "vida_t": "Diagonales y escuadras",
+    "vida": [
+      "Diagonal de una pantalla o de una mesa rectangular.",
+      "Escalera apoyada en una pared.",
+      "Atajo entre dos calles perpendiculares.",
+      "Comprobar una esquina de 90° con una cuerda 3-4-5.",
+    ],
+    "vida_fig": "mapa.svg",
+    "widgets": [
+      ("Interactivo · Pitágoras con cuadrados", "l36-pitagoras.html"),
+    ],
+    "reto_t": "Escuadra 3-4-5",
+    "reto": "Propón cómo marcar un ángulo recto en un jardín o patio solo con una cuerda marcada a 3, 4 y 5 unidades. Describe el procedimiento.",
+    "reto_id": "1eso-mate-L36",
+    "cierre": "Cateto² + cateto² = hipotenusa². La hipotenusa es la más larga y mira al ángulo recto.",
   },
 ]
 

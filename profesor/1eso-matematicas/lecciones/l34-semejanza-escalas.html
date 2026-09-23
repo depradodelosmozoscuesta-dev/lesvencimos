@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Congruencia, semejanza y escalas · 1º ESO</title>
+<style>
+  :root {
+    --bg:#eff6ff; --ink:#1a2b3c; --muted:#5a6d7e; --card:#fff;
+    --blue:#2563eb; --blue-soft:#dbeafe; --blue-deep:#1e40af;
+    --teal:#0d9488; --teal-soft:#ccfbf1; --green:#059669; --green-soft:#d1fae5;
+    --amber:#d97706; --amber-soft:#fef3c7; --amber-deep:#b45309;
+    --rose:#e11d48; --rose-soft:#ffe4e6; --purple:#7c3aed; --purple-soft:#ede9fe;
+    --shadow:0 8px 28px rgba(26,43,60,.08); --radius:18px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{min-height:100%;background:var(--bg);color:var(--ink);
+    font-family:"Segoe UI",system-ui,-apple-system,sans-serif;-webkit-font-smoothing:antialiased}
+  body{display:flex;flex-direction:column;align-items:center;padding:14px 10px 36px}
+  .wrap{width:100%;max-width:980px}
+  header{text-align:center;margin-bottom:12px}
+  header .badge{display:inline-block;font-size:.78rem;font-weight:700;letter-spacing:.04em;
+    text-transform:uppercase;color:var(--blue-deep);background:var(--blue-soft);
+    padding:4px 12px;border-radius:999px;margin-bottom:8px}
+  h1{font-size:clamp(1.25rem,4.5vw,1.85rem);line-height:1.2;font-weight:800}
+  .subtitle{margin-top:6px;font-size:clamp(.9rem,2.8vw,1.05rem);color:var(--muted);font-weight:500}
+  .story{background:linear-gradient(135deg,#dbeafe,#ccfbf1 55%,#ede9fe);
+    border:2px solid #93c5fd;border-radius:var(--radius);padding:12px 14px;
+    margin-bottom:14px;display:flex;gap:12px;align-items:flex-start}
+  .story .emoji{font-size:2rem}
+  .story p{font-size:clamp(.9rem,2.5vw,1.02rem);line-height:1.45}
+  .story strong{color:var(--blue-deep)}
+  .card{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);
+    padding:16px 14px 18px;margin-bottom:14px}
+  .card h2{font-size:clamp(1.05rem,3vw,1.25rem);font-weight:800;margin-bottom:8px}
+  .hint{font-size:clamp(.88rem,2.4vw,1rem);color:var(--muted);line-height:1.45;margin-bottom:12px}
+  .mode-row{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px;justify-content:center}
+  .mode-btn{padding:10px 12px;border-radius:12px;border:3px solid #cbd5e1;background:#fff;
+    font-size:.82rem;font-weight:800;cursor:pointer}
+  .mode-btn.active{border-color:var(--blue);background:var(--blue-soft);color:var(--blue-deep)}
+  .stage{position:relative;width:100%;aspect-ratio:16/10;background:#f8fafc;
+    border-radius:14px;overflow:hidden;border:2px solid #bfdbfe;margin-bottom:12px}
+  .stage svg{width:100%;height:100%;display:block}
+  .ctrl-row{display:flex;flex-wrap:wrap;gap:12px;align-items:flex-end;margin-bottom:12px}
+  .field{display:flex;flex-direction:column;gap:4px;flex:1 1 140px}
+  .field label{font-size:.8rem;font-weight:700;color:var(--muted)}
+  .field label .letter{display:inline-block;padding:1px 7px;border-radius:8px;font-weight:800;
+    margin-right:3px;background:var(--blue-soft);color:var(--blue-deep)}
+  .field input[type="range"]{width:100%;accent-color:var(--blue)}
+  .field output{font-weight:900;font-variant-numeric:tabular-nums;color:var(--blue-deep);font-size:1.05rem}
+  .toggle{display:flex;align-items:center;gap:8px;margin:8px 0;font-weight:700;font-size:.92rem}
+  .toggle input{width:18px;height:18px;accent-color:var(--blue)}
+  .verdict{text-align:center;font-size:clamp(1.05rem,2.8vw,1.35rem);font-weight:900;padding:14px;
+    border-radius:14px;margin:10px 0;background:var(--blue-soft);color:var(--blue-deep);border:2px solid #93c5fd}
+  .verdict.cong{background:var(--green-soft);color:#047857;border-color:#6ee7b7}
+  .verdict.sim{background:var(--purple-soft);color:#5b21b6;border-color:#c4b5fd}
+  .props{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px;margin:10px 0}
+  .prop{background:#f8fafc;border:2px solid #e2e8f0;border-radius:12px;padding:10px 12px;text-align:center}
+  .prop .lab{font-size:.75rem;font-weight:700;color:var(--muted);text-transform:uppercase}
+  .prop .val{font-size:1.15rem;font-weight:900;color:var(--blue-deep);margin-top:2px}
+  .glossary{display:grid;gap:.4rem;margin:10px 0;padding:12px 14px;background:#eff6ff;
+    border-radius:12px;border:2px solid #bfdbfe;font-size:.95rem}
+  .glossary strong{color:var(--blue-deep)}
+  .mnemonic{font-size:.95rem;font-weight:700;color:#5b21b6;background:var(--purple-soft);
+    border-left:4px solid #7c3aed;padding:10px 14px;border-radius:0 12px 12px 0;margin-top:10px;line-height:1.4}
+  .callout{font-size:.9rem;font-weight:700;color:var(--amber-deep);background:var(--amber-soft);
+    border-left:4px solid var(--amber);padding:8px 12px;border-radius:0 10px 10px 0;margin-top:10px}
+  .btn-row{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px}
+  button.action{appearance:none;border:none;border-radius:999px;padding:10px 18px;
+    font-weight:800;font-size:.95rem;cursor:pointer;background:var(--blue);color:#fff}
+  button.action.secondary{background:#fff;color:var(--blue-deep);border:2px solid var(--blue)}
+  footer{text-align:center;font-size:.8rem;color:var(--muted);margin-top:4px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="badge">Lección 34 · UD11 Semejanza, Tales y Pitágoras</div>
+    <h1>Congruencia, semejanza y escalas</h1>
+    <p class="subtitle">Misma forma · razón <strong>k</strong> · planos 1:n · triángulos que se parecen de verdad</p>
+  </header>
+
+  <div class="story">
+    <div class="emoji">🗺️</div>
+    <p>Dos figuras <strong>semejantes</strong> tienen la misma forma (mismos ángulos) y lados proporcionales.
+    La razón <strong>k</strong> dice cuánto más grande (o pequeña) es la copia.
+    Si <strong>k = 1</strong>, además son <strong>congruentes</strong>: caben una sobre la otra.</p>
+  </div>
+
+  <section class="card">
+    <h2>Laboratorio de semejanza</h2>
+    <div class="mode-row" id="modos">
+      <button type="button" class="mode-btn active" data-mode="sim">Dos triángulos</button>
+      <button type="button" class="mode-btn" data-mode="escala">Plano a escala</button>
+      <button type="button" class="mode-btn" data-mode="cong">Congruencia (k=1)</button>
+    </div>
+
+    <div class="stage" aria-label="Triángulos semejantes">
+      <svg id="svg" viewBox="0 0 900 560" role="img"></svg>
+    </div>
+
+    <div class="ctrl-row" id="ctrls"></div>
+    <label class="toggle"><input type="checkbox" id="showMarks" checked/> Marcas de ángulos iguales y lados homólogos</label>
+    <label class="toggle"><input type="checkbox" id="showLabels" checked/> Etiquetas a, b, c y k</label>
+    <div class="btn-row">
+      <button type="button" class="action" id="btnEj">Ejemplo de la lección (3-4-5 → 6-8-10)</button>
+      <button type="button" class="action secondary" id="btnReset">Reiniciar</button>
+    </div>
+    <p class="hint">Controles <strong>independientes</strong>: lados a, b, c del original y razón k no se reescalan juntos en pantalla.</p>
+  </section>
+
+  <section class="card">
+    <h2>Qué está pasando</h2>
+    <div class="props" id="props"></div>
+    <div class="verdict" id="veredicto">—</div>
+    <div class="glossary">
+      <div><strong>a, b, c</strong> = lados del triángulo original (en unidades).</div>
+      <div><strong>k</strong> = razón de semejanza = lado imagen ÷ lado original. También escala lineal.</div>
+      <div><strong>Congruentes</strong> = misma forma y mismo tamaño (k = 1).</div>
+      <div><strong>Semejantes</strong> = misma forma, lados proporcionales (ángulos iguales).</div>
+      <div><strong>Escala 1:n</strong> = 1 unidad en el plano = n unidades reales (misma unidad).</div>
+      <div><strong>Homólogos</strong> = lados (o ángulos) que se corresponden entre las dos figuras.</div>
+    </div>
+    <div class="mnemonic">«Misma forma → semejanza. k = 1 → también congruencia. Escala 1:n = k = 1/n del real al plano.»</div>
+    <div class="callout">Áreas: si las longitudes ×k, las áreas ×k². Un plano 1:100 reduce longitudes ×1/100 y áreas ×1/10000.</div>
+  </section>
+
+  <footer>1º ESO · CyL Decreto 39/2022 · C.1 · offline file:// · sin red</footer>
+</div>
+<script>
+(function(){
+  const svg = document.getElementById('svg');
+  const ctrls = document.getElementById('ctrls');
+  const props = document.getElementById('props');
+  const veredicto = document.getElementById('veredicto');
+  const showMarks = document.getElementById('showMarks');
+  const showLabels = document.getElementById('showLabels');
+  let mode = 'sim';
+  let a = 3, b = 4, c = 5, k = 2;
+  let escalaN = 100; // 1:n
+  let planoCm = 4;
+
+  const NS = 'http://www.w3.org/2000/svg';
+  function el(tag, attrs, text){
+    const e = document.createElementNS(NS, tag);
+    for (const [key,val] of Object.entries(attrs||{})) e.setAttribute(key, val);
+    if (text!=null) e.textContent = text;
+    return e;
+  }
+  function fmt(x){ return (Math.round(x*100)/100).toString().replace(/\.0+$/,''); }
+  function triangleOK(x,y,z){ return x+y>z+1e-9 && x+z>y+1e-9 && y+z>x+1e-9; }
+
+  function placeTriangle(sa,sb,sc, ox, oy, scalePx){
+    // Place with base along x: side c between A-B, side b = A-C, side a = B-C
+    const A = {x: ox, y: oy};
+    const B = {x: ox + sc*scalePx, y: oy};
+    const cosA = (sb*sb + sc*sc - sa*sa)/(2*sb*sc);
+    const cosClamped = Math.max(-1, Math.min(1, cosA));
+    const ang = Math.acos(cosClamped);
+    const C = {x: ox + sb*scalePx*Math.cos(ang), y: oy - sb*scalePx*Math.sin(ang)};
+    return {A,B,C};
+  }
+
+  function drawAngleMark(P, Q, R, color, ticks){
+    const v1 = {x:P.x-Q.x, y:P.y-Q.y};
+    const v2 = {x:R.x-Q.x, y:R.y-Q.y};
+    const a1 = Math.atan2(v1.y, v1.x);
+    let a2 = Math.atan2(v2.y, v2.x);
+    let d = a2 - a1;
+    while (d > Math.PI) d -= 2*Math.PI;
+    while (d < -Math.PI) d += 2*Math.PI;
+    const r = 22;
+    const large = Math.abs(d) > Math.PI ? 1 : 0;
+    const sweep = d > 0 ? 1 : 0;
+    const x1 = Q.x + r*Math.cos(a1), y1 = Q.y + r*Math.sin(a1);
+    const x2 = Q.x + r*Math.cos(a1+d), y2 = Q.y + r*Math.sin(a1+d);
+    svg.appendChild(el('path',{d:`M ${x1} ${y1} A ${r} ${r} 0 ${large} ${sweep} ${x2} ${y2}`,
+      fill:'none', stroke:color, 'stroke-width':2.5}));
+    if (ticks >= 2){
+      const r2 = 16;
+      const x3 = Q.x + r2*Math.cos(a1), y3 = Q.y + r2*Math.sin(a1);
+      const x4 = Q.x + r2*Math.cos(a1+d), y4 = Q.y + r2*Math.sin(a1+d);
+      svg.appendChild(el('path',{d:`M ${x3} ${y3} A ${r2} ${r2} 0 ${large} ${sweep} ${x4} ${y4}`,
+        fill:'none', stroke:color, 'stroke-width':2}));
+    }
+  }
+
+  function sideTick(P, Q, n, color){
+    const mx=(P.x+Q.x)/2, my=(P.y+Q.y)/2;
+    const dx=Q.x-P.x, dy=Q.y-P.y, len=Math.hypot(dx,dy)||1;
+    const ux=dx/len, uy=dy/len, nx=-uy, ny=ux;
+    for(let i=0;i<n;i++){
+      const off=(i-(n-1)/2)*6;
+      const cx=mx+ux*off, cy=my+uy*off;
+      svg.appendChild(el('line',{x1:cx-nx*7,y1:cy-ny*7,x2:cx+nx*7,y2:cy+ny*7,
+        stroke:color,'stroke-width':2.5}));
+    }
+  }
+
+  function buildCtrls(){
+    ctrls.innerHTML = '';
+    if (mode === 'escala'){
+      addField('n', 'Escala 1 : n', escalaN, 10, 1000, 10, v=>{ escalaN=v; draw(); });
+      addField('pcm', 'Medida en el plano (cm)', planoCm, 1, 20, 0.5, v=>{ planoCm=v; draw(); });
+    } else {
+      addField('a', 'lado a (opuesto a A)', a, 1.5, 12, 0.1, v=>{ a=v; draw(); });
+      addField('b', 'lado b (opuesto a B)', b, 1.5, 12, 0.1, v=>{ b=v; draw(); });
+      addField('c', 'lado c (base AB)', c, 1.5, 12, 0.1, v=>{ c=v; draw(); });
+      if (mode === 'sim'){
+        addField('k', 'razón k (imagen/original)', k, 0.4, 3.5, 0.05, v=>{ k=v; draw(); });
+      }
+    }
+  }
+  function addField(id, lab, val, min, max, step, onInput){
+    const f = document.createElement('div'); f.className='field';
+    const letter = id.length<=2 ? `<span class="letter">${id}</span>` : '';
+    f.innerHTML = `<label>${letter}${lab}</label>
+      <input type="range" id="r_${id}" min="${min}" max="${max}" step="${step}" value="${val}"/>
+      <output id="o_${id}">${fmt(val)}</output>`;
+    ctrls.appendChild(f);
+    const inp = f.querySelector('input');
+    const out = f.querySelector('output');
+    inp.addEventListener('input', ()=>{
+      const v = parseFloat(inp.value);
+      out.textContent = fmt(v);
+      onInput(v);
+    });
+  }
+
+  function draw(){
+    svg.innerHTML = '';
+    // soft grid
+    for(let x=0;x<=900;x+=40) svg.appendChild(el('line',{x1:x,y1:0,x2:x,y2:560,stroke:'#e2e8f0','stroke-width':1}));
+    for(let y=0;y<=560;y+=40) svg.appendChild(el('line',{x1:0,y1:y,x2:900,y2:y,stroke:'#e2e8f0','stroke-width':1}));
+
+    if (mode === 'escala'){
+      drawEscala();
+      return;
+    }
+
+    const kk = mode === 'cong' ? 1 : k;
+    if (!triangleOK(a,b,c)){
+      veredicto.className = 'verdict';
+      veredicto.textContent = 'Esos lados no cierran un triángulo (desigualdad triangular).';
+      props.innerHTML = '';
+      svg.appendChild(el('text',{x:450,y:280,fill:'#b45309','font-size':22,'font-weight':800,'text-anchor':'middle'},
+        'a + b > c … no se cumple'));
+      return;
+    }
+
+    const maxSide = Math.max(a,b,c, a*kk, b*kk, c*kk);
+    const scalePx = Math.min(220 / maxSide, 55);
+    const t1 = placeTriangle(a,b,c, 70, 420, scalePx);
+    const t2 = placeTriangle(a*kk, b*kk, c*kk, 480, 420, scalePx);
+
+    // fills
+    svg.appendChild(el('polygon',{points:`${t1.A.x},${t1.A.y} ${t1.B.x},${t1.B.y} ${t1.C.x},${t1.C.y}`,
+      fill:'#93c5fd', 'fill-opacity':0.45, stroke:'#1d4ed8', 'stroke-width':3}));
+    svg.appendChild(el('polygon',{points:`${t2.A.x},${t2.A.y} ${t2.B.x},${t2.B.y} ${t2.C.x},${t2.C.y}`,
+      fill:'#c4b5fd', 'fill-opacity':0.45, stroke:'#6d28d9', 'stroke-width':3}));
+
+    // titles
+    svg.appendChild(el('text',{x:(t1.A.x+t1.B.x)/2,y:50,fill:'#1e40af','font-size':18,'font-weight':800,'text-anchor':'middle'},
+      'Original'));
+    svg.appendChild(el('text',{x:(t2.A.x+t2.B.x)/2,y:50,fill:'#5b21b6','font-size':18,'font-weight':800,'text-anchor':'middle'},
+      mode==='cong' ? 'Copia (k = 1)' : `Imagen (× k = ${fmt(kk)})`));
+
+    if (showMarks.checked){
+      drawAngleMark(t1.B,t1.A,t1.C,'#d97706',1);
+      drawAngleMark(t2.B,t2.A,t2.C,'#d97706',1);
+      drawAngleMark(t1.A,t1.B,t1.C,'#059669',2);
+      drawAngleMark(t2.A,t2.B,t2.C,'#059669',2);
+      drawAngleMark(t1.A,t1.C,t1.B,'#e11d48',3);
+      drawAngleMark(t2.A,t2.C,t2.B,'#e11d48',3);
+      sideTick(t1.B,t1.C,1,'#1d4ed8');
+      sideTick(t2.B,t2.C,1,'#6d28d9');
+      sideTick(t1.A,t1.C,2,'#1d4ed8');
+      sideTick(t2.A,t2.C,2,'#6d28d9');
+      sideTick(t1.A,t1.B,3,'#1d4ed8');
+      sideTick(t2.A,t2.B,3,'#6d28d9');
+    }
+
+    // vertices
+    [['A',t1.A],['B',t1.B],['C',t1.C]].forEach(([n,P])=>{
+      svg.appendChild(el('circle',{cx:P.x,cy:P.y,r:7,fill:'#1d4ed8',stroke:'#fff','stroke-width':2}));
+      svg.appendChild(el('text',{x:P.x+(n==='A'?-14:n==='B'?14:0),y:P.y+(n==='C'?-14:22),
+        fill:'#1e3a8a','font-size':16,'font-weight':900,'text-anchor':'middle'}, n));
+    });
+    [["A'",t2.A],["B'",t2.B],["C'",t2.C]].forEach(([n,P])=>{
+      svg.appendChild(el('circle',{cx:P.x,cy:P.y,r:7,fill:'#6d28d9',stroke:'#fff','stroke-width':2}));
+      svg.appendChild(el('text',{x:P.x+(n.startsWith('A')?-16:n.startsWith('B')?16:0),y:P.y+(n.startsWith('C')?-14:22),
+        fill:'#5b21b6','font-size':16,'font-weight':900,'text-anchor':'middle'}, n));
+    });
+
+    if (showLabels.checked){
+      labelSide(t1.B,t1.C,'a = '+fmt(a),'#1d4ed8');
+      labelSide(t1.A,t1.C,'b = '+fmt(b),'#1d4ed8');
+      labelSide(t1.A,t1.B,'c = '+fmt(c),'#1d4ed8');
+      labelSide(t2.B,t2.C,"a' = "+fmt(a*kk),'#6d28d9');
+      labelSide(t2.A,t2.C,"b' = "+fmt(b*kk),'#6d28d9');
+      labelSide(t2.A,t2.B,"c' = "+fmt(c*kk),'#6d28d9');
+    }
+
+    // arrow k
+    if (mode === 'sim'){
+      svg.appendChild(el('text',{x:450,y:300,fill:'#7c3aed','font-size':28,'font-weight':900,'text-anchor':'middle'},
+        `k = ${fmt(kk)}`));
+      svg.appendChild(el('text',{x:450,y:328,fill:'#6b7280','font-size':13,'font-weight':700,'text-anchor':'middle'},
+        "lado' / lado"));
+    }
+
+    const area1 = heron(a,b,c), area2 = heron(a*kk,b*kk,c*kk);
+    props.innerHTML = `
+      <div class="prop"><div class="lab">Razón k</div><div class="val">${fmt(kk)}</div></div>
+      <div class="prop"><div class="lab">Lados imagen</div><div class="val">${fmt(a*kk)} · ${fmt(b*kk)} · ${fmt(c*kk)}</div></div>
+      <div class="prop"><div class="lab">Área ×</div><div class="val">k² = ${fmt(kk*kk)}</div></div>
+      <div class="prop"><div class="lab">Áreas (u²)</div><div class="val">${fmt(area1)} → ${fmt(area2)}</div></div>`;
+
+    if (Math.abs(kk-1)<1e-6){
+      veredicto.className = 'verdict cong';
+      veredicto.textContent = 'Congruentes: misma forma y mismo tamaño (k = 1). Puedes superponerlas.';
+    } else {
+      veredicto.className = 'verdict sim';
+      veredicto.textContent = `Semejantes (no congruentes): ángulos iguales; lados × ${fmt(kk)}. Áreas × ${fmt(kk*kk)}.`;
+    }
+  }
+
+  function labelSide(P,Q,txt,color){
+    const mx=(P.x+Q.x)/2, my=(P.y+Q.y)/2;
+    const dx=Q.x-P.x, dy=Q.y-P.y, len=Math.hypot(dx,dy)||1;
+    const nx=-dy/len*18, ny=dx/len*18;
+    svg.appendChild(el('text',{x:mx+nx,y:my+ny+4,fill:color,'font-size':13,'font-weight':800,'text-anchor':'middle'}, txt));
+  }
+
+  function heron(x,y,z){
+    const s=(x+y+z)/2;
+    return Math.sqrt(Math.max(0,s*(s-x)*(s-y)*(s-z)));
+  }
+
+  function drawEscala(){
+    // Map rectangle with scale
+    const realM = planoCm * escalaN / 100; // cm * n / 100 = m
+    const boxW = 520, boxH = 300;
+    const ox = 190, oy = 120;
+    svg.appendChild(el('rect',{x:ox,y:oy,width:boxW,height:boxH,rx:8,
+      fill:'#ecfdf5',stroke:'#059669','stroke-width':3}));
+    svg.appendChild(el('text',{x:ox+boxW/2,y:oy-20,fill:'#047857','font-size':18,'font-weight':800,'text-anchor':'middle'},
+      `Plano a escala 1 : ${escalaN}`));
+
+    // room sketch
+    const roomW = boxW * 0.55, roomH = boxH * 0.5;
+    const rx = ox + 60, ry = oy + 50;
+    svg.appendChild(el('rect',{x:rx,y:ry,width:roomW,height:roomH,rx:4,
+      fill:'#dbeafe',stroke:'#2563eb','stroke-width':2.5}));
+    // dimension on plan
+    svg.appendChild(el('line',{x1:rx,y1:ry+roomH+24,x2:rx+roomW,y2:ry+roomH+24,stroke:'#1d4ed8','stroke-width':2}));
+    svg.appendChild(el('line',{x1:rx,y1:ry+roomH+18,x2:rx,y2:ry+roomH+30,stroke:'#1d4ed8','stroke-width':2}));
+    svg.appendChild(el('line',{x1:rx+roomW,y1:ry+roomH+18,x2:rx+roomW,y2:ry+roomH+30,stroke:'#1d4ed8','stroke-width':2}));
+    svg.appendChild(el('text',{x:rx+roomW/2,y:ry+roomH+48,fill:'#1e40af','font-size':16,'font-weight':800,'text-anchor':'middle'},
+      `${fmt(planoCm)} cm en el plano`));
+
+    // scale bar
+    const barX = ox + 40, barY = oy + boxH - 40;
+    svg.appendChild(el('line',{x1:barX,y1:barY,x2:barX+80,y2:barY,stroke:'#111','stroke-width':6}));
+    svg.appendChild(el('text',{x:barX+40,y:barY+22,fill:'#334155','font-size':13,'font-weight':700,'text-anchor':'middle'},
+      `barra gráfica · ${fmt(80*escalaN/100)} m reales (aprox.)`));
+
+    // formula panel
+    svg.appendChild(el('rect',{x:40,y:200,width:130,height:160,rx:12,fill:'#ede9fe',stroke:'#7c3aed','stroke-width':2}));
+    svg.appendChild(el('text',{x:105,y:235,fill:'#5b21b6','font-size':14,'font-weight':800,'text-anchor':'middle'},'Fórmula'));
+    svg.appendChild(el('text',{x:105,y:270,fill:'#5b21b6','font-size':13,'font-weight':700,'text-anchor':'middle'},'real = plano × n'));
+    svg.appendChild(el('text',{x:105,y:300,fill:'#5b21b6','font-size':13,'font-weight':700,'text-anchor':'middle'},`(misma unidad)`));
+    svg.appendChild(el('text',{x:105,y:335,fill:'#7c3aed','font-size':15,'font-weight':900,'text-anchor':'middle'},
+      `${fmt(planoCm)}×${escalaN}`));
+
+    props.innerHTML = `
+      <div class="prop"><div class="lab">Escala</div><div class="val">1 : ${escalaN}</div></div>
+      <div class="prop"><div class="lab">En el plano</div><div class="val">${fmt(planoCm)} cm</div></div>
+      <div class="prop"><div class="lab">En la realidad</div><div class="val">${fmt(planoCm*escalaN)} cm = ${fmt(realM)} m</div></div>
+      <div class="prop"><div class="lab">k (plano/real)</div><div class="val">1/${escalaN}</div></div>`;
+    veredicto.className = 'verdict';
+    veredicto.textContent = `Escala 1:${escalaN} → ${fmt(planoCm)} cm en el plano = ${fmt(realM)} m reales. k = 1/${escalaN}.`;
+  }
+
+  document.querySelectorAll('.mode-btn').forEach(b=>{
+    b.addEventListener('click',()=>{
+      mode = b.dataset.mode;
+      document.querySelectorAll('.mode-btn').forEach(x=>x.classList.toggle('active',x===b));
+      if (mode==='cong') k=1;
+      buildCtrls(); draw();
+    });
+  });
+  [showMarks,showLabels].forEach(c=>c.addEventListener('change',draw));
+  document.getElementById('btnEj').addEventListener('click',()=>{
+    mode='sim'; a=3; b=4; c=5; k=2;
+    document.querySelectorAll('.mode-btn').forEach(x=>x.classList.toggle('active',x.dataset.mode==='sim'));
+    buildCtrls(); draw();
+  });
+  document.getElementById('btnReset').addEventListener('click',()=>{
+    a=3; b=4; c=5; k=2; escalaN=100; planoCm=4;
+    buildCtrls(); draw();
+  });
+
+  buildCtrls(); draw();
+
+  if (/[?&]preview=1\b/.test(location.search)) {
+    mode='sim'; a=3; b=4; c=5; k=2;
+    showMarks.checked=true; showLabels.checked=true;
+    document.querySelectorAll('.mode-btn').forEach(x=>x.classList.toggle('active',x.dataset.mode==='sim'));
+    buildCtrls(); draw();
+  }
+})();
+</script>
+</body>
+</html>
