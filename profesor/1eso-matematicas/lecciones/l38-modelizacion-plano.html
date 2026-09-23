@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Modelización geométrica · 1º ESO</title>
+<style>
+  :root {
+    --bg:#fff7ed; --ink:#1a2b3c; --muted:#5a6d7e; --card:#fff;
+    --amber:#d97706; --amber-soft:#fef3c7; --amber-deep:#b45309;
+    --blue:#2563eb; --blue-soft:#dbeafe; --green:#059669; --green-soft:#d1fae5;
+    --rose:#e11d48; --teal:#0d9488; --teal-soft:#ccfbf1; --purple:#7c3aed; --purple-soft:#ede9fe;
+    --shadow:0 8px 28px rgba(26,43,60,.08); --radius:18px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{min-height:100%;background:var(--bg);color:var(--ink);
+    font-family:"Segoe UI",system-ui,-apple-system,sans-serif;-webkit-font-smoothing:antialiased}
+  body{display:flex;flex-direction:column;align-items:center;padding:14px 10px 36px}
+  .wrap{width:100%;max-width:980px}
+  header{text-align:center;margin-bottom:12px}
+  header .badge{display:inline-block;font-size:.78rem;font-weight:700;letter-spacing:.04em;
+    text-transform:uppercase;color:var(--amber-deep);background:var(--amber-soft);
+    padding:4px 12px;border-radius:999px;margin-bottom:8px}
+  h1{font-size:clamp(1.25rem,4.5vw,1.85rem);line-height:1.2;font-weight:800}
+  .subtitle{margin-top:6px;font-size:clamp(.9rem,2.8vw,1.05rem);color:var(--muted);font-weight:500}
+  .story{background:linear-gradient(135deg,#fef3c7,#dbeafe 55%,#ccfbf1);
+    border:2px solid #fcd34d;border-radius:var(--radius);padding:12px 14px;
+    margin-bottom:14px;display:flex;gap:12px;align-items:flex-start}
+  .story .emoji{font-size:2rem}
+  .story p{font-size:clamp(.9rem,2.5vw,1.02rem);line-height:1.45}
+  .story strong{color:var(--amber-deep)}
+  .card{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);
+    padding:16px 14px 18px;margin-bottom:14px}
+  .card h2{font-size:clamp(1.05rem,3vw,1.25rem);font-weight:800;margin-bottom:8px}
+  .hint{font-size:clamp(.88rem,2.4vw,1rem);color:var(--muted);line-height:1.45;margin-bottom:12px}
+  .mode-row{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px;justify-content:center}
+  .mode-btn{padding:10px 12px;border-radius:12px;border:3px solid #cbd5e1;background:#fff;
+    font-size:.8rem;font-weight:800;cursor:pointer}
+  .mode-btn.active{border-color:var(--amber);background:var(--amber-soft);color:var(--amber-deep)}
+  .stage{position:relative;width:100%;aspect-ratio:16/11;background:#fffbeb;
+    border-radius:14px;overflow:hidden;border:2px solid #fcd34d;margin-bottom:12px}
+  .stage svg{width:100%;height:100%;display:block}
+  .ctrl-row{display:flex;flex-wrap:wrap;gap:12px;align-items:flex-end;margin-bottom:12px}
+  .field{display:flex;flex-direction:column;gap:4px;flex:1 1 140px}
+  .field label{font-size:.8rem;font-weight:700;color:var(--muted)}
+  .field label .letter{display:inline-block;padding:1px 7px;border-radius:8px;font-weight:800;
+    margin-right:3px;background:var(--amber-soft);color:var(--amber-deep)}
+  .field input[type="range"]{width:100%;accent-color:var(--amber)}
+  .field output{font-weight:900;font-variant-numeric:tabular-nums;color:var(--amber-deep);font-size:1.05rem}
+  .toggle{display:flex;align-items:center;gap:8px;margin:8px 0;font-weight:700;font-size:.92rem}
+  .toggle input{width:18px;height:18px;accent-color:var(--blue)}
+  .verdict{text-align:center;font-size:clamp(1.0rem,2.6vw,1.25rem);font-weight:900;padding:14px;
+    border-radius:14px;margin:10px 0;background:var(--amber-soft);color:var(--amber-deep);border:2px solid #fcd34d}
+  .verdict.ok{background:var(--green-soft);color:#047857;border-color:#6ee7b7}
+  .props{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin:10px 0}
+  .prop{background:#f8fafc;border:2px solid #e2e8f0;border-radius:12px;padding:10px 12px;text-align:center}
+  .prop .lab{font-size:.75rem;font-weight:700;color:var(--muted);text-transform:uppercase}
+  .prop .val{font-size:1.05rem;font-weight:900;color:var(--amber-deep);margin-top:2px}
+  .glossary{display:grid;gap:.4rem;margin:10px 0;padding:12px 14px;background:#fffbeb;
+    border-radius:12px;border:2px solid #fcd34d;font-size:.95rem}
+  .glossary strong{color:var(--amber-deep)}
+  .mnemonic{font-size:.95rem;font-weight:700;color:#5b21b6;background:var(--purple-soft);
+    border-left:4px solid #7c3aed;padding:10px 14px;border-radius:0 12px 12px 0;margin-top:10px;line-height:1.4}
+  .hist{font-size:.9rem;color:#334155;background:#eff6ff;border-left:4px solid #3b82f6;
+    padding:10px 14px;border-radius:0 12px 12px 0;margin-top:10px;line-height:1.45}
+  .callout{font-size:.9rem;font-weight:700;color:var(--amber-deep);background:var(--amber-soft);
+    border-left:4px solid var(--amber);padding:8px 12px;border-radius:0 10px 10px 0;margin-top:10px}
+  .steps{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0 12px}
+  .step{padding:6px 10px;border-radius:999px;background:#e2e8f0;font-size:.78rem;font-weight:800;color:#475569}
+  .step.on{background:var(--amber-soft);color:var(--amber-deep);border:2px solid #fbbf24}
+  .btn-row{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px}
+  button.action{appearance:none;border:none;border-radius:999px;padding:10px 18px;
+    font-weight:800;font-size:.95rem;cursor:pointer;background:var(--amber);color:#fff}
+  button.action.secondary{background:#fff;color:var(--amber-deep);border:2px solid var(--amber)}
+  footer{text-align:center;font-size:.8rem;color:var(--muted);margin-top:4px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="badge">Lección 38 · UD12 Coordenadas y modelización</div>
+    <h1>Modelización geométrica en el plano</h1>
+    <p class="subtitle">Croquis · mini-mapas CyL · perímetro · área · atajo Pitágoras</p>
+  </header>
+
+  <div class="story">
+    <div class="emoji">🧭</div>
+    <p><strong>Modelizar</strong> = traducir un problema real a un croquis útil: eliges figuras
+    (rectángulo, L, calles perpendiculares…), etiquetas datos, calculas y <strong>validas</strong>
+    si la respuesta tiene sentido. Aquí usamos mini-mapas de Castilla y León.</p>
+  </div>
+
+  <section class="card">
+    <h2>Laboratorio de modelos CyL</h2>
+    <div class="mode-row" id="modos">
+      <button type="button" class="mode-btn active" data-mode="huerto">Huerto (León)</button>
+      <button type="button" class="mode-btn" data-mode="calles">Calles ⊥ (Valladolid)</button>
+      <button type="button" class="mode-btn" data-mode="aula">Aula (Burgos)</button>
+      <button type="button" class="mode-btn" data-mode="ele">Patio en L (Salamanca)</button>
+    </div>
+    <div class="steps" id="steps">
+      <span class="step on">1 · Dibujar</span>
+      <span class="step on">2 · Etiquetar</span>
+      <span class="step on">3 · Fórmula</span>
+      <span class="step on">4 · Calcular</span>
+      <span class="step on">5 · Validar</span>
+    </div>
+
+    <div class="stage" aria-label="Mini-mapa de modelización CyL">
+      <svg id="svg" viewBox="0 0 800 550" role="img"></svg>
+    </div>
+
+    <div class="ctrl-row" id="ctrls"></div>
+    <label class="toggle"><input type="checkbox" id="showNoise" checked/> Mostrar «ruido» (lo que el modelo ignora)</label>
+    <label class="toggle"><input type="checkbox" id="showForm" checked/> Mostrar fórmulas en el croquis</label>
+    <div class="btn-row">
+      <button type="button" class="action" id="btnEj">Ejemplo libro</button>
+      <button type="button" class="action secondary" id="btnReset">Reiniciar</button>
+    </div>
+    <p class="hint">Cada medida es un control <strong>independiente</strong>. Cambia largo y ancho por separado y mira cómo cambian perímetro, área o atajo.</p>
+    <div class="props" id="props"></div>
+    <div class="verdict" id="veredicto">Elige un escenario CyL y ajusta las medidas.</div>
+  </section>
+
+  <section class="card">
+    <h2>Letras y símbolos (en español)</h2>
+    <div class="glossary">
+      <div><strong>Modelo</strong> = simplificación geométrica de una situación real.</div>
+      <div><strong>Croquis</strong> = dibujo con datos etiquetados (no hace falta ser artista).</div>
+      <div><strong>Perímetro (P)</strong> = contorno · <strong>Área (A)</strong> = superficie.</div>
+      <div><strong>Calles perpendiculares</strong> = ángulo recto → Pitágoras para el atajo.</div>
+      <div><strong>Ruido</strong> = lo que ignoras a propósito (textura, curvas suaves, nombres…).</div>
+      <div><strong>Validar</strong> = ¿las unidades y el tamaño tienen sentido en la vida real?</div>
+    </div>
+    <div class="mnemonic">«Dibujo → datos → fórmula → número → ¿tiene sentido?»</div>
+    <div class="hist"><strong>Contexto CyL:</strong> los mini-mapas son croquis escolares (no planos oficiales). Valladolid/Burgos con calles en retícula, huertos de la ribera del Bernesga (León), patios de colegios de Salamanca — ideas reales, medidas inventadas para practicar.</div>
+    <div class="callout">Error típico: calcular sin croquis · mezclar cm del plano con m reales · olvidar el hueco de la puerta en el rodapié.</div>
+  </section>
+  <footer>1º ESO Matemáticas · CyL Decreto 39/2022 · C.3 Visualización y modelización · offline · file://</footer>
+</div>
+<script>
+(function(){
+  const svg = document.getElementById('svg');
+  const ctrls = document.getElementById('ctrls');
+  const props = document.getElementById('props');
+  const veredicto = document.getElementById('veredicto');
+  const showNoise = document.getElementById('showNoise');
+  const showForm = document.getElementById('showForm');
+
+  let mode = 'huerto';
+  let L = 8, W = 5;       // huerto / aula
+  let e = 60, n = 80;     // calles este/norte
+  let a = 12, b = 8, c = 4; // patio L: total largo, total ancho, recorte
+
+  function el(tag, attrs, text){
+    const n = document.createElementNS('http://www.w3.org/2000/svg', tag);
+    for (const k in attrs) n.setAttribute(k, attrs[k]);
+    if (text != null) n.textContent = text;
+    return n;
+  }
+  function fmt(n){ return Number.isInteger(n) ? String(n) : (+n.toFixed(2)).toString(); }
+
+  function buildCtrls(){
+    ctrls.innerHTML = '';
+    function add(letter, lab, val, setter, min, max, step){
+      const f = document.createElement('div'); f.className='field';
+      f.innerHTML = `<label><span class="letter">${letter}</span>${lab}</label>
+        <input type="range" min="${min}" max="${max}" step="${step||1}" value="${val}"/>
+        <output>${fmt(val)}</output>`;
+      const inp = f.querySelector('input'); const out = f.querySelector('output');
+      inp.addEventListener('input',()=>{ setter(+inp.value); out.textContent=fmt(+inp.value); draw(); });
+      ctrls.appendChild(f);
+    }
+    if (mode==='huerto' || mode==='aula'){
+      add('L','Largo (m)', L, v=>L=v, 3, 20, 1);
+      add('A','Ancho (m)', W, v=>W=v, 2, 15, 1);
+    } else if (mode==='calles'){
+      add('E','Tramo Este (m)', e, v=>e=v, 10, 200, 5);
+      add('N','Tramo Norte (m)', n, v=>n=v, 10, 200, 5);
+    } else {
+      add('L','Largo total (m)', a, v=>a=v, 6, 20, 1);
+      add('A','Ancho total (m)', b, v=>b=v, 5, 16, 1);
+      add('r','Recorte esquina (m)', c, v=>{ c=v; if(c>=a) c=a-1; if(c>=b) c=b-1; }, 1, 10, 1);
+    }
+  }
+
+  function mapChrome(title, city){
+    // Mini-map frame like a tourist map
+    svg.appendChild(el('rect',{x:0,y:0,width:800,height:550,fill:'#fff7ed'}));
+    svg.appendChild(el('rect',{x:16,y:16,width:768,height:518,rx:16,fill:'#fffbeb',stroke:'#f59e0b','stroke-width':3}));
+    // Title banner
+    svg.appendChild(el('rect',{x:28,y:28,width:360,height:44,rx:10,fill:'#fef3c7',stroke:'#f59e0b','stroke-width':2}));
+    svg.appendChild(el('text',{x:44,y:56,fill:'#b45309','font-size':18,'font-weight':900},title));
+    // City pin
+    svg.appendChild(el('circle',{cx:740,cy:50,r:22,fill:'#fecaca',stroke:'#e11d48','stroke-width':2}));
+    svg.appendChild(el('text',{x:740,y:56,fill:'#9f1239','font-size':11,'font-weight':900,'text-anchor':'middle'},city));
+    // Compass
+    svg.appendChild(el('circle',{cx:740,cy:120,r:28,fill:'#fff',stroke:'#64748b','stroke-width':2}));
+    svg.appendChild(el('polygon',{points:'740,98 748,120 740,114 732,120',fill:'#e11d48'}));
+    svg.appendChild(el('text',{x:740,y:158,fill:'#475569','font-size':12,'font-weight':800,'text-anchor':'middle'},'N'));
+  }
+
+  function drawNoise(items){
+    if (!showNoise.checked) return;
+    items.forEach(it=>{
+      svg.appendChild(el('text',{x:it.x,y:it.y,fill:'#94a3b8','font-size':12,'font-weight':600,
+        'font-style':'italic','text-anchor':it.anchor||'start'},'· '+it.t+' (ruido)'));
+    });
+  }
+
+  function draw(){
+    while (svg.firstChild) svg.removeChild(svg.firstChild);
+
+    if (mode==='huerto'){
+      mapChrome('Huerto escolar · modelo rectángulo','León');
+      const scale = Math.min(420/L, 300/W);
+      const pw = L*scale, ph = W*scale;
+      const ox = 120, oy = 140;
+      // Ground / river hint
+      svg.appendChild(el('path',{d:'M40 480 Q200 450 400 470 T760 455',fill:'none',stroke:'#93c5fd','stroke-width':18,'stroke-opacity':0.5}));
+      svg.appendChild(el('text',{x:60,y:510,fill:'#3b82f6','font-size':12,'font-weight':700},'Ribera (simplificada)'));
+      // Plot
+      svg.appendChild(el('rect',{x:ox,y:oy,width:pw,height:ph,rx:4,fill:'#86efac',stroke:'#059669','stroke-width':3}));
+      // Furrows
+      for (let i=1;i<4;i++){
+        svg.appendChild(el('line',{x1:ox+10,y1:oy+i*ph/4,x2:ox+pw-10,y2:oy+i*ph/4,stroke:'#16a34a','stroke-width':1,'stroke-dasharray':'4 6'}));
+      }
+      // Dimension labels
+      svg.appendChild(el('text',{x:ox+pw/2,y:oy-10,fill:'#b45309','font-size':16,'font-weight':900,'text-anchor':'middle'},`L = ${L} m`));
+      svg.appendChild(el('text',{x:ox+pw+14,y:oy+ph/2,fill:'#b45309','font-size':16,'font-weight':900},`A = ${W} m`));
+      if (showForm.checked){
+        svg.appendChild(el('rect',{x:480,y:160,width:280,height:110,rx:12,fill:'#fff',stroke:'#f59e0b','stroke-width':2}));
+        svg.appendChild(el('text',{x:620,y:195,fill:'#b45309','font-size':16,'font-weight':900,'text-anchor':'middle'},`P = 2(L+A) = ${2*(L+W)} m`));
+        svg.appendChild(el('text',{x:620,y:230,fill:'#047857','font-size':16,'font-weight':900,'text-anchor':'middle'},`Área = L·A = ${L*W} m²`));
+        svg.appendChild(el('text',{x:620,y:255,fill:'#64748b','font-size':12,'font-weight':700,'text-anchor':'middle'},'malla = perímetro · cultivo = área'));
+      }
+      drawNoise([{x:ox+20,y:oy+ph+30,t:'color de la tierra'},{x:ox+20,y:oy+ph+48,t:'nombres de plantas'},{x:500,y:320,t:'nubes / pájaros'}]);
+      props.innerHTML = `
+        <div class="prop"><div class="lab">Largo</div><div class="val">${L} m</div></div>
+        <div class="prop"><div class="lab">Ancho</div><div class="val">${W} m</div></div>
+        <div class="prop"><div class="lab">Perímetro (malla)</div><div class="val">${2*(L+W)} m</div></div>
+        <div class="prop"><div class="lab">Área (cultivo)</div><div class="val">${L*W} m²</div></div>`;
+      veredicto.className='verdict ok';
+      veredicto.textContent = `Modelo: rectángulo ${L}×${W}. Necesitas ${2*(L+W)} m de malla y ${L*W} m² de cultivo. ¿Tiene sentido? Sí, unidades en m / m².`;
+
+    } else if (mode==='calles'){
+      mapChrome('Atajo entre calles ⊥ · Plaza Mayor','VA');
+      // Grid streets background
+      for (let i=0;i<8;i++){
+        svg.appendChild(el('line',{x1:80+i*80,y1:90,x2:80+i*80,y2:480,stroke:'#fde68a','stroke-width':10}));
+        svg.appendChild(el('line',{x1:60,y1:110+i*45,x2:720,y2:110+i*45,stroke:'#fde68a','stroke-width':8}));
+      }
+      const scale = Math.min(280/Math.max(e,1), 220/Math.max(n,1));
+      const ox=160, oy=380;
+      const ex=ox+e*scale, ny=oy-n*scale;
+      // Path East then North
+      svg.appendChild(el('line',{x1:ox,y1:oy,x2:ex,y2:oy,stroke:'#2563eb','stroke-width':6}));
+      svg.appendChild(el('line',{x1:ex,y1:oy,x2:ex,y2:ny,stroke:'#2563eb','stroke-width':6}));
+      // Diagonal shortcut
+      svg.appendChild(el('line',{x1:ox,y1:oy,x2:ex,y2:ny,stroke:'#e11d48','stroke-width':4,'stroke-dasharray':'10 6'}));
+      // Right angle mark
+      svg.appendChild(el('polyline',{points:`${ex-16},${oy} ${ex-16},${oy-16} ${ex},${oy-16}`,fill:'none',stroke:'#0f766e','stroke-width':2}));
+      // Points
+      [[ox,oy,'Casa'],[ex,oy,'Esquina'],[ex,ny,'Cole']].forEach(([x,y,lab])=>{
+        svg.appendChild(el('circle',{cx:x,cy:y,r:9,fill:'#b45309',stroke:'#fff','stroke-width':2}));
+        svg.appendChild(el('text',{x:x,y:y-14,fill:'#1e293b','font-size':13,'font-weight':800,'text-anchor':'middle'},lab));
+      });
+      svg.appendChild(el('text',{x:(ox+ex)/2,y:oy+22,fill:'#1d4ed8','font-size':14,'font-weight':900,'text-anchor':'middle'},`E = ${e} m`));
+      svg.appendChild(el('text',{x:ex+12,y:(oy+ny)/2,fill:'#1d4ed8','font-size':14,'font-weight':900},`N = ${n} m`));
+      const diag = Math.sqrt(e*e+n*n);
+      if (showForm.checked){
+        svg.appendChild(el('rect',{x:480,y:200,width:280,height:120,rx:12,fill:'#fff',stroke:'#f59e0b','stroke-width':2}));
+        svg.appendChild(el('text',{x:620,y:235,fill:'#1d4ed8','font-size':14,'font-weight':800,'text-anchor':'middle'},`Por calles: ${e}+${n} = ${e+n} m`));
+        svg.appendChild(el('text',{x:620,y:265,fill:'#be123c','font-size':14,'font-weight':900,'text-anchor':'middle'},`Atajo: √(E²+N²)`));
+        svg.appendChild(el('text',{x:620,y:295,fill:'#be123c','font-size':18,'font-weight':900,'text-anchor':'middle'},`= ${fmt(+diag.toFixed(1))} m`));
+      }
+      drawNoise([{x:100,y:500,t:'tiendas y farolas'},{x:400,y:500,t:'tráfico / semáforos'}]);
+      props.innerHTML = `
+        <div class="prop"><div class="lab">Este</div><div class="val">${e} m</div></div>
+        <div class="prop"><div class="lab">Norte</div><div class="val">${n} m</div></div>
+        <div class="prop"><div class="lab">Por calles</div><div class="val">${e+n} m</div></div>
+        <div class="prop"><div class="lab">Atajo (√)</div><div class="val">${fmt(+diag.toFixed(1))} m</div></div>`;
+      veredicto.className='verdict ok';
+      veredicto.textContent = `Modelo: dos tramos perpendiculares. Si hay camino en diagonal, ahorras ${fmt(+(e+n-diag).toFixed(1))} m. Validar: ¿existe ese atajo en la plaza?`;
+
+    } else if (mode==='aula'){
+      mapChrome('Aula · moqueta y rodapié','Burgos');
+      const scale = Math.min(400/L, 280/W);
+      const pw=L*scale, ph=W*scale;
+      const ox=100, oy=120;
+      svg.appendChild(el('rect',{x:ox,y:oy,width:pw,height:ph,rx:4,fill:'#fde68a',stroke:'#b45309','stroke-width':3}));
+      // Door gap on bottom side
+      const doorW = Math.min(40, pw*0.15);
+      const doorX = ox + pw/2 - doorW/2;
+      svg.appendChild(el('rect',{x:doorX,y:oy+ph-4,width:doorW,height:10,fill:'#fff7ed'}));
+      svg.appendChild(el('text',{x:ox+pw/2,y:oy+ph+28,fill:'#64748b','font-size':12,'font-weight':700,'text-anchor':'middle'},'puerta ≈ 1 m (sin rodapié)'));
+      // Desks hint
+      for (let r=0;r<2;r++) for (let c=0;c<3;c++){
+        const dx=ox+30+c*(pw/3.5), dy=oy+40+r*(ph/3);
+        svg.appendChild(el('rect',{x:dx,y:dy,width:36,height:24,rx:3,fill:'#fdba74','fill-opacity':0.7,stroke:'#c2410c','stroke-width':1}));
+      }
+      svg.appendChild(el('text',{x:ox+pw/2,y:oy-12,fill:'#b45309','font-size':16,'font-weight':900,'text-anchor':'middle'},`L = ${L} m`));
+      svg.appendChild(el('text',{x:ox+pw+12,y:oy+ph/2,fill:'#b45309','font-size':16,'font-weight':900},`A = ${W} m`));
+      const area=L*W, peri=2*(L+W), rodapie=peri-1;
+      if (showForm.checked){
+        svg.appendChild(el('rect',{x:480,y:150,width:280,height:130,rx:12,fill:'#fff',stroke:'#f59e0b','stroke-width':2}));
+        svg.appendChild(el('text',{x:620,y:185,fill:'#047857','font-size':15,'font-weight':900,'text-anchor':'middle'},`Moqueta = L·A = ${area} m²`));
+        svg.appendChild(el('text',{x:620,y:220,fill:'#b45309','font-size':15,'font-weight':900,'text-anchor':'middle'},`P = 2(L+A) = ${peri} m`));
+        svg.appendChild(el('text',{x:620,y:250,fill:'#1d4ed8','font-size':15,'font-weight':900,'text-anchor':'middle'},`Rodapié = P − 1 = ${rodapie} m`));
+      }
+      drawNoise([{x:ox+10,y:oy+ph+48,t:'carteles / color pared'},{x:500,y:320,t:'marca de sillas'}]);
+      props.innerHTML = `
+        <div class="prop"><div class="lab">Área moqueta</div><div class="val">${area} m²</div></div>
+        <div class="prop"><div class="lab">Perímetro</div><div class="val">${peri} m</div></div>
+        <div class="prop"><div class="lab">Rodapié (−puerta)</div><div class="val">${rodapie} m</div></div>
+        <div class="prop"><div class="lab">Puerta omitida</div><div class="val">1 m</div></div>`;
+      veredicto.className='verdict ok';
+      veredicto.textContent = `Modelo: rectángulo ${L}×${W}. Moqueta ${area} m²; rodapié ${rodapie} m (restamos 1 m de puerta). Validar: ¿el aula cabe en el edificio?`;
+
+    } else { // ele
+      mapChrome('Patio en L · colegio','Sal');
+      // Clamp c
+      if (c >= a) c = a-1;
+      if (c >= b) c = b-1;
+      const scale = Math.min(320/a, 260/b);
+      const ox=100, oy=120;
+      // L shape as polygon: outer rect minus corner
+      const pts = [
+        [ox, oy],
+        [ox+a*scale, oy],
+        [ox+a*scale, oy+(b-c)*scale],
+        [ox+(a-c)*scale, oy+(b-c)*scale],
+        [ox+(a-c)*scale, oy+b*scale],
+        [ox, oy+b*scale]
+      ].map(p=>p.join(',')).join(' ');
+      svg.appendChild(el('polygon',{points:pts,fill:'#86efac',stroke:'#059669','stroke-width':3}));
+      // Missing corner dashed
+      svg.appendChild(el('rect',{x:ox+(a-c)*scale,y:oy+(b-c)*scale,width:c*scale,height:c*scale,
+        fill:'#fecaca','fill-opacity':0.4,stroke:'#e11d48','stroke-width':2,'stroke-dasharray':'6 4'}));
+      svg.appendChild(el('text',{x:ox+(a-c/2)*scale,y:oy+(b-c/2)*scale+5,fill:'#be123c','font-size':12,'font-weight':800,'text-anchor':'middle'},'edificio'));
+      svg.appendChild(el('text',{x:ox+a*scale/2,y:oy-10,fill:'#b45309','font-size':14,'font-weight':900,'text-anchor':'middle'},`L = ${a} m`));
+      svg.appendChild(el('text',{x:ox-8,y:oy+b*scale/2,fill:'#b45309','font-size':14,'font-weight':900,'text-anchor':'end'},`A = ${b} m`));
+      const area = a*b - c*c;
+      const peri = 2*(a+b); // outer perimeter of bounding; actual L peri = 2(a+b)
+      // Actual L perimeter: 2(a+b) still? For L: 2*(a+b) yes for outer path of L including inner corner steps = 2(a+b)
+      // Wait: L perimeter = 2*(a + b) — yes same as outer rectangle because the cut adds and removes equal lengths... 
+      // Actually: outer rect peri = 2(a+b). Cutting a c×c corner: remove 2c from outer, add 2c inward → peri stays 2(a+b).
+      if (showForm.checked){
+        svg.appendChild(el('rect',{x:480,y:150,width:280,height:140,rx:12,fill:'#fff',stroke:'#f59e0b','stroke-width':2}));
+        svg.appendChild(el('text',{x:620,y:185,fill:'#047857','font-size':14,'font-weight':900,'text-anchor':'middle'},`Área = L·A − r²`));
+        svg.appendChild(el('text',{x:620,y:215,fill:'#047857','font-size':16,'font-weight':900,'text-anchor':'middle'},`= ${a}·${b} − ${c}² = ${area} m²`));
+        svg.appendChild(el('text',{x:620,y:250,fill:'#b45309','font-size':14,'font-weight':800,'text-anchor':'middle'},`P (contorno L) = 2(L+A)`));
+        svg.appendChild(el('text',{x:620,y:275,fill:'#b45309','font-size':14,'font-weight':800,'text-anchor':'middle'},`= ${peri} m`));
+      }
+      drawNoise([{x:120,y:480,t:'bancos / arbolitos'},{x:400,y:500,t:'líneas del patio'}]);
+      props.innerHTML = `
+        <div class="prop"><div class="lab">L × A</div><div class="val">${a}×${b} m</div></div>
+        <div class="prop"><div class="lab">Recorte r×r</div><div class="val">${c}×${c} m</div></div>
+        <div class="prop"><div class="lab">Área patio</div><div class="val">${area} m²</div></div>
+        <div class="prop"><div class="lab">Perímetro L</div><div class="val">${peri} m</div></div>`;
+      veredicto.className='verdict ok';
+      veredicto.textContent = `Modelo: L = rectángulo ${a}×${b} menos esquina ${c}×${c}. Área ${area} m². El edificio es «ruido» útil que sí restamos.`;
+    }
+  }
+
+  document.querySelectorAll('.mode-btn').forEach(b=>{
+    b.addEventListener('click',()=>{
+      mode=b.dataset.mode;
+      document.querySelectorAll('.mode-btn').forEach(x=>x.classList.toggle('active',x===b));
+      if (mode==='huerto'){ L=8; W=5; }
+      if (mode==='aula'){ L=10; W=7; }
+      if (mode==='calles'){ e=60; n=80; }
+      if (mode==='ele'){ a=12; b=8; c=4; }
+      buildCtrls(); draw();
+    });
+  });
+  [showNoise,showForm].forEach(c=>c.addEventListener('change',draw));
+  document.getElementById('btnEj').addEventListener('click',()=>{
+    if (mode==='huerto'){ L=8; W=5; }
+    else if (mode==='aula'){ L=10; W=7; }
+    else if (mode==='calles'){ e=120; n=50; }
+    else { a=12; b=8; c=4; }
+    buildCtrls(); draw();
+  });
+  document.getElementById('btnReset').addEventListener('click',()=>{
+    mode='huerto'; L=8; W=5; e=60; n=80; a=12; b=8; c=4;
+    document.querySelectorAll('.mode-btn').forEach(x=>x.classList.toggle('active',x.dataset.mode==='huerto'));
+    buildCtrls(); draw();
+  });
+
+  buildCtrls(); draw();
+
+  if (/[?&]preview=1\b/.test(location.search)) {
+    mode='calles'; e=60; n=80;
+    showNoise.checked=true; showForm.checked=true;
+    document.querySelectorAll('.mode-btn').forEach(x=>x.classList.toggle('active',x.dataset.mode==='calles'));
+    buildCtrls(); draw();
+  }
+})();
+</script>
+</body>
+</html>

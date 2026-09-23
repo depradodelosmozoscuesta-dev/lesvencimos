@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Patrones numéricos y geométricos · 1º ESO</title>
+<style>
+  :root {
+    --bg:#faf5ff; --ink:#1a2b3c; --muted:#5a6d7e; --card:#fff;
+    --purple:#7c3aed; --purple-soft:#ede9fe; --purple-deep:#5b21b6;
+    --blue:#2563eb; --blue-soft:#dbeafe; --green:#059669; --green-soft:#d1fae5;
+    --amber:#d97706; --amber-soft:#fef3c7; --rose:#e11d48; --teal:#0d9488;
+    --shadow:0 8px 28px rgba(26,43,60,.08); --radius:18px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{min-height:100%;background:var(--bg);color:var(--ink);
+    font-family:"Segoe UI",system-ui,-apple-system,sans-serif;-webkit-font-smoothing:antialiased}
+  body{display:flex;flex-direction:column;align-items:center;padding:14px 10px 36px}
+  .wrap{width:100%;max-width:980px}
+  header{text-align:center;margin-bottom:12px}
+  header .badge{display:inline-block;font-size:.78rem;font-weight:700;letter-spacing:.04em;
+    text-transform:uppercase;color:var(--purple-deep);background:var(--purple-soft);
+    padding:4px 12px;border-radius:999px;margin-bottom:8px}
+  h1{font-size:clamp(1.25rem,4.5vw,1.85rem);line-height:1.2;font-weight:800}
+  .subtitle{margin-top:6px;font-size:clamp(.9rem,2.8vw,1.05rem);color:var(--muted);font-weight:500}
+  .story{background:linear-gradient(135deg,#ede9fe,#dbeafe 55%,#fef3c7);
+    border:2px solid #c4b5fd;border-radius:var(--radius);padding:12px 14px;
+    margin-bottom:14px;display:flex;gap:12px;align-items:flex-start}
+  .story .emoji{font-size:2rem}
+  .story p{font-size:clamp(.9rem,2.5vw,1.02rem);line-height:1.45}
+  .story strong{color:var(--purple-deep)}
+  .card{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);
+    padding:16px 14px 18px;margin-bottom:14px}
+  .card h2{font-size:clamp(1.05rem,3vw,1.25rem);font-weight:800;margin-bottom:8px}
+  .hint{font-size:clamp(.88rem,2.4vw,1rem);color:var(--muted);line-height:1.45;margin-bottom:12px}
+  .mode-row{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px;justify-content:center}
+  .mode-btn{padding:10px 12px;border-radius:12px;border:3px solid #cbd5e1;background:#fff;
+    font-size:.8rem;font-weight:800;cursor:pointer}
+  .mode-btn.active{border-color:var(--purple);background:var(--purple-soft);color:var(--purple-deep)}
+  .stage{position:relative;width:100%;aspect-ratio:16/10;background:#faf5ff;
+    border-radius:14px;overflow:hidden;border:2px solid #c4b5fd;margin-bottom:12px}
+  .stage svg{width:100%;height:100%;display:block}
+  .ctrl-row{display:flex;flex-wrap:wrap;gap:12px;align-items:flex-end;margin-bottom:12px}
+  .field{display:flex;flex-direction:column;gap:4px;flex:1 1 140px}
+  .field label{font-size:.8rem;font-weight:700;color:var(--muted)}
+  .field label .letter{display:inline-block;padding:1px 7px;border-radius:8px;font-weight:800;
+    margin-right:3px;background:var(--purple-soft);color:var(--purple-deep)}
+  .field input[type="range"]{width:100%;accent-color:var(--purple)}
+  .field output{font-weight:900;font-variant-numeric:tabular-nums;color:var(--purple-deep);font-size:1.05rem}
+  .toggle{display:flex;align-items:center;gap:8px;margin:8px 0;font-weight:700;font-size:.92rem}
+  .toggle input{width:18px;height:18px;accent-color:var(--blue)}
+  .verdict{text-align:center;font-size:clamp(1.0rem,2.6vw,1.25rem);font-weight:900;padding:14px;
+    border-radius:14px;margin:10px 0;background:var(--purple-soft);color:var(--purple-deep);border:2px solid #c4b5fd}
+  .verdict.ok{background:var(--green-soft);color:#047857;border-color:#6ee7b7}
+  .props{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;margin:10px 0}
+  .prop{background:#f8fafc;border:2px solid #e2e8f0;border-radius:12px;padding:10px 12px;text-align:center}
+  .prop .lab{font-size:.75rem;font-weight:700;color:var(--muted);text-transform:uppercase}
+  .prop .val{font-size:1.05rem;font-weight:900;color:var(--purple-deep);margin-top:2px}
+  .glossary{display:grid;gap:.4rem;margin:10px 0;padding:12px 14px;background:#faf5ff;
+    border-radius:12px;border:2px solid #c4b5fd;font-size:.95rem}
+  .glossary strong{color:var(--purple-deep)}
+  .mnemonic{font-size:.95rem;font-weight:700;color:#5b21b6;background:var(--purple-soft);
+    border-left:4px solid #7c3aed;padding:10px 14px;border-radius:0 12px 12px 0;margin-top:10px;line-height:1.4}
+  .hist{font-size:.9rem;color:#334155;background:#eff6ff;border-left:4px solid #3b82f6;
+    padding:10px 14px;border-radius:0 12px 12px 0;margin-top:10px;line-height:1.45}
+  .callout{font-size:.9rem;font-weight:700;color:var(--purple-deep);background:var(--purple-soft);
+    border-left:4px solid var(--purple);padding:8px 12px;border-radius:0 10px 10px 0;margin-top:10px}
+  .btn-row{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px}
+  button.action{appearance:none;border:none;border-radius:999px;padding:10px 18px;
+    font-weight:800;font-size:.95rem;cursor:pointer;background:var(--purple);color:#fff}
+  button.action.secondary{background:#fff;color:var(--purple-deep);border:2px solid var(--purple)}
+  footer{text-align:center;font-size:.8rem;color:var(--muted);margin-top:4px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="badge">Lección 39 · UD13 Álgebra inicial</div>
+    <h1>Patrones: describir la regla</h1>
+    <p class="subtitle">Sucesiones · baldosas · fósforos · fórmula aₙ · predicción</p>
+  </header>
+
+  <div class="story">
+    <div class="emoji">🧩</div>
+    <p>Un <strong>patrón</strong> es una regularidad. Puedes verla en números (2, 5, 8, 11…) o en
+    figuras (baldosas, fósforos). Primero <strong>describe la regla en palabras</strong>, luego con una
+    fórmula sencilla del término n-ésimo. ¡Comprueba con n=1 y n=2!</p>
+  </div>
+
+  <section class="card">
+    <h2>Laboratorio de patrones</h2>
+    <div class="mode-row" id="modos">
+      <button type="button" class="mode-btn active" data-mode="arit">Sucesión +d</button>
+      <button type="button" class="mode-btn" data-mode="fosf">Fósforos (cuadrados)</button>
+      <button type="button" class="mode-btn" data-mode="ele">Baldosas en L</button>
+      <button type="button" class="mode-btn" data-mode="tabla">Tabla n → aₙ</button>
+    </div>
+
+    <div class="stage" aria-label="Patrones numéricos y geométricos visibles">
+      <svg id="svg" viewBox="0 0 800 500" role="img"></svg>
+    </div>
+
+    <div class="ctrl-row" id="ctrls"></div>
+    <label class="toggle"><input type="checkbox" id="showRule" checked/> Mostrar regla (palabras + fórmula)</label>
+    <label class="toggle"><input type="checkbox" id="showNext" checked/> Resaltar el siguiente término</label>
+    <div class="btn-row">
+      <button type="button" class="action" id="btnEj">Ejemplo del libro</button>
+      <button type="button" class="action secondary" id="btnReset">Reiniciar</button>
+    </div>
+    <p class="hint">Controles <strong>independientes</strong>: primer término, diferencia d, y cuántos pasos n ves. Cambia uno sin tocar los otros.</p>
+    <div class="props" id="props"></div>
+    <div class="verdict" id="veredicto">Ajusta n y lee la regla.</div>
+  </section>
+
+  <section class="card">
+    <h2>Letras y símbolos (en español)</h2>
+    <div class="glossary">
+      <div><strong>Patrón</strong> = regularidad que se repite o crece con una regla.</div>
+      <div><strong>n</strong> = posición (1.º, 2.º, 3.º…).</div>
+      <div><strong>aₙ</strong> = valor del término en la posición n.</div>
+      <div><strong>d</strong> = diferencia común (sucesión aritmética: siempre sumas lo mismo).</div>
+      <div><strong>aₙ = a₁ + (n−1)·d</strong> = fórmula de la aritmética.</div>
+      <div><strong>Patrón geométrico</strong> = cuentas baldosas, fósforos o lados en función de n.</div>
+    </div>
+    <div class="mnemonic">«Mira → cuenta → di la regla con palabras → escribe aₙ → comprueba n=1 y n=2.»</div>
+    <div class="hist"><strong>Puente al álgebra:</strong> describir «multiplica n por 3 y suma 1» ya es la expresión 3n+1 (lección 40). Los patrones mudéjares y las celosías de Castilla y León son ejemplos visuales en el arte.</div>
+    <div class="callout">Error típico: ajustar solo los dos primeros términos · confundir n con aₙ · forzar una regla donde no hay.</div>
+  </section>
+  <footer>1º ESO Matemáticas · CyL Decreto 39/2022 · D.1 Patrones · offline · file://</footer>
+</div>
+<script>
+(function(){
+  const svg = document.getElementById('svg');
+  const ctrls = document.getElementById('ctrls');
+  const props = document.getElementById('props');
+  const veredicto = document.getElementById('veredicto');
+  const showRule = document.getElementById('showRule');
+  const showNext = document.getElementById('showNext');
+
+  let mode = 'arit';
+  let a1 = 2, d = 3, nShow = 5; // how many terms to display
+  let nFocus = 4; // for table / prediction
+
+  function el(tag, attrs, text){
+    const n = document.createElementNS('http://www.w3.org/2000/svg', tag);
+    for (const k in attrs) n.setAttribute(k, attrs[k]);
+    if (text != null) n.textContent = text;
+    return n;
+  }
+  function fmt(v){ return Number.isInteger(v) ? String(v) : (+v.toFixed(2)).toString(); }
+  function an(n){ return a1 + (n-1)*d; }
+
+  function buildCtrls(){
+    ctrls.innerHTML = '';
+    function add(letter, lab, val, setter, min, max, step){
+      const f = document.createElement('div'); f.className='field';
+      f.innerHTML = `<label><span class="letter">${letter}</span>${lab}</label>
+        <input type="range" min="${min}" max="${max}" step="${step||1}" value="${val}"/>
+        <output>${fmt(val)}</output>`;
+      const inp = f.querySelector('input'); const out = f.querySelector('output');
+      inp.addEventListener('input',()=>{ setter(+inp.value); out.textContent=fmt(+inp.value); draw(); });
+      ctrls.appendChild(f);
+    }
+    if (mode==='arit' || mode==='tabla'){
+      add('a₁','Primer término', a1, v=>a1=v, -5, 20, 1);
+      add('d','Diferencia común', d, v=>d=v, 1, 10, 1);
+      add('n','Términos visibles', nShow, v=>nShow=v, 3, 8, 1);
+      if (mode==='tabla') add('k','Predice el k-ésimo', nFocus, v=>nFocus=v, 1, 20, 1);
+    } else if (mode==='fosf'){
+      add('n','Cuadrados en fila', nShow, v=>nShow=v, 1, 6, 1);
+    } else { // ele
+      add('n','Paso de la L', nShow, v=>nShow=v, 1, 6, 1);
+    }
+  }
+
+  function bg(){
+    svg.appendChild(el('rect',{x:0,y:0,width:800,height:500,fill:'#faf5ff'}));
+  }
+
+  function ruleBox(lines){
+    if (!showRule.checked) return;
+    svg.appendChild(el('rect',{x:420,y:20,width:360,height:20+lines.length*28,rx:12,
+      fill:'#fff',stroke:'#7c3aed','stroke-width':2}));
+    lines.forEach((t,i)=>{
+      svg.appendChild(el('text',{x:440,y:48+i*28,fill:'#5b21b6','font-size':15,'font-weight':800},t));
+    });
+  }
+
+  function drawMatch(x,y,len,ang,col){
+    // ang in deg; match as rounded rect
+    const g = el('g',{transform:`translate(${x},${y}) rotate(${ang})`});
+    g.appendChild(el('rect',{x:-3,y:0,width:6,height:len,rx:2,fill:col,stroke:'#78350f','stroke-width':1}));
+    g.appendChild(el('circle',{cx:0,cy:0,r:3.5,fill:'#fbbf24'}));
+    svg.appendChild(g);
+  }
+
+  function draw(){
+    while (svg.firstChild) svg.removeChild(svg.firstChild);
+    bg();
+
+    if (mode==='arit'){
+      // Number tiles sequence
+      const terms = [];
+      for (let i=1;i<=nShow;i++) terms.push(an(i));
+      const next = an(nShow+1);
+      const tileW = Math.min(90, 700/(nShow+1));
+      const startX = 40;
+      const y = 200;
+      terms.forEach((val,i)=>{
+        const x = startX + i*(tileW+16);
+        svg.appendChild(el('rect',{x:x,y:y,width:tileW,height:70,rx:12,fill:'#c4b5fd',stroke:'#7c3aed','stroke-width':3}));
+        svg.appendChild(el('text',{x:x+tileW/2,y:y+44,fill:'#5b21b6','font-size':26,'font-weight':900,'text-anchor':'middle'},fmt(val)));
+        svg.appendChild(el('text',{x:x+tileW/2,y:y-10,fill:'#64748b','font-size':13,'font-weight':700,'text-anchor':'middle'},`n=${i+1}`));
+        if (i<terms.length-1){
+          const mx = x+tileW+8;
+          svg.appendChild(el('text',{x:mx,y:y+40,fill:'#d97706','font-size':14,'font-weight':900,'text-anchor':'middle'},`+${d}`));
+        }
+      });
+      if (showNext.checked){
+        const x = startX + nShow*(tileW+16);
+        svg.appendChild(el('rect',{x:x,y:y,width:tileW,height:70,rx:12,fill:'#fef3c7',stroke:'#d97706','stroke-width':3,'stroke-dasharray':'6 4'}));
+        svg.appendChild(el('text',{x:x+tileW/2,y:y+44,fill:'#b45309','font-size':26,'font-weight':900,'text-anchor':'middle'},fmt(next)));
+        svg.appendChild(el('text',{x:x+tileW/2,y:y-10,fill:'#b45309','font-size':13,'font-weight':800,'text-anchor':'middle'},`n=${nShow+1}?`));
+      }
+      // Diff arrows strip
+      svg.appendChild(el('text',{x:40,y:120,fill:'#5b21b6','font-size':18,'font-weight':900},
+        `Sucesión: ${terms.join(', ')}${showNext.checked?', '+fmt(next)+'…':', …'}`));
+      ruleBox([
+        'Regla (palabras): suma '+d+' cada vez',
+        'Fórmula: aₙ = '+a1+' + (n−1)·'+d,
+        'Comprueba: a₁='+an(1)+' · a₂='+an(2)
+      ]);
+      props.innerHTML = `
+        <div class="prop"><div class="lab">a₁</div><div class="val">${a1}</div></div>
+        <div class="prop"><div class="lab">d</div><div class="val">${d}</div></div>
+        <div class="prop"><div class="lab">aₙ</div><div class="val">${a1}+(n−1)·${d}</div></div>
+        <div class="prop"><div class="lab">Siguiente</div><div class="val">${fmt(next)}</div></div>`;
+      veredicto.className='verdict ok';
+      veredicto.textContent = `Patrón aritmético: cada término = anterior + ${d}. El término n-ésimo es ${a1}+(n−1)·${d}.`;
+
+    } else if (mode==='fosf'){
+      // Row of n squares made of matches: matches = 3n+1
+      const n = nShow;
+      const size = 70;
+      const gap = 8;
+      const totalW = n*size;
+      const ox = Math.max(40, (400-totalW)/2);
+      const oy = 160;
+      const col = '#f59e0b';
+      for (let i=0;i<n;i++){
+        const x = ox + i*size;
+        // 4 sides but shared: left vertical always; top; bottom; right of last
+        drawMatch(x, oy, size, 0, col); // left
+        drawMatch(x, oy, size, -90, col); // top (rotate)
+        drawMatch(x, oy+size, size, -90, col); // bottom
+        if (i===n-1) drawMatch(x+size, oy, size, 0, col); // right of last
+        // label square number
+        svg.appendChild(el('text',{x:x+size/2,y:oy+size/2+6,fill:'#92400e','font-size':14,'font-weight':800,'text-anchor':'middle'},String(i+1)));
+      }
+      // Fix rotation: my drawMatch with -90 from (x,y) goes left; need proper squares
+      // Redraw cleanly with horizontal/vertical segments
+      while (svg.firstChild) svg.removeChild(svg.firstChild);
+      bg();
+      const matches = [];
+      function seg(x1,y1,x2,y2){
+        svg.appendChild(el('line',{x1,y1,x2,y2,stroke:'#b45309','stroke-width':7,'stroke-linecap':'round'}));
+        svg.appendChild(el('circle',{cx:x1,cy:y1,r:4,fill:'#fbbf24'}));
+        svg.appendChild(el('circle',{cx:x2,cy:y2,r:4,fill:'#fbbf24'}));
+      }
+      for (let i=0;i<n;i++){
+        const x = ox + i*size;
+        seg(x, oy, x, oy+size);           // left
+        seg(x, oy, x+size, oy);           // top
+        seg(x, oy+size, x+size, oy+size); // bottom
+        if (i===n-1) seg(x+size, oy, x+size, oy+size);
+        svg.appendChild(el('text',{x:x+size/2,y:oy+size/2+6,fill:'#7c2d12','font-size':16,'font-weight':900,'text-anchor':'middle'},String(i+1)));
+      }
+      const fosf = 3*n + 1;
+      svg.appendChild(el('text',{x:40,y:80,fill:'#5b21b6','font-size':18,'font-weight':900},
+        `n = ${n} cuadrados en fila → ${fosf} fósforos`));
+      // Mini sequence of counts
+      const counts = [];
+      for (let k=1;k<=Math.min(n,5);k++) counts.push(3*k+1);
+      svg.appendChild(el('text',{x:40,y:380,fill:'#64748b','font-size':15,'font-weight':700},
+        `Conteo: n=1→4, n=2→7, n=3→10…  (diferencia +3)`));
+      // tiles of counts
+      counts.forEach((v,i)=>{
+        const x=40+i*70;
+        svg.appendChild(el('rect',{x:x,y:400,width:58,height:44,rx:8,fill:'#ede9fe',stroke:'#7c3aed','stroke-width':2}));
+        svg.appendChild(el('text',{x:x+29,y:428,fill:'#5b21b6','font-size':18,'font-weight':900,'text-anchor':'middle'},String(v)));
+      });
+      if (showNext.checked && n<6){
+        svg.appendChild(el('text',{x:40+counts.length*70+10,y:428,fill:'#b45309','font-size':16,'font-weight':900},
+          `→ ${3*(n)+1} (actual)`));
+      }
+      ruleBox([
+        'Palabras: cada cuadrado nuevo +3 fósforos',
+        'Fórmula: aₙ = 3n + 1',
+        'Check: n=1 → 4 · n=2 → 7'
+      ]);
+      props.innerHTML = `
+        <div class="prop"><div class="lab">n cuadrados</div><div class="val">${n}</div></div>
+        <div class="prop"><div class="lab">Fósforos</div><div class="val">${fosf}</div></div>
+        <div class="prop"><div class="lab">Regla</div><div class="val">3n+1</div></div>
+        <div class="prop"><div class="lab">Diferencia</div><div class="val">+3</div></div>`;
+      veredicto.className='verdict ok';
+      veredicto.textContent = `Patrón visible: 1→4, 2→7, 3→10… Regla aₙ=3n+1. Para n=${n} hay ${fosf} fósforos.`;
+
+    } else if (mode==='ele'){
+      // L of tiles: 2n-1 squares
+      const n = nShow;
+      const s = 36;
+      const ox = 60, oy = 80;
+      // Draw several steps side by side
+      const maxShow = Math.min(n, 5);
+      for (let step=1; step<=maxShow; step++){
+        const bx = ox + (step-1)*140;
+        const by = oy;
+        // vertical arm: step tiles
+        for (let i=0;i<step;i++){
+          svg.appendChild(el('rect',{x:bx,y:by+i*s,width:s-3,height:s-3,rx:4,
+            fill: i===step-1?'#f472b6':'#c4b5fd', stroke:'#7c3aed','stroke-width':2}));
+        }
+        // horizontal arm: step-1 extra to the right of bottom
+        for (let j=1;j<step;j++){
+          svg.appendChild(el('rect',{x:bx+j*s,y:by+(step-1)*s,width:s-3,height:s-3,rx:4,
+            fill:'#a78bfa',stroke:'#7c3aed','stroke-width':2}));
+        }
+        const tiles = 2*step - 1;
+        svg.appendChild(el('text',{x:bx+20,y:by+step*s+24,fill:'#5b21b6','font-size':14,'font-weight':900,'text-anchor':'middle'},
+          `n=${step}`));
+        svg.appendChild(el('text',{x:bx+20,y:by+step*s+42,fill:'#b45309','font-size':13,'font-weight':800,'text-anchor':'middle'},
+          `${tiles} baldosas`));
+      }
+      const total = 2*n - 1;
+      ruleBox([
+        'Palabras: L con brazo de n baldosas',
+        'Fórmula: aₙ = 2n − 1',
+        'Check: n=1→1 · n=2→3 · n=3→5'
+      ]);
+      props.innerHTML = `
+        <div class="prop"><div class="lab">Paso n</div><div class="val">${n}</div></div>
+        <div class="prop"><div class="lab">Baldosas</div><div class="val">${total}</div></div>
+        <div class="prop"><div class="lab">Regla</div><div class="val">2n−1</div></div>
+        <div class="prop"><div class="lab">Tipo</div><div class="val">impares</div></div>`;
+      veredicto.className='verdict ok';
+      veredicto.textContent = `Patrón en L: aₙ=2n−1 (números impares). En el paso n=${n} hay ${total} baldosas.`;
+
+    } else { // tabla
+      const rows = Math.min(nShow, 8);
+      svg.appendChild(el('text',{x:40,y:50,fill:'#5b21b6','font-size':18,'font-weight':900},
+        'Tabla patrón → expresión'));
+      // Header
+      svg.appendChild(el('rect',{x:40,y:70,width:100,height:40,rx:8,fill:'#7c3aed'}));
+      svg.appendChild(el('rect',{x:150,y:70,width:120,height:40,rx:8,fill:'#7c3aed'}));
+      svg.appendChild(el('rect',{x:280,y:70,width:120,height:40,rx:8,fill:'#7c3aed'}));
+      svg.appendChild(el('text',{x:90,y:96,fill:'#fff','font-size':16,'font-weight':900,'text-anchor':'middle'},'n'));
+      svg.appendChild(el('text',{x:210,y:96,fill:'#fff','font-size':16,'font-weight':900,'text-anchor':'middle'},'aₙ'));
+      svg.appendChild(el('text',{x:340,y:96,fill:'#fff','font-size':16,'font-weight':900,'text-anchor':'middle'},'Δ'));
+      for (let i=1;i<=rows;i++){
+        const y=120+(i-1)*42;
+        const val=an(i);
+        const hi = (i===nFocus);
+        svg.appendChild(el('rect',{x:40,y:y,width:100,height:38,rx:6,fill:hi?'#fef3c7':'#ede9fe',stroke:'#a78bfa','stroke-width':2}));
+        svg.appendChild(el('rect',{x:150,y:y,width:120,height:38,rx:6,fill:hi?'#fef3c7':'#fff',stroke:'#a78bfa','stroke-width':2}));
+        svg.appendChild(el('rect',{x:280,y:y,width:120,height:38,rx:6,fill:hi?'#fef3c7':'#fff',stroke:'#a78bfa','stroke-width':2}));
+        svg.appendChild(el('text',{x:90,y:y+26,fill:'#5b21b6','font-size':16,'font-weight':800,'text-anchor':'middle'},String(i)));
+        svg.appendChild(el('text',{x:210,y:y+26,fill:'#5b21b6','font-size':16,'font-weight':900,'text-anchor':'middle'},fmt(val)));
+        svg.appendChild(el('text',{x:340,y:y+26,fill:'#d97706','font-size':16,'font-weight':800,'text-anchor':'middle'},i===1?'—':'+'+d));
+      }
+      // Prediction panel
+      const pred = an(nFocus);
+      ruleBox([
+        'Regla: aₙ = '+a1+' + (n−1)·'+d,
+        'Predicción k='+nFocus+' → aₖ = '+pred,
+        'En palabras: empieza en '+a1+', suma '+d
+      ]);
+      // Visual chips of sequence
+      for (let i=1;i<=Math.min(6,rows);i++){
+        const x=40+(i-1)*55;
+        svg.appendChild(el('circle',{cx:x+20,cy:460,r:18,fill:i===nFocus?'#fbbf24':'#c4b5fd',stroke:'#7c3aed','stroke-width':2}));
+        svg.appendChild(el('text',{x:x+20,y:466,fill:'#5b21b6','font-size':13,'font-weight':900,'text-anchor':'middle'},fmt(an(i))));
+      }
+      props.innerHTML = `
+        <div class="prop"><div class="lab">Fórmula</div><div class="val">${a1}+(n−1)·${d}</div></div>
+        <div class="prop"><div class="lab">k pedido</div><div class="val">${nFocus}</div></div>
+        <div class="prop"><div class="lab">aₖ</div><div class="val">${pred}</div></div>
+        <div class="prop"><div class="lab">d</div><div class="val">${d}</div></div>`;
+      veredicto.className='verdict ok';
+      veredicto.textContent = `De la tabla: diferencia constante d=${d}. Expresión aₙ=${a1}+(n−1)·${d}. Para n=${nFocus} → ${pred}.`;
+    }
+  }
+
+  document.querySelectorAll('.mode-btn').forEach(b=>{
+    b.addEventListener('click',()=>{
+      mode=b.dataset.mode;
+      document.querySelectorAll('.mode-btn').forEach(x=>x.classList.toggle('active',x===b));
+      if (mode==='arit'){ a1=2; d=3; nShow=5; }
+      if (mode==='fosf'){ nShow=3; }
+      if (mode==='ele'){ nShow=4; }
+      if (mode==='tabla'){ a1=4; d=3; nShow=5; nFocus=4; }
+      buildCtrls(); draw();
+    });
+  });
+  [showRule,showNext].forEach(c=>c.addEventListener('change',draw));
+  document.getElementById('btnEj').addEventListener('click',()=>{
+    if (mode==='arit'){ a1=2; d=3; nShow=5; }
+    else if (mode==='fosf'){ nShow=3; }
+    else if (mode==='ele'){ nShow=4; }
+    else { a1=4; d=3; nShow=5; nFocus=10; } // 4,7,10… → 3n+1, 10th=31
+    buildCtrls(); draw();
+  });
+  document.getElementById('btnReset').addEventListener('click',()=>{
+    mode='arit'; a1=2; d=3; nShow=5; nFocus=4;
+    document.querySelectorAll('.mode-btn').forEach(x=>x.classList.toggle('active',x.dataset.mode==='arit'));
+    buildCtrls(); draw();
+  });
+
+  buildCtrls(); draw();
+
+  if (/[?&]preview=1\b/.test(location.search)) {
+    mode='fosf'; nShow=3;
+    showRule.checked=true; showNext.checked=true;
+    document.querySelectorAll('.mode-btn').forEach(x=>x.classList.toggle('active',x.dataset.mode==='fosf'));
+    buildCtrls(); draw();
+  }
+})();
+</script>
+</body>
+</html>

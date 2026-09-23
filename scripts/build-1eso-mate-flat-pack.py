@@ -15,7 +15,7 @@ DESCARGAS = REPO / "descargas.html"
 PACK_DIR = REPO / "downloads/_build-1eso-mate-flat"
 ZIP_PATH = REPO / "downloads/1eso-matematicas-offline.zip"
 TOTAL = 47
-AVAILABLE = 36  # L01–L36
+AVAILABLE = 39  # L01–L39
 
 # (num, short_ud, title, meta, curiosidad_title, curiosidad_text, figura_cur,
 #  objetivos[list], cuerpo_extra_html, vida_title, vida_items, vida_figura,
@@ -1473,6 +1473,129 @@ LESSONS = [
     "reto": "Propón cómo marcar un ángulo recto en un jardín o patio solo con una cuerda marcada a 3, 4 y 5 unidades. Describe el procedimiento.",
     "reto_id": "1eso-mate-L36",
     "cierre": "Cateto² + cateto² = hipotenusa². La hipotenusa es la más larga y mira al ángulo recto.",
+  },
+  {
+    "n": 37,
+    "eyebrow": "Lección 37 · UD12 · Coordenadas y modelización",
+    "title_html": "Coordenadas cartesianas y <em>localización de puntos</em>",
+    "title_plain": "Coordenadas cartesianas y localización de puntos",
+    "meta": "Saberes CyL (Decreto 39/2022): C.2 Localización (coordenadas)",
+    "curiosidad_t": "El mapa que piensa con dos números",
+    "curiosidad": "Descartes popularizó la unión entre álgebra y geometría: dos números pueden señalar un punto. Hoy la misma intuición aparece en mapas, juegos y GPS, aunque el GPS real use sistemas más complejos.",
+    "curiosidad_fig": "mapa.svg",
+    "objetivos": [
+      "Situar puntos en el plano cartesiano y reconocer los cuatro cuadrantes.",
+      "Leer coordenadas (x, y) y localizar el origen (0,0).",
+      "Calcular distancias horizontales, verticales y diagonales sencillas.",
+      "Explicar por qué el orden de la pareja (x,y) importa.",
+    ],
+    "cuerpo": """
+    <h2>Explicación breve</h2>
+    <p>El eje <strong>X</strong> es horizontal y el eje <strong>Y</strong> vertical. Su cruce es el <strong>origen O(0,0)</strong>. En un punto P(a,b), primero leemos la abscisa x y después la ordenada y.</p>
+    <div class="tarjeta">
+      <p style="margin:0"><strong>Cuadrantes:</strong> I (+,+), II (−,+), III (−,−), IV (+,−). El origen no pertenece a ningún cuadrante.</p>
+    </div>
+    <p>En una misma horizontal o vertical basta una resta: |x₂−x₁| o |y₂−y₁|. Para una diagonal, combina los desplazamientos con Pitágoras: d = √(Δx² + Δy²).</p>
+""",
+    "cuerpo_after_widgets": "",
+    "widget_split": False,
+    "vida_t": "Mapas con dos números",
+    "vida": [
+      "Batalla naval y juegos de cuadrícula.",
+      "Mapa de asientos de un cine: fila y columna.",
+      "Planos de calles en retícula.",
+      "Videojuegos: posición (x,y) del personaje.",
+    ],
+    "vida_fig": "mapa.svg",
+    "widgets": [
+      ("Interactivo · plano-mapa cartesiano", "l37-coordenadas-plano.html"),
+    ],
+    "reto_t": "Mapa del recreo",
+    "reto": "Dibuja un eje sobre un croquis del recreo o de tu habitación y da coordenadas a 5 sitios. Explica tu unidad (baldosas, pasos…).",
+    "reto_id": "1eso-mate-L37",
+    "cierre": "Primero abscisa (↔), luego ordenada (↕): el orden importa. Los signos indican el cuadrante y las distancias se comprueban con Pitágoras.",
+  },
+  {
+    "n": 38,
+    "eyebrow": "Lección 38 · UD12 · Coordenadas y modelización",
+    "title_html": "Modelización geométrica de <em>situaciones en el plano</em>",
+    "title_plain": "Modelización geométrica de situaciones en el plano",
+    "meta": "Saberes CyL (Decreto 39/2022): C.3 Visualización y modelización",
+    "curiosidad_t": "El croquis decide qué importa",
+    "curiosidad": "Modelizar no es dibujar la realidad con todos sus detalles: es elegir las medidas y relaciones que permiten responder. Un buen croquis hace visible la pregunta y declara lo que queda fuera.",
+    "curiosidad_fig": "mapa.svg",
+    "objetivos": [
+      "Traducir una situación real a un croquis geométrico.",
+      "Elegir figuras y medidas relevantes e ignorar el ruido.",
+      "Combinar área, perímetro, semejanza o Pitágoras según el caso.",
+      "Validar el modelo comprobando unidades y sentido de la respuesta.",
+    ],
+    "cuerpo": """
+    <h2>Explicación breve</h2>
+    <p><strong>Modelizar</strong> es simplificar la realidad con geometría útil. El método: dibujar, etiquetar datos, elegir propiedades o fórmulas, calcular, interpretar y revisar los límites del modelo.</p>
+    <div class="tarjeta">
+      <p style="margin:0"><strong>Conserva:</strong> longitudes, ángulos rectos, paralelas y escalas. <strong>Ignora como ruido:</strong> texturas, nombres y curvas que no cambian la pregunta.</p>
+    </div>
+    <p>Un informe claro incluye croquis, datos, fórmula, cálculo, resultado con unidades y una frase «esto no incluye…». Así otra persona puede validar la decisión.</p>
+""",
+    "cuerpo_after_widgets": "",
+    "widget_split": False,
+    "vida_t": "Modelos para decidir",
+    "vida": [
+      "Reformar una habitación: pintura y rodapié.",
+      "Planificar una ruta entre tres puntos de un pueblo.",
+      "Diseñar un huerto escolar con pasillos.",
+      "Organizar un aula, un patio o una pista con medidas.",
+    ],
+    "vida_fig": "mapa.svg",
+    "widgets": [
+      ("Interactivo · mini-mapas de Castilla y León", "l38-modelizacion-plano.html"),
+    ],
+    "reto_t": "Problema del barrio",
+    "reto": "Formula un problema geométrico real de tu entorno (parque, pista, habitación). Resuélvelo y di qué simplificaste.",
+    "reto_id": "1eso-mate-L38",
+    "cierre": "Dibujo → datos → fórmula → número → ¿tiene sentido? Un modelo útil declara sus simplificaciones y unidades.",
+  },
+  {
+    "n": 39,
+    "eyebrow": "Lección 39 · UD13 · Álgebra inicial",
+    "title_html": "Patrones numéricos y geométricos: <em>describir la regla</em>",
+    "title_plain": "Patrones numéricos y geométricos: describir la regla",
+    "meta": "Saberes CyL (Decreto 39/2022): D.1 Patrones",
+    "curiosidad_t": "La regla escondida en una baldosa",
+    "curiosidad": "Los patrones aparecen en horarios, mosaicos y celosías. Observar qué cambia de un paso al siguiente permite pasar de contar casos a predecir: una de las puertas de entrada al álgebra.",
+    "curiosidad_fig": "mapa.svg",
+    "objetivos": [
+      "Reconocer patrones en sucesiones numéricas y figuras.",
+      "Describir la regla con palabras y con una fórmula sencilla.",
+      "Predecir términos siguientes y comprobar la predicción.",
+      "Conectar patrones con tablas de valores.",
+    ],
+    "cuerpo": """
+    <h2>Explicación breve</h2>
+    <p>Un <strong>patrón</strong> es una regularidad. Si la diferencia entre términos consecutivos es constante, tenemos una sucesión aritmética: aₙ = a₁ + (n−1)·d.</p>
+    <div class="tarjeta">
+      <p style="margin:0"><strong>Fósforos en cuadrados seguidos:</strong> el primer cuadrado usa 4 y cada paso añade 3; por eso aₙ = 3n + 1. Comprueba siempre n=1 y n=2.</p>
+    </div>
+    <p>Cuenta lados, fósforos o baldosas, organiza los datos en una tabla y expresa la regla primero con palabras: «multiplica la posición por… y suma…».</p>
+""",
+    "cuerpo_after_widgets": "",
+    "widget_split": False,
+    "vida_t": "Patrones que nos rodean",
+    "vida": [
+      "Baldosas que se repiten en un pasillo.",
+      "Horarios cada 15 minutos.",
+      "Filas de asientos numeradas.",
+      "Arte mudéjar, celosías y diseños geométricos.",
+    ],
+    "vida_fig": "mapa.svg",
+    "widgets": [
+      ("Interactivo · patrones visibles", "l39-patrones-regla.html"),
+    ],
+    "reto_t": "Patrón de mi casa",
+    "reto": "Encuentra un patrón visual o numérico en casa (azulejos, horarios, coleccionables). Describe la regla y predice el siguiente elemento.",
+    "reto_id": "1eso-mate-L39",
+    "cierre": "Mira → cuenta → di la regla → escribe aₙ → comprueba n=1 y n=2. Una tabla convierte el patrón en una predicción comprobable.",
   },
 ]
 
