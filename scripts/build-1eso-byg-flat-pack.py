@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Build online shell + flat offline pack for 1º ESO Biología y Geología (L01–L20)."""
+"""Build online shell + flat offline pack for 1º ESO Biología y Geología (L01–L30)."""
 from __future__ import annotations
 
 import html
@@ -21,9 +21,9 @@ ZIP_PATH = REPO / "downloads/1eso-biologia-geologia-offline.zip"
 COURSE_ICONS = COURSE_DIR / "icons"
 BRAND_ICONS = REPO / "brand/favicon"
 TOTAL = 40
-AVAILABLE = 20
+AVAILABLE = 30
 
-# Full temario titles (L11–L40 shown as próximamente on hub)
+# Full temario titles (L31–L40 shown as próximamente on hub)
 TEMARIO = [
     "El método científico en experimentos sencillos",
     "Fuentes veraces frente a bulos y pseudociencia",
@@ -1206,6 +1206,527 @@ LESSONS = [
             "Pared · cloroplastos · vacuola: la firma vegetal."
         ),
     },
+    {
+        "n": 21,
+        "slug": "observar-y-comparar-celulas-al-microscopio",
+        "eyebrow": "Lección 21 · UD D · La célula",
+        "title_html": "Observar y comparar <em>células</em> al microscopio",
+        "title_plain": "Observar y comparar células al microscopio",
+        "meta": "1º ESO Biología y Geología · CyL Decreto 39/2022 · bloque D",
+        "curiosidad_t": "Poco aumento primero",
+        "curiosidad": (
+            'En el lab del instituto, la regla de oro del microscopio es empezar con el '
+            '<strong>objetivo de menor aumento</strong>: así localizas la muestra sin «perderte». '
+            'Luego subes el aumento y comparas: ¿núcleo? ¿pared? ¿verde de cloroplastos?'
+        ),
+        "curiosidad_fig": "ticket.svg",
+        "objetivos": [
+            'Preparar la observación: porta, cubre, enfoque grueso y fino.',
+            'Comparar procariota, animal y vegetal al microscopio (o en modelo).',
+            'Anotar diferencias visibles: núcleo, pared, cloroplastos, tamaño.',
+            'Usar el mnemónico Por-Cu-Fo en el laboratorio.',
+            'Relacionar L17–L20 con lo que se ve al microscopio.',
+        ],
+        "cuerpo": """
+    <h2>Explicación</h2>
+    <p>El <strong>microscopio óptico</strong> amplía lo que no vemos a simple vista. Para comparar células: enfoca con el objetivo de <strong>menor aumento</strong>, luego sube. Busca: ¿hay <strong>núcleo</strong>? ¿<strong>pared</strong> rígida? ¿color <strong>verde</strong> (cloroplastos)?</p>
+    <div class="tarjeta" style="overflow-x:auto">
+      <table style="width:100%;border-collapse:collapse;font-size:0.95em">
+        <tr><th style="border:1px solid #E8E0D0;padding:0.35rem 0.5rem;text-align:left">Tipo</th><th style="border:1px solid #E8E0D0;padding:0.35rem 0.5rem;text-align:left">Qué destacar</th></tr>
+        <tr><td style="border:1px solid #E8E0D0;padding:0.35rem 0.5rem;text-align:left">Procariota</td><td style="border:1px solid #E8E0D0;padding:0.35rem 0.5rem;text-align:left">Sin núcleo; suele ser más pequeña</td></tr>
+        <tr><td style="border:1px solid #E8E0D0;padding:0.35rem 0.5rem;text-align:left">Animal</td><td style="border:1px solid #E8E0D0;padding:0.35rem 0.5rem;text-align:left">Núcleo; sin pared ni cloroplastos</td></tr>
+        <tr><td style="border:1px solid #E8E0D0;padding:0.35rem 0.5rem;text-align:left">Vegetal</td><td style="border:1px solid #E8E0D0;padding:0.35rem 0.5rem;text-align:left">Núcleo + pared + cloroplastos + vacuola</td></tr>
+      </table>
+    </div>
+    <div class="tarjeta">
+      <p style="margin:0"><strong>Mnemónico:</strong> «Por-Cu-Fo».</p>
+    </div>
+""",
+        "vida_t": "Castilla y León",
+        "vida": [
+            'En el laboratorio del instituto (CyL) se suele observar epidermis de cebolla (vegetal) y células de mucosa oral (animal).',
+            'Epidermis de cebolla (vegetal) y mucosa oral (animal) son clásicos de 1º ESO.',
+            'Empieza siempre con poco aumento; después el fino.',
+            'Cierra el bloque D (L17–L21) con observación real o modelo.',
+        ],
+        "vida_fig": "mapa.svg",
+        "widgets": [
+            ("Microscopio · comparar tipos", "l21-observar-celulas-microscopio.html"),
+        ],
+        "reto_t": "Microscopio en 1 minuto",
+        "reto": (
+            'Explica a un compañero, con el dibujo del interactivo, la idea más importante de esta '
+            'lección en 1 minuto.'
+        ),
+        "reto_id": "1eso-byg-L21",
+        "cierre": '<strong>Por-Cu-Fo.</strong> Porta · Cubre · Enfoque: compara procariota, animal y vegetal.',
+    },
+    {
+        "n": 22,
+        "slug": "funciones-vitales-nutricion-relacion-y-reproduccion",
+        "eyebrow": "Lección 22 · UD E · Seres vivos",
+        "title_html": "Funciones vitales: <em>nutrición</em>, relación y reproducción",
+        "title_plain": "Funciones vitales: nutrición, relación y reproducción",
+        "meta": "1º ESO Biología y Geología · CyL Decreto 39/2022 · bloque E",
+        "curiosidad_t": "Tres palabras, toda la vida",
+        "curiosidad": (
+            'Todo ser vivo hace tres cosas: conseguir materia y energía (<strong>nutrición</strong>), '
+            'detectar el medio y responder (<strong>relación</strong>) y dar lugar a nuevos '
+            'individuos (<strong>reproducción</strong>). Un roble de CyL las hace a su modo; tú '
+            'también.'
+        ),
+        "curiosidad_fig": "fuego.svg",
+        "objetivos": [
+            'Definir las tres funciones vitales.',
+            'Relacionar cada función con ejemplos de plantas y animales.',
+            'Explicar por qué sin alguna de ellas no hay vida plena.',
+            'Usar Nu-Re-Re para recordar las tres funciones.',
+            'Clasificar ejemplos cotidianos en las tres funciones.',
+        ],
+        "cuerpo": """
+    <h2>Explicación</h2>
+    <p><strong>Nutrición:</strong> obtener materia y energía (comer, fotosíntesis, respirar…). <strong>Relación:</strong> detectar cambios y responder (luz, sonido, peligro…). <strong>Reproducción:</strong> dar lugar a nuevos individuos (sexual o asexual).</p>
+    <p>Todos los seres vivos realizan las tres (aunque no siempre de la misma forma).</p>
+    <div class="tarjeta">
+      <p style="margin:0"><strong>Mnemónico:</strong> «Nu-Re-Re».</p>
+    </div>
+""",
+        "vida_t": "Castilla y León",
+        "vida": [
+            'Un roble de CyL hace fotosíntesis (nutrición), abre/cierra estomas y crece hacia la luz (relación) y produce bellotas (reproducción).',
+            'Roble: fotosíntesis, estomas/luz y bellotas = las tres funciones.',
+            'Tú: comer, girar la cabeza al oír tu nombre, y… la especie continúa.',
+            'Sin alguna de las tres no hay vida «completa» a escala biológica.',
+        ],
+        "vida_fig": "mapa.svg",
+        "widgets": [
+            ("Tres funciones vitales", "l22-funciones-vitales.html"),
+        ],
+        "reto_t": "Nu-Re-Re en 1 minuto",
+        "reto": (
+            'Explica a un compañero, con el dibujo del interactivo, la idea más importante de esta '
+            'lección en 1 minuto.'
+        ),
+        "reto_id": "1eso-byg-L22",
+        "cierre": '<strong>Nu-Re-Re.</strong> Nutrición · Relación · Reproducción: las tres funciones vitales.',
+    },
+    {
+        "n": 23,
+        "slug": "clasificacion-nomenclatura-binomial-y-especies-de-cyl",
+        "eyebrow": "Lección 23 · UD E · Seres vivos",
+        "title_html": "Clasificación, <em>nomenclatura binomial</em> y especies de CyL",
+        "title_plain": "Clasificación, nomenclatura binomial y especies de CyL",
+        "meta": "1º ESO Biología y Geología · CyL Decreto 39/2022 · bloque E",
+        "curiosidad_t": "Dos nombres, un idioma mundial",
+        "curiosidad": (
+            'Linneo propuso la <strong>nomenclatura binomial</strong>: <em>Género especie</em> (ej. '
+            '<em>Quercus ilex</em>, la encina). Así científicos de todo el mundo hablan de lo mismo. '
+            'En CyL: encina, lobo ibérico, trucha, águila real…'
+        ),
+        "curiosidad_fig": "mapa.svg",
+        "objetivos": [
+            'Explicar por qué clasificamos a los seres vivos.',
+            'Usar nomenclatura binomial (Género especie en cursiva).',
+            'Reconocer especies representativas de CyL.',
+            'Usar Ge-es (Género · especie).',
+            'Citar al menos una especie representativa de CyL.',
+        ],
+        "cuerpo": """
+    <h2>Explicación</h2>
+    <p>Clasificar = agrupar por <strong>características comunes</strong>. <strong>Nomenclatura binomial</strong> (Linneo): dos nombres en latín — <em>Género</em> + <em>especie</em> (ej. <em>Quercus ilex</em>, la encina).</p>
+    <p>En Castilla y León: encina, roble, pino silvestre, lobo ibérico, águila real, trucha común…</p>
+    <div class="tarjeta">
+      <p style="margin:0"><strong>Mnemónico:</strong> «Ge-es».</p>
+    </div>
+""",
+        "vida_t": "Castilla y León",
+        "vida": [
+            'La encina (<em>Quercus ilex</em>) domina muchas dehesas de CyL; el lobo ibérico (<em>Canis lupus signatus</em>) es un mamífero emblemático de la región.',
+            'Encina (<em>Quercus ilex</em>) en dehesas; lobo ibérico (<em>Canis lupus signatus</em>).',
+            'Clasificar ordena la diversidad y evita confusiones de nombre común.',
+            'Género primero, especie después — nunca al revés.',
+        ],
+        "vida_fig": "mapa.svg",
+        "widgets": [
+            ("Binomial · especies CyL", "l23-clasificacion-nomenclatura-cyl.html"),
+        ],
+        "reto_t": "Ge-es en 1 minuto",
+        "reto": (
+            'Explica a un compañero, con el dibujo del interactivo, la idea más importante de esta '
+            'lección en 1 minuto.'
+        ),
+        "reto_id": "1eso-byg-L23",
+        "cierre": '<strong>Ge-es.</strong> Género · especie: dos palabras en cursiva para nombrar con precisión.',
+    },
+    {
+        "n": 24,
+        "slug": "de-los-antiguos-reinos-a-los-dominios-actuales",
+        "eyebrow": "Lección 24 · UD E · Seres vivos",
+        "title_html": "De los antiguos <em>reinos</em> a los dominios actuales",
+        "title_plain": "De los antiguos reinos a los dominios actuales",
+        "meta": "1º ESO Biología y Geología · CyL Decreto 39/2022 · bloque E",
+        "curiosidad_t": "De 5 reinos a 3 dominios",
+        "curiosidad": (
+            'Clase a clase se enseñaban <strong>cinco reinos</strong> (Monera, Protoctista, Hongos, '
+            'Vegetal, Animal). Con genética molecular hoy se usan <strong>tres dominios</strong>: '
+            'Bacteria, Archaea y Eukarya. Monera se reparte entre Bacteria y Archaea.'
+        ),
+        "curiosidad_fig": "ticket.svg",
+        "objetivos": [
+            'Nombrar los cinco reinos clásicos.',
+            'Nombrar los tres dominios actuales.',
+            'Relacionar: Bacteria/Archaea ≈ procariotas; Eukarya ≈ eucariotas (protistas, hongos, plantas, animales).',
+            'Usar Mo-Pro-Ho-Ve-An → Bac-Ar-Eu.',
+            'Situar hongos, plantas y animales en Eukarya.',
+        ],
+        "cuerpo": """
+    <h2>Explicación</h2>
+    <p>Antes se hablaba de <strong>5 reinos</strong>: Monera, Protoctista (protistas), Hongos, Vegetal y Animal. Hoy, con datos moleculares, se usan <strong>3 dominios</strong>: - <strong>Bacteria</strong> - <strong>Archaea</strong> - <strong>Eukarya</strong> (incluye protistas, hongos, plantas y animales)</p>
+    <p>Monera se reparte entre Bacteria y Archaea.</p>
+    <div class="tarjeta">
+      <p style="margin:0"><strong>Mnemónico:</strong> «Mo-Pro-Ho-Ve-An → Bac-Ar-Eu».</p>
+    </div>
+""",
+        "vida_t": "Castilla y León",
+        "vida": [
+            'En el suelo de un robledal de CyL hay bacterias (Bacteria), arqueas en nichos extremos (Archaea) y eucariotas (hongos, plantas, animales).',
+            'En un robledal de CyL: bacterias, arqueas (nichos) y eucariotas conviviendo.',
+            'Seta, roble y lobo: todos Eukarya.',
+            'Actualiza la ficha mental: Monera ya no es un dominio.',
+        ],
+        "vida_fig": "mapa.svg",
+        "widgets": [
+            ("Reinos → dominios", "l24-reinos-dominios.html"),
+        ],
+        "reto_t": "Bac-Ar-Eu en 1 minuto",
+        "reto": (
+            'Explica a un compañero, con el dibujo del interactivo, la idea más importante de esta '
+            'lección en 1 minuto.'
+        ),
+        "reto_id": "1eso-byg-L24",
+        "cierre": '<strong>Mo-Pro-Ho-Ve-An → Bac-Ar-Eu.</strong> Cinco reinos clásicos; tres dominios actuales.',
+    },
+    {
+        "n": 25,
+        "slug": "hongos-caracteristicas-y-micologia-en-castilla-y-leon",
+        "eyebrow": "Lección 25 · UD E · Seres vivos",
+        "title_html": "<em>Hongos</em>: características y micología en Castilla y León",
+        "title_plain": "Hongos: características y micología en Castilla y León",
+        "meta": "1º ESO Biología y Geología · CyL Decreto 39/2022 · bloque E",
+        "curiosidad_t": "Hongos ≠ plantas",
+        "curiosidad": (
+            'Los hongos no hacen fotosíntesis: son <strong>heterótrofos</strong> con pared de quitina '
+            'y esporas. En CyL la <strong>micología</strong> importa (níscalo, boletus…), pero la '
+            'regla es clara: sin guía experta, <strong>no comas</strong> una seta. La amanita roja '
+            'con puntos es tóxica.'
+        ),
+        "curiosidad_fig": "olla.svg",
+        "objetivos": [
+            'Describir rasgos de los hongos (sin clorofila, heterótrofos, paredes de quitina, esporas).',
+            'Distinguir setas comestibles de tóxicas sin inventar: solo con guía experta.',
+            'Valorar la micología en CyL (níscalo, boletus… y respeto al monte).',
+            'Usar Ho-no-pla + ¡Guía!',
+            'Explicar por qué no se improvisa con setas.',
+        ],
+        "cuerpo": """
+    <h2>Explicación</h2>
+    <p>Los <strong>hongos</strong> no son plantas: no hacen fotosíntesis. Se alimentan de materia orgánica; muchos forman <strong>setas</strong> (cuerpo fructífero) con <strong>esporas</strong>.</p>
+    <p><strong>Micología en CyL:</strong> muy importante cultural y económica (níscalo <em>Lactarius deliciosus</em>, boletus…). <strong>Nunca</strong> comas una seta sin identificación experta. La <em>Amanita muscaria</em> (roja con puntos) es tóxica; otras amanitas pueden ser mortales.</p>
+    <div class="tarjeta">
+      <p style="margin:0"><strong>Mnemónico:</strong> «Ho-no-pla + ¡Guía!».</p>
+    </div>
+""",
+        "vida_t": "Castilla y León",
+        "vida": [
+            'En pinares de Soria, León o Segovia se recolectan níscalos en temporada; siempre con permiso y conocimiento. Si dudas: no la cojas para comer.',
+            'Pinares de Soria, León o Segovia: níscalos con permiso y conocimiento.',
+            'Si dudas: no la cojas para comer.',
+            'Micología = ciencia de los hongos; seta = cuerpo fructífero.',
+        ],
+        "vida_fig": "mapa.svg",
+        "widgets": [
+            ("Hongos · micología CyL", "l25-hongos-micologia-cyl.html"),
+        ],
+        "reto_t": "Ho-no-pla en 1 minuto",
+        "reto": (
+            'Explica a un compañero, con el dibujo del interactivo, la idea más importante de esta '
+            'lección en 1 minuto.'
+        ),
+        "reto_id": "1eso-byg-L25",
+        "cierre": '<strong>Ho-no-pla + ¡Guía!</strong> Hongos ≠ plantas; identifica con experto o no comas.',
+    },
+    {
+        "n": 26,
+        "slug": "plantas-grupos-flor-fruto-y-semilla",
+        "eyebrow": "Lección 26 · UD E · Seres vivos",
+        "title_html": "Plantas: grupos, <em>flor</em>, fruto y semilla",
+        "title_plain": "Plantas: grupos, flor, fruto y semilla",
+        "meta": "1º ESO Biología y Geología · CyL Decreto 39/2022 · bloque E",
+        "curiosidad_t": "Flor → fruto → semilla",
+        "curiosidad": (
+            'Las <strong>angiospermas</strong> siguen el camino flor → fruto → semilla. Las '
+            '<strong>gimnospermas</strong> (pino) llevan semillas en piña, sin fruto típico. En CyL: '
+            'pinos en la Cordillera y Sistema Ibérico; encinas y robles en dehesas.'
+        ),
+        "curiosidad_fig": "mapa.svg",
+        "objetivos": [
+            'Distinguir grupos básicos (musgos, helechos, gimnospermas, angiospermas) a nivel 1º ESO.',
+            'Identificar piezas de la flor y relacionar flor→fruto→semilla.',
+            'Comparar gimnospermas (piñas) y angiospermas (flores / frutos).',
+            'Usar Flo-Fru-Sem.',
+            'Relacionar estambres y pistilo con la reproducción.',
+        ],
+        "cuerpo": """
+    <h2>Explicación</h2>
+    <p><strong>Plantas:</strong> autótrofas con fotosíntesis.</p>
+    <div class="tarjeta" style="overflow-x:auto">
+      <table style="width:100%;border-collapse:collapse;font-size:0.95em">
+        <tr><th style="border:1px solid #E8E0D0;padding:0.35rem 0.5rem;text-align:left">Grupo</th><th style="border:1px solid #E8E0D0;padding:0.35rem 0.5rem;text-align:left">Idea</th></tr>
+        <tr><td style="border:1px solid #E8E0D0;padding:0.35rem 0.5rem;text-align:left">Musgos</td><td style="border:1px solid #E8E0D0;padding:0.35rem 0.5rem;text-align:left">Sin vasos verdaderos; viven húmedos</td></tr>
+        <tr><td style="border:1px solid #E8E0D0;padding:0.35rem 0.5rem;text-align:left">Helechos</td><td style="border:1px solid #E8E0D0;padding:0.35rem 0.5rem;text-align:left">Con vasos; esporas (sin semilla)</td></tr>
+        <tr><td style="border:1px solid #E8E0D0;padding:0.35rem 0.5rem;text-align:left">Gimnospermas</td><td style="border:1px solid #E8E0D0;padding:0.35rem 0.5rem;text-align:left">Semillas en piña (pino)</td></tr>
+        <tr><td style="border:1px solid #E8E0D0;padding:0.35rem 0.5rem;text-align:left">Angiospermas</td><td style="border:1px solid #E8E0D0;padding:0.35rem 0.5rem;text-align:left">Flor → fruto con semillas</td></tr>
+      </table>
+    </div>
+    <p><strong>Flor:</strong> sépalos, pétalos, estambres (♂), pistilo (♀). Tras la fecundación: <strong>fruto</strong> que guarda la <strong>semilla</strong>.</p>
+    <div class="tarjeta">
+      <p style="margin:0"><strong>Mnemónico:</strong> «Flo-Fru-Sem».</p>
+    </div>
+""",
+        "vida_t": "Castilla y León",
+        "vida": [
+            'Pinos (gimnospermas) en Cordillera Cantábrica y Sistema Ibérico; encinas y robles (angiospermas) en dehesas y bosques de CyL.',
+            'Estambres (♂) y pistilo (♀): piezas clave de la flor.',
+            'Helechos: vasos sí, semillas no (esporas).',
+            'Musgos: viven húmedos, sin vasos verdaderos.',
+        ],
+        "vida_fig": "mapa.svg",
+        "widgets": [
+            ("Flor · fruto · semilla", "l26-plantas-flor-fruto-semilla.html"),
+        ],
+        "reto_t": "Flo-Fru-Sem en 1 minuto",
+        "reto": (
+            'Explica a un compañero, con el dibujo del interactivo, la idea más importante de esta '
+            'lección en 1 minuto.'
+        ),
+        "reto_id": "1eso-byg-L26",
+        "cierre": '<strong>Flo-Fru-Sem.</strong> Flor → fruto → semilla; el pino va por piñas (gimnosperma).',
+    },
+    {
+        "n": 27,
+        "slug": "animales-invertebrados-anatomia-y-fisiologia-basicas",
+        "eyebrow": "Lección 27 · UD E · Seres vivos",
+        "title_html": "Animales <em>invertebrados</em>: anatomía y fisiología básicas",
+        "title_plain": "Animales invertebrados: anatomía y fisiología básicas",
+        "meta": "1º ESO Biología y Geología · CyL Decreto 39/2022 · bloque E",
+        "curiosidad_t": "Sin columna, con mil formas",
+        "curiosidad": (
+            'Los <strong>invertebrados</strong> no tienen columna vertebral y son la mayoría de las '
+            'especies: lombrices (anélidos), caracoles (moluscos), insectos y arañas (artrópodos)… En '
+            'huertos y ríos de CyL los tienes a diario.'
+        ),
+        "curiosidad_fig": "fuego.svg",
+        "objetivos": [
+            'Definir invertebrado (sin columna vertebral).',
+            'Reconocer grupos: poríferos, cnidarios, anélidos, moluscos, artrópodos, equinodermos (nivel 1º).',
+            'Relacionar forma y función básica (caparazón, patas articuladas, segmentos…).',
+            'Usar In-ver = sin vértebras.',
+            'Citar un invertebrado del entorno de CyL.',
+        ],
+        "cuerpo": """
+    <h2>Explicación</h2>
+    <p><strong>Invertebrados:</strong> animales <strong>sin</strong> columna vertebral. Son la mayoría de las especies.</p>
+    <div class="tarjeta" style="overflow-x:auto">
+      <table style="width:100%;border-collapse:collapse;font-size:0.95em">
+        <tr><th style="border:1px solid #E8E0D0;padding:0.35rem 0.5rem;text-align:left">Grupo</th><th style="border:1px solid #E8E0D0;padding:0.35rem 0.5rem;text-align:left">Ejemplo</th><th style="border:1px solid #E8E0D0;padding:0.35rem 0.5rem;text-align:left">Idea</th></tr>
+        <tr><td style="border:1px solid #E8E0D0;padding:0.35rem 0.5rem;text-align:left">Anélidos</td><td style="border:1px solid #E8E0D0;padding:0.35rem 0.5rem;text-align:left">Lombriz</td><td style="border:1px solid #E8E0D0;padding:0.35rem 0.5rem;text-align:left">Cuerpo segmentado</td></tr>
+        <tr><td style="border:1px solid #E8E0D0;padding:0.35rem 0.5rem;text-align:left">Moluscos</td><td style="border:1px solid #E8E0D0;padding:0.35rem 0.5rem;text-align:left">Caracol</td><td style="border:1px solid #E8E0D0;padding:0.35rem 0.5rem;text-align:left">Pie muscular; muchos con concha</td></tr>
+        <tr><td style="border:1px solid #E8E0D0;padding:0.35rem 0.5rem;text-align:left">Artrópodos</td><td style="border:1px solid #E8E0D0;padding:0.35rem 0.5rem;text-align:left">Insecto, araña</td><td style="border:1px solid #E8E0D0;padding:0.35rem 0.5rem;text-align:left">Patas articuladas + exoesqueleto</td></tr>
+        <tr><td style="border:1px solid #E8E0D0;padding:0.35rem 0.5rem;text-align:left">Cnidarios</td><td style="border:1px solid #E8E0D0;padding:0.35rem 0.5rem;text-align:left">Medusa</td><td style="border:1px solid #E8E0D0;padding:0.35rem 0.5rem;text-align:left">Células urticantes</td></tr>
+        <tr><td style="border:1px solid #E8E0D0;padding:0.35rem 0.5rem;text-align:left">Equinodermos</td><td style="border:1px solid #E8E0D0;padding:0.35rem 0.5rem;text-align:left">Estrella</td><td style="border:1px solid #E8E0D0;padding:0.35rem 0.5rem;text-align:left">Piel con espinas / placas</td></tr>
+      </table>
+    </div>
+    <p>Fisiología básica: se alimentan, respiran (piel, branquias, tráqueas…), se relacionan y reproducen de formas muy variadas.</p>
+    <div class="tarjeta">
+      <p style="margin:0"><strong>Mnemónico:</strong> «In-ver = sin vértebras».</p>
+    </div>
+""",
+        "vida_t": "Castilla y León",
+        "vida": [
+            'En huertos y ríos de CyL: lombrices, caracoles, insectos polinizadores, cangrejos de río (protegidos / especies sensibles).',
+            'Lombriz = anélido segmentado; caracol = molusco con concha.',
+            'Mariposa y araña = artrópodos (patas articuladas + exoesqueleto).',
+            'Cangrejos de río: especies sensibles — respeta el cauce.',
+        ],
+        "vida_fig": "mapa.svg",
+        "widgets": [
+            ("Invertebrados del entorno", "l27-invertebrados.html"),
+        ],
+        "reto_t": "In-ver en 1 minuto",
+        "reto": (
+            'Explica a un compañero, con el dibujo del interactivo, la idea más importante de esta '
+            'lección en 1 minuto.'
+        ),
+        "reto_id": "1eso-byg-L27",
+        "cierre": '<strong>In-ver = sin vértebras.</strong> Anélidos, moluscos, artrópodos… anatomía distinta, sin columna.',
+    },
+    {
+        "n": 28,
+        "slug": "animales-vertebrados-y-animales-como-seres-sintientes",
+        "eyebrow": "Lección 28 · UD E · Seres vivos",
+        "title_html": "Animales <em>vertebrados</em> y animales como seres sintientes",
+        "title_plain": "Animales vertebrados y animales como seres sintientes",
+        "meta": "1º ESO Biología y Geología · CyL Decreto 39/2022 · bloque E",
+        "curiosidad_t": "Cinco grupos + respeto",
+        "curiosidad": (
+            'Peces, anfibios, reptiles, aves y mamíferos: los cinco grupos de '
+            '<strong>vertebrados</strong>. Además, el decreto recuerda que los animales son '
+            '<strong>seres sintientes</strong>: sienten y merecen trato ético en el campo y en casa.'
+        ),
+        "curiosidad_fig": "ticket.svg",
+        "objetivos": [
+            'Nombrar los 5 grupos de vertebrados y un rasgo de cada uno.',
+            'Relacionar anatomía básica (aletas, pulmones, plumas, pelo, amnios…).',
+            'Explicar que los animales son <strong>seres sintientes</strong>: sienten y hay que respetarlos.',
+            'Usar Pe-An-Re-Av-Ma + Siento.',
+            'Dar un ejemplo de trato ético hacia animales.',
+        ],
+        "cuerpo": """
+    <h2>Explicación</h2>
+    <p><strong>Vertebrados:</strong> tienen columna vertebral.</p>
+    <div class="tarjeta" style="overflow-x:auto">
+      <table style="width:100%;border-collapse:collapse;font-size:0.95em">
+        <tr><th style="border:1px solid #E8E0D0;padding:0.35rem 0.5rem;text-align:left">Grupo</th><th style="border:1px solid #E8E0D0;padding:0.35rem 0.5rem;text-align:left">Rasgo clave</th></tr>
+        <tr><td style="border:1px solid #E8E0D0;padding:0.35rem 0.5rem;text-align:left">Peces</td><td style="border:1px solid #E8E0D0;padding:0.35rem 0.5rem;text-align:left">Branquias; aletas; vida acuática</td></tr>
+        <tr><td style="border:1px solid #E8E0D0;padding:0.35rem 0.5rem;text-align:left">Anfibios</td><td style="border:1px solid #E8E0D0;padding:0.35rem 0.5rem;text-align:left">Piel húmeda; metamorfo (renacuajo→rana)</td></tr>
+        <tr><td style="border:1px solid #E8E0D0;padding:0.35rem 0.5rem;text-align:left">Reptiles</td><td style="border:1px solid #E8E0D0;padding:0.35rem 0.5rem;text-align:left">Escamas; respiración pulmonar</td></tr>
+        <tr><td style="border:1px solid #E8E0D0;padding:0.35rem 0.5rem;text-align:left">Aves</td><td style="border:1px solid #E8E0D0;padding:0.35rem 0.5rem;text-align:left">Plumas; pico; homeotermos</td></tr>
+        <tr><td style="border:1px solid #E8E0D0;padding:0.35rem 0.5rem;text-align:left">Mamíferos</td><td style="border:1px solid #E8E0D0;padding:0.35rem 0.5rem;text-align:left">Pelo; glándulas mamarias</td></tr>
+      </table>
+    </div>
+    <p><strong>Seres sintientes:</strong> pueden sentir (dolor, miedo, bienestar). La ciencia y las leyes piden <strong>trato ético</strong>: no maltratar, cuidar mascotas y fauna silvestre.</p>
+    <div class="tarjeta">
+      <p style="margin:0"><strong>Mnemónico:</strong> «Pe-An-Re-Av-Ma + Siento».</p>
+    </div>
+""",
+        "vida_t": "Castilla y León",
+        "vida": [
+            'En CyL: trucha (pez), sapo (anfibio), lagarto (reptil), águila / buitre (aves), ciervo / lobo / oveja (mamíferos). Respeto en el campo y en casa.',
+            'CyL: trucha, sapo, lagarto, águila, ciervo / lobo / oveja.',
+            'Homeotermos: aves y mamíferos mantienen temperatura.',
+            'Sintiente ≠ «solo mascota»: fauna silvestre también.',
+        ],
+        "vida_fig": "mapa.svg",
+        "widgets": [
+            ("Vertebrados · sintiencia", "l28-vertebrados-sintientes.html"),
+        ],
+        "reto_t": "Pe-An-Re-Av-Ma en 1 minuto",
+        "reto": (
+            'Explica a un compañero, con el dibujo del interactivo, la idea más importante de esta '
+            'lección en 1 minuto.'
+        ),
+        "reto_id": "1eso-byg-L28",
+        "cierre": '<strong>Pe-An-Re-Av-Ma + Siento.</strong> Cinco grupos de vertebrados; todos sintientes.',
+    },
+    {
+        "n": 29,
+        "slug": "identificar-especies-del-entorno-guias-y-claves",
+        "eyebrow": "Lección 29 · UD E · Seres vivos",
+        "title_html": "Identificar especies del entorno (<em>guías y claves</em>)",
+        "title_plain": "Identificar especies del entorno (guías y claves)",
+        "meta": "1º ESO Biología y Geología · CyL Decreto 39/2022 · bloque E",
+        "curiosidad_t": "No adivines: pregunta sí/no",
+        "curiosidad": (
+            'Una <strong>clave dicotómica</strong> es un árbol de decisiones (sí/no) hasta nombrar el '
+            'grupo o la especie. Combínala con <strong>visu</strong>, guía de campo y apps — siempre '
+            'contrastando. Observa; no arranques ni molestes sin necesidad.'
+        ),
+        "curiosidad_fig": "mapa.svg",
+        "objetivos": [
+            'Usar una clave dicotómica sencilla (sí/no).',
+            'Combinar visu (observar), guías de campo y herramientas digitales con criterio.',
+            'Identificar especies comunes del entorno sin dañarlas.',
+            'Usar Vi-Gu-Cla-Di.',
+            'Aplicar una clave dicotómica sencilla de dos pasos.',
+        ],
+        "cuerpo": """
+    <h2>Explicación</h2>
+    <p><strong>Identificar</strong> = poner nombre correcto a lo que ves.</p>
+    <p>Herramientas del decreto: - <strong>Visu:</strong> mirar con atención (forma, color, hábitat). - <strong>Guías</strong> de campo (libros / fichas). - <strong>Claves dicotómicas:</strong> preguntas de dos opciones (sí/no) hasta llegar a la especie o grupo. - <strong>Herramientas digitales:</strong> apps y webs — siempre contrastar.</p>
+    <p>Regla de oro: observa, no arranques ni molestes sin necesidad.</p>
+    <div class="tarjeta">
+      <p style="margin:0"><strong>Mnemónico:</strong> «Vi-Gu-Cla-Di».</p>
+    </div>
+""",
+        "vida_t": "Castilla y León",
+        "vida": [
+            'En un paseo por la ribera del Pisuerga o un robledal: usa una clave de hojas (lobulada / entera…) o una guía de aves de CyL.',
+            'Ribera del Pisuerga o robledal: clave de hojas o guía de aves.',
+            'Apps ayudan, no sustituyen el contraste con guía.',
+            'Regla de oro: observa, no destroces el entorno.',
+        ],
+        "vida_fig": "mapa.svg",
+        "widgets": [
+            ("Claves · guías · visu", "l29-identificar-especies.html"),
+        ],
+        "reto_t": "Vi-Gu-Cla-Di en 1 minuto",
+        "reto": (
+            'Explica a un compañero, con el dibujo del interactivo, la idea más importante de esta '
+            'lección en 1 minuto.'
+        ),
+        "reto_id": "1eso-byg-L29",
+        "cierre": '<strong>Vi-Gu-Cla-Di.</strong> Visu · Guía · Clave · Digital: identifica sin dañar.',
+    },
+    {
+        "n": 30,
+        "slug": "ecosistemas-del-entorno-y-sus-elementos",
+        "eyebrow": "Lección 30 · UD F · Ecología y sostenibilidad",
+        "title_html": "<em>Ecosistemas</em> del entorno y sus elementos",
+        "title_plain": "Ecosistemas del entorno y sus elementos",
+        "meta": "1º ESO Biología y Geología · CyL Decreto 39/2022 · bloque F",
+        "curiosidad_t": "Biótico + abiótico + relaciones",
+        "curiosidad": (
+            'Un <strong>ecosistema</strong> une seres vivos (<strong>bióticos</strong>), factores del '
+            'medio (<strong>abióticos</strong>: luz, agua, suelo…) y las <strong>relaciones</strong> '
+            'entre ellos. Dehesa, pinar, ribera del Duero o parque urbano: todos son ecosistemas de '
+            'CyL.'
+        ),
+        "curiosidad_fig": "mapa.svg",
+        "objetivos": [
+            'Definir ecosistema (seres vivos + medio + relaciones).',
+            'Distinguir factores bióticos y abióticos.',
+            'Describir un ecosistema cercano (dehesa, río, bosque, parque).',
+            'Usar Bio-Abio-Rel.',
+            'Describir un ecosistema cercano con bióticos y abióticos.',
+        ],
+        "cuerpo": """
+    <h2>Explicación</h2>
+    <p>Un <strong>ecosistema</strong> = <strong>bióticos</strong> (seres vivos) + <strong>abióticos</strong> (luz, agua, suelo, temperatura…) + <strong>relaciones</strong> entre ellos.</p>
+    <p>Ejemplos en CyL: dehesa, pinar, ribera fluvial, páramo, parque urbano.</p>
+    <p>Elementos: - Productores (plantas) - Consumidores (herbívoros, carnívoros) - Descomponedores (hongos, bacterias) - Medio físico (sol, agua, rocas, aire)</p>
+    <div class="tarjeta">
+      <p style="margin:0"><strong>Mnemónico:</strong> «Bio-Abio-Rel».</p>
+    </div>
+""",
+        "vida_t": "Castilla y León",
+        "vida": [
+            'Una dehesa de encinas en Salamanca o un tramo del Duero: sol, suelo, agua, encinas, insectos, aves, hongos… forman el ecosistema.',
+            'Dehesa de encinas en Salamanca o tramo del Duero: ejemplo cercano.',
+            'Productores, consumidores y descomponedores + medio físico.',
+            'Abre el bloque F; L31–L40 siguen con relaciones y sostenibilidad.',
+        ],
+        "vida_fig": "mapa.svg",
+        "widgets": [
+            ("Ecosistema del entorno", "l30-ecosistemas-entorno.html"),
+        ],
+        "reto_t": "Bio-Abio-Rel en 1 minuto",
+        "reto": (
+            'Explica a un compañero, con el dibujo del interactivo, la idea más importante de esta '
+            'lección en 1 minuto.'
+        ),
+        "reto_id": "1eso-byg-L30",
+        "cierre": '<strong>Bio-Abio-Rel.</strong> Bióticos + abióticos + relaciones = ecosistema.',
+    },
 ]
 
 
@@ -1678,7 +2199,7 @@ def render_hub(*, for_downloads: bool = False) -> str:
     <p class="eyebrow" style="display:block;font-size:0.72rem;letter-spacing:0.16em;text-transform:uppercase;color:var(--lv-acento);font-weight:600;margin:0 0 0.55rem">Decreto 39/2022 · Castilla y León</p>
     <h1 id="hub-titulo">1º ESO Biología y Geología</h1>
     <p class="hub-status">
-      <strong>Lecciones 01–{AVAILABLE:02d} disponibles</strong> (UD A–D: proyecto científico, geosfera, atmósfera/hidrosfera, célula) en shell HTML.
+      <strong>Lecciones 01–{AVAILABLE:02d} disponibles</strong> (UD A–F: proyecto científico, geosfera, atmósfera/hidrosfera, célula, seres vivos, ecosistemas) en shell HTML.
       El curso está <strong>en construcción</strong> ({TOTAL} lecciones previstas).
       <strong>ZIP offline</strong> (sin instalar: descomprime y abre <code>ABRE-AQUI.html</code>) en <a href="{descargas}">Descargas</a>.
     </p>
@@ -1693,7 +2214,7 @@ def render_hub(*, for_downloads: bool = False) -> str:
 
   <p class="hub-pie-nota">
     Educación obligatoria · currículo oficial CyL (Decreto 39/2022). Distinto del pack Profesor (multi-materia).
-    Interactivos L01–L{AVAILABLE:02d}: método, geosfera, atmósfera/hidrosfera y célula (UD A–D).
+    Interactivos L01–L{AVAILABLE:02d}: método, geosfera, atmósfera/hidrosfera, célula, seres vivos y ecosistemas (UD A–F).
   </p>
 
   <footer class="leccion-pie">
@@ -1731,7 +2252,7 @@ def update_descargas() -> None:
 
     byg_body = (
         f"<strong>No se instala.</strong> Descomprime y abre <code>ABRE-AQUI.html</code> / <code>index.html</code>.\n"
-        f"            L01–L{AVAILABLE:02d} disponibles (UD A–D: proyecto científico, geosfera, atmósfera/hidrosfera, célula); "
+        f"            L01–L{AVAILABLE:02d} disponibles (UD A–F: proyecto científico, geosfera, atmósfera/hidrosfera, célula, seres vivos, ecosistemas); "
         f"curso en construcción ({TOTAL} lecciones previstas). Sin nube ni servidor.\n"
         f"            Distinto del pack Profesor."
     )
@@ -1756,7 +2277,7 @@ def update_descargas() -> None:
         # fallback: softer replaces
         text = re.sub(
             r"L01 disponible \(método científico\); curso en construcción \(40 lecciones previstas\)",
-            f"L01–L{AVAILABLE:02d} disponibles (UD A–D: proyecto científico, geosfera, atmósfera/hidrosfera, célula); curso en construcción ({TOTAL} lecciones previstas)",
+            f"L01–L{AVAILABLE:02d} disponibles (UD A–F: proyecto científico, geosfera, atmósfera/hidrosfera, célula, seres vivos, ecosistemas); curso en construcción ({TOTAL} lecciones previstas)",
             text,
             count=1,
         )
@@ -1857,7 +2378,7 @@ def build_offline_pack() -> None:
 No hay que instalar nada. Descomprime y abre **ABRE-AQUI.html** (o index.html).
 
 **Qué es:** lecciones de **Educación obligatoria** (currículo oficial Castilla y León, Decreto 39/2022).
-Este pack trae las lecciones **01–{AVAILABLE:02d}** (UD A–D: proyecto científico, geosfera, atmósfera/hidrosfera, célula) en HTML plano (shell + interactivos embebidos).
+Este pack trae las lecciones **01–{AVAILABLE:02d}** (UD A–F: proyecto científico, geosfera, atmósfera/hidrosfera, célula, seres vivos, ecosistemas) en HTML plano (shell + interactivos embebidos).
 Curso en construcción: **{TOTAL}** lecciones previstas (no está completo).
 
 **Cómo abrir (Android / PC) — 4 pasos**

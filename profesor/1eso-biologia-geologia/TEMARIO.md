@@ -93,5 +93,15 @@
 | L18 Célula procariota | **Entregada** | `18.md` + `l18-celula-procariota.html` + preview HQ |
 | L19 Célula eucariota animal | **Entregada** | `19.md` + `l19-celula-eucariota-animal.html` + preview HQ |
 | L20 Célula eucariota vegetal | **Entregada** | `20.md` + `l20-celula-eucariota-vegetal.html` + preview HQ |
-| L21–L40 | Pendiente | Siguiente: observar/comparar células al microscopio (L21) |
-| QA | **Bloques 01–10 y 11–20** | `_qa-bloque-01-10.md` · `_qa-bloque-11-20.md` |
+| L21 Observar/comparar células al microscopio | **Entregada** | `21.md` + `l21-observar-celulas-microscopio.html` + preview HQ |
+| L22 Funciones vitales | **Entregada** | `22.md` + `l22-funciones-vitales.html` + preview |
+| L23 Clasificación / binomial / especies CyL | **Entregada** | `23.md` + `l23-clasificacion-nomenclatura-cyl.html` + preview |
+| L24 Reinos → dominios | **Entregada** | `24.md` + `l24-reinos-dominios.html` + preview |
+| L25 Hongos / micología CyL | **Entregada** | `25.md` + `l25-hongos-micologia-cyl.html` + preview (tóxica marcada) |
+| L26 Plantas flor/fruto/semilla | **Entregada** | `26.md` + `l26-plantas-flor-fruto-semilla.html` + preview HQ |
+| L27 Invertebrados | **Entregada** | `27.md` + `l27-invertebrados.html` + preview HQ |
+| L28 Vertebrados / sintientes | **Entregada** | `28.md` + `l28-vertebrados-sintientes.html` + preview HQ |
+| L29 Identificar especies | **Entregada** | `29.md` + `l29-identificar-especies.html` + preview |
+| L30 Ecosistemas del entorno | **Entregada** | `30.md` + `l30-ecosistemas-entorno.html` + preview |
+| L31–L40 | Pendiente | Siguiente: relaciones intra/interespecíficas (L31) |
+| QA | **Bloques 01–10, 11–20 y 21–30** | `_qa-bloque-01-10.md` · `_qa-bloque-11-20.md` · `_qa-bloque-21-30.md` |
