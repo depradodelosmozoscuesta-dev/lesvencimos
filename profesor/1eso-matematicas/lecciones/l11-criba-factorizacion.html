@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Primos y factorización · Criba y ladrillos · 1º ESO</title>
+<style>
+  :root {
+    --bg: #f4f7fb; --ink: #1a2b3c; --muted: #5a6d7e; --card: #ffffff;
+    --blue: #3b82f6; --blue-soft: #dbeafe; --blue-deep: #1d4ed8;
+    --orange: #f59e0b; --orange-soft: #fef3c7; --orange-deep: #b45309;
+    --green: #10b981; --green-soft: #d1fae5; --green-deep: #047857;
+    --purple: #8b5cf6; --purple-soft: #ede9fe; --purple-deep: #6d28d9;
+    --rose: #f43f5e; --rose-soft: #ffe4e6;
+    --teal: #14b8a6; --teal-soft: #ccfbf1;
+    --shadow: 0 8px 28px rgba(26, 43, 60, 0.08); --radius: 18px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { min-height: 100%; background: var(--bg); color: var(--ink);
+    font-family: "Segoe UI", system-ui, -apple-system, sans-serif; -webkit-font-smoothing: antialiased; }
+  body { display: flex; flex-direction: column; align-items: center; padding: 14px 10px 36px; }
+  .wrap { width: 100%; max-width: 980px; }
+  header { text-align: center; margin-bottom: 12px; }
+  header .badge { display: inline-block; font-size: 0.78rem; font-weight: 600; letter-spacing: 0.04em;
+    text-transform: uppercase; color: var(--purple-deep); background: var(--purple-soft);
+    padding: 4px 12px; border-radius: 999px; margin-bottom: 8px; }
+  h1 { font-size: clamp(1.3rem, 4.5vw, 1.9rem); line-height: 1.2; font-weight: 800; }
+  .subtitle { margin-top: 6px; font-size: clamp(0.9rem, 2.8vw, 1.05rem); color: var(--muted); font-weight: 500; }
+  .story { background: linear-gradient(135deg, #ede9fe, #fce7f3 45%, #fef3c7);
+    border: 2px solid #d8b4fe; border-radius: var(--radius); padding: 12px 14px;
+    margin-bottom: 14px; display: flex; gap: 12px; align-items: flex-start; }
+  .story .emoji { font-size: 2rem; }
+  .story p { font-size: clamp(0.9rem, 2.5vw, 1.02rem); line-height: 1.45; }
+  .story strong { color: var(--purple-deep); }
+  .card { background: var(--card); border-radius: var(--radius); box-shadow: var(--shadow);
+    padding: 16px 14px 18px; margin-bottom: 14px; }
+  .card h2 { font-size: clamp(1.05rem, 3vw, 1.25rem); font-weight: 800; margin-bottom: 8px;
+    display: flex; align-items: center; gap: 8px; }
+  .hint { font-size: clamp(0.88rem, 2.4vw, 1rem); color: var(--muted); line-height: 1.45; margin-bottom: 12px; }
+  .ctrl-row { display: flex; flex-wrap: wrap; gap: 12px; align-items: flex-end; margin-bottom: 14px; }
+  .field { display: flex; flex-direction: column; gap: 6px; flex: 1 1 140px; }
+  .field label { font-size: 0.88rem; font-weight: 700; color: var(--muted); }
+  .field label .letter { display: inline-block; background: var(--purple-soft); color: var(--purple-deep);
+    padding: 1px 8px; border-radius: 8px; font-weight: 800; margin-right: 4px; }
+  .field input[type="number"] { width: 100%; max-width: 160px; font-size: 1.35rem; font-weight: 800;
+    font-variant-numeric: tabular-nums; padding: 10px 12px; border: 2.5px solid #cbd5e1; border-radius: 12px; }
+  .field input[type="number"]:focus { outline: none; border-color: var(--purple); box-shadow: 0 0 0 3px var(--purple-soft); }
+  .field input[type="range"] { width: 100%; max-width: 240px; }
+  .field .val { font-size: 1.05rem; font-weight: 800; color: var(--purple-deep); }
+  .letters-legend { display: flex; flex-wrap: wrap; gap: 8px; margin: 8px 0 4px; }
+  .letters-legend span { background: var(--purple-soft); color: var(--purple-deep); font-size: 0.8rem;
+    font-weight: 700; padding: 4px 10px; border-radius: 999px; }
+  .btn { border: none; border-radius: 12px; padding: 10px 16px; font-size: 0.92rem; font-weight: 800; cursor: pointer; }
+  .btn:active { transform: scale(0.97); }
+  .btn-primary { background: var(--purple); color: #fff; box-shadow: 0 4px 12px rgba(139,92,246,0.35); }
+  .btn-ghost { background: #fff; color: var(--ink); border: 2px solid #cbd5e1; }
+  .btn-success { background: var(--green); color: #fff; }
+  .stage { border-radius: 16px; padding: 14px 12px 16px; margin-bottom: 10px; border: 2px solid #c4b5fd;
+    background: linear-gradient(180deg, #faf5ff 0%, #ede9fe 60%, #ddd6fe 100%); }
+  .stage-header { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; }
+  .shop-name { font-weight: 800; font-size: 1.05rem; color: var(--purple-deep); }
+  .sieve-grid { display: grid; grid-template-columns: repeat(10, minmax(0, 1fr)); gap: 5px; max-width: 520px; margin: 0 auto; }
+  .sieve-cell { aspect-ratio: 1; border-radius: 8px; display: flex; align-items: center; justify-content: center;
+    font-weight: 800; font-size: clamp(0.7rem, 2.2vw, 0.95rem); border: 2px solid #c4b5fd; background: #fff;
+    font-variant-numeric: tabular-nums; transition: background 0.15s, opacity 0.15s; }
+  .sieve-cell.one { background: #f1f5f9; color: var(--muted); border-color: #cbd5e1; }
+  .sieve-cell.prime { background: var(--green-soft); border-color: #34d399; color: var(--green-deep); }
+  .sieve-cell.struck { background: #fee2e2; border-color: #fca5a5; color: #9f1239; opacity: 0.55;
+    text-decoration: line-through; }
+  .sieve-cell.striking { outline: 3px solid var(--orange); outline-offset: 1px; }
+  .legend-row { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-top: 12px; }
+  .leg { font-size: 0.8rem; font-weight: 700; padding: 4px 10px; border-radius: 999px; }
+  .leg.p { background: var(--green-soft); color: var(--green-deep); }
+  .leg.s { background: #fee2e2; color: #9f1239; }
+  .leg.o { background: #f1f5f9; color: var(--muted); }
+  .prime-list { margin-top: 10px; text-align: center; font-weight: 800; font-size: clamp(0.95rem, 2.8vw, 1.15rem);
+    color: var(--green-deep); line-height: 1.4; }
+  .results { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px; }
+  @media (max-width: 560px) { .results { grid-template-columns: 1fr; } }
+  .result-pill { border-radius: 14px; padding: 12px 14px; border: 2px solid #e2e8f0; }
+  .result-pill.fac { background: var(--purple-soft); border-color: #c4b5fd; }
+  .result-pill.cls { background: var(--teal-soft); border-color: #5eead4; }
+  .result-pill .label { font-size: 0.78rem; font-weight: 700; color: var(--muted); text-transform: uppercase; }
+  .result-pill .eq { font-size: clamp(1rem, 3.2vw, 1.3rem); font-weight: 800; margin-top: 4px; line-height: 1.35;
+    font-variant-numeric: tabular-nums; }
+  .pack-stage { background: linear-gradient(180deg, #ecfdf5 0%, #d1fae5 50%, #a7f3d0 100%);
+    border: 2px solid #34d399; border-radius: 16px; padding: 14px 12px 16px; }
+  .bricks { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; align-items: flex-end;
+    min-height: 100px; padding: 10px; }
+  .brick { display: flex; align-items: center; justify-content: center; font-weight: 800; color: #fff;
+    border-radius: 8px; border: 2px solid rgba(0,0,0,0.15); box-shadow: 0 2px 6px rgba(0,0,0,0.12);
+    font-size: 1.1rem; min-width: 44px; min-height: 44px; padding: 6px 12px; }
+  .brick.p2 { background: linear-gradient(180deg, #60a5fa, #2563eb); }
+  .brick.p3 { background: linear-gradient(180deg, #34d399, #059669); }
+  .brick.p5 { background: linear-gradient(180deg, #fbbf24, #d97706); }
+  .brick.p7 { background: linear-gradient(180deg, #a78bfa, #7c3aed); }
+  .brick.p11 { background: linear-gradient(180deg, #f472b6, #db2777); }
+  .brick.p13 { background: linear-gradient(180deg, #2dd4bf, #0f766e); }
+  .brick.other { background: linear-gradient(180deg, #94a3b8, #475569); }
+  .times { font-size: 1.4rem; font-weight: 800; color: var(--muted); align-self: center; padding: 0 2px; }
+  .tree { margin-top: 12px; font-family: "Courier New", ui-monospace, monospace; font-size: clamp(0.85rem, 2.5vw, 1rem);
+    line-height: 1.55; background: rgba(255,255,255,0.75); border-radius: 12px; padding: 12px; border: 2px dashed #6ee7b7;
+    white-space: pre-wrap; font-weight: 700; color: var(--green-deep); }
+  .class-badge { display: inline-block; padding: 6px 14px; border-radius: 999px; font-weight: 800; font-size: 1rem; }
+  .class-badge.primo { background: var(--green-soft); color: var(--green-deep); }
+  .class-badge.comp { background: var(--orange-soft); color: var(--orange-deep); }
+  .class-badge.esp { background: #f1f5f9; color: var(--muted); }
+  .mnemonic { background: linear-gradient(135deg, var(--purple-soft), #fce7f3);
+    border: 2px solid #d8b4fe; border-radius: 14px; padding: 12px 14px; margin-top: 10px; text-align: center; }
+  .mnemonic .tag { font-size: 0.75rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; color: var(--purple-deep); }
+  .mnemonic p { margin-top: 4px; font-size: clamp(0.95rem, 3vw, 1.1rem); font-weight: 800; color: var(--purple-deep); }
+  .glossary { display: grid; gap: 8px; }
+  .glossary dt { font-weight: 800; font-size: 0.95rem; color: var(--blue-deep); }
+  .glossary dd { font-size: 0.92rem; color: var(--muted); line-height: 1.4; margin-bottom: 4px; }
+  .sym-chip { display: inline-block; background: var(--teal-soft); color: #0f766e; font-weight: 800;
+    padding: 1px 7px; border-radius: 6px; font-family: "Courier New", ui-monospace, monospace; }
+  .step-bar { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 10px; }
+  footer.note { text-align: center; font-size: 0.8rem; color: var(--muted); margin-top: 8px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="badge">1º ESO · UD3 Divisibilidad · L11</div>
+    <h1>Ladrillos primos y criba</h1>
+    <p class="subtitle">Números primos, criba de Eratóstenes y factorización visual</p>
+  </header>
+
+  <div class="story">
+    <div class="emoji">🧱</div>
+    <p>Los naturales mayores que 1 se construyen con <strong>ladrillos primos</strong>.
+    Un número <strong>primo</strong> es un ladrillo que no se parte: solo tiene divisores <strong>1</strong> y él mismo.
+    Factorizar es apilar esos ladrillos hasta reconstruir el número. La <strong>criba</strong> tacha múltiplos y deja brillar los primos.</p>
+  </div>
+
+  <section class="card">
+    <h2>🕸️ Criba de Eratóstenes</h2>
+    <p class="hint">Elige el tope <span class="sym-chip">N</span> (independiente del número a factorizar). Pulsa <strong>Paso</strong> para tachar múltiplos del siguiente primo, o <strong>Cribar todo</strong>.</p>
+    <div class="letters-legend">
+      <span><b>N</b> = tope de la lista (hasta aquí cribamos)</span>
+      <span><b>p</b> = primo que está tachando múltiplos</span>
+      <span><span class="sym-chip">×</span> = por · tachado = compuesto</span>
+    </div>
+    <div class="ctrl-row">
+      <div class="field">
+        <label><span class="letter">N</span> Tope de la criba (20–50)</label>
+        <input type="range" id="NRange" min="20" max="50" value="30" step="10">
+        <div class="val">N = <span id="NVal">30</span></div>
+      </div>
+      <button class="btn btn-ghost" id="btnReset" type="button">Reiniciar</button>
+      <button class="btn btn-primary" id="btnStep" type="button">Paso →</button>
+      <button class="btn btn-success" id="btnAll" type="button">Cribar todo</button>
+    </div>
+    <div class="stage">
+      <div class="stage-header">
+        <div class="shop-name">📜 Tabla 1…N · Eratóstenes</div>
+        <div id="stepMsg" style="font-size:0.88rem;font-weight:700;color:var(--muted)">Pulsa Paso para empezar</div>
+      </div>
+      <div class="sieve-grid" id="sieve"></div>
+      <div class="legend-row">
+        <span class="leg p">Verde = primo</span>
+        <span class="leg s">Rojo tachado = compuesto</span>
+        <span class="leg o">Gris = el 1 (especial)</span>
+      </div>
+      <div class="prime-list" id="primeList">Primos encontrados: —</div>
+    </div>
+    <div class="mnemonic">
+      <div class="tag">Truco mnemotécnico</div>
+      <p>«Tacha los múltiplos; lo que no se tacha es primo.»</p>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>🧱 Empaquetar en factores primos</h2>
+    <p class="hint">Elige <span class="sym-chip">n</span> (control independiente de N). Verás ladrillos de colores (cada color = un primo) y el árbol de divisiones.</p>
+    <div class="letters-legend">
+      <span><b>n</b> = número a factorizar</span>
+      <span><b>aⁿ</b> = a multiplicado n veces (potencia)</span>
+      <span><span class="sym-chip">×</span> = por · <span class="sym-chip">=</span> = igual</span>
+    </div>
+    <div class="ctrl-row">
+      <div class="field">
+        <label><span class="letter">n</span> Número (2–120)</label>
+        <input type="number" id="nFac" min="2" max="120" value="84">
+      </div>
+      <div class="field">
+        <label>Ejemplos rápidos</label>
+        <div class="step-bar">
+          <button class="btn btn-ghost" type="button" data-ex="12">12</button>
+          <button class="btn btn-ghost" type="button" data-ex="60">60</button>
+          <button class="btn btn-ghost" type="button" data-ex="84">84</button>
+          <button class="btn btn-ghost" type="button" data-ex="97">97</button>
+          <button class="btn btn-ghost" type="button" data-ex="100">100</button>
+        </div>
+      </div>
+    </div>
+    <div class="results">
+      <div class="result-pill cls">
+        <div class="label">Clasificación</div>
+        <div class="eq" id="classOut">—</div>
+      </div>
+      <div class="result-pill fac">
+        <div class="label">Factorización</div>
+        <div class="eq" id="facOut">—</div>
+      </div>
+    </div>
+    <div class="pack-stage">
+      <div class="stage-header">
+        <div class="shop-name" style="color:var(--green-deep)">🧱 Ladrillos primos de n = <span id="nBrick">84</span></div>
+      </div>
+      <div class="bricks" id="bricks"></div>
+      <div class="tree" id="tree">—</div>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>📖 Glosario de símbolos y letras</h2>
+    <dl class="glossary">
+      <dt>N</dt><dd>Tope de la criba: miramos los naturales del 1 al N.</dd>
+      <dt>n</dt><dd>Número que quieres clasificar o factorizar (independiente de N).</dd>
+      <dt>p</dt><dd>Un número primo (ladrillo).</dd>
+      <dt>Primo</dt><dd>Natural &gt; 1 con exactamente dos divisores: 1 y él mismo.</dd>
+      <dt>Compuesto</dt><dd>Natural &gt; 1 con más de dos divisores (se puede partir en factores).</dd>
+      <dt>El 1</dt><dd>No es primo ni compuesto (solo tiene un divisor: él mismo).</dd>
+      <dt><span class="sym-chip">×</span></dt><dd>«Por». Producto de factores.</dd>
+      <dt><span class="sym-chip">aⁿ</span> / potencia</dt><dd>a multiplicado por sí mismo n veces. Ej.: 2³ = 2×2×2 = 8. El exponente n se lee «elevado a n».</dd>
+      <dt><span class="sym-chip">=</span></dt><dd>«Vale lo mismo».</dd>
+      <dt>Criba de Eratóstenes</dt><dd>Método para listar primos: tacha múltiplos de 2, luego de 3, de 5…</dd>
+      <dt>Factorización</dt><dd>Escribir n como producto de primos (única salvo el orden).</dd>
+    </dl>
+  </section>
+
+  <p class="note footer">Offline · file:// · CyL Decreto 39/2022 · A.4 Relaciones · sin red</p>
+</div>
+<script>
+(function () {
+  const NRange = document.getElementById('NRange');
+  const NVal = document.getElementById('NVal');
+  const sieveEl = document.getElementById('sieve');
+  const stepMsg = document.getElementById('stepMsg');
+  const primeList = document.getElementById('primeList');
+  const nFac = document.getElementById('nFac');
+  const classOut = document.getElementById('classOut');
+  const facOut = document.getElementById('facOut');
+  const bricks = document.getElementById('bricks');
+  const tree = document.getElementById('tree');
+  const nBrick = document.getElementById('nBrick');
+
+  let N = 30;
+  let struck = [];
+  let primesFound = [];
+  let nextPrimeIdx = 0;
+  let sievePrimes = [];
+  let done = false;
+
+  function clamp(v, lo, hi) { return Math.max(lo, Math.min(hi, v)); }
+
+  function isPrimeQuick(n) {
+    if (n < 2) return false;
+    if (n === 2 || n === 3) return true;
+    if (n % 2 === 0) return false;
+    for (let d = 3; d * d <= n; d += 2) if (n % d === 0) return false;
+    return true;
+  }
+
+  function factorize(n) {
+    const factors = [];
+    let x = n;
+    for (let p = 2; p * p <= x; p++) {
+      while (x % p === 0) { factors.push(p); x = x / p; }
+    }
+    if (x > 1) factors.push(x);
+    return factors;
+  }
+
+  function formatPower(factors) {
+    if (factors.length === 0) return String(1);
+    const map = {};
+    for (const p of factors) map[p] = (map[p] || 0) + 1;
+    return Object.keys(map).map(p => {
+      const e = map[p];
+      return e === 1 ? p : (p + 'ⁿ'.replace('ⁿ', '') + '²³⁴⁵⁶⁷⁸⁹⁰'[e] ? p + '²³⁴⁵⁶⁷⁸⁹'[e-2] : p + '^' + e);
+    });
+  }
+
+  // Better power formatting with unicode superscripts
+  const SUP = { '0':'⁰','1':'¹','2':'²','3':'³','4':'⁴','5':'⁵','6':'⁶','7':'⁷','8':'⁸','9':'⁹' };
+  function toSup(e) {
+    return String(e).split('').map(c => SUP[c] || c).join('');
+  }
+  function formatFac(factors) {
+    if (!factors.length) return '1';
+    const map = {};
+    for (const p of factors) map[p] = (map[p] || 0) + 1;
+    return Object.keys(map).map(Number).sort((a,b)=>a-b).map(p => {
+      const e = map[p];
+      return e === 1 ? String(p) : (p + toSup(e));
+    }).join(' × ');
+  }
+
+  function brickClass(p) {
+    if (p === 2) return 'p2';
+    if (p === 3) return 'p3';
+    if (p === 5) return 'p5';
+    if (p === 7) return 'p7';
+    if (p === 11) return 'p11';
+    if (p === 13) return 'p13';
+    return 'other';
+  }
+
+  function buildTreeLines(n) {
+    const lines = [];
+    let x = n;
+    if (x < 2) return ['(n < 2)'];
+    if (isPrimeQuick(x)) return [x + '  →  primo (no se parte)'];
+    while (x > 1) {
+      let p = 2;
+      while (x % p !== 0) p++;
+      if (x === p) {
+        lines.push(x + '  →  primo');
+        break;
+      }
+      const q = x / p;
+      lines.push(x + '  =  ' + p + ' × ' + q);
+      x = q;
+    }
+    return lines;
+  }
+
+  function resetSieve() {
+    N = clamp(parseInt(NRange.value, 10) || 30, 20, 50);
+    // snap to 20/30/40/50
+    N = Math.round(N / 10) * 10;
+    if (N < 20) N = 20;
+    NRange.value = N;
+    NVal.textContent = N;
+    struck = new Array(N + 1).fill(false);
+    struck[0] = true;
+    if (N >= 1) struck[1] = true;
+    primesFound = [];
+    sievePrimes = [];
+    for (let i = 2; i <= N; i++) if (isPrimeQuick(i)) sievePrimes.push(i);
+    nextPrimeIdx = 0;
+    done = false;
+    renderSieve();
+    stepMsg.textContent = 'Listo. Primer paso: tachar múltiplos de 2.';
+    updatePrimeList();
+  }
+
+  function renderSieve(highlightMultipleOf) {
+    sieveEl.innerHTML = '';
+    for (let i = 1; i <= N; i++) {
+      const cell = document.createElement('div');
+      cell.className = 'sieve-cell';
+      cell.textContent = i;
+      if (i === 1) cell.classList.add('one');
+      else if (struck[i]) cell.classList.add('struck');
+      else if (primesFound.indexOf(i) >= 0 || (done && isPrimeQuick(i))) cell.classList.add('prime');
+      if (highlightMultipleOf && i > highlightMultipleOf && i % highlightMultipleOf === 0) {
+        cell.classList.add('striking');
+      }
+      sieveEl.appendChild(cell);
+    }
+  }
+
+  function updatePrimeList() {
+    const list = [];
+    for (let i = 2; i <= N; i++) {
+      if (!struck[i]) list.push(i);
+    }
+    // During process, unmarked >1 that we've finished sieving with p where p*p>N are primes
+    if (done) {
+      primeList.textContent = 'Primos ≤ N: ' + list.join(', ');
+    } else {
+      const known = primesFound.slice();
+      primeList.textContent = known.length
+        ? ('Primos confirmados: ' + known.join(', ') + (list.length > known.length ? ' · (siguen candidatos…)' : ''))
+        : 'Primos confirmados: (aún ninguno — da el primer paso)';
+    }
+  }
+
+  function stepSieve() {
+    if (done) {
+      stepMsg.textContent = 'Criba terminada. Reinicia para repetir.';
+      return;
+    }
+    // Find next p that is not struck
+    while (nextPrimeIdx < sievePrimes.length && struck[sievePrimes[nextPrimeIdx]]) nextPrimeIdx++;
+    if (nextPrimeIdx >= sievePrimes.length) {
+      done = true;
+      for (let i = 2; i <= N; i++) if (!struck[i]) primesFound.push(i);
+      renderSieve();
+      updatePrimeList();
+      stepMsg.textContent = '¡Hecho! Todo lo verde es primo.';
+      return;
+    }
+    const p = sievePrimes[nextPrimeIdx];
+    // Stop early if p*p > N (remaining unmarked are prime)
+    if (p * p > N) {
+      for (let i = 2; i <= N; i++) if (!struck[i] && primesFound.indexOf(i) < 0) primesFound.push(i);
+      done = true;
+      renderSieve();
+      updatePrimeList();
+      stepMsg.textContent = 'Como p² > N (p = ' + p + '), lo que queda sin tachar ya es primo.';
+      return;
+    }
+    // Strike multiples of p starting at p*p (or 2p for pedagogy — use 2p so kids see it)
+    let count = 0;
+    for (let m = 2 * p; m <= N; m += p) {
+      if (!struck[m]) { struck[m] = true; count++; }
+    }
+    if (primesFound.indexOf(p) < 0) primesFound.push(p);
+    renderSieve(p);
+    updatePrimeList();
+    stepMsg.textContent = 'Primo p = ' + p + ': tachados ' + count + ' múltiplos (2×' + p + ', 3×' + p + '…).';
+    nextPrimeIdx++;
+    // Mark p as prime visually
+    renderSieve(p);
+  }
+
+  function sieveAll() {
+    resetSieve();
+    while (!done) stepSieve();
+  }
+
+  function renderFactor() {
+    let n = parseInt(nFac.value, 10);
+    if (!Number.isFinite(n)) n = 84;
+    n = clamp(n, 2, 120);
+    nFac.value = n;
+    nBrick.textContent = n;
+
+    let clsHtml;
+    if (n === 1) {
+      clsHtml = '<span class="class-badge esp">Especial (ni primo ni compuesto)</span>';
+    } else if (isPrimeQuick(n)) {
+      clsHtml = '<span class="class-badge primo">Primo</span>';
+    } else {
+      clsHtml = '<span class="class-badge comp">Compuesto</span>';
+    }
+    classOut.innerHTML = clsHtml;
+
+    const factors = factorize(n);
+    facOut.textContent = n + ' = ' + formatFac(factors);
+
+    bricks.innerHTML = '';
+    if (isPrimeQuick(n)) {
+      const b = document.createElement('div');
+      b.className = 'brick ' + brickClass(n);
+      b.textContent = n;
+      b.title = 'Primo: un solo ladrillo';
+      bricks.appendChild(b);
+    } else {
+      factors.forEach((p, i) => {
+        if (i > 0) {
+          const t = document.createElement('div');
+          t.className = 'times';
+          t.textContent = '×';
+          bricks.appendChild(t);
+        }
+        const b = document.createElement('div');
+        b.className = 'brick ' + brickClass(p);
+        b.textContent = p;
+        b.title = 'Factor primo ' + p;
+        bricks.appendChild(b);
+      });
+    }
+    tree.textContent = 'Árbol de divisiones:\n' + buildTreeLines(n).join('\n') +
+      '\n\nCon potencias: ' + n + ' = ' + formatFac(factors);
+  }
+
+  NRange.addEventListener('input', () => { NVal.textContent = NRange.value; });
+  NRange.addEventListener('change', resetSieve);
+  document.getElementById('btnReset').addEventListener('click', resetSieve);
+  document.getElementById('btnStep').addEventListener('click', stepSieve);
+  document.getElementById('btnAll').addEventListener('click', sieveAll);
+  nFac.addEventListener('change', renderFactor);
+  document.querySelectorAll('[data-ex]').forEach(btn => {
+    btn.addEventListener('click', () => { nFac.value = btn.dataset.ex; renderFactor(); });
+  });
+
+  resetSieve();
+  // Auto-run a couple steps so preview looks alive
+  stepSieve();
+  stepSieve();
+  renderFactor();
+})();
+</script>
+</body>
+</html>

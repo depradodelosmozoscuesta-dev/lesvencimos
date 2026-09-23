@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>mcd y mcm · Barras y Venn · 1º ESO</title>
+<style>
+  :root {
+    --bg: #f4f7fb; --ink: #1a2b3c; --muted: #5a6d7e; --card: #ffffff;
+    --blue: #3b82f6; --blue-soft: #dbeafe; --blue-deep: #1d4ed8;
+    --orange: #f59e0b; --orange-soft: #fef3c7; --orange-deep: #b45309;
+    --green: #10b981; --green-soft: #d1fae5; --green-deep: #047857;
+    --purple: #8b5cf6; --purple-soft: #ede9fe; --purple-deep: #6d28d9;
+    --rose: #f43f5e; --rose-soft: #ffe4e6;
+    --teal: #14b8a6; --teal-soft: #ccfbf1;
+    --shadow: 0 8px 28px rgba(26, 43, 60, 0.08); --radius: 18px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { min-height: 100%; background: var(--bg); color: var(--ink);
+    font-family: "Segoe UI", system-ui, -apple-system, sans-serif; -webkit-font-smoothing: antialiased; }
+  body { display: flex; flex-direction: column; align-items: center; padding: 14px 10px 36px; }
+  .wrap { width: 100%; max-width: 980px; }
+  header { text-align: center; margin-bottom: 12px; }
+  header .badge { display: inline-block; font-size: 0.78rem; font-weight: 600; letter-spacing: 0.04em;
+    text-transform: uppercase; color: var(--teal); background: var(--teal-soft);
+    padding: 4px 12px; border-radius: 999px; margin-bottom: 8px; }
+  h1 { font-size: clamp(1.3rem, 4.5vw, 1.9rem); line-height: 1.2; font-weight: 800; }
+  .subtitle { margin-top: 6px; font-size: clamp(0.9rem, 2.8vw, 1.05rem); color: var(--muted); font-weight: 500; }
+  .story { background: linear-gradient(135deg, #ccfbf1, #e0f2fe 45%, #ede9fe);
+    border: 2px solid #5eead4; border-radius: var(--radius); padding: 12px 14px;
+    margin-bottom: 14px; display: flex; gap: 12px; align-items: flex-start; }
+  .story .emoji { font-size: 2rem; }
+  .story p { font-size: clamp(0.9rem, 2.5vw, 1.02rem); line-height: 1.45; }
+  .story strong { color: #0f766e; }
+  .card { background: var(--card); border-radius: var(--radius); box-shadow: var(--shadow);
+    padding: 16px 14px 18px; margin-bottom: 14px; }
+  .card h2 { font-size: clamp(1.05rem, 3vw, 1.25rem); font-weight: 800; margin-bottom: 8px;
+    display: flex; align-items: center; gap: 8px; }
+  .hint { font-size: clamp(0.88rem, 2.4vw, 1rem); color: var(--muted); line-height: 1.45; margin-bottom: 12px; }
+  .ctrl-row { display: flex; flex-wrap: wrap; gap: 12px; align-items: flex-end; margin-bottom: 14px; }
+  .field { display: flex; flex-direction: column; gap: 6px; flex: 1 1 140px; }
+  .field label { font-size: 0.88rem; font-weight: 700; color: var(--muted); }
+  .field label .letter { display: inline-block; background: var(--teal-soft); color: #0f766e;
+    padding: 1px 8px; border-radius: 8px; font-weight: 800; margin-right: 4px; }
+  .field input[type="number"] { width: 100%; max-width: 140px; font-size: 1.4rem; font-weight: 800;
+    font-variant-numeric: tabular-nums; padding: 10px 12px; border: 2.5px solid #cbd5e1; border-radius: 12px; }
+  .field input[type="number"]:focus { outline: none; border-color: var(--teal); box-shadow: 0 0 0 3px var(--teal-soft); }
+  .letters-legend { display: flex; flex-wrap: wrap; gap: 8px; margin: 8px 0 4px; }
+  .letters-legend span { background: var(--purple-soft); color: var(--purple-deep); font-size: 0.8rem;
+    font-weight: 700; padding: 4px 10px; border-radius: 999px; }
+  .results { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px; }
+  @media (max-width: 560px) { .results { grid-template-columns: 1fr; } }
+  .result-pill { border-radius: 14px; padding: 12px 14px; border: 2px solid #e2e8f0; }
+  .result-pill.mcd { background: var(--green-soft); border-color: #6ee7b7; }
+  .result-pill.mcm { background: var(--blue-soft); border-color: #93c5fd; }
+  .result-pill .label { font-size: 0.78rem; font-weight: 700; color: var(--muted); text-transform: uppercase; }
+  .result-pill .eq { font-size: clamp(1.05rem, 3.2vw, 1.35rem); font-weight: 800; margin-top: 4px; line-height: 1.35;
+    font-variant-numeric: tabular-nums; }
+  .result-pill .sub { font-size: 0.85rem; font-weight: 600; color: var(--muted); margin-top: 4px; }
+  .btn { border: none; border-radius: 12px; padding: 8px 14px; font-size: 0.88rem; font-weight: 800; cursor: pointer; }
+  .btn-ghost { background: #fff; color: var(--ink); border: 2px solid #cbd5e1; }
+  .stage { border-radius: 16px; padding: 14px 12px 16px; margin-bottom: 12px; border: 2px solid #5eead4;
+    background: linear-gradient(180deg, #f0fdfa 0%, #ccfbf1 60%, #99f6e4 100%); }
+  .stage.mcm-stage { border-color: #93c5fd; background: linear-gradient(180deg, #eff6ff 0%, #dbeafe 60%, #bfdbfe 100%); }
+  .stage-header { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; }
+  .shop-name { font-weight: 800; font-size: 1.05rem; color: #0f766e; }
+  .stage.mcm-stage .shop-name { color: var(--blue-deep); }
+  .rod-row { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+  .rod-label { width: 56px; font-weight: 800; font-size: 0.9rem; flex-shrink: 0; }
+  .rod-track { flex: 1; position: relative; height: 36px; background: rgba(255,255,255,0.6);
+    border-radius: 8px; border: 1px dashed #99f6e4; overflow: hidden; }
+  .rod { height: 100%; border-radius: 6px; display: flex; align-items: center; justify-content: flex-end;
+    padding-right: 8px; font-weight: 800; color: #fff; font-size: 0.85rem;
+    box-shadow: inset 0 2px 0 rgba(255,255,255,0.3); min-width: 8px; }
+  .rod.a { background: linear-gradient(90deg, #38bdf8, #0284c7); }
+  .rod.b { background: linear-gradient(90deg, #a78bfa, #7c3aed); }
+  .rod.g { background: linear-gradient(90deg, #34d399, #059669); border: 2px solid #047857; }
+  .rod-units { display: flex; height: 100%; width: 100%; }
+  .rod-units .seg { flex: 1; border-right: 1px solid rgba(255,255,255,0.35); }
+  .rod-units .seg:last-child { border-right: none; }
+  .tick-line { position: relative; height: 54px; margin: 8px 0 4px; background: rgba(255,255,255,0.7);
+    border-radius: 10px; border: 2px solid #93c5fd; overflow: hidden; }
+  .tick { position: absolute; top: 0; bottom: 0; width: 3px; background: #cbd5e1; transform: translateX(-50%); }
+  .tick.a { background: #0284c7; width: 4px; }
+  .tick.b { background: #7c3aed; width: 4px; }
+  .tick.both { background: #059669; width: 6px; box-shadow: 0 0 0 3px #a7f3d0; z-index: 2; }
+  .tick-label { position: absolute; bottom: 2px; left: 50%; transform: translateX(-50%);
+    font-size: 0.65rem; font-weight: 800; color: var(--ink); white-space: nowrap; }
+  .venn-wrap { display: flex; flex-wrap: wrap; gap: 16px; justify-content: center; align-items: center; margin-top: 8px; }
+  .venn { position: relative; width: 280px; height: 180px; }
+  .venn .circle { position: absolute; width: 150px; height: 150px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center; border: 3px solid; top: 15px; }
+  .venn .c-a { left: 10px; background: rgba(56,189,248,0.25); border-color: #0284c7; }
+  .venn .c-b { right: 10px; background: rgba(167,139,250,0.25); border-color: #7c3aed; }
+  .venn .only-a, .venn .only-b, .venn .both-f { position: absolute; top: 50%; transform: translateY(-50%);
+    font-weight: 800; font-size: 0.85rem; text-align: center; max-width: 70px; line-height: 1.25; }
+  .venn .only-a { left: 22px; color: #0369a1; }
+  .venn .only-b { right: 22px; color: #6d28d9; }
+  .venn .both-f { left: 50%; transform: translate(-50%, -50%); color: #047857; background: rgba(167,243,208,0.85);
+    padding: 6px 8px; border-radius: 10px; border: 2px solid #34d399; z-index: 2; max-width: 90px; }
+  .venn-caption { font-size: 0.88rem; font-weight: 700; color: var(--muted); max-width: 260px; line-height: 1.4; }
+  .chooser { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 10px; }
+  .chip { border: 2px solid #cbd5e1; background: #fff; border-radius: 999px; padding: 7px 14px;
+    font-size: 0.88rem; font-weight: 700; cursor: pointer; }
+  .chip.active { border-color: var(--teal); background: var(--teal-soft); color: #0f766e; }
+  .problem-box { background: #fff; border: 2px dashed #cbd5e1; border-radius: 14px; padding: 12px 14px; margin-top: 8px; }
+  .problem-box .q { font-weight: 800; font-size: 1.02rem; margin-bottom: 6px; }
+  .problem-box .a { font-size: 0.95rem; line-height: 1.45; color: var(--ink); }
+  .problem-box .a .ok { color: var(--green-deep); font-weight: 800; }
+  .rel-box { text-align: center; font-weight: 800; font-size: clamp(1rem, 3vw, 1.2rem);
+    padding: 12px; background: var(--purple-soft); border-radius: 12px; border: 2px solid #d8b4fe;
+    margin-top: 10px; line-height: 1.4; }
+  .mnemonic { background: linear-gradient(135deg, var(--purple-soft), #fce7f3);
+    border: 2px solid #d8b4fe; border-radius: 14px; padding: 12px 14px; margin-top: 10px; text-align: center; }
+  .mnemonic .tag { font-size: 0.75rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; color: var(--purple-deep); }
+  .mnemonic p { margin-top: 4px; font-size: clamp(0.95rem, 3vw, 1.1rem); font-weight: 800; color: var(--purple-deep); }
+  .glossary { display: grid; gap: 8px; }
+  .glossary dt { font-weight: 800; font-size: 0.95rem; color: var(--blue-deep); }
+  .glossary dd { font-size: 0.92rem; color: var(--muted); line-height: 1.4; margin-bottom: 4px; }
+  .sym-chip { display: inline-block; background: var(--teal-soft); color: #0f766e; font-weight: 800;
+    padding: 1px 7px; border-radius: 6px; font-family: "Courier New", ui-monospace, monospace; }
+  footer.note { text-align: center; font-size: 0.8rem; color: var(--muted); margin-top: 8px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="badge">1º ESO · UD3 Divisibilidad · L12</div>
+    <h1>Barras que coinciden</h1>
+    <p class="subtitle">mcd y mcm con varillas solapadas y Venn de factores</p>
+  </header>
+
+  <div class="story">
+    <div class="emoji">📏</div>
+    <p>Dos medidas <strong>a</strong> y <strong>b</strong> (por ejemplo minutos de dos buses escolares en CyL).
+    El <strong>mcd</strong> es la <em>mayor varilla</em> que mide las dos exactas.
+    El <strong>mcm</strong> es la <em>primera marca</em> donde coinciden los ciclos.
+    Los factores primos en el centro del Venn construyen el mcd.</p>
+  </div>
+
+  <section class="card">
+    <h2>🎛️ Elige a y b (independientes)</h2>
+    <p class="hint">Cada control mueve solo su número: cambiar <span class="sym-chip">a</span> no reescala <span class="sym-chip">b</span>.</p>
+    <div class="letters-legend">
+      <span><b>a</b>, <b>b</b> = dos naturales</span>
+      <span><b>mcd</b> = máximo común divisor</span>
+      <span><b>mcm</b> = mínimo común múltiplo</span>
+      <span><span class="sym-chip">×</span> = por · <span class="sym-chip">=</span> = igual</span>
+    </div>
+    <div class="ctrl-row">
+      <div class="field">
+        <label><span class="letter">a</span> Primer número (4–48)</label>
+        <input type="number" id="aNum" min="4" max="48" value="18">
+      </div>
+      <div class="field">
+        <label><span class="letter">b</span> Segundo número (4–48)</label>
+        <input type="number" id="bNum" min="4" max="48" value="24">
+      </div>
+      <div class="field">
+        <label>Pares típicos</label>
+        <div style="display:flex;flex-wrap:wrap;gap:6px;">
+          <button class="btn btn-ghost" type="button" data-pair="12,18">12 y 18</button>
+          <button class="btn btn-ghost" type="button" data-pair="18,24">18 y 24</button>
+          <button class="btn btn-ghost" type="button" data-pair="20,28">20 y 28</button>
+          <button class="btn btn-ghost" type="button" data-pair="8,12">8 y 12</button>
+        </div>
+      </div>
+    </div>
+    <div class="results">
+      <div class="result-pill mcd">
+        <div class="label">mcd(a, b) · mayor divisor común</div>
+        <div class="eq" id="mcdOut">—</div>
+        <div class="sub" id="mcdSub">—</div>
+      </div>
+      <div class="result-pill mcm">
+        <div class="label">mcm(a, b) · menor múltiplo común</div>
+        <div class="eq" id="mcmOut">—</div>
+        <div class="sub" id="mcmSub">—</div>
+      </div>
+    </div>
+    <div class="rel-box" id="relBox">mcd × mcm = a × b</div>
+  </section>
+
+  <section class="card">
+    <h2>📏 Varillas del mcd</h2>
+    <p class="hint">Las barras azules (a) y moradas (b) se miden con la varilla verde <strong>g = mcd</strong>: cabe un número entero de veces en cada una.</p>
+    <div class="stage">
+      <div class="stage-header">
+        <div class="shop-name">📐 Varillas Cuisenaire-estilo</div>
+        <div style="font-size:0.85rem;font-weight:700;color:var(--muted)">1 unidad de dibujo = 1</div>
+      </div>
+      <div class="rod-row">
+        <div class="rod-label" style="color:#0369a1">a = <span id="aLab">18</span></div>
+        <div class="rod-track"><div class="rod a" id="rodA"><div class="rod-units" id="unitsA"></div></div></div>
+      </div>
+      <div class="rod-row">
+        <div class="rod-label" style="color:#6d28d9">b = <span id="bLab">24</span></div>
+        <div class="rod-track"><div class="rod b" id="rodB"><div class="rod-units" id="unitsB"></div></div></div>
+      </div>
+      <div class="rod-row">
+        <div class="rod-label" style="color:#047857">g = mcd</div>
+        <div class="rod-track"><div class="rod g" id="rodG"> </div></div>
+      </div>
+      <p id="rodExplain" style="margin-top:8px;font-size:0.92rem;font-weight:700;color:#0f766e;text-align:center;"></p>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>🚌 Marcas del mcm (ciclos)</h2>
+    <p class="hint">Imagina un bus cada <strong>a</strong> minutos y otro cada <strong>b</strong>. Las marcas verdes son minutos donde <strong>ambos</strong> pasan. La primera &gt; 0 es el mcm.</p>
+    <div class="stage mcm-stage">
+      <div class="stage-header">
+        <div class="shop-name">⏱️ Línea de tiempo 0…mcm</div>
+      </div>
+      <div class="tick-line" id="tickLine"></div>
+      <p id="tickExplain" style="margin-top:8px;font-size:0.92rem;font-weight:700;color:var(--blue-deep);text-align:center;"></p>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>🔵🟣 Venn de factores primos</h2>
+    <p class="hint">Izquierda: factores solo de a. Derecha: solo de b. Centro: <strong>comunes con el menor exponente</strong> → forman el mcd. Unidos todos con el mayor exponente → mcm.</p>
+    <div class="venn-wrap">
+      <div class="venn" id="venn">
+        <div class="circle c-a"></div>
+        <div class="circle c-b"></div>
+        <div class="only-a" id="onlyA">—</div>
+        <div class="only-b" id="onlyB">—</div>
+        <div class="both-f" id="bothF">—</div>
+      </div>
+      <div class="venn-caption" id="vennCap">—</div>
+    </div>
+    <div class="mnemonic">
+      <div class="tag">Truco mnemotécnico</div>
+      <p>«Comunes chicos → mcd. Todos los grandes → mcm.»</p>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>❓ ¿Qué pide el problema?</h2>
+    <div class="chooser" id="probChips">
+      <button class="chip active" data-p="mcd" type="button">Mayor grupo / trozo</button>
+      <button class="chip" data-p="mcm" type="button">Cuándo coinciden</button>
+    </div>
+    <div class="problem-box" id="probBox">—</div>
+  </section>
+
+  <section class="card">
+    <h2>📖 Glosario de símbolos y letras</h2>
+    <dl class="glossary">
+      <dt>a, b</dt><dd>Los dos números naturales que comparas (controles independientes).</dd>
+      <dt>mcd(a, b)</dt><dd>Máximo común divisor: el mayor natural que divide a a y a b.</dd>
+      <dt>mcm(a, b)</dt><dd>Mínimo común múltiplo: el menor natural positivo múltiplo de a y de b.</dd>
+      <dt>g</dt><dd>Nombre corto de la varilla del mcd en el dibujo.</dd>
+      <dt><span class="sym-chip">×</span></dt><dd>«Por». Relación: mcd × mcm = a × b (para dos números).</dd>
+      <dt><span class="sym-chip">=</span></dt><dd>«Vale lo mismo».</dd>
+      <dt>Exponente (menor / mayor)</dt><dd>En la factorización, el mcd usa el exponente más pequeño de cada primo común; el mcm, el más grande de cada primo que aparezca.</dd>
+      <dt>Primos entre sí</dt><dd>Si mcd(a,b)=1, no comparten factores primos; entonces mcm(a,b)=a×b.</dd>
+    </dl>
+  </section>
+
+  <p class="note footer">Offline · file:// · CyL Decreto 39/2022 · A.4 Relaciones · sin red</p>
+</div>
+<script>
+(function () {
+  const aNum = document.getElementById('aNum');
+  const bNum = document.getElementById('bNum');
+  const mcdOut = document.getElementById('mcdOut');
+  const mcmOut = document.getElementById('mcmOut');
+  const mcdSub = document.getElementById('mcdSub');
+  const mcmSub = document.getElementById('mcmSub');
+  const relBox = document.getElementById('relBox');
+  const rodA = document.getElementById('rodA');
+  const rodB = document.getElementById('rodB');
+  const rodG = document.getElementById('rodG');
+  const unitsA = document.getElementById('unitsA');
+  const unitsB = document.getElementById('unitsB');
+  const aLab = document.getElementById('aLab');
+  const bLab = document.getElementById('bLab');
+  const rodExplain = document.getElementById('rodExplain');
+  const tickLine = document.getElementById('tickLine');
+  const tickExplain = document.getElementById('tickExplain');
+  const onlyA = document.getElementById('onlyA');
+  const onlyB = document.getElementById('onlyB');
+  const bothF = document.getElementById('bothF');
+  const vennCap = document.getElementById('vennCap');
+  const probBox = document.getElementById('probBox');
+  let prob = 'mcd';
+
+  const SUP = {'0':'⁰','1':'¹','2':'²','3':'³','4':'⁴','5':'⁵','6':'⁶','7':'⁷','8':'⁸','9':'⁹'};
+  function toSup(e) { return String(e).split('').map(c => SUP[c] || c).join(''); }
+
+  function clamp(v, lo, hi) { return Math.max(lo, Math.min(hi, v | 0)); }
+
+  function gcd(x, y) {
+    x = Math.abs(x); y = Math.abs(y);
+    while (y) { const t = y; y = x % y; x = t; }
+    return x;
+  }
+
+  function factorMap(n) {
+    const map = {};
+    let x = n;
+    for (let p = 2; p * p <= x; p++) {
+      while (x % p === 0) { map[p] = (map[p] || 0) + 1; x /= p; }
+    }
+    if (x > 1) map[x] = (map[x] || 0) + 1;
+    return map;
+  }
+
+  function formatMap(map) {
+    const keys = Object.keys(map).map(Number).sort((a,b)=>a-b);
+    if (!keys.length) return '1';
+    return keys.map(p => map[p] === 1 ? String(p) : (p + toSup(map[p]))).join(' × ');
+  }
+
+  function getAB() {
+    let a = clamp(parseInt(aNum.value, 10) || 18, 4, 48);
+    let b = clamp(parseInt(bNum.value, 10) || 24, 4, 48);
+    aNum.value = a;
+    bNum.value = b;
+    return { a, b };
+  }
+
+  function fillUnits(el, count) {
+    el.innerHTML = '';
+    for (let i = 0; i < count; i++) {
+      const s = document.createElement('div');
+      s.className = 'seg';
+      el.appendChild(s);
+    }
+  }
+
+  function render() {
+    const { a, b } = getAB();
+    const g = gcd(a, b);
+    const m = (a / g) * b; // lcm
+
+    mcdOut.textContent = 'mcd(' + a + ', ' + b + ') = ' + g;
+    mcmOut.textContent = 'mcm(' + a + ', ' + b + ') = ' + m;
+    mcdSub.textContent = a + ' ÷ ' + g + ' = ' + (a / g) + ' · ' + b + ' ÷ ' + g + ' = ' + (b / g);
+    mcmSub.textContent = 'primera coincidencia de múltiplos';
+    relBox.textContent = 'mcd × mcm = ' + g + ' × ' + m + ' = ' + (g * m) + '  ·  a × b = ' + a + ' × ' + b + ' = ' + (a * b);
+
+    aLab.textContent = a;
+    bLab.textContent = b;
+
+    // Rods: scale to max(a,b) = 100% of track
+    const maxV = Math.max(a, b);
+    rodA.style.width = (100 * a / maxV) + '%';
+    rodB.style.width = (100 * b / maxV) + '%';
+    rodG.style.width = (100 * g / maxV) + '%';
+    rodG.textContent = g;
+    fillUnits(unitsA, a / g);
+    fillUnits(unitsB, b / g);
+    // color segments show how many g-lengths fit
+    rodExplain.textContent = 'La varilla verde g = ' + g + ' cabe ' + (a / g) + ' veces en a y ' + (b / g) + ' veces en b. Por eso g es divisor común; y es el mayor.';
+
+    // Timeline ticks 0..m
+    tickLine.innerHTML = '';
+    const showMax = m;
+    // Mark multiples of a, b up to m
+    const marks = {};
+    for (let k = 0; k <= showMax; k += a) marks[k] = (marks[k] || 0) | 1;
+    for (let k = 0; k <= showMax; k += b) marks[k] = (marks[k] || 0) | 2;
+    Object.keys(marks).map(Number).forEach(t => {
+      const tick = document.createElement('div');
+      const flags = marks[t];
+      tick.className = 'tick' + (flags === 3 ? ' both' : flags === 1 ? ' a' : ' b');
+      tick.style.left = (100 * t / showMax) + '%';
+      if (t === 0 || t === m || flags === 3 || t === a || t === b) {
+        const lab = document.createElement('div');
+        lab.className = 'tick-label';
+        lab.textContent = t;
+        tick.appendChild(lab);
+      }
+      tickLine.appendChild(tick);
+    });
+    tickExplain.textContent = 'Azul = múltiplos de a · Morado = múltiplos de b · Verde grueso = ambos. Primera marca verde > 0: mcm = ' + m + ' min.';
+
+    // Venn of prime factors
+    const fa = factorMap(a);
+    const fb = factorMap(b);
+    const onlyAMap = {}, onlyBMap = {}, bothMap = {}, mcmMap = {};
+    const allP = new Set([...Object.keys(fa), ...Object.keys(fb)].map(Number));
+    allP.forEach(p => {
+      const ea = fa[p] || 0;
+      const eb = fb[p] || 0;
+      if (ea && eb) {
+        bothMap[p] = Math.min(ea, eb);
+        mcmMap[p] = Math.max(ea, eb);
+        if (ea > eb) onlyAMap[p] = ea - eb;
+        if (eb > ea) onlyBMap[p] = eb - ea;
+      } else if (ea) {
+        onlyAMap[p] = ea;
+        mcmMap[p] = ea;
+      } else {
+        onlyBMap[p] = eb;
+        mcmMap[p] = eb;
+      }
+    });
+    onlyA.textContent = formatMap(onlyAMap) === '1' && !Object.keys(onlyAMap).length ? '—' : formatMap(onlyAMap);
+    onlyB.textContent = formatMap(onlyBMap) === '1' && !Object.keys(onlyBMap).length ? '—' : formatMap(onlyBMap);
+    bothF.textContent = Object.keys(bothMap).length ? formatMap(bothMap) : '1';
+    if (!Object.keys(onlyAMap).length) onlyA.textContent = '—';
+    if (!Object.keys(onlyBMap).length) onlyB.textContent = '—';
+
+    vennCap.innerHTML = '<strong>a = ' + formatMap(fa) + '</strong><br><strong>b = ' + formatMap(fb) + '</strong><br>' +
+      'Centro → mcd = ' + formatMap(bothMap) + ' = ' + g + '<br>' +
+      'Todos (máx. exp.) → mcm = ' + formatMap(mcmMap) + ' = ' + m;
+
+    renderProb();
+  }
+
+  function renderProb() {
+    const { a, b } = getAB();
+    const g = gcd(a, b);
+    const m = (a / g) * b;
+    if (prob === 'mcd') {
+      probBox.innerHTML = '<div class="q">📦 Merienda: ' + a + ' magdalenas y ' + b + ' zumos. Packs iguales sin resto. ¿Máximo de packs?</div>' +
+        '<div class="a">Pide el <strong>mayor</strong> número de packs → <span class="ok">mcd(' + a + ', ' + b + ') = ' + g + '</span>.<br>' +
+        'Cada pack: ' + (a / g) + ' magdalena(s) y ' + (b / g) + ' zumo(s).</div>';
+    } else {
+      probBox.innerHTML = '<div class="q">🚌 Un bus cada ' + a + ' min y otro cada ' + b + ' min. ¿Cada cuánto coinciden en la parada?</div>' +
+        '<div class="a">Pide la <strong>primera coincidencia</strong> → <span class="ok">mcm(' + a + ', ' + b + ') = ' + m + ' min</span>.</div>';
+    }
+  }
+
+  aNum.addEventListener('change', render);
+  bNum.addEventListener('change', render);
+  document.querySelectorAll('[data-pair]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const [a, b] = btn.dataset.pair.split(',').map(Number);
+      aNum.value = a; bNum.value = b; render();
+    });
+  });
+  document.querySelectorAll('#probChips .chip').forEach(ch => {
+    ch.addEventListener('click', () => {
+      prob = ch.dataset.p;
+      document.querySelectorAll('#probChips .chip').forEach(c => c.classList.toggle('active', c === ch));
+      renderProb();
+    });
+  });
+
+  render();
+})();
+</script>
+</body>
+</html>

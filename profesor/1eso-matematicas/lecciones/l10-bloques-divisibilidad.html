@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Múltiplos y divisores · Bloques y criterios · 1º ESO</title>
+<style>
+  :root {
+    --bg: #f4f7fb; --ink: #1a2b3c; --muted: #5a6d7e; --card: #ffffff;
+    --blue: #3b82f6; --blue-soft: #dbeafe; --blue-deep: #1d4ed8;
+    --orange: #f59e0b; --orange-soft: #fef3c7; --orange-deep: #b45309;
+    --green: #10b981; --green-soft: #d1fae5; --green-deep: #047857;
+    --purple: #8b5cf6; --purple-soft: #ede9fe; --purple-deep: #6d28d9;
+    --rose: #f43f5e; --rose-soft: #ffe4e6;
+    --teal: #14b8a6; --teal-soft: #ccfbf1;
+    --shadow: 0 8px 28px rgba(26, 43, 60, 0.08); --radius: 18px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { min-height: 100%; background: var(--bg); color: var(--ink);
+    font-family: "Segoe UI", system-ui, -apple-system, sans-serif; -webkit-font-smoothing: antialiased; }
+  body { display: flex; flex-direction: column; align-items: center; padding: 14px 10px 36px; }
+  .wrap { width: 100%; max-width: 980px; }
+  header { text-align: center; margin-bottom: 12px; }
+  header .badge { display: inline-block; font-size: 0.78rem; font-weight: 600; letter-spacing: 0.04em;
+    text-transform: uppercase; color: var(--orange-deep); background: var(--orange-soft);
+    padding: 4px 12px; border-radius: 999px; margin-bottom: 8px; }
+  h1 { font-size: clamp(1.3rem, 4.5vw, 1.9rem); line-height: 1.2; font-weight: 800; }
+  .subtitle { margin-top: 6px; font-size: clamp(0.9rem, 2.8vw, 1.05rem); color: var(--muted); font-weight: 500; }
+  .story { background: linear-gradient(135deg, #fff7ed, #fef3c7 40%, #ecfdf5);
+    border: 2px solid #fde68a; border-radius: var(--radius); padding: 12px 14px;
+    margin-bottom: 14px; display: flex; gap: 12px; align-items: flex-start; }
+  .story .emoji { font-size: 2rem; line-height: 1; }
+  .story p { font-size: clamp(0.9rem, 2.5vw, 1.02rem); line-height: 1.45; }
+  .story strong { color: var(--orange-deep); }
+  .card { background: var(--card); border-radius: var(--radius); box-shadow: var(--shadow);
+    padding: 16px 14px 18px; margin-bottom: 14px; }
+  .card h2 { font-size: clamp(1.05rem, 3vw, 1.25rem); font-weight: 800; margin-bottom: 8px;
+    display: flex; align-items: center; gap: 8px; }
+  .hint { font-size: clamp(0.88rem, 2.4vw, 1rem); color: var(--muted); line-height: 1.45; margin-bottom: 12px; }
+  .ctrl-row { display: flex; flex-wrap: wrap; gap: 12px; align-items: flex-end; margin-bottom: 14px; }
+  .field { display: flex; flex-direction: column; gap: 6px; flex: 1 1 140px; }
+  .field label { font-size: 0.88rem; font-weight: 700; color: var(--muted); }
+  .field label .letter { display: inline-block; background: var(--orange-soft); color: var(--orange-deep);
+    padding: 1px 8px; border-radius: 8px; font-weight: 800; margin-right: 4px; }
+  .field input[type="number"] { width: 100%; max-width: 160px; font-size: 1.4rem; font-weight: 800;
+    font-variant-numeric: tabular-nums; padding: 10px 12px; border: 2.5px solid #cbd5e1; border-radius: 12px; }
+  .field input[type="number"]:focus { outline: none; border-color: var(--orange); box-shadow: 0 0 0 3px var(--orange-soft); }
+  .field input[type="range"] { width: 100%; max-width: 220px; }
+  .field .val { font-size: 1.05rem; font-weight: 800; color: var(--orange-deep); }
+  .letters-legend { display: flex; flex-wrap: wrap; gap: 8px; margin: 8px 0 4px; }
+  .letters-legend span { background: var(--purple-soft); color: var(--purple-deep); font-size: 0.8rem;
+    font-weight: 700; padding: 4px 10px; border-radius: 999px; }
+  .results { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px; }
+  @media (max-width: 560px) { .results { grid-template-columns: 1fr; } }
+  .result-pill { border-radius: 14px; padding: 12px 14px; border: 2px solid #e2e8f0; }
+  .result-pill.divs { background: var(--green-soft); border-color: #6ee7b7; }
+  .result-pill.mult { background: var(--blue-soft); border-color: #93c5fd; }
+  .result-pill .label { font-size: 0.78rem; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.03em; }
+  .result-pill .eq { font-size: clamp(0.95rem, 3vw, 1.2rem); font-weight: 800; margin-top: 4px; line-height: 1.4;
+    font-variant-numeric: tabular-nums; }
+  .mode-row { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; }
+  .chip { border: 2px solid #cbd5e1; background: #fff; border-radius: 999px; padding: 7px 14px;
+    font-size: 0.88rem; font-weight: 700; cursor: pointer; color: var(--ink); }
+  .chip:hover { background: #f8fafc; }
+  .chip.active { border-color: var(--orange); background: var(--orange-soft); color: var(--orange-deep); }
+  .chip.ok { border-color: var(--green); background: var(--green-soft); color: var(--green-deep); }
+  .chip.no { border-color: var(--rose); background: var(--rose-soft); color: #be123c; opacity: 0.85; }
+  .stage { background: linear-gradient(180deg, #fffbeb 0%, #fef3c7 55%, #fde68a 100%);
+    border: 2px solid #fbbf24; border-radius: 16px; padding: 14px 12px 16px; margin-bottom: 14px; }
+  .stage-header { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; margin-bottom: 10px; }
+  .shop-name { font-weight: 800; font-size: 1.05rem; color: var(--orange-deep); }
+  .arrays { display: flex; flex-wrap: wrap; gap: 14px; justify-content: center; align-items: flex-start; }
+  .array-card { background: rgba(255,255,255,0.85); border: 2px dashed #f59e0b; border-radius: 14px;
+    padding: 10px; text-align: center; min-width: 100px; }
+  .array-card .pair { font-size: 0.85rem; font-weight: 800; color: var(--orange-deep); margin-bottom: 6px; }
+  .block-grid { display: grid; gap: 3px; margin: 0 auto; }
+  .cell { width: 16px; height: 16px; border-radius: 3px;
+    background: linear-gradient(180deg, #fb923c, #ea580c); border: 1px solid #9a3412;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.35); }
+  .array-card.highlight { border-color: var(--green); border-style: solid; box-shadow: 0 0 0 3px #a7f3d0; }
+  .array-card .pair .sym { color: var(--muted); font-weight: 700; }
+  .crit-panel { background: #f8fafc; border: 2px solid #e2e8f0; border-radius: 14px; padding: 12px 14px; margin-top: 8px; }
+  .crit-panel h3 { font-size: 1rem; font-weight: 800; margin-bottom: 8px; }
+  .crit-explain { font-size: 0.92rem; line-height: 1.45; color: var(--ink); margin-top: 10px;
+    padding: 10px 12px; background: #fff; border-radius: 10px; border: 2px dashed #cbd5e1; min-height: 52px; }
+  .crit-explain .ok { color: var(--green-deep); font-weight: 800; }
+  .crit-explain .no { color: #be123c; font-weight: 800; }
+  .mult-strip { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; margin-top: 8px; }
+  .mult-pill { min-width: 42px; padding: 8px 10px; border-radius: 10px; font-weight: 800;
+    font-variant-numeric: tabular-nums; text-align: center; border: 2px solid #93c5fd; background: #fff; font-size: 0.95rem; }
+  .mult-pill.base { background: var(--blue-soft); border-color: var(--blue); color: var(--blue-deep); }
+  .mult-pill.zero { opacity: 0.55; }
+  .test-row { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-top: 10px; }
+  .test-result { flex: 1 1 200px; font-size: 0.95rem; font-weight: 700; line-height: 1.4;
+    padding: 10px 12px; border-radius: 12px; min-height: 44px; }
+  .test-result.idle { background: #f1f5f9; color: var(--muted); }
+  .test-result.pass { background: var(--green-soft); color: var(--green-deep); }
+  .test-result.fail { background: var(--rose-soft); color: #be123c; }
+  .mnemonic { background: linear-gradient(135deg, var(--purple-soft), #fce7f3);
+    border: 2px solid #d8b4fe; border-radius: 14px; padding: 12px 14px; margin-top: 10px; text-align: center; }
+  .mnemonic .tag { font-size: 0.75rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; color: var(--purple-deep); }
+  .mnemonic p { margin-top: 4px; font-size: clamp(0.95rem, 3vw, 1.1rem); font-weight: 800; color: var(--purple-deep); }
+  .glossary { display: grid; gap: 8px; }
+  .glossary dt { font-weight: 800; font-size: 0.95rem; color: var(--blue-deep); }
+  .glossary dd { font-size: 0.92rem; color: var(--muted); line-height: 1.4; margin-bottom: 4px; }
+  .sym-chip { display: inline-block; background: var(--teal-soft); color: #0f766e; font-weight: 800;
+    padding: 1px 7px; border-radius: 6px; font-family: "Courier New", ui-monospace, monospace; }
+  .btn { border: none; border-radius: 12px; padding: 10px 16px; font-size: 0.95rem; font-weight: 800;
+    cursor: pointer; }
+  .btn:active { transform: scale(0.97); }
+  .btn-primary { background: var(--orange); color: #fff; box-shadow: 0 4px 12px rgba(245,158,11,0.35); }
+  .btn-ghost { background: #fff; color: var(--ink); border: 2px solid #cbd5e1; }
+  footer.note { text-align: center; font-size: 0.8rem; color: var(--muted); margin-top: 8px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="badge">1º ESO · UD3 Divisibilidad · L10</div>
+    <h1>Bloques que encajan sin sobras</h1>
+    <p class="subtitle">Múltiplos, divisores y criterios · visual con rectángulos de bloques</p>
+  </header>
+
+  <div class="story">
+    <div class="emoji">🍬</div>
+    <p>En la merienda del instituto, Jorge tiene <strong>n caramelos</strong> y quiere formar <strong>filas iguales</strong> sin que sobre ninguno.
+    Cada rectángulo de bloques es una forma de repartir: <strong>filas × columnas = n</strong>.
+    Si encaja exacto, esa medida es un <strong>divisor</strong> de n.</p>
+  </div>
+
+  <section class="card">
+    <h2>🧱 Rectángulos de factores</h2>
+    <p class="hint">Elige el total <span class="sym-chip">n</span> (caramelos / bloques). Verás <strong>todas</strong> las formas de hacer un rectángulo sin huecos ni sobras. Controles independientes: <span class="sym-chip">n</span> no mueve el divisor de prueba.</p>
+    <div class="letters-legend">
+      <span><b>n</b> = total de bloques (natural)</span>
+      <span><b>d</b> = divisor candidato</span>
+      <span><b>k</b> = cociente (n ÷ d)</span>
+      <span><span class="sym-chip">×</span> = por · <span class="sym-chip">÷</span> = dividido entre · <span class="sym-chip">=</span> = igual</span>
+    </div>
+    <div class="ctrl-row">
+      <div class="field">
+        <label><span class="letter">n</span> Total de bloques (4–60)</label>
+        <input type="range" id="nRange" min="4" max="60" value="24">
+        <div class="val">n = <span id="nVal">24</span></div>
+      </div>
+      <div class="field">
+        <label><span class="letter">n</span> Número exacto</label>
+        <input type="number" id="nNum" min="4" max="60" value="24">
+      </div>
+    </div>
+    <div class="results">
+      <div class="result-pill divs">
+        <div class="label">Divisores de n</div>
+        <div class="eq" id="divList">—</div>
+      </div>
+      <div class="result-pill mult">
+        <div class="label">Cuántas formas (rectángulos)</div>
+        <div class="eq" id="divCount">—</div>
+      </div>
+    </div>
+    <div class="stage">
+      <div class="stage-header">
+        <div class="shop-name">🍬 Mesa de caramelos · n = <span id="nStage">24</span></div>
+        <div style="font-size:0.85rem;font-weight:700;color:var(--muted)">Cada celda = 1 caramelo</div>
+      </div>
+      <div class="arrays" id="arrays"></div>
+    </div>
+    <div class="mnemonic">
+      <div class="tag">Truco mnemotécnico</div>
+      <p>«Si el rectángulo cierra sin huecos, d divide a n.»</p>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>🧪 ¿d divide a n?</h2>
+    <p class="hint">Prueba un divisor <span class="sym-chip">d</span> sin cambiar el total (control independiente). Si el resto es 0, d es divisor y n es múltiplo de d.</p>
+    <div class="ctrl-row">
+      <div class="field">
+        <label><span class="letter">d</span> Divisor candidato (1–n)</label>
+        <input type="number" id="dNum" min="1" max="60" value="6">
+      </div>
+      <button class="btn btn-primary" id="btnTest" type="button">Comprobar n ÷ d</button>
+    </div>
+    <div class="test-row">
+      <div class="test-result idle" id="testResult">Pulsa comprobar: verás cociente k y resto.</div>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>⚡ Criterios de divisibilidad</h2>
+    <p class="hint">Elige un criterio. La tarjeta explica la regla en español y la aplica al <strong>mismo n</strong> de arriba (no inventamos otro número).</p>
+    <div class="mode-row" id="critChips">
+      <button class="chip active" data-c="2" type="button">÷2</button>
+      <button class="chip" data-c="3" type="button">÷3</button>
+      <button class="chip" data-c="4" type="button">÷4</button>
+      <button class="chip" data-c="5" type="button">÷5</button>
+      <button class="chip" data-c="6" type="button">÷6</button>
+      <button class="chip" data-c="9" type="button">÷9</button>
+      <button class="chip" data-c="10" type="button">÷10</button>
+    </div>
+    <div class="crit-panel">
+      <h3 id="critTitle">Criterio del 2</h3>
+      <div class="crit-explain" id="critExplain">—</div>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>📈 Tira de múltiplos de b</h2>
+    <p class="hint"><span class="sym-chip">b</span> es la base (control independiente de n). Los múltiplos son 0·b, 1·b, 2·b… El múltiplo <strong>k · b</strong> vale «b sumado k veces».</p>
+    <div class="ctrl-row">
+      <div class="field">
+        <label><span class="letter">b</span> Base (2–12)</label>
+        <input type="number" id="bNum" min="2" max="12" value="8">
+      </div>
+      <div class="field">
+        <label>Cuántos múltiplos mostrar (k = 0…m)</label>
+        <input type="range" id="mRange" min="4" max="12" value="8">
+        <div class="val">hasta k = <span id="mVal">8</span></div>
+      </div>
+    </div>
+    <div class="mult-strip" id="multStrip"></div>
+  </section>
+
+  <section class="card">
+    <h2>📖 Glosario de símbolos y letras</h2>
+    <dl class="glossary">
+      <dt>n</dt><dd>Total de bloques / caramelos (número natural que exploras).</dd>
+      <dt>d</dt><dd>Divisor candidato: si n ÷ d da resto 0, d divide a n.</dd>
+      <dt>k</dt><dd>Cociente: resultado de n ÷ d cuando el resto es 0 (también «cuántas veces cabe»).</dd>
+      <dt>b</dt><dd>Base de la tira de múltiplos.</dd>
+      <dt><span class="sym-chip">×</span></dt><dd>«Por» / multiplicado por. En un rectángulo: filas × columnas.</dd>
+      <dt><span class="sym-chip">÷</span></dt><dd>«Dividido entre».</dd>
+      <dt><span class="sym-chip">=</span></dt><dd>«Vale lo mismo».</dd>
+      <dt>Múltiplo</dt><dd>n es múltiplo de d si n = k × d para algún natural k (incluido 0 en la tira).</dd>
+      <dt>Divisor</dt><dd>d es divisor de n si divide exacto (resto 0). El 1 y n siempre dividen a n (si n ≥ 1).</dd>
+      <dt>Par / impar</dt><dd>Par = múltiplo de 2 (unidades 0,2,4,6,8). Impar = no múltiplo de 2.</dd>
+    </dl>
+  </section>
+
+  <p class="note footer">Offline · file:// · CyL Decreto 39/2022 · A.4 Relaciones · sin red</p>
+</div>
+<script>
+(function () {
+  const nRange = document.getElementById('nRange');
+  const nNum = document.getElementById('nNum');
+  const nVal = document.getElementById('nVal');
+  const nStage = document.getElementById('nStage');
+  const arrays = document.getElementById('arrays');
+  const divList = document.getElementById('divList');
+  const divCount = document.getElementById('divCount');
+  const dNum = document.getElementById('dNum');
+  const testResult = document.getElementById('testResult');
+  const bNum = document.getElementById('bNum');
+  const mRange = document.getElementById('mRange');
+  const mVal = document.getElementById('mVal');
+  const multStrip = document.getElementById('multStrip');
+  const critExplain = document.getElementById('critExplain');
+  const critTitle = document.getElementById('critTitle');
+  let crit = 2;
+  let lastDHighlight = null;
+
+  function clamp(v, lo, hi) { return Math.max(lo, Math.min(hi, v)); }
+
+  function getN() {
+    return clamp(parseInt(nNum.value, 10) || 24, 4, 60);
+  }
+
+  function divisors(n) {
+    const ds = [];
+    for (let d = 1; d * d <= n; d++) {
+      if (n % d === 0) {
+        ds.push(d);
+        if (d * d !== n) ds.push(n / d);
+      }
+    }
+    return ds.sort((a, b) => a - b);
+  }
+
+  function cellSize(rows, cols) {
+    const maxW = 140, maxH = 110;
+    const s = Math.floor(Math.min(maxW / cols, maxH / rows, 18));
+    return Math.max(8, s);
+  }
+
+  function renderArrays() {
+    const n = getN();
+    nRange.value = n;
+    nNum.value = n;
+    nVal.textContent = n;
+    nStage.textContent = n;
+    dNum.max = n;
+    if (parseInt(dNum.value, 10) > n) dNum.value = n;
+
+    const ds = divisors(n);
+    divList.textContent = ds.join(', ');
+    const pairs = [];
+    for (const d of ds) {
+      if (d <= n / d) pairs.push([d, n / d]);
+    }
+    divCount.textContent = pairs.length + ' rectángulo' + (pairs.length === 1 ? '' : 's') +
+      ' (filas × columnas)';
+
+    arrays.innerHTML = '';
+    for (const [rows, cols] of pairs) {
+      const card = document.createElement('div');
+      card.className = 'array-card';
+      card.dataset.d = String(rows);
+      card.dataset.k = String(cols);
+      const pair = document.createElement('div');
+      pair.className = 'pair';
+      pair.innerHTML = rows + ' <span class="sym">×</span> ' + cols + ' <span class="sym">=</span> ' + n;
+      const grid = document.createElement('div');
+      grid.className = 'block-grid';
+      const s = cellSize(rows, cols);
+      grid.style.gridTemplateColumns = 'repeat(' + cols + ', ' + s + 'px)';
+      grid.style.gap = s < 12 ? '2px' : '3px';
+      for (let i = 0; i < n; i++) {
+        const c = document.createElement('div');
+        c.className = 'cell';
+        c.style.width = s + 'px';
+        c.style.height = s + 'px';
+        grid.appendChild(c);
+      }
+      card.appendChild(pair);
+      card.appendChild(grid);
+      arrays.appendChild(card);
+    }
+    updateCrit();
+    if (lastDHighlight != null) highlightDivisor(lastDHighlight);
+  }
+
+  function highlightDivisor(d) {
+    lastDHighlight = d;
+    arrays.querySelectorAll('.array-card').forEach(card => {
+      const r = parseInt(card.dataset.d, 10);
+      const c = parseInt(card.dataset.k, 10);
+      card.classList.toggle('highlight', r === d || c === d);
+    });
+  }
+
+  function doTest() {
+    const n = getN();
+    let d = parseInt(dNum.value, 10);
+    if (!Number.isFinite(d) || d < 1) d = 1;
+    d = clamp(d, 1, n);
+    dNum.value = d;
+    const k = Math.floor(n / d);
+    const r = n % d;
+    if (r === 0) {
+      testResult.className = 'test-result pass';
+      testResult.innerHTML = 'Sí: <span class="sym-chip">n ÷ d</span> = ' + n + ' ÷ ' + d + ' = <strong>k = ' + k + '</strong> (resto 0).<br>' +
+        'Entonces <strong>d = ' + d + '</strong> es divisor de n, y n es múltiplo de d: n = k × d = ' + k + ' × ' + d + '.';
+      highlightDivisor(d);
+    } else {
+      testResult.className = 'test-result fail';
+      testResult.innerHTML = 'No: ' + n + ' ÷ ' + d + ' = ' + k + ' con resto <strong>' + r + '</strong>.<br>' +
+        'd = ' + d + ' <em>no</em> divide a n (el rectángulo dejaría ' + r + ' caramelos sueltos).';
+      lastDHighlight = null;
+      arrays.querySelectorAll('.array-card').forEach(c => c.classList.remove('highlight'));
+    }
+  }
+
+  function digitSum(n) {
+    return String(n).split('').reduce((s, ch) => s + parseInt(ch, 10), 0);
+  }
+
+  function updateCrit() {
+    const n = getN();
+    const titles = {
+      2: 'Criterio del 2 (par)',
+      3: 'Criterio del 3',
+      4: 'Criterio del 4',
+      5: 'Criterio del 5',
+      6: 'Criterio del 6',
+      9: 'Criterio del 9',
+      10: 'Criterio del 10'
+    };
+    critTitle.textContent = titles[crit];
+    const units = n % 10;
+    const last2 = n % 100;
+    const sum = digitSum(n);
+    let html = '';
+    let ok = false;
+    if (crit === 2) {
+      ok = units % 2 === 0;
+      html = 'Regla: la cifra de las <strong>unidades</strong> es par (0, 2, 4, 6 u 8).<br>' +
+        'n = ' + n + ' → unidades = ' + units + '. ' +
+        (ok ? '<span class="ok">Sí: ' + n + ' es divisible por 2 (es par).</span>' : '<span class="no">No: ' + n + ' es impar.</span>');
+    } else if (crit === 3) {
+      ok = sum % 3 === 0;
+      html = 'Regla: la <strong>suma de las cifras</strong> es múltiplo de 3.<br>' +
+        'Cifras de ' + n + ' → suma = ' + sum + '. ' +
+        (ok ? '<span class="ok">Sí: ' + sum + ' es múltiplo de 3 → ' + n + ' ÷ 3 exacto.</span>' : '<span class="no">No: ' + sum + ' no es múltiplo de 3.</span>');
+    } else if (crit === 4) {
+      ok = last2 % 4 === 0;
+      html = 'Regla: las <strong>dos últimas cifras</strong> forman un múltiplo de 4.<br>' +
+        'Últimas dos de ' + n + ' = ' + String(last2).padStart(2, '0') + '. ' +
+        (ok ? '<span class="ok">Sí: ' + last2 + ' ÷ 4 exacto → ' + n + ' divisible por 4.</span>' : '<span class="no">No: ' + last2 + ' no es múltiplo de 4.</span>');
+    } else if (crit === 5) {
+      ok = units === 0 || units === 5;
+      html = 'Regla: unidades <strong>0 o 5</strong>.<br>' +
+        'n = ' + n + ' → unidades = ' + units + '. ' +
+        (ok ? '<span class="ok">Sí: divisible por 5.</span>' : '<span class="no">No.</span>');
+    } else if (crit === 6) {
+      const ok2 = units % 2 === 0;
+      const ok3 = sum % 3 === 0;
+      ok = ok2 && ok3;
+      html = 'Regla: divisible por <strong>2 y por 3</strong> a la vez.<br>' +
+        '÷2: ' + (ok2 ? 'sí' : 'no') + ' · ÷3 (suma ' + sum + '): ' + (ok3 ? 'sí' : 'no') + '. ' +
+        (ok ? '<span class="ok">Sí: ' + n + ' divisible por 6.</span>' : '<span class="no">No cumple ambos.</span>');
+    } else if (crit === 9) {
+      ok = sum % 9 === 0;
+      html = 'Regla: la <strong>suma de las cifras</strong> es múltiplo de 9.<br>' +
+        'Suma = ' + sum + '. ' +
+        (ok ? '<span class="ok">Sí: divisible por 9.</span>' : '<span class="no">No.</span>');
+    } else if (crit === 10) {
+      ok = units === 0;
+      html = 'Regla: unidades = <strong>0</strong>.<br>' +
+        'Unidades = ' + units + '. ' +
+        (ok ? '<span class="ok">Sí: divisible por 10.</span>' : '<span class="no">No.</span>');
+    }
+    // sync chip colors
+    document.querySelectorAll('#critChips .chip').forEach(ch => {
+      const c = parseInt(ch.dataset.c, 10);
+      ch.classList.toggle('active', c === crit);
+      const passes = (n % c === 0);
+      ch.classList.toggle('ok', passes);
+      ch.classList.toggle('no', !passes);
+    });
+    critExplain.innerHTML = html;
+  }
+
+  function renderMults() {
+    let b = parseInt(bNum.value, 10);
+    if (!Number.isFinite(b)) b = 8;
+    b = clamp(b, 2, 12);
+    bNum.value = b;
+    const m = clamp(parseInt(mRange.value, 10) || 8, 4, 12);
+    mRange.value = m;
+    mVal.textContent = m;
+    multStrip.innerHTML = '';
+    for (let k = 0; k <= m; k++) {
+      const pill = document.createElement('div');
+      pill.className = 'mult-pill' + (k === 0 ? ' zero' : '') + (k === 1 ? ' base' : '');
+      pill.title = k + ' × ' + b;
+      pill.textContent = k * b;
+      multStrip.appendChild(pill);
+    }
+  }
+
+  nRange.addEventListener('input', () => { nNum.value = nRange.value; renderArrays(); });
+  nNum.addEventListener('change', () => { nNum.value = clamp(parseInt(nNum.value, 10) || 24, 4, 60); renderArrays(); });
+  document.getElementById('btnTest').addEventListener('click', doTest);
+  dNum.addEventListener('change', () => { /* independent — no rescale n */ });
+  bNum.addEventListener('change', renderMults);
+  mRange.addEventListener('input', renderMults);
+  document.querySelectorAll('#critChips .chip').forEach(ch => {
+    ch.addEventListener('click', () => { crit = parseInt(ch.dataset.c, 10); updateCrit(); });
+  });
+
+  renderArrays();
+  renderMults();
+  updateCrit();
+})();
+</script>
+</body>
+</html>

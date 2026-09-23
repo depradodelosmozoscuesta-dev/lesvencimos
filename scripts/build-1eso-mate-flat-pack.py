@@ -15,7 +15,7 @@ DESCARGAS = REPO / "descargas.html"
 PACK_DIR = REPO / "downloads/_build-1eso-mate-flat"
 ZIP_PATH = REPO / "downloads/1eso-matematicas-offline.zip"
 TOTAL = 47
-AVAILABLE = 9  # L01–L09
+AVAILABLE = 12  # L01–L12
 
 # (num, short_ud, title, meta, curiosidad_title, curiosidad_text, figura_cur,
 #  objetivos[list], cuerpo_extra_html, vida_title, vida_items, vida_figura,
@@ -395,6 +395,117 @@ LESSONS = [
     "reto_id": "1eso-mate-L09",
     "cierre": "El significado elige la operación. El orden y los paréntesis evitan trampas. Siempre: frase con unidades.",
   },
+  {
+    "n": 10,
+    "eyebrow": "Lección 10 · UD3 · Divisibilidad",
+    "title_html": "Múltiplos, divisores y <em>criterios de divisibilidad</em>",
+    "title_plain": "Múltiplos, divisores y criterios de divisibilidad",
+    "meta": "Saberes CyL (Decreto 39/2022): A.4 Relaciones (múltiplos, divisores)",
+    "curiosidad_t": "Rectángulo sin huecos",
+    "curiosidad": "Si el rectángulo cierra sin huecos, d divide a n. Múltiplo y divisor son dos caras del mismo reparto exacto: a = k×b. Los criterios (2, 3, 4, 5, 6, 9, 10) ahorran divisiones largas — la foto es un montón de bloques que cabe en filas iguales.",
+    "curiosidad_fig": "mapa.svg",
+    "objetivos": [
+      "Definir múltiplo y divisor con ejemplos.",
+      "Aplicar criterios de divisibilidad por 2, 3, 4, 5, 6, 9 y 10.",
+      "Listar divisores de un número pequeño de forma sistemática.",
+      "Usar divisibilidad en problemas de agrupación.",
+    ],
+    "cuerpo": """
+    <h2>Explicación breve</h2>
+    <p><strong>a</strong> es múltiplo de <strong>b</strong> si a = k×b. <strong>b</strong> es divisor de a si divide exacto. Criterios rápidos: 2 (unidades par), 5 (0 o 5), 10 (0), 3/9 (suma de cifras), 4 (dos últimas), 6 (2 y 3).</p>
+""",
+    "cuerpo_after_widgets": "",
+    "widget_split": False,
+    "vida_t": "Aplicaciones",
+    "vida": [
+      "Repartir caramelos en bolsas iguales sin que sobre.",
+      "Montar filas de sillas en el salón de actos.",
+      "Autobuses o trenes cada 10 o 15 minutos.",
+      "Colas «pares / impares» en controles o juegos.",
+    ],
+    "vida_fig": "ticket.svg",
+    "widgets": [
+      ("Interactivo · bloques y criterios", "l10-bloques-divisibilidad.html"),
+    ],
+    "reto_t": "Reparto sin resto",
+    "reto": "Propón un reparto real (merienda, material, equipos) donde importe la divisibilidad. ¿Qué criterio te ayudó?",
+    "reto_id": "1eso-mate-L10",
+    "cierre": "Múltiplos y divisores organizan el reparto exacto. Los criterios ahorran divisiones largas. El rectángulo sin huecos es la foto del divisor.",
+  },
+  {
+    "n": 11,
+    "eyebrow": "Lección 11 · UD3 · Divisibilidad",
+    "title_html": "Números primos y <em>factorización</em>",
+    "title_plain": "Números primos y factorización",
+    "meta": "Saberes CyL (Decreto 39/2022): A.4 Relaciones (primos, factorización)",
+    "curiosidad_t": "Ladrillos primos",
+    "curiosidad": "Tacha los múltiplos; lo que no se tacha es primo. Factorizar = apilar ladrillos primos. El 1 no es primo ni compuesto. La criba de Eratóstenes y el árbol de divisiones dejan ver por qué 84 = 2²×3×7.",
+    "curiosidad_fig": "fuego.svg",
+    "objetivos": [
+      "Definir número primo y compuesto.",
+      "Usar la criba de Eratóstenes a escala pequeña.",
+      "Descomponer en factores primos.",
+      "Escribir la factorización con potencias.",
+    ],
+    "cuerpo": """
+    <h2>Explicación breve</h2>
+    <p>Primo: solo divisores 1 y él mismo. Compuesto: más divisores. Factorizar es escribir el producto de primos (única salvo orden). Criba: lista hasta N y tacha múltiplos.</p>
+""",
+    "cuerpo_after_widgets": "",
+    "widget_split": False,
+    "vida_t": "Aplicaciones",
+    "vida": [
+      "Códigos y seguridad informática usan primos grandes (idea, sin detalles técnicos).",
+      "Empaquetado: solo ciertos tamaños «no se parten» de forma interesante.",
+      "Música y compases a veces exploran patrones primos (curioso).",
+      "Juegos de mesa que reparaten fichas: números primos dificultan grupos iguales.",
+    ],
+    "vida_fig": "olla.svg",
+    "widgets": [
+      ("Interactivo · criba y ladrillos", "l11-criba-factorizacion.html"),
+    ],
+    "reto_t": "Primo en la calle",
+    "reto": "Encuentra un número primo que aparezca en tu día (dorsal, precio entero, número de bus…). Cuenta por qué sabes que es primo.",
+    "reto_id": "1eso-mate-L11",
+    "cierre": "Primos son ladrillos de los naturales. Factorizar es escribir un número como producto de esos ladrillos.",
+  },
+  {
+    "n": 12,
+    "eyebrow": "Lección 12 · UD3 · Divisibilidad",
+    "title_html": "mcd y mcm: <em>estrategias</em> y problemas",
+    "title_plain": "mcd y mcm: estrategias y problemas",
+    "meta": "Saberes CyL (Decreto 39/2022): A.4 Relaciones (mcd/mcm)",
+    "curiosidad_t": "Comunes chicos, todos los grandes",
+    "curiosidad": "mcd = mayor divisor común; mcm = menor múltiplo común. Con factores: comunes con el menor exponente → mcd; todos con el mayor → mcm. El enunciado decide: «mayor grupo» suele ser mcd; «primera vez que coinciden» suele ser mcm.",
+    "curiosidad_fig": "mapa.svg",
+    "objetivos": [
+      "Calcular mcd y mcm por listados y por factores primos.",
+      "Elegir mcd o mcm según el enunciado.",
+      "Resolver problemas de coincidencia de ciclos y de reparto máximo.",
+      "Relacionar mcd×mcm = producto (para dos números).",
+    ],
+    "cuerpo": """
+    <h2>Explicación breve</h2>
+    <p><strong>mcd(a,b)</strong>: mayor natural que divide a ambos. <strong>mcm(a,b)</strong>: menor múltiplo común. Por factores: menores exponentes → mcd; mayores → mcm. Relación: mcd×mcm = a×b.</p>
+""",
+    "cuerpo_after_widgets": "",
+    "widget_split": False,
+    "vida_t": "Aplicaciones",
+    "vida": [
+      "Luces o semáforos con ciclos distintos (idea de mcm).",
+      "Baldosas para cubrir un patio sin cortar.",
+      "Turnos de riego o de guardia que coinciden cada ciertos días.",
+      "Agrupar alumnos de dos clases en equipos del mismo tamaño máximo (mcd).",
+    ],
+    "vida_fig": "ticket.svg",
+    "widgets": [
+      ("Interactivo · barras, ciclos y Venn", "l12-barras-mcd-mcm.html"),
+    ],
+    "reto_t": "Ciclos de mi semana",
+    "reto": "Inventa dos rutinas con periodos distintos (entreno, serie, recogida de basura…). ¿Cada cuántos días coinciden? Usa mcm.",
+    "reto_id": "1eso-mate-L12",
+    "cierre": "mcd = mayor divisor común; mcm = menor múltiplo común. El enunciado decide cuál.",
+  },
 ]
 
 
@@ -580,19 +691,34 @@ def write_redirect(path: pathlib.Path, target: str, label: str) -> None:
 
 def update_hub() -> None:
     text = HUB.read_text(encoding="utf-8")
-    # status blurb
-    text = text.replace(
-        "<strong>Lección 01 disponible</strong> en el shell visual (interactivos Mate + presentación).\n"
-        "      El resto del curso está <strong>en construcción</strong> — no hay un lector masivo de los 47 borradores Markdown.\n"
-        "      También hay <strong>ZIP offline</strong> en <a href=\"../../descargas.html\">Descargas</a> (<code>1eso-matematicas-offline.zip</code>).",
+    # status blurb (idempotent across AVAILABLE bumps)
+    text = re.sub(
+        r"<strong>Lecciones 01–\d{2} disponibles</strong> en shell HTML \(interactivos Mate\)\.",
+        f"<strong>Lecciones 01–{AVAILABLE:02d} disponibles</strong> en shell HTML (interactivos Mate).",
+        text,
+        count=1,
+    )
+    text = re.sub(
+        r"<strong>Lección 01 disponible</strong> en el shell visual \(interactivos Mate \+ presentación\)\.\s*"
+        r"El resto del curso está <strong>en construcción</strong>[^<]*(?:<[^>]+>[^<]*)*?"
+        r"<code>1eso-matematicas-offline\.zip</code>\).",
         f"<strong>Lecciones 01–{AVAILABLE:02d} disponibles</strong> en shell HTML (interactivos Mate).\n"
         "      El resto aparece como <strong>próximamente</strong>.\n"
         "      <strong>ZIP offline</strong> (sin instalar: descomprime y abre <code>index.html</code>) en "
-        "<a href=\"../../descargas.html\">Descargas</a>."
+        "<a href=\"../../descargas.html\">Descargas</a>.",
+        text,
+        count=1,
+        flags=re.S,
     )
     text = text.replace(
         'href="lecciones/01-presentacion.html">Abrir lección 01 · Presentación →</a>',
         'href="lecciones/leccion-01.html">Abrir lección 01 →</a>',
+    )
+    text = re.sub(
+        r"Disponibles L01–L\d{2} como <code>leccion-NN\.html</code>\.",
+        f"Disponibles L01–L{AVAILABLE:02d} como <code>leccion-NN.html</code>.",
+        text,
+        count=1,
     )
     text = text.replace(
         "Solo enlazan las que ya tienen HTML de shell.",
@@ -630,36 +756,36 @@ def update_hub() -> None:
         if count != 1:
             print(f"WARN: hub item {n:02d} replacements={count}")
     HUB.write_text(text, encoding="utf-8")
-    print("Updated hub")
+    # downloads/ copy uses paths relative to downloads/
+    hub_dl = text
+    hub_dl = hub_dl.replace(
+        'href="../_plantilla-leccion/leccion-shell.css"',
+        'href="../profesor/_plantilla-leccion/leccion-shell.css"',
+    )
+    hub_dl = hub_dl.replace('href="../../index.html"', 'href="../index.html"')
+    hub_dl = hub_dl.replace('href="../../descargas.html"', 'href="../descargas.html"')
+    hub_dl = hub_dl.replace('href="lecciones/', 'href="../profesor/1eso-matematicas/lecciones/')
+    (REPO / "downloads/1eso-matematicas.html").write_text(hub_dl, encoding="utf-8")
+    print("Updated hub (+ downloads copy)")
 
 
 def update_descargas() -> None:
     text = DESCARGAS.read_text(encoding="utf-8")
-    old = (
-        "<p>Puedes <strong>descargar y usar offline</strong> (sin nube). Incluye <strong>Lección 01</strong> "
-        "con interactivos (shell luminoso); más lecciones más adelante.</p>\n"
-        "            <div class=\"actions\">\n"
-        "              <a class=\"btn-download\" href=\"/downloads/1eso-matematicas-offline.zip\" "
-        "download=\"1eso-matematicas-offline.zip\">Descargar 1º ESO Matemáticas</a>\n"
-        "              <a class=\"textlink\" href=\"/profesor/1eso-matematicas/lecciones/01-presentacion.html\">"
-        "Abrir lección 01</a>\n"
-        "              <a class=\"textlink\" href=\"/profesor/1eso-matematicas/1eso-matematicas.html\">"
-        "Índice del curso</a>"
+    before = text
+    # Idempotent bump of pack range + ensure wording
+    text, n = re.subn(
+        r'(Pack plano con lecciones <strong>)01–\d{2}(</strong>)',
+        rf'\g<1>01–{AVAILABLE:02d}\2',
+        text,
+        count=1,
     )
-    new = (
-        "<p><strong>No se instala.</strong> Descomprime y abre <code>index.html</code>. "
-        f"Pack plano con lecciones <strong>01–{AVAILABLE:02d}</strong> (HTML + interactivos); "
-        "resto próximamente. Sin nube ni servidor.</p>\n"
-        "            <div class=\"actions\">\n"
-        "              <a class=\"btn-download\" href=\"/downloads/1eso-matematicas-offline.zip\" "
-        "download=\"1eso-matematicas-offline.zip\">Descargar ZIP</a>\n"
-        "              <a class=\"textlink\" href=\"/profesor/1eso-matematicas/lecciones/leccion-01.html\">"
-        "Abrir lección 01</a>\n"
-        "              <a class=\"textlink\" href=\"/profesor/1eso-matematicas/1eso-matematicas.html\">"
-        "Índice del curso</a>"
+    text = text.replace(
+        'href="/profesor/1eso-matematicas/lecciones/01-presentacion.html"',
+        'href="/profesor/1eso-matematicas/lecciones/leccion-01.html"',
     )
-    if old not in text:
-        # try softer replace
+    text = text.replace(">Descargar 1º ESO Matemáticas</a>", ">Descargar ZIP</a>")
+    needle = f"Pack plano con lecciones <strong>01–{AVAILABLE:02d}</strong>"
+    if needle not in text:
         text2 = re.sub(
             r'(<h2>1º ESO Matemáticas</h2>\s*<p class="kicker">[^<]*</p>\s*)<p>.*?</p>',
             rf'\1<p><strong>No se instala.</strong> Descomprime y abre <code>index.html</code>. '
@@ -669,21 +795,14 @@ def update_descargas() -> None:
             count=1,
             flags=re.S,
         )
-        text2 = text2.replace(
-            'href="/profesor/1eso-matematicas/lecciones/01-presentacion.html"',
-            'href="/profesor/1eso-matematicas/lecciones/leccion-01.html"',
-        )
-        text2 = text2.replace(
-            ">Descargar 1º ESO Matemáticas</a>",
-            ">Descargar ZIP</a>",
-        )
-        if text2 == text:
+        if needle not in text2:
             raise SystemExit("descargas.html pattern not found")
         text = text2
+    if text != before:
+        DESCARGAS.write_text(text, encoding="utf-8")
+        print("Updated descargas")
     else:
-        text = text.replace(old, new)
-    DESCARGAS.write_text(text, encoding="utf-8")
-    print("Updated descargas")
+        print("descargas already up to date")
 
 
 def update_plantilla_readme() -> None:
@@ -728,12 +847,12 @@ def build_offline_pack() -> None:
 
     # LEEME first lines critical
     (root / "LEEME.md").write_text(
-        """# 1º ESO Matemáticas — pack offline
+        f"""# 1º ESO Matemáticas — pack offline
 
 No hay que instalar nada. Descomprime y abre index.html
 
 **Qué es:** lecciones de **Educación obligatoria** (currículo oficial Castilla y León, Decreto 39/2022).
-Este pack trae las lecciones **01–09** en HTML plano (shell + interactivos Mate). El resto irá entrando como *próximamente*.
+Este pack trae las lecciones **01–{AVAILABLE:02d}** en HTML plano (shell + interactivos Mate). El resto irá entrando como *próximamente*.
 
 **Cómo abrir (3 pasos)**
 
@@ -746,7 +865,7 @@ Todo funciona **offline**, sin nube ni servidor (`file://`). Sin instalación, s
 **Android:** descomprime con **Archivos / Mis archivos** y abre `index.html` desde ahí (`file://`).
 Abrir desde la lista «Descargas» del navegador a veces usa `content://` y falla peor.
 
-**Contenido:** `leccion-01.html` … `leccion-09.html`, widgets `l0N-….html`, calculadora, CSS/JS del shell y figuras SVG — todo en la misma carpeta.
+**Contenido:** `leccion-01.html` … `leccion-{AVAILABLE:02d}.html`, widgets `lNN-….html`, calculadora, CSS/JS del shell y figuras SVG — todo en la misma carpeta.
 """,
         encoding="utf-8",
     )
