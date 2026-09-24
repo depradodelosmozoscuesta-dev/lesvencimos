@@ -377,17 +377,83 @@
     from { transform: rotate(-1.2deg); }
     to { transform: rotate(1.2deg); }
   }
-  #btn-mode-borrar[aria-pressed="true"],
   #btn-mode-renombrar[aria-pressed="true"] {
     border-color: var(--acento);
     color: var(--acento);
     background: color-mix(in srgb, var(--acento) 16%, var(--fondo-3));
   }
-  #btn-mode-borrar[aria-pressed="true"] {
+  /* Hora + fecha + papelera fijas (esquina superior derecha del escritorio) */
+  #desk-status {
+    position: absolute;
+    top: 0.4rem;
+    right: 0.4rem;
+    z-index: 60;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.28rem 0.4rem 0.28rem 0.65rem;
+    background: color-mix(in srgb, var(--fondo-2) 90%, transparent);
+    border: 1px solid var(--linea);
+    border-radius: 999px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.28);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    pointer-events: auto;
+  }
+  body.desk-immersive #desk-status {
+    position: fixed;
+    top: max(0.45rem, env(safe-area-inset-top, 0px));
+    right: max(0.45rem, env(safe-area-inset-right, 0px));
+    z-index: 95;
+  }
+  #desk-clock {
+    font-family: var(--serif);
+    font-weight: 600;
+    font-size: 1.05rem;
+    color: var(--acento);
+    letter-spacing: 0.02em;
+    font-variant-numeric: tabular-nums;
+    line-height: 1;
+  }
+  #desk-date {
+    font-size: 0.72rem;
+    color: var(--tinta);
+    white-space: nowrap;
+    line-height: 1.15;
+    max-width: 7.5rem;
+  }
+  #btn-trash {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px; height: 36px; min-width: 36px; min-height: 36px;
+    padding: 0;
+    margin: 0;
+    border: 1px solid var(--linea);
+    border-radius: 50%;
+    background: var(--fondo-3);
+    color: var(--tinta);
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+  }
+  #btn-trash svg { width: 18px; height: 18px; display: block; }
+  #btn-trash:hover, #btn-trash:focus-visible {
     border-color: var(--peligro);
     color: var(--peligro);
-    background: color-mix(in srgb, var(--peligro) 14%, var(--fondo-3));
+    outline: none;
   }
+  #btn-trash[aria-pressed="true"] {
+    border-color: var(--peligro);
+    color: var(--peligro);
+    background: color-mix(in srgb, var(--peligro) 16%, var(--fondo-3));
+    box-shadow: 0 0 0 2px color-mix(in srgb, var(--peligro) 35%, transparent);
+  }
+  .launch-tile.pending-borrar .mod-ico-wrap,
+  .w-slot.pending-borrar {
+    box-shadow: 0 0 0 3px var(--peligro), 0 2px 10px rgba(0,0,0,0.25) !important;
+    animation: none !important;
+  }
+  .launch-tile.pending-borrar .mod-ico-label { color: var(--peligro); font-weight: 700; }
   .desk-mode-hint {
     margin: 0.35rem 0 0;
     min-height: 1.2em;
@@ -778,9 +844,9 @@
         <h1>Escritorio / Estantería</h1>
         <p class="lead">
           <strong>Lanzadera por temas</strong> — iconos pequeños en filas fijas (así es así).
-          <strong>Borrar</strong> o <strong>Renombrar</strong> en la barra, luego toca la app.
-          Añade sobre todo desde <strong>Widgets</strong>
-          (Módulos restaura uno). Agenda tiene huecos fijos para reloj, fecha y calendario.
+          Hora y fecha siempre arriba a la derecha. <strong>Papelera</strong> ahí para quitar apps
+          (doble toque: elegir · confirmar). <strong>Renombrar</strong> en el menú.
+          Añade desde <strong>Widgets</strong> (calendario opcional) o <strong>Módulos</strong>.
           Oculta el menú para pantalla completa.
           <strong>Sin Radio ni red:</strong> este HTML no puede conectar a internet.
         </p>
@@ -800,9 +866,8 @@
           </select>
           <span class="spacer"></span>
           <button type="button" id="btn-shelves" title="Ya ordenado por temas" hidden>A estantes</button>
-          <button type="button" id="btn-mode-borrar" aria-pressed="false" title="Toca una app para quitarla">Borrar</button>
           <button type="button" id="btn-mode-renombrar" aria-pressed="false" title="Toca una app para renombrarla">Renombrar</button>
-          <button type="button" id="btn-fill" title="Vuelve a poner módulos quitados + reloj, fecha y calendario">Restaurar todo</button>
+          <button type="button" id="btn-fill" title="Vuelve a poner módulos quitados del catálogo">Restaurar todo</button>
           <button type="button" id="btn-clear" title="Vaciar escritorio">Vaciar</button>
           <button type="button" id="btn-collapse-toolbar" title="Ocultar menú" aria-label="Ocultar menú">Ocultar menú</button>
         </div>
@@ -825,7 +890,7 @@
           <div id="wid-chips" class="chip-list"></div>
         </div>
         <p class="file-err" id="file-err" aria-live="polite"></p>
-        <p class="hint desk-hint">Lanzadera por temas · Borrar / Renombrar · Widgets añade · Restaurar todo recupera. Mantén pulsado el escritorio vacío (menú oculto) para recuperar el menú.</p>
+        <p class="hint desk-hint">Lanzadera por temas · papelera (hora) arriba · Renombrar en menú · Widgets añade · Restaurar recupera. Mantén pulsado el escritorio vacío (menú oculto) para recuperar el menú.</p>
       </div>
 
       <button type="button" id="btn-show-toolbar" class="menu-peek" aria-label="Mostrar menú" title="Mostrar menú" hidden>
@@ -834,12 +899,21 @@
       </button>
 
       <div id="desktop" class="desktop launcher has-items" aria-label="Escritorio / Estantería">
+        <div id="desk-status" role="group" aria-label="Hora y borrar">
+          <time id="desk-clock" datetime="" aria-live="polite">--:--</time>
+          <span id="desk-date" aria-live="polite">—</span>
+          <button type="button" id="btn-trash" aria-pressed="false" aria-label="Borrar del escritorio" title="Borrar del escritorio">
+            <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" focusable="false">
+              <path fill="currentColor" d="M9 3h6l1 2h4v2H4V5h4l1-2zm1 6h2v9h-2V9zm4 0h2v9h-2V9zM7 9h2v9H7V9zm-1 12h12a1 1 0 0 0 1-1V7H5v13a1 1 0 0 0 1 1z"/>
+            </svg>
+          </button>
+        </div>
         <div id="shelf-rails" class="shelf-rails" aria-hidden="true"></div>
         <div class="desktop-empty">Todo quitado.<br>Widgets para añadir · Restaurar todo para volver a llenar.</div>
       </div>
     </div>
 
-    <footer class="site-foot">lesvencimos.com · escritorio / estantería offline · <span id="est-build">v20260924e</span></footer>
+    <footer class="site-foot">lesvencimos.com · escritorio / estantería offline · <span id="est-build">v20260924f</span></footer>
   </div>
 
   <div id="mod-viewer" role="dialog" aria-modal="true" aria-labelledby="mod-viewer-title" hidden>
@@ -1216,29 +1290,12 @@
         });
         added++;
       });
-      var want = { clock: 1, date: 1, calendar: 1 };
-      WIDGETS.forEach(function (def) {
-        if (!want[def.widget]) return;
-        if (findAgendaWidget(agendaSlotFor(def.widget) || def.widget)) return;
-        if (hasWidgetType(def.widget)) return;
-        var id = def.widget + '-' + Date.now().toString(36) + '-' + (added + 1);
-        state.items.push({
-          id: id,
-          type: 'widget',
-          widget: def.widget,
-          titulo: def.titulo,
-          shelf: def.shelf || 'agenda',
-          tipIndex: 0,
-          pillText: '',
-          z: ++Z,
-          addedAt: new Date().toISOString()
-        });
-        added++;
-      });
+      /* Hora/fecha van fijas en #desk-status; no forzar reloj/fecha/calendario en Agenda.
+         Calendario y otros widgets siguen disponibles en el panel Widgets. */
       arrangeToShelves();
       if (!quiet) {
         showToast(added
-          ? ('Restaurado · +' + added + ' · Borrar quita lo que no quieras')
+          ? ('Restaurado · +' + added + ' · papelera quita lo que no quieras')
           : 'Ya completo · ordenado por temas');
       }
       renderChips();
@@ -1343,36 +1400,87 @@
     }
 
     var deskMode = null; /* null | 'borrar' | 'renombrar' */
+    var pendingBorrarId = null;
+
+    function clearPendingBorrar() {
+      pendingBorrarId = null;
+      document.querySelectorAll('.pending-borrar').forEach(function (n) {
+        n.classList.remove('pending-borrar');
+      });
+    }
+
+    function markPendingBorrar(id) {
+      clearPendingBorrar();
+      pendingBorrarId = id || null;
+      if (!pendingBorrarId) return;
+      document.querySelectorAll('[data-id]').forEach(function (n) {
+        if (n.dataset.id === pendingBorrarId) n.classList.add('pending-borrar');
+      });
+    }
+
+    function updateBorrarHint() {
+      var hint = document.getElementById('desk-mode-hint');
+      if (!hint) return;
+      if (deskMode === 'borrar') {
+        if (pendingBorrarId) {
+          var it = state.items.find(function (x) { return x.id === pendingBorrarId; });
+          var lab = (it && it.titulo) || 'app';
+          hint.textContent = 'Seleccionada «' + lab + '» · otra vez la papelera para confirmar';
+        } else {
+          hint.textContent = 'Toca una app · otra vez la papelera para confirmar';
+        }
+      } else if (deskMode === 'renombrar') {
+        hint.textContent = 'Toca una app para renombrarla · otra vez Renombrar para cancelar';
+      } else {
+        hint.textContent = '';
+      }
+    }
 
     function setDeskMode(mode) {
       if (mode && mode === deskMode) mode = null;
       if (mode !== 'borrar' && mode !== 'renombrar') mode = null;
+      if (mode !== 'borrar') clearPendingBorrar();
       deskMode = mode;
       document.body.classList.toggle('desk-mode-borrar', deskMode === 'borrar');
       document.body.classList.toggle('desk-mode-renombrar', deskMode === 'renombrar');
-      var bb = document.getElementById('btn-mode-borrar');
+      var bt = document.getElementById('btn-trash');
       var br = document.getElementById('btn-mode-renombrar');
-      if (bb) bb.setAttribute('aria-pressed', deskMode === 'borrar' ? 'true' : 'false');
+      if (bt) bt.setAttribute('aria-pressed', deskMode === 'borrar' ? 'true' : 'false');
       if (br) br.setAttribute('aria-pressed', deskMode === 'renombrar' ? 'true' : 'false');
-      var hint = document.getElementById('desk-mode-hint');
-      if (hint) {
-        if (deskMode === 'borrar') {
-          hint.textContent = 'Toca una app para quitarla · otra vez Borrar para cancelar';
-        } else if (deskMode === 'renombrar') {
-          hint.textContent = 'Toca una app para renombrarla · otra vez Renombrar para cancelar';
-        } else {
-          hint.textContent = '';
+      updateBorrarHint();
+    }
+
+    function onTrashTap() {
+      if (deskMode === 'borrar') {
+        if (pendingBorrarId) {
+          var id = pendingBorrarId;
+          clearPendingBorrar();
+          removeItem(id);
+          setDeskMode(null);
+          showToast('Quitado del escritorio');
+          return;
         }
+        /* en modo sin selección → salir */
+        setDeskMode(null);
+        showToast('Borrar cancelado');
+        return;
       }
+      /* entrar en modo borrar (cancela renombrar) */
+      setDeskMode('borrar');
+      showToast('Toca una app · otra vez la papelera para confirmar');
     }
 
     function handleDeskItemMode(it) {
       if (!it || !deskMode) return false;
       if (deskMode === 'borrar') {
-        var label = it.titulo || it.id;
-        if (!confirm('¿Quitar «' + label + '» del escritorio?')) return true;
-        removeItem(it.id);
-        showToast('Quitado');
+        if (pendingBorrarId === it.id) {
+          /* segundo toque en la misma app: solo deja marcada; confirmar en papelera */
+          updateBorrarHint();
+          return true;
+        }
+        markPendingBorrar(it.id);
+        updateBorrarHint();
+        showToast('Otra vez la papelera para confirmar');
         return true;
       }
       if (deskMode === 'renombrar') {
@@ -2019,7 +2127,10 @@
 
       if (rails && !desk.contains(rails)) desk.insertBefore(rails, desk.firstChild);
       if (empty && !desk.contains(empty)) desk.appendChild(empty);
+      var status = document.getElementById('desk-status');
+      if (status && desk.firstChild !== status) desk.insertBefore(status, desk.firstChild);
       selectedId = null;
+      if (pendingBorrarId) markPendingBorrar(pendingBorrarId);
       renderChips();
       tickClocks();
     }
@@ -2476,9 +2587,23 @@
 
     function tickClocks() {
       var now = new Date();
+      var hhmm = String(now.getHours()).padStart(2, '0') + ':' +
+        String(now.getMinutes()).padStart(2, '0');
+      var mesCorto = ['ene', 'feb', 'mar', 'abr', 'may', 'jun',
+        'jul', 'ago', 'sep', 'oct', 'nov', 'dic'][now.getMonth()];
+      var diaCorto = ['dom', 'lun', 'mar', 'mié', 'jue', 'vie', 'sáb'][now.getDay()];
+      var fechaCorta = diaCorto + ' ' + now.getDate() + ' ' + mesCorto;
+
+      var dc = document.getElementById('desk-clock');
+      if (dc) {
+        dc.textContent = hhmm;
+        dc.setAttribute('datetime', now.toISOString());
+      }
+      var dd = document.getElementById('desk-date');
+      if (dd) dd.textContent = fechaCorta;
+
       document.querySelectorAll('[data-live="clock"]').forEach(function (n) {
-        n.textContent = String(now.getHours()).padStart(2, '0') + ':' +
-          String(now.getMinutes()).padStart(2, '0');
+        n.textContent = hhmm;
       });
       document.querySelectorAll('[data-live="date"]').forEach(function (n) {
         n.textContent = now.getDate() + ' de ' + meses()[now.getMonth()] + ' de ' + now.getFullYear();
@@ -2489,7 +2614,7 @@
       });
     }
 
-    var EST_BUILD = 'v20260924e';
+    var EST_BUILD = 'v20260924f';
 
     function layoutPanelSheet() {
       var tb = document.getElementById('desk-toolbar');
@@ -2693,12 +2818,21 @@
       });
       var btnFill = document.getElementById('btn-fill');
       if (btnFill) btnFill.addEventListener('click', fillDesktop);
-      var btnBorrar = document.getElementById('btn-mode-borrar');
-      if (btnBorrar) btnBorrar.addEventListener('click', function () { setDeskMode('borrar'); });
+      var btnTrash = document.getElementById('btn-trash');
+      if (btnTrash) btnTrash.addEventListener('click', function (e) {
+        e.preventDefault();
+        e.stopPropagation();
+        onTrashTap();
+      });
       var btnRenombrar = document.getElementById('btn-mode-renombrar');
-      if (btnRenombrar) btnRenombrar.addEventListener('click', function () { setDeskMode('renombrar'); });
+      if (btnRenombrar) btnRenombrar.addEventListener('click', function () {
+        /* Renombrar cancela modo borrar */
+        clearPendingBorrar();
+        setDeskMode('renombrar');
+      });
       document.addEventListener('keydown', function (e) {
         if (e.key === 'Escape' && deskMode) {
+          clearPendingBorrar();
           setDeskMode(null);
         }
       });
@@ -2706,10 +2840,22 @@
       if (deskEl) {
         deskEl.addEventListener('click', function (e) {
           if (!deskMode) return;
-          if (e.target.closest && e.target.closest('.launch-tile, .w-slot')) return;
+          if (e.target.closest && e.target.closest('.launch-tile, .w-slot, #desk-status, #btn-trash')) return;
+          clearPendingBorrar();
           setDeskMode(null);
         });
       }
+      /* abrir menú (Módulos/Widgets) también cancela borrar */
+      ['btn-modulos', 'btn-widgets', 'btn-show-toolbar'].forEach(function (id) {
+        var el = document.getElementById(id);
+        if (!el) return;
+        el.addEventListener('click', function () {
+          if (deskMode === 'borrar') {
+            clearPendingBorrar();
+            setDeskMode(null);
+          }
+        }, true);
+      });
       document.getElementById('btn-clear').addEventListener('click', function () {
         if (!state.items.length) return;
         if (!confirm('¿Vaciar todo el escritorio?')) return;
@@ -2738,7 +2884,7 @@
         renderDesktop();
       }
       if (clockTimer) clearInterval(clockTimer);
-      clockTimer = setInterval(tickClocks, 15000);
+      clockTimer = setInterval(tickClocks, 30000);
       window.addEventListener('resize', function () {
         renderDesktop();
       });
