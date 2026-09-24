@@ -1,5 +1,6 @@
 /*! Les vencimos · modo maestro runtime (offline / file://)
  *  Carga maestro.json, habla con speechSynthesis, desplaza, enfoca y mueve el puntero.
+ *  Voces por rol (narrador/chico/chica/mayor/perro/timbre) y diálogos multi-réplica.
  *  Autoarranque solo con ?maestro=1 (o data-maestro-autostart).
  */
 (function (global) {
@@ -7,6 +8,32 @@
 
   var NS = 'LesVencimosMaestro';
   if (global[NS] && global[NS].__booted) return;
+
+  /** Catálogo de roles: pitch/rate relativos + pista de género para pickVoice */
+  var ROLES = {
+    narrador: { pitch: 1, rate: 1, gender: 'any', label: 'Narrador', chip: 'narrador' },
+    chico: { pitch: 0.88, rate: 1.02, gender: 'male', label: 'Chico', chip: 'chico' },
+    chica: { pitch: 1.22, rate: 1.05, gender: 'female', label: 'Chica', chip: 'chica' },
+    mayor: { pitch: 0.72, rate: 0.82, gender: 'male', label: 'Mayor', chip: 'mayor' },
+    perro: { pitch: 1.75, rate: 1.35, gender: 'any', label: 'Perro', chip: 'perro' },
+    timbre: { pitch: 1.4, rate: 1.15, gender: 'any', label: 'Timbre', chip: 'timbre' }
+  };
+
+  /** Alias de guion → rol de voz (la etiqueta en barra usa el alias capitalizado) */
+  var VOZ_ALIAS = {
+    narrador: 'narrador',
+    chico: 'chico',
+    chica: 'chica',
+    mayor: 'mayor',
+    perro: 'perro',
+    timbre: 'timbre',
+    vendedor: 'mayor',
+    alumna: 'chica',
+    alumno: 'chico'
+  };
+
+  var MALE_HINTS = /male|hombre|man|boy|david|jorge|juan|pablo|diego|miguel|carlos|pedro|antonio|jose|josé|raul|raúl|sergio|andres|andrés|miguel|francisco|manuel|paul|james|mark|john|thomas|daniel|microsoft\s+pablo|google\s+español.*españa.*male|español\s+españa\s+masculino|es-es-x-eed|es-es-x-eea|es_es_male|neural2-b|wavenet-b|wavenet-c|standard-b|standard-c/i;
+  var FEMALE_HINTS = /female|mujer|woman|girl|maria|maría|lucia|lucía|carmen|ana|elena|laura|sofia|sofía|isabel|monica|mónica|patricia|sara|paulina|conchita|monica|microsoft\s+helena|microsoft\s+sabina|google\s+español.*female|español\s+españa\s+femenino|es-es-x-ef[a-z]|es_es_female|neural2-a|neural2-c|neural2-e|wavenet-a|wavenet-d|wavenet-e|standard-a|standard-d|standard-e/i;
 
   var state = {
     json: null,
@@ -19,7 +46,10 @@
     focusEl: null,
     bar: null,
     pointer: null,
-    reducedMotion: false
+    reducedMotion: false,
+    /** Monotón: sube en stop/next para abortar cadenas de diálogo */
+    speakGen: 0,
+    chipEl: null
   };
 
   function qs(sel, root) {
@@ -75,13 +105,8 @@
     var r = el.getBoundingClientRect();
     var x = r.left + Math.min(r.width * 0.55, Math.max(24, r.width / 2));
     var y = r.top + Math.min(40, Math.max(16, r.height * 0.25));
-    if (state.reducedMotion) {
-      p.style.left = x + 'px';
-      p.style.top = y + 'px';
-    } else {
-      p.style.left = x + 'px';
-      p.style.top = y + 'px';
-    }
+    p.style.left = x + 'px';
+    p.style.top = y + 'px';
     p.classList.add('is-visible');
   }
 
@@ -136,25 +161,95 @@
     });
   }
 
-  function pickVoice() {
+  function capitalizeLabel(key) {
+    var k = String(key || '');
+    if (!k) return 'Narrador';
+    return k.charAt(0).toUpperCase() + k.slice(1);
+  }
+
+  function resolveRole(vozKey) {
+    var raw = String(vozKey || 'narrador').toLowerCase().trim();
+    var roleId = VOZ_ALIAS[raw] || (ROLES[raw] ? raw : 'narrador');
+    var role = ROLES[roleId] || ROLES.narrador;
+    return {
+      id: roleId,
+      alias: raw,
+      pitch: role.pitch,
+      rate: role.rate,
+      gender: role.gender,
+      label: capitalizeLabel(raw),
+      chip: role.chip
+    };
+  }
+
+  /**
+   * pickVoice(preferGender: 'male'|'female'|'any')
+   * Prefiere voces es-* y, si hay pista de género en el nombre, la usa.
+   */
+  function pickVoice(preferGender) {
     if (!global.speechSynthesis) return null;
     var voices = global.speechSynthesis.getVoices() || [];
     if (!voices.length) return null;
-    var prefer = [
+    var want = String(preferGender || 'any').toLowerCase();
+
+    var es = [];
+    var preferLang = [
       /es[-_]ES/i, /Spanish.*Spain/i, /español.*España/i,
       /es[-_]MX/i, /es[-_]AR/i, /^es\b/i, /Spanish/i
     ];
-    for (var i = 0; i < prefer.length; i++) {
+    for (var i = 0; i < preferLang.length; i++) {
       for (var j = 0; j < voices.length; j++) {
         var v = voices[j];
         var label = (v.lang || '') + ' ' + (v.name || '');
-        if (prefer[i].test(v.lang) || prefer[i].test(label)) return v;
+        if (preferLang[i].test(v.lang) || preferLang[i].test(label)) {
+          if (es.indexOf(v) === -1) es.push(v);
+        }
       }
+      if (es.length) break;
     }
-    return voices[0];
+    var pool = es.length ? es : voices;
+
+    function scoreGender(v) {
+      var name = (v.name || '') + ' ' + (v.lang || '');
+      var isF = FEMALE_HINTS.test(name);
+      var isM = MALE_HINTS.test(name);
+      if (want === 'female') {
+        if (isF && !isM) return 2;
+        if (isF) return 1;
+        if (isM && !isF) return -1;
+        return 0;
+      }
+      if (want === 'male') {
+        if (isM && !isF) return 2;
+        if (isM) return 1;
+        if (isF && !isM) return -1;
+        return 0;
+      }
+      return 0;
+    }
+
+    if (want === 'male' || want === 'female') {
+      var best = null;
+      var bestScore = -99;
+      for (var k = 0; k < pool.length; k++) {
+        var s = scoreGender(pool[k]);
+        if (s > bestScore) {
+          bestScore = s;
+          best = pool[k];
+        }
+      }
+      if (best && bestScore > 0) return best;
+    }
+    return pool[0];
+  }
+
+  function bumpSpeakGen() {
+    state.speakGen += 1;
+    return state.speakGen;
   }
 
   function stopSpeech() {
+    bumpSpeakGen();
     state.speaking = false;
     state.utter = null;
     if (global.speechSynthesis) {
@@ -162,7 +257,17 @@
     }
   }
 
-  function speak(text) {
+  /**
+   * Habla una línea. opts:
+   *   - voz: clave de rol/alias (default narrador)
+   *   - cancel: si true (default), cancela voz previa; false = encadenar diálogo
+   *   - gen: generación esperada; si state.speakGen cambió, no habla
+   */
+  function speak(text, opts) {
+    opts = opts || {};
+    var doCancel = opts.cancel !== false;
+    var expectedGen = opts.gen != null ? opts.gen : state.speakGen;
+
     return new Promise(function (resolve) {
       var done = false;
       function finish() {
@@ -172,19 +277,34 @@
         state.utter = null;
         resolve();
       }
+
+      if (expectedGen !== state.speakGen) { finish(); return; }
       if (!text) { finish(); return; }
       if (!global.speechSynthesis || typeof global.SpeechSynthesisUtterance !== 'function') {
         finish();
         return;
       }
-      stopSpeech();
+
+      if (doCancel) {
+        // Cancelar sin bumpear gen (seguimos en la misma cadena / paso)
+        state.speaking = false;
+        state.utter = null;
+        try { global.speechSynthesis.cancel(); } catch (e) { /* ignore */ }
+      }
+
+      if (expectedGen !== state.speakGen) { finish(); return; }
+
+      var role = resolveRole(opts.voz);
       var u = new global.SpeechSynthesisUtterance(String(text));
       u.lang = 'es-ES';
-      u.rate = 1;
-      u.pitch = 1;
-      var voice = pickVoice();
+      u.rate = role.rate;
+      u.pitch = role.pitch;
+      var voice = pickVoice(role.gender);
       if (voice) u.voice = voice;
-      u.onend = finish;
+      u.onend = function () {
+        if (expectedGen !== state.speakGen) { finish(); return; }
+        finish();
+      };
       u.onerror = finish;
       state.utter = u;
       state.speaking = true;
@@ -193,12 +313,6 @@
       } catch (e) {
         finish();
       }
-      // Safari / algunos Chromium: si cancelan sin onend, no colgarse
-      global.setTimeout(function () {
-        if (state.utter === u && state.speaking) {
-          /* aún hablando: no forzar */
-        }
-      }, 50);
     });
   }
 
@@ -208,11 +322,40 @@
     });
   }
 
-  function setBarText(paso, extra) {
+  function setChip(roleOrNull) {
+    if (!state.bar) return;
+    var chip = state.chipEl || qs('.maestro-voz-chip', state.bar);
+    if (!chip) return;
+    state.chipEl = chip;
+    if (!roleOrNull) {
+      chip.hidden = true;
+      chip.textContent = '';
+      chip.className = 'maestro-voz-chip';
+      return;
+    }
+    chip.hidden = false;
+    chip.textContent = roleOrNull.label;
+    chip.className = 'maestro-voz-chip maestro-voz-' + (roleOrNull.chip || 'narrador');
+  }
+
+  function setBarText(paso, extra, lineText, role) {
     if (!state.bar) return;
     var txt = qs('.maestro-paso-texto', state.bar);
     var st = qs('.maestro-estado', state.bar);
-    if (txt) txt.textContent = (paso && paso.decir) || '';
+    if (txt) {
+      if (lineText != null) {
+        if (role && role.label) {
+          txt.textContent = role.label + ': ' + lineText;
+        } else {
+          txt.textContent = lineText;
+        }
+      } else if (paso && paso.dialogo && paso.dialogo.length) {
+        txt.textContent = '(diálogo · ' + paso.dialogo.length + ' réplicas)';
+      } else {
+        txt.textContent = (paso && paso.decir) || '';
+      }
+    }
+    setChip(role || null);
     if (st) {
       var n = state.pasos.length;
       var i = state.idx + 1;
@@ -228,7 +371,7 @@
     bar.setAttribute('role', 'region');
     bar.setAttribute('aria-label', 'Modo maestro');
     bar.innerHTML =
-      '<p class="maestro-barra-titulo">Modo maestro</p>' +
+      '<p class="maestro-barra-titulo">Modo maestro <span class="maestro-voz-chip" hidden></span></p>' +
       '<p class="maestro-paso-texto"></p>' +
       '<p class="maestro-estado"></p>' +
       '<div class="maestro-barra-botones">' +
@@ -248,6 +391,7 @@
       else if (cmd === 'stop') api.stop();
     });
     state.bar = bar;
+    state.chipEl = qs('.maestro-voz-chip', bar);
     return bar;
   }
 
@@ -257,11 +401,50 @@
     else bar.classList.remove('is-on');
   }
 
+  function linesFromPaso(paso) {
+    if (!paso) return [];
+    if (paso.dialogo && Object.prototype.toString.call(paso.dialogo) === '[object Array]' && paso.dialogo.length) {
+      return paso.dialogo.map(function (line) {
+        return {
+          voz: (line && line.voz) || 'narrador',
+          decir: (line && line.decir) || ''
+        };
+      });
+    }
+    return [{
+      voz: paso.voz || 'narrador',
+      decir: paso.decir || ''
+    }];
+  }
+
+  async function speakPasoLines(paso, gen) {
+    var lines = linesFromPaso(paso);
+    for (var i = 0; i < lines.length; i++) {
+      if (gen !== state.speakGen || state.paused) return false;
+      var line = lines[i];
+      var role = resolveRole(line.voz);
+      setBarText(paso, 'hablando…', line.decir, role);
+      // Primera línea cancela eco previo; el resto encadena sin cancel
+      await speak(line.decir, {
+        voz: line.voz,
+        cancel: i === 0,
+        gen: gen
+      });
+      if (gen !== state.speakGen || state.paused) return false;
+      // Micro-pausa entre réplicas de diálogo (no entre única línea)
+      if (i < lines.length - 1) {
+        await wait(180);
+      }
+    }
+    return gen === state.speakGen && !state.paused;
+  }
+
   async function runPaso(i) {
     if (i < 0 || i >= state.pasos.length) {
       state.running = false;
       state.idx = state.pasos.length;
       setBarText(null, 'Fin');
+      setChip(null);
       hidePointer();
       clearFocus();
       return;
@@ -270,6 +453,7 @@
     state.running = true;
     state.paused = false;
     var paso = state.pasos[i];
+    var gen = bumpSpeakGen();
     setBarText(paso, 'hablando…');
 
     var ancla = resolveAncla(paso);
@@ -278,35 +462,38 @@
       applyFocus(ancla);
       var tip = resolvePunteroTarget(paso, ancla);
       await wait(paso.esperaMs != null ? paso.esperaMs : 350);
+      if (gen !== state.speakGen) return;
       movePointerTo(tip || ancla);
     } else {
       clearFocus();
       hidePointer();
       await wait(paso.esperaMs != null ? paso.esperaMs : 200);
+      if (gen !== state.speakGen) return;
     }
 
     if (paso.iframeCmd) {
       postToIframes(paso.iframeCmd);
       await wait(120);
+      if (gen !== state.speakGen) return;
     }
 
-    if (state.paused) {
+    if (state.paused || gen !== state.speakGen) {
       setBarText(paso, 'en pausa');
       return;
     }
 
-    await speak(paso.decir || '');
+    var ok = await speakPasoLines(paso, gen);
 
-    if (state.paused) {
-      setBarText(paso, 'en pausa');
+    if (!ok || state.paused || gen !== state.speakGen) {
+      if (state.paused) setBarText(paso, 'en pausa');
       return;
     }
 
     // Autoavance al siguiente si seguimos en marcha y nadie pidió pausa
-    if (state.running && !state.paused && state.idx === i) {
+    if (state.running && !state.paused && state.idx === i && gen === state.speakGen) {
       setBarText(paso, 'listo');
       await wait(280);
-      if (state.running && !state.paused && state.idx === i) {
+      if (state.running && !state.paused && state.idx === i && gen === state.speakGen) {
         await runPaso(i + 1);
       }
     }
@@ -343,6 +530,10 @@
 
   var api = {
     __booted: false,
+    roles: ROLES,
+    resolveRole: resolveRole,
+    pickVoice: pickVoice,
+    speak: speak,
     getState: function () {
       return {
         idx: state.idx,
@@ -440,7 +631,9 @@
     if (global.speechSynthesis) {
       try { global.speechSynthesis.getVoices(); } catch (e) { /* ignore */ }
       if (typeof global.speechSynthesis.onvoiceschanged !== 'undefined') {
-        global.speechSynthesis.onvoiceschanged = function () { pickVoice(); };
+        global.speechSynthesis.onvoiceschanged = function () {
+          pickVoice('any');
+        };
       }
     }
 

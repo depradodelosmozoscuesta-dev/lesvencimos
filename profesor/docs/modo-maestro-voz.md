@@ -82,6 +82,77 @@ API global en la página de lección: `window.LesVencimosMaestro.command('siguie
 
 Piloto: `1eso-matematicas/lecciones/maestro-01.json`.
 
+
+## Diálogos y voces
+
+El runtime habla con `speechSynthesis` del aparato (offline / `file://`). Por defecto cada paso usa el rol **narrador**. Se pueden cambiar voces por paso o montar un **diálogo** de varias réplicas.
+
+### Roles (pitch / rate relativos)
+
+| Rol | pitch | rate | Notas |
+|-----|-------|------|-------|
+| `narrador` | 1 | 1 | Voz por defecto |
+| `chico` | ≈0.88 | ≈1.02 | Prefiere voces con pistas de nombre masculino |
+| `chica` | ≈1.22 | ≈1.05 | Prefiere voces con pistas de nombre femenino |
+| `mayor` | ≈0.72 | ≈0.82 | Más grave y pausado (vendedor / persona mayor) |
+| `perro` | ≈1.75 | ≈1.35 | Juguetón; el texto debe ser corto tipo «¡Guau guau!» (TTS, **no** un ladrido real ni archivo de audio) |
+| `timbre` | ≈1.4 | ≈1.15 | Imitación divertida / «otra voz» |
+
+### Alias de guion → rol
+
+| Clave en JSON | Rol de voz | Etiqueta en barra |
+|---------------|------------|-------------------|
+| `vendedor` | `mayor` | Vendedor |
+| `alumna` | `chica` | Alumna |
+| `alumno` | `chico` | Alumno |
+| `narrador` / `chico` / `chica` / `mayor` / `perro` / `timbre` | el mismo | Capitalizado |
+
+La barra muestra `Nombre: texto` y un chip de color (`.maestro-voz-chip`).
+
+### API en el paso (`maestro.json`)
+
+Línea única con voz:
+
+```json
+{
+  "id": "ejemplo-chica",
+  "voz": "chica",
+  "decir": "Redondeo a decenas y ya veo el hinchazón.",
+  "ancla": "#maestro-regateo"
+}
+```
+
+Diálogo (réplicas en secuencia; `stop` / `siguiente` cancelan la cadena; entre líneas **no** se cancela a medias):
+
+```json
+{
+  "id": "regateo-dialogo",
+  "ancla": "#maestro-regateo",
+  "puntero": true,
+  "iframeCmd": { "type": "maestro:setPreview", "fair": 24, "offer": 38, "cat": "timo" },
+  "dialogo": [
+    { "voz": "vendedor", "decir": "¡Solo treinta y ocho euros!" },
+    { "voz": "alumna", "decir": "Justo unos veinte. Oferta unos cuarenta: parece un timo." },
+    { "voz": "perro", "decir": "¡Guau guau!" },
+    { "voz": "narrador", "decir": "Estimar con redondeo detecta el hinchazón a ojo." }
+  ]
+}
+```
+
+Normas:
+
+- ≤3 frases cortas **por réplica** (norma 05).
+- Sin `voz` ni `dialogo` → narrador (guiones viejos siguen igual).
+- `speak(texto, { voz })` acepta opciones; la cancelación brusca solo ocurre en **Para** / **Siguiente** / **Empezar** / **Repite**, no entre réplicas del mismo diálogo.
+- `pickVoice('male'|'female'|'any')` elige entre voces `es-*` del aparato cuando existen pistas de género en el nombre.
+
+### Límites del aparato
+
+- Las voces instaladas dependen del SO / navegador: a veces solo hay una `es-ES`, o ninguna y cae a la primera voz del sistema.
+- Pitch/rate ayudan a distinguir roles aunque la voz sea la misma.
+- El «perro» es TTS exagerado (`¡Guau guau!`), no un fichero WAV/MP3 (MVP sin audio externo). Un beep WebAudio opcional puede llegar después.
+- Piloto de diálogo: Mate L05 paso `regateo-dialogo` (mercadillo).
+
 ## Puntero
 
 - Capa fija sobre la lección: mano/flecha semitransparente (`#maestro-puntero`).
