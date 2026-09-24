@@ -2072,7 +2072,7 @@ def widget_block(
             "(d.documentElement&&d.documentElement.scrollHeight)||0,"
             "(d.body&&d.body.scrollHeight)||0,560);"
             "this.style.height=h+'px';this.parentElement.style.minHeight=h+'px';}}"
-            "catch(e){}}"
+            "catch(e){}"
         )
         iframe = (
             f'<iframe title="{title}" class="widget-srcdoc" '
