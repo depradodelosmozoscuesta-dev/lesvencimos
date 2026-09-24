@@ -98,7 +98,7 @@ def inject_embedded(shell: str, embedded: dict[str, str]) -> str:
 def write_leeme() -> str:
     return """═══════════════════════════════════════
   ESCRITORIO / ESTANTERÍA — Les vencimos
-  Build v20260924p
+  Build v20260924q
   UN SOLO HTML (módulos dentro)
 ═══════════════════════════════════════
 
@@ -108,11 +108,13 @@ Este ZIP lleva esencialmente UN archivo:
   LEEME.txt
 
 Baldas deslizables por tema (Escritura, Ocio,
-Casa/Hogar, Salud, Rápido, Varios): una sola línea,
-desliza en horizontal. Atajos nativos en Rápido
-(Teléfono, WhatsApp, Navegador). Packs escolares en Varios
-(no hay balda Educación). Barra Ajustes compacta
-arriba (no es una balda). Iconos de color vivos.
+Casa/Hogar, Salud, Varios): una sola línea,
+desliza en horizontal. Primer icono de cada balda
+más grande: Teléfono, WhatsApp, Navegador, Fotos
+(atajos nativos). El resto se ordena por uso.
+Packs escolares en Varios (no hay balda Educación
+ni Rápido). Barra Ajustes compacta arriba (no es
+una balda). Iconos de color vivos.
 Hora y fecha fijas arriba a la derecha; papelera
 ahí (elige app · otra vez para confirmar).
 Disposición: Completo / Casa / Estudio / Educación / Mínimo.
@@ -236,7 +238,7 @@ def main() -> None:
     shutil.rmtree(STAGING)
 
     # Also keep last lettered snapshot name pointing at same bytes (bookmarks).
-    snapshot = ROOT / "downloads" / "estanteria-offline-v20260924.zip"
+    snapshot = ROOT / "downloads" / "estanteria-offline-v20260924q.zip"
     shutil.copy2(OUT, snapshot)
     print(f"Wrote {OUT} ({OUT.stat().st_size} bytes)")
     print(f"Snapshot {snapshot}")
