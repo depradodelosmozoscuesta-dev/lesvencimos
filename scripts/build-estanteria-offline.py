@@ -98,7 +98,7 @@ def inject_embedded(shell: str, embedded: dict[str, str]) -> str:
 def write_leeme() -> str:
     return """═══════════════════════════════════════
   ESCRITORIO / ESTANTERÍA — Les vencimos
-  Build v20260924q
+  Build v20260924r
   UN SOLO HTML (módulos dentro)
 ═══════════════════════════════════════
 
@@ -110,8 +110,9 @@ Este ZIP lleva esencialmente UN archivo:
 Baldas deslizables por tema (Escritura, Ocio,
 Casa/Hogar, Salud, Varios): una sola línea,
 desliza en horizontal. Primer icono de cada balda
-más grande: Teléfono, WhatsApp, Navegador, Fotos
-(atajos nativos). El resto se ordena por uso.
+más grande y FIJO (no desliza): Teléfono, WhatsApp,
+Navegador, Cámara. Solo el resto de iconos desliza.
+QR fijo a la izquierda en Widgets sueltos.
 Packs escolares en Varios (no hay balda Educación
 ni Rápido). Barra Ajustes compacta arriba (no es
 una balda). Iconos de color vivos.
@@ -238,7 +239,7 @@ def main() -> None:
     shutil.rmtree(STAGING)
 
     # Also keep last lettered snapshot name pointing at same bytes (bookmarks).
-    snapshot = ROOT / "downloads" / "estanteria-offline-v20260924q.zip"
+    snapshot = ROOT / "downloads" / "estanteria-offline-v20260924r.zip"
     shutil.copy2(OUT, snapshot)
     print(f"Wrote {OUT} ({OUT.stat().st_size} bytes)")
     print(f"Snapshot {snapshot}")
