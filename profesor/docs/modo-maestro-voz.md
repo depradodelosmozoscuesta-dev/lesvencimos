@@ -153,6 +153,17 @@ Normas:
 - El «perro» es TTS exagerado (`¡Guau guau!`), no un fichero WAV/MP3 (MVP sin audio externo). Un beep WebAudio opcional puede llegar después.
 - Piloto de diálogo: Mate L05 paso `regateo-dialogo` (mercadillo).
 
+
+## Roles de voz y diálogo (runtime)
+
+El runtime (`profesor/_maestro/maestro-runtime.js`) acepta:
+
+- `voz`: rol o alias (`narrador`, `chico`, `chica`, `mayor`, `perro`, `timbre`; alias `alumno`→chico, `alumna`→chica, `vendedor`→mayor).
+- `dialogo`: array de `{ voz, decir }` en un paso (multi-réplica; chip de rol en la barra).
+- Sin `dialogo`, el paso usa `decir` con `voz` opcional (default `narrador`).
+
+Norma 05: ≤3 frases por réplica / por `decir`.
+
 ## Puntero
 
 - Capa fija sobre la lección: mano/flecha semitransparente (`#maestro-puntero`).
@@ -288,6 +299,42 @@ No romper controles existentes: el listener solo añade; no sustituye `onclick` 
 | `maestro:setMode` / `setDomain` | Alias de `crit` |
 | `maestro:ready` | widget: `l10-bloques-divisibilidad` |
 
+
+### L11 criba y factorización (`l11-criba-factorizacion.html`)
+
+| type | Efecto |
+|------|--------|
+| `maestro:reset` | N=30, n=84, reinicia criba (+2 pasos) y factoriza |
+| `maestro:highlight` | Resalta ladrillos / criba |
+| `maestro:setDemo` / `setExample` | `{ n }` (o demo/example) → factoriza ese n |
+| `maestro:setPreview` | `{ N, n, sieve: 'reset'/'step'/'all' }` — N y n independientes |
+| `maestro:setMode` / `setDomain` | Alias de `sieve` o `{ n }` |
+| `maestro:ready` | widget: `l11-criba-factorizacion` |
+
+### L12 barras mcd/mcm (`l12-barras-mcd-mcm.html`)
+
+| type | Efecto |
+|------|--------|
+| `maestro:reset` | a=18, b=24, problema mcd |
+| `maestro:highlight` | Resalta varillas / Venn |
+| `maestro:setDemo` / `setExample` | `{ a, b, prob: 'mcd'/'mcm' }` |
+| `maestro:setPreview` | `{ a, b, prob }` |
+| `maestro:setMode` / `setDomain` | Alias de `prob` (`mcd` / `mcm`) |
+| `maestro:ready` | widget: `l12-barras-mcd-mcm` |
+
+Diálogo opcional en el guion (rol `alumno` → chico, `narrador`): buses y «¿cada cuánto coinciden?» → mcm.
+
+### L13 enteros en la recta (`l13-enteros-recta.html`)
+
+| type | Efecto |
+|------|--------|
+| `maestro:reset` | a=−5, b=3, vista `line` |
+| `maestro:highlight` | Resalta la escena activa (recta / termómetro / ascensor / fichas) |
+| `maestro:setDemo` / `setExample` | `{ a, b, view: 'line'/'thermo'/'elev'/'chips' }` |
+| `maestro:setPreview` | `{ a, b, view }` |
+| `maestro:setMode` / `setDomain` | Alias de `view` |
+| `maestro:ready` | widget: `l13-enteros-recta` |
+
 ### Otros interactivos
 
 Cada bot de asignatura documenta aquí los `type` que acepte su widget. Hasta entonces, pasos sin `iframeCmd` solo desplazan y señalan el marco.
@@ -297,6 +344,8 @@ Cada bot de asignatura documenta aquí los `type` que acepte su widget. Hasta en
 **Lote L05–L07 (2026-09-24):** guiones `maestro-05.json` … `maestro-07.json` + shells cableados; `musica: false`. L05 trae dos iframes (redondeo + regateo): cada widget ignora el payload que no le corresponde.
 
 **Lote L08–L10 (2026-09-24):** guiones `maestro-08.json` … `maestro-10.json` + shells cableados; `musica: false`. Un iframe por lección (torres / excursión / bloques).
+
+**Lote L11–L13 (2026-09-24):** guiones `maestro-11.json` … `maestro-13.json` + shells cableados; `musica: false`. Un iframe por lección (criba / barras / enteros). L12 incluye un diálogo corto alumno↔narrador (buses → mcm).
 
 ## Música / ritmo
 

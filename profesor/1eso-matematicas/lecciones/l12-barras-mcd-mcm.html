@@ -120,6 +120,12 @@
   .sym-chip { display: inline-block; background: var(--teal-soft); color: #0f766e; font-weight: 800;
     padding: 1px 7px; border-radius: 6px; font-family: "Courier New", ui-monospace, monospace; }
   footer.note { text-align: center; font-size: 0.8rem; color: var(--muted); margin-top: 8px; }
+
+  .maestro-flash{animation:maestroFlash 1.4s ease}
+  @keyframes maestroFlash{
+    0%,100%{box-shadow:none}
+    30%,70%{box-shadow:0 0 0 3px rgba(37,99,235,.55),0 0 12px rgba(37,99,235,.25)}
+  }
 </style>
 </head>
 <body>
@@ -443,6 +449,58 @@
   });
 
   render();
+
+  /* Modo maestro — postMessage API (barras mcd/mcm) */
+  function maestroFlash(node){
+    if(!node) return;
+    node.classList.remove('maestro-flash');
+    void node.offsetWidth;
+    node.classList.add('maestro-flash');
+    window.setTimeout(function(){ node.classList.remove('maestro-flash'); }, 1500);
+  }
+  function maestroSetProb(p){
+    if(p !== 'mcd' && p !== 'mcm') return;
+    prob = p;
+    document.querySelectorAll('#probChips .chip').forEach(function(c){
+      c.classList.toggle('active', c.dataset.p === p);
+    });
+  }
+  window.addEventListener('message', function(ev){
+    var data = ev && ev.data;
+    if(!data || typeof data !== 'object') return;
+    var t = data.type;
+    if(t === 'maestro:reset'){
+      aNum.value = 18; bNum.value = 24;
+      maestroSetProb('mcd');
+      render();
+    } else if(t === 'maestro:highlight'){
+      var target = document.getElementById('rodA') || document.getElementById('venn') || document.querySelector('.stage') || relBox;
+      maestroFlash(target && target.closest ? (target.closest('.card') || target) : target);
+      if(document.getElementById('venn')) maestroFlash(document.getElementById('venn'));
+    } else if(t === 'maestro:setDemo' || t === 'maestro:setExample'){
+      if(data.a != null) aNum.value = data.a;
+      if(data.b != null) bNum.value = data.b;
+      if(data.prob != null || data.demo != null || data.example != null){
+        maestroSetProb(data.prob || data.demo || data.example);
+      }
+      render();
+      maestroFlash(probBox);
+    } else if(t === 'maestro:setPreview'){
+      if(data.a != null) aNum.value = data.a;
+      if(data.b != null) bNum.value = data.b;
+      if(data.prob != null) maestroSetProb(data.prob);
+      render();
+    } else if(t === 'maestro:setDomain' || t === 'maestro:setMode'){
+      maestroSetProb(data.prob || data.mode || data.domain);
+      renderProb();
+    }
+  });
+  try {
+    if(window.parent && window.parent !== window){
+      window.parent.postMessage({ type: 'maestro:ready', widget: 'l12-barras-mcd-mcm' }, '*');
+    }
+  } catch (e) { /* ignore */ }
+
 })();
 </script>
 </body>

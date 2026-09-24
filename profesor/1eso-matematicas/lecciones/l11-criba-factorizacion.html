@@ -116,6 +116,12 @@
     padding: 1px 7px; border-radius: 6px; font-family: "Courier New", ui-monospace, monospace; }
   .step-bar { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 10px; }
   footer.note { text-align: center; font-size: 0.8rem; color: var(--muted); margin-top: 8px; }
+
+  .maestro-flash{animation:maestroFlash 1.4s ease}
+  @keyframes maestroFlash{
+    0%,100%{box-shadow:none}
+    30%,70%{box-shadow:0 0 0 3px rgba(37,99,235,.55),0 0 12px rgba(37,99,235,.25)}
+  }
 </style>
 </head>
 <body>
@@ -484,6 +490,62 @@
   stepSieve();
   stepSieve();
   renderFactor();
+
+  /* Modo maestro — postMessage API (criba y factorización) */
+  function maestroFlash(node){
+    if(!node) return;
+    node.classList.remove('maestro-flash');
+    void node.offsetWidth;
+    node.classList.add('maestro-flash');
+    window.setTimeout(function(){ node.classList.remove('maestro-flash'); }, 1500);
+  }
+  function maestroSetSieve(action){
+    if(action === 'all') sieveAll();
+    else if(action === 'step') stepSieve();
+    else if(action === 'reset') resetSieve();
+  }
+  window.addEventListener('message', function(ev){
+    var data = ev && ev.data;
+    if(!data || typeof data !== 'object') return;
+    var t = data.type;
+    if(t === 'maestro:reset'){
+      NRange.value = 30;
+      nFac.value = 84;
+      resetSieve();
+      stepSieve();
+      stepSieve();
+      renderFactor();
+    } else if(t === 'maestro:highlight'){
+      var target = document.getElementById('bricks') || document.getElementById('sieve') || document.querySelector('.stage');
+      maestroFlash(target);
+    } else if(t === 'maestro:setDemo' || t === 'maestro:setExample'){
+      if(data.n != null){ nFac.value = data.n; }
+      else if(data.demo != null || data.example != null){ nFac.value = data.demo || data.example; }
+      renderFactor();
+      maestroFlash(document.getElementById('bricks'));
+    } else if(t === 'maestro:setPreview'){
+      if(data.N != null){ NRange.value = data.N; NVal.textContent = data.N; }
+      if(data.n != null){ nFac.value = data.n; }
+      if(data.sieve != null || data.N != null){
+        resetSieve();
+        if(data.sieve === 'all') sieveAll();
+        else if(data.sieve === 'step') stepSieve();
+      }
+      if(data.n != null) renderFactor();
+    } else if(t === 'maestro:setDomain' || t === 'maestro:setMode'){
+      var mode = data.mode || data.domain || data.sieve;
+      if(mode === 'all' || mode === 'sieve' || mode === 'criba'){ sieveAll(); }
+      else if(mode === 'step'){ stepSieve(); }
+      else if(mode === 'reset'){ resetSieve(); }
+      else if(data.n != null){ nFac.value = data.n; renderFactor(); }
+    }
+  });
+  try {
+    if(window.parent && window.parent !== window){
+      window.parent.postMessage({ type: 'maestro:ready', widget: 'l11-criba-factorizacion' }, '*');
+    }
+  } catch (e) { /* ignore */ }
+
 })();
 </script>
 </body>

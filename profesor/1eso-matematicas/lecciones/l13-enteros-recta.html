@@ -136,6 +136,12 @@
   .sym-chip{display:inline-block;background:var(--teal-soft);color:var(--teal-deep);font-weight:800;
     padding:1px 7px;border-radius:6px;font-family:"Courier New",ui-monospace,monospace}
   footer.note{text-align:center;font-size:.8rem;color:var(--muted);margin-top:8px}
+
+  .maestro-flash{animation:maestroFlash 1.4s ease}
+  @keyframes maestroFlash{
+    0%,100%{box-shadow:none}
+    30%,70%{box-shadow:0 0 0 3px rgba(37,99,235,.55),0 0 12px rgba(37,99,235,.25)}
+  }
 </style>
 </head>
 <body>
@@ -480,6 +486,58 @@
 
   // Build thermo scale once structure
   render();
+
+  /* Modo maestro — postMessage API (enteros / recta) */
+  function maestroFlash(node){
+    if(!node) return;
+    node.classList.remove('maestro-flash');
+    void node.offsetWidth;
+    node.classList.add('maestro-flash');
+    window.setTimeout(function(){ node.classList.remove('maestro-flash'); }, 1500);
+  }
+  function maestroSetView(v){
+    var ok = { line:1, thermo:1, elev:1, chips:1 };
+    if(!ok[v]) return;
+    view = v;
+    document.querySelectorAll('#viewChips .chip').forEach(function(c){
+      c.classList.toggle('active', c.dataset.v === v);
+    });
+  }
+  window.addEventListener('message', function(ev){
+    var data = ev && ev.data;
+    if(!data || typeof data !== 'object') return;
+    var t = data.type;
+    if(t === 'maestro:reset'){
+      aNum.value = -5; bNum.value = 3;
+      maestroSetView('line');
+      render();
+    } else if(t === 'maestro:highlight'){
+      var stage = stages[view] || document.getElementById('stageLine') || document.querySelector('.stage');
+      maestroFlash(stage);
+    } else if(t === 'maestro:setDemo' || t === 'maestro:setExample'){
+      if(data.a != null) aNum.value = data.a;
+      if(data.b != null) bNum.value = data.b;
+      if(data.view != null || data.demo != null || data.example != null){
+        maestroSetView(data.view || data.demo || data.example);
+      }
+      render();
+      maestroFlash(stages[view]);
+    } else if(t === 'maestro:setPreview'){
+      if(data.a != null) aNum.value = data.a;
+      if(data.b != null) bNum.value = data.b;
+      if(data.view != null) maestroSetView(data.view);
+      render();
+    } else if(t === 'maestro:setDomain' || t === 'maestro:setMode'){
+      maestroSetView(data.view || data.mode || data.domain);
+      render();
+    }
+  });
+  try {
+    if(window.parent && window.parent !== window){
+      window.parent.postMessage({ type: 'maestro:ready', widget: 'l13-enteros-recta' }, '*');
+    }
+  } catch (e) { /* ignore */ }
+
 })();
 </script>
 </body>
