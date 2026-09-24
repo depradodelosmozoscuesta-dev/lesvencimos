@@ -1,4 +1,4 @@
-# Modo maestro — runtime offline (piloto Mate L01)
+# Modo maestro — runtime offline (todas las lecciones Mate)
 
 Para **Web / Voz aparte**: cablear el cromado de voz al pack Profesor sin CDN.
 
@@ -22,7 +22,7 @@ Lección parcheada: `../1eso-matematicas/lecciones/leccion-01-que-es-pensar-mate
 4. Al oír «modo maestro» / «enséñame la lección 1»:
    - Abrir la HTML de la lección del pack **con** `?maestro=1`.
    - Eso muestra la barra Empezar / Siguiente / Repite / Para e inyecta puntero.
-5. Sin `?maestro=1` la lección se lee como siempre (sin barra ni voz guiada).
+5. Sin `?maestro=1` la lección muestra el atajo compacto **Modo maestro** abajo; al pulsar (o con `?maestro=1`) aparece la barra y «Siguiente» conserva `?maestro=1`.
 6. Comandos de voz (mismo contrato que la barra):
    - `siguiente` → `LesVencimosMaestro.command('siguiente')`
    - `repite` → `…('repite')`

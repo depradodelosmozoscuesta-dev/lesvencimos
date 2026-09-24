@@ -1,7 +1,7 @@
 /*! Les vencimos · modo maestro runtime (offline / file://)
  *  Carga maestro.json, habla con speechSynthesis, desplaza, enfoca y mueve el puntero.
  *  Voces por rol (narrador/chico/chica/mayor/perro/timbre) y diálogos multi-réplica.
- *  Autoarranque solo con ?maestro=1 (o data-maestro-autostart).
+ *  Atajo «Modo maestro» siempre (si body[data-maestro-json]); barra grande con ?maestro=1.
  */
 (function (global) {
   'use strict';
@@ -49,7 +49,12 @@
     reducedMotion: false,
     /** Monotón: sube en stop/next para abortar cadenas de diálogo */
     speakGen: 0,
-    chipEl: null
+    chipEl: null,
+    /** Usuario activó maestro en esta página (atajo o ?maestro=1) */
+    uiActive: false,
+    atajoEl: null,
+    guionReady: false,
+    guionLoading: null
   };
 
   function qs(sel, root) {
@@ -364,6 +369,168 @@
     }
   }
 
+
+  function hasMaestroPage() {
+    return !!(document.body && document.body.getAttribute('data-maestro-json'));
+  }
+
+  function withMaestroQuery(href) {
+    if (!href || href === '#' || /^javascript:/i.test(href)) return href;
+    try {
+      var abs = new URL(href, global.location.href);
+      abs.searchParams.set('maestro', '1');
+      // If original was a relative filename / relative path, keep relative form
+      if (!/^[a-z]+:/i.test(href) && href.indexOf('//') !== 0) {
+        var hash = abs.hash || '';
+        var q = abs.search || '';
+        // Preserve directory prefixes from original href
+        var pathOnly = href.split('#')[0].split('?')[0];
+        return pathOnly + q + hash;
+      }
+      return abs.pathname + abs.search + abs.hash;
+    } catch (e) {
+      if (/[?&]maestro=1(?:&|#|$)/.test(href)) return href;
+      var parts = href.split('#');
+      var base = parts[0];
+      var hash = parts.length > 1 ? '#' + parts.slice(1).join('#') : '';
+      base += base.indexOf('?') >= 0 ? '&maestro=1' : '?maestro=1';
+      return base + hash;
+    }
+  }
+
+  function patchNavLinks() {
+    qsa('a.atajo-prev, a.atajo-next').forEach(function (a) {
+      var href = a.getAttribute('href');
+      if (!href) return;
+      var next = withMaestroQuery(href);
+      if (next && next !== href) a.setAttribute('href', next);
+    });
+  }
+
+  function setUrlMaestro() {
+    try {
+      var u = new URL(global.location.href);
+      if (u.searchParams.get('maestro') === '1') return;
+      u.searchParams.set('maestro', '1');
+      global.history.replaceState({}, '', u.pathname + u.search + u.hash);
+    } catch (e) {
+      /* file:// or odd URLs: ignore */
+    }
+  }
+
+  function updateAtajoLabel() {
+    var el = state.atajoEl;
+    if (!el) return;
+    if (state.uiActive) {
+      el.textContent = 'Modo maestro · activo';
+      el.setAttribute('title', 'Abrir o ir a la barra de modo maestro');
+      el.setAttribute('aria-pressed', 'true');
+      el.classList.add('is-activo');
+    } else {
+      el.textContent = 'Modo maestro';
+      el.setAttribute('title', 'Activar modo maestro (voz + puntero)');
+      el.setAttribute('aria-pressed', 'false');
+      el.classList.remove('is-activo');
+    }
+  }
+
+  function ensureAtajoControl() {
+    if (state.atajoEl && state.atajoEl.isConnected) return state.atajoEl;
+    if (!hasMaestroPage()) return null;
+
+    var existing = qs('.atajo-maestro');
+    if (existing) {
+      state.atajoEl = existing;
+      return existing;
+    }
+
+    var el = document.createElement('a');
+    el.href = '#maestro-barra';
+    el.className = 'atajo atajo-maestro';
+    el.setAttribute('role', 'button');
+    el.textContent = 'Modo maestro';
+    el.setAttribute('title', 'Activar modo maestro (voz + puntero)');
+    el.setAttribute('aria-pressed', 'false');
+
+    var atajos = qs('.leccion-atajos');
+    var pie = qs('.leccion-pie');
+    if (atajos) {
+      atajos.appendChild(el);
+    } else if (pie) {
+      el.style.marginLeft = '0.5rem';
+      pie.appendChild(el);
+    } else {
+      el.style.cssText = 'position:fixed;left:12px;bottom:12px;z-index:99999';
+      document.body.appendChild(el);
+    }
+
+    el.addEventListener('click', function (ev) {
+      ev.preventDefault();
+      if (state.uiActive) {
+        showBar(true);
+        var bar = ensureBar();
+        try {
+          if (bar && typeof bar.scrollIntoView === 'function') {
+            bar.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+          }
+        } catch (e2) { /* ignore */ }
+        return;
+      }
+      activateMaestroUi();
+    });
+
+    state.atajoEl = el;
+    return el;
+  }
+
+  async function loadGuionOnce() {
+    if (state.guionReady) return true;
+    if (state.guionLoading) return state.guionLoading;
+    state.guionLoading = (async function () {
+      var url = jsonUrlFromPage();
+      try {
+        state.json = await loadJson(url);
+        state.pasos = (state.json && state.json.pasos) || [];
+        setBarText(null, state.pasos.length ? 'listo · pulsa Empezar' : 'guion vacío');
+        state.guionReady = true;
+        try {
+          global.dispatchEvent(new CustomEvent('maestro:ready', { detail: { url: url, pasos: state.pasos.length } }));
+        } catch (e) { /* ignore */ }
+        return true;
+      } catch (err) {
+        setBarText(null, 'No se pudo cargar el guion (file://). Usa Empezar tras servir en local o incrusta el JSON.');
+        console.warn('[maestro]', err);
+        return false;
+      } finally {
+        state.guionLoading = null;
+      }
+    })();
+    return state.guionLoading;
+  }
+
+  function preloadVoices() {
+    if (!global.speechSynthesis) return;
+    try { global.speechSynthesis.getVoices(); } catch (e) { /* ignore */ }
+    if (typeof global.speechSynthesis.onvoiceschanged !== 'undefined') {
+      global.speechSynthesis.onvoiceschanged = function () {
+        pickVoice('any');
+      };
+    }
+  }
+
+  async function activateMaestroUi() {
+    state.uiActive = true;
+    setUrlMaestro();
+    patchNavLinks();
+    updateAtajoLabel();
+    showBar(true);
+    setBarText(null, 'cargando guion…');
+    ensurePointer();
+    preloadVoices();
+    await loadGuionOnce();
+    return true;
+  }
+
   function ensureBar() {
     if (state.bar) return state.bar;
     var bar = document.createElement('div');
@@ -531,6 +698,8 @@
   var api = {
     __booted: false,
     roles: ROLES,
+    activate: activateMaestroUi,
+    patchNavLinks: patchNavLinks,
     resolveRole: resolveRole,
     pickVoice: pickVoice,
     speak: speak,
@@ -550,7 +719,12 @@
       if (n === 'repite' || n === 'repetir' || n === 'repeat') return api.repeat();
       if (n === 'para' || n === 'stop' || n === 'pausa') return api.stop();
       if (n === 'pregunta' || n === 'preguntar') return api.askMode();
-      if (n === 'empezar' || n === 'start' || n === 'modo maestro') return api.start();
+      if (n === 'empezar' || n === 'start' || n === 'modo maestro') {
+        if (!state.uiActive && hasMaestroPage()) {
+          return activateMaestroUi().then(function () { return api.start(); });
+        }
+        return api.start();
+      }
       return false;
     },
     askMode: function () {
@@ -562,6 +736,16 @@
       return true;
     },
     start: function () {
+      if (!state.uiActive && hasMaestroPage()) {
+        return activateMaestroUi().then(function () {
+          if (!state.pasos.length) return false;
+          state.paused = false;
+          stopSpeech();
+          showBar(true);
+          runPaso(0);
+          return true;
+        });
+      }
       if (!state.pasos.length) return false;
       state.paused = false;
       stopSpeech();
@@ -605,43 +789,27 @@
     api.__booted = true;
     state.reducedMotion = !!(global.matchMedia && global.matchMedia('(prefers-reduced-motion: reduce)').matches);
 
+    // Siempre: atajo compacto si la lección declara guion (Mate shells).
+    if (hasMaestroPage()) {
+      ensureAtajoControl();
+    }
+
     var wantUi = paramMaestro() ||
       (document.body && document.body.getAttribute('data-maestro-autostart') === '1');
 
-    if (!wantUi) {
-      global[NS] = api;
-      return api;
+    if (wantUi && hasMaestroPage()) {
+      await activateMaestroUi();
+    } else if (wantUi && !hasMaestroPage()) {
+      // Página sin data-maestro-json (p.ej. demo): barra clásica
+      state.uiActive = true;
+      showBar(true);
+      setBarText(null, 'cargando guion…');
+      ensurePointer();
+      preloadVoices();
+      await loadGuionOnce();
     }
 
-    showBar(true);
-    setBarText(null, 'cargando guion…');
-    ensurePointer();
-
-    var url = jsonUrlFromPage();
-    try {
-      state.json = await loadJson(url);
-      state.pasos = (state.json && state.json.pasos) || [];
-      setBarText(null, state.pasos.length ? 'listo · pulsa Empezar' : 'guion vacío');
-    } catch (err) {
-      setBarText(null, 'No se pudo cargar el guion (file://). Usa Empezar tras servir en local o incrusta el JSON.');
-      console.warn('[maestro]', err);
-    }
-
-    // Precargar voces (Chrome)
-    if (global.speechSynthesis) {
-      try { global.speechSynthesis.getVoices(); } catch (e) { /* ignore */ }
-      if (typeof global.speechSynthesis.onvoiceschanged !== 'undefined') {
-        global.speechSynthesis.onvoiceschanged = function () {
-          pickVoice('any');
-        };
-      }
-    }
-
-    // No auto-hablar sin gesto: políticas de autoplay. Ofrecemos Empezar.
     global[NS] = api;
-    try {
-      global.dispatchEvent(new CustomEvent('maestro:ready', { detail: { url: url, pasos: state.pasos.length } }));
-    } catch (e) { /* ignore */ }
     return api;
   }
 

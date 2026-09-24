@@ -2465,18 +2465,20 @@ todo en la misma carpeta.
         dest.write_bytes(data)
         print("Restored", rel)
 
-    # Also ensure runtime lives under _maestro/ from repo if ZIP lacked it.
+    # Always ship current _maestro runtime/CSS from repo (overwrite preserved copies).
     maestro_src = REPO / "profesor/_maestro"
     if maestro_src.is_dir():
         dst = root / "_maestro"
         dst.mkdir(exist_ok=True)
-        for fname in ("maestro-runtime.js", "maestro-puntero.css"):
+        for fname in ("maestro-runtime.js", "maestro-puntero.css", "maestro-demo.html", "README.md"):
             src = maestro_src / fname
-            if src.exists() and not (dst / fname).exists():
+            if src.exists():
                 shutil.copy2(src, dst / fname)
-    m01 = LEC / "maestro-01.json"
-    if m01.exists() and not (root / "maestro-01.json").exists():
-        shutil.copy2(m01, root / "maestro-01.json")
+                print("Shipped", f"_maestro/{fname}")
+    # All maestro-NN.json from lecciones/ (do not wipe L01–47).
+    for mj in sorted(LEC.glob("maestro-*.json")):
+        shutil.copy2(mj, root / mj.name)
+    print(f"Shipped {len(list(LEC.glob('maestro-*.json')))} maestro-*.json from lecciones/")
 
     # zip: put files at root of zip (folder name as top-level)
     if ZIP_PATH.exists():
