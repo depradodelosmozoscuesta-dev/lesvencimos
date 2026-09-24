@@ -102,6 +102,7 @@
       <button type="button" class="mode-btn" data-mode="paren">Con paréntesis</button>
       <button type="button" class="mode-btn" data-mode="problema">Problema verbal</button>
     </div>
+    <p class="hint"><strong>En a·x + b = c:</strong> <strong>x</strong> = cantidad desconocida, <strong>a</strong> = coeficiente, <strong>b</strong> = término independiente y <strong>c</strong> = resultado conocido.</p>
 
     <div class="stage" aria-label="Balanza para resolver ecuaciones">
       <svg id="svg" viewBox="0 0 800 500" role="img"></svg>
@@ -125,8 +126,8 @@
     <h2>Letras y símbolos (en español)</h2>
     <div class="glossary">
       <div><strong>x</strong> = «la cantidad desconocida» (incógnita; ej.: precio de una entrada en €).</div>
-      <div><strong>Ecuación lineal</strong> = igualdad con x a la primera potencia (sin x²).</div>
-      <div><strong>Operación inversa</strong> = deshace: + ↔ − · × ↔ ÷ (≠0).</div>
+      <div><strong>Ecuación lineal</strong> = igualdad con <strong>x</strong> (cantidad desconocida) a la primera potencia (sin x²).</div>
+      <div><strong>Operación inversa</strong> = deshace: + ↔ − · × ↔ ÷ (≠0). <strong>a, b, c, d</strong> = números o coeficientes; <strong>k</strong> = factor exterior, constante: un número cualquiera, pero siempre el mismo; <strong>m</strong> = coeficiente del segundo miembro; <strong>n</strong> = término independiente de la derecha; <strong>p</strong> = término independiente izquierdo.</div>
       <div><strong>Trasponer</strong> = pasar un término al otro miembro cambiando de signo.</div>
       <div><strong>Comprobar</strong> = sustituir la solución en ambos miembros; deben coincidir.</div>
       <div><strong>Balanza</strong> = metáfora: plato izquierdo = plato derecho.</div>
@@ -197,6 +198,14 @@
     return xs + (bb>0?'+'+bb:String(bb).replace('-','−'));
   }
 
+
+  function tipQuitarTermino(bb){
+    // Al "restar b" de ambos lados: si b es negativo, la operación efectiva es sumar |b|.
+    if (bb > 0) return 'Restar '+bb+' a ambos';
+    if (bb < 0) return 'Sumar '+(-bb)+' a ambos';
+    return 'Término independiente ya es 0';
+  }
+
   function stateEq(){
     if (mode==='simple' || mode==='problema'){
       const aa = mode==='problema' ? PROBS[probIdx].a : a;
@@ -204,7 +213,7 @@
       const cc = mode==='problema' ? PROBS[probIdx].c : c;
       // steps: 0 original, 1 subtract b, 2 divide by a
       if (step===0) return {L: exprAXB(aa,bb), R: String(cc), sol:(cc-bb)/aa, tipLabel:'Original'};
-      if (step===1) return {L: termX(aa)||'0', R: String(cc-bb), sol:(cc-bb)/aa, tipLabel:'Restar '+bb+' a ambos'};
+      if (step===1) return {L: termX(aa)||'0', R: String(cc-bb).replace('-','−'), sol:(cc-bb)/aa, tipLabel: tipQuitarTermino(bb)};
       return {L:'x', R: String((cc-bb)/aa), sol:(cc-bb)/aa, tipLabel:'Dividir entre '+aa};
     }
     if (mode==='ambos'){

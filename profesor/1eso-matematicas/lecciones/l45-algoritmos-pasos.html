@@ -253,6 +253,13 @@
   function drawArrow(x1,y1,x2,y2){
     svg.appendChild(el('line',{x1,y1,x2,y2,stroke:'#8A6B2F','stroke-width':2,'marker-end':'url(#arrow)'}));
   }
+  function drawLabeledArrow(x1,y1,x2,y2,label){
+    drawArrow(x1,y1,x2,y2);
+    if (!label) return;
+    const mx = (x1+x2)/2, my = (y1+y2)/2;
+    svg.appendChild(el('rect',{x:mx-22,y:my-12,width:44,height:16,rx:6,fill:'#FFFcf5',stroke:'#C4A15A','stroke-width':1}));
+    svg.appendChild(el('text',{x:mx,y:my+1,'text-anchor':'middle','font-size':11,'font-weight':800,fill:'#2F5D7A'}, label));
+  }
 
   function draw(){
     clear(); bg();
@@ -271,7 +278,11 @@
       'Depurar: ¿este algoritmo hace lo que dice?'));
 
     // layout: 2 rows of 3 cards — clear, not spaghetti
-    const positions = [
+    // max2: bottom = 3a | FIN | 3b so branches 2→3a / 2→3b → FIN are readable
+    const positions = (mode==='max2') ? [
+      [40,60],[290,60],[540,60],
+      [40,200],[540,200],[290,200]
+    ] : [
       [40,60],[290,60],[540,60],
       [40,200],[290,200],[540,200]
     ];
@@ -279,17 +290,27 @@
       const [x,y]=positions[i];
       drawCard(x,y,220,70, c.t, c.sub, i===step, i<step);
     });
-    // simple arrows between consecutive cards (horizontal then down)
-    for (let i=0;i<2;i++){
-      const [x1,y1]=positions[i]; const [x2,y2]=positions[i+1];
-      drawArrow(x1+220, y1+35, x2, y2+35);
-    }
-    // from card 2 down to card 3? Actually row1: 0→1→2, then 2 down to 5? Better: 2→5 visually hard.
-    // Connect 0-1-2 and 3-4-5, plus 2 down to 3
-    drawArrow(positions[2][0]+110, positions[2][1]+70, positions[3][0]+110, positions[3][1]);
-    for (let i=3;i<5;i++){
-      const [x1,y1]=positions[i]; const [x2,y2]=positions[i+1];
-      drawArrow(x1+220, y1+35, x2, y2+35);
+    if (mode==='max2'){
+      // 0→1→2
+      drawArrow(positions[0][0]+220, positions[0][1]+35, positions[1][0], positions[1][1]+35);
+      drawArrow(positions[1][0]+220, positions[1][1]+35, positions[2][0], positions[2][1]+35);
+      // 2→3a (SI) and 2→3b (SI NO)
+      drawLabeledArrow(positions[2][0]+70, positions[2][1]+70, positions[3][0]+110, positions[3][1], 'SI');
+      drawLabeledArrow(positions[2][0]+150, positions[2][1]+70, positions[4][0]+110, positions[4][1], 'SI NO');
+      // 3a→FIN and 3b→FIN
+      drawArrow(positions[3][0]+220, positions[3][1]+35, positions[5][0], positions[5][1]+35);
+      drawArrow(positions[4][0], positions[4][1]+35, positions[5][0]+220, positions[5][1]+35);
+    } else {
+      // linear flow for non-branching layouts
+      for (let i=0;i<2;i++){
+        const [x1,y1]=positions[i]; const [x2,y2]=positions[i+1];
+        drawArrow(x1+220, y1+35, x2, y2+35);
+      }
+      drawArrow(positions[2][0]+110, positions[2][1]+70, positions[3][0]+110, positions[3][1]);
+      for (let i=3;i<5;i++){
+        const [x1,y1]=positions[i]; const [x2,y2]=positions[i+1];
+        drawArrow(x1+220, y1+35, x2, y2+35);
+      }
     }
 
     // trace panel

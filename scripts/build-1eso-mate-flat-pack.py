@@ -1499,9 +1499,9 @@ LESSONS = [
     "title_plain": "Del lenguaje cotidiano al lenguaje algebraico",
     "meta": "Saberes CyL (Decreto 39/2022): D.2 Modelo matemático; D.3 Variable (intro)",
     "curiosidad_t": "Palabras que se vuelven símbolos",
-    "curiosidad": "Durante siglos muchos problemas se resolvían con palabras («retórica»). En la Europa moderna aparecieron símbolos compactos: hoy una frase como «3 más que el doble» puede escribirse 2x+3. La notación cambia, pero la idea sigue siendo la misma.",
+    "curiosidad": "Durante siglos muchos problemas se resolvían con palabras («retórica»). En la Europa moderna aparecieron símbolos compactos: <strong>x</strong> = cantidad desconocida, la cantidad que buscamos; hoy una frase como «3 más que el doble» puede escribirse 2x+3. La notación cambia, pero la idea sigue siendo la misma.",
     "curiosidad_fig": "ticket.svg",
-    "curiosidad_label": "Curiosidad histórica",
+    "curiosidad_label": "Truco",
     "objetivos": [
       "Traducir frases a expresiones algebraicas.",
       "Distinguir expresión, ecuación e identidad a nivel intuitivo.",
@@ -1510,7 +1510,7 @@ LESSONS = [
     ],
     "cuerpo": """
     <h2>Explicación breve</h2>
-    <p>El álgebra comprime frases: «un número» → <strong>x</strong>, «el siguiente» → <strong>x+1</strong>, «el doble» → <strong>2x</strong>, «la mitad» → <strong>x/2</strong> y «3 más que el doble» → <strong>2x+3</strong>.</p>
+    <p>El álgebra comprime frases: <strong>x</strong> = cantidad desconocida, la cantidad que buscamos; «un número» → <strong>x</strong>, «el siguiente» → <strong>x+1</strong>, «el doble» → <strong>2x</strong>, «la mitad» → <strong>x/2</strong> y «3 más que el doble» → <strong>2x+3</strong>.</p>
     <div class="tarjeta">
       <p style="margin:0 0 0.45rem"><strong>Expresión:</strong> 2x+3 se puede evaluar. <strong>Ecuación:</strong> 2x+3=11 se resuelve.</p>
       <p style="margin:0"><strong>Convención:</strong> 2x significa 2·x; se omite el signo × para no confundirlo con la letra x.</p>
@@ -1548,9 +1548,10 @@ LESSONS = [
     ],
     "cuerpo": """
     <h2>Explicación breve</h2>
-    <p>En <strong>A=L·L</strong> de un cuadrado, las letras representan magnitudes que pueden variar. En <strong>2x+3=11</strong>, x es la incógnita: buscamos el valor que cumple la igualdad.</p>
+    <p>En <strong>S=L·L</strong> (área del cuadrado), <strong>S</strong> = área y <strong>L</strong> = lado: L es variable; si cambia L, cambia S. En un rectángulo, <strong>S=L·A</strong> (<strong>L</strong>=largo, <strong>A</strong>=ancho). En <strong>2x+3=11</strong>, <strong>x</strong> es la incógnita: buscamos el valor que cumple la igualdad.</p>
     <div class="tarjeta">
-      <p style="margin:0 0 0.45rem"><strong>Fórmulas:</strong> P=2(a+b) y d=v·t empaquetan modelos. Para despejar, usa operaciones inversas en ambos miembros: P/2=a+b → b=P/2−a.</p>
+      <p style="margin:0 0 0.45rem"><strong>Fórmulas:</strong> <strong>P</strong>=perímetro, <strong>L</strong>=largo, <strong>A</strong>=ancho, <strong>S</strong>=área; <strong>d</strong>=distancia, <strong>v</strong>=velocidad, <strong>t</strong>=tiempo. <strong>P=2(L+A)</strong>, <strong>S=L·A</strong> y <strong>d=v·t</strong> empaquetan modelos. Para despejar: P/2=L+A → A=P/2−L.</p>
+      <p style="margin:0"><strong>Lee la operación:</strong> P/2 = perímetro dividido entre 2; <strong>b</strong> = lado que buscamos.</p>
       <p style="margin:0"><strong>Unidades:</strong> v=d/t con d en km y t en h da km/h. Al sustituir números negativos, usa paréntesis.</p>
     </div>
     <p>Truco: ¿cambia a voluntad? → variable. ¿La buscas en una igualdad? → incógnita. Sustituye con paréntesis y despeja con pasos reversibles.</p>
@@ -1586,9 +1587,9 @@ LESSONS = [
     ],
     "cuerpo": """
     <h2>Explicación breve</h2>
-    <p>Los términos semejantes tienen la misma parte literal: 3x−7x=−4x, pero 3x y 2 no se pueden sumar. La distributiva reparte el factor: <strong>−2(x−5)=−2x+10</strong>.</p>
+    <p>En estas expresiones, <strong>x</strong> = cantidad desconocida, la cantidad que buscamos. Los términos semejantes tienen la misma parte literal: 3x−7x=−4x, pero 3x y 2 no se pueden sumar. La distributiva reparte el factor: <strong>−2(x−5)=−2x+10</strong>.</p>
     <div class="tarjeta">
-      <p style="margin:0 0 0.45rem"><strong>Ecuaciones equivalentes:</strong> x+3=7 equivale a x=4 porque ambas tienen la misma solución. Haz siempre la misma operación en los dos miembros.</p>
+      <p style="margin:0 0 0.45rem"><strong>Ecuaciones equivalentes:</strong> <strong>x</strong> = cantidad desconocida, la cantidad que buscamos; x+3=7 equivale a x=4 porque ambas tienen la misma solución. Haz siempre la misma operación en los dos miembros.</p>
       <p style="margin:0"><strong>Enunciados:</strong> subraya «es / equivale / resulta»; ahí suele ir el signo =. La balanza es una metáfora útil para comprobar.</p>
     </div>
     <p>Truco: junta lo parecido, reparte el paréntesis, haz lo mismo en los dos platos y comprueba la solución. No sumes 3x+2 como si fuera 5x ni multipliques un solo lado.</p>
@@ -1617,17 +1618,17 @@ LESSONS = [
     "curiosidad_fig": "mapa.svg",
     "curiosidad_label": "",
     "objetivos": [
-      "Resolver ecuaciones del tipo ax+b=c y ax+b=cx+d con enteros.",
+      "Resolver ecuaciones del tipo ax+b=c y ax+b=cx+d con enteros (<strong>x</strong> = cantidad desconocida; <strong>a, b, c, d</strong> = números o coeficientes).",
       "Usar la trasposición de términos con criterio.",
       "Comprobar siempre sustituyendo la solución.",
       "Interpretar la solución en un problema verbal.",
     ],
     "cuerpo": """
     <h2>Explicación breve</h2>
-    <p>Resuelve en cuatro pasos: simplifica cada miembro, agrupa letras a un lado y números al otro, despeja <strong>x</strong> y <strong>comprueba</strong> sustituyendo.</p>
+    <p><strong>x</strong> = cantidad desconocida, la cantidad que buscamos. Resuelve en cuatro pasos: simplifica cada miembro, agrupa letras a un lado y números al otro, despeja <strong>x</strong> y <strong>comprueba</strong> sustituyendo.</p>
     <div class="tarjeta">
-      <p style="margin:0 0 0.45rem"><strong>Ejemplo:</strong> 3x−5=2x+4 → 3x−2x=4+5 → <strong>x=9</strong>. Comprobación: 3·9−5=22 y 2·9+4=22.</p>
-      <p style="margin:0"><strong>Casos especiales:</strong> 0·x=5 no tiene solución; 0·x=0 tiene infinitas. Si aparece x/2, multiplica ambos miembros por 2 para limpiar la fracción.</p>
+      <p style="margin:0 0 0.45rem"><strong>Ejemplo:</strong> <strong>x</strong> = cantidad desconocida, la cantidad que buscamos. 3x−5=2x+4 → 3x−2x=4+5 → <strong>x=9</strong>. Comprobación: 3·9−5=22 y 2·9+4=22.</p>
+      <p style="margin:0"><strong>Casos especiales:</strong> en 0·x=5, <strong>x</strong> sigue siendo la cantidad desconocida: no tiene solución; 0·x=0 tiene infinitas. Si aparece x/2, multiplica ambos miembros por 2 para limpiar la fracción.</p>
     </div>
     <p>Define primero la incógnita en los problemas («x = precio de una entrada en €») y termina con una frase que interprete la solución. No cambies de miembro sin cambiar el signo ni dividas solo un término.</p>
 """,
@@ -1662,12 +1663,12 @@ LESSONS = [
     ],
     "cuerpo": """
     <h2>Explicación breve</h2>
-    <p>Una <strong>relación</strong> asocia valores de <strong>x</strong> con valores de <strong>y</strong>. Puede expresarse con palabras, una tabla, una gráfica o una fórmula. En <strong>y=2x+1</strong>, para x=0,1,2,3 obtenemos y=1,3,5,7.</p>
+    <p>En una relación, <strong>x</strong> = variable de entrada y <strong>y</strong> = resultado de salida. Una <strong>relación</strong> asocia valores de <strong>x</strong> con valores de <strong>y</strong>. Puede expresarse con palabras, una tabla, una gráfica o una fórmula. En <strong>y=2x+1</strong>, para x=0,1,2,3 obtenemos y=1,3,5,7.</p>
     <div class="tarjeta">
-      <p style="margin:0 0 0.45rem"><strong>Recorrido:</strong> elige x → calcula y → coloca los puntos (x,y) en ejes graduados → observa si crece, baja o se alinea.</p>
+      <p style="margin:0 0 0.45rem"><strong>Recorrido:</strong> <strong>x</strong> = entrada que eliges → calcula <strong>y</strong> = resultado → coloca los puntos (x,y) en ejes graduados → observa si crece, baja o se alinea.</p>
       <p style="margin:0"><strong>Ojo con la escala:</strong> empezar el eje Y en 50 puede exagerar diferencias. En categorías no unas puntos sin una razón.</p>
     </div>
-    <p>Normalmente x es la variable independiente (horas, kg) y y la dependiente (km, €, °C). Una relación lineal y=m·x+n produce puntos alineados; y=x² es una relación no lineal que crece cada vez más deprisa.</p>
+    <p>Normalmente <strong>x</strong> = variable independiente (horas, kg) y <strong>y</strong> = variable dependiente (km, €, °C). En <strong>y=m·x+n</strong>, <strong>m</strong> = pendiente o factor de cambio y <strong>n</strong> = término independiente; produce puntos alineados. <strong>y=x²</strong> es una relación no lineal que crece cada vez más deprisa.</p>
 """,
     "cuerpo_after_widgets": "",
     "widget_split": False,
@@ -2440,6 +2441,43 @@ todo en la misma carpeta.
         assert_widget_offline_safe(wf, wh)
         shutil.copy2(src, root / wf)
 
+    # Preserve modo maestro artifacts from the previous ZIP (do not wipe L01 hooks).
+    # Previous pack may include _maestro/, maestro-01.json and a patched L01 shell.
+    preserved: dict[str, bytes] = {}
+    if ZIP_PATH.exists():
+        with zipfile.ZipFile(ZIP_PATH, "r") as old_zf:
+            for info in old_zf.infolist():
+                name = info.filename
+                base = name.split("/", 1)[-1] if "/" in name else name
+                keep = (
+                    base.startswith("_maestro/")
+                    or base == "maestro-01.json"
+                    or (base.startswith("maestro-") and base.endswith(".json"))
+                    or base == "leccion-01-que-es-pensar-matematicamente.html"
+                )
+                if keep and not info.is_dir():
+                    preserved[base] = old_zf.read(info)
+        print(f"Preserved {len(preserved)} maestro-related entries from existing ZIP")
+
+    for rel, data in preserved.items():
+        dest = root / rel
+        dest.parent.mkdir(parents=True, exist_ok=True)
+        dest.write_bytes(data)
+        print("Restored", rel)
+
+    # Also ensure runtime lives under _maestro/ from repo if ZIP lacked it.
+    maestro_src = REPO / "profesor/_maestro"
+    if maestro_src.is_dir():
+        dst = root / "_maestro"
+        dst.mkdir(exist_ok=True)
+        for fname in ("maestro-runtime.js", "maestro-puntero.css"):
+            src = maestro_src / fname
+            if src.exists() and not (dst / fname).exists():
+                shutil.copy2(src, dst / fname)
+    m01 = LEC / "maestro-01.json"
+    if m01.exists() and not (root / "maestro-01.json").exists():
+        shutil.copy2(m01, root / "maestro-01.json")
+
     # zip: put files at root of zip (folder name as top-level)
     if ZIP_PATH.exists():
         ZIP_PATH.unlink()
@@ -2455,22 +2493,30 @@ todo en la misma carpeta.
 
 
 def main() -> None:
+    import os
+    # ONLY_LESSONS=40,41,42,43,44,45 → rewrite those online shells only (preserve maestro L01–L19).
+    only_raw = os.environ.get("ONLY_LESSONS", "").strip()
+    only = {int(x) for x in only_raw.split(",") if x.strip().isdigit()} if only_raw else None
+
     # Online lesson pages
     ensure_course_branding()
     for L in LESSONS:
+        if only is not None and L["n"] not in only:
+            continue
         out = LEC / lesson_filename(L["n"])
         out.write_text(render_lesson(L, offline=False), encoding="utf-8")
         write_redirect(LEC / f"leccion-{L['n']:02d}.html", out.name, f"Lección {L['n']:02d} (alias)")
         print("Wrote", out.name)
 
-    write_redirect(LEC / "01-presentacion.html", lesson_filename(1), "Lección 01 (alias)")
-    write_redirect(LEC / "02-presentacion.html", lesson_filename(2), "Lección 02 (alias)")
+    if only is None:
+        write_redirect(LEC / "01-presentacion.html", lesson_filename(1), "Lección 01 (alias)")
+        write_redirect(LEC / "02-presentacion.html", lesson_filename(2), "Lección 02 (alias)")
 
     update_hub()
     update_descargas()
     update_plantilla_readme()
     build_offline_pack()
-    print("DONE available=", AVAILABLE)
+    print("DONE available=", AVAILABLE, "only=", sorted(only) if only else "all")
 
 
 if __name__ == "__main__":
