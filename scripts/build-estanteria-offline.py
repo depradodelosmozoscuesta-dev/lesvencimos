@@ -97,7 +97,7 @@ def inject_embedded(shell: str, embedded: dict[str, str]) -> str:
 def write_leeme() -> str:
     return """═══════════════════════════════════════
   ESCRITORIO / ESTANTERÍA — Les vencimos
-  Build v20260924h
+  Build v20260924j
   UN SOLO HTML (módulos dentro)
 ═══════════════════════════════════════
 
@@ -108,10 +108,12 @@ Este ZIP lleva esencialmente UN archivo:
 
 Baldas deslizables por tema (Escritura, Ocio,
 Casa/Hogar, Salud, Varios): una sola línea,
-desliza en horizontal. Iconos SVG más densos.
+desliza en horizontal. Packs escolares en Varios
+(no hay balda Educación). Barra Ajustes compacta
+arriba (no es una balda). Iconos de color vivos.
 Hora y fecha fijas arriba a la derecha; papelera
 ahí (elige app · otra vez para confirmar).
-Disposición: Completo / Casa / Estudio / Mínimo.
+Disposición: Completo / Casa / Estudio / Educación / Mínimo.
 Calendario opcional como mosaico (sin cortar la
 balda). Sin ficha libre ni redimensionar a mano.
 Al abrir ya viene llena. Sin Radio ni Alarma Cuba.
