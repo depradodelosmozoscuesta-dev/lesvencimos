@@ -32,6 +32,7 @@ EMBED_SOURCES = {
     "dibujo": ROOT / "modulos" / "tinta-estudio.html",
     "info": ROOT / "modulos" / "informatica.html",
     "guias": ROOT / "modulos" / "guias-viaje.html",
+    "mapas": ROOT / "modulos" / "mapas.html",
     "alarma": ROOT / "alarma-cuba.html",
     "biblio": ROOT / "modulos" / "biblioteca.html",
 }
@@ -97,7 +98,7 @@ def inject_embedded(shell: str, embedded: dict[str, str]) -> str:
 def write_leeme() -> str:
     return """═══════════════════════════════════════
   ESCRITORIO / ESTANTERÍA — Les vencimos
-  Build v20260924j
+  Build v20260924m
   UN SOLO HTML (módulos dentro)
 ═══════════════════════════════════════
 
@@ -121,7 +122,7 @@ Al abrir ya viene llena. Sin Radio ni Alarma Cuba.
 Los módulos (Hogar, Salud, QR, Electricidad,
 Bricolaje, Jardín, Resiliencia, Apagón, Calculadora,
 Gimnasio, Guitarra, Caja fuerte, Medicación, Meditación,
-Auxilios, Escritura, Dibujo, Informática, Guías de viaje, Biblioteca…)
+Auxilios, Escritura, Dibujo, Informática, Guías de viaje, Mapas, Biblioteca…)
 van EMBEBIDOS dentro del HTML.
 Al tocar un icono se abren en la misma página
 (← Escritorio para volver).
@@ -189,7 +190,7 @@ def main() -> None:
         raise SystemExit("shell missing EMBEDDED placeholder (need estanteria.shell.html)")
 
     embedded = build_embedded()
-    for need in ("hogar", "salud", "radio", "qr", "electro", "brico", "jardin", "supervive", "apagon", "caja", "gym", "guitarra", "calc", "medica", "medita", "auxilios", "escritura", "dibujo", "info", "guias", "alarma", "biblio"):
+    for need in ("hogar", "salud", "radio", "qr", "electro", "brico", "jardin", "supervive", "apagon", "caja", "gym", "guitarra", "calc", "medica", "medita", "auxilios", "escritura", "dibujo", "info", "guias", "mapas", "alarma", "biblio"):
         if need not in embedded:
             raise SystemExit(f"missing embed {need}")
 

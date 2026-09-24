@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0E0E0C">
+<title>Mapas — Les vencimos</title>
+<style>
+:root{
+  --fondo:#0E0E0C; --fondo-2:#161512; --fondo-3:#1C1A16;
+  --tinta:#E6E1D6; --suave:#9A9488;
+  --acento:#C4A15A; --acento-texto:#1A160E;
+  --linea:rgba(230,225,214,0.14);
+  --peligro:#C46A4A; --ok:#8F9A72; --verde:#2ECC71;
+  --serif:"Iowan Old Style","Palatino Linotype",Palatino,"Times New Roman",Georgia,serif;
+  --sans:"Segoe UI",system-ui,-apple-system,sans-serif;
+  --radio:2px;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;min-height:100%;background:var(--fondo);color:var(--tinta);font-family:var(--sans)}
+body{padding:1.15rem 1rem 3rem;max-width:26rem;margin:0 auto}
+header{border-bottom:1px solid var(--linea);padding-bottom:.85rem;margin-bottom:1rem}
+header h1{margin:0;font-family:var(--serif);font-size:1.55rem;font-weight:600}
+header p{margin:.35rem 0 0;color:var(--suave);font-size:.72rem;letter-spacing:.12em;text-transform:uppercase}
+.hint{color:var(--suave);font-size:.88rem;line-height:1.45;margin:0 0 1rem}
+.panel{background:var(--fondo-2);border:1px solid var(--linea);border-radius:var(--radio);padding:1rem;margin-bottom:.85rem}
+h2{margin:0 0 .65rem;font-size:.7rem;letter-spacing:.14em;text-transform:uppercase;color:var(--suave);font-weight:600}
+label.field{display:block;margin:0 0 .75rem}
+label.field span{display:block;font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;color:var(--suave);margin-bottom:.3rem}
+input,select{width:100%;min-height:48px;padding:.55rem .75rem;font:inherit;background:var(--fondo-3);color:var(--tinta);border:1px solid var(--linea);border-radius:var(--radio)}
+.row{display:flex;flex-wrap:wrap;gap:.5rem;align-items:center}
+.row.coords{display:grid;grid-template-columns:1fr 1fr;gap:.5rem}
+button{min-height:48px;padding:0 1rem;font:600 .95rem var(--sans);border:1px solid var(--linea);border-radius:var(--radio);background:var(--fondo-3);color:var(--tinta);cursor:pointer}
+button.primary{background:var(--acento);color:var(--acento-texto);border-color:var(--acento)}
+button:disabled{opacity:.45;cursor:not-allowed}
+.msg{font-size:.88rem;line-height:1.4;margin:.5rem 0 0;color:var(--suave)}
+.msg.err{color:var(--peligro)}
+.msg.ok{color:var(--ok)}
+.coords-out{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.92rem;color:var(--tinta);margin:.35rem 0 0}
+.compass-wrap{display:flex;flex-direction:column;align-items:center;gap:.75rem;padding:.5rem 0 1rem}
+.compass{
+  width:9.5rem;height:9.5rem;border-radius:50%;
+  border:2px solid var(--linea);background:var(--fondo-3);
+  position:relative;display:flex;align-items:center;justify-content:center;
+  box-shadow:inset 0 0 0 1px rgba(196,161,90,.2);
+}
+.compass .ring{position:absolute;inset:.45rem;border:1px dashed rgba(154,148,136,.35);border-radius:50%;pointer-events:none}
+.compass .n{position:absolute;top:.35rem;left:50%;transform:translateX(-50%);font-size:.65rem;letter-spacing:.12em;color:var(--acento);font-weight:700}
+.arrow{
+  width:0;height:0;
+  border-left:14px solid transparent;
+  border-right:14px solid transparent;
+  border-bottom:52px solid var(--acento);
+  transform-origin:50% 70%;
+  transition:transform .25s ease-out;
+  filter:drop-shadow(0 2px 2px rgba(0,0,0,.35));
+  position:relative;z-index:1;margin-bottom:1.1rem;
+}
+.arrow::after{
+  content:"";position:absolute;left:-10px;top:48px;
+  border-left:10px solid transparent;border-right:10px solid transparent;
+  border-top:22px solid #6a5a3a;
+}
+.card-res .stat{display:flex;justify-content:space-between;gap:1rem;padding:.45rem 0;border-bottom:1px solid var(--linea)}
+.card-res .stat:last-child{border-bottom:0}
+.card-res .k{color:var(--suave);font-size:.78rem;letter-spacing:.06em;text-transform:uppercase}
+.card-res .v{font-family:var(--serif);font-size:1.15rem;font-weight:600;text-align:right}
+.note{font-size:.82rem;color:var(--suave);margin:.75rem 0 0;line-height:1.4}
+.pack li{margin:.35rem 0;color:var(--suave);font-size:.9rem}
+.pack strong{color:var(--tinta)}
+.leeme{margin-top:1.4rem;padding-top:1rem;border-top:1px solid var(--linea);color:var(--suave);font-size:.78rem;line-height:1.5}
+.foot{margin-top:1.2rem;color:var(--suave);font-size:.7rem;letter-spacing:.08em;text-transform:uppercase}
+.hidden{display:none!important}
+</style>
+</head>
+<body>
+<header>
+  <h1>Mapas</h1>
+  <p>Les vencimos · Offline</p>
+</header>
+
+<p class="hint">Núcleo ligero: GPS del aparato, rumbo y distancia en línea recta. Los mapas detallados llegarán como packs regionales (MBTiles / OSM) descargables aparte.</p>
+
+<section class="panel" aria-labelledby="ubi-h">
+  <h2 id="ubi-h">Tu ubicación</h2>
+  <div class="row">
+    <button type="button" class="primary" id="btnGeo">Usar mi ubicación</button>
+    <button type="button" id="btnGeoUpd" class="hidden">Actualizar</button>
+  </div>
+  <p class="coords-out" id="geoCoords" hidden></p>
+  <p class="msg" id="geoMsg" role="status"></p>
+</section>
+
+<section class="panel" aria-labelledby="dest-h">
+  <h2 id="dest-h">Destino</h2>
+  <label class="field">
+    <span>Lugar (España · piloto)</span>
+    <select id="placeSel"></select>
+  </label>
+  <p class="hint" style="margin-top:-.35rem">O coordenadas manuales (opcional):</p>
+  <div class="row coords">
+    <label class="field" style="margin:0">
+      <span>Latitud</span>
+      <input type="number" id="manLat" step="any" inputmode="decimal" placeholder="40.4168">
+    </label>
+    <label class="field" style="margin:0">
+      <span>Longitud</span>
+      <input type="number" id="manLon" step="any" inputmode="decimal" placeholder="-3.7038">
+    </label>
+  </div>
+  <button type="button" class="primary" id="btnCalc" style="width:100%;margin-top:.25rem">Calcular rumbo y distancia</button>
+</section>
+
+<section class="panel card-res hidden" id="results" aria-live="polite">
+  <h2>Resultado</h2>
+  <div class="compass-wrap">
+    <div class="compass" aria-hidden="true">
+      <div class="ring"></div>
+      <span class="n">N</span>
+      <div class="arrow" id="arrow"></div>
+    </div>
+    <p class="msg" id="orientMsg" style="margin:0;text-align:center"></p>
+  </div>
+  <div class="stat"><span class="k">Rumbo</span><span class="v" id="outBearing">—</span></div>
+  <div class="stat"><span class="k">Distancia</span><span class="v" id="outDist">—</span></div>
+  <div class="stat"><span class="k">ETA andando</span><span class="v" id="outWalk">—</span></div>
+  <div class="stat"><span class="k">ETA coche <small style="font-weight:400;text-transform:none;letter-spacing:0">(estimado)</small></span><span class="v" id="outCar">—</span></div>
+  <p class="note">Línea recta · no es ruta por carretera. Velocidades orientativas: ~5 km/h a pie, ~50 km/h en coche (media).</p>
+</section>
+
+<section class="panel pack" aria-labelledby="pack-h">
+  <h2 id="pack-h">Packs de mapas (próximamente)</h2>
+  <p class="hint" style="margin:0 0 .5rem">Mapas detallados (calles, relieve) se descargarán como packs regionales offline (MBTiles / OSM). Este MVP solo lleva el núcleo y una lista de lugares.</p>
+  <ul>
+    <li><strong>España</strong> — primer pack previsto</li>
+    <li>Más regiones: según demanda y tamaño</li>
+  </ul>
+</section>
+
+<div class="leeme">
+  <strong style="color:var(--tinta)">LEEME · datos</strong><br>
+  Coordenadas de lugares: datos abiertos / referencia geográfica pública.<br>
+  GPS: API de geolocalización del dispositivo (gratis, sin nube).<br>
+  Sin tiles externos, sin CDN, sin red para el núcleo.
+</div>
+<p class="foot">Archivo local · sin nube</p>
+
+<script>
+(function () {
+  'use strict';
+
+  /* Lugares piloto: ciudades de guías + capitales / nodos útiles (lat, lon WGS84) */
+  var PLACES = [
+    { id: '', nombre: '— Elige un lugar —', lat: null, lon: null },
+    { id: 'madrid', nombre: 'Madrid', lat: 40.4168, lon: -3.7038 },
+    { id: 'barcelona', nombre: 'Barcelona', lat: 41.3874, lon: 2.1686 },
+    { id: 'sevilla', nombre: 'Sevilla', lat: 37.3891, lon: -5.9845 },
+    { id: 'valencia', nombre: 'Valencia', lat: 39.4699, lon: -0.3763 },
+    { id: 'bilbao', nombre: 'Bilbao', lat: 43.2630, lon: -2.9350 },
+    { id: 'zaragoza', nombre: 'Zaragoza', lat: 41.6488, lon: -0.8891 },
+    { id: 'malaga', nombre: 'Málaga', lat: 36.7213, lon: -4.4214 },
+    { id: 'murcia', nombre: 'Murcia', lat: 37.9922, lon: -1.1307 },
+    { id: 'palma', nombre: 'Palma de Mallorca', lat: 39.5696, lon: 2.6502 },
+    { id: 'las-palmas', nombre: 'Las Palmas de Gran Canaria', lat: 28.1235, lon: -15.4366 },
+    { id: 'santa-cruz', nombre: 'Santa Cruz de Tenerife', lat: 28.4636, lon: -16.2518 },
+    { id: 'valladolid', nombre: 'Valladolid', lat: 41.6523, lon: -4.7245 },
+    { id: 'salamanca', nombre: 'Salamanca', lat: 40.9701, lon: -5.6635 },
+    { id: 'leon', nombre: 'León', lat: 42.5987, lon: -5.5671 },
+    { id: 'santiago', nombre: 'Santiago de Compostela', lat: 42.8782, lon: -8.5448 },
+    { id: 'oviedo', nombre: 'Oviedo', lat: 43.3614, lon: -5.8494 },
+    { id: 'santander', nombre: 'Santander', lat: 43.4623, lon: -3.8099 },
+    { id: 'pamplona', nombre: 'Pamplona', lat: 42.8125, lon: -1.6458 },
+    { id: 'vitoria', nombre: 'Vitoria-Gasteiz', lat: 42.8467, lon: -2.6716 },
+    { id: 'logrono', nombre: 'Logroño', lat: 42.4627, lon: -2.4449 },
+    { id: 'toledo', nombre: 'Toledo', lat: 39.8628, lon: -4.0273 },
+    { id: 'granada', nombre: 'Granada', lat: 37.1773, lon: -3.5986 },
+    { id: 'cordoba', nombre: 'Córdoba', lat: 37.8882, lon: -4.7794 },
+    { id: 'alicante', nombre: 'Alicante', lat: 38.3452, lon: -0.4810 },
+    { id: 'badajoz', nombre: 'Badajoz', lat: 38.8794, lon: -6.9707 },
+    { id: 'caceres', nombre: 'Cáceres', lat: 39.4753, lon: -6.3724 },
+    { id: 'manual', nombre: '· Solo coordenadas manuales ·', lat: null, lon: null }
+  ];
+
+  var myLat = null, myLon = null;
+  var bearingTrue = null; /* degrees from north to destination */
+  var deviceHeading = null; /* compass heading if DeviceOrientation available */
+  var orientListening = false;
+
+  var placeSel = document.getElementById('placeSel');
+  var manLat = document.getElementById('manLat');
+  var manLon = document.getElementById('manLon');
+  var btnGeo = document.getElementById('btnGeo');
+  var btnGeoUpd = document.getElementById('btnGeoUpd');
+  var geoCoords = document.getElementById('geoCoords');
+  var geoMsg = document.getElementById('geoMsg');
+  var results = document.getElementById('results');
+  var arrow = document.getElementById('arrow');
+  var orientMsg = document.getElementById('orientMsg');
+
+  PLACES.forEach(function (p) {
+    var o = document.createElement('option');
+    o.value = p.id;
+    o.textContent = p.nombre;
+    placeSel.appendChild(o);
+  });
+
+  placeSel.addEventListener('change', function () {
+    var p = findPlace(placeSel.value);
+    if (p && p.lat != null) {
+      manLat.value = String(p.lat);
+      manLon.value = String(p.lon);
+    }
+  });
+
+  function findPlace(id) {
+    for (var i = 0; i < PLACES.length; i++) if (PLACES[i].id === id) return PLACES[i];
+    return null;
+  }
+
+  function toRad(d) { return d * Math.PI / 180; }
+  function toDeg(r) { return r * 180 / Math.PI; }
+
+  /** Haversine distance in km */
+  function haversineKm(lat1, lon1, lat2, lon2) {
+    var R = 6371;
+    var dLat = toRad(lat2 - lat1);
+    var dLon = toRad(lon2 - lon1);
+    var a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+      Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) *
+      Math.sin(dLon / 2) * Math.sin(dLon / 2);
+    return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  }
+
+  /** Initial bearing (degrees 0–360) from point 1 to point 2 */
+  function initialBearing(lat1, lon1, lat2, lon2) {
+    var φ1 = toRad(lat1), φ2 = toRad(lat2);
+    var Δλ = toRad(lon2 - lon1);
+    var y = Math.sin(Δλ) * Math.cos(φ2);
+    var x = Math.cos(φ1) * Math.sin(φ2) - Math.sin(φ1) * Math.cos(φ2) * Math.cos(Δλ);
+    return (toDeg(Math.atan2(y, x)) + 360) % 360;
+  }
+
+  function cardinal(deg) {
+    var dirs = ['N', 'NE', 'E', 'SE', 'S', 'SO', 'O', 'NO'];
+    var i = Math.round(deg / 45) % 8;
+    return dirs[i];
+  }
+
+  function formatEta(hours) {
+    if (!isFinite(hours) || hours < 0) return '—';
+    if (hours < 1 / 60) return '< 1 min';
+    if (hours < 1) return Math.round(hours * 60) + ' min';
+    var h = Math.floor(hours);
+    var m = Math.round((hours - h) * 60);
+    if (m === 60) { h += 1; m = 0; }
+    if (h >= 48) {
+      var d = Math.floor(h / 24);
+      var rh = h % 24;
+      return d + ' d' + (rh ? ' ' + rh + ' h' : '');
+    }
+    return h + ' h' + (m ? ' ' + m + ' min' : '');
+  }
+
+  function setGeoMsg(text, kind) {
+    geoMsg.textContent = text || '';
+    geoMsg.className = 'msg' + (kind ? ' ' + kind : '');
+  }
+
+  function showMyCoords() {
+    if (myLat == null) {
+      geoCoords.hidden = true;
+      return;
+    }
+    geoCoords.hidden = false;
+    geoCoords.textContent = myLat.toFixed(5) + ', ' + myLon.toFixed(5);
+    btnGeoUpd.classList.remove('hidden');
+  }
+
+  function requestGeo() {
+    if (!navigator.geolocation) {
+      setGeoMsg('Este navegador no ofrece geolocalización. Puedes escribir lat/lon a mano si las conoces.', 'err');
+      return;
+    }
+    setGeoMsg('Pidiendo permiso de ubicación…');
+    navigator.geolocation.getCurrentPosition(
+      function (pos) {
+        myLat = pos.coords.latitude;
+        myLon = pos.coords.longitude;
+        showMyCoords();
+        var acc = pos.coords.accuracy;
+        setGeoMsg(
+          'Ubicación lista' + (acc ? ' (±' + Math.round(acc) + ' m)' : '') + '. Elige destino y calcula.',
+          'ok'
+        );
+        maybeAutoCalc();
+      },
+      function (err) {
+        var tip = ' Sin red no hace falta: el GPS del móvil basta. Revisa permisos del navegador / sistema.';
+        if (err && err.code === 1) {
+          setGeoMsg('Permiso denegado.' + tip, 'err');
+        } else if (err && err.code === 2) {
+          setGeoMsg('Posición no disponible. Activa ubicación del dispositivo o sal al exterior.' + tip, 'err');
+        } else if (err && err.code === 3) {
+          setGeoMsg('Tiempo de espera agotado. Prueba otra vez al aire libre.' + tip, 'err');
+        } else {
+          setGeoMsg('No se pudo obtener la ubicación.' + tip, 'err');
+        }
+      },
+      { enableHighAccuracy: true, timeout: 20000, maximumAge: 30000 }
+    );
+  }
+
+  function getDest() {
+    var lat = parseFloat(manLat.value);
+    var lon = parseFloat(manLon.value);
+    if (isFinite(lat) && isFinite(lon) && lat >= -90 && lat <= 90 && lon >= -180 && lon <= 180) {
+      return { lat: lat, lon: lon };
+    }
+    var p = findPlace(placeSel.value);
+    if (p && p.lat != null) return { lat: p.lat, lon: p.lon };
+    return null;
+  }
+
+  function updateArrow() {
+    if (bearingTrue == null) return;
+    var rot = bearingTrue;
+    if (deviceHeading != null && isFinite(deviceHeading)) {
+      /* relative to phone heading: 0 = point toward destination when phone faces it */
+      rot = (bearingTrue - deviceHeading + 360) % 360;
+      orientMsg.textContent = 'Flecha relativa al rumbo del teléfono (brújula).';
+    } else {
+      orientMsg.textContent = 'Flecha = rumbo geográfico (N arriba). Brújula del teléfono no disponible o no autorizada.';
+    }
+    arrow.style.transform = 'rotate(' + rot + 'deg)';
+  }
+
+  function tryDeviceOrientation() {
+    if (orientListening) return;
+    function onOrient(e) {
+      var h = null;
+      if (typeof e.webkitCompassHeading === 'number' && isFinite(e.webkitCompassHeading)) {
+        h = e.webkitCompassHeading;
+      } else if (typeof e.alpha === 'number' && isFinite(e.alpha)) {
+        /* alpha: 0 when device points north (approx.); invert for compass heading */
+        h = (360 - e.alpha) % 360;
+      }
+      if (h != null) {
+        deviceHeading = h;
+        updateArrow();
+      }
+    }
+    function start() {
+      window.addEventListener('deviceorientationabsolute', onOrient, true);
+      window.addEventListener('deviceorientation', onOrient, true);
+      orientListening = true;
+    }
+    if (typeof DeviceOrientationEvent !== 'undefined' &&
+        typeof DeviceOrientationEvent.requestPermission === 'function') {
+      DeviceOrientationEvent.requestPermission().then(function (state) {
+        if (state === 'granted') start();
+        else orientMsg.textContent = 'Brújula no autorizada: se muestra rumbo geográfico (N arriba).';
+      }).catch(function () {
+        orientMsg.textContent = 'Brújula no disponible: rumbo geográfico (N arriba).';
+      });
+    } else if (typeof DeviceOrientationEvent !== 'undefined') {
+      start();
+    }
+  }
+
+  function calc() {
+    if (myLat == null || myLon == null) {
+      setGeoMsg('Primero pulsa «Usar mi ubicación» (o no hay lat/lon propio).', 'err');
+      return;
+    }
+    var dest = getDest();
+    if (!dest) {
+      setGeoMsg('Elige un lugar o introduce latitud y longitud válidas.', 'err');
+      return;
+    }
+    var km = haversineKm(myLat, myLon, dest.lat, dest.lon);
+    bearingTrue = initialBearing(myLat, myLon, dest.lat, dest.lon);
+    var walkH = km / 5;
+    var carH = km / 50;
+
+    document.getElementById('outBearing').textContent =
+      Math.round(bearingTrue) + '° · ' + cardinal(bearingTrue);
+    document.getElementById('outDist').textContent = km.toFixed(1) + ' km';
+    document.getElementById('outWalk').textContent = formatEta(walkH);
+    document.getElementById('outCar').textContent = formatEta(carH);
+
+    results.classList.remove('hidden');
+    updateArrow();
+    tryDeviceOrientation();
+    setGeoMsg('Cálculo listo (línea recta).', 'ok');
+  }
+
+  function maybeAutoCalc() {
+    if (getDest()) calc();
+  }
+
+  btnGeo.addEventListener('click', requestGeo);
+  btnGeoUpd.addEventListener('click', requestGeo);
+  document.getElementById('btnCalc').addEventListener('click', calc);
+})();
+</script>
+</body>
+</html>
