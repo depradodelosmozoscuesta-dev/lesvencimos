@@ -19,6 +19,8 @@ EMBED_SOURCES = {
     "electro": ROOT / "modulos" / "electricidad.html",
     "brico": ROOT / "modulos" / "bricolaje.html",
     "jardin": ROOT / "modulos" / "jardin.html",
+    "mascotas": ROOT / "modulos" / "mascotas.html",
+    "campo": ROOT / "modulos" / "campo.html",
     "supervive": ROOT / "modulos" / "supervivencia.html",
     "apagon": ROOT / "modulos" / "apagon.html",
     "caja": ROOT / "modulos" / "caja-fuerte.html",
@@ -98,7 +100,7 @@ def inject_embedded(shell: str, embedded: dict[str, str]) -> str:
 def write_leeme() -> str:
     return """═══════════════════════════════════════
   ESCRITORIO / ESTANTERÍA — Les vencimos
-  Build v20260924v
+  Build v20260925a
   UN SOLO HTML (módulos dentro)
 ═══════════════════════════════════════
 
@@ -128,7 +130,7 @@ balda). Sin ficha libre ni redimensionar a mano.
 Al abrir ya viene llena. Sin Radio ni Alarma Cuba.
 
 Los módulos (Hogar, Salud, QR, Electricidad,
-Bricolaje, Jardín, Resiliencia, Apagón, Calculadora,
+Bricolaje, Jardín, Mascotas, Campo, Resiliencia, Apagón, Calculadora,
 Gimnasio, Guitarra, Caja fuerte, Medicación, Meditación,
 Auxilios, Escritura, Dibujo, Informática, Guías de viaje, Mapas, Biblioteca…)
 van EMBEBIDOS dentro del HTML.
@@ -198,7 +200,7 @@ def main() -> None:
         raise SystemExit("shell missing EMBEDDED placeholder (need estanteria.shell.html)")
 
     embedded = build_embedded()
-    for need in ("hogar", "salud", "radio", "qr", "electro", "brico", "jardin", "supervive", "apagon", "caja", "gym", "guitarra", "calc", "medica", "medita", "auxilios", "escritura", "dibujo", "info", "guias", "mapas", "alarma", "biblio"):
+    for need in ("hogar", "salud", "radio", "qr", "electro", "brico", "jardin", "mascotas", "campo", "supervive", "apagon", "caja", "gym", "guitarra", "calc", "medica", "medita", "auxilios", "escritura", "dibujo", "info", "guias", "mapas", "alarma", "biblio"):
         if need not in embedded:
             raise SystemExit(f"missing embed {need}")
 
@@ -243,7 +245,7 @@ def main() -> None:
     shutil.rmtree(STAGING)
 
     # Also keep last lettered snapshot name pointing at same bytes (bookmarks).
-    snapshot = ROOT / "downloads" / "estanteria-offline-v20260924v.zip"
+    snapshot = ROOT / "downloads" / "estanteria-offline-v20260925a.zip"
     shutil.copy2(OUT, snapshot)
     print(f"Wrote {OUT} ({OUT.stat().st_size} bytes)")
     print(f"Snapshot {snapshot}")

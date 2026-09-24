@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0E0E0C">
+<title>Mascotas — Les vencimos</title>
+<style>
+:root{
+  --fondo:#0E0E0C; --fondo-2:#161512; --fondo-3:#1C1A16;
+  --tinta:#E6E1D6; --suave:#9A9488;
+  --acento:#C4A15A; --acento-texto:#1A160E;
+  --linea:rgba(230,225,214,0.14);
+  --peligro:#C46A4A; --ok:#8F9A72; --fase:#5B8FA8;
+  --serif:"Iowan Old Style","Palatino Linotype",Palatino,"Times New Roman",Georgia,serif;
+  --sans:"Segoe UI",system-ui,-apple-system,sans-serif;
+  --radio:2px;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;min-height:100%;background:var(--fondo);color:var(--tinta);font-family:var(--sans)}
+body{padding:1.15rem 1rem 3.5rem;max-width:40rem;margin:0 auto}
+header{border-bottom:1px solid var(--linea);padding-bottom:.85rem;margin-bottom:1rem}
+header h1{margin:0;font-family:var(--serif);font-size:1.55rem;font-weight:600}
+header p{margin:.35rem 0 0;color:var(--suave);font-size:.72rem;letter-spacing:.12em;text-transform:uppercase}
+.badge-vida{display:inline-block;margin-top:.55rem;padding:.2rem .55rem;border:1px solid var(--acento);color:var(--acento);font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;border-radius:var(--radio)}
+.aviso{background:var(--fondo-2);border:1px solid var(--linea);border-left:4px solid var(--peligro);padding:.9rem 1rem;margin:0 0 1.1rem;border-radius:var(--radio);font-size:.95rem}
+.aviso.ok{border-left-color:var(--ok)}
+.aviso.info{border-left-color:var(--acento)}
+.aviso strong{color:var(--peligro)}
+.aviso.ok strong,.aviso.info strong{color:var(--acento)}
+.aviso ul{margin:.4rem 0 0;padding-left:1.15rem;color:var(--suave)}
+.aviso li{margin:.25rem 0}
+.toc{display:flex;flex-direction:column;gap:.45rem;margin-bottom:1.25rem}
+.toc button{text-align:left;padding:.9rem 1rem;background:var(--fondo-2);border:1px solid var(--linea);border-radius:var(--radio);color:inherit;font:inherit;cursor:pointer}
+.toc button:hover,.toc button:focus{border-color:var(--acento)}
+.toc .t{font-family:var(--serif);font-weight:600;font-size:1.08rem}
+.toc .m{color:var(--suave);font-size:.85rem;margin-top:.2rem}
+.back{margin:0 0 .85rem}
+button{min-height:48px;padding:0 1rem;font:600 .95rem var(--sans);border:1px solid var(--linea);border-radius:var(--radio);background:var(--fondo-3);color:var(--tinta);cursor:pointer}
+button.primary{background:var(--acento);color:var(--acento-texto);border-color:var(--acento)}
+button.ghost{background:transparent}
+.lesson h2{margin:0 0 .75rem;font-family:var(--serif);font-size:1.45rem;font-weight:600}
+.step{background:var(--fondo-2);border:1px solid var(--linea);border-radius:var(--radio);padding:1rem;margin:0 0 .85rem}
+.step .num{display:inline-block;color:var(--acento);font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;font-weight:700;margin-bottom:.4rem}
+.step p{margin:.35rem 0 0;line-height:1.45}
+.tip{margin:.55rem 0 0;padding:.55rem .7rem;background:var(--fondo-3);border-left:3px solid var(--acento);font-size:.9rem;color:var(--suave)}
+.nav-steps{display:flex;gap:.5rem;flex-wrap:wrap;margin-top:1rem}
+.foot{margin-top:1.6rem;color:var(--suave);font-size:.7rem;letter-spacing:.08em;text-transform:uppercase}
+.hidden{display:none!important}
+.card-grid{display:grid;grid-template-columns:1fr 1fr;gap:.55rem;margin:.75rem 0}
+@media(max-width:420px){.card-grid{grid-template-columns:1fr}}
+.ficha{background:var(--fondo-2);border:1px solid var(--linea);border-radius:var(--radio);padding:.85rem}
+.ficha h3{margin:0 0 .35rem;font-family:var(--serif);font-size:1.05rem}
+.ficha p{margin:0;color:var(--suave);font-size:.88rem;line-height:1.4}
+.chip{display:inline-block;padding:.15rem .45rem;margin:0 .25rem .35rem 0;border:1px solid var(--linea);border-radius:var(--radio);font-size:.68rem;letter-spacing:.04em;text-transform:uppercase;color:var(--suave)}
+</style>
+</head>
+<body>
+<header>
+  <h1>Mascotas</h1>
+  <p>Perros · gatos · veterinario</p>
+  <span class="badge-vida">Vida · no cole</span>
+</header>
+
+<div class="aviso" role="status">
+  <strong>No es diagnóstico veterinario</strong>
+  <ul>
+    <li>Guía práctica de convivencia. No sustituye al veterinario ni a urgencias.</li>
+    <li>No mediques con fármacos humanos. Ante duda: clínica veterinaria.</li>
+    <li>Urgencias humanas/animales graves: también puedes orientar con <strong>112</strong>.</li>
+  </ul>
+</div>
+
+<div id="toc" class="toc"></div>
+<main id="app"></main>
+<p class="foot">Les vencimos · offline · aprender para la vida</p>
+
+<script>
+(function(){
+  const DOGS = [
+    {n:'Labrador retriever', t:'Grande', e:'Alta', tip:'Necesita paseo largo y juego; vigila peso.'},
+    {n:'Pastor alemán', t:'Grande', e:'Alta', tip:'Trabajo mental + ejercicio; socializa joven.'},
+    {n:'Golden retriever', t:'Grande', e:'Alta', tip:'Muy sociable; cepillado frecuente.'},
+    {n:'Bulldog francés', t:'Pequeño', e:'Media-baja', tip:'Cuidado con calor; no fuerces ejercicio extremo.'},
+    {n:'Yorkshire', t:'Mini', e:'Media', tip:'Dientes y pelo; no lo trates solo como adorno.'},
+    {n:'Chihuahua', t:'Mini', e:'Media', tip:'Socializa con calma; frío y caídas.'},
+    {n:'Border collie', t:'Mediano', e:'Muy alta', tip:'Estimulación intensa o se aburre.'},
+    {n:'Beagle', t:'Mediano', e:'Alta', tip:'Olfato potente: correa en campo.'},
+    {n:'Cocker spaniel', t:'Mediano', e:'Media-alta', tip:'Orejas: revisa y limpia según vet.'},
+    {n:'Mestizo', t:'Variable', e:'Variable', tip:'Personalidad única; evalúa con el vet tamaño adulto.'}
+  ];
+  const CATS = [
+    {n:'Europeo / común', tip:'Robusto y adaptable; enriquecimiento en casa.'},
+    {n:'Siamés', tip:'Vocal y social; quiere compañía humana.'},
+    {n:'Persa', tip:'Pelo largo: cepillado diario; ojos.'},
+    {n:'Maine Coon', tip:'Grande y sociable; espacio y rascadores.'},
+    {n:'Bengalí', tip:'Muy activo; juego vertical y caza simulada.'},
+    {n:'Ragdoll', tip:'Tranquilo; no lo dejes solo sin estímulos.'},
+    {n:'British shorthair', tip:'Independiente; control de peso.'},
+    {n:'Sphynx', tip:'Sin pelo: frío, baños suaves según vet.'}
+  ];
+  const LESSONS = [
+    {id:'perros', titulo:'Perros', meta:'Razas frecuentes · consejos', kind:'dogs'},
+    {id:'gatos', titulo:'Gatos', meta:'Razas · arena · enriquecimiento', kind:'cats'},
+    {id:'peso', titulo:'Peso / sobrepeso', meta:'Señales · hábitos', steps:[
+      {t:'Por qué importa', d:'El sobrepeso carga articulaciones, corazón y calidad de vida. No es «solo estética».'},
+      {t:'Señales simples', d:'No notas costillas con tacto suave; pliegue grueso en base de cola; se cansa pronto al pasear o jugar.'},
+      {t:'Hábitos', d:'Raciones medidas (no «a ojo» del saco), menos premios calóricos, juego diario. Agua siempre limpia.'},
+      {t:'Al veterinario', d:'Dietas terapéuticas y objetivos de peso los marca el vet. No inventes dietas caseras restrictivas.'}
+    ]},
+    {id:'urgencias', titulo:'Enfermedades / urgencias', meta:'Alarmas → veterinario', steps:[
+      {t:'Ve al vet YA', d:'Apatía extrema, vómitos o diarrea persistentes, dificultad para respirar, convulsiones, abdomen muy duro o doloroso, sangrado, no orina, traumatismo, intoxicación sospechada.'},
+      {t:'Primeros cuidados seguros', d:'Mantén calma, evita que se haga más daño, no des comida/agua si vomita mucho (salvo indicación), transporta con seguridad. Anota hora y síntomas.'},
+      {t:'Nunca', d:'No des paracetamol, ibuprofeno u otros fármacos humanos. Pueden ser tóxicos mortales.'},
+      {t:'Prevención', d:'Vacunas, desparasitación y revisiones según tu clínica reducen urgencias.'}
+    ]},
+    {id:'vet', titulo:'Veterinario', meta:'Qué llevar · vacunas · chip', steps:[
+      {t:'Qué llevar', d:'Historial si lo tienes, lista de comida/medicación, fotos o vídeos del síntoma, transportín seguro.'},
+      {t:'Vacunas / desparasitación (España, genérico)', d:'Calendarios varían por zona y estilo de vida. El vet fija puppy/kitten series, refuerzos y antiparasitarios internos/externos. Pregunta por leishmania u otras según tu comunidad.'},
+      {t:'Chip e identificación', d:'Identificación electrónica obligatoria en muchas CCAA para perros (y a menudo gatos). Registra tus datos al día.'},
+      {t:'Convive con normas', d:'Correa, bozal si aplica, recogida de heces, no dejes al animal solo en coche con calor.'}
+    ]}
+  ];
+  let current=null, step=0;
+  const toc=document.getElementById('toc'), app=document.getElementById('app');
+  function showToc(){
+    current=null; app.innerHTML=''; toc.classList.remove('hidden');
+    toc.innerHTML=LESSONS.map(l=>'<button type="button" data-id="'+l.id+'"><div class="t">'+l.titulo+'</div><div class="m">'+l.meta+'</div></button>').join('');
+    toc.querySelectorAll('[data-id]').forEach(b=>b.onclick=()=>openLesson(b.getAttribute('data-id')));
+  }
+  function openLesson(id){
+    current=LESSONS.find(x=>x.id===id); step=0; toc.classList.add('hidden');
+    if(current.kind==='dogs') renderDogs();
+    else if(current.kind==='cats') renderCats();
+    else renderStep();
+  }
+  function renderDogs(){
+    app.innerHTML='<div class="back"><button type="button" class="ghost" id="back">← Temas</button></div><article class="lesson"><h2>Perros</h2>'+
+      '<div class="aviso ok"><strong>Consejos básicos</strong><ul><li>Paseo diario adaptado a edad y raza; agua fresca siempre.</li><li>Socialización temprana con personas y perros (con calma).</li><li>Educación positiva; evita castigos que generan miedo.</li></ul></div>'+
+      '<p style="color:var(--suave);font-size:.9rem">Fichas orientativas (no estándar oficial de raza):</p>'+
+      '<div class="card-grid">'+DOGS.map(d=>'<div class="ficha"><h3>'+d.n+'</h3><span class="chip">'+d.t+'</span><span class="chip">'+d.e+'</span><p>'+d.tip+'</p></div>').join('')+
+      '</div></article>';
+    document.getElementById('back').onclick=showToc;
+  }
+  function renderCats(){
+    app.innerHTML='<div class="back"><button type="button" class="ghost" id="back">← Temas</button></div><article class="lesson"><h2>Gatos</h2>'+
+      '<div class="aviso ok"><strong>Consejos básicos</strong><ul><li>Caja de arena limpia (regla: n.º gatos + 1).</li><li>Rascadores, altura y juego diario (caza simulada).</li><li><strong>No leche de vaca</strong>: muchos no la digieren; agua y dieta adecuada.</li><li>Ventanas seguras; plantas tóxicas fuera de alcance.</li></ul></div>'+
+      '<div class="card-grid">'+CATS.map(c=>'<div class="ficha"><h3>'+c.n+'</h3><p>'+c.tip+'</p></div>').join('')+
+      '</div></article>';
+    document.getElementById('back').onclick=showToc;
+  }
+  function renderStep(){
+    const L=current, s=L.steps[step];
+    app.innerHTML='<div class="back"><button type="button" class="ghost" id="back">← Temas</button></div><article class="lesson"><h2>'+L.titulo+'</h2><div class="step"><div class="num">Paso '+(step+1)+' de '+L.steps.length+'</div><strong style="font-family:var(--serif);font-size:1.15rem">'+s.t+'</strong><p>'+s.d+'</p></div><div class="nav-steps"><button type="button" id="prev"'+(step<=0?' disabled':'')+'>Anterior</button><button type="button" class="primary" id="next">'+(step>=L.steps.length-1?'Terminar':'Siguiente')+'</button></div></article>';
+    document.getElementById('back').onclick=showToc;
+    document.getElementById('prev').onclick=()=>{if(step>0){step--;renderStep();}};
+    document.getElementById('next').onclick=()=>{if(step>=L.steps.length-1)showToc();else{step++;renderStep();}};
+  }
+  showToc();
+})();
+</script>
+</body>
+</html>
