@@ -583,6 +583,13 @@
     gap: 8px;
     margin-top: 10px;
   }
+
+  .maestro-flash{animation:maestroFlash 1.4s ease}
+  @keyframes maestroFlash{
+    0%,100%{box-shadow:none}
+    30%,70%{box-shadow:0 0 0 3px rgba(37,99,235,.55),0 0 12px rgba(37,99,235,.25)}
+  }
+
 </style>
 </head>
 <body>
@@ -1260,6 +1267,67 @@
   });
 
   refresh();
+
+
+  /* Modo maestro — postMessage API (caja del mercadillo) */
+  function maestroFlash(node){
+    if(!node) return;
+    node.classList.remove('maestro-flash');
+    void node.offsetWidth;
+    node.classList.add('maestro-flash');
+    window.setTimeout(function(){ node.classList.remove('maestro-flash'); }, 1500);
+  }
+  function maestroSetMode(mode){
+    if(mode === 'diff' || mode === 'resta' || mode === 'sub'){
+      state.mode = 'diff';
+      el.modeDiff.classList.add('active');
+      el.modeSum.classList.remove('active');
+    } else {
+      state.mode = 'sum';
+      el.modeSum.classList.add('active');
+      el.modeDiff.classList.remove('active');
+    }
+  }
+  function maestroSetDemo(demo){
+    if(demo === 'comm' || demo === 'conmutativa') state.demo = 'comm';
+    else if(demo === 'assoc' || demo === 'asociativa') state.demo = 'assoc';
+    else if(demo === 'off' || demo === null) state.demo = null;
+    else state.demo = demo;
+  }
+  window.addEventListener('message', function(ev){
+    var data = ev && ev.data;
+    if(!data || typeof data !== 'object') return;
+    var t = data.type;
+    if(t === 'maestro:reset'){
+      state.demo = null;
+      maestroSetMode('sum');
+      loadEx(48, 27);
+      state.mental = 'round';
+      refresh();
+    } else if(t === 'maestro:highlight'){
+      maestroFlash(el.propDemo && !el.propDemo.hidden ? el.propDemo : el.tillScreen);
+    } else if(t === 'maestro:setDemo' || t === 'maestro:setExample'){
+      maestroSetDemo(data.demo || data.example);
+      refresh();
+      maestroFlash(el.propDemo);
+    } else if(t === 'maestro:setPreview'){
+      if(data.mode) maestroSetMode(data.mode);
+      if(data.demo) maestroSetDemo(data.demo);
+      var a = data.a != null ? data.a : state.a;
+      var b = data.b != null ? data.b : state.b;
+      if(data.c != null) { state.c = clamp(data.c, 0, 200); el.numC.value = state.c; }
+      loadEx(a, b);
+    } else if(t === 'maestro:setDomain' || t === 'maestro:setMode'){
+      maestroSetMode(data.mode || data.domain);
+      refresh();
+    }
+  });
+  try {
+    if(window.parent && window.parent !== window){
+      window.parent.postMessage({ type: 'maestro:ready', widget: 'l06-suma-resta' }, '*');
+    }
+  } catch (e) { /* ignore */ }
+
 })();
 </script>
 </body>

@@ -607,6 +607,13 @@
     padding: 0; margin: -1px; overflow: hidden;
     clip: rect(0,0,0,0); border: 0;
   }
+
+  .maestro-flash{animation:maestroFlash 1.4s ease}
+  @keyframes maestroFlash{
+    0%,100%{box-shadow:none}
+    30%,70%{box-shadow:0 0 0 3px rgba(37,99,235,.55),0 0 12px rgba(37,99,235,.25)}
+  }
+
 </style>
 </head>
 <body>
@@ -1100,6 +1107,52 @@
   setOrder(100);
   setExActive('3746');
   refresh();
+
+
+  /* Modo maestro — postMessage API (no rompe controles existentes) */
+  function maestroHighlight(){
+    var target = el.phrase || el.numAfter || document.querySelector('.rule-box.active-decision') || document.getElementById('numAfter');
+    if(!target) target = document.querySelector('.street') || document.body;
+    target.classList.remove('maestro-flash');
+    void target.offsetWidth;
+    target.classList.add('maestro-flash');
+    window.setTimeout(function(){ target.classList.remove('maestro-flash'); }, 1500);
+  }
+  function maestroApply(n, order){
+    if(typeof n === 'number' && !isNaN(n)) state.n = clamp(Math.round(n), 0, 99999);
+    if(typeof order === 'number' && ORDER_NAMES[order]) setOrder(order);
+    else if(typeof order === 'string'){
+      var map = { decenas:10, centenas:100, millares:1000, tens:10, hundreds:100, thousands:1000 };
+      if(map[order]) setOrder(map[order]);
+    }
+    setExActive('');
+    clearCtx();
+    refresh();
+  }
+  window.addEventListener('message', function(ev){
+    var data = ev && ev.data;
+    if(!data || typeof data !== 'object') return;
+    var t = data.type;
+    if(t === 'maestro:reset'){
+      state.n = 3746;
+      setOrder(100);
+      setExActive('3746');
+      clearCtx();
+      refresh();
+    } else if(t === 'maestro:highlight'){
+      maestroHighlight();
+    } else if(t === 'maestro:setPreview'){
+      maestroApply(data.n, data.order != null ? data.order : data.domain);
+    } else if(t === 'maestro:setDomain'){
+      maestroApply(data.n, data.domain != null ? data.domain : data.order);
+    }
+  });
+  try {
+    if(window.parent && window.parent !== window){
+      window.parent.postMessage({ type: 'maestro:ready', widget: 'l05-redondeo' }, '*');
+    }
+  } catch (e) { /* ignore */ }
+
 })();
 </script>
 </body>

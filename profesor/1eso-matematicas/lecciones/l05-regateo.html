@@ -503,6 +503,13 @@
     color: #5c3a1a;
     opacity: 0.85;
   }
+
+  .maestro-flash{animation:maestroFlash 1.4s ease}
+  @keyframes maestroFlash{
+    0%,100%{box-shadow:none}
+    30%,70%{box-shadow:0 0 0 3px rgba(37,99,235,.55),0 0 12px rgba(37,99,235,.25)}
+  }
+
 </style>
 </head>
 <body>
@@ -621,7 +628,7 @@
 (function () {
   "use strict";
 
-  const TOTAL = 6;
+  let TOTAL = 6;
 
   const ITEMS = [
     { name: "Mochila", emoji: "🎒", fair: 24, hint: "Para el cole, ¡imprescindible!" },
@@ -963,6 +970,63 @@
   $("btnRestart").addEventListener("click", startGame);
 
   startGame();
+
+
+  /* Modo maestro — postMessage API (ofertas hinchadas / regateo) */
+  function maestroFlash(sel){
+    var box = document.querySelector(sel) || $("offerPrice") || $("playArea");
+    if(!box) return;
+    box.classList.remove('maestro-flash');
+    void box.offsetWidth;
+    box.classList.add('maestro-flash');
+    window.setTimeout(function(){ box.classList.remove('maestro-flash'); }, 1500);
+  }
+  function maestroSetPreview(data){
+    var fair = Number(data.fair);
+    var offer = Number(data.offer);
+    if(!fair || !offer) { startGame(); return; }
+    var cat = data.cat || (offer > fair * 1.2 ? 'timo' : (offer < fair * 0.85 ? 'ganga' : 'justo'));
+    var item = {
+      name: data.name || 'Oferta del maestro',
+      emoji: data.emoji || '🎒',
+      fair: fair,
+      hint: data.hint || '¡Cuidado con el precio hinchado!',
+      offer: offer,
+      factor: offer / fair,
+      trueCat: cat
+    };
+    deck = [item];
+    TOTAL = 1;
+    round = 0;
+    score = 0;
+    $("score").textContent = "0";
+    $("totalRounds").textContent = "1";
+    $("endScreen").classList.remove("show");
+    $("playArea").classList.remove("hidden");
+    $("story").classList.remove("hidden");
+    nextRound();
+    maestroFlash('.offer-price');
+  }
+  window.addEventListener('message', function(ev){
+    var data = ev && ev.data;
+    if(!data || typeof data !== 'object') return;
+    var t = data.type;
+    if(t === 'maestro:reset'){
+      TOTAL = 6;
+      startGame();
+    } else if(t === 'maestro:highlight'){
+      maestroFlash('.offer-price');
+    } else if(t === 'maestro:setPreview'){
+      // ignore foreign payloads (n/order from sibling iframe)
+      if(data.fair != null || data.offer != null) maestroSetPreview(data);
+    }
+  });
+  try {
+    if(window.parent && window.parent !== window){
+      window.parent.postMessage({ type: 'maestro:ready', widget: 'l05-regateo' }, '*');
+    }
+  } catch (e) { /* ignore */ }
+
 })();
 </script>
 </body>

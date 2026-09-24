@@ -141,6 +141,13 @@
   .clue.ok { border-color: var(--green); background: var(--green-soft); }
   .decoded { margin-top: 12px; padding: 12px; background: rgba(253,230,138,0.2); border-radius: 12px;
     border: 2px dashed #fde68a; text-align: center; font-size: 1.15rem; font-weight: 800; color: #fef3c7; min-height: 48px; }
+
+  .maestro-flash{animation:maestroFlash 1.4s ease}
+  @keyframes maestroFlash{
+    0%,100%{box-shadow:none}
+    30%,70%{box-shadow:0 0 0 3px rgba(37,99,235,.55),0 0 12px rgba(37,99,235,.25)}
+  }
+
 </style>
 </head>
 <body>
@@ -588,6 +595,61 @@
 
   buildCrypto();
   refresh();
+
+
+  /* Modo maestro — postMessage API (cajas de zumo + criptograma) */
+  function maestroFlash(node){
+    if(!node) return;
+    node.classList.remove('maestro-flash');
+    void node.offsetWidth;
+    node.classList.add('maestro-flash');
+    window.setTimeout(function(){ node.classList.remove('maestro-flash'); }, 1500);
+  }
+  function maestroSetMode(mode){
+    if(mode === 'div' || mode === 'division' || mode === '÷') state.mode = 'div';
+    else state.mode = 'mul';
+  }
+  function maestroSetDemo(demo){
+    if(demo === 'comm' || demo === 'conmutativa') state.demo = 'comm';
+    else if(demo === 'assoc' || demo === 'asociativa') state.demo = 'assoc';
+    else if(demo === 'dist' || demo === 'distributiva') state.demo = 'dist';
+    else if(demo === 'off' || demo === null) state.demo = null;
+    else state.demo = demo;
+  }
+  window.addEventListener('message', function(ev){
+    var data = ev && ev.data;
+    if(!data || typeof data !== 'object') return;
+    var t = data.type;
+    if(t === 'maestro:reset'){
+      state.demo = null;
+      state.mode = 'mul';
+      el.numA.value = 3; el.numB.value = 4; el.numC.value = 2;
+      refresh();
+    } else if(t === 'maestro:highlight'){
+      var crypto = document.querySelector('.crypto-stage') || el.decodedOut || el.demoBox;
+      maestroFlash(crypto);
+    } else if(t === 'maestro:setDemo' || t === 'maestro:setExample'){
+      maestroSetDemo(data.demo || data.example);
+      refresh();
+      maestroFlash(el.demoBox);
+    } else if(t === 'maestro:setPreview'){
+      if(data.mode) maestroSetMode(data.mode);
+      if(data.demo) maestroSetDemo(data.demo);
+      if(data.a != null) el.numA.value = data.a;
+      if(data.b != null) el.numB.value = data.b;
+      if(data.c != null) el.numC.value = data.c;
+      refresh();
+    } else if(t === 'maestro:setDomain' || t === 'maestro:setMode'){
+      maestroSetMode(data.mode || data.domain);
+      refresh();
+    }
+  });
+  try {
+    if(window.parent && window.parent !== window){
+      window.parent.postMessage({ type: 'maestro:ready', widget: 'l07-cajas-zumo' }, '*');
+    }
+  } catch (e) { /* ignore */ }
+
 })();
 </script>
 </body>

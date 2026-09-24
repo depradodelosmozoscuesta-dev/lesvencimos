@@ -142,11 +142,54 @@ No romper controles existentes: el listener solo añade; no sustituye `onclick` 
 | `maestro:setPreview` | Acepta `{ example }` (alias de setExample) |
 | `maestro:ready` | widget: `l04-recta-numerica` |
 
+### L05 redondeo (`l05-redondeo.html`)
+
+| type | Efecto |
+|------|--------|
+| `maestro:reset` | Ejemplo 3 746 a centenas → 3 700 |
+| `maestro:highlight` | Resalta frase / número redondeado / regla activa |
+| `maestro:setPreview` | `{ n, order }` — `order` 10/100/1000 (decenas/centenas/millares) |
+| `maestro:setDomain` | Alias: `{ domain: 'decenas'/'centenas'/'millares' }` o `order` |
+| `maestro:ready` | widget: `l05-redondeo` |
+
+### L05 regateo (`l05-regateo.html`)
+
+| type | Efecto |
+|------|--------|
+| `maestro:reset` | Nueva partida de 6 puestos (ofertas aleatorias, a menudo hinchadas) |
+| `maestro:highlight` | Resalta el precio ofertado |
+| `maestro:setPreview` | `{ fair, offer, cat, name?, emoji? }` — demo de timo/ganga/justo (ignora payloads sin `fair`/`offer`) |
+| `maestro:ready` | widget: `l05-regateo` |
+
+### L06 suma/resta (`l06-suma-resta.html`)
+
+| type | Efecto |
+|------|--------|
+| `maestro:reset` | Caja del mercadillo: 48 + 27, modo suma, sin demo |
+| `maestro:highlight` | Resalta demo de propiedad o pantalla de la caja |
+| `maestro:setDemo` | `{ demo: 'comm' / 'assoc' / null }` (alias `maestro:setExample`) |
+| `maestro:setPreview` | `{ a, b, c?, mode: 'sum'/'diff', demo? }` |
+| `maestro:setMode` / `maestro:setDomain` | `{ mode: 'sum'/'diff' }` |
+| `maestro:ready` | widget: `l06-suma-resta` |
+
+### L07 cajas de zumo (`l07-cajas-zumo.html`)
+
+| type | Efecto |
+|------|--------|
+| `maestro:reset` | 3×4 botellas, modo ×, sin demo |
+| `maestro:highlight` | Resalta el criptograma (o la demo si está abierta) |
+| `maestro:setDemo` | `{ demo: 'comm' / 'assoc' / 'dist' / null }` (alias `maestro:setExample`) |
+| `maestro:setPreview` | `{ a, b, c?, mode: 'mul'/'div', demo? }` |
+| `maestro:setMode` / `maestro:setDomain` | `{ mode: 'mul'/'div' }` |
+| `maestro:ready` | widget: `l07-cajas-zumo` |
+
 ### Otros interactivos
 
 Cada bot de asignatura documenta aquí los `type` que acepte su widget. Hasta entonces, pasos sin `iframeCmd` solo desplazan y señalan el marco.
 
 **Lote L02–L04 (2026-09-24):** guiones `maestro-02.json` … `maestro-04.json` + shells cableados; `musica: false`.
+
+**Lote L05–L07 (2026-09-24):** guiones `maestro-05.json` … `maestro-07.json` + shells cableados; `musica: false`. L05 trae dos iframes (redondeo + regateo): cada widget ignora el payload que no le corresponde.
 
 ## Música / ritmo
 
