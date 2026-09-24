@@ -31,6 +31,7 @@ EMBED_SOURCES = {
     "escritura": ROOT / "modulos" / "tinta-escritura.html",
     "dibujo": ROOT / "modulos" / "tinta-estudio.html",
     "info": ROOT / "modulos" / "informatica.html",
+    "guias": ROOT / "modulos" / "guias-viaje.html",
     "alarma": ROOT / "alarma-cuba.html",
     "biblio": ROOT / "modulos" / "biblioteca.html",
 }
@@ -113,7 +114,7 @@ Sin Radio ni Alarma Cuba en el catálogo.
 Los módulos (Hogar, Salud, QR, Electricidad,
 Bricolaje, Jardín, Resiliencia, Apagón, Calculadora,
 Gimnasio, Guitarra, Caja fuerte, Medicación, Meditación,
-Auxilios, Escritura, Dibujo, Informática, Biblioteca…)
+Auxilios, Escritura, Dibujo, Informática, Guías de viaje, Biblioteca…)
 van EMBEBIDOS dentro del HTML.
 Al tocar un icono se abren en la misma página
 (← Escritorio para volver).
@@ -180,7 +181,7 @@ def main() -> None:
         raise SystemExit("shell missing EMBEDDED placeholder (need estanteria.shell.html)")
 
     embedded = build_embedded()
-    for need in ("hogar", "salud", "radio", "qr", "electro", "brico", "jardin", "supervive", "apagon", "caja", "gym", "guitarra", "calc", "medica", "medita", "auxilios", "escritura", "dibujo", "info", "alarma", "biblio"):
+    for need in ("hogar", "salud", "radio", "qr", "electro", "brico", "jardin", "supervive", "apagon", "caja", "gym", "guitarra", "calc", "medica", "medita", "auxilios", "escritura", "dibujo", "info", "guias", "alarma", "biblio"):
         if need not in embedded:
             raise SystemExit(f"missing embed {need}")
 
