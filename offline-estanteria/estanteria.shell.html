@@ -839,6 +839,7 @@
           </select>
           <span class="spacer"></span>
           <button type="button" id="btn-shelves" title="Colocar módulos en sus estantes">A estantes</button>
+          <button type="button" id="btn-fill" title="Poner todos los módulos en sus estantes + reloj, fecha y calendario">Llenar escritorio</button>
           <button type="button" id="btn-clear" title="Vaciar escritorio">Vaciar</button>
           <button type="button" id="btn-collapse-toolbar" title="Ocultar menú" aria-label="Ocultar menú">Ocultar menú</button>
         </div>
@@ -860,7 +861,7 @@
           <div id="wid-chips" class="chip-list"></div>
         </div>
         <p class="file-err" id="file-err" aria-live="polite"></p>
-        <p class="hint desk-hint">Estante sugerido al añadir · arrastra libre · icono redondo abre al tocar · Icono/Ficha · ◯/▭ · «A estantes» reordena · ✕ quita. Mantén pulsado el escritorio vacío (menú oculto) para recuperar el menú.</p>
+        <p class="hint desk-hint">Estante sugerido al añadir · arrastra libre · icono redondo abre al tocar · Icono/Ficha · ◯/▭ · «A estantes» reordena · «Llenar escritorio» añade lo que falte · ✕ quita. Mantén pulsado el escritorio vacío (menú oculto) para recuperar el menú.</p>
       </div>
 
       <button type="button" id="btn-show-toolbar" class="menu-peek" aria-label="Mostrar menú" title="Mostrar menú" hidden>
@@ -874,7 +875,7 @@
       </div>
     </div>
 
-    <footer class="site-foot">lesvencimos.com · escritorio / estantería offline · <span id="est-build">v20260924</span></footer>
+    <footer class="site-foot">lesvencimos.com · escritorio / estantería offline · <span id="est-build">v20260924b</span></footer>
   </div>
 
   <div id="mod-viewer" role="dialog" aria-modal="true" aria-labelledby="mod-viewer-title" hidden>
@@ -1117,6 +1118,11 @@
     function hasModule(id) {
       return state.items.some(function (it) { return it.id === id; });
     }
+    function hasWidgetType(widgetId) {
+      return state.items.some(function (it) {
+        return it.type === 'widget' && it.widget === widgetId;
+      });
+    }
 
     function shelfById(id) {
       for (var i = 0; i < SHELVES.length; i++) {
@@ -1260,6 +1266,58 @@
       });
       saveState();
       renderDesktop();
+    }
+
+    function fillDesktop() {
+      var added = 0;
+      CATALOG.forEach(function (mod) {
+        if (hasModule(mod.id)) return;
+        var shelf = mod.shelf || 'utilidades';
+        var slot = nextSlot(shelf);
+        state.items.push({
+          id: mod.id,
+          type: 'module',
+          kind: 'catalog',
+          titulo: mod.titulo,
+          icon: mod.icon || '',
+          href: '',
+          embed: mod.embed || null,
+          external: mod.external || null,
+          blurb: mod.blurb || '',
+          shelf: shelf,
+          x: slot.x, y: slot.y, w: 100, h: 118,
+          shape: 'tile',
+          view: 'icon',
+          z: ++Z,
+          addedAt: new Date().toISOString()
+        });
+        added++;
+      });
+      var want = { clock: 1, date: 1, calendar: 1 };
+      WIDGETS.forEach(function (def) {
+        if (!want[def.widget] || hasWidgetType(def.widget)) return;
+        var id = def.widget + '-' + Date.now().toString(36) + '-' + (added + 1);
+        var shelf = def.shelf || 'agenda';
+        var slot = nextSlot(shelf);
+        state.items.push({
+          id: id,
+          type: 'widget',
+          widget: def.widget,
+          titulo: def.titulo,
+          shelf: shelf,
+          x: slot.x, y: slot.y,
+          w: def.w || 200, h: def.h || 120,
+          shape: 'tile',
+          tipIndex: 0,
+          pillText: '',
+          z: ++Z,
+          addedAt: new Date().toISOString()
+        });
+        added++;
+      });
+      arrangeToShelves();
+      showToast(added ? ('Escritorio lleno · +' + added + ' · quita lo que no quieras') : 'Ya estaba lleno · colocado en estantes');
+      renderChips();
     }
 
     function diasSemana() {
@@ -2393,7 +2451,7 @@
       });
     }
 
-    var EST_BUILD = 'v20260924';
+    var EST_BUILD = 'v20260924b';
 
     function layoutPanelSheet() {
       var tb = document.getElementById('desk-toolbar');
@@ -2607,6 +2665,8 @@
         arrangeToShelves();
         showToast('Colocado en estantes');
       });
+      var btnFill = document.getElementById('btn-fill');
+      if (btnFill) btnFill.addEventListener('click', fillDesktop);
       document.getElementById('btn-clear').addEventListener('click', function () {
         if (!state.items.length) return;
         if (!confirm('¿Vaciar todo el escritorio?')) return;
