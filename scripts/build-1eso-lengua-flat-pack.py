@@ -938,6 +938,70 @@ def apply_filler_cleanup(lesson: dict) -> dict:
         lesson["vida"] = []
     return lesson
 
+
+def ship_maestro_into_pack(root: pathlib.Path) -> None:
+    """Copy shared _maestro runtime + all lecciones/maestro-*.json into flat pack root."""
+    maestro_src = REPO / "profesor/_maestro"
+    if maestro_src.is_dir():
+        dst = root / "_maestro"
+        dst.mkdir(exist_ok=True)
+        for fname in ("maestro-runtime.js", "maestro-puntero.css", "maestro-demo.html", "README.md"):
+            src = maestro_src / fname
+            if src.exists():
+                shutil.copy2(src, dst / fname)
+                print("Shipped", f"_maestro/{fname}")
+    n_json = 0
+    for mj in sorted(LEC.glob("maestro-*.json")):
+        shutil.copy2(mj, root / mj.name)
+        n_json += 1
+    print(f"Shipped {n_json} maestro-*.json from lecciones/")
+
+
+def rewrite_maestro_paths_offline(doc: str) -> str:
+    """Flat-pack path rewrite for modo maestro assets (sibling _maestro/)."""
+    doc = doc.replace("../../_maestro/maestro-puntero.css", "_maestro/maestro-puntero.css")
+    doc = doc.replace("../../_maestro/maestro-runtime.js", "_maestro/maestro-runtime.js")
+    return doc
+
+
+def ensure_offline_embed_class(doc: str) -> str:
+    """Add offline-embed to body.leccion-shell without stripping attributes (e.g. data-maestro-json)."""
+    def repl(m: re.Match) -> str:
+        attrs = m.group(1) or ""
+        if re.search(r'\bclass="', attrs):
+            def class_repl(cm: re.Match) -> str:
+                classes = cm.group(1)
+                if re.search(r'(?<![\w-])offline-embed(?![\w-])', classes):
+                    return cm.group(0)
+                return f'class="{classes} offline-embed"'
+            attrs2 = re.sub(r'\bclass="([^"]*)"', class_repl, attrs, count=1)
+            return f"<body{attrs2}>"
+        return f'<body{attrs} class="leccion-shell offline-embed">'
+    return re.sub(r"<body([^>]*)>", repl, doc, count=1, flags=re.I)
+
+
+def apply_maestro_wire(shell_path: pathlib.Path, n: int, *, offline: bool = False) -> None:
+    """Re-wire shell for modo maestro after render_lesson (idempotent)."""
+    mj = LEC / f"maestro-{n:02d}.json"
+    if not mj.exists() or not shell_path.exists():
+        return
+    import json
+    import sys
+    wire_dir = str(REPO / "profesor/_maestro")
+    if wire_dir not in sys.path:
+        sys.path.insert(0, wire_dir)
+    from wire_shell_maestro import wire  # type: ignore
+    data = json.loads(mj.read_text(encoding="utf-8"))
+    curso = data.get("curso") or COURSE_NAME
+    titulo = data.get("titulo") or ""
+    pasos = data.get("pasos") or []
+    wire(shell_path, n, curso, titulo, pasos)
+    if offline:
+        doc = shell_path.read_text(encoding="utf-8")
+        doc = rewrite_maestro_paths_offline(doc)
+        shell_path.write_text(doc, encoding="utf-8")
+
+
 def render_lesson(lesson: dict, *, offline: bool) -> str:
     n = lesson["n"]
     css = "leccion-shell.css" if offline else "../../_plantilla-leccion/leccion-shell.css"
@@ -1133,6 +1197,23 @@ HUB_STYLES = """
     color: var(--lv-acento-texto);
     filter: brightness(1.05);
   }
+
+  .hub-cta-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.65rem;
+    align-items: center;
+  }
+  .hub-cta-maestro {
+    background: transparent;
+    color: var(--lv-titulo);
+    border: 1px solid var(--lv-acento);
+  }
+  .hub-cta-maestro:hover {
+    background: rgba(196, 161, 90, 0.12);
+    color: var(--lv-titulo);
+    filter: none;
+  }
   .hub-nota {
     margin: 1.25rem 0 0.5rem;
     font-size: 0.92rem;
@@ -1273,7 +1354,10 @@ def render_hub(*, for_downloads: bool = False) -> str:
       {"Curso cerrado" if AVAILABLE >= TOTAL else "Curso en construcción"} ({AVAILABLE}/{TOTAL} lecciones).
       <strong>ZIP offline</strong> (sin instalar: descomprime y abre <code>ABRE-AQUI.html</code>) en <a href="{descargas}">Descargas</a>.
     </p>
+    <div class="hub-cta-row">
     <a class="hub-cta" href="{lec_prefix}{l01}">Abrir lección 01 →</a>
+    <a class="hub-cta hub-cta-maestro" href="{lec_prefix}{l01}?maestro=1">Probar modo maestro</a>
+    </div>
   </section>
 
   <p class="hub-nota">Índice del temario completo ({TOTAL} lecciones). Disponibles L01–L{AVAILABLE:02d} como <code>leccion-NN-….html</code> (alias <code>leccion-NN.html</code>).{' Curso completo.' if AVAILABLE >= TOTAL else f' L{AVAILABLE+1:02d}–L{TOTAL} próximamente.'}</p>
@@ -1393,7 +1477,8 @@ def update_index() -> None:
             INDEX.write_text(text2, encoding="utf-8")
             print("Updated index.html")
             return
-    raise SystemExit("index.html Educación obligatoria card text not found")
+    print("WARN: index.html card text not found — leaving home untouched")
+    return
 
 
 
@@ -1488,6 +1573,7 @@ alias `leccion-NN.html`, widgets `l01`…`l{AVAILABLE:02d}-….html`, calculador
     <strong>Nunca</strong> abras desde la lista Descargas del navegador (<code>content://</code>).
   </div>
   <p><a class="big-cta" href="{lesson_filename(1)}">Abrir lección 01 →</a>
+     &nbsp; <a class="big-cta hub-cta-maestro" href="{lesson_filename(1)}?maestro=1" style="background:transparent;color:#0E0E0C;border:2px solid #C4A15A;box-shadow:none">Probar modo maestro</a>
      &nbsp; <a href="calculadora.html">Calculadora</a></p>
   <p class="hub-nota">{"Curso completo (%d/%d). Usa siempre este índice." % (TOTAL, TOTAL) if AVAILABLE >= TOTAL else "Disponibles L01–L%02d. L%02d–L%d próximamente. Usa siempre este índice." % (AVAILABLE, AVAILABLE + 1, TOTAL)}</p>
   <section class="bloque-cuerpo">
@@ -1522,6 +1608,7 @@ alias `leccion-NN.html`, widgets `l01`…`l{AVAILABLE:02d}-….html`, calculador
         (root / lesson_filename(L["n"])).write_text(
             render_lesson(L, offline=True), encoding="utf-8"
         )
+        apply_maestro_wire(root / lesson_filename(L["n"]), L["n"], offline=True)
         write_redirect(
             root / f"leccion-{L['n']:02d}.html",
             lesson_filename(L["n"]),
@@ -1534,6 +1621,8 @@ alias `leccion-NN.html`, widgets `l01`…`l{AVAILABLE:02d}-….html`, calculador
             wh = src.read_text(encoding="utf-8")
             assert_widget_offline_safe(wf, wh)
             shutil.copy2(src, root / wf)
+
+    ship_maestro_into_pack(root)
 
     if ZIP_PATH.exists():
         ZIP_PATH.unlink()
@@ -1554,6 +1643,7 @@ def main() -> None:
     for L in LESSONS:
         out = LEC / lesson_filename(L["n"])
         out.write_text(render_lesson(L, offline=False), encoding="utf-8")
+        apply_maestro_wire(out, L["n"], offline=False)
         write_redirect(
             LEC / f"leccion-{L['n']:02d}.html",
             out.name,

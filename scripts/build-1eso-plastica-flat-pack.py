@@ -169,6 +169,23 @@ HUB_STYLES = """
     color: var(--lv-acento-texto);
     filter: brightness(1.05);
   }
+
+  .hub-cta-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.65rem;
+    align-items: center;
+  }
+  .hub-cta-maestro {
+    background: transparent;
+    color: var(--lv-titulo);
+    border: 1px solid var(--lv-acento);
+  }
+  .hub-cta-maestro:hover {
+    background: rgba(196, 161, 90, 0.12);
+    color: var(--lv-titulo);
+    filter: none;
+  }
   .hub-nota {
     margin: 1.25rem 0 0.5rem;
     font-size: 0.92rem;
@@ -398,6 +415,48 @@ def widget_srcdoc_block(label: str, fname: str, widget_html: str) -> str:
   </section>"""
 
 
+
+def ship_maestro_into_pack(root: pathlib.Path) -> None:
+    """Copy shared _maestro runtime + all lecciones/maestro-*.json into flat pack root."""
+    maestro_src = REPO / "profesor/_maestro"
+    if maestro_src.is_dir():
+        dst = root / "_maestro"
+        dst.mkdir(exist_ok=True)
+        for fname in ("maestro-runtime.js", "maestro-puntero.css", "maestro-demo.html", "README.md"):
+            src = maestro_src / fname
+            if src.exists():
+                shutil.copy2(src, dst / fname)
+                print("Shipped", f"_maestro/{fname}")
+    n_json = 0
+    for mj in sorted(LEC.glob("maestro-*.json")):
+        shutil.copy2(mj, root / mj.name)
+        n_json += 1
+    print(f"Shipped {n_json} maestro-*.json from lecciones/")
+
+
+def rewrite_maestro_paths_offline(doc: str) -> str:
+    """Flat-pack path rewrite for modo maestro assets (sibling _maestro/)."""
+    doc = doc.replace("../../_maestro/maestro-puntero.css", "_maestro/maestro-puntero.css")
+    doc = doc.replace("../../_maestro/maestro-runtime.js", "_maestro/maestro-runtime.js")
+    return doc
+
+
+def ensure_offline_embed_class(doc: str) -> str:
+    """Add offline-embed to body.leccion-shell without stripping attributes (e.g. data-maestro-json)."""
+    def repl(m: re.Match) -> str:
+        attrs = m.group(1) or ""
+        if re.search(r'\bclass="', attrs):
+            def class_repl(cm: re.Match) -> str:
+                classes = cm.group(1)
+                if re.search(r'(?<![\w-])offline-embed(?![\w-])', classes):
+                    return cm.group(0)
+                return f'class="{classes} offline-embed"'
+            attrs2 = re.sub(r'\bclass="([^"]*)"', class_repl, attrs, count=1)
+            return f"<body{attrs2}>"
+        return f'<body{attrs} class="leccion-shell offline-embed">'
+    return re.sub(r"<body([^>]*)>", repl, doc, count=1, flags=re.I)
+
+
 def transform_lesson_offline(n: int, raw: str, *, tinta_html: str) -> str:
     doc = raw
     doc = doc.replace("../../_plantilla-leccion/leccion-shell.css", "leccion-shell.css")
@@ -406,7 +465,8 @@ def transform_lesson_offline(n: int, raw: str, *, tinta_html: str) -> str:
     doc = doc.replace('href="../../../index.html"', 'href="index.html"')
     doc = doc.replace("../../../modulos/calculadora.html", "calculadora.html")
     doc = doc.replace("../../../modulos/tinta-estudio.html", "tinta-estudio.html")
-    doc = doc.replace('<body class="leccion-shell">', '<body class="leccion-shell offline-embed">')
+    doc = ensure_offline_embed_class(doc)
+    doc = rewrite_maestro_paths_offline(doc)
 
     # Harden last available lesson next (complete pack → fin de curso)
     if n == AVAILABLE:
@@ -522,7 +582,10 @@ def render_hub(*, for_downloads: bool = False) -> str:
       Curso cerrado · Revisor Dios <strong>CONFIRMA</strong> (0 críticos).
       <strong>ZIP offline</strong> (sin instalar: descomprime y abre <code>ABRE-AQUI.html</code>) en <a href="{descargas}">Descargas</a>.
     </p>
+    <div class="hub-cta-row">
     <a class="hub-cta" href="{lec_prefix}{l01}">Abrir lección 01 →</a>
+    <a class="hub-cta hub-cta-maestro" href="{lec_prefix}{l01}?maestro=1">Probar modo maestro</a>
+    </div>
   </section>
 
   <p class="hub-nota">Índice del temario completo ({TOTAL} lecciones). Todas disponibles como <code>leccion-NN-….html</code> (alias <code>leccion-NN.html</code>).</p>
@@ -852,6 +915,7 @@ alias `leccion-NN.html`, widgets Tinta, `tinta-estudio.html`, calculadora, CSS/J
     <strong>Nunca</strong> abras desde la lista Descargas del navegador (<code>content://</code>).
   </div>
   <p><a class="big-cta" href="{lesson_filename(1)}">Abrir lección 01 →</a>
+     &nbsp; <a class="big-cta hub-cta-maestro" href="{lesson_filename(1)}?maestro=1" style="background:transparent;color:#0E0E0C;border:2px solid #C4A15A;box-shadow:none">Probar modo maestro</a>
      &nbsp; <a href="tinta-estudio.html">Tinta Estudio</a>
      &nbsp; <a href="calculadora.html">Calculadora</a></p>
   <p class="hub-nota">Curso completo L01–L{AVAILABLE:02d}/{TOTAL}. Usa siempre este índice.</p>
@@ -901,6 +965,8 @@ alias `leccion-NN.html`, widgets Tinta, `tinta-estudio.html`, calculadora, CSS/J
             wstand = wstand.replace("catch(e){}}", "catch(e){}")
             assert_offline_safe(wf, wstand)
             (root / wf).write_text(wstand, encoding="utf-8")
+
+    ship_maestro_into_pack(root)
 
     if ZIP_PATH.exists():
         ZIP_PATH.unlink()
