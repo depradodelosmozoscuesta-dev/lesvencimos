@@ -288,6 +288,26 @@
     outline-offset: 2px;
     border-radius: 10px;
   }
+  /* Varied tile silhouettes (not every app a round disk) */
+  .launch-tile.shape-poster { width: 92px; }
+  .launch-tile.shape-poster .mod-ico-wrap {
+    width: 88px; height: 56px; border-radius: 11px;
+  }
+  .launch-tile.shape-poster .mod-ico-svg svg { width: 30px; height: 30px; }
+  .launch-tile.shape-tall { width: 58px; }
+  .launch-tile.shape-tall .mod-ico-wrap {
+    width: 48px; height: 68px; border-radius: 14px;
+  }
+  .launch-tile.shape-tall .mod-ico-svg svg { width: 26px; height: 26px; }
+  .launch-tile.shape-wide { width: 84px; }
+  .launch-tile.shape-wide .mod-ico-wrap {
+    width: 76px; height: 48px; border-radius: 12px;
+  }
+  .launch-tile.shape-wide .mod-ico-svg svg { width: 28px; height: 28px; }
+  .launch-tile.shape-soft { width: 68px; }
+  .launch-tile.shape-soft .mod-ico-wrap {
+    width: 52px; height: 52px; border-radius: 16px;
+  }
   .launch-tile .mod-ico-wrap {
     display: flex; align-items: center; justify-content: center;
     box-sizing: border-box;
@@ -302,8 +322,19 @@
   .launch-tile .mod-ico {
     font-size: 1.55rem;
     line-height: 1;
-    filter: drop-shadow(0 1px 2px rgba(0,0,0,0.35));
+    filter: drop-shadow(0 1px 1px rgba(0,0,0,0.22));
     pointer-events: none;
+    color: var(--acento);
+  }
+  .launch-tile .mod-ico-svg {
+    font-size: 0;
+    line-height: 0;
+    filter: drop-shadow(0 1px 1px rgba(0,0,0,0.18));
+  }
+  .launch-tile .mod-ico-svg svg {
+    width: 28px;
+    height: 28px;
+    display: block;
   }
   .launch-tile .mod-ico-label {
     font-size: 0.72rem;
@@ -321,25 +352,54 @@
   body.theme-papel .launch-tile .mod-ico-label {
     text-shadow: 0 1px 0 rgba(255,255,255,0.55);
   }
-  .launch-tile .rm {
-    position: absolute;
-    top: -2px; right: -2px;
-    z-index: 2;
-    width: 22px; height: 22px;
-    min-width: 22px; min-height: 22px;
-    padding: 0;
-    border: 0;
-    border-radius: 999px;
-    background: rgba(0,0,0,0.62);
-    color: #fff;
-    font: 700 0.72rem/1 var(--sans);
-    cursor: pointer;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    touch-action: manipulation;
+  /* Desk edit modes (Borrar / Renombrar) — no permanent ✕ */
+  body.desk-mode-borrar .launch-tile .mod-ico-wrap {
+    box-shadow: 0 0 0 2px color-mix(in srgb, var(--peligro) 70%, transparent), 0 2px 8px rgba(0,0,0,0.2);
+    animation: desk-wobble 0.55s ease-in-out infinite alternate;
   }
-  .launch-tile .rm:hover { background: var(--peligro); }
+  body.desk-mode-renombrar .launch-tile .mod-ico-wrap {
+    box-shadow: 0 0 0 2px color-mix(in srgb, var(--acento) 75%, transparent), 0 2px 8px rgba(0,0,0,0.2);
+  }
+  body.desk-mode-borrar .w-slot {
+    box-shadow: 0 0 0 2px color-mix(in srgb, var(--peligro) 55%, transparent);
+    animation: desk-wobble 0.55s ease-in-out infinite alternate;
+  }
+  body.desk-mode-renombrar .w-slot {
+    box-shadow: 0 0 0 2px color-mix(in srgb, var(--acento) 65%, transparent);
+  }
+  body.desk-mode-borrar .launch-tile,
+  body.desk-mode-renombrar .launch-tile,
+  body.desk-mode-borrar .w-slot,
+  body.desk-mode-renombrar .w-slot {
+    cursor: pointer;
+  }
+  @keyframes desk-wobble {
+    from { transform: rotate(-1.2deg); }
+    to { transform: rotate(1.2deg); }
+  }
+  #btn-mode-borrar[aria-pressed="true"],
+  #btn-mode-renombrar[aria-pressed="true"] {
+    border-color: var(--acento);
+    color: var(--acento);
+    background: color-mix(in srgb, var(--acento) 16%, var(--fondo-3));
+  }
+  #btn-mode-borrar[aria-pressed="true"] {
+    border-color: var(--peligro);
+    color: var(--peligro);
+    background: color-mix(in srgb, var(--peligro) 14%, var(--fondo-3));
+  }
+  .desk-mode-hint {
+    margin: 0.35rem 0 0;
+    min-height: 1.2em;
+    font-size: 0.85rem;
+    color: var(--suave);
+  }
+  body.desk-mode-borrar .desk-mode-hint,
+  body.desk-mode-renombrar .desk-mode-hint {
+    color: var(--acento);
+    font-weight: 600;
+  }
+  body.desk-mode-borrar .desk-mode-hint { color: var(--peligro); }
 
   /* Fixed widget slots (Agenda strip + shelf widgets) */
   .shelf-widgets {
@@ -376,17 +436,6 @@
   }
   .w-slot.empty {
     display: none;
-  }
-  .w-slot .rm {
-    position: absolute;
-    top: 4px; right: 4px;
-    z-index: 2;
-    width: 22px; height: 22px;
-    border: 0; border-radius: 999px;
-    background: rgba(0,0,0,0.5); color: #fff;
-    font: 700 0.7rem/1 var(--sans);
-    cursor: pointer;
-    display: inline-flex; align-items: center; justify-content: center;
   }
   .w-slot.slot-clock { grid-area: clock; }
   .w-slot.slot-date { grid-area: date; }
@@ -604,6 +653,10 @@
     font-size: 1.25rem; line-height: 1; margin-right: 0.4rem;
     vertical-align: -0.15em; flex-shrink: 0;
     background: transparent; border: none; box-shadow: none;
+    color: var(--acento);
+  }
+  .chip-list button .chip-ico.mod-ico-svg svg {
+    width: 18px; height: 18px; display: block;
   }
 
   .offline-tip {
@@ -725,7 +778,8 @@
         <h1>Escritorio / Estantería</h1>
         <p class="lead">
           <strong>Lanzadera por temas</strong> — iconos pequeños en filas fijas (así es así).
-          Quita con <strong>✕</strong>. Añade sobre todo desde <strong>Widgets</strong>
+          <strong>Borrar</strong> o <strong>Renombrar</strong> en la barra, luego toca la app.
+          Añade sobre todo desde <strong>Widgets</strong>
           (Módulos restaura uno). Agenda tiene huecos fijos para reloj, fecha y calendario.
           Oculta el menú para pantalla completa.
           <strong>Sin Radio ni red:</strong> este HTML no puede conectar a internet.
@@ -746,10 +800,13 @@
           </select>
           <span class="spacer"></span>
           <button type="button" id="btn-shelves" title="Ya ordenado por temas" hidden>A estantes</button>
+          <button type="button" id="btn-mode-borrar" aria-pressed="false" title="Toca una app para quitarla">Borrar</button>
+          <button type="button" id="btn-mode-renombrar" aria-pressed="false" title="Toca una app para renombrarla">Renombrar</button>
           <button type="button" id="btn-fill" title="Vuelve a poner módulos quitados + reloj, fecha y calendario">Restaurar todo</button>
           <button type="button" id="btn-clear" title="Vaciar escritorio">Vaciar</button>
           <button type="button" id="btn-collapse-toolbar" title="Ocultar menú" aria-label="Ocultar menú">Ocultar menú</button>
         </div>
+        <p class="desk-mode-hint" id="desk-mode-hint" aria-live="polite"></p>
 
         <button type="button" id="panel-backdrop" class="panel-backdrop" aria-label="Cerrar panel" hidden></button>
         <div id="panel-modulos" class="add-panel" role="region" aria-labelledby="panel-modulos-title" aria-hidden="true">
@@ -768,7 +825,7 @@
           <div id="wid-chips" class="chip-list"></div>
         </div>
         <p class="file-err" id="file-err" aria-live="polite"></p>
-        <p class="hint desk-hint">Lanzadera por temas · ✕ quita · Widgets añade · Restaurar todo recupera. Mantén pulsado el escritorio vacío (menú oculto) para recuperar el menú.</p>
+        <p class="hint desk-hint">Lanzadera por temas · Borrar / Renombrar · Widgets añade · Restaurar todo recupera. Mantén pulsado el escritorio vacío (menú oculto) para recuperar el menú.</p>
       </div>
 
       <button type="button" id="btn-show-toolbar" class="menu-peek" aria-label="Mostrar menú" title="Mostrar menú" hidden>
@@ -782,7 +839,7 @@
       </div>
     </div>
 
-    <footer class="site-foot">lesvencimos.com · escritorio / estantería offline · <span id="est-build">v20260924d</span></footer>
+    <footer class="site-foot">lesvencimos.com · escritorio / estantería offline · <span id="est-build">v20260924e</span></footer>
   </div>
 
   <div id="mod-viewer" role="dialog" aria-modal="true" aria-labelledby="mod-viewer-title" hidden>
@@ -807,52 +864,53 @@
     /* Bundled modules are in EMBEDDED (injected by build). No sibling .html needed. */
     var EMBEDDED = {/*__EMBEDDED_MODULES__*/};
     var ICONS = {
-      'alarma': '🚨',
-      'alarma-cuba': '🚨',
-      'apagon': '🔦',
-      'auxilios': '❤️‍🩹',
-      'biblio': '📚',
-      'biblioteca': '📚',
-      'brico': '🔧',
-      'bricolaje': '🔧',
-      'caja': '🔐',
-      'caja-fuerte': '🔐',
-      'calc': '🔢',
-      'calculadora': '🔢',
-      'central': '🏠',
-      'central-cuba': '🏠',
-      'default': '📦',
-      'dibujo': '✏️',
-      'electricidad': '⚡',
-      'electro': '⚡',
-      'escritura': '📝',
-      'file': '📄',
-      'gimnasio': '💪',
-      'gym': '💪',
-      'guitar': '🎸',
-      'guitarra': '🎸',
-      'hogar': '🍲',
-      'info': '💻',
-      'informatica': '💻',
-      'guias-viaje': '🧳',
-      'guias': '🧳',
-      'jardin': '🌱',
-      'local': '📄',
-      'medica': '💊',
-      'medicacion': '💊',
-      'medita': '🕯️',
-      'meditacion': '🕯️',
-      'package': '📦',
-      'primeros-auxilios': '❤️‍🩹',
-      'profesor': '📖',
-      'qr': '▣',
-      'radio': '📻',
-      'salud': '🩺',
-      'supervive': '🏕️',
-      'supervivencia': '🏕️',
-      'tinta-escritura': '📝',
-      'tinta-estudio': '✏️'
+      'escritura': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20h4l10.5-10.5a2.1 2.1 0 0 0-3-3L5 17v3z"/><path d="M13.5 6.5l3 3"/></svg>',
+      'dibujo': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20l2.2-7.2L17.5 1.5a2.1 2.1 0 0 1 3 3L9.2 15.8 4 20z"/><path d="M14.5 4.5l3 3"/><path d="M4 20h4"/></svg>',
+      'guitarra': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8.5 15.5c-1.8 1.8-2.2 4-.8 5.4s3.6 1 5.4-.8c2.4-2.4 6.2-9.2 7.4-11.6.4-.8.2-1.8-.5-2.5s-1.7-.9-2.5-.5c-2.4 1.2-9.2 5-11.6 7.4z"/><path d="M14.2 5.8l4 4"/><circle cx="10.2" cy="13.8" r="1.2"/></svg>',
+      'meditacion': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3c1.2 2.2 2 4.2 2 6a2 2 0 1 1-4 0c0-1.8.8-3.8 2-6z"/><path d="M8 14c1.2-1 2.5-1.5 4-1.5s2.8.5 4 1.5"/><path d="M7 19c1.5-1.2 3.2-1.8 5-1.8s3.5.6 5 1.8"/></svg>',
+      'biblioteca': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5h5a2 2 0 0 1 2 2v12a2.5 2.5 0 0 0-2.5-2.5H4z"/><path d="M20 5h-5a2 2 0 0 0-2 2v12a2.5 2.5 0 0 1 2.5-2.5H20z"/></svg>',
+      'hogar': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 10h12v8a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2z"/><path d="M8 10V8a4 4 0 0 1 8 0v2"/><path d="M10 14h4"/></svg>',
+      'jardin': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21v-7"/><path d="M12 14c-3.5 0-6-2.2-6-5 3.5 0 6 2.2 6 5z"/><path d="M12 14c3.5 0 6-2.2 6-5-3.5 0-6 2.2-6 5z"/><path d="M12 11c-1.8-2.5-1.5-5.5 0-8 1.5 2.5 1.8 5.5 0 8z"/></svg>',
+      'bricolaje': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14.5 5.5a3.5 3.5 0 0 1 4 4L12 16l-3 1 1-3 6.5-8.5z"/><path d="M12 16l-5.5 5.5"/></svg>',
+      'electricidad': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M13 2L5 13h6l-1 9 8-11h-6z"/></svg>',
+      'supervivencia': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 19l9-14 9 14z"/><path d="M12 5v14"/><path d="M7.5 19h9"/></svg>',
+      'apagon': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 9h10v7a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2z"/><path d="M10 9V6a2 2 0 0 1 4 0v3"/><path d="M10 18v2"/><path d="M14 18v2"/></svg>',
+      'salud': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v16"/><path d="M4 12h16"/><rect x="3" y="3" width="18" height="18" rx="4"/></svg>',
+      'medicacion': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="8" y="3" width="8" height="18" rx="4" transform="rotate(45 12 12)"/><path d="M9.2 9.2l5.6 5.6"/></svg>',
+      'gimnasio': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9v6"/><path d="M18 9v6"/><path d="M4 10.5v3"/><path d="M20 10.5v3"/><path d="M6 12h12"/><path d="M9 10.5v3"/><path d="M15 10.5v3"/></svg>',
+      'auxilios': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 4h10v4h4v8h-4v4H7v-4H3V8h4z"/></svg>',
+      'informatica': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="12" rx="2"/><path d="M8 20h8"/><path d="M12 16v4"/></svg>',
+      'guias': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6.5l6-2.5v15l-6 2.5z"/><path d="M10 4l6 2.5v15l-6-2.5z"/><path d="M16 6.5l4-1.5v15l-4 1.5z"/></svg>',
+      'profesor': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 7l9-4 9 4-9 4z"/><path d="M7 10.5v5c0 1.5 2.2 3 5 3s5-1.5 5-3v-5"/><path d="M21 7v7"/></svg>',
+      'caja': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/><circle cx="12" cy="16" r="1.2"/></svg>',
+      'calculadora': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="2" width="14" height="20" rx="2"/><path d="M8 6h8"/><path d="M8 11h2"/><path d="M12 11h2"/><path d="M16 11h0.01"/><path d="M8 15h2"/><path d="M12 15h2"/><path d="M16 15h0.01"/><path d="M8 19h2"/><path d="M12 19h2"/></svg>',
+      'qr': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 4h6v6H4z"/><path d="M14 4h6v6h-6z"/><path d="M4 14h6v6H4z"/><path d="M14 14h2v2"/><path d="M18 14h2v2"/><path d="M14 18h2v2"/><path d="M18 18h2v2"/></svg>',
+      'default': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l8 4v10l-8 4-8-4V7z"/><path d="M12 7v14"/><path d="M4 7l8 4 8-4"/></svg>',
+      'file': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H7a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg>',
+      'radio': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="7" width="18" height="12" rx="2"/><circle cx="8" cy="13" r="2"/><path d="M13 11h5"/><path d="M13 15h3"/><path d="M7 7l8-4"/></svg>',
+      'alarma': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v2"/><path d="M6.5 8.5L5 7"/><path d="M17.5 8.5L19 7"/><circle cx="12" cy="14" r="6"/><path d="M12 12v3l2 1"/></svg>',
+      'central': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 11l8-7 8 7"/><path d="M6 10.5V20h12v-9.5"/><path d="M10 20v-5h4v5"/></svg>',
+      'package': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l8 4v10l-8 4-8-4V7z"/><path d="M12 7v14"/><path d="M4 7l8 4 8-4"/></svg>',
+      'local': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H7a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg>',
+      'guitar': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8.5 15.5c-1.8 1.8-2.2 4-.8 5.4s3.6 1 5.4-.8c2.4-2.4 6.2-9.2 7.4-11.6.4-.8.2-1.8-.5-2.5s-1.7-.9-2.5-.5c-2.4 1.2-9.2 5-11.6 7.4z"/><path d="M14.2 5.8l4 4"/><circle cx="10.2" cy="13.8" r="1.2"/></svg>',
+      'tinta-escritura': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20h4l10.5-10.5a2.1 2.1 0 0 0-3-3L5 17v3z"/><path d="M13.5 6.5l3 3"/></svg>',
+      'tinta-estudio': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20l2.2-7.2L17.5 1.5a2.1 2.1 0 0 1 3 3L9.2 15.8 4 20z"/><path d="M14.5 4.5l3 3"/><path d="M4 20h4"/></svg>',
+      'medita': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3c1.2 2.2 2 4.2 2 6a2 2 0 1 1-4 0c0-1.8.8-3.8 2-6z"/><path d="M8 14c1.2-1 2.5-1.5 4-1.5s2.8.5 4 1.5"/><path d="M7 19c1.5-1.2 3.2-1.8 5-1.8s3.5.6 5 1.8"/></svg>',
+      'biblio': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5h5a2 2 0 0 1 2 2v12a2.5 2.5 0 0 0-2.5-2.5H4z"/><path d="M20 5h-5a2 2 0 0 0-2 2v12a2.5 2.5 0 0 1 2.5-2.5H20z"/></svg>',
+      'brico': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14.5 5.5a3.5 3.5 0 0 1 4 4L12 16l-3 1 1-3 6.5-8.5z"/><path d="M12 16l-5.5 5.5"/></svg>',
+      'electro': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M13 2L5 13h6l-1 9 8-11h-6z"/></svg>',
+      'supervive': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 19l9-14 9 14z"/><path d="M12 5v14"/><path d="M7.5 19h9"/></svg>',
+      'medica': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="8" y="3" width="8" height="18" rx="4" transform="rotate(45 12 12)"/><path d="M9.2 9.2l5.6 5.6"/></svg>',
+      'gym': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9v6"/><path d="M18 9v6"/><path d="M4 10.5v3"/><path d="M20 10.5v3"/><path d="M6 12h12"/><path d="M9 10.5v3"/><path d="M15 10.5v3"/></svg>',
+      'primeros-auxilios': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 4h10v4h4v8h-4v4H7v-4H3V8h4z"/></svg>',
+      'info': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="12" rx="2"/><path d="M8 20h8"/><path d="M12 16v4"/></svg>',
+      'guias-viaje': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6.5l6-2.5v15l-6 2.5z"/><path d="M10 4l6 2.5v15l-6-2.5z"/><path d="M16 6.5l4-1.5v15l-4 1.5z"/></svg>',
+      'caja-fuerte': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/><circle cx="12" cy="16" r="1.2"/></svg>',
+      'calc': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="2" width="14" height="20" rx="2"/><path d="M8 6h8"/><path d="M8 11h2"/><path d="M12 11h2"/><path d="M16 11h0.01"/><path d="M8 15h2"/><path d="M12 15h2"/><path d="M16 15h0.01"/><path d="M8 19h2"/><path d="M12 19h2"/></svg>',
+      'alarma-cuba': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v2"/><path d="M6.5 8.5L5 7"/><path d="M17.5 8.5L19 7"/><circle cx="12" cy="14" r="6"/><path d="M12 12v3l2 1"/></svg>',
+      'central-cuba': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 11l8-7 8 7"/><path d="M6 10.5V20h12v-9.5"/><path d="M10 20v-5h4v5"/></svg>',
     };
+
 
     /* Shelf categories (visible rails on the desk) */
     var SHELVES = [
@@ -864,28 +922,29 @@
       { id: 'varios', label: 'Varios' }
     ];
 
+    /* shape: round (default disk) | poster | tall | wide | soft */
     var CATALOG = [
-      { id: 'tinta-escritura', titulo: 'Escritura', icon: '📝', embed: 'escritura', blurb: 'Hoja para escribir', shelf: 'escritura' },
-      { id: 'tinta-estudio', titulo: 'Dibujo', icon: '✏️', embed: 'dibujo', blurb: 'Hoja para pintar', shelf: 'escritura' },
-      { id: 'guitarra', titulo: 'Guitarra', icon: '🎸', embed: 'guitarra', blurb: 'Afinar · acordes · solfeo', shelf: 'ocio' },
-      { id: 'meditacion', titulo: 'Meditación', icon: '🕯️', embed: 'medita', blurb: 'Sentarse y viaje', shelf: 'ocio' },
-      { id: 'biblioteca', titulo: 'Biblioteca', icon: '📚', embed: 'biblio', blurb: 'Libros · voz · ambientes', shelf: 'ocio' },
-      { id: 'hogar', titulo: 'Hogar', icon: '🍲', embed: 'hogar', blurb: 'Recetas y compra', shelf: 'casa' },
-      { id: 'jardin', titulo: 'Jardín', icon: '🌱', embed: 'jardin', blurb: 'Plantas fáciles', shelf: 'casa' },
-      { id: 'bricolaje', titulo: 'Bricolaje', icon: '🔧', embed: 'brico', blurb: 'DIY casa', shelf: 'casa' },
-      { id: 'electricidad', titulo: 'Electricidad', icon: '⚡', embed: 'electro', blurb: 'Vida · bricolaje', shelf: 'casa' },
-      { id: 'supervivencia', titulo: 'Resiliencia', icon: '🏕️', embed: 'supervive', blurb: 'Casa preparada', shelf: 'casa' },
-      { id: 'apagon', titulo: 'Apagón', icon: '🔦', embed: 'apagon', blurb: 'Sin luz', shelf: 'casa' },
-      { id: 'salud', titulo: 'Salud', icon: '🩺', embed: 'salud', blurb: 'Pastillas y médicos', shelf: 'salud' },
-      { id: 'medicacion', titulo: 'Medicación', icon: '💊', embed: 'medica', blurb: 'Recordatorio local', shelf: 'salud' },
-      { id: 'gimnasio', titulo: 'Gimnasio', icon: '💪', embed: 'gym', blurb: 'Movimiento suave', shelf: 'salud' },
-      { id: 'primeros-auxilios', titulo: 'Auxilios', icon: '❤️‍🩹', embed: 'auxilios', blurb: 'RCP · cultura útil', shelf: 'salud' },
-      { id: 'informatica', titulo: 'Informática', icon: '💻', embed: 'info', blurb: 'Cultura general · Linux', shelf: 'varios' },
-      { id: 'guias-viaje', titulo: 'Guías de viaje', icon: '🧳', embed: 'guias', blurb: 'España · piloto', shelf: 'varios' },
-      { id: 'profesor', titulo: 'Profesor', icon: '📖', embed: null, external: 'profesor', blurb: 'Cole · zip aparte', shelf: 'varios' },
-      { id: 'caja-fuerte', titulo: 'Caja fuerte', icon: '🔐', embed: 'caja', blurb: 'Claves y documentos', shelf: 'varios' },
-      { id: 'calculadora', titulo: 'Calculadora', icon: '🔢', embed: 'calc', blurb: 'Operaciones', shelf: 'varios' },
-      { id: 'qr', titulo: 'QR', icon: '▣', embed: 'qr', blurb: 'Códigos e impresión', shelf: 'varios' }
+      { id: 'tinta-escritura', titulo: 'Escritura', icon: 'escritura', embed: 'escritura', blurb: 'Hoja para escribir', shelf: 'escritura', shape: 'soft' },
+      { id: 'tinta-estudio', titulo: 'Dibujo', icon: 'dibujo', embed: 'dibujo', blurb: 'Hoja para pintar', shelf: 'escritura', shape: 'soft' },
+      { id: 'guitarra', titulo: 'Guitarra', icon: 'guitarra', embed: 'guitarra', blurb: 'Afinar · acordes · solfeo', shelf: 'ocio', shape: 'tall' },
+      { id: 'meditacion', titulo: 'Meditación', icon: 'meditacion', embed: 'medita', blurb: 'Sentarse y viaje', shelf: 'ocio', shape: 'round' },
+      { id: 'biblioteca', titulo: 'Biblioteca', icon: 'biblioteca', embed: 'biblio', blurb: 'Libros · voz · ambientes', shelf: 'ocio', shape: 'wide' },
+      { id: 'hogar', titulo: 'Hogar', icon: 'hogar', embed: 'hogar', blurb: 'Recetas y compra', shelf: 'casa', shape: 'round' },
+      { id: 'jardin', titulo: 'Jardín', icon: 'jardin', embed: 'jardin', blurb: 'Plantas fáciles', shelf: 'casa', shape: 'tall' },
+      { id: 'bricolaje', titulo: 'Bricolaje', icon: 'bricolaje', embed: 'brico', blurb: 'DIY casa', shelf: 'casa', shape: 'soft' },
+      { id: 'electricidad', titulo: 'Electricidad', icon: 'electricidad', embed: 'electro', blurb: 'Vida · bricolaje', shelf: 'casa', shape: 'round' },
+      { id: 'supervivencia', titulo: 'Resiliencia', icon: 'supervivencia', embed: 'supervive', blurb: 'Casa preparada', shelf: 'casa', shape: 'wide' },
+      { id: 'apagon', titulo: 'Apagón', icon: 'apagon', embed: 'apagon', blurb: 'Sin luz', shelf: 'casa', shape: 'soft' },
+      { id: 'salud', titulo: 'Salud', icon: 'salud', embed: 'salud', blurb: 'Pastillas y médicos', shelf: 'salud', shape: 'round' },
+      { id: 'medicacion', titulo: 'Medicación', icon: 'medicacion', embed: 'medica', blurb: 'Recordatorio local', shelf: 'salud', shape: 'soft' },
+      { id: 'gimnasio', titulo: 'Gimnasio', icon: 'gimnasio', embed: 'gym', blurb: 'Movimiento suave', shelf: 'salud', shape: 'poster' },
+      { id: 'primeros-auxilios', titulo: 'Auxilios', icon: 'auxilios', embed: 'auxilios', blurb: 'RCP · cultura útil', shelf: 'salud', shape: 'round' },
+      { id: 'informatica', titulo: 'Informática', icon: 'informatica', embed: 'info', blurb: 'Cultura general · Linux', shelf: 'varios', shape: 'wide' },
+      { id: 'guias-viaje', titulo: 'Guías de viaje', icon: 'guias', embed: 'guias', blurb: 'España · piloto', shelf: 'varios', shape: 'soft' },
+      { id: 'profesor', titulo: 'Profesor', icon: 'profesor', embed: null, external: 'profesor', blurb: 'Cole · zip aparte', shelf: 'varios', shape: 'wide' },
+      { id: 'caja-fuerte', titulo: 'Caja fuerte', icon: 'caja', embed: 'caja', blurb: 'Claves y documentos', shelf: 'varios', shape: 'soft' },
+      { id: 'calculadora', titulo: 'Calculadora', icon: 'calculadora', embed: 'calc', blurb: 'Operaciones', shelf: 'varios', shape: 'soft' },
+      { id: 'qr', titulo: 'QR', icon: 'qr', embed: 'qr', blurb: 'Códigos e impresión', shelf: 'varios', shape: 'round' }
     ];
 
     var WIDGETS = [
@@ -1179,7 +1238,7 @@
       arrangeToShelves();
       if (!quiet) {
         showToast(added
-          ? ('Restaurado · +' + added + ' · quita con ✕ lo que no quieras')
+          ? ('Restaurado · +' + added + ' · Borrar quita lo que no quieras')
           : 'Ya completo · ordenado por temas');
       }
       renderChips();
@@ -1220,21 +1279,26 @@
 
     function isEmojiIcon(v) {
       if (!v || typeof v !== 'string') return false;
+      if (v.indexOf('<svg') === 0) return false;
       /* slug keys are ascii letters/digits/hyphen; emoji are not */
       return !/^[a-z0-9-]+$/i.test(v);
+    }
+
+    function isSvgMarkup(v) {
+      return !!(v && typeof v === 'string' && v.indexOf('<svg') === 0);
     }
 
     function iconKeyFor(it) {
       var cat = catalogById(it && it.id);
       var candidates = [];
       if (cat) {
+        if (cat.icon && !isEmojiIcon(cat.icon) && !isSvgMarkup(cat.icon)) candidates.push(cat.icon);
         if (cat.embed) candidates.push(cat.embed);
         if (cat.id) candidates.push(cat.id);
-        if (cat.icon && !isEmojiIcon(cat.icon)) candidates.push(cat.icon);
       }
       if (it) {
+        if (it.icon && !isEmojiIcon(it.icon) && !isSvgMarkup(it.icon)) candidates.push(it.icon);
         if (it.embed) candidates.push(it.embed);
-        if (it.icon && !isEmojiIcon(it.icon)) candidates.push(it.icon);
         if (it.id) candidates.push(it.id);
       }
       for (var i = 0; i < candidates.length; i++) {
@@ -1245,15 +1309,87 @@
     }
 
     function moduleIcon(it) {
-      if (it && isEmojiIcon(it.icon)) return it.icon;
+      /* Prefer SVG map; keep emoji only as last-resort fallback for unknown locals */
+      if (it && isSvgMarkup(it.icon)) return it.icon;
       var cat = catalogById(it && it.id);
+      if (cat && isSvgMarkup(cat.icon)) return cat.icon;
+      var key = iconKeyFor(it);
+      if (ICONS[key]) return ICONS[key];
+      if (it && isEmojiIcon(it.icon)) return it.icon;
       if (cat && isEmojiIcon(cat.icon)) return cat.icon;
-      return ICONS[iconKeyFor(it)] || ICONS.default;
+      return ICONS.default;
     }
 
     function moduleIconSvg(it) {
-      /* kept for chip/legacy call sites — now emoji text */
       return moduleIcon(it);
+    }
+
+    function applyModuleIcon(el, it) {
+      var raw = moduleIcon(it);
+      if (isSvgMarkup(raw)) {
+        el.classList.add('mod-ico-svg');
+        el.innerHTML = raw;
+      } else {
+        el.classList.remove('mod-ico-svg');
+        el.textContent = raw;
+      }
+    }
+
+    function tileShapeFor(it) {
+      var cat = catalogById(it && it.id);
+      var s = (it && it.shape) || (cat && cat.shape) || 'round';
+      if (s === 'poster' || s === 'tall' || s === 'wide' || s === 'soft') return s;
+      return 'round';
+    }
+
+    var deskMode = null; /* null | 'borrar' | 'renombrar' */
+
+    function setDeskMode(mode) {
+      if (mode && mode === deskMode) mode = null;
+      if (mode !== 'borrar' && mode !== 'renombrar') mode = null;
+      deskMode = mode;
+      document.body.classList.toggle('desk-mode-borrar', deskMode === 'borrar');
+      document.body.classList.toggle('desk-mode-renombrar', deskMode === 'renombrar');
+      var bb = document.getElementById('btn-mode-borrar');
+      var br = document.getElementById('btn-mode-renombrar');
+      if (bb) bb.setAttribute('aria-pressed', deskMode === 'borrar' ? 'true' : 'false');
+      if (br) br.setAttribute('aria-pressed', deskMode === 'renombrar' ? 'true' : 'false');
+      var hint = document.getElementById('desk-mode-hint');
+      if (hint) {
+        if (deskMode === 'borrar') {
+          hint.textContent = 'Toca una app para quitarla · otra vez Borrar para cancelar';
+        } else if (deskMode === 'renombrar') {
+          hint.textContent = 'Toca una app para renombrarla · otra vez Renombrar para cancelar';
+        } else {
+          hint.textContent = '';
+        }
+      }
+    }
+
+    function handleDeskItemMode(it) {
+      if (!it || !deskMode) return false;
+      if (deskMode === 'borrar') {
+        var label = it.titulo || it.id;
+        if (!confirm('¿Quitar «' + label + '» del escritorio?')) return true;
+        removeItem(it.id);
+        showToast('Quitado');
+        return true;
+      }
+      if (deskMode === 'renombrar') {
+        var next = prompt('Nuevo nombre:', it.titulo || '');
+        if (next === null) return true;
+        next = String(next).trim();
+        if (!next) {
+          showToast('Nombre vacío');
+          return true;
+        }
+        it.titulo = next;
+        saveState();
+        renderDesktop();
+        showToast('Renombrado');
+        return true;
+      }
+      return false;
     }
 
     var modBlobUrl = null;
@@ -1890,7 +2026,8 @@
 
     function buildLaunchTile(it) {
       var tile = document.createElement('div');
-      tile.className = 'launch-tile';
+      var shape = tileShapeFor(it);
+      tile.className = 'launch-tile' + (shape !== 'round' ? ' shape-' + shape : '');
       tile.dataset.id = it.id;
       tile.setAttribute('role', 'button');
       tile.tabIndex = 0;
@@ -1901,7 +2038,7 @@
       wrap.setAttribute('aria-hidden', 'true');
       var ico = document.createElement('span');
       ico.className = 'mod-ico';
-      ico.textContent = moduleIcon(it);
+      applyModuleIcon(ico, it);
       wrap.appendChild(ico);
       tile.appendChild(wrap);
 
@@ -1910,28 +2047,18 @@
       lab.textContent = it.titulo || it.id;
       tile.appendChild(lab);
 
-      var rm = document.createElement('button');
-      rm.type = 'button';
-      rm.className = 'rm';
-      rm.title = 'Quitar';
-      rm.setAttribute('aria-label', 'Quitar ' + (it.titulo || it.id));
-      rm.textContent = '✕';
-      rm.addEventListener('click', function (e) {
-        e.preventDefault();
-        e.stopPropagation();
-        removeItem(it.id);
-      });
-      tile.appendChild(rm);
-
-      function open() { openModule(it); }
+      function activate() {
+        if (handleDeskItemMode(it)) return;
+        openModule(it);
+      }
       tile.addEventListener('click', function (e) {
-        if (e.target.closest && e.target.closest('.rm')) return;
-        open();
+        e.preventDefault();
+        activate();
       });
       tile.addEventListener('keydown', function (e) {
         if (e.key === 'Enter' || e.key === ' ') {
           e.preventDefault();
-          open();
+          activate();
         }
       });
       return tile;
@@ -1941,21 +2068,26 @@
       var el = document.createElement('div');
       el.className = 'w-slot slot-' + slotKey + (slotKey === 'calendar' ? '' : ' chip-slim');
       el.dataset.id = it.id;
+      el.setAttribute('role', 'button');
+      el.tabIndex = 0;
+      el.setAttribute('aria-label', it.titulo || it.widget || 'Widget');
       var body = document.createElement('div');
       body.className = 'w-body';
       body.innerHTML = widgetHtml(it);
       el.appendChild(body);
-      var rm = document.createElement('button');
-      rm.type = 'button';
-      rm.className = 'rm';
-      rm.title = 'Quitar';
-      rm.textContent = '✕';
-      rm.addEventListener('click', function (e) {
+      el.addEventListener('click', function (e) {
+        if (!deskMode) return;
         e.preventDefault();
         e.stopPropagation();
-        removeItem(it.id);
+        handleDeskItemMode(it);
       });
-      el.appendChild(rm);
+      el.addEventListener('keydown', function (e) {
+        if (!deskMode) return;
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          handleDeskItemMode(it);
+        }
+      });
       return el;
     }
 
@@ -1963,6 +2095,9 @@
       var el = document.createElement('div');
       el.className = 'w-slot generic-slot' + (it.widget === 'hoja' ? ' hoja-slot' : '');
       el.dataset.id = it.id;
+      el.setAttribute('role', 'button');
+      el.tabIndex = 0;
+      el.setAttribute('aria-label', it.titulo || it.widget || 'Widget');
       var body = document.createElement('div');
       body.className = 'w-body';
       if (it.widget === 'hoja') {
@@ -1971,6 +2106,7 @@
         body.innerHTML = widgetHtml(it);
         if (it.widget === 'orientacion') {
           body.addEventListener('dblclick', function () {
+            if (deskMode) return;
             it.tipIndex = ((it.tipIndex || 0) + 1) % 3;
             saveState();
             renderDesktop();
@@ -1978,6 +2114,7 @@
         }
         if (it.widget === 'pastilla') {
           body.addEventListener('dblclick', function () {
+            if (deskMode) return;
             var v = prompt('Texto de próxima pastilla (hora / nombre):', it.pillText || '');
             if (v !== null) {
               it.pillText = v.trim() || 'Sin hora anotada.';
@@ -1988,18 +2125,19 @@
         }
       }
       el.appendChild(body);
-      var rm = document.createElement('button');
-      rm.type = 'button';
-      rm.className = 'rm';
-      rm.title = 'Quitar';
-      rm.textContent = '✕';
-      rm.addEventListener('click', function (e) {
+      el.addEventListener('click', function (e) {
+        if (!deskMode) return;
         e.preventDefault();
         e.stopPropagation();
-        if (it.widget === 'hoja') flushHojaCanvas(it);
-        removeItem(it.id);
+        handleDeskItemMode(it);
       });
-      el.appendChild(rm);
+      el.addEventListener('keydown', function (e) {
+        if (!deskMode) return;
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          handleDeskItemMode(it);
+        }
+      });
       return el;
     }
 
@@ -2302,7 +2440,7 @@
             var ico = document.createElement('span');
             ico.className = 'chip-ico';
             ico.setAttribute('aria-hidden', 'true');
-            ico.textContent = moduleIcon(mod);
+            applyModuleIcon(ico, mod);
             b.appendChild(ico);
             b.appendChild(document.createTextNode(mod.titulo));
             if (hasModule(mod.id)) {
@@ -2351,7 +2489,7 @@
       });
     }
 
-    var EST_BUILD = 'v20260924d';
+    var EST_BUILD = 'v20260924e';
 
     function layoutPanelSheet() {
       var tb = document.getElementById('desk-toolbar');
@@ -2555,9 +2693,27 @@
       });
       var btnFill = document.getElementById('btn-fill');
       if (btnFill) btnFill.addEventListener('click', fillDesktop);
+      var btnBorrar = document.getElementById('btn-mode-borrar');
+      if (btnBorrar) btnBorrar.addEventListener('click', function () { setDeskMode('borrar'); });
+      var btnRenombrar = document.getElementById('btn-mode-renombrar');
+      if (btnRenombrar) btnRenombrar.addEventListener('click', function () { setDeskMode('renombrar'); });
+      document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape' && deskMode) {
+          setDeskMode(null);
+        }
+      });
+      var deskEl = document.getElementById('desktop');
+      if (deskEl) {
+        deskEl.addEventListener('click', function (e) {
+          if (!deskMode) return;
+          if (e.target.closest && e.target.closest('.launch-tile, .w-slot')) return;
+          setDeskMode(null);
+        });
+      }
       document.getElementById('btn-clear').addEventListener('click', function () {
         if (!state.items.length) return;
         if (!confirm('¿Vaciar todo el escritorio?')) return;
+        setDeskMode(null);
         state.items.forEach(function (it) {
           if (String(it.id).indexOf('local:') === 0) idbDel(it.id).catch(function () {});
           if (it.widget === 'hoja') idbDel(sheetIdbKey(it.id)).catch(function () {});
