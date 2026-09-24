@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="referrer" content="strict-origin-when-cross-origin">
   <meta http-equiv="Content-Security-Policy" content="default-src 'self' blob: data:; base-uri 'self'; object-src 'none'; img-src 'self' data: blob:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; font-src 'self' data:; connect-src 'self'; form-action 'self'; media-src 'self' blob:; frame-src 'self' blob: data:">
-  <meta name="description" content="Escritorio / Estantería — lanzadera fija por temas. Iconos pequeños, sin ficha ni resize.">
+  <meta name="description" content="Escritorio / Estantería — baldas deslizables por temas, fondos y papelera. Sin ficha ni resize.">
   <meta name="theme-color" content="#14161A">
   <title>Escritorio / Estantería — Les vencimos</title>
   <style>
@@ -35,6 +35,7 @@
     --frame-rail: rgba(255,255,255,0.08);
     --ico-disk: rgba(255,255,255,0.07);
     --label-ink: #F2F0EA;
+    --brand-gold: #C4A15A;
   }
   body.theme-ambar {
     /* soft slate desk (kept key for saved state) */
@@ -346,7 +347,7 @@
         var(--shelf-face) 42%,
         var(--shelf-wood) 88%,
         color-mix(in srgb, var(--shelf-lip-mid) 35%, transparent) 100%);
-    min-height: 9.4rem;
+    min-height: 8.6rem;
     position: relative;
     margin: 0 0.05rem 0.2rem;
     border-radius: 3px 3px 2px 2px;
@@ -372,7 +373,13 @@
     pointer-events: none;
     z-index: 2;
   }
-  .shelf-row[data-shelf="agenda"] { min-height: 7.2rem; }
+  .shelf-row.shelf-no-ledge {
+    min-height: auto;
+    background: transparent;
+    padding: 0.35rem 0.4rem 0.55rem;
+    margin-bottom: 0.35rem;
+  }
+  .shelf-row.shelf-no-ledge::after { display: none !important; }
   .shelf-row:last-child { margin-bottom: 0.15rem; }
 
   .shelf-chip {
@@ -403,17 +410,34 @@
 
   .shelf-icons {
     display: flex;
-    flex-wrap: wrap;
+    flex-wrap: nowrap !important;
+    overflow-x: auto;
+    overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
+    scroll-snap-type: x proximity;
     gap: 0.65rem 0.85rem;
     align-items: flex-end;
-    padding: 0.15rem 0.2rem 0.55rem;
+    padding: 0.15rem 0.2rem 0.75rem;
     position: relative;
     z-index: 1;
+    scrollbar-width: thin;
+    scrollbar-color: color-mix(in srgb, var(--suave) 45%, transparent) transparent;
+    /* one line only — never wrap tiles to a 2nd row */
+    flex-direction: row;
+    white-space: nowrap;
   }
+  .shelf-icons::-webkit-scrollbar { height: 4px; }
+  .shelf-icons::-webkit-scrollbar-thumb {
+    background: color-mix(in srgb, var(--suave) 40%, transparent);
+    border-radius: 4px;
+  }
+  .shelf-icons::-webkit-scrollbar-track { background: transparent; }
   /* Module launch tile — fixed size, no resize / ficha / shape */
   .launch-tile {
     position: relative;
     width: 68px;
+    flex: 0 0 auto;
+    scroll-snap-align: start;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -425,7 +449,7 @@
     color: var(--tinta);
     cursor: pointer;
     -webkit-tap-highlight-color: transparent;
-    touch-action: manipulation;
+    touch-action: pan-x manipulation;
   }
   .launch-tile:focus-visible {
     outline: 2px solid var(--acento);
@@ -455,13 +479,59 @@
   .launch-tile .mod-ico-wrap {
     display: flex; align-items: center; justify-content: center;
     box-sizing: border-box;
-    width: 52px; height: 52px;
+    width: 54px; height: 54px;
     border-radius: 50%;
-    background: var(--ico-disk);
-    border: 1px solid color-mix(in srgb, var(--linea) 80%, transparent);
-    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    background:
+      linear-gradient(160deg,
+        color-mix(in srgb, var(--ico-disk) 55%, rgba(255,255,255,0.14)) 0%,
+        var(--ico-disk) 70%,
+        color-mix(in srgb, var(--ico-disk) 80%, #000) 100%);
+    border: 1.5px solid color-mix(in srgb, var(--linea) 65%, var(--brand-gold, #C4A15A) 22%);
+    box-shadow:
+      0 2px 10px rgba(0,0,0,0.28),
+      inset 0 1px 0 rgba(255,255,255,0.14),
+      inset 0 -1px 2px rgba(0,0,0,0.12);
     flex-shrink: 0;
     pointer-events: none;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  }
+  .launch-tile:hover .mod-ico-wrap,
+  .launch-tile:focus-visible .mod-ico-wrap {
+    border-color: var(--brand-gold, #C4A15A);
+    box-shadow:
+      0 0 0 2px color-mix(in srgb, var(--brand-gold, #C4A15A) 42%, transparent),
+      0 3px 12px rgba(0,0,0,0.3),
+      inset 0 1px 0 rgba(255,255,255,0.16);
+  }
+  .launch-tile.widget-tile .mod-ico-wrap { border-radius: 14px; }
+  .cal-expand {
+    margin: 0.35rem 0.2rem 0.5rem;
+    padding: 0.75rem 0.85rem;
+    background: color-mix(in srgb, var(--fondo-3) 92%, transparent);
+    border: 1px solid var(--linea);
+    border-radius: 12px;
+    max-width: 22rem;
+  }
+  .cal-expand .cal-expand-head {
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 0.5rem; margin-bottom: 0.4rem;
+  }
+  .cal-expand .cal-expand-head strong {
+    font-family: var(--serif); font-size: 1rem; color: var(--acento);
+  }
+  .cal-expand .cal-expand-close {
+    min-height: 36px; padding: 0.3rem 0.65rem;
+    background: var(--fondo-2); color: var(--tinta);
+    border: 1px solid var(--linea); border-radius: var(--radio);
+    font: 600 0.8rem var(--sans); cursor: pointer;
+  }
+  .widget-inline-panel {
+    margin: 0.25rem 0.2rem 0.4rem;
+    padding: 0.65rem 0.75rem;
+    background: color-mix(in srgb, var(--fondo-3) 90%, transparent);
+    border: 1px solid var(--linea);
+    border-radius: 12px;
+    max-width: 22rem;
   }
   .launch-tile .mod-ico {
     font-size: 1.55rem;
@@ -481,16 +551,16 @@
     display: block;
   }
   .launch-tile .mod-ico-label {
-    font-size: 0.72rem;
+    font-size: 0.8rem;
     font-weight: 700;
     color: var(--label-ink);
-    max-width: 68px;
+    max-width: 72px;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
     line-height: 1.2;
     text-align: center;
-    text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+    text-shadow: 0 1px 3px rgba(0,0,0,0.72), 0 0 1px rgba(0,0,0,0.9);
     pointer-events: none;
   }
   body.theme-papel .launch-tile .mod-ico-label,
@@ -997,10 +1067,10 @@
       </p>
         <h1>Escritorio / Estantería</h1>
         <p class="lead">
-          <strong>Baldas por tema</strong> — iconos sobre estantes visibles (raíles).
+          <strong>Baldas deslizables</strong> — desliza en cada estante para ver todos los módulos.
           Cambia el <strong>fondo</strong> (cuaderno, pizarra, corcho, mesa…).
           Hora y fecha siempre arriba a la derecha. <strong>Papelera</strong> ahí para quitar apps
-          (doble toque: elegir · confirmar). <strong>Renombrar</strong> en el menú.
+          (doble toque: elegir · confirmar). <strong>Disposición</strong> con presets (Completo, Casa, Estudio, Mínimo).
           Añade desde <strong>Widgets</strong> o <strong>Módulos</strong>.
           Oculta el menú para pantalla completa.
           <strong>Sin Radio ni red:</strong> este HTML no puede conectar a internet.
@@ -1024,7 +1094,15 @@
           <span class="spacer"></span>
           <button type="button" id="btn-shelves" title="Ya ordenado por temas" hidden>A estantes</button>
           <button type="button" id="btn-mode-renombrar" aria-pressed="false" title="Toca una app para renombrarla">Renombrar</button>
-          <button type="button" id="btn-fill" title="Vuelve a poner módulos quitados del catálogo">Restaurar todo</button>
+          <span class="lbl">Disposición</span>
+          <select id="preset-sel" class="theme-sel" aria-label="Disposición del escritorio" title="Disposición">
+            <option value="">Elegir…</option>
+            <option value="completo">Completo</option>
+            <option value="casa">Casa</option>
+            <option value="estudio">Estudio</option>
+            <option value="minimo">Mínimo</option>
+          </select>
+          <button type="button" id="btn-fill" title="Disposición Completo: todos los módulos del catálogo">Restaurar todo</button>
           <button type="button" id="btn-clear" title="Vaciar escritorio">Vaciar</button>
           <button type="button" id="btn-collapse-toolbar" title="Ocultar menú" aria-label="Ocultar menú">Ocultar menú</button>
         </div>
@@ -1047,7 +1125,7 @@
           <div id="wid-chips" class="chip-list"></div>
         </div>
         <p class="file-err" id="file-err" aria-live="polite"></p>
-        <p class="hint desk-hint">Baldas por tema · fondos (cuaderno / pizarra / corcho) · papelera (hora) arriba · Renombrar en menú · Widgets añade · Restaurar recupera. Mantén pulsado el escritorio vacío (menú oculto) para recuperar el menú.</p>
+        <p class="hint desk-hint">Baldas deslizables · fondos · papelera (hora) arriba · Disposición / Restaurar · Renombrar en menú · Widgets añade. Mantén pulsado el escritorio vacío (menú oculto) para recuperar el menú.</p>
       </div>
 
       <button type="button" id="btn-show-toolbar" class="menu-peek" aria-label="Mostrar menú" title="Mostrar menú" hidden>
@@ -1070,7 +1148,7 @@
       </div>
     </div>
 
-    <footer class="site-foot">lesvencimos.com · escritorio / estantería offline · <span id="est-build">v20260924g</span></footer>
+    <footer class="site-foot">lesvencimos.com · escritorio / estantería offline · <span id="est-build">v20260924h</span></footer>
   </div>
 
   <div id="mod-viewer" role="dialog" aria-modal="true" aria-labelledby="mod-viewer-title" hidden>
@@ -1095,51 +1173,58 @@
     /* Bundled modules are in EMBEDDED (injected by build). No sibling .html needed. */
     var EMBEDDED = {/*__EMBEDDED_MODULES__*/};
     var ICONS = {
-      'escritura': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20h4l10.5-10.5a2.1 2.1 0 0 0-3-3L5 17v3z"/><path d="M13.5 6.5l3 3"/></svg>',
-      'dibujo': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20l2.2-7.2L17.5 1.5a2.1 2.1 0 0 1 3 3L9.2 15.8 4 20z"/><path d="M14.5 4.5l3 3"/><path d="M4 20h4"/></svg>',
-      'guitarra': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8.5 15.5c-1.8 1.8-2.2 4-.8 5.4s3.6 1 5.4-.8c2.4-2.4 6.2-9.2 7.4-11.6.4-.8.2-1.8-.5-2.5s-1.7-.9-2.5-.5c-2.4 1.2-9.2 5-11.6 7.4z"/><path d="M14.2 5.8l4 4"/><circle cx="10.2" cy="13.8" r="1.2"/></svg>',
-      'meditacion': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3c1.2 2.2 2 4.2 2 6a2 2 0 1 1-4 0c0-1.8.8-3.8 2-6z"/><path d="M8 14c1.2-1 2.5-1.5 4-1.5s2.8.5 4 1.5"/><path d="M7 19c1.5-1.2 3.2-1.8 5-1.8s3.5.6 5 1.8"/></svg>',
-      'biblioteca': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5h5a2 2 0 0 1 2 2v12a2.5 2.5 0 0 0-2.5-2.5H4z"/><path d="M20 5h-5a2 2 0 0 0-2 2v12a2.5 2.5 0 0 1 2.5-2.5H20z"/></svg>',
-      'hogar': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 10h12v8a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2z"/><path d="M8 10V8a4 4 0 0 1 8 0v2"/><path d="M10 14h4"/></svg>',
-      'jardin': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21v-7"/><path d="M12 14c-3.5 0-6-2.2-6-5 3.5 0 6 2.2 6 5z"/><path d="M12 14c3.5 0 6-2.2 6-5-3.5 0-6 2.2-6 5z"/><path d="M12 11c-1.8-2.5-1.5-5.5 0-8 1.5 2.5 1.8 5.5 0 8z"/></svg>',
-      'bricolaje': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14.5 5.5a3.5 3.5 0 0 1 4 4L12 16l-3 1 1-3 6.5-8.5z"/><path d="M12 16l-5.5 5.5"/></svg>',
-      'electricidad': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M13 2L5 13h6l-1 9 8-11h-6z"/></svg>',
-      'supervivencia': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 19l9-14 9 14z"/><path d="M12 5v14"/><path d="M7.5 19h9"/></svg>',
-      'apagon': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 9h10v7a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2z"/><path d="M10 9V6a2 2 0 0 1 4 0v3"/><path d="M10 18v2"/><path d="M14 18v2"/></svg>',
-      'salud': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v16"/><path d="M4 12h16"/><rect x="3" y="3" width="18" height="18" rx="4"/></svg>',
-      'medicacion': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="8" y="3" width="8" height="18" rx="4" transform="rotate(45 12 12)"/><path d="M9.2 9.2l5.6 5.6"/></svg>',
-      'gimnasio': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9v6"/><path d="M18 9v6"/><path d="M4 10.5v3"/><path d="M20 10.5v3"/><path d="M6 12h12"/><path d="M9 10.5v3"/><path d="M15 10.5v3"/></svg>',
-      'auxilios': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 4h10v4h4v8h-4v4H7v-4H3V8h4z"/></svg>',
-      'informatica': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="12" rx="2"/><path d="M8 20h8"/><path d="M12 16v4"/></svg>',
-      'guias': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6.5l6-2.5v15l-6 2.5z"/><path d="M10 4l6 2.5v15l-6-2.5z"/><path d="M16 6.5l4-1.5v15l-4 1.5z"/></svg>',
-      'profesor': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 7l9-4 9 4-9 4z"/><path d="M7 10.5v5c0 1.5 2.2 3 5 3s5-1.5 5-3v-5"/><path d="M21 7v7"/></svg>',
-      'caja': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/><circle cx="12" cy="16" r="1.2"/></svg>',
-      'calculadora': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="2" width="14" height="20" rx="2"/><path d="M8 6h8"/><path d="M8 11h2"/><path d="M12 11h2"/><path d="M16 11h0.01"/><path d="M8 15h2"/><path d="M12 15h2"/><path d="M16 15h0.01"/><path d="M8 19h2"/><path d="M12 19h2"/></svg>',
-      'qr': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 4h6v6H4z"/><path d="M14 4h6v6h-6z"/><path d="M4 14h6v6H4z"/><path d="M14 14h2v2"/><path d="M18 14h2v2"/><path d="M14 18h2v2"/><path d="M18 18h2v2"/></svg>',
-      'default': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l8 4v10l-8 4-8-4V7z"/><path d="M12 7v14"/><path d="M4 7l8 4 8-4"/></svg>',
-      'file': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H7a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg>',
-      'radio': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="7" width="18" height="12" rx="2"/><circle cx="8" cy="13" r="2"/><path d="M13 11h5"/><path d="M13 15h3"/><path d="M7 7l8-4"/></svg>',
-      'alarma': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v2"/><path d="M6.5 8.5L5 7"/><path d="M17.5 8.5L19 7"/><circle cx="12" cy="14" r="6"/><path d="M12 12v3l2 1"/></svg>',
-      'central': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 11l8-7 8 7"/><path d="M6 10.5V20h12v-9.5"/><path d="M10 20v-5h4v5"/></svg>',
-      'package': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l8 4v10l-8 4-8-4V7z"/><path d="M12 7v14"/><path d="M4 7l8 4 8-4"/></svg>',
-      'local': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H7a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg>',
-      'guitar': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8.5 15.5c-1.8 1.8-2.2 4-.8 5.4s3.6 1 5.4-.8c2.4-2.4 6.2-9.2 7.4-11.6.4-.8.2-1.8-.5-2.5s-1.7-.9-2.5-.5c-2.4 1.2-9.2 5-11.6 7.4z"/><path d="M14.2 5.8l4 4"/><circle cx="10.2" cy="13.8" r="1.2"/></svg>',
-      'tinta-escritura': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20h4l10.5-10.5a2.1 2.1 0 0 0-3-3L5 17v3z"/><path d="M13.5 6.5l3 3"/></svg>',
-      'tinta-estudio': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20l2.2-7.2L17.5 1.5a2.1 2.1 0 0 1 3 3L9.2 15.8 4 20z"/><path d="M14.5 4.5l3 3"/><path d="M4 20h4"/></svg>',
-      'medita': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3c1.2 2.2 2 4.2 2 6a2 2 0 1 1-4 0c0-1.8.8-3.8 2-6z"/><path d="M8 14c1.2-1 2.5-1.5 4-1.5s2.8.5 4 1.5"/><path d="M7 19c1.5-1.2 3.2-1.8 5-1.8s3.5.6 5 1.8"/></svg>',
-      'biblio': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5h5a2 2 0 0 1 2 2v12a2.5 2.5 0 0 0-2.5-2.5H4z"/><path d="M20 5h-5a2 2 0 0 0-2 2v12a2.5 2.5 0 0 1 2.5-2.5H20z"/></svg>',
-      'brico': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14.5 5.5a3.5 3.5 0 0 1 4 4L12 16l-3 1 1-3 6.5-8.5z"/><path d="M12 16l-5.5 5.5"/></svg>',
-      'electro': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M13 2L5 13h6l-1 9 8-11h-6z"/></svg>',
-      'supervive': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 19l9-14 9 14z"/><path d="M12 5v14"/><path d="M7.5 19h9"/></svg>',
-      'medica': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="8" y="3" width="8" height="18" rx="4" transform="rotate(45 12 12)"/><path d="M9.2 9.2l5.6 5.6"/></svg>',
-      'gym': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9v6"/><path d="M18 9v6"/><path d="M4 10.5v3"/><path d="M20 10.5v3"/><path d="M6 12h12"/><path d="M9 10.5v3"/><path d="M15 10.5v3"/></svg>',
-      'primeros-auxilios': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 4h10v4h4v8h-4v4H7v-4H3V8h4z"/></svg>',
-      'info': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="12" rx="2"/><path d="M8 20h8"/><path d="M12 16v4"/></svg>',
-      'guias-viaje': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6.5l6-2.5v15l-6 2.5z"/><path d="M10 4l6 2.5v15l-6-2.5z"/><path d="M16 6.5l4-1.5v15l-4 1.5z"/></svg>',
-      'caja-fuerte': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/><circle cx="12" cy="16" r="1.2"/></svg>',
-      'calc': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="2" width="14" height="20" rx="2"/><path d="M8 6h8"/><path d="M8 11h2"/><path d="M12 11h2"/><path d="M16 11h0.01"/><path d="M8 15h2"/><path d="M12 15h2"/><path d="M16 15h0.01"/><path d="M8 19h2"/><path d="M12 19h2"/></svg>',
-      'alarma-cuba': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v2"/><path d="M6.5 8.5L5 7"/><path d="M17.5 8.5L19 7"/><circle cx="12" cy="14" r="6"/><path d="M12 12v3l2 1"/></svg>',
-      'central-cuba': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 11l8-7 8 7"/><path d="M6 10.5V20h12v-9.5"/><path d="M10 20v-5h4v5"/></svg>',
+      'escritura': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20h4l9.2-9.2a2 2 0 0 0-2.8-2.8L5.2 17.2V20z" fill="currentColor" fill-opacity="0.12"/><path d="M4 20h4l9.2-9.2a2 2 0 0 0-2.8-2.8L5.2 17.2V20z"/><path d="M13.2 7.2l2.8 2.8"/><path d="M16.5 4.5l2.2 2.2"/></svg>',
+      'dibujo': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="8.5" cy="9" r="3.2" fill="currentColor" fill-opacity="0.14"/><circle cx="14.5" cy="8" r="2.6" fill="currentColor" fill-opacity="0.1"/><circle cx="12" cy="13.5" r="3" fill="currentColor" fill-opacity="0.12"/><circle cx="8.5" cy="9" r="3.2"/><circle cx="14.5" cy="8" r="2.6"/><circle cx="12" cy="13.5" r="3"/><path d="M17.5 16.5l2.2 4.2-4.4-1.2 2.2-3z" fill="currentColor" fill-opacity="0.15"/><path d="M17.5 16.5l2.2 4.2-4.4-1.2 2.2-3z"/></svg>',
+      'guitarra': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 15.2c-1.7 1.7-2.1 3.8-.7 5.1s3.4.9 5.1-.8c2.2-2.2 5.8-8.6 7-10.9.4-.7.2-1.6-.4-2.2s-1.5-.8-2.2-.4c-2.3 1.2-8.7 4.8-10.9 7z" fill="currentColor" fill-opacity="0.12"/><path d="M9 15.2c-1.7 1.7-2.1 3.8-.7 5.1s3.4.9 5.1-.8c2.2-2.2 5.8-8.6 7-10.9.4-.7.2-1.6-.4-2.2s-1.5-.8-2.2-.4c-2.3 1.2-8.7 4.8-10.9 7z"/><path d="M14.4 5.6l4 4"/><circle cx="10.4" cy="14" r="1.35" fill="currentColor" fill-opacity="0.2"/><circle cx="10.4" cy="14" r="1.35"/><path d="M16.2 4.2l1.2-1.2"/></svg>',
+      'meditacion': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3c1.1 2 1.9 3.9 1.9 5.6a1.9 1.9 0 1 1-3.8 0c0-1.7.8-3.6 1.9-5.6z" fill="currentColor" fill-opacity="0.14"/><path d="M12 3c1.1 2 1.9 3.9 1.9 5.6a1.9 1.9 0 1 1-3.8 0c0-1.7.8-3.6 1.9-5.6z"/><path d="M8.2 14.2c1.1-.9 2.4-1.4 3.8-1.4s2.7.5 3.8 1.4"/><path d="M7 19c1.4-1.1 3-1.7 5-1.7s3.6.6 5 1.7"/></svg>',
+      'biblioteca': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5h5a2 2 0 0 1 2 2v12a2.4 2.4 0 0 0-2.4-2.4H4z" fill="currentColor" fill-opacity="0.12"/><path d="M20 5h-5a2 2 0 0 0-2 2v12a2.4 2.4 0 0 1 2.4-2.4H20z" fill="currentColor" fill-opacity="0.08"/><path d="M4 5h5a2 2 0 0 1 2 2v12a2.4 2.4 0 0 0-2.4-2.4H4z"/><path d="M20 5h-5a2 2 0 0 0-2 2v12a2.4 2.4 0 0 1 2.4-2.4H20z"/></svg>',
+      'hogar': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 11.2L12 4l8 7.2"/><path d="M6.5 10.5V20h11V10.5" fill="currentColor" fill-opacity="0.1"/><path d="M6.5 10.5V20h11V10.5"/><path d="M10 20v-5h4v5"/></svg>',
+      'jardin': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21v-7"/><path d="M12 14c-3.4 0-5.8-2.1-5.8-4.8 3.4 0 5.8 2.1 5.8 4.8z" fill="currentColor" fill-opacity="0.12"/><path d="M12 14c3.4 0 5.8-2.1 5.8-4.8-3.4 0-5.8 2.1-5.8 4.8z" fill="currentColor" fill-opacity="0.1"/><path d="M12 14c-3.4 0-5.8-2.1-5.8-4.8 3.4 0 5.8 2.1 5.8 4.8z"/><path d="M12 14c3.4 0 5.8-2.1 5.8-4.8-3.4 0-5.8 2.1-5.8 4.8z"/><path d="M12 11.2c-1.7-2.4-1.4-5.2 0-7.6 1.4 2.4 1.7 5.2 0 7.6z" fill="currentColor" fill-opacity="0.12"/><path d="M12 11.2c-1.7-2.4-1.4-5.2 0-7.6 1.4 2.4 1.7 5.2 0 7.6z"/></svg>',
+      'bricolaje': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14.6 5.4a3.4 3.4 0 0 1 3.9 3.9L12 16.2l-3 1 1-3 6.6-8.8z" fill="currentColor" fill-opacity="0.12"/><path d="M14.6 5.4a3.4 3.4 0 0 1 3.9 3.9L12 16.2l-3 1 1-3 6.6-8.8z"/><path d="M12 16.2L6.4 21.8"/></svg>',
+      'electricidad': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M13 2L4.8 13.2h6.2L9.8 22 19.2 10.8H13z" fill="currentColor" fill-opacity="0.14"/><path d="M13 2L4.8 13.2h6.2L9.8 22 19.2 10.8H13z"/></svg>',
+      'supervivencia': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3.5 19.2L12 4.5l8.5 14.7z" fill="currentColor" fill-opacity="0.1"/><path d="M3.5 19.2L12 4.5l8.5 14.7z"/><path d="M12 9v7"/><path d="M10.2 16h3.6"/></svg>',
+      'apagon': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 9h10v7a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2z" fill="currentColor" fill-opacity="0.1"/><path d="M7 9h10v7a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2z"/><path d="M10 9V6.2a2 2 0 0 1 4 0V9"/><path d="M10 18v2.2"/><path d="M14 18v2.2"/><path d="M4 4l16 16"/></svg>',
+      'salud': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="3.5" width="17" height="17" rx="4" fill="currentColor" fill-opacity="0.1"/><rect x="3.5" y="3.5" width="17" height="17" rx="4"/><path d="M12 7.5v9"/><path d="M7.5 12h9"/></svg>',
+      'medicacion': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="8" y="3.2" width="8" height="17.6" rx="4" transform="rotate(45 12 12)" fill="currentColor" fill-opacity="0.12"/><rect x="8" y="3.2" width="8" height="17.6" rx="4" transform="rotate(45 12 12)"/><path d="M9.3 9.3l5.4 5.4"/></svg>',
+      'gimnasio': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 8.8v6.4"/><path d="M18 8.8v6.4"/><path d="M3.8 10.4v3.2"/><path d="M20.2 10.4v3.2"/><path d="M6 12h12"/><path d="M9 10.2v3.6"/><path d="M15 10.2v3.6"/></svg>',
+      'auxilios': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 4h10v4h4v8h-4v4H7v-4H3V8h4z" fill="currentColor" fill-opacity="0.12"/><path d="M7 4h10v4h4v8h-4v4H7v-4H3V8h4z"/></svg>',
+      'informatica': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="12" rx="2" fill="currentColor" fill-opacity="0.1"/><rect x="3" y="4" width="18" height="12" rx="2"/><path d="M8 20h8"/><path d="M12 16v4"/></svg>',
+      'guias': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6.5l6-2.5v15l-6 2.5z" fill="currentColor" fill-opacity="0.12"/><path d="M10 4l6 2.5v15l-6-2.5z" fill="currentColor" fill-opacity="0.08"/><path d="M4 6.5l6-2.5v15l-6 2.5z"/><path d="M10 4l6 2.5v15l-6-2.5z"/><path d="M16 6.5l4-1.5v15l-4 1.5z"/></svg>',
+      'profesor': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 7.2l9-4 9 4-9 4z" fill="currentColor" fill-opacity="0.12"/><path d="M3 7.2l9-4 9 4-9 4z"/><path d="M7 10.8v5c0 1.5 2.2 3 5 3s5-1.5 5-3v-5"/><path d="M21 7.2v7"/></svg>',
+      'caja': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2" fill="currentColor" fill-opacity="0.12"/><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/><circle cx="12" cy="16" r="1.3" fill="currentColor" fill-opacity="0.25"/><circle cx="12" cy="16" r="1.3"/></svg>',
+      'calculadora': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="2" width="14" height="20" rx="2" fill="currentColor" fill-opacity="0.1"/><rect x="5" y="2" width="14" height="20" rx="2"/><path d="M8 6h8"/><path d="M8 11h2"/><path d="M12 11h2"/><path d="M16 11h0.01"/><path d="M8 15h2"/><path d="M12 15h2"/><path d="M16 15h0.01"/><path d="M8 19h2"/><path d="M12 19h2"/></svg>',
+      'qr': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 4h6v6H4z" fill="currentColor" fill-opacity="0.12"/><path d="M14 4h6v6h-6z" fill="currentColor" fill-opacity="0.1"/><path d="M4 14h6v6H4z" fill="currentColor" fill-opacity="0.1"/><path d="M4 4h6v6H4z"/><path d="M14 4h6v6h-6z"/><path d="M4 14h6v6H4z"/><path d="M14 14h2v2"/><path d="M18 14h2v2"/><path d="M14 18h2v2"/><path d="M18 18h2v2"/></svg>',
+      'default': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l8 4v10l-8 4-8-4V7z" fill="currentColor" fill-opacity="0.1"/><path d="M12 3l8 4v10l-8 4-8-4V7z"/><path d="M12 7v14"/><path d="M4 7l8 4 8-4"/></svg>',
+      'file': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H7a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z" fill="currentColor" fill-opacity="0.1"/><path d="M14 2H7a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg>',
+      'radio': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="7" width="18" height="12" rx="2" fill="currentColor" fill-opacity="0.1"/><rect x="3" y="7" width="18" height="12" rx="2"/><circle cx="8" cy="13" r="2"/><path d="M13 11h5"/><path d="M13 15h3"/><path d="M7 7l8-4"/></svg>',
+      'alarma': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="14" r="6" fill="currentColor" fill-opacity="0.1"/><path d="M12 5v2"/><path d="M6.5 8.5L5 7"/><path d="M17.5 8.5L19 7"/><circle cx="12" cy="14" r="6"/><path d="M12 12v3l2 1"/></svg>',
+      'central': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 11l8-7 8 7"/><path d="M6 10.5V20h12v-9.5" fill="currentColor" fill-opacity="0.1"/><path d="M6 10.5V20h12v-9.5"/><path d="M10 20v-5h4v5"/></svg>',
+      'package': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l8 4v10l-8 4-8-4V7z" fill="currentColor" fill-opacity="0.1"/><path d="M12 3l8 4v10l-8 4-8-4V7z"/><path d="M12 7v14"/><path d="M4 7l8 4 8-4"/></svg>',
+      'local': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H7a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z" fill="currentColor" fill-opacity="0.1"/><path d="M14 2H7a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg>',
+      'guitar': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 15.2c-1.7 1.7-2.1 3.8-.7 5.1s3.4.9 5.1-.8c2.2-2.2 5.8-8.6 7-10.9.4-.7.2-1.6-.4-2.2s-1.5-.8-2.2-.4c-2.3 1.2-8.7 4.8-10.9 7z" fill="currentColor" fill-opacity="0.12"/><path d="M9 15.2c-1.7 1.7-2.1 3.8-.7 5.1s3.4.9 5.1-.8c2.2-2.2 5.8-8.6 7-10.9.4-.7.2-1.6-.4-2.2s-1.5-.8-2.2-.4c-2.3 1.2-8.7 4.8-10.9 7z"/><path d="M14.4 5.6l4 4"/><circle cx="10.4" cy="14" r="1.35" fill="currentColor" fill-opacity="0.2"/><circle cx="10.4" cy="14" r="1.35"/><path d="M16.2 4.2l1.2-1.2"/></svg>',
+      'calendar': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15.5" rx="2.5" fill="currentColor" fill-opacity="0.1"/><rect x="3.5" y="5" width="17" height="15.5" rx="2.5"/><path d="M3.5 9.5h17"/><path d="M8 3.5v3"/><path d="M16 3.5v3"/><path d="M7.5 13h2"/><path d="M11 13h2"/><path d="M14.5 13h2"/><path d="M7.5 16.5h2"/><path d="M11 16.5h2"/></svg>',
+      'widget-clock': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="8" fill="currentColor" fill-opacity="0.1"/><circle cx="12" cy="12" r="8"/><path d="M12 8v4.5l3 1.5"/></svg>',
+      'widget-date': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15.5" rx="2.5" fill="currentColor" fill-opacity="0.1"/><rect x="3.5" y="5" width="17" height="15.5" rx="2.5"/><path d="M3.5 9.5h17"/><path d="M8 3.5v3"/><path d="M16 3.5v3"/><path d="M8 14h8"/></svg>',
+      'widget-dia': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="8" fill="currentColor" fill-opacity="0.1"/><circle cx="12" cy="12" r="8"/><path d="M8 12h8"/><path d="M12 8v8"/></svg>',
+      'hoja': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 3.5h7l4 4V20a1.5 1.5 0 0 1-1.5 1.5h-9.5A1.5 1.5 0 0 1 5.5 20V5A1.5 1.5 0 0 1 7 3.5z" fill="currentColor" fill-opacity="0.1"/><path d="M7 3.5h7l4 4V20a1.5 1.5 0 0 1-1.5 1.5h-9.5A1.5 1.5 0 0 1 5.5 20V5A1.5 1.5 0 0 1 7 3.5z"/><path d="M14 3.5V8h4"/><path d="M8.5 12h7"/><path d="M8.5 15.5h5"/></svg>',
+      'orientacion': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="8" fill="currentColor" fill-opacity="0.1"/><circle cx="12" cy="12" r="8"/><path d="M12 7l2.2 5.5H9.8z" fill="currentColor" fill-opacity="0.18"/><path d="M12 7l2.2 5.5H9.8z"/><circle cx="12" cy="14.5" r="1"/></svg>',
+      'pastilla': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="8" y="3.2" width="8" height="17.6" rx="4" transform="rotate(45 12 12)" fill="currentColor" fill-opacity="0.12"/><rect x="8" y="3.2" width="8" height="17.6" rx="4" transform="rotate(45 12 12)"/><path d="M9.3 9.3l5.4 5.4"/></svg>',
+      'tinta-escritura': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20h4l9.2-9.2a2 2 0 0 0-2.8-2.8L5.2 17.2V20z" fill="currentColor" fill-opacity="0.12"/><path d="M4 20h4l9.2-9.2a2 2 0 0 0-2.8-2.8L5.2 17.2V20z"/><path d="M13.2 7.2l2.8 2.8"/><path d="M16.5 4.5l2.2 2.2"/></svg>',
+      'tinta-estudio': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="8.5" cy="9" r="3.2" fill="currentColor" fill-opacity="0.14"/><circle cx="14.5" cy="8" r="2.6" fill="currentColor" fill-opacity="0.1"/><circle cx="12" cy="13.5" r="3" fill="currentColor" fill-opacity="0.12"/><circle cx="8.5" cy="9" r="3.2"/><circle cx="14.5" cy="8" r="2.6"/><circle cx="12" cy="13.5" r="3"/><path d="M17.5 16.5l2.2 4.2-4.4-1.2 2.2-3z" fill="currentColor" fill-opacity="0.15"/><path d="M17.5 16.5l2.2 4.2-4.4-1.2 2.2-3z"/></svg>',
+      'medita': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3c1.1 2 1.9 3.9 1.9 5.6a1.9 1.9 0 1 1-3.8 0c0-1.7.8-3.6 1.9-5.6z" fill="currentColor" fill-opacity="0.14"/><path d="M12 3c1.1 2 1.9 3.9 1.9 5.6a1.9 1.9 0 1 1-3.8 0c0-1.7.8-3.6 1.9-5.6z"/><path d="M8.2 14.2c1.1-.9 2.4-1.4 3.8-1.4s2.7.5 3.8 1.4"/><path d="M7 19c1.4-1.1 3-1.7 5-1.7s3.6.6 5 1.7"/></svg>',
+      'biblio': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5h5a2 2 0 0 1 2 2v12a2.4 2.4 0 0 0-2.4-2.4H4z" fill="currentColor" fill-opacity="0.12"/><path d="M20 5h-5a2 2 0 0 0-2 2v12a2.4 2.4 0 0 1 2.4-2.4H20z" fill="currentColor" fill-opacity="0.08"/><path d="M4 5h5a2 2 0 0 1 2 2v12a2.4 2.4 0 0 0-2.4-2.4H4z"/><path d="M20 5h-5a2 2 0 0 0-2 2v12a2.4 2.4 0 0 1 2.4-2.4H20z"/></svg>',
+      'brico': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14.6 5.4a3.4 3.4 0 0 1 3.9 3.9L12 16.2l-3 1 1-3 6.6-8.8z" fill="currentColor" fill-opacity="0.12"/><path d="M14.6 5.4a3.4 3.4 0 0 1 3.9 3.9L12 16.2l-3 1 1-3 6.6-8.8z"/><path d="M12 16.2L6.4 21.8"/></svg>',
+      'electro': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M13 2L4.8 13.2h6.2L9.8 22 19.2 10.8H13z" fill="currentColor" fill-opacity="0.14"/><path d="M13 2L4.8 13.2h6.2L9.8 22 19.2 10.8H13z"/></svg>',
+      'supervive': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3.5 19.2L12 4.5l8.5 14.7z" fill="currentColor" fill-opacity="0.1"/><path d="M3.5 19.2L12 4.5l8.5 14.7z"/><path d="M12 9v7"/><path d="M10.2 16h3.6"/></svg>',
+      'medica': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="8" y="3.2" width="8" height="17.6" rx="4" transform="rotate(45 12 12)" fill="currentColor" fill-opacity="0.12"/><rect x="8" y="3.2" width="8" height="17.6" rx="4" transform="rotate(45 12 12)"/><path d="M9.3 9.3l5.4 5.4"/></svg>',
+      'gym': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 8.8v6.4"/><path d="M18 8.8v6.4"/><path d="M3.8 10.4v3.2"/><path d="M20.2 10.4v3.2"/><path d="M6 12h12"/><path d="M9 10.2v3.6"/><path d="M15 10.2v3.6"/></svg>',
+      'primeros-auxilios': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 4h10v4h4v8h-4v4H7v-4H3V8h4z" fill="currentColor" fill-opacity="0.12"/><path d="M7 4h10v4h4v8h-4v4H7v-4H3V8h4z"/></svg>',
+      'info': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="12" rx="2" fill="currentColor" fill-opacity="0.1"/><rect x="3" y="4" width="18" height="12" rx="2"/><path d="M8 20h8"/><path d="M12 16v4"/></svg>',
+      'guias-viaje': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6.5l6-2.5v15l-6 2.5z" fill="currentColor" fill-opacity="0.12"/><path d="M10 4l6 2.5v15l-6-2.5z" fill="currentColor" fill-opacity="0.08"/><path d="M4 6.5l6-2.5v15l-6 2.5z"/><path d="M10 4l6 2.5v15l-6-2.5z"/><path d="M16 6.5l4-1.5v15l-4 1.5z"/></svg>',
+      'caja-fuerte': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2" fill="currentColor" fill-opacity="0.12"/><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/><circle cx="12" cy="16" r="1.3" fill="currentColor" fill-opacity="0.25"/><circle cx="12" cy="16" r="1.3"/></svg>',
+      'calc': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="2" width="14" height="20" rx="2" fill="currentColor" fill-opacity="0.1"/><rect x="5" y="2" width="14" height="20" rx="2"/><path d="M8 6h8"/><path d="M8 11h2"/><path d="M12 11h2"/><path d="M16 11h0.01"/><path d="M8 15h2"/><path d="M12 15h2"/><path d="M16 15h0.01"/><path d="M8 19h2"/><path d="M12 19h2"/></svg>',
+      'alarma-cuba': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="14" r="6" fill="currentColor" fill-opacity="0.1"/><path d="M12 5v2"/><path d="M6.5 8.5L5 7"/><path d="M17.5 8.5L19 7"/><circle cx="12" cy="14" r="6"/><path d="M12 12v3l2 1"/></svg>',
+      'central-cuba': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 11l8-7 8 7"/><path d="M6 10.5V20h12v-9.5" fill="currentColor" fill-opacity="0.1"/><path d="M6 10.5V20h12v-9.5"/><path d="M10 20v-5h4v5"/></svg>',
     };
 
 
@@ -1147,11 +1232,23 @@
     var SHELVES = [
       { id: 'escritura', label: 'Escritura' },
       { id: 'ocio', label: 'Ocio' },
-      { id: 'agenda', label: 'Agenda' },
       { id: 'casa', label: 'Casa / Hogar' },
       { id: 'salud', label: 'Salud' },
-      { id: 'varios', label: 'Varios' }
+      { id: 'varios', label: 'Varios' },
+      { id: 'sueltos', label: 'Widgets sueltos', noLedge: true }
     ];
+
+    var TALL_WIDGETS = ['clock', 'clock-large', 'date', 'dia', 'calendar'];
+
+    var PRESETS = {
+      completo: null,
+      casa: ['hogar', 'jardin', 'bricolaje', 'electricidad', 'supervivencia', 'apagon', 'salud', 'medicacion', 'primeros-auxilios'],
+      estudio: ['tinta-escritura', 'tinta-estudio', 'profesor', 'calculadora', 'informatica', 'biblioteca', 'qr'],
+      minimo: ['tinta-escritura', 'hogar', 'salud', 'calculadora', 'caja-fuerte']
+    };
+    var PRESET_LABELS = {
+      completo: 'Completo', casa: 'Casa', estudio: 'Estudio', minimo: 'Mínimo'
+    };
 
     /* shape: round (default disk) | poster | tall | wide | soft */
     var CATALOG = [
@@ -1180,11 +1277,11 @@
 
     var WIDGETS = [
       { id: 'w-hoja', widget: 'hoja', titulo: 'Hoja', w: 200, h: 200, shelf: 'escritura' },
-      { id: 'w-clock', widget: 'clock', titulo: 'Reloj', w: 200, h: 120, shelf: 'agenda' },
-      { id: 'w-clock-lg', widget: 'clock-large', titulo: 'Reloj grande', w: 280, h: 160, shelf: 'agenda' },
-      { id: 'w-date', widget: 'date', titulo: 'Fecha', w: 220, h: 100, shelf: 'agenda' },
-      { id: 'w-dia', widget: 'dia', titulo: '¿Qué día es?', w: 260, h: 140, shelf: 'agenda' },
-      { id: 'w-cal', widget: 'calendar', titulo: 'Calendario', w: 260, h: 240, shelf: 'agenda' },
+      { id: 'w-clock', widget: 'clock', titulo: 'Reloj', w: 200, h: 120, shelf: 'sueltos' },
+      { id: 'w-clock-lg', widget: 'clock-large', titulo: 'Reloj grande', w: 280, h: 160, shelf: 'sueltos' },
+      { id: 'w-date', widget: 'date', titulo: 'Fecha', w: 220, h: 100, shelf: 'sueltos' },
+      { id: 'w-dia', widget: 'dia', titulo: '¿Qué día es?', w: 260, h: 140, shelf: 'sueltos' },
+      { id: 'w-cal', widget: 'calendar', titulo: 'Calendario', w: 260, h: 240, shelf: 'sueltos' },
       { id: 'w-ori', widget: 'orientacion', titulo: 'Orientación', w: 260, h: 140, shelf: 'varios' },
       { id: 'w-pill', widget: 'pastilla', titulo: 'Próxima pastilla', w: 240, h: 130, shelf: 'salud' }
     ];
@@ -1327,11 +1424,19 @@
       return null;
     }
 
+    function isTallWidget(widget) {
+      return TALL_WIDGETS.indexOf(widget) >= 0;
+    }
+
     function defaultShelfFor(it) {
       if (!it) return 'varios';
       /* migrate old shelf ids */
-      var legacy = { cultura: 'varios', educacion: 'varios', utilidades: 'varios' };
+      var legacy = { cultura: 'varios', educacion: 'varios', utilidades: 'varios', agenda: 'sueltos' };
       if (it.shelf && legacy[it.shelf]) it.shelf = legacy[it.shelf];
+      if (it.type === 'widget' && isTallWidget(it.widget)) {
+        it.shelf = 'sueltos';
+        return 'sueltos';
+      }
       if (it.shelf && shelfById(it.shelf)) return it.shelf;
       if (it.type === 'widget') {
         for (var w = 0; w < WIDGETS.length; w++) {
@@ -1340,7 +1445,7 @@
         if (it.widget === 'hoja') return 'escritura';
         if (it.widget === 'pastilla') return 'salud';
         if (it.widget === 'orientacion') return 'varios';
-        return 'agenda';
+        return 'sueltos';
       }
       var cat = catalogById(it.id);
       if (cat && cat.shelf) return cat.shelf;
@@ -1447,19 +1552,54 @@
         });
         added++;
       });
-      /* Hora/fecha van fijas en #desk-status; no forzar reloj/fecha/calendario en Agenda.
-         Calendario y otros widgets siguen disponibles en el panel Widgets. */
+      /* Hora/fecha van fijas en #desk-status; no forzar widgets altos en baldas. */
       arrangeToShelves();
       if (!quiet) {
         showToast(added
-          ? ('Restaurado · +' + added + ' · papelera quita lo que no quieras')
-          : 'Ya completo · ordenado por temas');
+          ? ('Completo · +' + added + ' · papelera quita lo que no quieras')
+          : 'Ya completo · baldas deslizables');
       }
       renderChips();
     }
 
     function seedFullDesktop() {
       fillDesktop(true);
+    }
+
+    function applyPreset(key) {
+      if (!key || !PRESET_LABELS[key]) return;
+      var locals = state.items.filter(function (it) { return it.kind === 'local'; });
+      state.items = locals.slice();
+      if (key === 'completo' || !PRESETS[key]) {
+        fillDesktop(true);
+        showToast('Disposición · Completo');
+      } else {
+        PRESETS[key].forEach(function (id) {
+          var mod = catalogById(id);
+          if (mod && !hasModule(mod.id)) {
+            state.items.push({
+              id: mod.id,
+              type: 'module',
+              kind: 'catalog',
+              titulo: mod.titulo,
+              icon: mod.icon || '',
+              href: '',
+              embed: mod.embed || null,
+              external: mod.external || null,
+              blurb: mod.blurb || '',
+              shelf: mod.shelf || 'varios',
+              view: 'icon',
+              z: ++Z,
+              addedAt: new Date().toISOString()
+            });
+          }
+        });
+        arrangeToShelves();
+        showToast('Disposición · ' + PRESET_LABELS[key]);
+      }
+      renderChips();
+      var sel = document.getElementById('preset-sel');
+      if (sel) sel.value = '';
     }
 
     function diasSemana() {
@@ -2222,6 +2362,19 @@
       return it.type === 'widget' && it.widget !== 'hoja';
     }
 
+    function widgetIconKey(widget) {
+      if (widget === 'calendar') return 'calendar';
+      if (widget === 'clock' || widget === 'clock-large') return 'widget-clock';
+      if (widget === 'date') return 'widget-date';
+      if (widget === 'dia') return 'widget-dia';
+      if (widget === 'hoja') return 'hoja';
+      if (widget === 'orientacion') return 'orientacion';
+      if (widget === 'pastilla') return 'pastilla';
+      return 'default';
+    }
+
+    var expandedWidgetId = null;
+
     function renderDesktop() {
       var desk = document.getElementById('desktop');
       if (!desk) return;
@@ -2229,15 +2382,17 @@
       desk.classList.toggle('has-items', state.items.length > 0);
       var empty = desk.querySelector('.desktop-empty');
       var rails = document.getElementById('shelf-rails');
-      /* clear previous rows/tiles (keep rails + empty placeholders) */
-      desk.querySelectorAll('.shelf-row, .desk-item, .launch-tile').forEach(function (n) { n.remove(); });
+      desk.querySelectorAll('.shelf-row, .desk-item, .launch-tile, .cal-expand, .widget-inline-panel').forEach(function (n) { n.remove(); });
       if (rails) rails.innerHTML = '';
 
       var byShelf = groupItemsByShelf();
 
       SHELVES.forEach(function (sh) {
+        var items = byShelf[sh.id] || [];
+        if (sh.noLedge && !items.length) return;
+
         var row = document.createElement('section');
-        row.className = 'shelf-row';
+        row.className = 'shelf-row' + (sh.noLedge ? ' shelf-no-ledge' : '');
         row.dataset.shelf = sh.id;
 
         var chip = document.createElement('span');
@@ -2248,37 +2403,25 @@
         var icons = document.createElement('div');
         icons.className = 'shelf-icons';
 
-        var widgetsWrap = document.createElement('div');
-        widgetsWrap.className = 'shelf-widgets' + (sh.id === 'agenda' ? ' agenda-slots' : '');
-
-        var items = byShelf[sh.id] || [];
-        var agendaPlaced = { clock: 0, date: 0, calendar: 0 };
-
         items.forEach(function (it) {
           if (it.type === 'widget') {
-            if (sh.id === 'agenda') {
-              var slotKey = agendaSlotFor(it.widget);
-              if (slotKey && !agendaPlaced[slotKey]) {
-                widgetsWrap.appendChild(buildAgendaSlot(it, slotKey));
-                agendaPlaced[slotKey] = 1;
-              } else if (!slotKey) {
-                widgetsWrap.appendChild(buildGenericWidgetSlot(it));
-              }
-              /* duplicate agenda widgets ignored in UI */
-              return;
-            }
-            widgetsWrap.appendChild(buildGenericWidgetSlot(it));
-            return;
+            icons.appendChild(buildWidgetTile(it));
+          } else {
+            icons.appendChild(buildLaunchTile(it));
           }
-          icons.appendChild(buildLaunchTile(it));
         });
 
         row.appendChild(icons);
-        if (widgetsWrap.childNodes.length) row.appendChild(widgetsWrap);
-        else if (sh.id === 'agenda') {
-          /* keep structure for reserved slots (hidden when empty via CSS) */
-          row.appendChild(widgetsWrap);
+
+        /* Expanded widget panel under this row — row gets shelf-no-ledge while open so ledge never cuts */
+        if (expandedWidgetId) {
+          var ex = findItem(expandedWidgetId);
+          if (ex && ex.type === 'widget' && defaultShelfFor(ex) === sh.id) {
+            row.classList.add('shelf-no-ledge');
+            row.appendChild(buildExpandedWidgetPanel(ex));
+          }
         }
+
         desk.appendChild(row);
       });
 
@@ -2290,6 +2433,9 @@
       if (pendingBorrarId) markPendingBorrar(pendingBorrarId);
       renderChips();
       tickClocks();
+      requestAnimationFrame(function () {
+        requestAnimationFrame(startShelfDrift);
+      });
     }
 
     function buildLaunchTile(it) {
@@ -2330,6 +2476,192 @@
         }
       });
       return tile;
+    }
+
+    function buildWidgetTile(it) {
+      var tile = document.createElement('div');
+      tile.className = 'launch-tile widget-tile';
+      tile.dataset.id = it.id;
+      tile.setAttribute('role', 'button');
+      tile.tabIndex = 0;
+      tile.setAttribute('aria-label', it.titulo || it.widget || 'Widget');
+
+      var wrap = document.createElement('span');
+      wrap.className = 'mod-ico-wrap';
+      wrap.setAttribute('aria-hidden', 'true');
+      var ico = document.createElement('span');
+      ico.className = 'mod-ico';
+      var key = widgetIconKey(it.widget);
+      if (ICONS[key]) {
+        ico.classList.add('mod-ico-svg');
+        ico.innerHTML = ICONS[key];
+      } else {
+        ico.textContent = '◇';
+      }
+      wrap.appendChild(ico);
+      tile.appendChild(wrap);
+
+      var lab = document.createElement('span');
+      lab.className = 'mod-ico-label';
+      lab.textContent = it.titulo || it.widget || 'Widget';
+      tile.appendChild(lab);
+
+      function activate() {
+        if (handleDeskItemMode(it)) return;
+        if (it.widget === 'hoja') {
+          it.sheetOpen = !it.sheetOpen;
+          saveState();
+          /* hoja expands in inline panel under sueltos/escritura row */
+          expandedWidgetId = it.sheetOpen ? it.id : null;
+          renderDesktop();
+          return;
+        }
+        if (expandedWidgetId === it.id) {
+          expandedWidgetId = null;
+        } else {
+          expandedWidgetId = it.id;
+        }
+        renderDesktop();
+      }
+      tile.addEventListener('click', function (e) {
+        e.preventDefault();
+        activate();
+      });
+      tile.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          activate();
+        }
+      });
+      return tile;
+    }
+
+    function buildExpandedWidgetPanel(it) {
+      var panel = document.createElement('div');
+      if (it.widget === 'calendar') {
+        panel.className = 'cal-expand';
+        var head = document.createElement('div');
+        head.className = 'cal-expand-head';
+        var title = document.createElement('strong');
+        title.textContent = it.titulo || 'Calendario';
+        head.appendChild(title);
+        var closeB = document.createElement('button');
+        closeB.type = 'button';
+        closeB.className = 'cal-expand-close';
+        closeB.textContent = 'Cerrar';
+        closeB.addEventListener('click', function () {
+          expandedWidgetId = null;
+          renderDesktop();
+        });
+        head.appendChild(closeB);
+        panel.appendChild(head);
+        var body = document.createElement('div');
+        body.innerHTML = widgetHtml(it);
+        panel.appendChild(body);
+        return panel;
+      }
+      panel.className = 'widget-inline-panel';
+      panel.dataset.id = it.id;
+      if (it.widget === 'hoja') {
+        var bodyH = document.createElement('div');
+        bodyH.className = 'w-body';
+        var slot = document.createElement('div');
+        slot.className = 'w-slot hoja-slot';
+        buildHojaBody(it, bodyH, slot);
+        slot.appendChild(bodyH);
+        panel.appendChild(slot);
+        return panel;
+      }
+      var body = document.createElement('div');
+      body.className = 'w-body';
+      body.innerHTML = widgetHtml(it);
+      if (it.widget === 'orientacion') {
+        body.addEventListener('dblclick', function () {
+          if (deskMode) return;
+          it.tipIndex = ((it.tipIndex || 0) + 1) % 3;
+          saveState();
+          renderDesktop();
+        });
+      }
+      if (it.widget === 'pastilla') {
+        body.addEventListener('dblclick', function () {
+          if (deskMode) return;
+          var v = prompt('Texto de próxima pastilla (hora / nombre):', it.pillText || '');
+          if (v !== null) {
+            it.pillText = v.trim() || 'Sin hora anotada.';
+            saveState();
+            renderDesktop();
+          }
+        });
+      }
+      var head2 = document.createElement('div');
+      head2.className = 'cal-expand-head';
+      var t2 = document.createElement('strong');
+      t2.textContent = it.titulo || it.widget;
+      head2.appendChild(t2);
+      var c2 = document.createElement('button');
+      c2.type = 'button';
+      c2.className = 'cal-expand-close';
+      c2.textContent = 'Cerrar';
+      c2.addEventListener('click', function () {
+        expandedWidgetId = null;
+        if (it.widget === 'hoja') it.sheetOpen = false;
+        renderDesktop();
+      });
+      head2.appendChild(c2);
+      panel.appendChild(head2);
+      panel.appendChild(body);
+      return panel;
+    }
+
+    /* Gentle auto-scroll parade on overflowing shelf rails */
+    var shelfDriftRafs = [];
+    function stopShelfDrift() {
+      shelfDriftRafs.forEach(function (id) {
+        try { cancelAnimationFrame(id); } catch (e) {}
+      });
+      shelfDriftRafs = [];
+      document.querySelectorAll('.shelf-icons').forEach(function (el) {
+        if (el._driftRaf) {
+          try { cancelAnimationFrame(el._driftRaf); } catch (e) {}
+          el._driftRaf = 0;
+        }
+      });
+    }
+    function startShelfDrift() {
+      stopShelfDrift();
+      var reduce = false;
+      try {
+        reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      } catch (e) {}
+      if (reduce) return;
+      document.querySelectorAll('.shelf-icons').forEach(function (el) {
+        if (el.scrollWidth <= el.clientWidth + 6) return;
+        var dir = 1;
+        var pausedUntil = 0;
+        var last = performance.now();
+        var speed = 12; /* px/s — soft parade */
+        function pause() {
+          pausedUntil = performance.now() + 3200;
+        }
+        el.addEventListener('pointerdown', pause, { passive: true });
+        el.addEventListener('touchstart', pause, { passive: true });
+        el.addEventListener('wheel', pause, { passive: true });
+        function tick(now) {
+          if (!el.isConnected) { el._driftRaf = 0; return; }
+          var dt = Math.min(48, now - last);
+          last = now;
+          if (now >= pausedUntil) {
+            el.scrollLeft += dir * speed * (dt / 1000);
+            var max = el.scrollWidth - el.clientWidth;
+            if (el.scrollLeft >= max - 0.5) dir = -1;
+            if (el.scrollLeft <= 0.5) dir = 1;
+          }
+          el._driftRaf = requestAnimationFrame(tick);
+        }
+        el._driftRaf = requestAnimationFrame(tick);
+        shelfDriftRafs.push(el._driftRaf);
+      });
     }
 
     function buildAgendaSlot(it, slotKey) {
@@ -2622,15 +2954,17 @@
     }
 
     function addWidget(def) {
-      var shelf = def.shelf || 'agenda';
-      var slotKey = agendaSlotFor(def.widget);
-      if (slotKey && findAgendaWidget(slotKey)) {
-        showToast('Ese hueco de Agenda ya está ocupado');
+      var shelf = def.shelf || 'sueltos';
+      /* Hora/fecha ya viven en #desk-status — no duplicar abajo */
+      if (def.widget === 'clock' || def.widget === 'clock-large' || def.widget === 'date') {
+        showToast('Hora y fecha ya están arriba a la derecha');
         return;
       }
-      if (!slotKey && def.widget !== 'hoja' && def.widget !== 'pastilla' && def.widget !== 'orientacion') {
-        /* allow multiples for non-agenda only when not a fixed slot */
+      if (hasWidgetType(def.widget) && def.widget !== 'hoja') {
+        showToast('Ya tienes ese widget');
+        return;
       }
+      if (isTallWidget(def.widget)) shelf = 'sueltos';
       var id = def.widget + '-' + Date.now().toString(36);
       var item = {
         id: id,
@@ -2732,6 +3066,8 @@
       var wc = document.getElementById('wid-chips');
       if (wc && !wc.dataset.ready) {
         WIDGETS.forEach(function (def) {
+          /* Hora/fecha ya en #desk-status — no ofrecer duplicados */
+          if (def.widget === 'clock' || def.widget === 'clock-large' || def.widget === 'date') return;
           var b = document.createElement('button');
           b.type = 'button';
           b.textContent = def.titulo;
@@ -2771,7 +3107,7 @@
       });
     }
 
-    var EST_BUILD = 'v20260924g';
+    var EST_BUILD = 'v20260924h';
 
     function layoutPanelSheet() {
       var tb = document.getElementById('desk-toolbar');
@@ -2866,8 +3202,9 @@
 
     function migrateItem(it) {
       if (it.z && it.z > Z) Z = it.z;
-      var legacy = { cultura: 'varios', educacion: 'varios', utilidades: 'varios' };
+      var legacy = { cultura: 'varios', educacion: 'varios', utilidades: 'varios', agenda: 'sueltos' };
       if (it.shelf && legacy[it.shelf]) it.shelf = legacy[it.shelf];
+      if (it.type === 'widget' && isTallWidget(it.widget)) it.shelf = 'sueltos';
       if (!it.shelf) it.shelf = defaultShelfFor(it);
       var cat = catalogById(it.id);
       if (cat) {
@@ -2883,6 +3220,16 @@
         it.view = 'icon';
         delete it.shape;
       }
+    }
+
+    function stripDuplicateTimeWidgets() {
+      /* #desk-status already shows hora/fecha — drop shelf copies */
+      var before = state.items.length;
+      state.items = state.items.filter(function (it) {
+        if (it.type !== 'widget') return true;
+        return it.widget !== 'clock' && it.widget !== 'clock-large' && it.widget !== 'date';
+      });
+      return before !== state.items.length;
     }
 
     function bindDesktopLongPress() {
@@ -2936,10 +3283,11 @@
       })();
       state = loadState();
       state.items.forEach(migrateItem);
+      var stripped = stripDuplicateTimeWidgets();
       if (typeof state.layoutRev !== 'number') state.layoutRev = 0;
       state.version = Math.max(4, state.version || 0);
       var needSeed = !state.items.length;
-      var needRearrange = !needSeed && state.layoutRev < 3;
+      var needRearrange = !needSeed && (state.layoutRev < 4 || stripped);
       applyTheme(state.theme || 'azul');
       applyToolbarCollapsed();
 
@@ -2974,7 +3322,13 @@
         showToast('Ya ordenado por temas');
       });
       var btnFill = document.getElementById('btn-fill');
-      if (btnFill) btnFill.addEventListener('click', fillDesktop);
+      if (btnFill) btnFill.addEventListener('click', function () { applyPreset('completo'); });
+      var presetSel = document.getElementById('preset-sel');
+      if (presetSel) presetSel.addEventListener('change', function () {
+        var v = presetSel.value;
+        if (!v) return;
+        applyPreset(v);
+      });
       var btnTrash = document.getElementById('btn-trash');
       if (btnTrash) btnTrash.addEventListener('click', function (e) {
         e.preventDefault();
@@ -3029,12 +3383,12 @@
       bindDesktopLongPress();
       if (needSeed) {
         seedFullDesktop();
-        state.layoutRev = 3;
+        state.layoutRev = 4;
         state.version = 4;
         saveState();
       } else if (needRearrange) {
         arrangeToShelves();
-        state.layoutRev = 3;
+        state.layoutRev = 4;
         state.version = 4;
         saveState();
       } else {

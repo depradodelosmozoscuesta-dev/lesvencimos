@@ -97,7 +97,7 @@ def inject_embedded(shell: str, embedded: dict[str, str]) -> str:
 def write_leeme() -> str:
     return """═══════════════════════════════════════
   ESCRITORIO / ESTANTERÍA — Les vencimos
-  Build v20260924g
+  Build v20260924h
   UN SOLO HTML (módulos dentro)
 ═══════════════════════════════════════
 
@@ -106,15 +106,15 @@ Este ZIP lleva esencialmente UN archivo:
   estanteria.html
   LEEME.txt
 
-Lanzadera fija por temas (Escritura, Ocio, Agenda,
-Casa/Hogar, Salud, Varios). Filas altas; iconos SVG
-con formas distintas (p.ej. Gimnasio cartel, Jardín
-alto). Hora y fecha fijas arriba a la derecha;
-papelera ahí (elige app · otra vez para confirmar).
-Renombrar en el menú. Calendario opcional en Widgets.
-Sin ficha libre ni redimensionar a mano.
-Al abrir ya viene llena. Restaurar todo recupera
-módulos quitados. Sin Radio ni Alarma Cuba.
+Baldas deslizables por tema (Escritura, Ocio,
+Casa/Hogar, Salud, Varios): una sola línea,
+desliza en horizontal. Iconos SVG más densos.
+Hora y fecha fijas arriba a la derecha; papelera
+ahí (elige app · otra vez para confirmar).
+Disposición: Completo / Casa / Estudio / Mínimo.
+Calendario opcional como mosaico (sin cortar la
+balda). Sin ficha libre ni redimensionar a mano.
+Al abrir ya viene llena. Sin Radio ni Alarma Cuba.
 
 Los módulos (Hogar, Salud, QR, Electricidad,
 Bricolaje, Jardín, Resiliencia, Apagón, Calculadora,
