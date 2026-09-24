@@ -100,6 +100,15 @@
   button{appearance:none;border:none;border-radius:999px;padding:0.55rem 1rem;font-weight:600;cursor:pointer;background:var(--blue);color:#fff;margin-right:0.4rem;margin-top:0.4rem}
   button.secondary{background:#fff;color:var(--blue-d);border:1px solid var(--blue)}
   .hint{font-size:0.9rem;color:var(--muted);margin:0.4rem 0 0}
+
+  .maestro-flash{animation:maestroFlash 1.4s ease}
+  @keyframes maestroFlash{
+    0%,100%{box-shadow:none}
+    20%,60%{box-shadow:0 0 0 4px rgba(37,99,235,0.55)}
+  }
+  .card.maestro-flash .line.hi,.card.maestro-flash .verdict{
+    outline:2px solid #2563eb;outline-offset:2px
+  }
 </style>
 </head>
 <body>
@@ -422,8 +431,49 @@
     render(want); // estado final: dentro los que caben, fuera en rojo los que no
   };
 
+
+  /* Modo maestro — postMessage API (no rompe controles existentes) */
+  function setPreview(vals){
+    if(!vals || typeof vals !== 'object') return;
+    if(vals.cap != null) cap.value = vals.cap;
+    if(vals.hay != null) hay.value = vals.hay;
+    if(vals.grupos != null) grupos.value = vals.grupos;
+    if(vals.tam != null) tam.value = vals.tam;
+    clampHay();
+    animating=false;
+    render(0);
+  }
+  function highlightPanel(){
+    const panel = document.getElementById('verdict') && document.getElementById('verdict').closest('.card');
+    if(!panel) return;
+    panel.classList.remove('maestro-flash');
+    void panel.offsetWidth;
+    panel.classList.add('maestro-flash');
+    window.setTimeout(function(){ panel.classList.remove('maestro-flash'); }, 1500);
+  }
+  window.addEventListener('message', function(ev){
+    const data = ev && ev.data;
+    if(!data || typeof data !== 'object') return;
+    const t = data.type;
+    if(t === 'maestro:reset'){
+      document.getElementById('reset').click();
+    } else if(t === 'maestro:highlight'){
+      highlightPanel();
+    } else if(t === 'maestro:setPreview'){
+      setPreview(data);
+    } else if(t === 'maestro:anim'){
+      if(!animating) document.getElementById('anim').click();
+    }
+  });
+  try {
+    if(window.parent && window.parent !== window){
+      window.parent.postMessage({ type: 'maestro:ready', widget: 'l01-autobus-plazas' }, '*');
+    }
+  } catch (e) { /* ignore */ }
+
   render(0);
 })();
+
 </script>
 </body>
 </html>

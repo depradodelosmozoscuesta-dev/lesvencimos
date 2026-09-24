@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Demo · Modo maestro · Mate L01 · Les vencimos</title>
+<style>
+  :root { --ink:#0f172a; --muted:#64748b; --line:#e2e8f0; --blue:#2563eb; --bg:#f8fafc; }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    background: var(--bg); color: var(--ink); line-height: 1.45;
+  }
+  header, .panel { max-width: 960px; margin: 0 auto; padding: 1rem 1.25rem; }
+  h1 { font-size: 1.35rem; margin: 0 0 0.35rem; }
+  .sub { color: var(--muted); margin: 0 0 1rem; }
+  .toggle {
+    display: inline-flex; border: 1px solid var(--line); border-radius: 999px;
+    overflow: hidden; margin-bottom: 0.75rem; background: #fff;
+  }
+  .toggle button {
+    appearance: none; border: 0; background: transparent; padding: 0.45rem 0.9rem;
+    font-weight: 600; cursor: pointer; color: var(--muted);
+  }
+  .toggle button.is-on { background: var(--blue); color: #fff; }
+  .norms {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 0.5rem; margin: 0.75rem 0 1rem;
+  }
+  .norms li {
+    list-style: none; background: #fff; border: 1px solid var(--line);
+    border-radius: 10px; padding: 0.5rem 0.65rem; font-size: 0.82rem;
+  }
+  .norms { padding: 0; margin-left: 0; }
+  .actions { display: flex; flex-wrap: wrap; gap: 0.4rem; margin: 0.5rem 0 1rem; }
+  .actions a, .actions button {
+    appearance: none; border: none; border-radius: 999px; padding: 0.5rem 0.95rem;
+    font-weight: 600; cursor: pointer; text-decoration: none; display: inline-block;
+    background: var(--blue); color: #fff; font-size: 0.9rem;
+  }
+  .actions a.secondary, .actions button.secondary {
+    background: #fff; color: var(--blue); border: 1px solid var(--blue);
+  }
+  .hint { font-size: 0.88rem; color: var(--muted); }
+  .frame-wrap {
+    border: 1px solid var(--line); border-radius: 14px; overflow: hidden;
+    background: #fff; min-height: 70vh;
+  }
+  iframe { width: 100%; height: 78vh; border: 0; display: block; background: #fff; }
+  .hidden { display: none !important; }
+  #preguntar-panel {
+    background: #fff; border: 1px solid var(--line); border-radius: 14px;
+    padding: 1rem; margin-top: 0.5rem;
+  }
+</style>
+</head>
+<body>
+<header>
+  <h1>Voz aparte · piloto Modo maestro (Mate L01)</h1>
+  <p class="sub">Offline · sin CDN · el guion real vive en la lección. Esta página solo enlaza el cromado Preguntar | Modo maestro.</p>
+
+  <div class="toggle" role="group" aria-label="Modo de voz">
+    <button type="button" id="btn-preguntar" class="is-on">Preguntar</button>
+    <button type="button" id="btn-maestro">Modo maestro</button>
+  </div>
+
+  <ol class="norms" aria-label="Seis normas">
+    <li><strong>01</strong> No inventar</li>
+    <li><strong>02</strong> Sin ficha</li>
+    <li><strong>03</strong> Offline es suyo</li>
+    <li><strong>04</strong> No urgencias (112)</li>
+    <li><strong>05</strong> Bocanada ≤3 frases / paso</li>
+    <li><strong>06</strong> Entrenado por quien lleva Les vencimos con Grok</li>
+  </ol>
+
+  <div class="actions">
+    <a id="abrir-maestro" class="secondary" href="../1eso-matematicas/lecciones/leccion-01-que-es-pensar-matematicamente.html?maestro=1">Abrir L01 con ?maestro=1</a>
+    <button type="button" id="embed-maestro" class="hidden">Cargar L01 en marco</button>
+    <button type="button" id="cmd-start" class="hidden">Empezar lección 1</button>
+    <button type="button" id="cmd-next" class="secondary hidden">Siguiente</button>
+    <button type="button" id="cmd-repeat" class="secondary hidden">Repite</button>
+    <button type="button" id="cmd-stop" class="secondary hidden">Para</button>
+  </div>
+  <p class="hint">En Modo maestro se inyecta el runtime dentro de la lección real (puntero sobre el DOM). Si <code>speechSynthesis</code> no está, la barra de la lección muestra el texto del paso. L01 no tiene música — no se inventa.</p>
+</header>
+
+<section class="panel">
+  <div id="preguntar-panel">
+    <p><strong>Preguntar</strong> (ya existe en Voz aparte). Aquí el piloto no responde temario: abre la lección o cambia a Modo maestro.</p>
+    <p class="hint">Prueba en Voz aparte: «enséñame la lección 1» → Web abrirá la lección con <code>?maestro=1</code>.</p>
+  </div>
+  <div id="maestro-panel" class="hidden">
+    <div class="frame-wrap">
+      <iframe id="lesson-frame" title="Lección 01 Matemáticas" src="about:blank"></iframe>
+    </div>
+  </div>
+</section>
+
+<script>
+(function () {
+  var btnP = document.getElementById('btn-preguntar');
+  var btnM = document.getElementById('btn-maestro');
+  var panelP = document.getElementById('preguntar-panel');
+  var panelM = document.getElementById('maestro-panel');
+  var frame = document.getElementById('lesson-frame');
+  var embedBtn = document.getElementById('embed-maestro');
+  var cmds = ['cmd-start', 'cmd-next', 'cmd-repeat', 'cmd-stop'].map(function (id) {
+    return document.getElementById(id);
+  });
+  var LESSON = '../1eso-matematicas/lecciones/leccion-01-que-es-pensar-matematicamente.html?maestro=1';
+
+  function setMode(mode) {
+    var maestro = mode === 'maestro';
+    btnP.classList.toggle('is-on', !maestro);
+    btnM.classList.toggle('is-on', maestro);
+    panelP.classList.toggle('hidden', maestro);
+    panelM.classList.toggle('hidden', !maestro);
+    embedBtn.classList.toggle('hidden', !maestro);
+    cmds.forEach(function (b) { b.classList.toggle('hidden', !maestro); });
+    if (maestro && (!frame.src || frame.src === 'about:blank')) {
+      frame.src = LESSON;
+    }
+  }
+
+  btnP.addEventListener('click', function () { setMode('preguntar'); });
+  btnM.addEventListener('click', function () { setMode('maestro'); });
+  embedBtn.addEventListener('click', function () { frame.src = LESSON; });
+
+  function callLesson(cmd) {
+    try {
+      var w = frame.contentWindow;
+      if (w && w.LesVencimosMaestro) w.LesVencimosMaestro.command(cmd);
+    } catch (e) {
+      alert('No se pudo hablar con el marco (file:// a veces bloquea). Abre la lección en pestaña con el enlace «Abrir L01».');
+    }
+  }
+  document.getElementById('cmd-start').onclick = function () { callLesson('empezar'); };
+  document.getElementById('cmd-next').onclick = function () { callLesson('siguiente'); };
+  document.getElementById('cmd-repeat').onclick = function () { callLesson('repite'); };
+  document.getElementById('cmd-stop').onclick = function () { callLesson('para'); };
+})();
+</script>
+</body>
+</html>
