@@ -419,53 +419,37 @@
   }
 
   function updateAtajoLabel() {
-    var el = state.atajoEl;
-    if (!el) return;
-    if (state.uiActive) {
-      el.textContent = 'Modo maestro · activo';
-      el.setAttribute('title', 'Abrir o ir a la barra de modo maestro');
-      el.setAttribute('aria-pressed', 'true');
-      el.classList.add('is-activo');
-    } else {
-      el.textContent = 'Modo maestro';
-      el.setAttribute('title', 'Activar modo maestro (voz + puntero)');
-      el.setAttribute('aria-pressed', 'false');
-      el.classList.remove('is-activo');
-    }
+    var targets = [];
+    if (state.atajoEl) targets.push(state.atajoEl);
+    qsa('.atajo-maestro, #maestro-atajo-fijo').forEach(function (n) {
+      if (targets.indexOf(n) === -1) targets.push(n);
+    });
+    targets.forEach(function (el) {
+      if (!el) return;
+      if (state.uiActive) {
+        el.textContent = 'Modo maestro · activo';
+        el.setAttribute('title', 'Abrir o ir a la barra de modo maestro');
+        el.setAttribute('aria-pressed', 'true');
+        el.classList.add('is-activo');
+      } else {
+        el.textContent = 'Modo maestro';
+        el.setAttribute('title', 'Activar modo maestro (voz + puntero)');
+        el.setAttribute('aria-pressed', 'false');
+        el.classList.remove('is-activo');
+      }
+    });
   }
 
-  function ensureAtajoControl() {
-    if (state.atajoEl && state.atajoEl.isConnected) return state.atajoEl;
-    if (!hasMaestroPage()) return null;
-
-    var pie = qs('.leccion-pie');
-    var existing = qs('.atajo-maestro');
-    if (existing) {
-      // Keep the shortcut at the bottom even if an older shell placed it above.
-      if (pie && existing.parentNode !== pie) pie.appendChild(existing);
-      state.atajoEl = existing;
-      return existing;
-    }
-
-    var el = document.createElement('a');
-    el.href = '#maestro-barra';
-    el.className = 'atajo atajo-maestro';
-    el.setAttribute('role', 'button');
-    el.textContent = 'Modo maestro';
-    el.setAttribute('title', 'Activar modo maestro (voz + puntero)');
-    el.setAttribute('aria-pressed', 'false');
-
-    var atajos = qs('.leccion-atajos');
-    if (pie) {
-      pie.appendChild(el);
-    } else if (atajos) {
-      atajos.appendChild(el);
-    } else {
-      el.style.cssText = 'position:fixed;left:12px;bottom:12px;z-index:99999';
-      document.body.appendChild(el);
-    }
-
+  function wireAtajoClick(el) {
+    if (!el || el.getAttribute('data-maestro-wired') === '1') return;
+    el.setAttribute('data-maestro-wired', '1');
     el.addEventListener('click', function (ev) {
+      var href = el.getAttribute('href') || '';
+      // Static ?maestro=1: let navigation reload with the query (works without JS activate).
+      if (/[?&]maestro=1(?:&|#|$)/.test(href) || href.indexOf('?maestro=1') === 0) {
+        return;
+      }
+      // #maestro-barra or other JS activate paths
       ev.preventDefault();
       if (state.uiActive) {
         showBar(true);
@@ -479,8 +463,68 @@
       }
       activateMaestroUi();
     });
+  }
 
+  function ensureFixedAtajo() {
+    var existing = qs('#maestro-atajo-fijo');
+    if (existing) return existing;
+    var el = document.createElement('a');
+    el.id = 'maestro-atajo-fijo';
+    el.href = '?maestro=1';
+    el.className = 'atajo atajo-maestro';
+    el.setAttribute('role', 'button');
+    el.textContent = 'Modo maestro';
+    el.setAttribute('title', 'Activar modo maestro (voz + puntero)');
+    el.setAttribute('aria-pressed', 'false');
+    document.body.appendChild(el);
+    wireAtajoClick(el);
+    return el;
+  }
+
+  function ensureAtajoControl() {
+    if (!hasMaestroPage()) return null;
+
+    var pie = qs('.leccion-pie');
+    var existing = qs('.atajo-maestro');
+
+    // Prefer static / already-in-DOM control; keep it inside the pie when possible.
+    if (existing) {
+      if (pie) {
+        var wrap = existing.closest ? existing.closest('.pie-maestro') : null;
+        if (wrap) {
+          if (wrap.parentNode !== pie) pie.insertBefore(wrap, pie.firstChild);
+        } else if (existing.parentNode !== pie) {
+          pie.insertBefore(existing, pie.firstChild);
+        }
+      }
+      wireAtajoClick(existing);
+      state.atajoEl = existing;
+      updateAtajoLabel();
+      return existing;
+    }
+
+    // No static atajo: inject into pie, or fixed fallback if pie missing.
+    var el = document.createElement('a');
+    el.href = '?maestro=1';
+    el.className = 'atajo atajo-maestro';
+    el.setAttribute('role', 'button');
+    el.textContent = 'Modo maestro';
+    el.setAttribute('title', 'Activar modo maestro (voz + puntero)');
+    el.setAttribute('aria-pressed', 'false');
+
+    if (pie) {
+      var p = document.createElement('p');
+      p.className = 'pie-maestro';
+      p.appendChild(el);
+      pie.insertBefore(p, pie.firstChild);
+    } else {
+      el.id = 'maestro-atajo-fijo';
+      document.body.appendChild(el);
+    }
+
+    wireAtajoClick(el);
     state.atajoEl = el;
+    updateAtajoLabel();
     return el;
   }
 
@@ -790,9 +834,11 @@
     api.__booted = true;
     state.reducedMotion = !!(global.matchMedia && global.matchMedia('(prefers-reduced-motion: reduce)').matches);
 
-    // Siempre: atajo compacto si la lección declara guion (Mate shells).
+    // Siempre: atajo en el pie (estático o inyectado). Si no hay pie, fijo.
     if (hasMaestroPage()) {
       ensureAtajoControl();
+      if (!qs('.atajo-maestro')) ensureFixedAtajo();
+      updateAtajoLabel();
     }
 
     var wantUi = paramMaestro() ||

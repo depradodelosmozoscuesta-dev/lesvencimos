@@ -2096,6 +2096,9 @@ def render_lesson(lesson: dict, *, offline: bool) -> str:
   </section>
 
   <footer class="leccion-pie">
+    <p class="pie-maestro">
+      <a class="atajo atajo-maestro" href="?maestro=1">Modo maestro</a>
+    </p>
     <strong>Les vencimos</strong> · L{n:02d} de {TOTAL} · shell HTML · offline / file:// · sin instalar
   </footer>
 </div>
