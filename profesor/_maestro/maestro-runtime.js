@@ -438,8 +438,11 @@
     if (state.atajoEl && state.atajoEl.isConnected) return state.atajoEl;
     if (!hasMaestroPage()) return null;
 
+    var pie = qs('.leccion-pie');
     var existing = qs('.atajo-maestro');
     if (existing) {
+      // Keep the shortcut at the bottom even if an older shell placed it above.
+      if (pie && existing.parentNode !== pie) pie.appendChild(existing);
       state.atajoEl = existing;
       return existing;
     }
@@ -453,12 +456,10 @@
     el.setAttribute('aria-pressed', 'false');
 
     var atajos = qs('.leccion-atajos');
-    var pie = qs('.leccion-pie');
-    if (atajos) {
-      atajos.appendChild(el);
-    } else if (pie) {
-      el.style.marginLeft = '0.5rem';
+    if (pie) {
       pie.appendChild(el);
+    } else if (atajos) {
+      atajos.appendChild(el);
     } else {
       el.style.cssText = 'position:fixed;left:12px;bottom:12px;z-index:99999';
       document.body.appendChild(el);
