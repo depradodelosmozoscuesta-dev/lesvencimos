@@ -1426,7 +1426,7 @@
       </div>
     </div>
 
-    <footer class="site-foot">lesvencimos.com · escritorio / estantería offline · <span id="est-build">v20260924t</span></footer>
+    <footer class="site-foot">lesvencimos.com · escritorio / estantería offline · <span id="est-build">v20260924u</span></footer>
   </div>
 
   <div id="mod-viewer" role="dialog" aria-modal="true" aria-labelledby="mod-viewer-title" hidden>
@@ -1547,14 +1547,21 @@
       sueltos: 'qr'
     };
 
+    /* After sticky lead: fixed pin order (before usage sort) */
+    var SHELF_PRIORITY_AFTER_LEAD = {
+      varios: ['grok', 'chatgpt', 'claude', 'gemini', 'perplexity', 'copilot', 'lesvencimos'],
+      ocio: ['filmin'],
+      casa: ['polar-cloud']
+    };
+
     var TALL_WIDGETS = ['clock', 'clock-large', 'date', 'dia', 'calendar'];
 
     var PRESETS = {
       completo: null,
-      casa: ['hogar', 'jardin', 'bricolaje', 'electricidad', 'supervivencia', 'apagon', 'salud', 'medicacion', 'primeros-auxilios'],
-      estudio: ['tinta-escritura', 'tinta-estudio', 'profesor', 'mate-1eso', 'lengua-1eso', 'calculadora', 'informatica', 'biblioteca', 'qr'],
-      educacion: ['profesor', 'mate-1eso', 'byg-1eso', 'geo-1eso', 'lengua-1eso', 'plastica-1eso', 'linux-essentials', 'calculadora', 'tinta-escritura', 'tinta-estudio'],
-      minimo: ['tinta-escritura', 'hogar', 'salud', 'calculadora', 'caja-fuerte', 'tel', 'whatsapp', 'grok', 'lesvencimos']
+      casa: ['hogar', 'jardin', 'bricolaje', 'electricidad', 'supervivencia', 'apagon', 'salud', 'medicacion', 'primeros-auxilios', 'grok', 'lesvencimos'],
+      estudio: ['tinta-escritura', 'tinta-estudio', 'profesor', 'mate-1eso', 'lengua-1eso', 'calculadora', 'informatica', 'biblioteca', 'qr', 'grok', 'chatgpt', 'claude', 'gemini', 'perplexity', 'copilot', 'lesvencimos'],
+      educacion: ['profesor', 'mate-1eso', 'byg-1eso', 'geo-1eso', 'lengua-1eso', 'plastica-1eso', 'linux-essentials', 'calculadora', 'tinta-escritura', 'tinta-estudio', 'grok', 'chatgpt', 'claude', 'gemini', 'perplexity', 'copilot', 'lesvencimos'],
+      minimo: ['tinta-escritura', 'hogar', 'salud', 'calculadora', 'caja-fuerte', 'tel', 'whatsapp', 'grok', 'chatgpt', 'claude', 'gemini', 'perplexity', 'copilot', 'lesvencimos']
     };
     var PRESET_LABELS = {
       completo: 'Completo', casa: 'Casa', estudio: 'Estudio', educacion: 'Educación', minimo: 'Mínimo'
@@ -1813,6 +1820,7 @@
 
     function sortShelfItems(arr, shelfId) {
       var leadId = (SHELF_LEADS && SHELF_LEADS[shelfId]) || null;
+      var priority = (SHELF_PRIORITY_AFTER_LEAD && SHELF_PRIORITY_AFTER_LEAD[shelfId]) || [];
       if (!state.useCount) state.useCount = {};
       if (!state.lastUsed) state.lastUsed = {};
       arr.sort(function (a, b) {
@@ -1827,6 +1835,13 @@
           var bLead = b.id === leadId;
           if (aLead !== bLead) return aLead ? -1 : 1;
         }
+        /* Fixed priority pins right after the lead (before usage sort) */
+        var ap = priority.indexOf(a.id);
+        var bp = priority.indexOf(b.id);
+        var aPri = ap >= 0;
+        var bPri = bp >= 0;
+        if (aPri && bPri && ap !== bp) return ap - bp;
+        if (aPri !== bPri) return aPri ? -1 : 1;
         var ta = tier(a), tb = tier(b);
         if (ta !== tb) return ta - tb;
         if (ta === 0) {
@@ -1892,6 +1907,51 @@
           }
         }
       });
+    }
+
+
+    function ensureAppShortcuts() {
+      var appIds = ['filmin', 'polar-cloud', 'grok', 'chatgpt', 'claude', 'gemini', 'perplexity', 'copilot', 'lesvencimos'];
+      appIds.forEach(function (id) {
+        var mod = catalogById(id);
+        if (!mod) return;
+        if (!hasModule(id)) {
+          state.items.push({
+            id: mod.id,
+            type: 'module',
+            kind: 'catalog',
+            titulo: mod.titulo,
+            icon: mod.icon || '',
+            href: mod.href || '',
+            embed: null,
+            external: null,
+            openNative: true,
+            color: mod.color || '',
+            blurb: mod.blurb || 'App · web',
+            shelf: mod.shelf || 'varios',
+            view: 'icon',
+            z: ++Z,
+            addedAt: new Date().toISOString()
+          });
+        } else {
+          var existing = findItem(id);
+          if (existing) {
+            existing.openNative = true;
+            existing.href = mod.href || existing.href || '';
+            existing.embed = null;
+            existing.external = null;
+            existing.shelf = mod.shelf || existing.shelf || 'varios';
+            if (mod.color) existing.color = mod.color;
+            if (mod.icon) existing.icon = mod.icon;
+            if (mod.titulo) existing.titulo = mod.titulo;
+            if (mod.blurb) existing.blurb = mod.blurb;
+          }
+        }
+      });
+      /* si quedó polar-flow de un intento previo, quitarlo */
+      state.items = state.items.filter(function (it) { return it.id !== 'polar-flow'; });
+      if (state.useCount) delete state.useCount['polar-flow'];
+      if (state.lastUsed) delete state.lastUsed['polar-flow'];
     }
 
     function groupItemsByShelf() {
@@ -3792,7 +3852,7 @@
       });
     }
 
-    var EST_BUILD = 'v20260924t';
+    var EST_BUILD = 'v20260924u';
 
     function layoutPanelSheet() {
       var tb = document.getElementById('desk-toolbar');
@@ -3996,7 +4056,7 @@
       var needLeads = !needSeed && state.layoutRev < 8;
       var needCamaraQr = !needSeed && state.layoutRev < 9;
       var needMapasLead = !needSeed && state.layoutRev < 10;
-      var needAppShortcuts = !needSeed && state.layoutRev < 11;
+      var needAppShortcuts = !needSeed && state.layoutRev < 12;
       if (typeof state.ajustesHidden !== 'boolean') state.ajustesHidden = false;
       if (typeof state.contrast !== 'number') state.contrast = 0;
       if (state.typeSize !== 's' && state.typeSize !== 'm' && state.typeSize !== 'l') state.typeSize = 'm';
@@ -4108,9 +4168,10 @@
       bindDesktopLongPress();
       if (needSeed) {
         seedFullDesktop();
+        ensureAppShortcuts();
         ensureShelfLeads();
         arrangeToShelves();
-        state.layoutRev = 11;
+        state.layoutRev = 12;
         state.version = 4;
         saveState();
       } else if (needRearrange || needEdu || needVariosEdu || needRapido || needLeads || needCamaraQr || needMapasLead || needAppShortcuts) {
@@ -4214,50 +4275,8 @@
             }
           }
         })();
-        /* layoutRev 11: atajos openNative (Filmin, Polar Cloud, Grok, IAs, Les vencimos) */
-        (function ensureAppShortcuts() {
-          var appIds = ['filmin', 'polar-cloud', 'grok', 'chatgpt', 'claude', 'gemini', 'perplexity', 'copilot', 'lesvencimos'];
-          appIds.forEach(function (id) {
-            var mod = catalogById(id);
-            if (!mod) return;
-            if (!hasModule(id)) {
-              state.items.push({
-                id: mod.id,
-                type: 'module',
-                kind: 'catalog',
-                titulo: mod.titulo,
-                icon: mod.icon || '',
-                href: mod.href || '',
-                embed: null,
-                external: null,
-                openNative: true,
-                color: mod.color || '',
-                blurb: mod.blurb || 'App · web',
-                shelf: mod.shelf || 'varios',
-                view: 'icon',
-                z: ++Z,
-                addedAt: new Date().toISOString()
-              });
-            } else {
-              var existing = findItem(id);
-              if (existing) {
-                existing.openNative = true;
-                existing.href = mod.href || existing.href || '';
-                existing.embed = null;
-                existing.external = null;
-                existing.shelf = mod.shelf || existing.shelf || 'varios';
-                if (mod.color) existing.color = mod.color;
-                if (mod.icon) existing.icon = mod.icon;
-                if (mod.titulo) existing.titulo = mod.titulo;
-                if (mod.blurb) existing.blurb = mod.blurb;
-              }
-            }
-          });
-          /* si quedó polar-flow de un intento previo, quitarlo */
-          state.items = state.items.filter(function (it) { return it.id !== 'polar-flow'; });
-          if (state.useCount) delete state.useCount['polar-flow'];
-          if (state.lastUsed) delete state.lastUsed['polar-flow'];
-        })();
+        /* layoutRev 11–12: atajos openNative (Filmin, Polar Cloud, Grok, IAs, Les vencimos) */
+        ensureAppShortcuts();
         ensureShelfLeads();
         /* Reasignar shelves desde catálogo; educacion → varios; QR → sueltos */
         state.items.forEach(function (it) {
@@ -4283,12 +4302,20 @@
           }
         });
         arrangeToShelves();
-        state.layoutRev = 11;
+        state.layoutRev = 12;
         state.version = 4;
         saveState();
       } else {
         renderDesktop();
       }
+      /* Siempre reinyectar atajos (idempotente): un preset que los borró con rev≥12 los recupera */
+      (function () {
+        var n0 = state.items.length;
+        ensureAppShortcuts();
+        if (state.items.length !== n0) {
+          arrangeToShelves();
+        }
+      })();
       if (clockTimer) clearInterval(clockTimer);
       clockTimer = setInterval(tickClocks, 30000);
       window.addEventListener('resize', function () {
