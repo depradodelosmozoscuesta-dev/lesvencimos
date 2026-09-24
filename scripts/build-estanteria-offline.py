@@ -98,7 +98,7 @@ def inject_embedded(shell: str, embedded: dict[str, str]) -> str:
 def write_leeme() -> str:
     return """═══════════════════════════════════════
   ESCRITORIO / ESTANTERÍA — Les vencimos
-  Build v20260924n
+  Build v20260924o
   UN SOLO HTML (módulos dentro)
 ═══════════════════════════════════════
 
