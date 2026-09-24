@@ -98,7 +98,7 @@ def inject_embedded(shell: str, embedded: dict[str, str]) -> str:
 def write_leeme() -> str:
     return """═══════════════════════════════════════
   ESCRITORIO / ESTANTERÍA — Les vencimos
-  Build v20260924o
+  Build v20260924p
   UN SOLO HTML (módulos dentro)
 ═══════════════════════════════════════
 
@@ -108,8 +108,9 @@ Este ZIP lleva esencialmente UN archivo:
   LEEME.txt
 
 Baldas deslizables por tema (Escritura, Ocio,
-Casa/Hogar, Salud, Varios): una sola línea,
-desliza en horizontal. Packs escolares en Varios
+Casa/Hogar, Salud, Rápido, Varios): una sola línea,
+desliza en horizontal. Atajos nativos en Rápido
+(Teléfono, WhatsApp, Navegador). Packs escolares en Varios
 (no hay balda Educación). Barra Ajustes compacta
 arriba (no es una balda). Iconos de color vivos.
 Hora y fecha fijas arriba a la derecha; papelera
