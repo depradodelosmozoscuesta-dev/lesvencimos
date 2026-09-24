@@ -79,7 +79,7 @@ button:disabled{opacity:.45;cursor:not-allowed}
   <p>Les vencimos · Offline</p>
 </header>
 
-<p class="hint">Núcleo ligero: GPS del aparato, rumbo y distancia en línea recta. Los mapas detallados llegarán como packs regionales (MBTiles / OSM) descargables aparte.</p>
+<p class="hint">Núcleo ligero: GPS del aparato, rumbo y distancia en línea recta. Abajo: packs offline descargables (GeoJSON + Leaflet vendored, sin CDN).</p>
 
 <section class="panel" aria-labelledby="ubi-h">
   <h2 id="ubi-h">Tu ubicación</h2>
@@ -129,11 +129,24 @@ button:disabled{opacity:.45;cursor:not-allowed}
 </section>
 
 <section class="panel pack" aria-labelledby="pack-h">
-  <h2 id="pack-h">Packs de mapas (próximamente)</h2>
-  <p class="hint" style="margin:0 0 .5rem">Mapas detallados (calles, relieve) se descargarán como packs regionales offline (MBTiles / OSM). Este MVP solo lleva el núcleo y una lista de lugares.</p>
+  <h2 id="pack-h">Packs offline</h2>
+  <p class="hint" style="margin:0 0 .65rem">Descarga el ZIP con wifi, descomprime en Archivos y abre <strong>ABRE-AQUI.html</strong> (file://). Leaflet va dentro del pack (sin CDN). Datos © OpenStreetMap · ODbL.</p>
+  <div class="pack-card" style="border:1px solid var(--linea);border-radius:var(--radio);padding:.75rem;margin:0 0 .55rem;background:var(--fondo-3)">
+    <strong style="color:var(--tinta)">Valladolid detallado</strong>
+    <p class="hint" style="margin:.35rem 0">Calles + POI (hospitales, farmacias, colegios, estaciones…). Bbox metro ≈ 41.52–41.78 / −4.95–−4.55. Zoom útil 10–16.</p>
+    <a class="btn-dl" id="dlVa" href="/downloads/mapas/valladolid-offline.zip" download="valladolid-offline.zip" style="display:inline-flex;align-items:center;min-height:44px;padding:0 .9rem;background:var(--acento);color:var(--acento-texto);text-decoration:none;border-radius:var(--radio);font-weight:600;font-size:.9rem">Descargar ZIP Valladolid</a>
+    <button type="button" id="btnOpenVa" style="margin-left:.35rem">Abrir pack local</button>
+  </div>
+  <div class="pack-card" style="border:1px solid var(--linea);border-radius:var(--radio);padding:.75rem;margin:0 0 .55rem;background:var(--fondo-3)">
+    <strong style="color:var(--tinta)">España overview</strong>
+    <p class="hint" style="margin:.35rem 0">Capitales y ciudades principales + esquema península/Baleares/Canarias. <em>Sin calles</em> (vista país). Zoom útil 5–10. Para calles usa Valladolid.</p>
+    <a class="btn-dl" id="dlEs" href="/downloads/mapas/espana-offline.zip" download="espana-offline.zip" style="display:inline-flex;align-items:center;min-height:44px;padding:0 .9rem;background:var(--acento);color:var(--acento-texto);text-decoration:none;border-radius:var(--radio);font-weight:600;font-size:.9rem">Descargar ZIP España</a>
+    <button type="button" id="btnOpenEs" style="margin-left:.35rem">Abrir pack local</button>
+  </div>
+  <p class="msg" id="packMsg" role="status"></p>
   <ul>
-    <li><strong>España</strong> — primer pack previsto</li>
-    <li>Más regiones: según demanda y tamaño</li>
+    <li>En <code>file://</code>: si descomprimiste el pack <strong>junto a</strong> este mapas.html (carpetas <code>valladolid-offline/</code> o <code>espana-offline/</code>), «Abrir pack local» lo detecta.</li>
+    <li>En la web: usa los botones de descarga; el mapa del pack se abre offline después.</li>
   </ul>
 </section>
 
@@ -141,7 +154,8 @@ button:disabled{opacity:.45;cursor:not-allowed}
   <strong style="color:var(--tinta)">LEEME · datos</strong><br>
   Coordenadas de lugares: datos abiertos / referencia geográfica pública.<br>
   GPS: API de geolocalización del dispositivo (gratis, sin nube).<br>
-  Sin tiles externos, sin CDN, sin red para el núcleo.
+  Packs: GeoJSON de OpenStreetMap © colaboradores · licencia <strong>ODbL</strong>. Leaflet vendored (sin CDN en runtime).<br>
+  Núcleo: sin tiles externos ni red.
 </div>
 <p class="foot">Archivo local · sin nube</p>
 
@@ -401,6 +415,65 @@ button:disabled{opacity:.45;cursor:not-allowed}
   btnGeo.addEventListener('click', requestGeo);
   btnGeoUpd.addEventListener('click', requestGeo);
   document.getElementById('btnCalc').addEventListener('click', calc);
+
+  /* Packs: relative download when served from pages; local sibling folders on file:// */
+  (function setupPacks() {
+    var packMsg = document.getElementById('packMsg');
+    function setPackMsg(t, kind) {
+      if (!packMsg) return;
+      packMsg.textContent = t || '';
+      packMsg.className = 'msg' + (kind ? ' ' + kind : '');
+    }
+    var isFile = location.protocol === 'file:';
+    var base = '';
+    try {
+      var path = location.pathname || '';
+      if (path.indexOf('/modulos/') >= 0) base = '../downloads/mapas/';
+      else if (path.indexOf('/downloads/') >= 0) base = 'mapas/';
+      else base = 'downloads/mapas/';
+    } catch (e) { base = '/downloads/mapas/'; }
+    if (!isFile) {
+      var va = document.getElementById('dlVa');
+      var es = document.getElementById('dlEs');
+      if (va) va.href = base + 'valladolid-offline.zip';
+      if (es) es.href = base + 'espana-offline.zip';
+    } else {
+      setPackMsg('Modo file://: descarga los ZIP desde lesvencimos.com o colócalos junto a este HTML.', '');
+    }
+    function tryOpen(relPaths, label) {
+      var i = 0;
+      function next() {
+        if (i >= relPaths.length) {
+          setPackMsg('No encontré ' + label + ' al lado de este archivo. Descomprime el ZIP en la misma carpeta que mapas.html (o abre ABRE-AQUI.html dentro del pack).', 'err');
+          return;
+        }
+        var url = relPaths[i++];
+        fetch(url, { method: 'GET' }).then(function (r) {
+          if (r.ok) { location.href = url; }
+          else next();
+        }).catch(function () { next(); });
+      }
+      next();
+    }
+    var btnVa = document.getElementById('btnOpenVa');
+    var btnEs = document.getElementById('btnOpenEs');
+    if (btnVa) btnVa.addEventListener('click', function () {
+      tryOpen([
+        'valladolid-offline/ABRE-AQUI.html',
+        '../valladolid-offline/ABRE-AQUI.html',
+        './mapas-packs/valladolid-offline/ABRE-AQUI.html',
+        '../downloads/mapas/valladolid-offline/ABRE-AQUI.html'
+      ], 'Valladolid');
+    });
+    if (btnEs) btnEs.addEventListener('click', function () {
+      tryOpen([
+        'espana-offline/ABRE-AQUI.html',
+        '../espana-offline/ABRE-AQUI.html',
+        './mapas-packs/espana-offline/ABRE-AQUI.html',
+        '../downloads/mapas/espana-offline/ABRE-AQUI.html'
+      ], 'España');
+    });
+  })();
 })();
 </script>
 </body>
