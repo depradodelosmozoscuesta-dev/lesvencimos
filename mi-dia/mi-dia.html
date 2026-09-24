@@ -1,0 +1,999 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#F4EFE4">
+<title>Mi día</title>
+<style>
+:root{
+  --fondo:#F4EFE4; --tarjeta:#FFFFFF; --texto:#1C1A17; --suave:#4A453D; --borde:#D8D0BF;
+  --acento:#1F5FA8; --acento-texto:#FFFFFF; --ok:#1E7A3C; --ok-fondo:#E3F3E7;
+  --aviso:#B3261E; --aviso-fondo:#FDECEA; --toca:#FFF3C4; --toca-borde:#C98A00;
+  --radio:18px;
+  --f-reloj:clamp(64px, 17vmin, 260px);
+  --f-grande:clamp(26px, 5.2vmin, 64px);
+  --f-media:clamp(20px, 3.4vmin, 40px);
+  --f-normal:clamp(18px, 2.6vmin, 30px);
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans", Arial, sans-serif;
+}
+body[data-parte="tarde"]{ --fondo:#F2E8D8; }
+body[data-parte="noche"]{ --fondo:#E6E2EE; }
+body[data-parte="madrugada"], body.modo-noche{
+  --fondo:#0F1628; --tarjeta:#18223A; --texto:#F1EEE6; --suave:#C9C4B8; --borde:#2D3A5A;
+  --toca:#3A3212; --ok-fondo:#12301C; --aviso-fondo:#3A1512;
+}
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%;background:var(--fondo);color:var(--texto)}
+body{font-size:var(--f-normal);line-height:1.35;-webkit-tap-highlight-color:transparent;transition:background .6s}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+.oculto{display:none !important}
+
+/* ───── Vista principal ───── */
+#principal{min-height:100vh;padding:max(16px, env(safe-area-inset-top)) 16px 16px;display:grid;gap:16px;grid-template-columns:1fr;align-content:start}
+.barra{display:flex;align-items:center;justify-content:space-between;gap:12px;grid-column:1/-1;color:var(--suave);font-size:var(--f-normal)}
+.barra .sala{font-weight:700;letter-spacing:.02em}
+.barra .estado-red{font-size:.75em}
+.boton-engranaje{background:none;border:0;opacity:.35;font-size:22px;padding:8px;min-width:44px;min-height:44px}
+.bloque-reloj{text-align:center;padding:8px 0}
+.saludo{font-size:var(--f-media);color:var(--suave);margin:0}
+.hora{font-size:var(--f-reloj);font-weight:800;line-height:1;margin:.05em 0;font-variant-numeric:tabular-nums;letter-spacing:-.02em}
+.dia{font-size:var(--f-grande);font-weight:700;margin:0;text-transform:capitalize}
+.fecha{font-size:var(--f-media);margin:.1em 0 0;color:var(--suave)}
+.parte{display:inline-block;margin-top:.5em;font-size:var(--f-media);font-weight:700;padding:.2em .8em;border-radius:999px;background:var(--tarjeta);border:2px solid var(--borde)}
+.columna{display:grid;gap:16px;align-content:start}
+.tarjeta{background:var(--tarjeta);border:2px solid var(--borde);border-radius:var(--radio);padding:18px}
+.tarjeta h2{font-size:var(--f-media);margin:0 0 10px}
+.tarjeta.toca{background:var(--toca);border:4px solid var(--toca-borde);animation:latido 2s ease-in-out infinite}
+@keyframes latido{0%,100%{box-shadow:0 0 0 0 rgba(201,138,0,.0)}50%{box-shadow:0 0 0 12px rgba(201,138,0,.35)}}
+@media (prefers-reduced-motion: reduce){.tarjeta.toca{animation:none}}
+.tarjeta.hecho{background:var(--ok-fondo);border-color:var(--ok)}
+.titulo-toca{font-size:var(--f-grande);font-weight:800;margin:0 0 8px}
+.med{display:grid;grid-template-columns:auto 1fr;gap:14px;align-items:center;padding:12px 0;border-top:2px solid var(--borde)}
+.med:first-of-type{border-top:0}
+.med.sin-foto{grid-template-columns:1fr}
+.med img{width:clamp(64px,12vmin,140px);height:clamp(64px,12vmin,140px);object-fit:cover;border-radius:12px;border:2px solid var(--borde);background:#fff}
+.med .sinfoto{width:clamp(64px,12vmin,140px);height:clamp(64px,12vmin,140px);border-radius:12px;border:2px dashed var(--borde);display:grid;place-items:center;font-size:clamp(30px,6vmin,64px)}
+.med .nombre{font-size:var(--f-media);font-weight:800}
+.med .detalle{color:var(--suave)}
+.boton-grande{display:block;width:100%;min-height:clamp(64px,11vmin,120px);border:0;border-radius:16px;background:var(--ok);color:#fff;font-size:var(--f-media);font-weight:800;padding:12px;margin-top:10px}
+.boton-grande:active{transform:scale(.98)}
+.boton-grande.secundario{background:var(--acento)}
+.deshacer{background:none;border:2px solid var(--borde);border-radius:12px;padding:8px 14px;margin-top:8px;color:var(--suave);min-height:44px}
+.ya-tomada{font-size:var(--f-media);font-weight:700;color:var(--ok)}
+.nota-no-mas{font-size:var(--f-normal);margin:6px 0 0}
+.lista-hoy{list-style:none;margin:0;padding:0}
+.lista-hoy li{display:flex;justify-content:space-between;gap:12px;padding:10px 0;border-top:1px solid var(--borde);font-size:var(--f-normal)}
+.lista-hoy li:first-child{border-top:0}
+.lista-hoy .marca{font-weight:800;white-space:nowrap}
+.marca.ok{color:var(--ok)} .marca.mal{color:var(--aviso)} .marca.pend{color:var(--suave)}
+.aviso-item{font-size:var(--f-media);padding:8px 0;border-top:1px solid var(--borde)}
+.aviso-item:first-of-type{border-top:0}
+.aviso-item b{font-variant-numeric:tabular-nums}
+.contactos{display:grid;gap:10px}
+.contactos a{display:flex;align-items:center;justify-content:center;gap:10px;min-height:72px;border-radius:16px;background:var(--acento);color:#fff;text-decoration:none;font-size:var(--f-media);font-weight:800}
+
+/* Pantalla de sala en horizontal: reloj a la izquierda, lo demás a la derecha */
+@media (min-aspect-ratio: 1/1){
+  body.rol-pantalla #principal{grid-template-columns:1.1fr 1fr;align-items:start;height:100vh;overflow:hidden}
+  body.rol-pantalla .bloque-reloj{align-self:center}
+  body.rol-pantalla .columna{max-height:calc(100vh - 90px);overflow:auto}
+}
+body.rol-movil{--f-reloj:clamp(64px,24vw,140px)}
+/* En vertical, si toca una pastilla, la tarjeta sube arriba y el reloj se encoge: que se vea sin bajar */
+body.hay-toca.rol-movil .columna{order:-1}
+body.hay-toca.rol-movil .barra{order:-2}
+body.hay-toca.rol-movil{--f-reloj:clamp(40px,12vw,72px)}
+@media (max-aspect-ratio: 999/1000){
+  body.hay-toca.rol-pantalla .columna{order:-1}
+  body.hay-toca.rol-pantalla .barra{order:-2}
+  body.hay-toca.rol-pantalla{--f-reloj:clamp(48px,10vmin,120px)}
+}
+.aviso-item.pasado{opacity:.5}
+body.rol-movil .bloque-reloj{padding-top:0}
+
+/* ───── Noche ───── */
+#noche{position:fixed;inset:0;background:#070B16;color:#B9B3A6;display:grid;place-items:center;text-align:center;padding:24px;z-index:40}
+#noche .hora{color:#8E887C;font-size:clamp(60px,16vmin,220px)}
+#noche p{font-size:var(--f-grande);margin:.4em 0;max-width:22ch;margin-inline:auto}
+#noche small{display:block;margin-top:2em;font-size:var(--f-normal);opacity:.6}
+
+/* ───── Capas: inicio, configuración, PIN, cuidador ───── */
+.capa{position:fixed;inset:0;background:var(--fondo);z-index:50;overflow:auto;padding:24px 16px}
+.caja{max-width:760px;margin:0 auto}
+.caja h1{font-size:var(--f-grande);margin:.2em 0 .4em}
+.caja p{margin:.4em 0 1em}
+#empezar{display:grid;place-items:center;text-align:center}
+#empezar .boton-grande{max-width:520px;margin:24px auto 0}
+.campo{display:grid;gap:6px;margin:0 0 14px}
+.campo label{font-weight:700;font-size:.9em}
+.campo input,.campo select,.campo textarea{min-height:52px;padding:10px 12px;border:2px solid var(--borde);border-radius:12px;background:var(--tarjeta);font-size:20px;width:100%}
+.opciones-rol{display:grid;gap:12px}
+.opciones-rol button{text-align:left;padding:18px;border-radius:16px;border:3px solid var(--borde);background:var(--tarjeta);font-size:var(--f-normal)}
+.opciones-rol button b{display:block;font-size:var(--f-media)}
+.opciones-rol button.elegido{border-color:var(--acento)}
+.fila{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.btn{min-height:48px;padding:10px 18px;border-radius:12px;border:2px solid var(--borde);background:var(--tarjeta);font-weight:700}
+.btn.primario{background:var(--acento);color:#fff;border-color:var(--acento)}
+.btn.peligro{color:var(--aviso);border-color:var(--aviso)}
+.error{color:var(--aviso);font-weight:700;min-height:1.4em}
+#cuidador{background:#F7F5F0;color:#1C1A17;font-size:18px;--f-media:22px;--f-grande:28px}
+#cuidador .pestanas{display:flex;gap:6px;flex-wrap:wrap;margin:0 0 16px;position:sticky;top:-24px;background:#F7F5F0;padding:8px 0;z-index:2}
+#cuidador .pestanas button{min-height:44px;padding:8px 14px;border-radius:999px;border:2px solid #D8D0BF;background:#fff;font-weight:700}
+#cuidador .pestanas button.activa{background:#1F5FA8;color:#fff;border-color:#1F5FA8}
+#cuidador .item{background:#fff;border:2px solid #E2DBCB;border-radius:14px;padding:14px;margin:0 0 10px;display:grid;grid-template-columns:auto 1fr auto;gap:12px;align-items:center}
+#cuidador .item img,#cuidador .item .sinfoto{width:64px;height:64px;border-radius:10px;object-fit:cover;border:1px solid #D8D0BF;display:grid;place-items:center;font-size:30px}
+#cuidador .item small{color:#5A544A;display:block}
+#cuidador fieldset{border:2px solid #E2DBCB;border-radius:14px;padding:14px;margin:0 0 14px;background:#fff}
+#cuidador legend{font-weight:800;padding:0 6px}
+.horas{display:flex;flex-wrap:wrap;gap:8px}
+.horas span{display:inline-flex;align-items:center;gap:6px;background:#EEF3FA;border:1px solid #BFD0E8;border-radius:999px;padding:4px 6px 4px 12px}
+.horas span button{border:0;background:#fff;border-radius:999px;width:32px;height:32px}
+table.historial{width:100%;border-collapse:collapse;font-size:16px}
+table.historial th,table.historial td{text-align:left;padding:8px 6px;border-bottom:1px solid #E2DBCB;vertical-align:top}
+.chip{display:inline-block;padding:2px 10px;border-radius:999px;font-weight:700;font-size:14px}
+.chip.ok{background:#E3F3E7;color:#1E7A3C}.chip.mal{background:#FDECEA;color:#B3261E}.chip.pend{background:#EEE;color:#555}
+.pie-cuidador{color:#5A544A;font-size:14px;margin-top:24px}
+.toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:#1C1A17;color:#fff;padding:12px 20px;border-radius:12px;z-index:90;font-size:18px;max-width:90vw}
+</style>
+</head>
+<body class="rol-pantalla" data-parte="manana">
+
+<!-- Vista principal (lo que ve la persona) -->
+<main id="principal" aria-live="polite">
+  <div class="barra">
+    <span class="sala" id="v-sala"></span>
+    <span class="estado-red" id="v-red"></span>
+    <button class="boton-engranaje" id="abrir-cuidador" aria-label="Opciones del cuidador" title="Cuidador">⚙︎</button>
+  </div>
+  <section class="bloque-reloj">
+    <p class="saludo" id="v-saludo"></p>
+    <p class="hora" id="v-hora">--:--</p>
+    <p class="dia" id="v-dia"></p>
+    <p class="fecha" id="v-fecha"></p>
+    <span class="parte" id="v-parte"></span>
+  </section>
+  <section class="columna">
+    <div id="v-pastillas"></div>
+    <div class="tarjeta" id="v-hoy-caja"><h2>Pastillas de hoy</h2><ul class="lista-hoy" id="v-hoy"></ul></div>
+    <div class="tarjeta oculto" id="v-avisos-caja"><h2>Hoy</h2><div id="v-avisos"></div></div>
+    <div class="tarjeta oculto" id="v-contactos-caja"><h2>Llamar</h2><div class="contactos" id="v-contactos"></div></div>
+  </section>
+</main>
+
+<!-- Pantalla de noche -->
+<div id="noche" class="oculto" role="dialog" aria-label="Es de noche">
+  <div>
+    <p class="hora" id="n-hora">--:--</p>
+    <p id="n-texto"></p>
+    <small>Toca la pantalla para verla entera un momento</small>
+  </div>
+</div>
+
+<!-- Toque inicial: necesario para sonido, voz y pantalla completa -->
+<div id="empezar" class="capa oculto">
+  <div class="caja">
+    <h1>Mi día</h1>
+    <p>Toca el botón para empezar. Así esta pantalla podrá sonar y hablar para recordar las pastillas.</p>
+    <button class="boton-grande secundario" id="btn-empezar">Empezar</button>
+  </div>
+</div>
+
+<!-- Primera configuración -->
+<div id="configurar" class="capa oculto">
+  <div class="caja">
+    <h1>Primera vez</h1>
+    <p>Esto lo rellena la persona que cuida. Se hace una sola vez.</p>
+    <div class="campo"><label for="c-persona">Nombre de la persona (para saludarla)</label><input id="c-persona" autocomplete="off" placeholder="Ej. Carmen"></div>
+    <div class="campo"><label for="c-pin">PIN del cuidador (4 a 8 números)</label><input id="c-pin" inputmode="numeric" autocomplete="off" placeholder="Ej. 2580"></div>
+    <div class="campo"><label for="c-pin2">Repite el PIN</label><input id="c-pin2" inputmode="numeric" autocomplete="off"></div>
+    <p class="error" id="c-error"></p>
+    <button class="btn primario" id="c-guardar">Guardar y seguir</button>
+  </div>
+</div>
+
+<!-- Qué es este aparato -->
+<div id="elegir-rol" class="capa oculto">
+  <div class="caja">
+    <h1>¿Qué es este aparato?</h1>
+    <p>Cada pantalla de la casa se configura una vez. Se puede cambiar luego desde el cuidador.</p>
+    <div class="opciones-rol">
+      <button data-rol="pantalla"><b>Pantalla de una habitación</b>Tablet o tele fija: cocina, salón, dormitorio… Reloj grande, pastillas y avisos. Suena y habla.</button>
+      <button data-rol="movil"><b>Móvil de la persona</b>Lo mismo en vertical y más sencillo, con botones para llamar a la familia.</button>
+      <button data-rol="cuidador"><b>Solo para el cuidador</b>Este aparato no suena. Sirve para apuntar medicinas y ver el historial.</button>
+    </div>
+    <div class="campo" id="r-sala-campo" style="margin-top:16px"><label for="r-sala">Nombre de esta habitación</label><input id="r-sala" placeholder="Ej. Cocina" list="salas-sugeridas"></div>
+    <datalist id="salas-sugeridas"><option>Cocina</option><option>Salón</option><option>Dormitorio</option><option>Baño</option><option>Entrada</option></datalist>
+    <button class="btn primario" id="r-guardar">Listo</button>
+  </div>
+</div>
+
+<!-- PIN -->
+<div id="pedir-pin" class="capa oculto">
+  <div class="caja" style="max-width:420px">
+    <h1>Cuidador</h1>
+    <div class="campo"><label for="p-pin">PIN</label><input id="p-pin" type="password" inputmode="numeric" autocomplete="off"></div>
+    <p class="error" id="p-error"></p>
+    <div class="fila"><button class="btn primario" id="p-entrar">Entrar</button><button class="btn" id="p-cancelar">Volver</button></div>
+  </div>
+</div>
+
+<!-- Panel del cuidador -->
+<div id="cuidador" class="capa oculto">
+  <div class="caja">
+    <div class="fila" style="justify-content:space-between"><h1 style="margin:0">Cuidador</h1><button class="btn" id="k-salir">← Volver a la pantalla</button></div>
+    <div class="pestanas" role="tablist">
+      <button data-p="meds" class="activa">Medicinas</button>
+      <button data-p="historial">Historial</button>
+      <button data-p="avisos">Avisos</button>
+      <button data-p="contactos">Contactos</button>
+      <button data-p="aparato">Este aparato</button>
+      <button data-p="ajustes">Ajustes</button>
+    </div>
+
+    <section data-panel="meds">
+      <div id="k-meds"></div>
+      <fieldset>
+        <legend id="k-med-titulo">Añadir medicina</legend>
+        <div class="campo"><label for="m-nombre">Nombre</label><input id="m-nombre" placeholder="Ej. Sintrom"></div>
+        <div class="campo"><label for="m-dosis">Cuánto</label><input id="m-dosis" placeholder="Ej. 1 pastilla, media pastilla, 10 gotas"></div>
+        <div class="campo"><label for="m-aspecto">Cómo es (para reconocerla)</label><input id="m-aspecto" placeholder="Ej. pequeña, blanca, redonda. Caja azul"></div>
+        <div class="campo"><label for="m-nota">Nota (opcional)</label><input id="m-nota" placeholder="Ej. con el desayuno, con un vaso de agua"></div>
+        <div class="campo"><label>Horas</label>
+          <div class="fila"><input id="m-hora" type="time" value="08:00" style="max-width:180px"><button class="btn" id="m-anadir-hora">Añadir hora</button></div>
+          <div class="horas" id="m-horas" style="margin-top:8px"></div>
+        </div>
+        <div class="campo"><label for="m-foto">Foto de la pastilla o de la caja (opcional)</label><input id="m-foto" type="file" accept="image/*" capture="environment"><img id="m-foto-prev" class="oculto" alt="" style="width:96px;height:96px;object-fit:cover;border-radius:10px;margin-top:6px"></div>
+        <p class="error" id="m-error"></p>
+        <div class="fila"><button class="btn primario" id="m-guardar">Guardar medicina</button><button class="btn oculto" id="m-cancelar">Cancelar edición</button></div>
+      </fieldset>
+    </section>
+
+    <section data-panel="historial" class="oculto">
+      <p>Últimos 14 días. <b>Tomada</b> = alguien pulsó «Ya me la he tomado» en una pantalla. <b>No marcada</b> = pasó la hora y nadie la marcó (puede que se la tomara y no lo marcara).</p>
+      <div id="k-historial"></div>
+    </section>
+
+    <section data-panel="avisos" class="oculto">
+      <p>Frases que salen en la pantalla ese día: «A las 17:00 viene Ana», «Hoy es domingo, no hay centro de día».</p>
+      <div id="k-avisos"></div>
+      <fieldset>
+        <legend>Nuevo aviso</legend>
+        <div class="campo"><label for="a-texto">Texto</label><input id="a-texto" placeholder="Ej. Viene tu hija Ana"></div>
+        <div class="campo"><label for="a-hora">Hora (opcional)</label><input id="a-hora" type="time" style="max-width:180px"></div>
+        <div class="campo"><label for="a-cuando">Cuándo</label>
+          <select id="a-cuando"><option value="fecha">Un día concreto</option><option value="semanal">Todas las semanas</option><option value="diario">Todos los días</option></select></div>
+        <div class="campo" id="a-fecha-campo"><label for="a-fecha">Día</label><input id="a-fecha" type="date" style="max-width:220px"></div>
+        <div class="campo oculto" id="a-dias-campo"><label>Días de la semana</label><div class="fila" id="a-dias"></div></div>
+        <p class="error" id="a-error"></p>
+        <button class="btn primario" id="a-guardar">Guardar aviso</button>
+      </fieldset>
+    </section>
+
+    <section data-panel="contactos" class="oculto">
+      <p>Salen como botones grandes para llamar en el <b>móvil</b> de la persona.</p>
+      <div id="k-contactos"></div>
+      <fieldset>
+        <legend>Nuevo contacto</legend>
+        <div class="campo"><label for="t-nombre">Nombre</label><input id="t-nombre" placeholder="Ej. Ana (hija)"></div>
+        <div class="campo"><label for="t-tel">Teléfono</label><input id="t-tel" type="tel" placeholder="Ej. 600123456"></div>
+        <p class="error" id="t-error"></p>
+        <button class="btn primario" id="t-guardar">Guardar contacto</button>
+      </fieldset>
+    </section>
+
+    <section data-panel="aparato" class="oculto">
+      <fieldset>
+        <legend>Este aparato</legend>
+        <p id="k-aparato-info"></p>
+        <div class="fila"><button class="btn primario" id="k-cambiar-rol">Cambiar qué es este aparato</button></div>
+        <div class="campo" style="margin-top:14px"><label><input type="checkbox" id="k-sonido"> Suena cuando toca una pastilla</label></div>
+        <div class="campo"><label><input type="checkbox" id="k-voz"> Dice en voz alta qué pastilla toca</label></div>
+        <div class="fila"><button class="btn" id="k-probar">Probar sonido y voz</button><button class="btn" id="k-completa">Pantalla completa</button></div>
+      </fieldset>
+      <fieldset>
+        <legend>Cómo se guardan los datos</legend>
+        <p id="k-modo"></p>
+      </fieldset>
+    </section>
+
+    <section data-panel="ajustes" class="oculto">
+      <fieldset>
+        <legend>Persona</legend>
+        <div class="campo"><label for="j-persona">Nombre para saludar</label><input id="j-persona"></div>
+      </fieldset>
+      <fieldset>
+        <legend>Noche</legend>
+        <p>En estas horas la pantalla se oscurece y muestra un mensaje tranquilo. Si toca una pastilla, sale igualmente.</p>
+        <div class="fila"><div class="campo"><label for="j-noche-desde">Desde</label><input id="j-noche-desde" type="time"></div><div class="campo"><label for="j-noche-hasta">Hasta</label><input id="j-noche-hasta" type="time"></div></div>
+        <div class="campo"><label for="j-noche-texto">Mensaje</label><input id="j-noche-texto"></div>
+      </fieldset>
+      <fieldset>
+        <legend>Recordatorio de pastillas</legend>
+        <div class="fila">
+          <div class="campo"><label for="j-antes">Se puede marcar desde (minutos antes)</label><input id="j-antes" type="number" min="0" max="120"></div>
+          <div class="campo"><label for="j-despues">Sigue avisando durante (minutos después)</label><input id="j-despues" type="number" min="15" max="360"></div>
+          <div class="campo"><label for="j-repetir">Repite el sonido cada (minutos)</label><input id="j-repetir" type="number" min="1" max="60"></div>
+        </div>
+      </fieldset>
+      <fieldset>
+        <legend>PIN</legend>
+        <div class="campo"><label for="j-pin">Nuevo PIN (déjalo vacío para no cambiarlo)</label><input id="j-pin" inputmode="numeric" autocomplete="off"></div>
+      </fieldset>
+      <p class="error" id="j-error"></p>
+      <button class="btn primario" id="j-guardar">Guardar ajustes</button>
+      <fieldset style="margin-top:18px">
+        <legend>Copia de seguridad</legend>
+        <p>Guarda un archivo con todo (medicinas, avisos, historial). Sirve también para pasar la configuración de un aparato a otro sin red.</p>
+        <div class="fila"><button class="btn" id="j-exportar">Descargar copia</button><label class="btn" for="j-importar" style="display:inline-flex;align-items:center">Cargar copia…</label><input id="j-importar" type="file" accept=".json,application/json" class="oculto"></div>
+      </fieldset>
+    </section>
+    <p class="pie-cuidador">Mi día · Les vencimos · Esto es un recordatorio, no sustituye la indicación médica ni el prospecto. Ante una urgencia, 112.</p>
+  </div>
+</div>
+
+<script>
+(function(){
+'use strict';
+
+/* ════════ Utilidades ════════ */
+var $ = function(id){ return document.getElementById(id); };
+var DIAS = ['domingo','lunes','martes','miércoles','jueves','viernes','sábado'];
+var DIAS_CORTO = ['D','L','M','X','J','V','S'];
+var MESES = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+function pad(n){ return (n<10?'0':'')+n; }
+function fechaISO(d){ return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate()); }
+function horaHM(d){ return pad(d.getHours())+':'+pad(d.getMinutes()); }
+function aMin(hm){ var p=String(hm||'').split(':'); return (+p[0])*60+(+p[1]); }
+function minDelDia(d){ return d.getHours()*60+d.getMinutes(); }
+function uid(){ return Date.now().toString(36)+Math.random().toString(36).slice(2,7); }
+function el(tag, attrs, hijos){
+  var e=document.createElement(tag);
+  if(attrs) for(var k in attrs){ if(k==='texto') e.textContent=attrs[k]; else if(k==='clase') e.className=attrs[k]; else e.setAttribute(k,attrs[k]); }
+  (hijos||[]).forEach(function(h){ if(h!=null) e.appendChild(typeof h==='string'?document.createTextNode(h):h); });
+  return e;
+}
+function leerLS(k, def){ try{ var v=localStorage.getItem(k); return v?JSON.parse(v):def; }catch(e){ return def; } }
+function escribirLS(k, v){ try{ localStorage.setItem(k, JSON.stringify(v)); return true; }catch(e){ return false; } }
+function toast(t){ var d=el('div',{clase:'toast',texto:t}); document.body.appendChild(d); setTimeout(function(){ d.remove(); }, 3000); }
+function horaHablada(d){   // «son las 8 y 5», «es la 1 en punto»
+  var h=d.getHours()%12||12, m=d.getMinutes();
+  var base = h===1 ? 'es la 1' : 'son las '+h;
+  return base + (m===0 ? ' en punto' : ' y '+m);
+}
+
+/* ════════ Datos ════════ */
+var CONFIG_BASE = {
+  persona:'', meds:[], avisos:[], contactos:[],
+  noche:{ desde:'23:30', hasta:'07:00', texto:'Es de noche. Es hora de dormir. Vuelve a la cama, mañana será otro día.' },
+  ventana:{ antes:30, despues:120 }, repetirMin:5, creado:''
+};
+var estado = { version:0, config:null, tomas:{} };  // config sin PIN
+var pinLocal = null;                                  // solo en modo local
+var modo = 'local';                                   // 'local' | 'red'
+var red = { ok:false, fallos:0 };
+var aparato = leerLS('midia-aparato', null);          // {rol, sala, sonido, voz}
+var LS_DATOS = 'midia-datos-v1';
+var LS_PEND = 'midia-pendientes-v1';
+var pendientes = leerLS(LS_PEND, []);
+var cambios = 0;   // sube cada vez que cambian los datos: sirve para saber si hay que repintar
+
+function completarConfig(c){
+  var r = JSON.parse(JSON.stringify(CONFIG_BASE));
+  if(!c) return r;
+  for(var k in c) r[k]=c[k];
+  r.noche = Object.assign({}, CONFIG_BASE.noche, c.noche||{});
+  r.ventana = Object.assign({}, CONFIG_BASE.ventana, c.ventana||{});
+  return r;
+}
+
+/* Guardado local (un solo aparato, sin red) */
+function cargarLocal(){
+  var d = leerLS(LS_DATOS, null);
+  if(d && d.config){ estado.config=completarConfig(d.config); estado.tomas=d.tomas||{}; pinLocal=d.pin||null; }
+}
+function guardarLocal(){
+  cambios++;
+  if(!escribirLS(LS_DATOS, {config:estado.config, tomas:estado.tomas, pin:pinLocal}))
+    toast('No se ha podido guardar en este aparato');
+}
+
+/* Red local: el servidor guarda y reparte a todas las pantallas */
+function api(ruta, cuerpo){
+  var ctrl = ('AbortController' in window) ? new AbortController() : null;
+  var t = setTimeout(function(){ if(ctrl) ctrl.abort(); }, 5000);
+  return fetch('api/'+ruta, {
+    method: cuerpo?'POST':'GET', cache:'no-store',
+    headers: cuerpo?{'Content-Type':'application/json'}:{},
+    body: cuerpo?JSON.stringify(cuerpo):undefined,
+    signal: ctrl?ctrl.signal:undefined
+  }).then(function(r){ clearTimeout(t); return r.json().then(function(j){ if(!r.ok) throw Object.assign(new Error(j.error||'error'),{respuesta:j}); return j; }); },
+          function(e){ clearTimeout(t); throw e; });
+}
+function aplicarRemoto(j){
+  if(!j || j.version===undefined) return;
+  cambios++;
+  estado.version=j.version; estado.config=j.config?completarConfig(j.config):null; estado.tomas=j.tomas||{};
+  escribirLS(LS_DATOS+'-cache', j);   // por si se va la red, seguimos viendo lo último
+}
+function sondear(){
+  if(modo!=='red') return;
+  api('estado?v='+estado.version).then(function(j){
+    red.ok=true; red.fallos=0;
+    if(!j.sinCambios){ aplicarRemoto(j); pintarTodo(); }
+    return vaciarPendientes();
+  }).catch(function(){ red.fallos++; if(red.fallos>=2) red.ok=false; pintarRed(); })
+    .then(function(){ pintarRed(); });
+}
+var enviando = null;   // una sola cola en marcha: evita mandar dos veces lo mismo
+function vaciarPendientes(){
+  if(enviando) return enviando;
+  enviando = (function siguiente(){
+    if(!pendientes.length) return Promise.resolve();
+    var p = pendientes[0];
+    return api(p.ruta, p.cuerpo).then(function(j){
+      pendientes.shift(); escribirLS(LS_PEND, pendientes); aplicarRemoto(j); pintarTodo();
+      return siguiente();
+    }, function(e){ if(e.respuesta){ pendientes.shift(); escribirLS(LS_PEND, pendientes); } throw e; });
+  })();
+  var fin = function(){ enviando = null; };
+  enviando.then(fin, fin);
+  return enviando;
+}
+function encolar(ruta, cuerpo){
+  pendientes.push({ruta:ruta, cuerpo:cuerpo}); escribirLS(LS_PEND, pendientes);
+  vaciarPendientes().catch(function(){ red.ok=false; pintarRed(); });
+}
+
+/* Operaciones (las mismas en los dos modos) */
+function marcarToma(clave){
+  var info = { hora: horaHM(new Date()), en: (aparato&&aparato.sala)||(aparato&&aparato.rol==='movil'?'Móvil':'Aparato'), ts: Date.now() };
+  estado.tomas[clave]=info; cambios++;
+  if(modo==='local') guardarLocal(); else encolar('toma', {clave:clave, info:info});
+  pintarTodo();
+}
+function deshacerToma(clave){
+  delete estado.tomas[clave]; cambios++;
+  if(modo==='local') guardarLocal(); else encolar('deshacer', {clave:clave});
+  pintarTodo();
+}
+function guardarConfig(nueva, pin, nuevoPin){
+  if(modo==='local'){
+    estado.config=nueva; if(nuevoPin) pinLocal=nuevoPin; guardarLocal(); pintarTodo(); return Promise.resolve();
+  }
+  return api('config', {pin:pin, nuevoPin:nuevoPin||null, config:nueva}).then(function(j){ aplicarRemoto(j); pintarTodo(); });
+}
+function comprobarPin(pin){
+  if(modo==='local') return Promise.resolve(pin===pinLocal);
+  return api('pin', {pin:pin}).then(function(j){ return !!j.ok; });
+}
+function reemplazarTodo(copia, pin){
+  if(modo==='local'){
+    estado.config=completarConfig(copia.config); estado.tomas=copia.tomas||{}; guardarLocal(); pintarTodo(); return Promise.resolve();
+  }
+  return api('importar', {pin:pin, config:copia.config, tomas:copia.tomas||{}}).then(function(j){ aplicarRemoto(j); pintarTodo(); });
+}
+
+/* ════════ Lógica de pastillas ════════ */
+function avisoActivo(a, fecha){
+  if(a.cuando==='diario') return true;
+  if(a.cuando==='semanal') return (a.dias||[]).indexOf(fecha.getDay())>=0;
+  return a.fecha===fechaISO(fecha);
+}
+function dosisDelDia(fecha){
+  var f = fechaISO(fecha), lista=[];
+  (estado.config?estado.config.meds:[]).forEach(function(m){
+    if(m.desde && f < m.desde) return;           // no existía todavía
+    (m.horas||[]).forEach(function(h){ lista.push({ clave:f+'|'+m.id+'|'+h, med:m, hora:h, min:aMin(h), fecha:f }); });
+  });
+  lista.sort(function(a,b){ return a.min-b.min || a.med.nombre.localeCompare(b.med.nombre); });
+  return lista;
+}
+/* estado: 'tomada' | 'toca' | 'pronto' | 'luego' | 'olvidada' */
+function situacion(d, ahoraMin, esHoy){
+  if(estado.tomas[d.clave]) return 'tomada';
+  var v = estado.config.ventana;
+  if(!esHoy) return 'olvidada';
+  if(ahoraMin < d.min - v.antes) return 'luego';
+  if(ahoraMin < d.min) return 'pronto';
+  if(ahoraMin <= d.min + v.despues) return 'toca';
+  return 'olvidada';
+}
+
+/* ════════ Sonido y voz ════════ */
+var audio = null, ultimoAviso = {};
+function prepararAudio(){
+  try{ if(!audio) audio = new (window.AudioContext||window.webkitAudioContext)(); if(audio.state==='suspended') audio.resume(); }catch(e){ audio=null; }
+}
+function campanilla(){
+  if(!audio) return;
+  var t0 = audio.currentTime;
+  [[659.25,0],[523.25,0.45],[659.25,0.9],[523.25,1.35]].forEach(function(n){
+    var o=audio.createOscillator(), g=audio.createGain();
+    o.type='sine'; o.frequency.value=n[0];
+    g.gain.setValueAtTime(0.0001, t0+n[1]); g.gain.exponentialRampToValueAtTime(0.5, t0+n[1]+0.03); g.gain.exponentialRampToValueAtTime(0.0001, t0+n[1]+0.42);
+    o.connect(g); g.connect(audio.destination); o.start(t0+n[1]); o.stop(t0+n[1]+0.45);
+  });
+}
+function hablar(texto){
+  if(!('speechSynthesis' in window)) return;
+  try{
+    speechSynthesis.cancel();
+    var u = new SpeechSynthesisUtterance(texto); u.lang='es-ES'; u.rate=0.85;
+    var v = speechSynthesis.getVoices().filter(function(x){ return /^es/i.test(x.lang); });
+    if(v.length) u.voice = v[0];
+    setTimeout(function(){ speechSynthesis.speak(u); }, 1900);   // después de la campanilla
+  }catch(e){}
+}
+function avisarSiToca(dosisToca, ahora){
+  if(!aparato || aparato.rol==='cuidador' || !dosisToca.length) return;
+  var rep = Math.max(1, +estado.config.repetirMin||5)*60000;
+  // Cada toma recuerda cuándo se avisó por última vez: marcar una no hace sonar otra vez las demás.
+  var ahoraMs = Date.now();
+  var hayQueAvisar = dosisToca.some(function(d){ return ahoraMs-(ultimoAviso[d.clave]||0) >= rep; });
+  if(!hayQueAvisar) return;
+  dosisToca.forEach(function(d){ ultimoAviso[d.clave]=ahoraMs; });
+  if(aparato.sonido!==false) campanilla();
+  if(aparato.voz!==false){
+    var nombre = estado.config.persona ? estado.config.persona+', ' : '';
+    var meds = dosisToca.map(function(d){ return d.med.nombre+', '+(d.med.dosis||''); }).join('. Y ');
+    hablar(nombre+horaHablada(ahora)+'. Es hora de tomar: '+meds+'.');
+  }
+}
+
+/* ════════ Pintar la vista principal ════════ */
+var nocheOcultaHasta = 0, deshacerHasta = {}, ultimaFirma = '';
+function parteDelDia(h){
+  if(h<6) return ['madrugada','Es de madrugada','Buenas noches'];
+  if(h<12) return ['manana','Por la mañana','Buenos días'];
+  if(h<14) return ['tarde','Es mediodía','Buenos días'];
+  if(h<21) return ['tarde','Por la tarde','Buenas tardes'];
+  return ['noche','Por la noche','Buenas noches'];
+}
+function esNoche(ahoraMin){
+  var n = estado.config.noche, a=aMin(n.desde), b=aMin(n.hasta);
+  if(isNaN(a)||isNaN(b)||a===b) return false;
+  return a<b ? (ahoraMin>=a && ahoraMin<b) : (ahoraMin>=a || ahoraMin<b);
+}
+function pintarReloj(ahora){
+  var p = parteDelDia(ahora.getHours());
+  document.body.dataset.parte = p[0];
+  $('v-hora').textContent = horaHM(ahora);
+  $('n-hora').textContent = horaHM(ahora);
+  $('v-dia').textContent = DIAS[ahora.getDay()];
+  $('v-fecha').textContent = ahora.getDate()+' de '+MESES[ahora.getMonth()]+' de '+ahora.getFullYear();
+  $('v-parte').textContent = p[1];
+  var nom = estado.config && estado.config.persona;
+  $('v-saludo').textContent = p[2]+(nom?', '+nom:'');
+}
+function pintarRed(){
+  var t='';
+  if(modo==='red') t = red.ok ? '' : '⚠ Sin conexión con la central · lo marcado se guarda y se enviará';
+  $('v-red').textContent = t;
+}
+function tarjetaPastillas(toca, pronto, tomadasRecientes, ahora){
+  var cont = $('v-pastillas'); cont.innerHTML='';
+  if(toca.length){
+    var t = el('div',{clase:'tarjeta toca'});
+    t.appendChild(el('p',{clase:'titulo-toca',texto: toca.length>1?'Ahora tocan estas pastillas':'Ahora toca esta pastilla'}));
+    toca.forEach(function(d){ t.appendChild(filaMed(d, true)); });
+    if(toca.length>1){
+      var b = el('button',{clase:'boton-grande',texto:'Me las he tomado todas'});
+      b.addEventListener('click', function(){ toca.forEach(function(d){ marcarToma(d.clave); deshacerHasta[d.clave]=Date.now()+60000; }); });
+      t.appendChild(b);
+    }
+    cont.appendChild(t);
+  }
+  tomadasRecientes.forEach(function(d){
+    var info = estado.tomas[d.clave];
+    var t = el('div',{clase:'tarjeta hecho'});
+    t.appendChild(el('p',{clase:'ya-tomada',texto:'✓ '+d.med.nombre+': ya te la has tomado a las '+info.hora+(info.en?' ('+info.en+')':'')+'.'}));
+    t.appendChild(el('p',{clase:'nota-no-mas',texto:'No hace falta tomar otra ahora.'}));
+    if(deshacerHasta[d.clave] && Date.now()<deshacerHasta[d.clave]){
+      var u = el('button',{clase:'deshacer',texto:'Me he equivocado, no me la he tomado'});
+      u.addEventListener('click', function(){ delete deshacerHasta[d.clave]; deshacerToma(d.clave); });
+      t.appendChild(u);
+    }
+    cont.appendChild(t);
+  });
+  if(!toca.length && pronto.length){
+    var t2 = el('div',{clase:'tarjeta'});
+    t2.appendChild(el('h2',{texto:'Dentro de poco'}));
+    pronto.forEach(function(d){ t2.appendChild(filaMed(d, false)); });
+    var b2 = el('button',{clase:'boton-grande secundario',texto: pronto.length>1?'Me las he tomado ya':'Me la he tomado ya'});
+    b2.addEventListener('click', function(){ pronto.forEach(function(d){ marcarToma(d.clave); deshacerHasta[d.clave]=Date.now()+60000; }); });
+    t2.appendChild(b2);
+    cont.appendChild(t2);
+  }
+}
+function filaMed(d, conBoton){
+  // Sin foto no se pone dibujo: un dibujo de pastilla de otro color confundiría.
+  var foto = d.med.foto ? el('img',{src:d.med.foto, alt:'Foto de '+d.med.nombre}) : null;
+  var txt = el('div',null,[
+    el('div',{clase:'nombre',texto:d.med.nombre+(d.med.dosis?' · '+d.med.dosis:'')}),
+    el('div',{clase:'detalle',texto:[ 'A las '+d.hora, d.med.aspecto, d.med.nota ].filter(Boolean).join(' · ')})
+  ]);
+  if(conBoton){
+    var b = el('button',{clase:'boton-grande',texto:'Ya me la he tomado'});
+    b.addEventListener('click', function(){ marcarToma(d.clave); deshacerHasta[d.clave]=Date.now()+60000; });
+    txt.appendChild(b);
+  }
+  return el('div',{clase:'med'+(foto?'':' sin-foto')},[foto, txt]);
+}
+function pintarHoy(dosis, ahoraMin){
+  var ul = $('v-hoy'); ul.innerHTML='';
+  $('v-hoy-caja').classList.toggle('oculto', !dosis.length);
+  dosis.forEach(function(d){
+    var s = situacion(d, ahoraMin, true), info = estado.tomas[d.clave], marca;
+    if(s==='tomada') marca = el('span',{clase:'marca ok',texto:'✓ '+info.hora});
+    // A la persona no se le pone una X roja: podría tomársela tarde sin que nadie lo decida.
+    else if(s==='olvidada') marca = el('span',{clase:'marca pend',texto:'pasó la hora'});
+    else if(s==='toca') marca = el('span',{clase:'marca pend',texto:'ahora'});
+    else marca = el('span',{clase:'marca pend',texto:'—'});
+    ul.appendChild(el('li',null,[ el('span',{texto:d.hora+'  '+d.med.nombre}), marca ]));
+  });
+}
+function pintarAvisos(ahora){
+  var caja=$('v-avisos-caja'), cont=$('v-avisos'); cont.innerHTML='';
+  var hoy = (estado.config.avisos||[]).filter(function(a){ return avisoActivo(a, ahora); })
+    .sort(function(a,b){ return (a.hora||'00:00').localeCompare(b.hora||'00:00'); });
+  hoy.forEach(function(a){
+    var d = el('div',{clase:'aviso-item'+(a.hora && a.hora<horaHM(ahora)?' pasado':'')});
+    if(a.hora){ d.appendChild(el('b',{texto:a.hora})); d.appendChild(document.createTextNode(' · ')); }
+    d.appendChild(document.createTextNode(a.texto));
+    cont.appendChild(d);
+  });
+  caja.classList.toggle('oculto', !hoy.length);
+}
+function pintarContactos(){
+  var caja=$('v-contactos-caja'), cont=$('v-contactos'); cont.innerHTML='';
+  var ver = aparato && aparato.rol==='movil' && (estado.config.contactos||[]).length;
+  caja.classList.toggle('oculto', !ver);
+  if(!ver) return;
+  estado.config.contactos.forEach(function(c){
+    cont.appendChild(el('a',{href:'tel:'+c.tel.replace(/[^\d+]/g,'')},['📞 ', c.nombre]));
+  });
+}
+function pintarTodo(){
+  if(!estado.config) return;
+  var ahora = new Date(), am = minDelDia(ahora);
+  pintarReloj(ahora);
+  $('v-sala').textContent = aparato ? (aparato.rol==='movil' ? '' : (aparato.sala||'')) : '';
+  var dosis = dosisDelDia(ahora);
+  // Tomas que cruzan la medianoche: la de las 23:30 sigue avisando a las 00:15,
+  // y la de las 00:10 ya se puede marcar a las 23:50.
+  var v = estado.config.ventana, un = 24*60;
+  var cerca = dosisDelDia(new Date(ahora.getFullYear(), ahora.getMonth(), ahora.getDate()-1))
+      .map(function(d){ return Object.assign({}, d, {min:d.min-un}); }).filter(function(d){ return d.min+v.despues>=0; })
+    .concat(dosis)
+    .concat(dosisDelDia(new Date(ahora.getFullYear(), ahora.getMonth(), ahora.getDate()+1))
+      .map(function(d){ return Object.assign({}, d, {min:d.min+un}); }).filter(function(d){ return d.min-v.antes<un; }));
+  var toca=[], pronto=[], recientes=[];
+  cerca.forEach(function(d){
+    var s = situacion(d, am, true);
+    if(s==='toca') toca.push(d);
+    else if(s==='pronto') pronto.push(d);
+    else if(s==='tomada' && am - d.min <= estado.config.ventana.despues && am >= d.min - estado.config.ventana.antes) recientes.push(d);
+  });
+  var firma = JSON.stringify([ fechaISO(ahora), estado.version, aparato,
+    toca.map(function(d){ return d.clave; }), pronto.map(function(d){ return d.clave; }),
+    recientes.map(function(d){ return [d.clave, !!(deshacerHasta[d.clave] && Date.now()<deshacerHasta[d.clave])]; }),
+    dosis.map(function(d){ return situacion(d, am, true)+(estado.tomas[d.clave]?estado.tomas[d.clave].hora:''); }),
+    cambios, (estado.config.avisos||[]).filter(function(x){ return x.hora && x.hora<horaHM(ahora); }).length ]);
+  document.body.classList.toggle('hay-toca', toca.length>0);
+  if(firma !== ultimaFirma){
+    ultimaFirma = firma;
+    document.body.classList.toggle('hay-toca', toca.length>0);
+    tarjetaPastillas(toca, pronto, recientes, ahora);
+    pintarHoy(dosis, am);
+    pintarAvisos(ahora);
+    pintarContactos();
+  }
+  pintarRed();
+  // Noche: solo si no hay pastillas pendientes ahora
+  var noche = aparato && aparato.rol!=='cuidador' && esNoche(am) && !toca.length && Date.now()>nocheOcultaHasta;
+  $('noche').classList.toggle('oculto', !noche);
+  $('n-texto').textContent = estado.config.noche.texto;
+  avisarSiToca(toca, ahora);
+}
+
+/* ════════ Arranque, configuración y roles ════════ */
+function mostrar(id){ ['empezar','configurar','elegir-rol','pedir-pin','cuidador'].forEach(function(c){ $(c).classList.toggle('oculto', c!==id); }); }
+function aplicarRol(){
+  document.body.classList.toggle('rol-pantalla', !aparato || aparato.rol==='pantalla' || aparato.rol==='cuidador');
+  document.body.classList.toggle('rol-movil', !!aparato && aparato.rol==='movil');
+}
+var bloqueoPantalla = null;
+function mantenerEncendida(){
+  if(!('wakeLock' in navigator) || !aparato || aparato.rol==='cuidador') return;
+  navigator.wakeLock.request('screen').then(function(l){ bloqueoPantalla=l; }).catch(function(){});
+}
+document.addEventListener('visibilitychange', function(){ if(document.visibilityState==='visible'){ mantenerEncendida(); sondear(); pintarTodo(); } });
+
+function siguientePaso(){
+  if(!estado.config){ mostrar('configurar'); return; }
+  if(!aparato){ mostrar('elegir-rol'); prepararRol(); return; }
+  aplicarRol();
+  if(aparato.rol==='cuidador'){ abrirPin(); return; }
+  mostrar(null); pintarTodo();
+}
+
+$('btn-empezar').addEventListener('click', function(){
+  prepararAudio(); mantenerEncendida();
+  if(aparato && aparato.rol==='pantalla' && document.documentElement.requestFullscreen){ document.documentElement.requestFullscreen().catch(function(){}); }
+  siguientePaso();
+});
+
+$('c-guardar').addEventListener('click', function(){
+  var nom=$('c-persona').value.trim(), p1=$('c-pin').value.trim(), p2=$('c-pin2').value.trim();
+  if(!/^\d{4,8}$/.test(p1)){ $('c-error').textContent='El PIN tiene que ser de 4 a 8 números.'; return; }
+  if(p1!==p2){ $('c-error').textContent='Los dos PIN no coinciden.'; return; }
+  var cfg = completarConfig({persona:nom, creado:fechaISO(new Date())});
+  if(modo==='local'){ pinLocal=p1; estado.config=cfg; guardarLocal(); siguientePaso(); return; }
+  api('config', {pin:null, nuevoPin:p1, config:cfg}).then(function(j){ aplicarRemoto(j); siguientePaso(); })
+    .catch(function(e){ $('c-error').textContent = e.message==='pin' ? 'Ya estaba configurado desde otra pantalla. Recarga la página.' : 'No hay conexión con la central.'; });
+});
+
+var rolElegido = null;
+function prepararRol(){
+  rolElegido = aparato ? aparato.rol : null;
+  $('r-sala').value = aparato && aparato.sala || '';
+  document.querySelectorAll('.opciones-rol button').forEach(function(b){ b.classList.toggle('elegido', b.dataset.rol===rolElegido); });
+  $('r-sala-campo').classList.toggle('oculto', rolElegido!=='pantalla');
+}
+document.querySelectorAll('.opciones-rol button').forEach(function(b){
+  b.addEventListener('click', function(){ rolElegido=b.dataset.rol;
+    document.querySelectorAll('.opciones-rol button').forEach(function(x){ x.classList.toggle('elegido', x===b); });
+    $('r-sala-campo').classList.toggle('oculto', rolElegido!=='pantalla'); });
+});
+$('r-guardar').addEventListener('click', function(){
+  if(!rolElegido){ toast('Elige una de las tres opciones'); return; }
+  var ant = aparato||{};
+  aparato = { rol:rolElegido, sala: rolElegido==='pantalla' ? ($('r-sala').value.trim()||'Casa') : '', sonido: rolElegido!=='cuidador' && ant.sonido!==false, voz: rolElegido!=='cuidador' && ant.voz!==false };
+  escribirLS('midia-aparato', aparato);
+  pinOk = pinOk || null;
+  siguientePaso();
+});
+
+/* ════════ Cuidador ════════ */
+var pinOk = null;   // PIN comprobado en esta sesión (se olvida al recargar)
+function abrirPin(){ $('p-pin').value=''; $('p-error').textContent=''; mostrar('pedir-pin'); setTimeout(function(){ $('p-pin').focus(); }, 50); }
+$('abrir-cuidador').addEventListener('click', abrirPin);
+$('p-cancelar').addEventListener('click', function(){ if(aparato && aparato.rol==='cuidador'){ $('p-error').textContent='Este aparato es solo del cuidador. Cámbialo desde dentro si quieres.'; return; } mostrar(null); pintarTodo(); });
+$('p-pin').addEventListener('keydown', function(e){ if(e.key==='Enter') $('p-entrar').click(); });
+$('p-entrar').addEventListener('click', function(){
+  var p=$('p-pin').value.trim();
+  comprobarPin(p).then(function(ok){
+    if(!ok){ $('p-error').textContent='PIN incorrecto.'; return; }
+    pinOk=p; abrirCuidador();
+  }).catch(function(){ $('p-error').textContent='No hay conexión con la central.'; });
+});
+$('k-salir').addEventListener('click', function(){
+  if(aparato && aparato.rol==='cuidador'){ toast('Este aparato es solo del cuidador'); return; }
+  mostrar(null); pintarTodo();
+});
+document.querySelectorAll('#cuidador .pestanas button').forEach(function(b){
+  b.addEventListener('click', function(){ verPestana(b.dataset.p); });
+});
+function verPestana(p){
+  document.querySelectorAll('#cuidador .pestanas button').forEach(function(x){ x.classList.toggle('activa', x.dataset.p===p); });
+  document.querySelectorAll('#cuidador [data-panel]').forEach(function(s){ s.classList.toggle('oculto', s.dataset.panel!==p); });
+  pintarCuidador();
+}
+function abrirCuidador(){ mostrar('cuidador'); limpiarFormMed(); pintarCuidador(); }
+function copiaConfig(){ return JSON.parse(JSON.stringify(estado.config)); }
+function cambiar(fn, ok){
+  var c = copiaConfig(); fn(c);
+  return guardarConfig(c, pinOk).then(function(){ pintarCuidador(); if(ok) toast(ok); })
+    .catch(function(e){ toast(e && e.message==='pin' ? 'PIN no válido, vuelve a entrar' : 'No se ha guardado: sin conexión con la central'); });
+}
+function pintarCuidador(){
+  if($('cuidador').classList.contains('oculto')) return;
+  // Medicinas
+  var km=$('k-meds'); km.innerHTML='';
+  if(!estado.config.meds.length) km.appendChild(el('p',{texto:'Todavía no hay medicinas. Añade la primera abajo.'}));
+  estado.config.meds.forEach(function(m){
+    var foto = m.foto ? el('img',{src:m.foto,alt:''}) : el('div',{clase:'sinfoto',texto:'💊'});
+    var ed = el('button',{clase:'btn',texto:'Editar'}); ed.addEventListener('click', function(){ editarMed(m); });
+    var bo = el('button',{clase:'btn peligro',texto:'Quitar'}); bo.addEventListener('click', function(){
+      if(confirm('¿Quitar '+m.nombre+'? El historial ya guardado se conserva.')) cambiar(function(c){ c.meds=c.meds.filter(function(x){ return x.id!==m.id; }); }, 'Medicina quitada'); });
+    km.appendChild(el('div',{clase:'item'},[ foto,
+      el('div',null,[ el('b',{texto:m.nombre+(m.dosis?' · '+m.dosis:'')}), el('small',{texto:'A las '+(m.horas||[]).join(', ')}), el('small',{texto:[m.aspecto,m.nota].filter(Boolean).join(' · ')}) ]),
+      el('div',{clase:'fila'},[ed,bo]) ]));
+  });
+  // Historial
+  pintarHistorial();
+  // Avisos
+  var ka=$('k-avisos'); ka.innerHTML='';
+  (estado.config.avisos||[]).forEach(function(a){
+    var cuando = a.cuando==='diario'?'Todos los días': a.cuando==='semanal'? 'Cada '+(a.dias||[]).map(function(d){ return DIAS[d]; }).join(', ') : a.fecha;
+    var bo = el('button',{clase:'btn peligro',texto:'Quitar'}); bo.addEventListener('click', function(){ cambiar(function(c){ c.avisos=c.avisos.filter(function(x){ return x.id!==a.id; }); }); });
+    ka.appendChild(el('div',{clase:'item'},[ el('div',{clase:'sinfoto',texto:'🗓'}), el('div',null,[ el('b',{texto:a.texto}), el('small',{texto:cuando+(a.hora?' · '+a.hora:'')}) ]), bo ]));
+  });
+  // Contactos
+  var kc=$('k-contactos'); kc.innerHTML='';
+  (estado.config.contactos||[]).forEach(function(t){
+    var bo = el('button',{clase:'btn peligro',texto:'Quitar'}); bo.addEventListener('click', function(){ cambiar(function(c){ c.contactos=c.contactos.filter(function(x){ return x.id!==t.id; }); }); });
+    kc.appendChild(el('div',{clase:'item'},[ el('div',{clase:'sinfoto',texto:'📞'}), el('div',null,[ el('b',{texto:t.nombre}), el('small',{texto:t.tel}) ]), bo ]));
+  });
+  // Aparato
+  var nombresRol = {pantalla:'Pantalla de habitación', movil:'Móvil de la persona', cuidador:'Solo cuidador'};
+  $('k-aparato-info').textContent = 'Ahora es: '+(aparato?nombresRol[aparato.rol]+(aparato.sala?' — '+aparato.sala:''):'sin elegir');
+  $('k-sonido').checked = !!aparato && aparato.sonido!==false; $('k-voz').checked = !!aparato && aparato.voz!==false;
+  $('k-modo').textContent = modo==='red'
+    ? 'En red local: todo se guarda en la central (el ordenador donde corre el servidor). Todas las pantallas ven lo mismo. Si se va la red, lo que se marque aquí se guarda y se envía al volver.'
+    : 'Solo en este aparato (sin servidor). Si usas varias pantallas sin red, cada una lleva su propia lista: para eso está la red local o la copia de seguridad.';
+  // Ajustes
+  var c=estado.config;
+  $('j-persona').value=c.persona||''; $('j-noche-desde').value=c.noche.desde; $('j-noche-hasta').value=c.noche.hasta; $('j-noche-texto').value=c.noche.texto;
+  $('j-antes').value=c.ventana.antes; $('j-despues').value=c.ventana.despues; $('j-repetir').value=c.repetirMin; $('j-pin').value='';
+}
+function pintarHistorial(){
+  var cont=$('k-historial'); cont.innerHTML='';
+  var ahora=new Date(), filas=[];
+  for(var i=0;i<14;i++){
+    var dia = new Date(ahora.getFullYear(), ahora.getMonth(), ahora.getDate()-i);
+    if(estado.config.creado && fechaISO(dia) < estado.config.creado) break;
+    dosisDelDia(dia).forEach(function(d){
+      var s = situacion(d, minDelDia(ahora), i===0);
+      if(s==='luego'||s==='pronto') return;
+      filas.push({dia:dia, d:d, s:s});
+    });
+  }
+  if(!filas.length){ cont.appendChild(el('p',{texto:'Aún no hay nada que mostrar.'})); return; }
+  var tomadas = filas.filter(function(f){ return f.s==='tomada'; }).length;
+  cont.appendChild(el('p',{},[ el('b',{texto: tomadas+' de '+filas.filter(function(f){ return f.s!=='toca'; }).length+' tomas marcadas'}), ' (sin contar las que están tocando ahora).' ]));
+  var tb = el('table',{clase:'historial'});
+  tb.appendChild(el('tr',null,[ el('th',{texto:'Día'}), el('th',{texto:'Hora'}), el('th',{texto:'Medicina'}), el('th',{texto:'Estado'}) ]));
+  filas.forEach(function(f){
+    var info = estado.tomas[f.d.clave], chip;
+    if(f.s==='tomada') chip = el('span',{clase:'chip ok',texto:'Tomada '+info.hora+(info.en?' · '+info.en:'')});
+    else if(f.s==='toca') chip = el('span',{clase:'chip pend',texto:'Tocando ahora'});
+    else chip = el('span',{clase:'chip mal',texto:'No marcada'});
+    tb.appendChild(el('tr',null,[ el('td',{texto:DIAS[f.dia.getDay()].slice(0,3)+' '+f.dia.getDate()}), el('td',{texto:f.d.hora}), el('td',{texto:f.d.med.nombre}), el('td',null,[chip]) ]));
+  });
+  cont.appendChild(tb);
+}
+
+/* Formulario de medicinas */
+var medEditando=null, horasForm=[], fotoForm=null;
+function limpiarFormMed(){
+  medEditando=null; horasForm=[]; fotoForm=null;
+  ['m-nombre','m-dosis','m-aspecto','m-nota'].forEach(function(i){ $(i).value=''; });
+  $('m-foto').value=''; $('m-foto-prev').classList.add('oculto'); $('m-error').textContent='';
+  $('k-med-titulo').textContent='Añadir medicina'; $('m-cancelar').classList.add('oculto'); pintarHorasForm();
+}
+function editarMed(m){
+  medEditando=m.id; horasForm=(m.horas||[]).slice(); fotoForm=m.foto||null;
+  $('m-nombre').value=m.nombre; $('m-dosis').value=m.dosis||''; $('m-aspecto').value=m.aspecto||''; $('m-nota').value=m.nota||'';
+  if(fotoForm){ $('m-foto-prev').src=fotoForm; $('m-foto-prev').classList.remove('oculto'); } else $('m-foto-prev').classList.add('oculto');
+  $('k-med-titulo').textContent='Editar: '+m.nombre; $('m-cancelar').classList.remove('oculto'); pintarHorasForm();
+  $('m-nombre').scrollIntoView({block:'center'});
+}
+function pintarHorasForm(){
+  var c=$('m-horas'); c.innerHTML='';
+  horasForm.sort().forEach(function(h){
+    var x=el('button',{'aria-label':'Quitar '+h,texto:'✕'}); x.addEventListener('click', function(){ horasForm=horasForm.filter(function(y){ return y!==h; }); pintarHorasForm(); });
+    c.appendChild(el('span',null,[h,x]));
+  });
+  if(!horasForm.length) c.appendChild(el('small',{texto:'Sin horas todavía'}));
+}
+$('m-anadir-hora').addEventListener('click', function(){
+  var h=$('m-hora').value; if(!/^\d\d:\d\d$/.test(h)) return;
+  if(horasForm.indexOf(h)<0) horasForm.push(h); pintarHorasForm();
+});
+$('m-cancelar').addEventListener('click', limpiarFormMed);
+$('m-foto').addEventListener('change', function(){
+  var f=this.files&&this.files[0]; if(!f) return;
+  var lector=new FileReader();
+  lector.onload=function(){
+    var img=new Image();
+    img.onload=function(){
+      var lado=320, esc=Math.min(1, lado/Math.max(img.width,img.height));
+      var cv=document.createElement('canvas'); cv.width=Math.round(img.width*esc); cv.height=Math.round(img.height*esc);
+      cv.getContext('2d').drawImage(img,0,0,cv.width,cv.height);
+      fotoForm=cv.toDataURL('image/jpeg',0.75); $('m-foto-prev').src=fotoForm; $('m-foto-prev').classList.remove('oculto');
+    };
+    img.onerror=function(){ $('m-error').textContent='No se ha podido leer la foto.'; };
+    img.src=lector.result;
+  };
+  lector.readAsDataURL(f);
+});
+$('m-guardar').addEventListener('click', function(){
+  var nombre=$('m-nombre').value.trim();
+  if(!nombre){ $('m-error').textContent='Falta el nombre.'; return; }
+  if(!horasForm.length){ $('m-error').textContent='Añade al menos una hora (elige la hora y pulsa «Añadir hora»).'; return; }
+  var datos={ nombre:nombre, dosis:$('m-dosis').value.trim(), aspecto:$('m-aspecto').value.trim(), nota:$('m-nota').value.trim(), horas:horasForm.slice().sort(), foto:fotoForm };
+  var id=medEditando;
+  cambiar(function(c){
+    if(id){ c.meds=c.meds.map(function(m){ return m.id===id ? Object.assign({}, m, datos) : m; }); }
+    else { datos.id=uid(); datos.desde=fechaISO(new Date()); c.meds.push(datos); }
+  }, id?'Medicina actualizada':'Medicina añadida').then(limpiarFormMed);
+});
+
+/* Avisos */
+(function(){
+  var c=$('a-dias'); [1,2,3,4,5,6,0].forEach(function(d){
+    c.appendChild(el('label',{clase:'btn',style:'min-height:44px;display:inline-flex;gap:6px;align-items:center'},[ el('input',{type:'checkbox',value:String(d)}), DIAS_CORTO[d] ]));
+  });
+})();
+$('a-cuando').addEventListener('change', function(){
+  $('a-fecha-campo').classList.toggle('oculto', this.value!=='fecha');
+  $('a-dias-campo').classList.toggle('oculto', this.value!=='semanal');
+});
+$('a-guardar').addEventListener('click', function(){
+  var texto=$('a-texto').value.trim(), cuando=$('a-cuando').value;
+  if(!texto){ $('a-error').textContent='Falta el texto.'; return; }
+  var av={ id:uid(), texto:texto, hora:$('a-hora').value||'', cuando:cuando };
+  if(cuando==='fecha'){ av.fecha=$('a-fecha').value; if(!av.fecha){ $('a-error').textContent='Elige el día.'; return; } }
+  if(cuando==='semanal'){ av.dias=[].slice.call(document.querySelectorAll('#a-dias input:checked')).map(function(i){ return +i.value; }); if(!av.dias.length){ $('a-error').textContent='Marca al menos un día.'; return; } }
+  $('a-error').textContent='';
+  cambiar(function(c){ c.avisos=(c.avisos||[]).concat([av]); }, 'Aviso guardado').then(function(){ $('a-texto').value=''; $('a-hora').value=''; });
+});
+
+/* Contactos */
+$('t-guardar').addEventListener('click', function(){
+  var n=$('t-nombre').value.trim(), t=$('t-tel').value.trim();
+  if(!n||!/[\d]{3,}/.test(t)){ $('t-error').textContent='Pon nombre y un teléfono.'; return; }
+  $('t-error').textContent='';
+  cambiar(function(c){ c.contactos=(c.contactos||[]).concat([{id:uid(), nombre:n, tel:t}]); }, 'Contacto guardado').then(function(){ $('t-nombre').value=''; $('t-tel').value=''; });
+});
+
+/* Este aparato */
+$('k-cambiar-rol').addEventListener('click', function(){ mostrar('elegir-rol'); prepararRol(); });
+$('k-sonido').addEventListener('change', function(){ aparato.sonido=this.checked; escribirLS('midia-aparato', aparato); });
+$('k-voz').addEventListener('change', function(){ aparato.voz=this.checked; escribirLS('midia-aparato', aparato); });
+$('k-probar').addEventListener('click', function(){ prepararAudio(); campanilla(); hablar((estado.config.persona?estado.config.persona+', ':'')+'así sonará el aviso de las pastillas.'); });
+$('k-completa').addEventListener('click', function(){ if(document.documentElement.requestFullscreen) document.documentElement.requestFullscreen().catch(function(){ toast('Este navegador no deja pantalla completa'); }); });
+
+/* Ajustes */
+$('j-guardar').addEventListener('click', function(){
+  var np=$('j-pin').value.trim();
+  if(np && !/^\d{4,8}$/.test(np)){ $('j-error').textContent='El PIN nuevo tiene que ser de 4 a 8 números.'; return; }
+  var antes=+$('j-antes').value, despues=+$('j-despues').value, rep=+$('j-repetir').value;
+  if(!(antes>=0&&antes<=120&&despues>=15&&despues<=360&&rep>=1&&rep<=60)){ $('j-error').textContent='Revisa los minutos: antes 0–120, después 15–360, repetir 1–60.'; return; }
+  $('j-error').textContent='';
+  var c=copiaConfig();
+  c.persona=$('j-persona').value.trim();
+  c.noche={ desde:$('j-noche-desde').value||'23:30', hasta:$('j-noche-hasta').value||'07:00', texto:$('j-noche-texto').value.trim()||CONFIG_BASE.noche.texto };
+  c.ventana={antes:antes, despues:despues}; c.repetirMin=rep;
+  guardarConfig(c, pinOk, np||null).then(function(){ if(np) pinOk=np; pintarCuidador(); toast('Ajustes guardados'); })
+    .catch(function(){ toast('No se ha guardado: sin conexión con la central'); });
+});
+$('j-exportar').addEventListener('click', function(){
+  var copia={ app:'mi-dia', version:1, fecha:new Date().toISOString(), config:estado.config, tomas:estado.tomas };
+  var a=el('a',{href:URL.createObjectURL(new Blob([JSON.stringify(copia,null,1)],{type:'application/json'})), download:'mi-dia-copia-'+fechaISO(new Date())+'.json'});
+  document.body.appendChild(a); a.click(); setTimeout(function(){ URL.revokeObjectURL(a.href); a.remove(); }, 1000);
+});
+$('j-importar').addEventListener('change', function(){
+  var f=this.files&&this.files[0]; if(!f) return; var inp=this;
+  f.text().then(function(t){
+    var j=JSON.parse(t);
+    if(j.app!=='mi-dia'||!j.config) throw new Error('formato');
+    if(!confirm('Esto sustituye todas las medicinas, avisos e historial de ahora por los de la copia. ¿Seguir?')) return;
+    return reemplazarTodo(j, pinOk).then(function(){ pintarCuidador(); toast('Copia cargada'); });
+  }).catch(function(){ toast('Ese archivo no es una copia de Mi día'); }).then(function(){ inp.value=''; });
+});
+
+/* Tocar la pantalla de noche la enseña 2 minutos */
+$('noche').addEventListener('click', function(){ nocheOcultaHasta=Date.now()+120000; pintarTodo(); });
+
+/* ════════ Inicio ════════ */
+function arrancar(){
+  var enServidor = /^https?:$/.test(location.protocol);
+  var intento = enServidor ? api('estado').then(function(j){ modo='red'; red.ok=true; aplicarRemoto(j); },
+    function(){ var c=leerLS(LS_DATOS+'-cache',null); if(c && c.version!==undefined){ modo='red'; red.ok=false; aplicarRemoto(c); } else { modo='local'; cargarLocal(); } })
+    : Promise.resolve(cargarLocal());
+  intento.then(function(){
+    aplicarRol();
+    mostrar('empezar');
+    setInterval(function(){ if($('cuidador').classList.contains('oculto')) pintarTodo(); else pintarReloj(new Date()); }, 1000);
+    setInterval(sondear, 3000);
+  });
+}
+arrancar();
+})();
+</script>
+</body>
+</html>
