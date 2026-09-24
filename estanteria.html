@@ -198,8 +198,8 @@
       var(--fondo-2);
     border: 1px solid var(--linea);
     border-radius: var(--radio);
-    overflow: hidden;
-    touch-action: none;
+    overflow: auto;
+    touch-action: pan-y;
     user-select: none;
     -webkit-user-select: none;
   }
@@ -317,7 +317,7 @@
     border: none;
     box-shadow: none;
     overflow: visible;
-    min-width: 72px; min-height: 96px;
+    min-width: 64px; min-height: 84px;
     container-type: size;
     pointer-events: auto;
     z-index: 2;
@@ -332,19 +332,27 @@
     outline-offset: 3px;
   }
   .desk-item.view-icon .item-chrome {
-    position: absolute; top: -6px; left: 50%; transform: translateX(-50%);
-    background: rgba(0,0,0,0.62); min-height: 28px; z-index: 3; padding: 0.1rem;
-    border-radius: 999px; gap: 0;
-    opacity: 0; pointer-events: none; transition: opacity 0.15s;
-  }
-  .desk-item.view-icon.selected .item-chrome,
-  .desk-item.view-icon:hover .item-chrome {
+    position: absolute; top: -4px; right: -4px; left: auto; transform: none;
+    background: transparent; min-height: 0; z-index: 3; padding: 0;
+    border-radius: 0; gap: 0.15rem;
     opacity: 1; pointer-events: auto;
   }
   .desk-item.view-icon .item-chrome .item-title { display: none; }
   .desk-item.view-icon .item-chrome .act {
-    display: inline-flex; align-items: center; justify-content: center;
-    min-width: 32px; min-height: 32px;
+    display: none; align-items: center; justify-content: center;
+    min-width: 28px; min-height: 28px;
+  }
+  .desk-item.view-icon .item-chrome .rm {
+    display: inline-flex;
+    background: rgba(0,0,0,0.58); color: #fff;
+    border-radius: 999px; min-width: 28px; min-height: 28px;
+    font-size: 0.8rem; line-height: 1;
+  }
+  .desk-item.view-icon.selected .item-chrome .view-tog,
+  .desk-item.view-icon:hover .item-chrome .view-tog {
+    display: inline-flex;
+    background: rgba(0,0,0,0.58); color: #fff;
+    border-radius: 999px;
   }
   .desk-item.view-icon .item-chrome .shape-tog { display: none; }
   .desk-item.view-icon .item-body {
@@ -476,11 +484,10 @@
   .desk-item.widget-kind.frameless .item-chrome {
     position: absolute; top: 2px; right: 2px; left: auto; transform: none;
     background: transparent; min-height: 28px; z-index: 3; padding: 0;
-    opacity: 0; pointer-events: none; transition: opacity 0.15s;
-  }
-  .desk-item.widget-kind.frameless.selected .item-chrome,
-  .desk-item.widget-kind.frameless:hover .item-chrome {
     opacity: 1; pointer-events: auto;
+  }
+  .desk-item.widget-kind.frameless .item-chrome .rm {
+    background: rgba(0,0,0,0.45); color: #fff; border-radius: 999px;
   }
   .desk-item.widget-kind.frameless .item-title { display: none; }
   .desk-item.widget-kind.frameless .item-body {
@@ -817,10 +824,9 @@
       </p>
         <h1>Escritorio / Estantería</h1>
         <p class="lead">
-          Un <strong>escritorio</strong> con estantes: los módulos se agrupan por categoría
-          (Escritura, Ocio, Agenda…) y <strong>puedes arrastrarlos donde quieras</strong>.
-          Iconos redondos que crecen al redimensionar. Añade reloj, calendario o una <strong>Hoja</strong>.
-          Oculta el menú para pantalla completa.
+          Un <strong>escritorio</strong> ya lleno al abrir: módulos por estante + reloj, fecha y calendario.
+          Quita con <strong>✕</strong> lo que no uses. Añade sobre todo desde <strong>Widgets</strong>
+          (Módulos solo para restaurar uno). «A estantes» ordena por tema. Oculta el menú para pantalla completa.
           <strong>Sin Radio ni red:</strong> este HTML no puede conectar a internet.
         </p>
 
@@ -839,7 +845,7 @@
           </select>
           <span class="spacer"></span>
           <button type="button" id="btn-shelves" title="Colocar módulos en sus estantes">A estantes</button>
-          <button type="button" id="btn-fill" title="Poner todos los módulos en sus estantes + reloj, fecha y calendario">Llenar escritorio</button>
+          <button type="button" id="btn-fill" title="Vuelve a poner módulos quitados + reloj, fecha y calendario">Restaurar todo</button>
           <button type="button" id="btn-clear" title="Vaciar escritorio">Vaciar</button>
           <button type="button" id="btn-collapse-toolbar" title="Ocultar menú" aria-label="Ocultar menú">Ocultar menú</button>
         </div>
@@ -851,7 +857,7 @@
             <button type="button" class="panel-close" data-close-panel="m" aria-label="Cerrar">✕</button>
           </div>
           <div id="mod-chips" class="chip-list"></div>
-          <p class="hint">Los módulos van <strong>dentro de este HTML</strong> (sin archivos hermanos). Profesor es descarga aparte. También «Archivo local…».</p>
+          <p class="hint">Para <strong>restaurar</strong> un módulo quitado. Van dentro de este HTML. Profesor es descarga aparte. También «Archivo local…».</p>
         </div>
         <div id="panel-widgets" class="add-panel" role="region" aria-labelledby="panel-widgets-title" aria-hidden="true">
           <div class="panel-head">
@@ -861,7 +867,7 @@
           <div id="wid-chips" class="chip-list"></div>
         </div>
         <p class="file-err" id="file-err" aria-live="polite"></p>
-        <p class="hint desk-hint">Estante sugerido al añadir · arrastra libre · icono redondo abre al tocar · Icono/Ficha · ◯/▭ · «A estantes» reordena · «Llenar escritorio» añade lo que falte · ✕ quita. Mantén pulsado el escritorio vacío (menú oculto) para recuperar el menú.</p>
+        <p class="hint desk-hint">Abre ya lleno · quita con ✕ · añade Widgets · «A estantes» ordena por tema · «Restaurar todo» recupera lo quitado. Mantén pulsado el escritorio vacío (menú oculto) para recuperar el menú.</p>
       </div>
 
       <button type="button" id="btn-show-toolbar" class="menu-peek" aria-label="Mostrar menú" title="Mostrar menú" hidden>
@@ -871,11 +877,11 @@
 
       <div id="desktop" class="desktop" aria-label="Escritorio / Estantería">
         <div id="shelf-rails" class="shelf-rails" aria-hidden="true"></div>
-        <div class="desktop-empty">Escritorio vacío.<br>Añade un módulo — se coloca en su estante; luego arrástralo donde quieras.</div>
+        <div class="desktop-empty">Todo quitado.<br>Widgets para añadir · Restaurar todo para volver a llenar.</div>
       </div>
     </div>
 
-    <footer class="site-foot">lesvencimos.com · escritorio / estantería offline · <span id="est-build">v20260924b</span></footer>
+    <footer class="site-foot">lesvencimos.com · escritorio / estantería offline · <span id="est-build">v20260924c</span></footer>
   </div>
 
   <div id="mod-viewer" role="dialog" aria-modal="true" aria-labelledby="mod-viewer-title" hidden>
@@ -995,7 +1001,7 @@
     ];
 
     var urlCache = {};
-    var state = { version: 3, items: [], toolbarCollapsed: false, theme: 'azul' };
+    var state = { version: 4, items: [], toolbarCollapsed: false, theme: 'azul', layoutRev: 0 };
     var selectedId = null;
     var clockTimer = null;
     var hojaPaint = {}; /* id -> { drawing, last } */
@@ -1003,13 +1009,14 @@
     function loadState() {
       try {
         var raw = localStorage.getItem(LS_KEY);
-        if (!raw) return { version: 3, items: [], toolbarCollapsed: false, theme: 'azul' };
+        if (!raw) return { version: 4, items: [], toolbarCollapsed: false, theme: 'azul', layoutRev: 0 };
         var data = JSON.parse(raw);
         if (Array.isArray(data)) {
           return {
-            version: 2,
+            version: 4,
             toolbarCollapsed: false,
             theme: 'azul',
+            layoutRev: 0,
             items: data.map(function (it, i) {
               return {
                 id: it.id,
@@ -1031,14 +1038,14 @@
           };
         }
         if (data && Array.isArray(data.items)) {
-          data.version = 2;
           if (typeof data.toolbarCollapsed !== 'boolean') data.toolbarCollapsed = false;
           if (!data.theme || THEMES.indexOf(data.theme) < 0) data.theme = 'azul';
-          data.version = Math.max(3, data.version || 2);
+          if (typeof data.layoutRev !== 'number') data.layoutRev = 0;
+          data.version = Math.max(4, data.version || 2);
           return data;
         }
       } catch (e) {}
-      return { version: 3, items: [], toolbarCollapsed: false, theme: 'azul' };
+      return { version: 4, items: [], toolbarCollapsed: false, theme: 'azul', layoutRev: 0 };
     }
 
     function saveState() {
@@ -1149,24 +1156,156 @@
       return 'utilidades';
     }
 
-    function shelfBands(desk) {
-      var h = (desk && desk.clientHeight) || 560;
-      var n = SHELVES.length;
-      var topPad = 8;
-      var usable = Math.max(240, h - topPad - 8);
-      var bandH = usable / n;
-      var out = [];
-      for (var i = 0; i < n; i++) {
-        var y0 = topPad + i * bandH;
-        out.push({
-          id: SHELVES[i].id,
-          label: SHELVES[i].label,
-          y: y0,
-          h: bandH,
-          mid: y0 + bandH * 0.42
+    /* Packing density — shared by arrange + rails */
+    var ICON_W = 76, ICON_H = 90, GAP_X = 20, GAP_Y = 18, LEFT_PAD = 112;
+    var BAND_TOP_PAD = 10, BAND_BOTTOM_PAD = 14, DESK_TOP_PAD = 8;
+    var WIDGET_PACK_ORDER = {
+      clock: 0, 'clock-large': 1, date: 2, dia: 3, calendar: 4,
+      hoja: 5, pastilla: 6, orientacion: 7
+    };
+
+    function catalogOrderIndex(id) {
+      for (var i = 0; i < CATALOG.length; i++) {
+        if (CATALOG[i].id === id) return i;
+      }
+      return 900;
+    }
+
+    function sortShelfItems(arr) {
+      arr.sort(function (a, b) {
+        function tier(it) {
+          if (it.type === 'widget') return 1;
+          if (it.kind === 'local') return 2;
+          return 0;
+        }
+        var ta = tier(a), tb = tier(b);
+        if (ta !== tb) return ta - tb;
+        if (ta === 0) return catalogOrderIndex(a.id) - catalogOrderIndex(b.id);
+        if (ta === 1) {
+          var oa = WIDGET_PACK_ORDER[a.widget];
+          var ob = WIDGET_PACK_ORDER[b.widget];
+          if (oa == null) oa = 50;
+          if (ob == null) ob = 50;
+          if (oa !== ob) return oa - ob;
+          return String(a.titulo || '').localeCompare(String(b.titulo || ''), 'es');
+        }
+        return String(a.titulo || '').localeCompare(String(b.titulo || ''), 'es');
+      });
+      return arr;
+    }
+
+    function normalizePackSize(it) {
+      if (it.type === 'widget') {
+        var w = it.w || 200;
+        var h = it.h || 120;
+        if (it.widget === 'clock' || it.widget === 'date') {
+          h = Math.min(h, 100);
+          w = Math.min(w, 200);
+        } else if (it.widget === 'clock-large') {
+          h = Math.min(h, 100);
+          w = Math.min(w, 220);
+        } else if (it.widget === 'calendar') {
+          /* keep real calendar size; may span more columns */
+          w = Math.max(w, 240);
+          h = Math.max(h, 200);
+        }
+        it.w = w;
+        it.h = h;
+        return { w: w, h: h };
+      }
+      it.w = ICON_W;
+      it.h = ICON_H;
+      it.view = 'icon';
+      it.shape = it.shape || 'tile';
+      return { w: ICON_W, h: ICON_H };
+    }
+
+    function packItemsInBand(items, bandY, deskW) {
+      var x = LEFT_PAD;
+      var y = bandY + BAND_TOP_PAD;
+      var rowH = 0;
+      var rows = items.length ? 1 : 0;
+      var maxBottom = y;
+      items.forEach(function (it) {
+        var sz = normalizePackSize(it);
+        if (x > LEFT_PAD && x + sz.w > deskW - 12) {
+          x = LEFT_PAD;
+          y += rowH + GAP_Y;
+          rowH = 0;
+          rows++;
+        }
+        it.x = Math.round(x);
+        it.y = Math.round(y);
+        x += sz.w + GAP_X;
+        rowH = Math.max(rowH, sz.h);
+        maxBottom = Math.max(maxBottom, y + sz.h);
+      });
+      var height = Math.max(
+        ICON_H + BAND_TOP_PAD + BAND_BOTTOM_PAD,
+        (maxBottom - bandY) + BAND_BOTTOM_PAD
+      );
+      return { height: height, rows: Math.max(1, rows) };
+    }
+
+    function groupItemsByShelf() {
+      var byShelf = {};
+      SHELVES.forEach(function (s) { byShelf[s.id] = []; });
+      state.items.forEach(function (it) {
+        var sid = defaultShelfFor(it);
+        it.shelf = sid;
+        if (!byShelf[sid]) byShelf[sid] = [];
+        byShelf[sid].push(it);
+      });
+      SHELVES.forEach(function (s) {
+        sortShelfItems(byShelf[s.id] || []);
+      });
+      return byShelf;
+    }
+
+    function computeBands(desk, byShelf) {
+      var deskW = (desk && desk.clientWidth) || 640;
+      if (!byShelf) byShelf = groupItemsByShelf();
+      /* First pass: measure needed height per shelf at y=0 */
+      var needed = [];
+      SHELVES.forEach(function (s) {
+        var items = byShelf[s.id] || [];
+        var measure = packItemsInBand(items.map(function (it) {
+          return { type: it.type, widget: it.widget, w: it.w, h: it.h, kind: it.kind, id: it.id, titulo: it.titulo, shape: it.shape, view: it.view };
+        }), 0, deskW);
+        needed.push({
+          id: s.id,
+          label: s.label,
+          neededH: measure.height,
+          rows: measure.rows
         });
+      });
+      var y = DESK_TOP_PAD;
+      var out = [];
+      needed.forEach(function (n) {
+        out.push({
+          id: n.id,
+          label: n.label,
+          y: y,
+          h: n.neededH,
+          mid: y + n.neededH * 0.42,
+          rows: n.rows
+        });
+        y += n.neededH;
+      });
+      var totalH = y + 12;
+      if (desk) {
+        var viewH = desk.clientHeight || 560;
+        if (totalH > viewH) {
+          desk.style.minHeight = totalH + 'px';
+        } else {
+          desk.style.minHeight = '';
+        }
       }
       return out;
+    }
+
+    function shelfBands(desk) {
+      return computeBands(desk, groupItemsByShelf());
     }
 
     function renderShelfRails() {
@@ -1200,27 +1339,34 @@
 
     function slotOnShelf(shelfId, indexHint) {
       var desk = document.getElementById('desktop');
-      var bands = shelfBands(desk);
+      var deskW = (desk && desk.clientWidth) || 640;
+      var byShelf = groupItemsByShelf();
+      var bands = computeBands(desk, byShelf);
       var band = null;
       for (var i = 0; i < bands.length; i++) {
         if (bands[i].id === shelfId) { band = bands[i]; break; }
       }
       if (!band) band = bands[bands.length - 1];
-      var idx = (typeof indexHint === 'number') ? indexHint : countOnShelf(shelfId);
-      var leftPad = 118; /* room for shelf chip */
-      var gap = 14;
-      var itemW = 96;
-      var deskW = (desk && desk.clientWidth) || 640;
-      var cols = Math.max(1, Math.floor((deskW - leftPad - 16) / (itemW + gap)));
-      var col = idx % cols;
-      var row = Math.floor(idx / cols);
-      var x = leftPad + col * (itemW + gap);
-      var y = band.y + 22 + row * 28;
-      var maxX = Math.max(8, deskW - itemW - 8);
-      var maxY = Math.max(8, ((desk && desk.clientHeight) || 400) - 112);
+      var existing = byShelf[band.id] || [];
+      var idx = (typeof indexHint === 'number') ? indexHint : existing.length;
+      /* Probe with clones so we do not move live items */
+      var probe = [];
+      for (var j = 0; j < Math.min(idx, existing.length); j++) {
+        var src = existing[j];
+        probe.push({
+          type: src.type, widget: src.widget, kind: src.kind,
+          w: src.w, h: src.h, view: src.view, shape: src.shape
+        });
+      }
+      while (probe.length < idx) {
+        probe.push({ type: 'module', w: ICON_W, h: ICON_H, view: 'icon' });
+      }
+      probe.push({ type: 'module', w: ICON_W, h: ICON_H, view: 'icon', id: '__probe__' });
+      packItemsInBand(probe, band.y, deskW);
+      var last = probe[probe.length - 1];
       return {
-        x: Math.min(x, maxX),
-        y: Math.min(y, maxY),
+        x: last.x,
+        y: last.y,
         shelf: band.id
       };
     }
@@ -1248,27 +1394,36 @@
     }
 
     function arrangeToShelves() {
-      var byShelf = {};
-      SHELVES.forEach(function (s) { byShelf[s.id] = []; });
-      state.items.forEach(function (it) {
-        var sid = defaultShelfFor(it);
-        it.shelf = sid;
-        if (!byShelf[sid]) byShelf[sid] = [];
-        byShelf[sid].push(it);
-      });
+      var desk = document.getElementById('desktop');
+      var deskW = (desk && desk.clientWidth) || 640;
+      var byShelf = groupItemsByShelf();
+      /* Measure → bands → pack for real with band.y */
+      var bands = computeBands(desk, byShelf);
       SHELVES.forEach(function (s) {
-        (byShelf[s.id] || []).forEach(function (it, idx) {
-          var slot = slotOnShelf(s.id, idx);
-          it.x = slot.x;
-          it.y = slot.y;
-          it.shelf = s.id;
-        });
+        var band = null;
+        for (var i = 0; i < bands.length; i++) {
+          if (bands[i].id === s.id) { band = bands[i]; break; }
+        }
+        if (!band) return;
+        var items = byShelf[s.id] || [];
+        packItemsInBand(items, band.y, deskW);
+        items.forEach(function (it) { it.shelf = s.id; });
+      });
+      /* Recompute bands after real sizes (calendar etc.) and re-pack once */
+      bands = computeBands(desk, byShelf);
+      SHELVES.forEach(function (s) {
+        var band = null;
+        for (var i = 0; i < bands.length; i++) {
+          if (bands[i].id === s.id) { band = bands[i]; break; }
+        }
+        if (!band) return;
+        packItemsInBand(byShelf[s.id] || [], band.y, deskW);
       });
       saveState();
       renderDesktop();
     }
 
-    function fillDesktop() {
+    function fillDesktop(quiet) {
       var added = 0;
       CATALOG.forEach(function (mod) {
         if (hasModule(mod.id)) return;
@@ -1285,7 +1440,7 @@
           external: mod.external || null,
           blurb: mod.blurb || '',
           shelf: shelf,
-          x: slot.x, y: slot.y, w: 100, h: 118,
+          x: slot.x, y: slot.y, w: ICON_W, h: ICON_H,
           shape: 'tile',
           view: 'icon',
           z: ++Z,
@@ -1299,6 +1454,12 @@
         var id = def.widget + '-' + Date.now().toString(36) + '-' + (added + 1);
         var shelf = def.shelf || 'agenda';
         var slot = nextSlot(shelf);
+        var wh = normalizePackSize({
+          type: 'widget',
+          widget: def.widget,
+          w: def.w || 200,
+          h: def.h || 120
+        });
         state.items.push({
           id: id,
           type: 'widget',
@@ -1306,7 +1467,7 @@
           titulo: def.titulo,
           shelf: shelf,
           x: slot.x, y: slot.y,
-          w: def.w || 200, h: def.h || 120,
+          w: wh.w, h: wh.h,
           shape: 'tile',
           tipIndex: 0,
           pillText: '',
@@ -1316,8 +1477,16 @@
         added++;
       });
       arrangeToShelves();
-      showToast(added ? ('Escritorio lleno · +' + added + ' · quita lo que no quieras') : 'Ya estaba lleno · colocado en estantes');
+      if (!quiet) {
+        showToast(added
+          ? ('Restaurado · +' + added + ' · quita con ✕ lo que no quieras')
+          : 'Ya completo · colocado en estantes');
+      }
       renderChips();
+    }
+
+    function seedFullDesktop() {
+      fillDesktop(true);
     }
 
     function diasSemana() {
@@ -2451,7 +2620,7 @@
       });
     }
 
-    var EST_BUILD = 'v20260924b';
+    var EST_BUILD = 'v20260924c';
 
     function layoutPanelSheet() {
       var tb = document.getElementById('desk-toolbar');
@@ -2627,6 +2796,10 @@
       })();
       state = loadState();
       state.items.forEach(migrateItem);
+      if (typeof state.layoutRev !== 'number') state.layoutRev = 0;
+      state.version = Math.max(4, state.version || 0);
+      var needSeed = !state.items.length;
+      var needRearrange = !needSeed && state.layoutRev < 2;
       applyTheme(state.theme || 'azul');
       applyToolbarCollapsed();
 
@@ -2680,7 +2853,19 @@
         renderDesktop();
       });
       bindDesktopLongPress();
-      renderDesktop();
+      if (needSeed) {
+        seedFullDesktop();
+        state.layoutRev = 2;
+        state.version = 4;
+        saveState();
+      } else if (needRearrange) {
+        arrangeToShelves();
+        state.layoutRev = 2;
+        state.version = 4;
+        saveState();
+      } else {
+        renderDesktop();
+      }
       if (clockTimer) clearInterval(clockTimer);
       clockTimer = setInterval(tickClocks, 15000);
       window.addEventListener('resize', function () {

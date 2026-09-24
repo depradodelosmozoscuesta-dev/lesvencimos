@@ -97,7 +97,7 @@ def inject_embedded(shell: str, embedded: dict[str, str]) -> str:
 def write_leeme() -> str:
     return """═══════════════════════════════════════
   ESCRITORIO / ESTANTERÍA — Les vencimos
-  Build v20260924
+  Build v20260924c
   UN SOLO HTML (módulos dentro)
 ═══════════════════════════════════════
 
@@ -108,7 +108,9 @@ Este ZIP lleva esencialmente UN archivo:
 
 Escritorio con estantes (Escritura, Ocio, Agenda,
 Casa/Hogar, Salud, Cultura general, Educación,
-Utilidades). Iconos redondos; arrastre libre.
+Utilidades). Al abrir ya viene lleno (módulos +
+reloj/fecha/calendario). Quita con ✕; Restaurar todo
+recupera lo quitado. «A estantes» ordena por tema.
 Sin Radio ni Alarma Cuba en el catálogo.
 
 Los módulos (Hogar, Salud, QR, Electricidad,
@@ -130,7 +132,8 @@ lesvencimos.com/descargas.html (o «Archivo local…»).
 3) Descomprime y entra en la carpeta.
 4) Toca ABRE-AQUI.html → Chrome / Samsung Internet.
 5) Debe verse «Modo offline · file://».
-6) Módulos → añade Gimnasio, Caja fuerte…
+6) Escritorio lleno al abrir. Widgets para añadir;
+   Módulos / Restaurar todo si quitaste algo.
 
 Con content:// los embebidos también abren, pero
 file:// desde Archivos es lo más fiable.
