@@ -110,6 +110,12 @@
   .sq-chip { background: #fff; border: 2px solid #99f6e4; border-radius: 10px; padding: 8px 12px;
     font-weight: 800; font-size: 0.9rem; cursor: pointer; }
   .sq-chip:hover { background: var(--teal-soft); }
+
+  .maestro-flash{animation:maestroFlash 1.4s ease}
+  @keyframes maestroFlash{
+    0%,100%{box-shadow:none}
+    30%,70%{box-shadow:0 0 0 3px rgba(37,99,235,.55),0 0 12px rgba(37,99,235,.25)}
+  }
 </style>
 </head>
 <body>
@@ -397,6 +403,58 @@
   });
 
   refresh();
+
+  /* Modo maestro — postMessage API (torres y baldosas) */
+  function maestroFlash(node){
+    if(!node) return;
+    node.classList.remove('maestro-flash');
+    void node.offsetWidth;
+    node.classList.add('maestro-flash');
+    window.setTimeout(function(){ node.classList.remove('maestro-flash'); }, 1500);
+  }
+  function maestroSetMode(mode){
+    if(mode === 'root' || mode === 'raiz' || mode === 'baldosas' || mode === '√') state.mode = 'root';
+    else state.mode = 'pow';
+  }
+  function maestroApplyExample(ex){
+    if(ex === '23' || ex === '2^3' || ex === 'pow23'){ state.mode = 'pow'; el.numA.value = 2; el.numN.value = 3; }
+    else if(ex === '34' || ex === '3^4' || ex === 'pow34'){ state.mode = 'pow'; el.numA.value = 3; el.numN.value = 4; }
+    else if(ex === '52' || ex === '5^2' || ex === 'pow52'){ state.mode = 'pow'; el.numA.value = 5; el.numN.value = 2; }
+    else if(ex === 'sqrt81' || ex === '√81' || ex === 'root9'){ state.mode = 'root'; el.numS.value = 9; }
+  }
+  window.addEventListener('message', function(ev){
+    var data = ev && ev.data;
+    if(!data || typeof data !== 'object') return;
+    var t = data.type;
+    if(t === 'maestro:reset'){
+      state.mode = 'pow';
+      el.numA.value = 2; el.numN.value = 3; el.numS.value = 4;
+      refresh();
+    } else if(t === 'maestro:highlight'){
+      var target = document.getElementById('sqList') || el.stage || el.mirrorFormula;
+      maestroFlash(target);
+    } else if(t === 'maestro:setDemo' || t === 'maestro:setExample'){
+      maestroApplyExample(data.demo || data.example);
+      refresh();
+      maestroFlash(el.stage);
+    } else if(t === 'maestro:setPreview'){
+      if(data.mode) maestroSetMode(data.mode);
+      if(data.a != null) el.numA.value = data.a;
+      if(data.n != null) el.numN.value = data.n;
+      if(data.s != null) el.numS.value = data.s;
+      if(data.example || data.demo) maestroApplyExample(data.example || data.demo);
+      refresh();
+    } else if(t === 'maestro:setDomain' || t === 'maestro:setMode'){
+      maestroSetMode(data.mode || data.domain);
+      refresh();
+    }
+  });
+  try {
+    if(window.parent && window.parent !== window){
+      window.parent.postMessage({ type: 'maestro:ready', widget: 'l08-torres-potencias' }, '*');
+    }
+  } catch (e) { /* ignore */ }
+
 })();
 </script>
 </body>

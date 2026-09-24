@@ -111,6 +111,12 @@
   .btn-primary { background: var(--orange); color: #fff; box-shadow: 0 4px 12px rgba(245,158,11,0.35); }
   .btn-ghost { background: #fff; color: var(--ink); border: 2px solid #cbd5e1; }
   footer.note { text-align: center; font-size: 0.8rem; color: var(--muted); margin-top: 8px; }
+
+  .maestro-flash{animation:maestroFlash 1.4s ease}
+  @keyframes maestroFlash{
+    0%,100%{box-shadow:none}
+    30%,70%{box-shadow:0 0 0 3px rgba(37,99,235,.55),0 0 12px rgba(37,99,235,.25)}
+  }
 </style>
 </head>
 <body>
@@ -461,6 +467,66 @@
   renderArrays();
   renderMults();
   updateCrit();
+
+  /* Modo maestro — postMessage API (bloques y criterios) */
+  function maestroFlash(node){
+    if(!node) return;
+    node.classList.remove('maestro-flash');
+    void node.offsetWidth;
+    node.classList.add('maestro-flash');
+    window.setTimeout(function(){ node.classList.remove('maestro-flash'); }, 1500);
+  }
+  function maestroSetCrit(c){
+    var n = parseInt(c, 10);
+    if([2,3,4,5,6,9,10].indexOf(n) === -1) return;
+    crit = n;
+  }
+  window.addEventListener('message', function(ev){
+    var data = ev && ev.data;
+    if(!data || typeof data !== 'object') return;
+    var t = data.type;
+    if(t === 'maestro:reset'){
+      nNum.value = 24; nRange.value = 24;
+      dNum.value = 6;
+      bNum.value = 8; mRange.value = 8;
+      crit = 2; lastDHighlight = null;
+      renderArrays();
+      renderMults();
+      updateCrit();
+    } else if(t === 'maestro:highlight'){
+      var target = arrays || document.querySelector('.stage') || critExplain;
+      maestroFlash(target);
+    } else if(t === 'maestro:setDemo' || t === 'maestro:setExample'){
+      if(data.crit != null || data.demo != null || data.example != null){
+        maestroSetCrit(data.crit != null ? data.crit : (data.demo || data.example));
+      }
+      renderArrays();
+      updateCrit();
+      maestroFlash(critExplain);
+    } else if(t === 'maestro:setPreview'){
+      if(data.n != null){ nNum.value = data.n; nRange.value = data.n; }
+      if(data.d != null){ dNum.value = data.d; }
+      if(data.b != null){ bNum.value = data.b; }
+      if(data.m != null){ mRange.value = data.m; }
+      if(data.crit != null) maestroSetCrit(data.crit);
+      renderArrays();
+      renderMults();
+      updateCrit();
+      if(data.d != null){
+        highlightDivisor(parseInt(data.d, 10));
+        doTest();
+      }
+    } else if(t === 'maestro:setDomain' || t === 'maestro:setMode'){
+      maestroSetCrit(data.crit != null ? data.crit : (data.mode || data.domain));
+      updateCrit();
+    }
+  });
+  try {
+    if(window.parent && window.parent !== window){
+      window.parent.postMessage({ type: 'maestro:ready', widget: 'l10-bloques-divisibilidad' }, '*');
+    }
+  } catch (e) { /* ignore */ }
+
 })();
 </script>
 </body>

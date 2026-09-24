@@ -183,6 +183,40 @@ No romper controles existentes: el listener solo añade; no sustituye `onclick` 
 | `maestro:setMode` / `maestro:setDomain` | `{ mode: 'mul'/'div' }` |
 | `maestro:ready` | widget: `l07-cajas-zumo` |
 
+
+### L08 torres y baldosas (`l08-torres-potencias.html`)
+
+| type | Efecto |
+|------|--------|
+| `maestro:reset` | Modo potencia, a=2, n=3 (y s=4 en raíz) |
+| `maestro:highlight` | Resalta la lista de cuadrados perfectos / escenario |
+| `maestro:setDemo` / `setExample` | `{ demo: '23'/'34'/'52'/'sqrt81' }` (alias `2^3`, `root9`…) |
+| `maestro:setPreview` | `{ mode: 'pow'/'root', a, n, s }` |
+| `maestro:setMode` / `setDomain` | `{ mode: 'pow'/'root' }` (alias `raiz`, `baldosas`, `√`) |
+| `maestro:ready` | widget: `l08-torres-potencias` |
+
+### L09 excursión CyL (`l09-excursion-problemas.html`)
+
+| type | Efecto |
+|------|--------|
+| `maestro:reset` | Problema autobús con a=4, b=5, c=6 |
+| `maestro:highlight` | Resalta plan de pasos / expresión / escena |
+| `maestro:setDemo` / `setExample` | `{ demo/problem: 'bus'/'shop'/'snack' }` (+ opcional a,b,c) |
+| `maestro:setPreview` | `{ problem, a, b, c }` |
+| `maestro:setMode` / `setDomain` | Alias de `problem` |
+| `maestro:ready` | widget: `l09-excursion-problemas` |
+
+### L10 bloques y criterios (`l10-bloques-divisibilidad.html`)
+
+| type | Efecto |
+|------|--------|
+| `maestro:reset` | n=24, d=6, b=8, criterio ÷2 |
+| `maestro:highlight` | Resalta la mesa de rectángulos / criterio |
+| `maestro:setDemo` / `setExample` | `{ crit: 2/3/4/5/6/9/10 }` (o demo/example numérico) |
+| `maestro:setPreview` | `{ n, d, b, m, crit }` — si viene `d`, prueba n÷d y resalta el rectángulo |
+| `maestro:setMode` / `setDomain` | Alias de `crit` |
+| `maestro:ready` | widget: `l10-bloques-divisibilidad` |
+
 ### Otros interactivos
 
 Cada bot de asignatura documenta aquí los `type` que acepte su widget. Hasta entonces, pasos sin `iframeCmd` solo desplazan y señalan el marco.
@@ -190,6 +224,8 @@ Cada bot de asignatura documenta aquí los `type` que acepte su widget. Hasta en
 **Lote L02–L04 (2026-09-24):** guiones `maestro-02.json` … `maestro-04.json` + shells cableados; `musica: false`.
 
 **Lote L05–L07 (2026-09-24):** guiones `maestro-05.json` … `maestro-07.json` + shells cableados; `musica: false`. L05 trae dos iframes (redondeo + regateo): cada widget ignora el payload que no le corresponde.
+
+**Lote L08–L10 (2026-09-24):** guiones `maestro-08.json` … `maestro-10.json` + shells cableados; `musica: false`. Un iframe por lección (torres / excursión / bloques).
 
 ## Música / ritmo
 

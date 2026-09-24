@@ -117,6 +117,12 @@
   .guess-row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-top: 10px; }
   .guess-row input { font-size: 1.2rem; font-weight: 800; padding: 8px 12px; border: 2.5px solid #cbd5e1;
     border-radius: 12px; width: 120px; }
+
+  .maestro-flash{animation:maestroFlash 1.4s ease}
+  @keyframes maestroFlash{
+    0%,100%{box-shadow:none}
+    30%,70%{box-shadow:0 0 0 3px rgba(37,99,235,.55),0 0 12px rgba(37,99,235,.25)}
+  }
 </style>
 </head>
 <body>
@@ -517,6 +523,66 @@
 
   buildControls();
   refresh();
+
+  /* Modo maestro — postMessage API (excursión CyL) */
+  function maestroFlash(node){
+    if(!node) return;
+    node.classList.remove('maestro-flash');
+    void node.offsetWidth;
+    node.classList.add('maestro-flash');
+    window.setTimeout(function(){ node.classList.remove('maestro-flash'); }, 1500);
+  }
+  function maestroSetProblem(prob){
+    if(prob !== 'bus' && prob !== 'shop' && prob !== 'snack') return;
+    state.problem = prob;
+    document.querySelectorAll('.problem-pick .chip').forEach(function (b) {
+      b.classList.toggle('active', b.getAttribute('data-p') === prob);
+    });
+    var P = PROBLEMS[state.problem];
+    state.data = {};
+    P.fields.forEach(function (f) { state.data[f.id] = f.val; });
+    buildControls();
+  }
+  function maestroApplyData(data){
+    if(!data) return;
+    ['a','b','c'].forEach(function (k) {
+      if(data[k] != null) state.data[k] = data[k];
+    });
+  }
+  window.addEventListener('message', function(ev){
+    var data = ev && ev.data;
+    if(!data || typeof data !== 'object') return;
+    var t = data.type;
+    if(t === 'maestro:reset'){
+      maestroSetProblem('bus');
+      refresh();
+    } else if(t === 'maestro:highlight'){
+      var target = el.steps || el.expr || el.scene;
+      maestroFlash(target);
+    } else if(t === 'maestro:setDemo' || t === 'maestro:setExample'){
+      maestroSetProblem(data.demo || data.example || data.problem || 'bus');
+      maestroApplyData(data);
+      buildControls();
+      refresh();
+      maestroFlash(el.scene);
+    } else if(t === 'maestro:setPreview'){
+      if(data.problem || data.mode || data.domain){
+        maestroSetProblem(data.problem || data.mode || data.domain);
+      }
+      maestroApplyData(data);
+      buildControls();
+      refresh();
+    } else if(t === 'maestro:setDomain' || t === 'maestro:setMode'){
+      maestroSetProblem(data.mode || data.domain || data.problem);
+      refresh();
+    }
+  });
+  try {
+    if(window.parent && window.parent !== window){
+      window.parent.postMessage({ type: 'maestro:ready', widget: 'l09-excursion-problemas' }, '*');
+    }
+  } catch (e) { /* ignore */ }
+
 })();
 </script>
 </body>
