@@ -721,11 +721,7 @@ def load_lesson(n: int) -> dict:
 
     vida_body = extract_section(md, "En la vida real")
     vida = parse_vida(vida_body)
-    if not vida:
-        vida = [
-            "Relaciona esta lección con un lugar o noticia de <strong>Castilla y León</strong>.",
-            "Explica el concepto clave a alguien de casa con un ejemplo cercano.",
-        ]
+    # (generic vida fallback removed — Jorge filler cleanup)
 
     cierre = parse_cierre(extract_section(md, "Mini cierre"))
     rid, reto_t, reto = parse_reto(extract_section(md, "Reto Profesor"))
@@ -737,7 +733,7 @@ def load_lesson(n: int) -> dict:
     if not (LEC / w_file).exists():
         raise SystemExit(f"missing widget {w_file}")
 
-    return {
+    lesson = {
         "n": n,
         "slug": slug,
         "eyebrow": f"Lección {n:02d} · {eyebrow_ud(n)}",
@@ -758,6 +754,8 @@ def load_lesson(n: int) -> dict:
         "reto_id": rid,
         "cierre": cierre,
     }
+    apply_filler_cleanup(lesson)
+    return lesson
 
 
 LESSONS: list[dict] = []
@@ -919,6 +917,27 @@ def widget_block(
   </section>"""
 
 
+
+# --- Jorge filler cleanup (same policy as Mate) ---
+# Curiosidad: keep «Curiosidad histórica» only if genuine; mnemonics → «Truco»; else omit.
+# Vida real: keep only strong items (~1 per ~5 lessons).
+_CURIOSIDAD_LABEL_BY_N = {6: 'Truco', 10: 'Truco', 11: 'Truco', 12: 'Truco', 13: 'Truco', 14: 'Truco', 16: 'Truco', 17: 'Truco', 21: 'Truco', 22: 'Truco', 27: 'Truco', 30: 'Truco', 31: 'Truco', 32: 'Truco', 34: 'Truco', 35: 'Truco'}
+_VIDA_KEEP = {1, 5, 8, 17, 23, 28, 32, 40}
+
+
+def apply_filler_cleanup(lesson: dict) -> dict:
+    """Mutate lesson dict in place for render: label/omit curiosidad; thin vida."""
+    n = lesson["n"]
+    label = _CURIOSIDAD_LABEL_BY_N.get(n, "")
+    lesson["curiosidad_label"] = label
+    if not label:
+        lesson["curiosidad_t"] = ""
+        lesson["curiosidad"] = ""
+    if n not in _VIDA_KEEP:
+        lesson["vida_t"] = ""
+        lesson["vida"] = []
+    return lesson
+
 def render_lesson(lesson: dict, *, offline: bool) -> str:
     n = lesson["n"]
     css = "leccion-shell.css" if offline else "../../_plantilla-leccion/leccion-shell.css"
@@ -931,7 +950,6 @@ def render_lesson(lesson: dict, *, offline: bool) -> str:
     body_class = "leccion-shell offline-embed" if offline else "leccion-shell"
 
     objs = "".join(f"      <li>{o}</li>\n" for o in lesson["objetivos"])
-    vida_lis = "".join(f"        <li>{v}</li>\n" for v in lesson["vida"])
 
     w_parts = []
     for lab, fn in lesson["widgets"]:
@@ -941,6 +959,43 @@ def render_lesson(lesson: dict, *, offline: bool) -> str:
             assert_widget_offline_safe(fn, wh)
         w_parts.append(widget_block(lab, fn, offline=offline, widget_html=wh))
     w_html = "\n".join(w_parts)
+
+
+    # Omit empty curiosidad / vida (Jorge cleanup: no fake «Curiosidad histórica»)
+    cur_text = (lesson.get("curiosidad") or "").strip()
+    cur_title = (lesson.get("curiosidad_t") or "").strip()
+    cur_label = (lesson.get("curiosidad_label") or "Curiosidad histórica").strip()
+    if cur_text and cur_title and cur_label:
+        curiosidad_html = f"""  <aside class="bloque-curiosidad">
+    <p class="etiqueta-bloque">{cur_label}</p>
+    <h2 class="titulo-curiosidad">{cur_title}</h2>
+    <p class="texto-curiosidad">{cur_text}</p>
+    <div class="ilustracion-slot">
+      <img src="{fig(lesson.get('curiosidad_fig') or 'mapa.svg')}" width="96" height="96" alt=""/>
+    </div>
+  </aside>
+"""
+    else:
+        curiosidad_html = ""
+
+    vida_items = lesson.get("vida") or []
+    vida_title = (lesson.get("vida_t") or "").strip()
+    if vida_items and vida_title:
+        vida_lis = "".join(f"        <li>{v}</li>\n" for v in vida_items)
+        vida_html = f"""  <section class="bloque-vida-real con-figura">
+    <div class="figura" aria-hidden="true">
+      <img src="{fig(lesson.get('vida_fig') or 'mapa.svg')}" width="96" height="96" alt=""/>
+    </div>
+    <div class="contenido-vida">
+      <p class="etiqueta-bloque">En la vida real</p>
+      <h2 class="titulo-vida">{vida_title}</h2>
+      <ul>
+{vida_lis}      </ul>
+    </div>
+  </section>
+"""
+    else:
+        vida_html = ""
 
     return f"""<!DOCTYPE html>
 <html lang="es">
@@ -972,33 +1027,14 @@ def render_lesson(lesson: dict, *, offline: bool) -> str:
     <p class="meta-leccion">{lesson['meta']}</p>
   </header>
 
-  <aside class="bloque-curiosidad">
-    <p class="etiqueta-bloque">Curiosidad histórica</p>
-    <h2 class="titulo-curiosidad">{lesson['curiosidad_t']}</h2>
-    <p class="texto-curiosidad">{lesson['curiosidad']}</p>
-    <div class="ilustracion-slot">
-      <img src="{fig(lesson['curiosidad_fig'])}" width="96" height="96" alt=""/>
-    </div>
-  </aside>
-
+{curiosidad_html}
   <section class="bloque-cuerpo">
     <h2>Objetivos</h2>
     <ol>
 {objs}    </ol>
 {lesson['cuerpo']}  </section>
 
-  <section class="bloque-vida-real con-figura">
-    <div class="figura" aria-hidden="true">
-      <img src="{fig(lesson['vida_fig'])}" width="96" height="96" alt=""/>
-    </div>
-    <div class="contenido-vida">
-      <p class="etiqueta-bloque">En la vida real</p>
-      <h2 class="titulo-vida">{lesson['vida_t']}</h2>
-      <ul>
-{vida_lis}      </ul>
-    </div>
-  </section>
-
+{vida_html}
 {w_html}
 
   <section class="bloque-cuerpo">
