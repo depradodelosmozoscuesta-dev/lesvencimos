@@ -335,6 +335,45 @@ Diálogo opcional en el guion (rol `alumno` → chico, `narrador`): buses y «¿
 | `maestro:setMode` / `setDomain` | Alias de `view` |
 | `maestro:ready` | widget: `l13-enteros-recta` |
 
+### L14 operaciones con enteros (`l14-enteros-operaciones.html`)
+
+| type | Efecto |
+|------|--------|
+| `maestro:reset` | a=−3, b=5, op `+` |
+| `maestro:highlight` | Resalta salto (recta) o regla de signos según op |
+| `maestro:setDemo` / `setExample` | `{ a, b, op: '+'/'/'*//' }` |
+| `maestro:setPreview` | `{ a, b, op }` |
+| `maestro:setMode` / `setDomain` | Alias de `op` |
+| `maestro:ready` | widget: `l14-enteros-operaciones` |
+
+Diálogo opcional: alumno↔narrador en resta de negativo (4−(−9)).
+
+### L15 enteros en contextos (`l15-enteros-contextos.html`)
+
+| type | Efecto |
+|------|--------|
+| `maestro:reset` | historia `debt` (paga) con preset de la lección |
+| `maestro:highlight` | Resalta el escenario activo |
+| `maestro:setDemo` / `setExample` | `{ story: 'debt'/'temp'/'elev', s0?, d1?, d2?, d3? }` |
+| `maestro:setPreview` | `{ story, s0?, d1?, d2?, d3? }` (sin s0… usa preset) |
+| `maestro:setMode` / `setDomain` | Alias de `story` |
+| `maestro:ready` | widget: `l15-enteros-contextos` |
+
+Diálogo opcional alumno↔narrador: corrige el paso ([E]), no a la persona.
+
+### L16 fracciones pizza (`l16-fracciones-pizza.html`)
+
+| type | Efecto |
+|------|--------|
+| `maestro:reset` | a=2, b=4, k=1, vista `pizza` |
+| `maestro:highlight` | Resalta escena; `{ target: 'music' }` → panel negra/corchea |
+| `maestro:setDemo` / `setExample` | `{ a|num, b|den, k, view: 'pizza'/'barra'/'rect'/'ambas', simplify? }` |
+| `maestro:setPreview` | igual; `simplify: true` divide por mcd |
+| `maestro:setMode` / `setDomain` | Alias de `view` |
+| `maestro:ready` | widget: `l16-fracciones-pizza` |
+
+Gancho ritmo ya en el md/widget (negra=1, corchea=1/2). `musica: false` (sin pista de audio).
+
 ### Otros interactivos
 
 Cada bot de asignatura documenta aquí los `type` que acepte su widget. Hasta entonces, pasos sin `iframeCmd` solo desplazan y señalan el marco.
@@ -347,12 +386,14 @@ Cada bot de asignatura documenta aquí los `type` que acepte su widget. Hasta en
 
 **Lote L11–L13 (2026-09-24):** guiones `maestro-11.json` … `maestro-13.json` + shells cableados; `musica: false`. Un iframe por lección (criba / barras / enteros). L12 incluye un diálogo corto alumno↔narrador (buses → mcm).
 
+**Lote L14–L16 (2026-09-24):** guiones `maestro-14.json` … `maestro-16.json` + shells cableados; `musica: false`. Un iframe por lección (operaciones / contextos / pizza). L14 y L15 traen diálogo corto opcional; L16 menciona el panel de ritmo (sin audio).
+
 ## Música / ritmo
 
 - Norma de producto: si una lección **ya** enlaza música o ritmo, los pasos del maestro pueden mencionarlo.
 - **L01 piloto: sin música** (`"musica": false`). No inventar canciones ni pistas.
 - Ganchos naturales futuros en Mate (cuando el contenido/QA lo lleve):
-  - **L16–L18** fracciones (pizza / recta / suma) — ritmo de partes iguales.
+  - **L16–L18** fracciones (pizza / recta / suma) — ritmo de partes iguales. L16 ya tiene panel negra/corchea en el widget; el guion lo señala con `highlight`/`target: music` y `musica: false`.
   - **L23–L24** razones y proporcionalidad directa — tempo / “al doble, al triple”.
 - Hasta que esas lecciones declaren audio en el shell o en el `maestro.json`, el runtime no reproduce nada.
 

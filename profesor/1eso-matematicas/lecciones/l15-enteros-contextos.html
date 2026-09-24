@@ -117,6 +117,11 @@
   .sym-chip{display:inline-block;background:var(--teal-soft);color:var(--teal-deep);font-weight:800;
     padding:1px 7px;border-radius:6px;font-family:"Courier New",ui-monospace,monospace}
   footer.note{text-align:center;font-size:.8rem;color:var(--muted);margin-top:8px}
+  .maestro-flash{animation:maestroFlash 1.4s ease}
+  @keyframes maestroFlash{
+    0%,100%{box-shadow:none}
+    30%,70%{box-shadow:0 0 0 3px rgba(37,99,235,.55),0 0 12px rgba(37,99,235,.25)}
+  }
 </style>
 </head>
 <body>
@@ -438,6 +443,46 @@
   document.getElementById('btnReset').addEventListener('click', () => setStory(story, true));
 
   setStory('debt', true);
+
+  /* Modo maestro — postMessage API (enteros / contextos) */
+  function maestroFlash(node){
+    if(!node) return;
+    node.classList.remove('maestro-flash');
+    void node.offsetWidth;
+    node.classList.add('maestro-flash');
+    window.setTimeout(function(){ node.classList.remove('maestro-flash'); }, 1500);
+  }
+  window.addEventListener('message', function(ev){
+    var data = ev && ev.data;
+    if(!data || typeof data !== 'object') return;
+    var t = data.type;
+    if(t === 'maestro:reset'){
+      setStory('debt', true);
+    } else if(t === 'maestro:highlight'){
+      maestroFlash(document.getElementById('stage') || document.querySelector('.stage'));
+    } else if(t === 'maestro:setDemo' || t === 'maestro:setExample' || t === 'maestro:setPreview'){
+      var st = data.story || data.demo || data.example || data.mode || 'debt';
+      var ok = { debt:1, temp:1, elev:1 };
+      if(!ok[st]) st = 'debt';
+      var fill = !(data.s0 != null || data.d1 != null || data.d2 != null || data.d3 != null);
+      setStory(st, fill);
+      if(data.s0 != null) s0.value = data.s0;
+      if(data.d1 != null) d1.value = data.d1;
+      if(data.d2 != null) d2.value = data.d2;
+      if(data.d3 != null) d3.value = data.d3;
+      if(data.s0 != null || data.d1 != null || data.d2 != null || data.d3 != null) render();
+      if(t !== 'maestro:setPreview') maestroFlash(document.getElementById('stage'));
+    } else if(t === 'maestro:setDomain' || t === 'maestro:setMode'){
+      var st2 = data.story || data.mode || data.domain || 'debt';
+      setStory(st2, true);
+    }
+  });
+  try {
+    if(window.parent && window.parent !== window){
+      window.parent.postMessage({ type: 'maestro:ready', widget: 'l15-enteros-contextos' }, '*');
+    }
+  } catch (e) { /* ignore */ }
+
 })();
 </script>
 </body>

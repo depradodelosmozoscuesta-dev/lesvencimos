@@ -123,6 +123,11 @@
   footer.note{text-align:center;font-size:.8rem;color:var(--muted);margin-top:8px}
   .callout{font-size:.9rem;font-weight:700;color:var(--orange-deep);background:#fff7ed;
     border-left:4px solid var(--orange);padding:8px 12px;border-radius:0 10px 10px 0;margin-top:8px}
+  .maestro-flash{animation:maestroFlash 1.4s ease}
+  @keyframes maestroFlash{
+    0%,100%{box-shadow:none}
+    30%,70%{box-shadow:0 0 0 3px rgba(37,99,235,.55),0 0 12px rgba(37,99,235,.25)}
+  }
 </style>
 </head>
 <body>
@@ -214,7 +219,7 @@
     </div>
   </div>
 
-  <div class="card">
+  <div class="card" id="musicCard">
     <h2>🎵 Fracciones en la música (panel corto)</h2>
     <div class="music">
       <h3>Negra y corchea = partes de un tiempo</h3>
@@ -425,6 +430,68 @@
   });
 
   render();
+
+  /* Modo maestro — postMessage API (fracciones / pizza) */
+  function maestroFlash(node){
+    if(!node) return;
+    node.classList.remove('maestro-flash');
+    void node.offsetWidth;
+    node.classList.add('maestro-flash');
+    window.setTimeout(function(){ node.classList.remove('maestro-flash'); }, 1500);
+  }
+  function maestroSetView(v){
+    var ok = { pizza:1, barra:1, rect:1, ambas:1 };
+    if(!ok[v]) return;
+    view = v;
+    document.querySelectorAll('#viewMode .chip').forEach(function(c){
+      c.classList.toggle('active', c.dataset.view === v);
+    });
+  }
+  function maestroApply(data){
+    var a = data.a != null ? data.a : data.num;
+    var b = data.b != null ? data.b : data.den;
+    if(a != null) numEl.value = a;
+    if(b != null) denEl.value = b;
+    if(data.k != null) kEl.value = data.k;
+    if(data.view != null || data.demo != null || data.example != null || data.mode != null){
+      maestroSetView(data.view || data.demo || data.example || data.mode);
+    }
+    if(data.simplify){
+      var aa = parseInt(numEl.value,10)||0, bb = parseInt(denEl.value,10)||1;
+      var g = gcd(aa,bb);
+      numEl.value = aa/g; denEl.value = bb/g; kEl.value = 1;
+    }
+    render();
+  }
+  window.addEventListener('message', function(ev){
+    var data = ev && ev.data;
+    if(!data || typeof data !== 'object') return;
+    var t = data.type;
+    if(t === 'maestro:reset'){
+      numEl.value = 2; denEl.value = 4; kEl.value = 1;
+      maestroSetView('pizza');
+      render();
+    } else if(t === 'maestro:highlight'){
+      var node = (data.target === 'music')
+        ? document.getElementById('musicCard')
+        : (document.querySelector('.stage') || document.getElementById('stageBody'));
+      maestroFlash(node);
+    } else if(t === 'maestro:setDemo' || t === 'maestro:setExample' || t === 'maestro:setPreview'){
+      maestroApply(data);
+      if(t !== 'maestro:setPreview'){
+        maestroFlash(document.querySelector('.stage'));
+      }
+    } else if(t === 'maestro:setDomain' || t === 'maestro:setMode'){
+      maestroSetView(data.view || data.mode || data.domain);
+      render();
+    }
+  });
+  try {
+    if(window.parent && window.parent !== window){
+      window.parent.postMessage({ type: 'maestro:ready', widget: 'l16-fracciones-pizza' }, '*');
+    }
+  } catch (e) { /* ignore */ }
+
 })();
 </script>
 </body>
