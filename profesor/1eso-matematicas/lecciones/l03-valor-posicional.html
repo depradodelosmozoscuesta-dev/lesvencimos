@@ -492,6 +492,15 @@
     .roof-label { font-size: 0.48rem; }
     .btn-step { height: 28px; max-width: 30px; font-size: 1rem; }
   }
+
+  .maestro-flash{animation:maestroFlash 1.4s ease}
+  @keyframes maestroFlash{
+    0%,100%{box-shadow:none}
+    20%,60%{box-shadow:0 0 0 4px rgba(37,99,235,0.55)}
+  }
+  .readout.maestro-flash, #developed.maestro-flash, .card.maestro-flash{
+    outline:2px solid #2563eb;outline-offset:4px;border-radius:12px
+  }
 </style>
 </head>
 <body>
@@ -851,6 +860,35 @@
   checkInput.addEventListener('keydown', function (e) {
     if (e.key === 'Enter') document.getElementById('check-go').click();
   });
+
+
+  /* Modo maestro — postMessage API (no rompe controles existentes) */
+  function highlightReadout(){
+    var el = document.getElementById('developed') || document.getElementById('street');
+    var target = el && (el.closest('.card') || el);
+    if(!target) return;
+    target.classList.remove('maestro-flash');
+    void target.offsetWidth;
+    target.classList.add('maestro-flash');
+    window.setTimeout(function(){ target.classList.remove('maestro-flash'); }, 1500);
+  }
+  window.addEventListener('message', function(ev){
+    const data = ev && ev.data;
+    if(!data || typeof data !== 'object') return;
+    const t = data.type;
+    if(t === 'maestro:reset'){
+      loadNumber(5082);
+    } else if(t === 'maestro:highlight'){
+      highlightReadout();
+    } else if(t === 'maestro:setPreview'){
+      if(data.n != null) loadNumber(data.n);
+    }
+  });
+  try {
+    if(window.parent && window.parent !== window){
+      window.parent.postMessage({ type: 'maestro:ready', widget: 'l03-valor-posicional' }, '*');
+    }
+  } catch (e) { /* ignore */ }
 
   buildStreet();
   loadNumber(5082); // start with a rich example

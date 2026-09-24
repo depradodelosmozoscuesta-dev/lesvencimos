@@ -695,6 +695,15 @@
   }
 
   .link-lesson a { color: var(--blue-deep); font-weight: 650; }
+
+  .maestro-flash{animation:maestroFlash 1.4s ease}
+  @keyframes maestroFlash{
+    0%,100%{box-shadow:none}
+    20%,60%{box-shadow:0 0 0 4px rgba(37,99,235,0.55)}
+  }
+  .equation.maestro-flash{
+    outline:2px solid #2563eb;outline-offset:4px;border-radius:12px
+  }
 </style>
 </head>
 <body>
@@ -1313,6 +1322,53 @@
   fxFrom.addEventListener('change', updateFx);
   fxTo.addEventListener('change', updateFx);
   fxQty.addEventListener('input', updateFx);
+
+
+  /* Modo maestro — postMessage API (no rompe controles existentes) */
+  function activateTab(mode){
+    var tab = document.getElementById('tab-' + mode);
+    if(tab) tab.click();
+  }
+  function resetRomaDefaults(){
+    activateTab('roma');
+    var euros = document.getElementById('roma-euros');
+    var qty = document.getElementById('roma-qty');
+    if(euros){ euros.value = 100; }
+    if(qty){ qty.value = 200; }
+    if(typeof updateRoma === 'function') updateRoma();
+  }
+  function highlightEquation(){
+    var eq = document.querySelector('.panel.active .equation') || document.getElementById('roma-eq');
+    if(!eq) return;
+    eq.classList.remove('maestro-flash');
+    void eq.offsetWidth;
+    eq.classList.add('maestro-flash');
+    window.setTimeout(function(){ eq.classList.remove('maestro-flash'); }, 1500);
+  }
+  window.addEventListener('message', function(ev){
+    const data = ev && ev.data;
+    if(!data || typeof data !== 'object') return;
+    const t = data.type;
+    if(t === 'maestro:reset'){
+      resetRomaDefaults();
+    } else if(t === 'maestro:highlight'){
+      highlightEquation();
+    } else if(t === 'maestro:setPreview'){
+      if(data.mode) activateTab(data.mode);
+      var euros = document.getElementById('roma-euros');
+      var qty = document.getElementById('roma-qty');
+      if(data.euros != null && euros){ euros.value = data.euros; }
+      if(data.qty != null && qty){ qty.value = data.qty; }
+      if(typeof updateRoma === 'function') updateRoma();
+    } else if(t === 'maestro:setMode'){
+      if(data.mode) activateTab(data.mode);
+    }
+  });
+  try {
+    if(window.parent && window.parent !== window){
+      window.parent.postMessage({ type: 'maestro:ready', widget: 'l02-monedas-cambio' }, '*');
+    }
+  } catch (e) { /* ignore */ }
 
   /* Init */
   updateRoma();

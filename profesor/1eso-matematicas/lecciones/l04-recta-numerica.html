@@ -690,6 +690,15 @@
     .marker .flag { padding: 4px 8px; font-size: 0.9rem; }
     .digit-grid { max-width: 100%; }
   }
+
+  .maestro-flash{animation:maestroFlash 1.4s ease}
+  @keyframes maestroFlash{
+    0%,100%{box-shadow:none}
+    20%,60%{box-shadow:0 0 0 4px rgba(37,99,235,0.55)}
+  }
+  .compare-box.maestro-flash, #betweenBox.maestro-flash{
+    outline:2px solid #2563eb;outline-offset:4px
+  }
 </style>
 </head>
 <body>
@@ -1389,6 +1398,41 @@ Glosario">
     buildSvg();
     renderMarkers();
   });
+
+
+  /* Modo maestro — postMessage API (no rompe controles existentes) */
+  function runExample(which){
+    if(which === 'compare') el.exCompare.click();
+    else if(which === 'between') el.exBetween.click();
+    else el.exPlace.click();
+  }
+  function highlightCompare(){
+    var box = document.getElementById('compareBox') || document.getElementById('betweenBox');
+    if(!box) return;
+    box.classList.remove('maestro-flash');
+    void box.offsetWidth;
+    box.classList.add('maestro-flash');
+    window.setTimeout(function(){ box.classList.remove('maestro-flash'); }, 1500);
+  }
+  window.addEventListener('message', function(ev){
+    const data = ev && ev.data;
+    if(!data || typeof data !== 'object') return;
+    const t = data.type;
+    if(t === 'maestro:reset'){
+      runExample('place');
+    } else if(t === 'maestro:highlight'){
+      highlightCompare();
+    } else if(t === 'maestro:setExample'){
+      runExample(data.example || 'place');
+    } else if(t === 'maestro:setPreview'){
+      if(data.example) runExample(data.example);
+    }
+  });
+  try {
+    if(window.parent && window.parent !== window){
+      window.parent.postMessage({ type: 'maestro:ready', widget: 'l04-recta-numerica' }, '*');
+    }
+  } catch (e) { /* ignore */ }
 
   // Default: place example
   setExampleButtons('place');

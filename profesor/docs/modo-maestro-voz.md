@@ -104,9 +104,49 @@ El runtime reenvía `paso.iframeCmd` a cada `iframe` (`postMessage(cmd, '*')` po
 
 No romper controles existentes: el listener solo añade; no sustituye `onclick` de reset/anim.
 
+### L02 sistemas (`l02-sistemas-numeracion.html`)
+
+| type | Efecto |
+|------|--------|
+| `maestro:reset` | Ejemplo XLII → 42 |
+| `maestro:highlight` | Resalta los tres paneles (decimal / romano / egipcio) |
+| `maestro:setPreview` | Opcional `{ n }` (1–99) en el deslizador |
+| `maestro:ready` | widget: `l02-sistemas-numeracion` |
+
+### L02 monedas (`l02-monedas-cambio.html`)
+
+| type | Efecto |
+|------|--------|
+| `maestro:reset` | Pestaña Roma + 100 € / 200 sestercios |
+| `maestro:highlight` | Resalta la ecuación del panel activo |
+| `maestro:setPreview` | Opcional `{ mode, euros, qty }` |
+| `maestro:setMode` | `{ mode: 'roma' / 'sal' / 'divisas' }` |
+| `maestro:ready` | widget: `l02-monedas-cambio` |
+
+### L03 valor posicional (`l03-valor-posicional.html`)
+
+| type | Efecto |
+|------|--------|
+| `maestro:reset` | Carga el ejemplo 5 082 |
+| `maestro:highlight` | Resalta la tarjeta / forma desarrollada |
+| `maestro:setPreview` | `{ n }` (0–99999) en las casitas |
+| `maestro:ready` | widget: `l03-valor-posicional` |
+
+### L04 recta numérica (`l04-recta-numerica.html`)
+
+| type | Efecto |
+|------|--------|
+| `maestro:reset` | Ejemplo «colocar» 5 / 22 / 39 en 0–40 |
+| `maestro:highlight` | Resalta la caja de comparación |
+| `maestro:setExample` | `{ example: 'compare' / 'place' / 'between' }` |
+| `maestro:setPreview` | Acepta `{ example }` (alias de setExample) |
+| `maestro:ready` | widget: `l04-recta-numerica` |
+
 ### Otros interactivos
 
 Cada bot de asignatura documenta aquí los `type` que acepte su widget. Hasta entonces, pasos sin `iframeCmd` solo desplazan y señalan el marco.
+
+**Lote L02–L04 (2026-09-24):** guiones `maestro-02.json` … `maestro-04.json` + shells cableados; `musica: false`.
 
 ## Música / ritmo
 
@@ -148,3 +188,9 @@ Cada bot de asignatura documenta aquí los `type` que acepte su widget. Hasta en
 | Fuente currículo | `…/01.md` |
 
 **Probar:** abrir el shell L01 con `?maestro=1` vía `file://` → pulsar Empezar → puntero y voz. Sin query: comportamiento anterior.
+
+## Norma Jorge (2026-09-24) — obligatorio
+
+Tras el piloto L01 Mate, Jorge pidió **modo maestro en todo** lo que hagamos (Mate y demás asignaturas ESO), con el mismo mimo y calidad. No precipitar: lotes de ~3 lecciones, QA, publicar URLs `?maestro=1`.
+
+Orden práctico: Mate L02→L47; luego ByG, GeoHistoria, Lengua. Skill: `lecci-n-eso-con-criterio-jorge`.

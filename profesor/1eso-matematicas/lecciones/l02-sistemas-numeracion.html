@@ -99,6 +99,15 @@
   }
   button.secondary{background:#fff;color:var(--blue-d);border:1px solid var(--blue)}
   .note{font-size:0.82rem;color:var(--muted);margin:0.2rem 0 0;text-align:center}
+
+  .maestro-flash{animation:maestroFlash 1.4s ease}
+  @keyframes maestroFlash{
+    0%,100%{box-shadow:none}
+    20%,60%{box-shadow:0 0 0 4px rgba(37,99,235,0.55)}
+  }
+  .panels.maestro-flash .panel{
+    outline:2px solid #2563eb;outline-offset:2px
+  }
 </style>
 </head>
 <body>
@@ -343,6 +352,39 @@
   document.getElementById('btn78').addEventListener('click', () => { nEl.value = 78; update(); });
 
   renderGlossary();
+
+  /* Modo maestro — postMessage API (no rompe controles existentes) */
+  function setNumber(n){
+    n = Math.max(1, Math.min(99, parseInt(n, 10) || 1));
+    nEl.value = n;
+    update();
+  }
+  function highlightPanels(){
+    const panels = document.querySelector('.panels');
+    if(!panels) return;
+    panels.classList.remove('maestro-flash');
+    void panels.offsetWidth;
+    panels.classList.add('maestro-flash');
+    window.setTimeout(function(){ panels.classList.remove('maestro-flash'); }, 1500);
+  }
+  window.addEventListener('message', function(ev){
+    const data = ev && ev.data;
+    if(!data || typeof data !== 'object') return;
+    const t = data.type;
+    if(t === 'maestro:reset'){
+      document.getElementById('btn42').click();
+    } else if(t === 'maestro:highlight'){
+      highlightPanels();
+    } else if(t === 'maestro:setPreview'){
+      if(data.n != null) setNumber(data.n);
+    }
+  });
+  try {
+    if(window.parent && window.parent !== window){
+      window.parent.postMessage({ type: 'maestro:ready', widget: 'l02-sistemas-numeracion' }, '*');
+    }
+  } catch (e) { /* ignore */ }
+
   update();
 })();
 </script>
