@@ -98,7 +98,7 @@ def inject_embedded(shell: str, embedded: dict[str, str]) -> str:
 def write_leeme() -> str:
     return """═══════════════════════════════════════
   ESCRITORIO / ESTANTERÍA — Les vencimos
-  Build v20260924s
+  Build v20260924t
   UN SOLO HTML (módulos dentro)
 ═══════════════════════════════════════
 
@@ -114,6 +114,9 @@ más grande y FIJO (no desliza): Teléfono, WhatsApp,
 Navegador, Cámara, Mapas (Varios). Solo el resto
 de iconos desliza.
 QR fijo a la izquierda en Widgets sueltos.
+Atajos web (Filmin, Polar Cloud, Grok, ChatGPT,
+Claude, Gemini, Perplexity, Copilot, Les vencimos)
+entre los iconos pequeños; abren en el navegador.
 Packs escolares en Varios (no hay balda Educación
 ni Rápido). Barra Ajustes compacta arriba (no es
 una balda). Iconos de color vivos.
@@ -240,7 +243,7 @@ def main() -> None:
     shutil.rmtree(STAGING)
 
     # Also keep last lettered snapshot name pointing at same bytes (bookmarks).
-    snapshot = ROOT / "downloads" / "estanteria-offline-v20260924s.zip"
+    snapshot = ROOT / "downloads" / "estanteria-offline-v20260924t.zip"
     shutil.copy2(OUT, snapshot)
     print(f"Wrote {OUT} ({OUT.stat().st_size} bytes)")
     print(f"Snapshot {snapshot}")
