@@ -6,7 +6,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 SRC = ROOT / "offline-estanteria"
-OUT = ROOT / "downloads" / "estanteria-offline-v20260922s.zip"
+OUT = ROOT / "downloads" / "estanteria-offline.zip"
 CAJA_OUT = ROOT / "downloads" / "caja-fuerte-offline.zip"
 STAGING = ROOT / "downloads" / ".estanteria-staging"
 
@@ -95,8 +95,8 @@ def inject_embedded(shell: str, embedded: dict[str, str]) -> str:
 
 def write_leeme() -> str:
     return """═══════════════════════════════════════
-  ESTANTERÍA OFFLINE — Les vencimos
-  Build v20260922s
+  ESCRITORIO / ESTANTERÍA — Les vencimos
+  Build v20260924
   UN SOLO HTML (módulos dentro)
 ═══════════════════════════════════════
 
@@ -105,18 +105,21 @@ Este ZIP lleva esencialmente UN archivo:
   estanteria.html
   LEEME.txt
 
-Los módulos (Hogar, Salud, Radio, QR, Electricidad,
+Escritorio con estantes (Escritura, Ocio, Agenda,
+Casa/Hogar, Salud, Cultura general, Educación,
+Utilidades). Iconos redondos; arrastre libre.
+Sin Radio ni Alarma Cuba en el catálogo.
+
+Los módulos (Hogar, Salud, QR, Electricidad,
 Bricolaje, Jardín, Resiliencia, Apagón, Calculadora,
-Gimnasio, Guitarra, Caja fuerte, Medicación, Meditación, Auxilios,
-Escritura, Dibujo, Informática, Alarma, Biblioteca) van
-EMBEBIDOS dentro del HTML.
+Gimnasio, Guitarra, Caja fuerte, Medicación, Meditación,
+Auxilios, Escritura, Dibujo, Informática, Biblioteca…)
+van EMBEBIDOS dentro del HTML.
 Al tocar un icono se abren en la misma página
-(← Escritorio para volver). No hace falta gym.html
-ni otros hermanos.
+(← Escritorio para volver).
 
 Profesor (cole) es grande: descarga aparte en
 lesvencimos.com/descargas.html (o «Archivo local…»).
-Electricidad = aprender para la vida (bricolaje).
 
 ─── Android — pasos ───
 
@@ -221,11 +224,11 @@ def main() -> None:
     shutil.copy2(STAGING / "LEEME.txt", ROOT / "downloads" / "LEEME-estanteria.txt")
     shutil.rmtree(STAGING)
 
-    # Stable alias (same bytes) so old bookmarks still work; prefer versioned name.
-    alias = ROOT / "downloads" / "estanteria-offline.zip"
-    shutil.copy2(OUT, alias)
+    # Also keep last lettered snapshot name pointing at same bytes (bookmarks).
+    snapshot = ROOT / "downloads" / "estanteria-offline-v20260924.zip"
+    shutil.copy2(OUT, snapshot)
     print(f"Wrote {OUT} ({OUT.stat().st_size} bytes)")
-    print(f"Alias {alias}")
+    print(f"Snapshot {snapshot}")
     print(f"Built HTML size: {(SRC / 'estanteria.html').stat().st_size} bytes")
     with zipfile.ZipFile(OUT) as z:
         print("Estantería contents:", ", ".join(z.namelist()))
