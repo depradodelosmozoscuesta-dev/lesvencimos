@@ -121,6 +121,12 @@
   .warn{background:var(--rose-soft);border:2px solid #fda4af;border-radius:12px;padding:10px 12px;
     font-weight:700;color:var(--rose-deep);margin-top:8px;display:none}
   .warn.show{display:block}
+
+  .maestro-flash{animation:maestroFlash 1.4s ease}
+  @keyframes maestroFlash{
+    0%,100%{box-shadow:none}
+    30%,70%{box-shadow:0 0 0 3px rgba(37,99,235,.55),0 0 12px rgba(37,99,235,.25)}
+  }
 </style>
 </head>
 <body>
@@ -413,6 +419,56 @@
     setOp('*');
   }
   render();
+
+  /* Modo maestro — postMessage API (fracciones / producto-división) */
+  function maestroFlash(node){
+    if(!node) return;
+    node.classList.remove('maestro-flash');
+    void node.offsetWidth;
+    node.classList.add('maestro-flash');
+    window.setTimeout(function(){ node.classList.remove('maestro-flash'); }, 1500);
+  }
+  function maestroSetOp(next){
+    var v = String(next == null ? '' : next).toLowerCase();
+    if(v === '/' || v === 'div' || v === 'division' || v === '÷' || v === 'dividir') setOp('/');
+    else if(v === '*' || v === 'x' || v === '×' || v === 'mul' || v === 'producto' || v === 'product') setOp('*');
+  }
+  function maestroApply(data){
+    if(data.a != null) $('a').value = data.a;
+    if(data.b != null) $('b').value = data.b;
+    if(data.c != null) $('c').value = data.c;
+    if(data.d != null) $('d').value = data.d;
+    if(data.op != null || data.mode != null || data.view != null || data.demo != null || data.example != null){
+      maestroSetOp(data.op || data.mode || data.view || data.demo || data.example);
+    }
+    render();
+  }
+  window.addEventListener('message', function(ev){
+    var data = ev && ev.data;
+    if(!data || typeof data !== 'object') return;
+    var t = data.type;
+    if(t === 'maestro:reset'){
+      $('a').value = 2; $('b').value = 5; $('c').value = 3; $('d').value = 4;
+      setOp('*');
+      render();
+    } else if(t === 'maestro:highlight'){
+      maestroFlash(document.querySelector('.stage') || $('viz'));
+    } else if(t === 'maestro:setDemo' || t === 'maestro:setExample' || t === 'maestro:setPreview'){
+      maestroApply(data);
+      if(t !== 'maestro:setPreview'){
+        maestroFlash(document.querySelector('.stage'));
+      }
+    } else if(t === 'maestro:setDomain' || t === 'maestro:setMode'){
+      maestroSetOp(data.op || data.mode || data.domain || data.view);
+      render();
+    }
+  });
+  try {
+    if(window.parent && window.parent !== window){
+      window.parent.postMessage({ type: 'maestro:ready', widget: 'l19-fracciones-producto' }, '*');
+    }
+  } catch (e) { /* ignore */ }
+
 })();
 </script>
 </body>

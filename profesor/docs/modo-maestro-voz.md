@@ -374,6 +374,43 @@ Diálogo opcional alumno↔narrador: corrige el paso ([E]), no a la persona.
 
 Gancho ritmo ya en el md/widget (negra=1, corchea=1/2). `musica: false` (sin pista de audio).
 
+
+### L17 fracciones recta (`l17-fracciones-recta.html`)
+
+| type | Efecto |
+|------|--------|
+| `maestro:reset` | a=2, b=5, c=1, d=2 (2/5 vs 1/2) |
+| `maestro:highlight` | Resalta la escena (recta / barras) |
+| `maestro:setDemo` / `setExample` / `setPreview` | `{ a, b, c, d }` |
+| `maestro:setMode` / `setDomain` | (sin modos; se ignora) |
+| `maestro:ready` | widget: `l17-fracciones-recta` |
+
+Diálogo opcional alumno↔narrador: mismo numerador → trozo más chico.
+
+### L18 fracciones suma (`l18-fracciones-suma.html`)
+
+| type | Efecto |
+|------|--------|
+| `maestro:reset` | a=1, b=4, c=1, d=6, op `+` (1/4+1/6) |
+| `maestro:highlight` | Resalta la escena de barras / pasos |
+| `maestro:setDemo` / `setExample` / `setPreview` | `{ a, b, c, d, op: '+'/'−' }` |
+| `maestro:setMode` / `setDomain` | Alias de `op` (`+`/`suma`, `-`/`resta`) |
+| `maestro:ready` | widget: `l18-fracciones-suma` |
+
+Diálogo opcional: corrige 1/2+1/3≠2/5.
+
+### L19 fracciones producto (`l19-fracciones-producto.html`)
+
+| type | Efecto |
+|------|--------|
+| `maestro:reset` | a=2, b=5, c=3, d=4, op `*` |
+| `maestro:highlight` | Resalta área / panel de inversa |
+| `maestro:setDemo` / `setExample` / `setPreview` | `{ a, b, c, d, op: '*'/'/' }` (clamps a≤12, b≤10, c≤12, d≤10) |
+| `maestro:setMode` / `setDomain` | Alias de `op` (`*`/`producto`, `/`/`div`) |
+| `maestro:ready` | widget: `l19-fracciones-producto` |
+
+Diálogo opcional: «mitad de tres cuartos» = producto.
+
 ### Otros interactivos
 
 Cada bot de asignatura documenta aquí los `type` que acepte su widget. Hasta entonces, pasos sin `iframeCmd` solo desplazan y señalan el marco.
@@ -388,12 +425,14 @@ Cada bot de asignatura documenta aquí los `type` que acepte su widget. Hasta en
 
 **Lote L14–L16 (2026-09-24):** guiones `maestro-14.json` … `maestro-16.json` + shells cableados; `musica: false`. Un iframe por lección (operaciones / contextos / pizza). L14 y L15 traen diálogo corto opcional; L16 menciona el panel de ritmo (sin audio).
 
+**Lote L17–L19 (2026-09-24):** guiones `maestro-17.json` … `maestro-19.json` + shells cableados; `musica: false`. Un iframe por lección (recta / suma-resta / producto-división). Diálogo corto opcional en las tres (mismo numerador; 1/2+1/3≠2/5; parte de parte).
+
 ## Música / ritmo
 
 - Norma de producto: si una lección **ya** enlaza música o ritmo, los pasos del maestro pueden mencionarlo.
 - **L01 piloto: sin música** (`"musica": false`). No inventar canciones ni pistas.
 - Ganchos naturales futuros en Mate (cuando el contenido/QA lo lleve):
-  - **L16–L18** fracciones (pizza / recta / suma) — ritmo de partes iguales. L16 ya tiene panel negra/corchea en el widget; el guion lo señala con `highlight`/`target: music` y `musica: false`.
+  - **L16–L18** fracciones (pizza / recta / suma) — ritmo de partes iguales. L16 ya tiene panel negra/corchea en el widget; el guion lo señala con `highlight`/`target: music` y `musica: false`. L17–L18 no declaran audio (`musica: false`); solo señalización visual de partes.
   - **L23–L24** razones y proporcionalidad directa — tempo / “al doble, al triple”.
 - Hasta que esas lecciones declaren audio en el shell o en el `maestro.json`, el runtime no reproduce nada.
 

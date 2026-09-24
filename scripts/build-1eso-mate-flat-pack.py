@@ -10,7 +10,7 @@ import shutil
 import unicodedata
 import zipfile
 
-REPO = pathlib.Path("/workspace/lesvencimos")
+REPO = pathlib.Path(__file__).resolve().parents[1]
 LEC = REPO / "profesor/1eso-matematicas/lecciones"
 PLANTILLA = REPO / "profesor/_plantilla-leccion"
 HUB = REPO / "profesor/1eso-matematicas/1eso-matematicas.html"
@@ -36,6 +36,7 @@ LESSONS = [
     "curiosidad_t": "El error que enseña",
     "curiosidad": "Matemáticos y artesanos siempre han corregido midiendo otra vez: un cálculo fallido en una viga o en una receta no se «borra» — se anota qué falló. En clase pasa lo mismo: el error bien mirado acelera más que el acierto sin explicación.",
     "curiosidad_fig": "fuego.svg",
+    "curiosidad_label": "Actitud",
     "objetivos": [
       "Distinguir un problema de un ejercicio rutinario.",
       "Probar al menos cuatro estrategias (ensayo-error, dibujo, descomponer, patrón).",
@@ -62,13 +63,8 @@ LESSONS = [
     <p>Patio 12 m de <strong>largo (L)</strong> y 5 m de <strong>ancho (A)</strong>. Cinta = <strong>perímetro (P)</strong>: P = 2 × (L + A) = 2 × (12 + 5) = <strong>34 m</strong>.</p>
 """,
     "widget_split": True,  # first widget before second cuerpo block
-    "vida_t": "Aplicaciones",
-    "vida": [
-      "Excursión del instituto: plazas del autobús, menús, presupuesto en €.",
-      "¿Da tiempo a llegar andando al polideportivo?",
-      "Repartir turnos de limpieza o cocina sin pelearse «a ojo».",
-      "Cuando falta un dato, replantear con calma en lugar de abandonar.",
-    ],
+    "vida_t": "",
+    "vida": [],
     "vida_fig": "mapa.svg",
     "vida2_t": "Euros y comprobación",
     "vida2": "Un ticket o un menú pide sumar, comparar con lo que llevas y comprobar el cambio. Las unidades (€, personas, metros) evitan respuestas absurdas.",
@@ -91,6 +87,7 @@ LESSONS = [
     "curiosidad_t": "Cifras indias, camino árabe",
     "curiosidad": "Nuestras cifras 0–9 llegaron a Europa a través del mundo árabe (origen indio). Lo revolucionario no es solo el dibujo: es el sistema posicional decimal y el cero como «guardaespaldas del puesto vacío».",
     "curiosidad_fig": "ticket.svg",
+    "curiosidad_label": "Curiosidad histórica",
     "objetivos": [
       "Explicar por qué usamos un sistema decimal posicional.",
       "Comparar nuestro sistema con al menos otro (romano o egipcio a nivel básico).",
@@ -107,13 +104,8 @@ LESSONS = [
 """,
     "cuerpo_after_widgets": "",
     "widget_split": False,
-    "vida_t": "Aplicaciones",
-    "vida": [
-      "Leer años en monumentos o iglesias escritos en números romanos.",
-      "Entender por qué las horas tienen 60 minutos.",
-      "Importes en €: 12,05 € ≠ 12,50 € (el orden de las cifras importa).",
-      "Códigos postales y números de teléfono.",
-    ],
+    "vida_t": "",
+    "vida": [],
     "vida_fig": "mapa.svg",
     "widgets": [
       ("Interactivo · sistemas de numeración", "l02-sistemas-numeracion.html"),
@@ -130,9 +122,10 @@ LESSONS = [
     "title_html": "Números naturales y <em>valor posicional</em>",
     "title_plain": "Números naturales y valor posicional",
     "meta": "Saberes CyL (Decreto 39/2022): A.2 Cantidad; A.4 Relaciones (sistema decimal posicional)",
-    "curiosidad_t": "Las casitas del valor",
-    "curiosidad": "Imagina pisos en un edificio: planta baja = unidades (×1), 1.º = decenas (×10), 2.º = centenas (×100)… Misma cifra 5, distinto piso, distinto «alquiler». Sin valor posicional no hay fracciones, enteros ni álgebra cómodos.",
+    "curiosidad_t": "",
+    "curiosidad": "",
     "curiosidad_fig": "mapa.svg",
+    "curiosidad_label": "",
     "objetivos": [
       "Reconocer el conjunto de los números naturales y para qué sirven.",
       "Descomponer un natural en unidades, decenas, centenas…",
@@ -150,13 +143,8 @@ LESSONS = [
 """,
     "cuerpo_after_widgets": "",
     "widget_split": False,
-    "vida_t": "Aplicaciones",
-    "vida": [
-      "Odómetro del coche o habitantes de tu municipio (INE).",
-      "Precio de una bicicleta: 1 299 € son mil euros, no «doce noventa y nueve».",
-      "Numeración de calles, dorsal de carrera o escolar.",
-      "Contar asistencia en un partido del equipo local.",
-    ],
+    "vida_t": "",
+    "vida": [],
     "vida_fig": "ticket.svg",
     "widgets": [
       ("Interactivo · valor posicional", "l03-valor-posicional.html"),
@@ -175,6 +163,7 @@ LESSONS = [
     "curiosidad_t": "La bocita que come al grande",
     "curiosidad": "El signo &lt; / &gt; es una «bocita»: siempre mira (come) al número más grande. 3 &lt; 7 → la boca abierta mira al 7. El lado estrecho toca al pequeño; el ancho, al grande.",
     "curiosidad_fig": "mapa.svg",
+    "curiosidad_label": "Truco",
     "objetivos": [
       "Comparar naturales usando valor posicional.",
       "Representar naturales en la recta numérica.",
@@ -191,13 +180,8 @@ LESSONS = [
 """,
     "cuerpo_after_widgets": "",
     "widget_split": False,
-    "vida_t": "Aplicaciones",
-    "vida": [
-      "Comparar precios de dos mochilas en el escaparate.",
-      "Quién llegó antes en una carrera (orden de tiempos).",
-      "Cola del comedor: ticket más bajo suele entrar antes.",
-      "Distancias en km entre pueblos de CyL.",
-    ],
+    "vida_t": "",
+    "vida": [],
     "vida_fig": "mapa.svg",
     "widgets": [
       ("Interactivo · recta numérica", "l04-recta-numerica.html"),
@@ -216,6 +200,7 @@ LESSONS = [
     "curiosidad_t": "Cinco o más, ¡a subir!",
     "curiosidad": "Regla del portero: si la cifra siguiente es 5 o más, empuja hacia arriba (subes 1); si es 4 o menos, se queda quieto. Frase: «Cinco o más, ¡a subir!; cuatro o menos, ¡a dormir!»",
     "curiosidad_fig": "ticket.svg",
+    "curiosidad_label": "Truco",
     "objetivos": [
       "Redondear naturales a decenas, centenas o millares.",
       "Elegir el grado de precisión según el contexto.",
@@ -232,13 +217,8 @@ LESSONS = [
 """,
     "cuerpo_after_widgets": "",
     "widget_split": False,
-    "vida_t": "Aplicaciones",
-    "vida": [
-      "¿Caben 18,90 € + 7,25 € + 3,10 € en un billete de 30 €?",
-      "Tiempo estimado de viaje (el GPS ya redondea minutos).",
-      "Material escolar: «unas 40 carpetas» para un curso.",
-      "Periodismo local: «cerca de 2 500 asistentes».",
-    ],
+    "vida_t": "",
+    "vida": [],
     "vida_fig": "olla.svg",
     "widgets": [
       ("Interactivo · redondeo", "l05-redondeo.html"),
@@ -258,6 +238,7 @@ LESSONS = [
     "curiosidad_t": "Espejo suma ↔ resta",
     "curiosidad": "Si a+b=s, entonces s−a=b y s−b=a. Comprobar una resta sumando es un hábito de oro. La suma es conmutativa; la resta no: 10−3 ≠ 3−10.",
     "curiosidad_fig": "ticket.svg",
+    "curiosidad_label": "Truco",
     "objetivos": [
       "Usar conmutativa y asociativa de la suma para calcular con soltura.",
       "Reconocer suma y resta como operaciones inversas.",
@@ -296,9 +277,10 @@ LESSONS = [
     "title_html": "Multiplicación y división: <em>propiedades</em> y eficiencia",
     "title_plain": "Multiplicación y división: propiedades y eficiencia",
     "meta": "Saberes CyL (Decreto 39/2022): A.3 Sentido de las operaciones",
-    "curiosidad_t": "Cajas, filas y un criptograma",
-    "curiosidad": "Multiplicar es juntar grupos iguales (filas × columnas de botellas). Dividir es repartir. Si a×b=p, entonces p÷b=a. Las propiedades (conmutativa, asociativa, distributiva) son atajos — y un criptograma de productos premia calcular bien.",
+    "curiosidad_t": "",
+    "curiosidad": "",
     "curiosidad_fig": "olla.svg",
+    "curiosidad_label": "",
     "objetivos": [
       "Entender la multiplicación como grupos iguales (y la división como reparto).",
       "Usar conmutativa, asociativa y distributiva para calcular con eficiencia.",
@@ -311,13 +293,8 @@ LESSONS = [
 """,
     "cuerpo_after_widgets": "",
     "widget_split": False,
-    "vida_t": "Aplicaciones",
-    "vida": [
-      "Cajas de huevos, packs de agua, bandejas del mercadillo.",
-      "Precio total: unidades × precio unitario.",
-      "Repartir cromos, asientos o turnos en grupos iguales.",
-      "Estimar si «me llega el dinero» antes de pagar.",
-    ],
+    "vida_t": "",
+    "vida": [],
     "vida_fig": "olla.svg",
     "widgets": [
       ("Interactivo · cajas de zumo (+ criptograma)", "l07-cajas-zumo.html"),
@@ -333,9 +310,10 @@ LESSONS = [
     "title_html": "Potencias de exponente natural y <em>raíces cuadradas</em> sencillas",
     "title_plain": "Potencias de exponente natural y raíces cuadradas sencillas",
     "meta": "Saberes CyL (Decreto 39/2022): A.3 Sentido de las operaciones · A.2 Cantidad",
-    "curiosidad_t": "Torre de factores",
-    "curiosidad": "aⁿ significa a multiplicado por sí mismo n veces (una torre de n pisos). El cuadrado s² es el área de un cuadrado de lado s; la raíz √q es el lado cuando q es cuadrado perfecto. No intercambies base y exponente sin pensar.",
+    "curiosidad_t": "",
+    "curiosidad": "",
     "curiosidad_fig": "mapa.svg",
+    "curiosidad_label": "",
     "objetivos": [
       "Interpretar aⁿ como a multiplicado por sí mismo n veces.",
       "Distinguir base y exponente; leer potencias en español.",
@@ -348,13 +326,8 @@ LESSONS = [
 """,
     "cuerpo_after_widgets": "",
     "widget_split": False,
-    "vida_t": "Aplicaciones",
-    "vida": [
-      "Baldosas o azulejos en cuadrado (área = lado × lado).",
-      "Papel cuadriculado: contar cuadraditos.",
-      "Leer bien el enunciado antes de elevar o «duplicar».",
-      "Estimar si un número «parece» cuadrado perfecto.",
-    ],
+    "vida_t": "",
+    "vida": [],
     "vida_fig": "mapa.svg",
     "widgets": [
       ("Interactivo · torres y baldosas", "l08-torres-potencias.html"),
@@ -370,9 +343,10 @@ LESSONS = [
     "title_html": "Resolución de problemas aritméticos <em>contextualizados</em>",
     "title_plain": "Resolución de problemas aritméticos contextualizados (mezcla de operaciones)",
     "meta": "Saberes CyL (Decreto 39/2022): A.3 Sentido de las operaciones (situaciones contextualizadas)",
-    "curiosidad_t": "Cadena de oro",
-    "curiosidad": "dato → representación → operación → comprobación → frase con unidades. El significado elige la operación; el orden y los paréntesis evitan trampas. Una excursión CyL (autobús, entrada, merienda) lo deja claro.",
+    "curiosidad_t": "",
+    "curiosidad": "",
     "curiosidad_fig": "mapa.svg",
+    "curiosidad_label": "",
     "objetivos": [
       "Traducir un enunciado a una expresión con +, −, ×, ÷ y paréntesis.",
       "Elegir el orden según el significado (no solo «de memoria»).",
@@ -385,13 +359,8 @@ LESSONS = [
 """,
     "cuerpo_after_widgets": "",
     "widget_split": False,
-    "vida_t": "Aplicaciones",
-    "vida": [
-      "Presupuesto de una excursión (entradas × personas + autobús).",
-      "Compra en el mercadillo (packs × precio).",
-      "Reparto de merienda o material.",
-      "«¿Me llega?» antes de pagar con un billete.",
-    ],
+    "vida_t": "",
+    "vida": [],
     "vida_fig": "ticket.svg",
     "widgets": [
       ("Interactivo · excursión CyL", "l09-excursion-problemas.html"),
@@ -410,6 +379,7 @@ LESSONS = [
     "curiosidad_t": "Rectángulo sin huecos",
     "curiosidad": "Si el rectángulo cierra sin huecos, d divide a n. Múltiplo y divisor son dos caras del mismo reparto exacto: a = k×b. Los criterios (2, 3, 4, 5, 6, 9, 10) ahorran divisiones largas — la foto es un montón de bloques que cabe en filas iguales.",
     "curiosidad_fig": "mapa.svg",
+    "curiosidad_label": "Truco",
     "objetivos": [
       "Definir múltiplo y divisor con ejemplos.",
       "Aplicar criterios de divisibilidad por 2, 3, 4, 5, 6, 9 y 10.",
@@ -422,13 +392,8 @@ LESSONS = [
 """,
     "cuerpo_after_widgets": "",
     "widget_split": False,
-    "vida_t": "Aplicaciones",
-    "vida": [
-      "Repartir caramelos en bolsas iguales sin que sobre.",
-      "Montar filas de sillas en el salón de actos.",
-      "Autobuses o trenes cada 10 o 15 minutos.",
-      "Colas «pares / impares» en controles o juegos.",
-    ],
+    "vida_t": "",
+    "vida": [],
     "vida_fig": "ticket.svg",
     "widgets": [
       ("Interactivo · bloques y criterios", "l10-bloques-divisibilidad.html"),
@@ -444,9 +409,10 @@ LESSONS = [
     "title_html": "Números primos y <em>factorización</em>",
     "title_plain": "Números primos y factorización",
     "meta": "Saberes CyL (Decreto 39/2022): A.4 Relaciones (primos, factorización)",
-    "curiosidad_t": "Ladrillos primos",
-    "curiosidad": "Tacha los múltiplos; lo que no se tacha es primo. Factorizar = apilar ladrillos primos. El 1 no es primo ni compuesto. La criba de Eratóstenes y el árbol de divisiones dejan ver por qué 84 = 2²×3×7.",
+    "curiosidad_t": "La criba de Eratóstenes",
+    "curiosidad": "Eratóstenes de Cirene (s. III a. C.) ideó una criba para hallar primos: se escriben los naturales y se tachan los múltiplos de 2, 3, 5… Lo que no se tacha es primo. Factorizar es apilar esos «ladrillos» primos; el 1 no es primo ni compuesto.",
     "curiosidad_fig": "fuego.svg",
+    "curiosidad_label": "Curiosidad histórica",
     "objetivos": [
       "Definir número primo y compuesto.",
       "Usar la criba de Eratóstenes a escala pequeña.",
@@ -459,13 +425,8 @@ LESSONS = [
 """,
     "cuerpo_after_widgets": "",
     "widget_split": False,
-    "vida_t": "Aplicaciones",
-    "vida": [
-      "Códigos y seguridad informática usan primos grandes (idea, sin detalles técnicos).",
-      "Empaquetado: solo ciertos tamaños «no se parten» de forma interesante.",
-      "Música y compases a veces exploran patrones primos (curioso).",
-      "Juegos de mesa que reparaten fichas: números primos dificultan grupos iguales.",
-    ],
+    "vida_t": "",
+    "vida": [],
     "vida_fig": "olla.svg",
     "widgets": [
       ("Interactivo · criba y ladrillos", "l11-criba-factorizacion.html"),
@@ -481,9 +442,10 @@ LESSONS = [
     "title_html": "mcd y mcm: <em>estrategias</em> y problemas",
     "title_plain": "mcd y mcm: estrategias y problemas",
     "meta": "Saberes CyL (Decreto 39/2022): A.4 Relaciones (mcd/mcm)",
-    "curiosidad_t": "Comunes chicos, todos los grandes",
-    "curiosidad": "mcd = mayor divisor común; mcm = menor múltiplo común. Con factores: comunes con el menor exponente → mcd; todos con el mayor → mcm. El enunciado decide: «mayor grupo» suele ser mcd; «primera vez que coinciden» suele ser mcm.",
+    "curiosidad_t": "",
+    "curiosidad": "",
     "curiosidad_fig": "mapa.svg",
+    "curiosidad_label": "",
     "objetivos": [
       "Calcular mcd y mcm por listados y por factores primos.",
       "Elegir mcd o mcm según el enunciado.",
@@ -496,13 +458,8 @@ LESSONS = [
 """,
     "cuerpo_after_widgets": "",
     "widget_split": False,
-    "vida_t": "Aplicaciones",
-    "vida": [
-      "Luces o semáforos con ciclos distintos (idea de mcm).",
-      "Baldosas para cubrir un patio sin cortar.",
-      "Turnos de riego o de guardia que coinciden cada ciertos días.",
-      "Agrupar alumnos de dos clases en equipos del mismo tamaño máximo (mcd).",
-    ],
+    "vida_t": "",
+    "vida": [],
     "vida_fig": "ticket.svg",
     "widgets": [
       ("Interactivo · barras, ciclos y Venn", "l12-barras-mcd-mcm.html"),
@@ -518,9 +475,10 @@ LESSONS = [
     "title_html": "Números enteros: necesidad, <em>representación</em> y orden",
     "title_plain": "Números enteros: necesidad, representación y orden",
     "meta": "Saberes CyL (Decreto 39/2022): A.2 Cantidad (enteros); recta numérica",
-    "curiosidad_t": "El frío y el garaje",
-    "curiosidad": "Los enteros amplían los naturales con los negativos: temperaturas bajo cero, deudas, planta −1. En la recta, a la derecha se crece: −5 < −2. Opuesto de a es −a; |a| es la distancia al 0. «El frío y el garaje viven a la izquierda del 0.»",
+    "curiosidad_t": "",
+    "curiosidad": "",
     "curiosidad_fig": "mapa.svg",
+    "curiosidad_label": "",
     "objetivos": [
       "Justificar la necesidad de los enteros (deudas, temperaturas, profundidades).",
       "Representar enteros en la recta y hallar el opuesto y el valor absoluto.",
@@ -558,6 +516,7 @@ LESSONS = [
     "curiosidad_t": "Amigos y enemigos",
     "curiosidad": "Resta = sumar el opuesto: a−b = a+(−b). En producto/división: signos iguales → +; distintos → −. Frase: «Restar es sumar el opuesto. Amigos (+ + / − −) → + ; enemigos → −.»",
     "curiosidad_fig": "ticket.svg",
+    "curiosidad_label": "Truco",
     "objetivos": [
       "Sumar y restar enteros con recta o reglas de signos.",
       "Multiplicar y dividir enteros (regla de signos).",
@@ -570,13 +529,8 @@ LESSONS = [
 """,
     "cuerpo_after_widgets": "",
     "widget_split": False,
-    "vida_t": "Aplicaciones",
-    "vida": [
-      "Subidas y bajadas de temperatura a lo largo del día.",
-      "Ganar y gastar dinero (modelos simplificados).",
-      "Avanzar y retroceder casillas en un juego de mesa.",
-      "Desniveles en una ruta de senderismo.",
-    ],
+    "vida_t": "",
+    "vida": [],
     "vida_fig": "mapa.svg",
     "widgets": [
       ("Interactivo · saltos e inversas", "l14-enteros-operaciones.html"),
@@ -592,9 +546,10 @@ LESSONS = [
     "title_html": "Problemas con enteros en <em>contextos</em> cotidianos",
     "title_plain": "Problemas con enteros en contextos cotidianos",
     "meta": "Saberes CyL (Decreto 39/2022): A.3 Operaciones contextualizadas; E socioafectivo · énfasis [E]",
-    "curiosidad_t": "Primero elijo el 0",
-    "curiosidad": "Modelar es decidir qué significa el cero y qué es positivo (saldo inicial, planta baja, 0 °C…). Luego traduces «sube/baja» a +/−. Revisa si el resultado tiene sentido (−3 personas no suele valer). Corrige el paso, no a la persona [E].",
+    "curiosidad_t": "",
+    "curiosidad": "",
     "curiosidad_fig": "olla.svg",
+    "curiosidad_label": "",
     "objetivos": [
       "Modelar situaciones con enteros eligiendo un origen 0.",
       "Resolver problemas multi-paso con enteros.",
@@ -607,13 +562,8 @@ LESSONS = [
 """,
     "cuerpo_after_widgets": "",
     "widget_split": False,
-    "vida_t": "Aplicaciones",
-    "vida": [
-      "Controlar el saldo semanal de la paga.",
-      "Seguir la clasificación de un torneo con diferencia de goles.",
-      "Rutas con subidas y bajadas (desnivel).",
-      "Línea del tiempo: años a.C. y d.C. en Sociales.",
-    ],
+    "vida_t": "",
+    "vida": [],
     "vida_fig": "ticket.svg",
     "widgets": [
       ("Interactivo · historias con enteros [E]", "l15-enteros-contextos.html"),
@@ -629,9 +579,10 @@ LESSONS = [
     "title_html": "Fracciones: significado, <em>equivalencia</em> y simplificación",
     "title_plain": "Fracciones: significado, equivalencia y simplificación",
     "meta": "Saberes CyL (Decreto 39/2022): A.2 Cantidad (fracciones); A.3",
-    "curiosidad_t": "El todo manda",
-    "curiosidad": "Una fracción puede ser parte de un todo, un cociente o una razón. El denominador dice en cuántos trozos iguales se parte el todo; el numerador, cuántos tomamos. Si no identificas el todo, 3/4 no cuenta toda la historia.",
+    "curiosidad_t": "",
+    "curiosidad": "",
     "curiosidad_fig": "fuego.svg",
+    "curiosidad_label": "",
     "objetivos": [
       "Interpretar una fracción como parte de un todo, cociente y razón sencilla.",
       "Reconocer y construir fracciones equivalentes.",
@@ -669,9 +620,10 @@ LESSONS = [
     "title_html": "Comparación y representación de fracciones en la <em>recta</em>",
     "title_plain": "Comparación y representación de fracciones en la recta",
     "meta": "Saberes CyL (Decreto 39/2022): A.2 Cantidad (recta / representaciones)",
-    "curiosidad_t": "La recta no deja huecos",
-    "curiosidad": "En la recta, más a la derecha significa mayor. Con el mismo denominador gana el numerador; con el mismo numerador, un denominador mayor hace trozos más pequeños. Las anclas 0, 1/2 y 1 ayudan a no perderse.",
+    "curiosidad_t": "",
+    "curiosidad": "",
     "curiosidad_fig": "mapa.svg",
+    "curiosidad_label": "",
     "objetivos": [
       "Comparar fracciones de igual denominador o igual numerador.",
       "Comparar con distinto denominador mediante equivalentes o decimales sencillos.",
@@ -687,13 +639,8 @@ LESSONS = [
 """,
     "cuerpo_after_widgets": "",
     "widget_split": False,
-    "vida_t": "Aplicaciones",
-    "vida": [
-      "Comparar medio depósito con 3/8 de depósito.",
-      "Tiempo: tres cuartos de hora frente a 40 minutos.",
-      "Raciones en un comedor: qué parte del plato se ha comido.",
-      "Progreso de la batería del móvil en fracciones aproximadas.",
-    ],
+    "vida_t": "",
+    "vida": [],
     "vida_fig": "mapa.svg",
     "widgets": [
       ("Interactivo · comparar en la recta", "l17-fracciones-recta.html"),
@@ -712,6 +659,7 @@ LESSONS = [
     "curiosidad_t": "Alinea los trozos",
     "curiosidad": "El denominador dice el tamaño del trozo. Por eso 2/8 + 3/8 = 5/8: se suman numeradores porque ya hablamos de octavos. Con denominadores distintos, primero alinea los tamaños con el mcm.",
     "curiosidad_fig": "ticket.svg",
+    "curiosidad_label": "Truco",
     "objetivos": [
       "Sumar y restar fracciones con igual denominador.",
       "Sumar y restar con distinto denominador usando el mcm.",
@@ -727,13 +675,8 @@ LESSONS = [
 """,
     "cuerpo_after_widgets": "",
     "widget_split": False,
-    "vida_t": "Aplicaciones",
-    "vida": [
-      "Recetas: añadir 1/2 taza y 1/3 de taza de leche.",
-      "Tiempo de estudio: 3/4 de hora + 1/2 hora.",
-      "Obras: pintar partes de una pared en días distintos.",
-      "Progreso de un viaje: sumar tramos ya recorridos.",
-    ],
+    "vida_t": "",
+    "vida": [],
     "vida_fig": "olla.svg",
     "widgets": [
       ("Interactivo · suma y resta con barras", "l18-fracciones-suma.html"),
@@ -752,6 +695,7 @@ LESSONS = [
     "curiosidad_t": "Parte de una parte",
     "curiosidad": "Multiplicar fracciones puede significar tomar una parte de otra parte. Para dividir, dale la vuelta solo a la segunda fracción y multiplica por su inversa.",
     "curiosidad_fig": "olla.svg",
+    "curiosidad_label": "Truco",
     "objetivos": [
       "Multiplicar fracciones y simplificar el resultado.",
       "Calcular una fracción de una cantidad.",
@@ -767,13 +711,8 @@ LESSONS = [
 """,
     "cuerpo_after_widgets": "",
     "widget_split": False,
-    "vida_t": "Aplicaciones",
-    "vida": [
-      "Calcular una parte de una receta o de un depósito.",
-      "Repartir 3/4 de litro entre varias personas.",
-      "Descuentos encadenados y ofertas sencillas.",
-      "Escalas de fotos, planos y croquis.",
-    ],
+    "vida_t": "",
+    "vida": [],
     "vida_fig": "mapa.svg",
     "widgets": [
       ("Interactivo · producto y división con área", "l19-fracciones-producto.html"),
@@ -792,6 +731,7 @@ LESSONS = [
     "curiosidad_t": "¿Del todo o del resto?",
     "curiosidad": "En un problema, el todo puede cambiar. Si dice «de lo que queda», dibuja una cinta, marca lo que has quitado y usa el resto como nuevo todo.",
     "curiosidad_fig": "mapa.svg",
+    "curiosidad_label": "Truco",
     "objetivos": [
       "Elegir la operación adecuada según el enunciado.",
       "Combinar fracción de cantidad con sumas y restas.",
@@ -807,13 +747,8 @@ LESSONS = [
 """,
     "cuerpo_after_widgets": "",
     "widget_split": False,
-    "vida_t": "Aplicaciones",
-    "vida": [
-      "Presupuestos familiares: fracción de un dinero disponible.",
-      "Excursiones, autobuses y depósitos de agua.",
-      "Repartir material o comida sin hacerlo «a ojo».",
-      "Comparar tiempos de estudio, deporte y ocio.",
-    ],
+    "vida_t": "",
+    "vida": [],
     "vida_fig": "ticket.svg",
     "widgets": [
       ("Interactivo · problemas CyL con cinta", "l20-problemas-fracciones.html"),
@@ -829,9 +764,10 @@ LESSONS = [
     "title_html": "Números decimales: lectura, escritura y <em>operaciones</em>",
     "title_plain": "Números decimales: lectura, escritura y operaciones",
     "meta": "Saberes CyL (Decreto 39/2022): A.2 Cantidad (decimales); A.3 Operaciones",
-    "curiosidad_t": "La coma guarda los puestos",
-    "curiosidad": "La coma separa unidades y partes: décimas, centésimas y milésimas. En una suma, alinea la coma; no alinees simplemente el último dígito.",
+    "curiosidad_t": "",
+    "curiosidad": "",
     "curiosidad_fig": "ticket.svg",
+    "curiosidad_label": "",
     "objetivos": [
       "Leer y escribir decimales con valor posicional.",
       "Ordenar decimales y usar &lt;, &gt; e =.",
@@ -870,9 +806,10 @@ LESSONS = [
     "title_html": "Relación entre <em>fracciones, decimales y porcentajes</em>",
     "title_plain": "Relación entre fracciones, decimales y porcentajes",
     "meta": "Saberes CyL (Decreto 39/2022): A.2 Cantidad; A.5 Razonamiento proporcional (porcentajes intro)",
-    "curiosidad_t": "Tres trajes, un número",
-    "curiosidad": "Una misma cantidad puede vestirse de fracción, decimal o porcentaje. El símbolo % recuerda «por ciento»: cuántas partes hay si el todo se divide en 100.",
+    "curiosidad_t": "",
+    "curiosidad": "",
     "curiosidad_fig": "ticket.svg",
+    "curiosidad_label": "",
     "objetivos": [
       "Pasar de fracción a decimal y viceversa en casos sencillos.",
       "Entender % como «de cada 100».",
@@ -888,13 +825,8 @@ LESSONS = [
 """,
     "cuerpo_after_widgets": "",
     "widget_split": False,
-    "vida_t": "Aplicaciones",
-    "vida": [
-      "Etiquetas de descuento e IVA en tickets.",
-      "Estadísticas deportivas: porcentaje de tiros convertidos.",
-      "Batería del móvil al 85 %.",
-      "Comparar precios y cantidades sin perder la escala.",
-    ],
+    "vida_t": "",
+    "vida": [],
     "vida_fig": "ticket.svg",
     "widgets": [
       ("Interactivo · fracción, decimal y porcentaje", "l22-fraccion-decimal-porcentaje.html"),
@@ -910,9 +842,10 @@ LESSONS = [
     "title_html": "<em>Razones y proporciones</em>",
     "title_plain": "Razones y proporciones",
     "meta": "Saberes CyL (Decreto 39/2022): A.5 Razonamiento proporcional",
-    "curiosidad_t": "Comparar de cada en cada",
-    "curiosidad": "Una razón compara dos cantidades mediante una división. Una proporción afirma que dos razones son iguales; por eso los productos cruzados coinciden.",
+    "curiosidad_t": "",
+    "curiosidad": "",
     "curiosidad_fig": "mapa.svg",
+    "curiosidad_label": "",
     "objetivos": [
       "Definir razón como cociente comparado.",
       "Reconocer una proporción como igualdad de dos razones.",
@@ -928,13 +861,8 @@ LESSONS = [
 """,
     "cuerpo_after_widgets": "",
     "widget_split": False,
-    "vida_t": "Aplicaciones",
-    "vida": [
-      "Mezclas de pintura o zumo concentrado.",
-      "Mapas: razón de escala (introducción).",
-      "Recetas: huevos por cada gramos de harina.",
-      "Deporte: ratio de puntos por partido.",
-    ],
+    "vida_t": "",
+    "vida": [],
     "vida_fig": "mapa.svg",
     "widgets": [
       ("Interactivo · razones, proporciones y recta doble", "l23-razones-proporciones.html"),
@@ -950,9 +878,10 @@ LESSONS = [
     "title_html": "Proporcionalidad <em>directa</em>: igualdad de razones y reducción a la unidad",
     "title_plain": "Proporcionalidad directa: igualdad de razones y reducción a la unidad",
     "meta": "Saberes CyL (Decreto 39/2022): A.5 Proporcionalidad directa",
-    "curiosidad_t": "La constante que acompaña",
-    "curiosidad": "En una proporcionalidad directa, al multiplicar una cantidad por k la otra también se multiplica por k. La razón y/x permanece constante y la recta pasa por el origen.",
+    "curiosidad_t": "",
+    "curiosidad": "",
     "curiosidad_fig": "ticket.svg",
+    "curiosidad_label": "",
     "objetivos": [
       "Reconocer magnitudes directamente proporcionales.",
       "Completar tablas de proporcionalidad directa.",
@@ -968,13 +897,8 @@ LESSONS = [
 """,
     "cuerpo_after_widgets": "",
     "widget_split": False,
-    "vida_t": "Aplicaciones",
-    "vida": [
-      "Compra a granel (euros por kilogramo).",
-      "Fotocopias a precio fijo por página.",
-      "Escalado de ingredientes al cambiar comensales.",
-      "Distancias recorridas a ritmo constante.",
-    ],
+    "vida_t": "",
+    "vida": [],
     "vida_fig": "ticket.svg",
     "widgets": [
       ("Interactivo · unidad, tabla k y razones", "l24-proporcionalidad-directa.html"),
@@ -994,6 +918,7 @@ LESSONS = [
     "curiosidad_t": "De cada cien",
     "curiosidad": "El símbolo % resume una idea antigua y poderosa: contar cuántas partes hay si el todo se reparte en cien. Por eso 25 % es 25 de cada 100, o la cuarta parte.",
     "curiosidad_fig": "ticket.svg",
+    "curiosidad_label": "Curiosidad histórica",
     "objetivos": [
       "Calcular el p % de una cantidad.",
       "Hallar el porcentaje que representa una parte respecto a un total.",
@@ -1031,9 +956,10 @@ LESSONS = [
     "title_html": "Leer información numérica en <em>tickets, ofertas y presupuestos</em>",
     "title_plain": "Leer información numérica en tickets, ofertas y presupuestos",
     "meta": "Saberes CyL (Decreto 39/2022): A.6 Educación financiera; E · énfasis socioafectivo [E]",
-    "curiosidad_t": "La letra pequeña también cuenta",
-    "curiosidad": "Un ticket moderno resume una pequeña historia: cantidades, precios unitarios, descuentos, impuestos y total. Leerlo con calma convierte números cotidianos en decisiones informadas.",
+    "curiosidad_t": "",
+    "curiosidad": "",
     "curiosidad_fig": "ticket.svg",
+    "curiosidad_label": "",
     "objetivos": [
       "Leer un ticket sencillo identificando base, impuestos, total y redondeos.",
       "Interpretar ofertas 2x1, 2ª al 50 % y precio por unidad o kilogramo.",
@@ -1074,9 +1000,10 @@ LESSONS = [
     "title_html": "Decisiones de consumo: <em>calidad-precio y valor-precio</em>",
     "title_plain": "Decisiones de consumo: calidad-precio y valor-precio",
     "meta": "Saberes CyL (Decreto 39/2022): A.6 Consumo responsable; E · énfasis socioafectivo [E]",
-    "curiosidad_t": "Barato no siempre es mejor",
-    "curiosidad": "La etiqueta muestra el precio, pero una decisión completa también mira cuánto dura, qué prestaciones ofrece y si realmente se necesita. Dividir el precio entre meses o usos hace visible esa historia.",
+    "curiosidad_t": "",
+    "curiosidad": "",
     "curiosidad_fig": "mapa.svg",
+    "curiosidad_label": "",
     "objetivos": [
       "Distinguir precio bajo, calidad-precio y valor personal.",
       "Usar criterios numéricos y no numéricos en una decisión de compra.",
@@ -1095,13 +1022,8 @@ LESSONS = [
 """,
     "cuerpo_after_widgets": "",
     "widget_split": False,
-    "vida_t": "Aplicaciones",
-    "vida": [
-      "Elegir material escolar duradero frente a lo más barato.",
-      "Comparar unas zapatillas, una mochila o unos auriculares por €/uso o €/mes.",
-      "Valorar reparación, residuos y desperdicio alimentario.",
-      "Decidir en grupo explicitando primero los criterios.",
-    ],
+    "vida_t": "",
+    "vida": [],
     "vida_fig": "mapa.svg",
     "widgets": [
       ("Interactivo · estantería de calidad-precio y valor", "l27-calidad-precio.html"),
@@ -1117,9 +1039,10 @@ LESSONS = [
     "title_html": "Magnitudes, <em>unidades</em> y elección de unidad (longitud, amplitud, área)",
     "title_plain": "Magnitudes, unidades y elección de unidad (longitud, amplitud, área)",
     "meta": "Saberes CyL (Decreto 39/2022): B.1 Magnitud",
-    "curiosidad_t": "La unidad justa",
-    "curiosidad": "Medir no es solo escribir un número: hace falta decir con qué patrón lo comparas. Un folio pide milímetros, un patio metros y una provincia kilómetros; elegir bien la unidad hace que el dato se entienda.",
+    "curiosidad_t": "",
+    "curiosidad": "",
     "curiosidad_fig": "mapa.svg",
+    "curiosidad_label": "",
     "objetivos": [
       "Distinguir magnitud de unidad y de cantidad.",
       "Manejar unidades de longitud, amplitud angular y área.",
@@ -1135,13 +1058,8 @@ LESSONS = [
 """,
     "cuerpo_after_widgets": "",
     "widget_split": False,
-    "vida_t": "Aplicaciones",
-    "vida": [
-      "Medir un mueble antes de comprarlo.",
-      "Elegir cm para una goma, m para un patio y km para una ruta.",
-      "Describir el ángulo de una puerta o de una rampa.",
-      "Calcular superficies de habitaciones, sellos o pistas.",
-    ],
+    "vida_t": "",
+    "vida": [],
     "vida_fig": "mapa.svg",
     "widgets": [
       ("Interactivo · estaciones de magnitud", "l28-magnitudes-unidades.html"),
@@ -1157,9 +1075,10 @@ LESSONS = [
     "title_html": "Medir longitudes y ángulos; <em>precisión</em> y estimación",
     "title_plain": "Medir longitudes y ángulos; precisión y estimación",
     "meta": "Saberes CyL (Decreto 39/2022): B.2 Medición; B.3 Estimación y relaciones",
-    "curiosidad_t": "Estima antes de medir",
-    "curiosidad": "Una estimación es una conjetura comprobable, no una adivinanza definitiva. Alinear el cero, centrar el vértice y mirar de frente permite que la regla y el transportador cuenten una historia fiable.",
+    "curiosidad_t": "",
+    "curiosidad": "",
     "curiosidad_fig": "mapa.svg",
+    "curiosidad_label": "",
     "objetivos": [
       "Usar regla, cinta métrica y transportador con buena técnica.",
       "Estimar longitudes y ángulos antes de medir.",
@@ -1175,13 +1094,8 @@ LESSONS = [
 """,
     "cuerpo_after_widgets": "",
     "widget_split": False,
-    "vida_t": "Aplicaciones",
-    "vida": [
-      "Colgar un cuadro o montar una estantería nivelada.",
-      "Estimar y comprobar el ancho de una puerta.",
-      "Medir el ángulo de una rampa por seguridad.",
-      "Dibujar un croquis del patio y contrastarlo con una cinta.",
-    ],
+    "vida_t": "",
+    "vida": [],
     "vida_fig": "mapa.svg",
     "widgets": [
       ("Interactivo · regla y transportador", "l29-regla-transportador.html"),
@@ -1197,9 +1111,10 @@ LESSONS = [
     "title_html": "Áreas de figuras planas elementales: <em>deducción</em> y aplicación",
     "title_plain": "Áreas de figuras planas elementales: deducción y aplicación",
     "meta": "Saberes CyL (Decreto 39/2022): B.2 Medición (áreas); B.3 Estimación y relaciones",
-    "curiosidad_t": "Todo nace del rectángulo",
-    "curiosidad": "El área de un triángulo aparece al partir un paralelogramo en dos mitades iguales. El dibujo ayuda a recordar por qué aparece el 1/2 y a no confundir la altura perpendicular con un lado inclinado.",
+    "curiosidad_t": "",
+    "curiosidad": "",
     "curiosidad_fig": "mapa.svg",
+    "curiosidad_label": "",
     "objetivos": [
       "Deducir y usar áreas de rectángulo, cuadrado, triángulo, paralelogramo y trapecio.",
       "Descomponer figuras compuestas.",
@@ -1241,6 +1156,7 @@ LESSONS = [
     "curiosidad_t": "El lenguaje de las figuras",
     "curiosidad": "Desde Euclides, nombrar un vértice, un lado o un ángulo permite que otra persona reconstruya exactamente la figura. Clasificar no es poner etiquetas al azar: es reconocer propiedades que se mantienen.",
     "curiosidad_fig": "mapa.svg",
+    "curiosidad_label": "Curiosidad histórica",
     "objetivos": [
       "Identificar puntos, segmentos, rectas, rayos, ángulos y polígonos.",
       "Clasificar triángulos por lados y por ángulos.",
@@ -1257,13 +1173,8 @@ LESSONS = [
 """,
     "cuerpo_after_widgets": "",
     "widget_split": False,
-    "vida_t": "Formas a nuestro alrededor",
-    "vida": [
-      "Señales de tráfico, baldosas y marcos de fotos.",
-      "Triángulos rígidos en puentes y tejados.",
-      "Pantallas y objetos rectangulares del aula.",
-      "Describir una figura para que otra persona la identifique.",
-    ],
+    "vida_t": "",
+    "vida": [],
     "vida_fig": "mapa.svg",
     "widgets": [
       ("Interactivo · clasificar polígonos", "l31-clasificar-figuras.html"),
@@ -1279,9 +1190,10 @@ LESSONS = [
     "title_html": "Posiciones relativas de <em>rectas y circunferencias</em>",
     "title_plain": "Posiciones relativas de rectas y circunferencias",
     "meta": "Saberes CyL (Decreto 39/2022): C.1 Rectas y circunferencias",
-    "curiosidad_t": "Cuando una rueda roza el suelo",
-    "curiosidad": "Una tangencia es un contacto muy preciso: la rueda toca el suelo en un solo punto. La distancia perpendicular del centro a la recta coincide exactamente con el radio.",
+    "curiosidad_t": "",
+    "curiosidad": "",
     "curiosidad_fig": "mapa.svg",
+    "curiosidad_label": "",
     "objetivos": [
       "Determinar posiciones relativas entre dos rectas.",
       "Distinguir exterior, tangente y secante en recta-circunferencia.",
@@ -1298,13 +1210,8 @@ LESSONS = [
 """,
     "cuerpo_after_widgets": "",
     "widget_split": False,
-    "vida_t": "Rectas y ruedas",
-    "vida": [
-      "Carriles paralelos y calles perpendiculares.",
-      "Una rueda tangente al suelo en un instante.",
-      "Dianas con circunferencias concéntricas.",
-      "Arcos de puertas y mecanismos que giran.",
-    ],
+    "vida_t": "",
+    "vida": [],
     "vida_fig": "mapa.svg",
     "widgets": [
       ("Interactivo · posiciones con d y r", "l32-posiciones-rectas-circulos.html"),
@@ -1320,9 +1227,10 @@ LESSONS = [
     "title_html": "Construcción de figuras: <em>regla y compás</em>",
     "title_plain": "Construcción de figuras: regla y compás",
     "meta": "Saberes CyL (Decreto 39/2022): C.1 Construcción manipulativa y digital",
-    "curiosidad_t": "Construir es justificar",
-    "curiosidad": "Una construcción geométrica no es un dibujo a ojo: cada arco, segmento e intersección deja un rastro que otra persona puede repetir. La precisión convierte una intuición en una prueba.",
+    "curiosidad_t": "",
+    "curiosidad": "",
     "curiosidad_fig": "mapa.svg",
+    "curiosidad_label": "",
     "objetivos": [
       "Construir triángulos dados lados o ángulos con regla y compás.",
       "Comprender la idea de mediatriz y bisectriz.",
@@ -1339,13 +1247,8 @@ LESSONS = [
 """,
     "cuerpo_after_widgets": "",
     "widget_split": False,
-    "vida_t": "Diseño con precisión",
-    "vida": [
-      "Plantillas de costura, bricolaje y piezas mecánicas.",
-      "Croquis a escala de una habitación.",
-      "Logos geométricos y estructuras de papel.",
-      "GeoGebra para arrastrar y comprobar invariantes.",
-    ],
+    "vida_t": "",
+    "vida": [],
     "vida_fig": "mapa.svg",
     "widgets": [
       ("Interactivo · construcción con regla y compás", "l33-construccion-figuras.html"),
@@ -1362,9 +1265,10 @@ LESSONS = [
     "title_html": "Congruencia, <em>semejanza y escalas</em>",
     "title_plain": "Congruencia, semejanza y escalas",
     "meta": "Saberes CyL (Decreto 39/2022): C.1 Congruencia, semejanza, escalas",
-    "curiosidad_t": "El mapa cabe en el bolsillo",
-    "curiosidad": "Un mapa no conserva el tamaño de una ciudad: conserva sus proporciones. La escala convierte una distancia enorme en un dibujo manejable, pero solo si respetamos unidades y razón de semejanza.",
+    "curiosidad_t": "",
+    "curiosidad": "",
     "curiosidad_fig": "mapa.svg",
+    "curiosidad_label": "",
     "objetivos": [
       "Distinguir figuras congruentes y semejantes.",
       "Usar la razón de semejanza k.",
@@ -1406,6 +1310,7 @@ LESSONS = [
     "curiosidad_t": "Medir sin trepar",
     "curiosidad": "Con una sombra y una regla podemos estimar la altura de una farola o un árbol. La luz del Sol llega casi con rayos paralelos y crea triángulos semejantes.",
     "curiosidad_fig": "mapa.svg",
+    "curiosidad_label": "Curiosidad histórica",
     "objetivos": [
       "Aplicar el teorema de Tales cuando paralelas cortan un haz.",
       "Reconocer los criterios AA, LAL y LLL.",
@@ -1422,13 +1327,8 @@ LESSONS = [
 """,
     "cuerpo_after_widgets": "",
     "widget_split": False,
-    "vida_t": "Sombras y dibujo técnico",
-    "vida": [
-      "Estimar la altura de una farola sin trepar.",
-      "Rampas y triángulos semejantes en planos.",
-      "Perspectiva en fotografías y tamaños aparentes.",
-      "Dividir segmentos con paralelas en carpintería o dibujo.",
-    ],
+    "vida_t": "",
+    "vida": [],
     "vida_fig": "mapa.svg",
     "widgets": [
       ("Interactivo · Tales y criterios", "l35-tales-semejanza.html"),
@@ -1447,6 +1347,7 @@ LESSONS = [
     "curiosidad_t": "La escuadra de una cuerda",
     "curiosidad": "Una cuerda marcada en 3, 4 y 5 unidades permite comprobar una esquina de 90 grados. Las ternas pitagóricas convierten una regla geométrica en una herramienta práctica.",
     "curiosidad_fig": "mapa.svg",
+    "curiosidad_label": "Curiosidad histórica",
     "objetivos": [
       "Enunciar el teorema de Pitágoras en triángulos rectángulos.",
       "Reconocer ternas pitagóricas sencillas y sus múltiplos.",
@@ -1464,13 +1365,8 @@ LESSONS = [
 """,
     "cuerpo_after_widgets": "",
     "widget_split": False,
-    "vida_t": "Diagonales y escuadras",
-    "vida": [
-      "Diagonal de una pantalla o de una mesa rectangular.",
-      "Escalera apoyada en una pared.",
-      "Atajo entre dos calles perpendiculares.",
-      "Comprobar una esquina de 90° con una cuerda 3-4-5.",
-    ],
+    "vida_t": "",
+    "vida": [],
     "vida_fig": "mapa.svg",
     "widgets": [
       ("Interactivo · Pitágoras con cuadrados", "l36-pitagoras.html"),
@@ -1489,6 +1385,7 @@ LESSONS = [
     "curiosidad_t": "El mapa que piensa con dos números",
     "curiosidad": "Descartes popularizó la unión entre álgebra y geometría: dos números pueden señalar un punto. Hoy la misma intuición aparece en mapas, juegos y GPS, aunque el GPS real use sistemas más complejos.",
     "curiosidad_fig": "mapa.svg",
+    "curiosidad_label": "Curiosidad histórica",
     "objetivos": [
       "Situar puntos en el plano cartesiano y reconocer los cuatro cuadrantes.",
       "Leer coordenadas (x, y) y localizar el origen (0,0).",
@@ -1527,9 +1424,10 @@ LESSONS = [
     "title_html": "Modelización geométrica de <em>situaciones en el plano</em>",
     "title_plain": "Modelización geométrica de situaciones en el plano",
     "meta": "Saberes CyL (Decreto 39/2022): C.3 Visualización y modelización",
-    "curiosidad_t": "El croquis decide qué importa",
-    "curiosidad": "Modelizar no es dibujar la realidad con todos sus detalles: es elegir las medidas y relaciones que permiten responder. Un buen croquis hace visible la pregunta y declara lo que queda fuera.",
+    "curiosidad_t": "",
+    "curiosidad": "",
     "curiosidad_fig": "mapa.svg",
+    "curiosidad_label": "",
     "objetivos": [
       "Traducir una situación real a un croquis geométrico.",
       "Elegir figuras y medidas relevantes e ignorar el ruido.",
@@ -1546,13 +1444,8 @@ LESSONS = [
 """,
     "cuerpo_after_widgets": "",
     "widget_split": False,
-    "vida_t": "Modelos para decidir",
-    "vida": [
-      "Reformar una habitación: pintura y rodapié.",
-      "Planificar una ruta entre tres puntos de un pueblo.",
-      "Diseñar un huerto escolar con pasillos.",
-      "Organizar un aula, un patio o una pista con medidas.",
-    ],
+    "vida_t": "",
+    "vida": [],
     "vida_fig": "mapa.svg",
     "widgets": [
       ("Interactivo · mini-mapas de Castilla y León", "l38-modelizacion-plano.html"),
@@ -1568,9 +1461,10 @@ LESSONS = [
     "title_html": "Patrones numéricos y geométricos: <em>describir la regla</em>",
     "title_plain": "Patrones numéricos y geométricos: describir la regla",
     "meta": "Saberes CyL (Decreto 39/2022): D.1 Patrones",
-    "curiosidad_t": "La regla escondida en una baldosa",
-    "curiosidad": "Los patrones aparecen en horarios, mosaicos y celosías. Observar qué cambia de un paso al siguiente permite pasar de contar casos a predecir: una de las puertas de entrada al álgebra.",
+    "curiosidad_t": "",
+    "curiosidad": "",
     "curiosidad_fig": "mapa.svg",
+    "curiosidad_label": "",
     "objetivos": [
       "Reconocer patrones en sucesiones numéricas y figuras.",
       "Describir la regla con palabras y con una fórmula sencilla.",
@@ -1587,13 +1481,8 @@ LESSONS = [
 """,
     "cuerpo_after_widgets": "",
     "widget_split": False,
-    "vida_t": "Patrones que nos rodean",
-    "vida": [
-      "Baldosas que se repiten en un pasillo.",
-      "Horarios cada 15 minutos.",
-      "Filas de asientos numeradas.",
-      "Arte mudéjar, celosías y diseños geométricos.",
-    ],
+    "vida_t": "",
+    "vida": [],
     "vida_fig": "mapa.svg",
     "widgets": [
       ("Interactivo · patrones visibles", "l39-patrones-regla.html"),
@@ -1612,6 +1501,7 @@ LESSONS = [
     "curiosidad_t": "Palabras que se vuelven símbolos",
     "curiosidad": "Durante siglos muchos problemas se resolvían con palabras («retórica»). En la Europa moderna aparecieron símbolos compactos: hoy una frase como «3 más que el doble» puede escribirse 2x+3. La notación cambia, pero la idea sigue siendo la misma.",
     "curiosidad_fig": "ticket.svg",
+    "curiosidad_label": "Curiosidad histórica",
     "objetivos": [
       "Traducir frases a expresiones algebraicas.",
       "Distinguir expresión, ecuación e identidad a nivel intuitivo.",
@@ -1629,13 +1519,8 @@ LESSONS = [
 """,
     "cuerpo_after_widgets": "",
     "widget_split": False,
-    "vida_t": "Fórmulas que nos rodean",
-    "vida": [
-      "Tarifas: 1 € fijo + 0,10 € por minuto.",
-      "Edades: «dentro de 5 años tendré el doble…».",
-      "Perímetros con un lado desconocido.",
-      "Puntos de un juego: 3 por victoria + 1 por empate.",
-    ],
+    "vida_t": "",
+    "vida": [],
     "vida_fig": "ticket.svg",
     "widgets": [
       ("Interactivo · traducir frases y expresiones", "l40-lenguaje-algebraico.html"),
@@ -1651,9 +1536,10 @@ LESSONS = [
     "title_html": "Variable e incógnita: <em>fórmulas</em>",
     "title_plain": "Variable e incógnita; fórmulas",
     "meta": "Saberes CyL (Decreto 39/2022): D.3 Variable; fórmulas",
-    "curiosidad_t": "La letra que cambia y la letra que buscamos",
-    "curiosidad": "Una fórmula empaqueta un modelo: en P=2(L+A), L y A pueden cambiar y P responde. En cambio, si conocemos P y L y buscamos A, A es la incógnita. La misma letra puede tener papeles distintos según la pregunta.",
+    "curiosidad_t": "",
+    "curiosidad": "",
     "curiosidad_fig": "mapa.svg",
+    "curiosidad_label": "",
     "objetivos": [
       "Distinguir variable (puede cambiar) e incógnita (valor a descubrir).",
       "Sustituir en fórmulas de área, perímetro, velocidad y temperatura.",
@@ -1671,13 +1557,8 @@ LESSONS = [
 """,
     "cuerpo_after_widgets": "",
     "widget_split": False,
-    "vida_t": "Fórmulas para decidir",
-    "vida": [
-      "Velocidad media en un viaje en coche o autobús.",
-      "Área al comprar pintura para una habitación.",
-      "Hojas de cálculo: las celdas funcionan como variables.",
-      "Perímetros y medidas del patio o del aula.",
-    ],
+    "vida_t": "",
+    "vida": [],
     "vida_fig": "mapa.svg",
     "widgets": [
       ("Interactivo · variables, incógnitas y fórmulas", "l41-variable-formulas.html"),
@@ -1696,6 +1577,7 @@ LESSONS = [
     "curiosidad_t": "La balanza de la igualdad",
     "curiosidad": "Una balanza se mantiene equilibrada si hacemos lo mismo en los dos platos. Esa imagen ayuda a entender las ecuaciones equivalentes: sumar, restar, multiplicar o dividir por el mismo número (distinto de cero) conserva las soluciones.",
     "curiosidad_fig": "mapa.svg",
+    "curiosidad_label": "Truco",
     "objetivos": [
       "Simplificar expresiones reduciendo términos semejantes.",
       "Aplicar la propiedad distributiva con enteros.",
@@ -1713,13 +1595,8 @@ LESSONS = [
 """,
     "cuerpo_after_widgets": "",
     "widget_split": False,
-    "vida_t": "Igualdades en la vida real",
-    "vida": [
-      "Simplificar un presupuesto con partidas del mismo tipo.",
-      "Balanzas de cocina: equilibrio = igualdad.",
-      "Juegos: igualar puntuaciones con una ecuación.",
-      "Ofertas: 3 artículos iguales → 3x.",
-    ],
+    "vida_t": "",
+    "vida": [],
     "vida_fig": "mapa.svg",
     "widgets": [
       ("Interactivo · equivalencia y balanza", "l42-equivalencia-ecuaciones.html"),
@@ -1735,9 +1612,10 @@ LESSONS = [
     "title_html": "Resolución de ecuaciones lineales y <em>comprobación de soluciones</em>",
     "title_plain": "Resolución de ecuaciones lineales y comprobación de soluciones",
     "meta": "Saberes CyL (Decreto 39/2022): D.4 Ecuaciones lineales; coeficientes enteros",
-    "curiosidad_t": "La balanza que comprueba",
-    "curiosidad": "La idea de hacer la misma operación en los dos platos de una balanza acompaña a la enseñanza de las ecuaciones desde hace siglos. Hoy añadimos un control imprescindible: sustituir la solución y comprobar que los dos miembros coinciden.",
+    "curiosidad_t": "",
+    "curiosidad": "",
     "curiosidad_fig": "mapa.svg",
+    "curiosidad_label": "",
     "objetivos": [
       "Resolver ecuaciones del tipo ax+b=c y ax+b=cx+d con enteros.",
       "Usar la trasposición de términos con criterio.",
@@ -1755,13 +1633,8 @@ LESSONS = [
 """,
     "cuerpo_after_widgets": "",
     "widget_split": False,
-    "vida_t": "Ecuaciones para encontrar lo desconocido",
-    "vida": [
-      "Edades y situaciones de «dentro de n años».",
-      "Precios desconocidos en compras.",
-      "Repartos con condiciones.",
-      "Temperatura o nivel que alcanza un valor.",
-    ],
+    "vida_t": "",
+    "vida": [],
     "vida_fig": "ticket.svg",
     "widgets": [
       ("Interactivo · resolver y comprobar ecuaciones", "l43-ecuaciones-resolver.html"),
@@ -1777,9 +1650,10 @@ LESSONS = [
     "title_html": "Relaciones cuantitativas: <em>tablas y gráficas</em>",
     "title_plain": "Relaciones cuantitativas: tablas y gráficas",
     "meta": "Saberes CyL (Decreto 39/2022): D.5 Relaciones y funciones",
-    "curiosidad_t": "De una lista de datos a una imagen",
-    "curiosidad": "Una tabla guarda pares de valores; una gráfica permite ver de un vistazo si algo crece, baja o se mantiene. Por eso comerciantes, meteorólogos y ciclistas convierten medidas en puntos y ejes.",
+    "curiosidad_t": "",
+    "curiosidad": "",
     "curiosidad_fig": "mapa.svg",
+    "curiosidad_label": "",
     "objetivos": [
       "Organizar datos en tablas de entrada y salida.",
       "Representar puntos en ejes y unirlos cuando tenga sentido.",
@@ -1797,13 +1671,8 @@ LESSONS = [
 """,
     "cuerpo_after_widgets": "",
     "widget_split": False,
-    "vida_t": "Datos que vemos cada día",
-    "vida": [
-      "Temperatura a lo largo del día en una gráfica meteorológica.",
-      "Consumo de datos del móvil por días.",
-      "Distancia recorrida en bici según el tiempo.",
-      "Precios según kg en una tabla de mercado.",
-    ],
+    "vida_t": "",
+    "vida": [],
     "vida_fig": "ticket.svg",
     "widgets": [
       ("Interactivo · tabla y gráfica", "l44-tablas-graficas.html"),
@@ -1819,9 +1688,10 @@ LESSONS = [
     "title_html": "Algoritmos sencillos: <em>interpretar y modificar pasos</em>",
     "title_plain": "Algoritmos sencillos: interpretar y modificar pasos",
     "meta": "Saberes CyL (Decreto 39/2022): D.6 Pensamiento computacional; E (socioafectivo)",
-    "curiosidad_t": "Recetas antes de los ordenadores",
-    "curiosidad": "Una receta, las instrucciones del metro y el algoritmo de Euclides tienen algo en común: una secuencia finita de pasos claros. El pensamiento computacional también sirve para revisar un paso que falla sin culpar a quien lo está aprendiendo.",
+    "curiosidad_t": "El algoritmo de Euclides",
+    "curiosidad": "Euclides, en los Elementos (s. III a. C.), describió un procedimiento paso a paso para hallar el máximo común divisor: restar (o dividir) una y otra vez hasta llegar al resto cero. Es uno de los algoritmos más antiguos que seguimos usando.",
     "curiosidad_fig": "mapa.svg",
+    "curiosidad_label": "Curiosidad histórica",
     "objetivos": [
       "Interpretar un algoritmo escrito en pasos o diagrama sencillo.",
       "Detectar errores y mejorar la claridad de un algoritmo.",
@@ -1839,13 +1709,8 @@ LESSONS = [
 """,
     "cuerpo_after_widgets": "",
     "widget_split": False,
-    "vida_t": "Algoritmos cotidianos",
-    "vida": [
-      "Recetas de cocina y qué hacer si algo se corta.",
-      "Instrucciones para llegar al instituto.",
-      "Protocolo de evacuación del centro.",
-      "Apps: pasos para pagar con un código QR.",
-    ],
+    "vida_t": "",
+    "vida": [],
     "vida_fig": "mapa.svg",
     "widgets": [
       ("Interactivo · algoritmos en tarjetas", "l45-algoritmos-pasos.html"),
@@ -1861,9 +1726,10 @@ LESSONS = [
     "title_html": "Proyecto integrador: <em>un problema real</em>",
     "title_plain": "Proyecto integrador: un problema real",
     "meta": "Saberes CyL (Decreto 39/2022): A–D integrados; E (trabajo en equipo)",
-    "curiosidad_t": "Las matemáticas salen al patio",
-    "curiosidad": "Medir un patio, dibujarlo a escala, calcular su superficie y decidir un presupuesto convierte una pregunta real en un proyecto matemático. Los datos y la revisión ayudan a que el modelo tenga sentido.",
+    "curiosidad_t": "",
+    "curiosidad": "",
     "curiosidad_fig": "mapa.svg",
+    "curiosidad_label": "",
     "objetivos": [
       "Elegir y delimitar un problema real abordable.",
       "Movilizar al menos tres sentidos: numérico, medida, espacial o algebraico.",
@@ -1881,13 +1747,8 @@ LESSONS = [
 """,
     "cuerpo_after_widgets": "",
     "widget_split": False,
-    "vida_t": "Matemáticas para mejorar lo cercano",
-    "vida": [
-      "Proponer una mejora medible del centro o del barrio.",
-      "Organizar una merienda solidaria con cuentas claras.",
-      "Planificar un entrenamiento con tiempos y distancias.",
-      "Montar un puesto en un mercadillo benéfico.",
-    ],
+    "vida_t": "",
+    "vida": [],
     "vida_fig": "mapa.svg",
     "widgets": [
       ("Interactivo · proyecto patio", "l46-proyecto-patio.html"),
@@ -1903,9 +1764,10 @@ LESSONS = [
     "title_html": "Autoevaluación, portfolio y <em>hábitos matemáticos</em>",
     "title_plain": "Autoevaluación, portfolio y hábitos matemáticos",
     "meta": "Saberes CyL (Decreto 39/2022): E Sentido socioafectivo; metacognición",
-    "curiosidad_t": "Las evidencias cuentan una historia",
-    "curiosidad": "Decir «se me dan mal las mates» cambia cuando miras evidencias: tres ejercicios de fracciones corregidos, un croquis y un proyecto muestran qué sabes y qué puedes practicar después.",
+    "curiosidad_t": "",
+    "curiosidad": "",
     "curiosidad_fig": "fuego.svg",
+    "curiosidad_label": "",
     "objetivos": [
       "Revisar evidencias de aprendizaje del curso en un portfolio.",
       "Identificar fortalezas y lagunas con honestidad.",
@@ -1923,13 +1785,8 @@ LESSONS = [
 """,
     "cuerpo_after_widgets": "",
     "widget_split": False,
-    "vida_t": "Hábitos que caben en la vida real",
-    "vida": [
-      "Preparar la carpeta para septiembre y 2º ESO.",
-      "Explicar a la familia lo aprendido con evidencias.",
-      "Organizar el tiempo de estudio entre materias.",
-      "Cuidar la salud emocional: respirar y planificar.",
-    ],
+    "vida_t": "",
+    "vida": [],
     "vida_fig": "fuego.svg",
     "widgets": [
       ("Interactivo · portfolio y hábitos", "l47-portfolio-habitos.html"),
@@ -2114,8 +1971,6 @@ def render_lesson(lesson: dict, *, offline: bool) -> str:
     body_class = "leccion-shell offline-embed" if offline else "leccion-shell"
 
     objs = "".join(f"      <li>{o}</li>\n" for o in lesson["objetivos"])
-    vida_lis = "".join(f"        <li>{v}</li>\n" for v in lesson["vida"])
-
     def _wblock(lab: str, fn: str) -> str:
         wh = None
         if offline:
@@ -2133,9 +1988,43 @@ def render_lesson(lesson: dict, *, offline: bool) -> str:
     else:
         w_html = "\n".join(_wblock(lab, fn) for lab, fn in widgets)
 
-    vida2 = ""
+
+    # Omit empty curiosidad / vida (Jorge cleanup: no fake «Curiosidad histórica»)
+    cur_text = (lesson.get("curiosidad") or "").strip()
+    cur_title = (lesson.get("curiosidad_t") or "").strip()
+    cur_label = (lesson.get("curiosidad_label") or "Curiosidad histórica").strip()
+    if cur_text and cur_title and cur_label:
+        curiosidad_html = f"""  <aside class="bloque-curiosidad">
+    <p class="etiqueta-bloque">{cur_label}</p>
+    <h2 class="titulo-curiosidad">{cur_title}</h2>
+    <p class="texto-curiosidad">{cur_text}</p>
+    <div class="ilustracion-slot">
+      <img src="{fig(lesson.get('curiosidad_fig') or 'mapa.svg')}" width="96" height="96" alt=""/>
+    </div>
+  </aside>
+"""
+    else:
+        curiosidad_html = ""
+
+    vida_items = lesson.get("vida") or []
+    vida_title = (lesson.get("vida_t") or "").strip()
+    vida_html = ""
+    if vida_items and vida_title:
+        vida_lis = "".join(f"        <li>{v}</li>\n" for v in vida_items)
+        vida_html = f"""  <section class="bloque-vida-real con-figura">
+    <div class="figura" aria-hidden="true">
+      <img src="{fig(lesson.get('vida_fig') or 'mapa.svg')}" width="96" height="96" alt=""/>
+    </div>
+    <div class="contenido-vida">
+      <p class="etiqueta-bloque">En la vida real</p>
+      <h2 class="titulo-vida">{vida_title}</h2>
+      <ul>
+{vida_lis}      </ul>
+    </div>
+  </section>
+"""
     if lesson.get("vida2"):
-        vida2 = f"""
+        vida_html += f"""
   <section class="bloque-vida-real con-figura">
     <div class="figura" aria-hidden="true">
       <img src="{fig(lesson['vida2_fig'])}" width="96" height="96" alt=""/>
@@ -2178,33 +2067,14 @@ def render_lesson(lesson: dict, *, offline: bool) -> str:
     <p class="meta-leccion">{lesson['meta']}</p>
   </header>
 
-  <aside class="bloque-curiosidad">
-    <p class="etiqueta-bloque">Curiosidad histórica</p>
-    <h2 class="titulo-curiosidad">{lesson['curiosidad_t']}</h2>
-    <p class="texto-curiosidad">{lesson['curiosidad']}</p>
-    <div class="ilustracion-slot">
-      <img src="{fig(lesson['curiosidad_fig'])}" width="96" height="96" alt=""/>
-    </div>
-  </aside>
-
+{curiosidad_html}
   <section class="bloque-cuerpo">
     <h2>Objetivos</h2>
     <ol>
 {objs}    </ol>
 {lesson['cuerpo']}  </section>
 
-  <section class="bloque-vida-real con-figura">
-    <div class="figura" aria-hidden="true">
-      <img src="{fig(lesson['vida_fig'])}" width="96" height="96" alt=""/>
-    </div>
-    <div class="contenido-vida">
-      <p class="etiqueta-bloque">En la vida real</p>
-      <h2 class="titulo-vida">{lesson['vida_t']}</h2>
-      <ul>
-{vida_lis}      </ul>
-    </div>
-  </section>
-{vida2}
+{vida_html}
 {w_html}
 
   <section class="bloque-cuerpo">

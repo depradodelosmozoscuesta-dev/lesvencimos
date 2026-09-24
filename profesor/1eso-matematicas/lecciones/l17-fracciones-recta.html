@@ -129,6 +129,12 @@
   .callout{font-size:.9rem;font-weight:700;color:var(--blue-deep);background:#eff6ff;
     border-left:4px solid var(--blue);padding:8px 12px;border-radius:0 10px 10px 0;margin-top:10px}
   footer.note{text-align:center;font-size:.8rem;color:var(--muted);margin-top:8px}
+
+  .maestro-flash{animation:maestroFlash 1.4s ease}
+  @keyframes maestroFlash{
+    0%,100%{box-shadow:none}
+    30%,70%{box-shadow:0 0 0 3px rgba(37,99,235,.55),0 0 12px rgba(37,99,235,.25)}
+  }
 </style>
 </head>
 <body>
@@ -400,6 +406,46 @@
     });
   });
   render();
+
+  /* Modo maestro — postMessage API (fracciones / recta) */
+  function maestroFlash(node){
+    if(!node) return;
+    node.classList.remove('maestro-flash');
+    void node.offsetWidth;
+    node.classList.add('maestro-flash');
+    window.setTimeout(function(){ node.classList.remove('maestro-flash'); }, 1500);
+  }
+  function maestroApply(data){
+    if(data.a != null) $('a').value = data.a;
+    if(data.b != null) $('b').value = data.b;
+    if(data.c != null) $('c').value = data.c;
+    if(data.d != null) $('d').value = data.d;
+    render();
+  }
+  window.addEventListener('message', function(ev){
+    var data = ev && ev.data;
+    if(!data || typeof data !== 'object') return;
+    var t = data.type;
+    if(t === 'maestro:reset'){
+      $('a').value = 2; $('b').value = 5; $('c').value = 1; $('d').value = 2;
+      render();
+    } else if(t === 'maestro:highlight'){
+      maestroFlash(document.querySelector('.stage') || $('lineWrap'));
+    } else if(t === 'maestro:setDemo' || t === 'maestro:setExample' || t === 'maestro:setPreview'){
+      maestroApply(data);
+      if(t !== 'maestro:setPreview'){
+        maestroFlash(document.querySelector('.stage'));
+      }
+    } else if(t === 'maestro:setDomain' || t === 'maestro:setMode'){
+      /* L17 no tiene modos; ignorar */
+    }
+  });
+  try {
+    if(window.parent && window.parent !== window){
+      window.parent.postMessage({ type: 'maestro:ready', widget: 'l17-fracciones-recta' }, '*');
+    }
+  } catch (e) { /* ignore */ }
+
 })();
 </script>
 </body>

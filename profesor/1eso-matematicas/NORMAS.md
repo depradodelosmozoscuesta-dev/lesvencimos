@@ -3,10 +3,16 @@
 ## Interactivos / quizzes
 - Respuesta correcta repartida; nunca sesgo a la 1ª opción.
 
-## Modo maestro (obligatorio)
-- Toda lección que toquemos lleva `maestro-NN.json` + anclas `#maestro-*` + runtime `profesor/_maestro/`.
-- Abrir con `?maestro=1` → Empezar / Siguiente / Repite / Para.
-- Cada paso de voz ≤ 3 frases (normas Voz aparte).
-- Puntero + foco; `postMessage` a iframes cuando el interactivo lo merezca.
-- Calidad = piloto L01; no precipitar. Música solo si el tema la pide (fracciones/proporciones).
+## Curiosidad histórica
+- Solo si es **de verdad histórica y curiosa**. No en todas las lecciones.
+- Trucos, mnemónicos y metáforas NO van con la etiqueta «Curiosidad histórica» (usar «Truco» en el cuerpo o no poner bloque).
+- Orientación: pocas y buenas, no una por página.
+
+## En la vida real / aplicaciones
+- Solo si son **buenas y evidentes**. Si suenan cutres o forzadas, no poner el bloque.
+- Orientación: ~1 de cada 5 lecciones basta.
+
+## Modo maestro
+- Toda lección que toquemos: `maestro-NN.json` + anclas + `profesor/_maestro/` + `?maestro=1`.
+- ≤3 frases por paso; diálogos multi-voz cuando aporten.
 - Doc: `profesor/docs/modo-maestro-voz.md`.

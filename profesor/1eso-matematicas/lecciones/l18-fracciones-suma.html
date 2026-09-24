@@ -115,6 +115,12 @@
   .callout{font-size:.9rem;font-weight:700;color:var(--green-deep);background:#ecfdf5;
     border-left:4px solid var(--green);padding:8px 12px;border-radius:0 10px 10px 0;margin-top:10px}
   footer.note{text-align:center;font-size:.8rem;color:var(--muted);margin-top:8px}
+
+  .maestro-flash{animation:maestroFlash 1.4s ease}
+  @keyframes maestroFlash{
+    0%,100%{box-shadow:none}
+    30%,70%{box-shadow:0 0 0 3px rgba(37,99,235,.55),0 0 12px rgba(37,99,235,.25)}
+  }
 </style>
 </head>
 <body>
@@ -378,6 +384,55 @@
   });
   setOp('+');
   render();
+
+  /* Modo maestro — postMessage API (fracciones / suma-resta) */
+  function maestroFlash(node){
+    if(!node) return;
+    node.classList.remove('maestro-flash');
+    void node.offsetWidth;
+    node.classList.add('maestro-flash');
+    window.setTimeout(function(){ node.classList.remove('maestro-flash'); }, 1500);
+  }
+  function maestroSetOp(next){
+    if(next === '-' || next === 'minus' || next === 'resta' || next === 'diff') setOp('-');
+    else if(next === '+' || next === 'plus' || next === 'suma' || next === 'sum') setOp('+');
+  }
+  function maestroApply(data){
+    if(data.a != null) $('a').value = data.a;
+    if(data.b != null) $('b').value = data.b;
+    if(data.c != null) $('c').value = data.c;
+    if(data.d != null) $('d').value = data.d;
+    if(data.op != null || data.mode != null || data.demo != null || data.example != null){
+      maestroSetOp(data.op || data.mode || data.demo || data.example);
+    }
+    render();
+  }
+  window.addEventListener('message', function(ev){
+    var data = ev && ev.data;
+    if(!data || typeof data !== 'object') return;
+    var t = data.type;
+    if(t === 'maestro:reset'){
+      $('a').value = 1; $('b').value = 4; $('c').value = 1; $('d').value = 6;
+      setOp('+');
+      render();
+    } else if(t === 'maestro:highlight'){
+      maestroFlash(document.querySelector('.stage') || $('steps'));
+    } else if(t === 'maestro:setDemo' || t === 'maestro:setExample' || t === 'maestro:setPreview'){
+      maestroApply(data);
+      if(t !== 'maestro:setPreview'){
+        maestroFlash(document.querySelector('.stage'));
+      }
+    } else if(t === 'maestro:setDomain' || t === 'maestro:setMode'){
+      maestroSetOp(data.op || data.mode || data.domain);
+      render();
+    }
+  });
+  try {
+    if(window.parent && window.parent !== window){
+      window.parent.postMessage({ type: 'maestro:ready', widget: 'l18-fracciones-suma' }, '*');
+    }
+  } catch (e) { /* ignore */ }
+
 })();
 </script>
 </body>
