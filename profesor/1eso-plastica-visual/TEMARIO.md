@@ -131,8 +131,7 @@ L16–L19 priorizan instrumentos de dibujo técnico en papel; se puede apoyar co
 
 | Rango | Estado |
 |-------|--------|
-| L01–L10 | **HTML + MD publicados** en `lecciones/` · hub `1eso-plastica-visual.html` (perspectiva = apartado L10, Revisor B) |
-| L11–L31 | **HTML + MD + aliases (+ widgets Tinta)** publicados · hub marca L01–L31 disponibles |
+| L01–L31 | **HTML + MD + aliases (+ widgets Tinta)** en `lecciones/` · hub 31/31 · perspectiva = L10 (Revisor B) · Revisor ESO OK · Revisor final **sello 2 OK curso** · Revisor Dios **CONFIRMA** (2026-09-24; `_informe-revisor-dios-plastica-curso.md`) |
 
 ## Perspectiva en 1º — decisión Revisor ESO **B** (2026-09-24)
 **Sin lección propia** (ni L10bis ni renumerar). Apartado breve dentro de **L10**:

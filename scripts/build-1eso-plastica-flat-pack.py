@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Build cream hub + flat offline pack for 1º ESO EPVA (Plástica) L01–L10 of 31.
+"""Build cream hub + flat offline pack for 1º ESO EPVA (Plástica) curso completo 31/31.
 
 Does NOT rewrite pedagogical lesson bodies. Packages existing shells, embeds
 Tinta practice widgets via srcdoc for Android file://, and wires site listings.
@@ -28,7 +28,7 @@ TINTA = REPO / "modulos/tinta-estudio.html"
 CALC = REPO / "modulos/calculadora.html"
 
 TOTAL = 31
-AVAILABLE = 10
+AVAILABLE = 31
 
 COURSE_NAME = "1º ESO Educación Plástica, Visual y Audiovisual"
 COURSE_SHORT = "1º ESO Plástica"
@@ -82,6 +82,27 @@ LESSON_FILES = {
     8: "leccion-08-color-conceptos-y-posibilidades-expresivas.html",
     9: "leccion-09-textura-conceptos-y-posibilidades-expresivas.html",
     10: "leccion-10-percepcion-visual-espacio-luz-y-sombras.html",
+    11: "leccion-11-transformaciones-grafico-plasticas.html",
+    12: "leccion-12-composicion-i-formato-encuadre-y-estructuras.html",
+    13: "leccion-13-composicion-ii-equilibrio-proporcion-y-ritmo.html",
+    14: "leccion-14-el-proceso-creativo-seis-etapas.html",
+    15: "leccion-15-operaciones-plasticas-reproducir-aislar-transformar-asociar.html",
+    16: "leccion-16-instrumentos-y-materiales-de-dibujo-tecnico.html",
+    17: "leccion-17-geometria-plana-lugares-y-trazados-basicos.html",
+    18: "leccion-18-figuras-planas-y-poligonos-clasificacion-y-construccion.html",
+    19: "leccion-19-proporcionalidad-tales-igualdad-semejanza-y-escalas.html",
+    20: "leccion-20-movimientos-en-el-plano-simetrias-y-traslaciones.html",
+    21: "leccion-21-tecnicas-secas-en-dos-dimensiones.html",
+    22: "leccion-22-tecnicas-humedas-en-dos-dimensiones.html",
+    23: "leccion-23-soportes-fisicos-y-digitales.html",
+    24: "leccion-24-comunicacion-visual-finalidades-elementos-contextos-y-funciones.html",
+    25: "leccion-25-realismo-figuracion-y-abstraccion.html",
+    26: "leccion-26-lenguaje-visual-en-prensa-publicidad-tv-diseno-y-tic.html",
+    27: "leccion-27-fotografia-imagen-fija.html",
+    28: "leccion-28-comic-caracteristicas-y-practica.html",
+    29: "leccion-29-cine-animacion-y-formatos-digitales.html",
+    30: "leccion-30-tecnicas-expositivas-basicas-presenciales-y-virtuales.html",
+    31: "leccion-31-proyecto-de-curso-del-boceto-a-la-exposicion.html",
 }
 
 WIDGET_FILES = {
@@ -90,6 +111,18 @@ WIDGET_FILES = {
     8: "l08-color.html",
     9: "l09-textura.html",
     10: "l10-luz-sombra-profundidad.html",
+    11: "l11-transformaciones.html",
+    12: "l12-composicion-formato.html",
+    13: "l13-composicion-equilibrio.html",
+    15: "l15-operaciones-plasticas.html",
+    20: "l20-simetrias-traslaciones.html",
+    21: "l21-tecnicas-secas.html",
+    22: "l22-tecnicas-humedas.html",
+    23: "l23-soportes.html",
+    25: "l25-realismo-abstraccion.html",
+    27: "l27-fotografia.html",
+    28: "l28-comic.html",
+    31: "l31-proyecto-curso.html",
 }
 
 HUB_STYLES = """
@@ -204,15 +237,19 @@ def lesson_filename(n: int) -> str:
 
 def pack_ud_blurb(*, short: bool = False) -> str:
     if short:
-        return "bloques A + inicio B"
-    return "bloques A (patrimonio) + inicio B (lenguaje visual / Tinta L06–L10)"
+        return "curso completo EPVA 1º CyL"
+    return "temario completo EPVA 1º CyL (patrimonio, lenguaje visual, geometría, técnicas, medios)"
 
 
 def pack_interactivos_blurb() -> str:
     return (
-        "Tinta Estudio en L06–L10 (punto/línea/plano, forma, color, textura, "
-        "luz-sombra-profundidad); L01–L05 sin widget Tinta"
+        "Tinta Estudio en L06–L13, L15, L20–L23, L25, L27, L28 y L31; "
+        "resto de lecciones sin widget Tinta (enlace opcional donde aplique)"
     )
+
+
+def is_complete() -> bool:
+    return AVAILABLE >= TOTAL
 
 
 def srcdoc_escape(doc: str) -> str:
@@ -371,12 +408,17 @@ def transform_lesson_offline(n: int, raw: str, *, tinta_html: str) -> str:
     doc = doc.replace("../../../modulos/tinta-estudio.html", "tinta-estudio.html")
     doc = doc.replace('<body class="leccion-shell">', '<body class="leccion-shell offline-embed">')
 
-    # Harden L10 next (partial pack)
+    # Harden last available lesson next (complete pack → fin de curso)
     if n == AVAILABLE:
+        next_title = (
+            "Última lección"
+            if is_complete()
+            else f"L{AVAILABLE + 1:02d} próximamente"
+        )
         doc = re.sub(
             r'<a class="atajo atajo-next"[^>]*>Siguiente →</a>',
             '<span class="atajo atajo-next is-disabled" aria-disabled="true" '
-            'title="L11 próximamente">Siguiente →</span>',
+            f'title="{next_title}">Siguiente →</span>',
             doc,
             count=1,
         )
@@ -476,14 +518,14 @@ def render_hub(*, for_downloads: bool = False) -> str:
     <p class="eyebrow" style="display:block;font-size:0.72rem;letter-spacing:0.16em;text-transform:uppercase;color:var(--lv-acento);font-weight:600;margin:0 0 0.55rem">Decreto 39/2022 · Castilla y León</p>
     <h1 id="hub-titulo">{COURSE_NAME}</h1>
     <p class="hub-status">
-      <strong>Lecciones 01–{AVAILABLE:02d} disponibles</strong> ({pack_ud_blurb()}) en shell HTML.
-      Curso en construcción ({AVAILABLE}/{TOTAL} lecciones) — <strong>no es el curso completo</strong>.
+      <strong>Pack completo L01–L{AVAILABLE:02d}/{TOTAL}</strong> ({pack_ud_blurb()}) en shell HTML.
+      Curso cerrado · Revisor Dios <strong>CONFIRMA</strong> (0 críticos).
       <strong>ZIP offline</strong> (sin instalar: descomprime y abre <code>ABRE-AQUI.html</code>) en <a href="{descargas}">Descargas</a>.
     </p>
     <a class="hub-cta" href="{lec_prefix}{l01}">Abrir lección 01 →</a>
   </section>
 
-  <p class="hub-nota">Índice del temario completo ({TOTAL} lecciones). Disponibles L01–L{AVAILABLE:02d} como <code>leccion-NN-….html</code> (alias <code>leccion-NN.html</code>). L{AVAILABLE+1:02d}–L{TOTAL} aún en producción.</p>
+  <p class="hub-nota">Índice del temario completo ({TOTAL} lecciones). Todas disponibles como <code>leccion-NN-….html</code> (alias <code>leccion-NN.html</code>).</p>
 
   <ol class="hub-lista">
 {chr(10).join(items)}
@@ -495,7 +537,7 @@ def render_hub(*, for_downloads: bool = False) -> str:
   </p>
 
   <footer class="leccion-pie">
-    <strong>Les vencimos</strong> · {COURSE_NAME} · L01–L{AVAILABLE:02d}/{TOTAL} · en curso
+    <strong>Les vencimos</strong> · {COURSE_NAME} · pack completo L01–L{AVAILABLE:02d}/{TOTAL} · Revisor Dios CONFIRMA
   </footer>
 </div>
 </body>
@@ -516,7 +558,7 @@ def update_descargas() -> None:
     lead_new = (
         "Currículo oficial Castilla y León (LOMLOE). 1º ESO Matemáticas, Biología y Geología, "
         "Geografía e Historia, Lengua Castellana y Literatura y Educación Plástica, Visual y Audiovisual "
-        f"(EPVA L01–L{AVAILABLE:02d} de {TOTAL}, en curso). "
+        f"(EPVA pack completo L01–L{AVAILABLE:02d}/{TOTAL}). "
         "<strong>No es el pack Profesor</strong> (ese es otro: muchas materias, más sencillo)."
     )
     text2, n = re.subn(
@@ -543,10 +585,10 @@ def update_descargas() -> None:
           <div class="num">{ARTICLE_NUM}</div>
           <div>
             <h2>{COURSE_NAME}</h2>
-            <p class="kicker">Oficial CyL · Decreto 39/2022 · 10 lecciones · en curso ({AVAILABLE}/{TOTAL})</p>
+            <p class="kicker">Oficial CyL · Decreto 39/2022 · pack completo ({TOTAL} lecciones)</p>
             <p><strong>No se instala.</strong> Descomprime y abre <code>ABRE-AQUI.html</code> / <code>index.html</code>.
-            Pack parcial L01–L{AVAILABLE:02d} ({pack_ud_blurb()}). L{AVAILABLE+1:02d}–L{TOTAL} próximamente.
-            Con Tinta Estudio (L06–L10). Sin nube ni servidor.
+            Pack completo L01–L{AVAILABLE:02d}/{TOTAL} ({pack_ud_blurb()}). Revisor Dios CONFIRMA (0 críticos).
+            Con Tinta Estudio en las lecciones con widget. Sin nube ni servidor.
             Distinto del pack Profesor.</p>
             <div class="actions">
               <a class="btn-download" href="/downloads/{ZIP_BASENAME}" download="{ZIP_BASENAME}">Descargar ZIP</a>
@@ -595,7 +637,7 @@ def update_descargas_profesor() -> None:
         <div class="num">05</div>
         <div>
           <h2>{COURSE_NAME}</h2>
-          <p class="kicker">Oficial CyL · 10 lecciones · en curso ({AVAILABLE}/{TOTAL})</p>
+          <p class="kicker">Oficial CyL · pack completo {AVAILABLE}/{TOTAL}</p>
           <div class="actions">
             <a class="btn-download" href="/downloads/{ZIP_BASENAME}" download="{ZIP_BASENAME}">Descargar ZIP</a>
             <a class="textlink" href="/profesor/1eso-plastica-visual/{HUB_BASENAME}">Índice del curso</a>
@@ -636,7 +678,7 @@ def update_descargas_profesor() -> None:
 def update_index() -> None:
     text = INDEX.read_text(encoding="utf-8")
     block = f"""              <li>
-                <span class="lv-pack-name">1º ESO Plástica <em>(10 lecciones · en curso)</em></span>
+                <span class="lv-pack-name">1º ESO Plástica <em>(pack completo 31/31)</em></span>
                 <span class="lv-cta-row lv-cta-inline">
                   <a class="lv-square lv-square-secondary" href="/profesor/1eso-plastica-visual/{HUB_BASENAME}">Ver</a>
                   <a class="lv-square lv-square-secondary" href="/downloads/{ZIP_BASENAME}" download="{ZIP_BASENAME}">Descargar</a>
@@ -672,15 +714,14 @@ def update_inventory_light() -> None:
         return
     text = inv.read_text(encoding="utf-8")
     note = (
-        "\n\n### Publicación parcial (Les vencimos)\n\n"
-        f"- **1º ESO Educación Plástica, Visual y Audiovisual**: L01–L{AVAILABLE:02d}/{TOTAL} "
-        "publicadas (hub + ZIP offline). L11–L31 en producción — no marcar curso completo.\n"
+        "\n\n### Publicación completa (Les vencimos)\n\n"
+        f"- **1º ESO Educación Plástica, Visual y Audiovisual**: pack completo L01–L{AVAILABLE:02d}/{TOTAL} "
+        "(hub + ZIP offline). Revisor Dios CONFIRMA (0 críticos).\n"
     )
-    marker = "### Publicación parcial (Les vencimos)"
-    if marker in text:
-        # refresh block
+    if re.search(r"### Publicación (?:parcial|completa) \(Les vencimos\)", text):
+        # refresh block (parcial → completa or refresh completa)
         text2, n = re.subn(
-            r"### Publicación parcial \(Les vencimos\).*?(?=\n## |\n### |\Z)",
+            r"### Publicación (?:parcial|completa) \(Les vencimos\).*?(?=\n## |\n### |\Z)",
             note.strip() + "\n",
             text,
             count=1,
@@ -695,10 +736,23 @@ def update_inventory_light() -> None:
             text = text.replace(
                 anchor,
                 anchor
-                + f" **EPVA L01–L{AVAILABLE:02d}/{TOTAL} ya publicadas** (parcial; resto en curso).",
+                + f" **EPVA pack completo L01–L{AVAILABLE:02d}/{TOTAL}** (Revisor Dios CONFIRMA).",
                 1,
             )
         text = text.rstrip() + note
+    # Scrub leftover parcial EPVA inline notes from earlier partial publish
+    text = re.sub(
+        r"\*\*EPVA L01–L\d+/\d+ ya publicadas\*\* \(parcial; resto en curso\)\.?\s*",
+        f"**EPVA pack completo L01–L{AVAILABLE:02d}/{TOTAL}** (Revisor Dios CONFIRMA). ",
+        text,
+        count=1,
+    )
+    text = re.sub(
+        r"\*\*EPVA pack completo L01–L\d+/\d+\*\* \(Revisor Dios CONFIRMA\)\.?\s*",
+        f"**EPVA pack completo L01–L{AVAILABLE:02d}/{TOTAL}** (Revisor Dios CONFIRMA). ",
+        text,
+        count=1,
+    )
     inv.write_text(text, encoding="utf-8")
     print("inventory: light touch")
 
@@ -718,8 +772,8 @@ def build_offline_pack() -> None:
 No hay que instalar nada. Descomprime y abre **ABRE-AQUI.html** (o index.html).
 
 **Qué es:** lecciones de **Educación obligatoria** (currículo oficial Castilla y León, Decreto 39/2022 · EPVA).
-Este pack trae las lecciones **01–{AVAILABLE:02d}/{TOTAL}** ({pack_ud_blurb()}) en HTML plano (shell + práctica Tinta embebida).
-L{AVAILABLE+1:02d}–L{TOTAL} próximamente — **no es el curso completo**.
+Este pack trae el **curso completo** (lecciones **01–{AVAILABLE:02d}/{TOTAL}**) ({pack_ud_blurb()}) en HTML plano (shell + práctica Tinta embebida donde hay widget).
+Revisor Dios **CONFIRMA** OK curso (0 críticos).
 
 **Cómo abrir (Android / PC) — 4 pasos**
 
@@ -736,11 +790,11 @@ imágenes, CSS e interactivos.
 
 En Chrome/Android: menú → **Añadir a pantalla de inicio**.
 
-La práctica **Tinta Estudio** (L06–L10) va **embebida** en cada lección (y también suelta como `tinta-estudio.html`).
-Si hace falta, cada lección tiene «Abrir a pantalla completa →».
+La práctica **Tinta Estudio** va **embebida** en las lecciones con widget (y también suelta como `tinta-estudio.html`).
+Si hace falta, cada lección con práctica tiene «Abrir a pantalla completa →».
 
 **Contenido:** `ABRE-AQUI.html`, `index.html`, `LEEME.md`, `leccion-01`…`leccion-{AVAILABLE:02d}-….html`,
-alias `leccion-NN.html`, widgets `l06`…`l10-….html`, `tinta-estudio.html`, calculadora, CSS/JS e iconos — todo en la misma carpeta.
+alias `leccion-NN.html`, widgets Tinta, `tinta-estudio.html`, calculadora, CSS/JS e iconos — todo en la misma carpeta.
 """,
         encoding="utf-8",
     )
@@ -750,11 +804,12 @@ alias `leccion-NN.html`, widgets `l06`…`l10-….html`, `tinta-estudio.html`, c
         items.append(
             f'    <li class="ok"><a href="{lesson_filename(n)}"><strong>L{n:02d}</strong> — {html.escape(TEMARIO[n-1])}</a></li>'
         )
-    for n in range(AVAILABLE + 1, min(AVAILABLE + 6, TOTAL + 1)):
-        items.append(
-            f'    <li class="soon"><span><strong>L{n:02d}</strong> — {html.escape(TEMARIO[n-1])} · próximamente</span></li>'
-        )
-    items.append(f'    <li class="soon"><span>… hasta L{TOTAL} — próximamente</span></li>')
+    if not is_complete():
+        for n in range(AVAILABLE + 1, min(AVAILABLE + 6, TOTAL + 1)):
+            items.append(
+                f'    <li class="soon"><span><strong>L{n:02d}</strong> — {html.escape(TEMARIO[n-1])} · próximamente</span></li>'
+            )
+        items.append(f'    <li class="soon"><span>… hasta L{TOTAL} — próximamente</span></li>')
 
     hub_flat = f"""<!DOCTYPE html>
 <html lang="es">
@@ -787,19 +842,19 @@ alias `leccion-NN.html`, widgets `l06`…`l10-….html`, `tinta-estudio.html`, c
   <header class="bloque-titulo">
     <span class="eyebrow">Educación obligatoria · CyL</span>
     <h1 class="titulo-leccion">{COURSE_NAME}</h1>
-    <p class="meta-leccion">L01–L{AVAILABLE:02d}/{TOTAL} · {pack_ud_blurb(short=True)} · curso en construcción</p>
+    <p class="meta-leccion">Pack completo L01–L{AVAILABLE:02d}/{TOTAL} · {pack_ud_blurb(short=True)} · Revisor Dios CONFIRMA</p>
   </header>
   <div class="no-install">
     <strong>No hay que instalar nada.</strong> Abre <code>ABRE-AQUI.html</code> o <code>index.html</code> desde esta carpeta
     (Archivos / Mis archivos → carpeta descomprimida → <code>file://</code>).
-    Tinta va embebida en L06–L10.
+    Tinta va embebida en las lecciones con widget.
     En Chrome/Android: menú → <strong>Añadir a pantalla de inicio</strong>.
     <strong>Nunca</strong> abras desde la lista Descargas del navegador (<code>content://</code>).
   </div>
   <p><a class="big-cta" href="{lesson_filename(1)}">Abrir lección 01 →</a>
      &nbsp; <a href="tinta-estudio.html">Tinta Estudio</a>
      &nbsp; <a href="calculadora.html">Calculadora</a></p>
-  <p class="hub-nota">Disponibles L01–L{AVAILABLE:02d}. L{AVAILABLE+1:02d}–L{TOTAL} próximamente. Usa siempre este índice.</p>
+  <p class="hub-nota">Curso completo L01–L{AVAILABLE:02d}/{TOTAL}. Usa siempre este índice.</p>
   <section class="bloque-cuerpo">
     <h2>Lecciones</h2>
     <ol class="hub-lista-flat">
@@ -870,12 +925,17 @@ def audit_online_shells() -> None:
         if f"L{n:02d} de 31" not in t and f"L{n:02d} de <" not in t:
             if f"· L{n:02d} de 31 ·" not in t:
                 raise SystemExit(f"{fn}: missing Lxx de 31 footer")
-        if n >= 6 and "../../../modulos/tinta-estudio.html" not in t:
+        if n in WIDGET_FILES and "../../../modulos/tinta-estudio.html" not in t:
             raise SystemExit(f"{fn}: missing tinta path")
-        if n == AVAILABLE and "leccion-11-" in t and "atajo-next" in t:
-            # should be disabled, not linking
-            if re.search(r'atajo-next"[^>]*href="leccion-11', t):
-                raise SystemExit(f"{fn}: still links to missing L11")
+        if n == AVAILABLE and not is_complete():
+            nxt = AVAILABLE + 1
+            if re.search(rf'atajo-next"[^>]*href="leccion-{nxt:02d}', t):
+                raise SystemExit(f"{fn}: still links to missing L{nxt:02d}")
+        if n == TOTAL:
+            if re.search(r'atajo-next"[^>]*href="leccion-3[2-9]', t) or re.search(
+                r'atajo-next"[^>]*href="leccion-[4-9]', t
+            ):
+                raise SystemExit(f"{fn}: L31 must not link to a next lesson")
     for wf in WIDGET_FILES.values():
         t = (LEC / wf).read_text(encoding="utf-8")
         if "../../../modulos/tinta-estudio.html" not in t:

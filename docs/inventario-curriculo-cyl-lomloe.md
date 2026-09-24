@@ -69,7 +69,7 @@ Motivo: un tutor/centro obtiene antes un **curso completo usable** (todas las tr
 4. `1º ESO Biología y Geología`
 5. `1º ESO Tecnología y Digitalización`
 
-Siguiente oleada 1º ESO: Lengua Extranjera (Inglés), Educación Física, Educación Plástica Visual y Audiovisual; **EPVA L01–L10/31 ya publicadas** (parcial; resto en curso). luego optativas frecuentes (Conocimiento de las Matemáticas / del Lenguaje / 2.ª LE) y Religión/Alternativa.
+Siguiente oleada 1º ESO: Lengua Extranjera (Inglés), Educación Física, Educación Plástica Visual y Audiovisual; **EPVA pack completo L01–L31/31** (Revisor Dios CONFIRMA). luego optativas frecuentes (Conocimiento de las Matemáticas / del Lenguaje / 2.ª LE) y Religión/Alternativa.
 
 Después: **2º ESO** (aparece Física y Química, Música; cae Biología/EPVA/TyD del horario común), **3º ESO**, **4º ESO** (Mate A/B + itinerarios), luego **Primaria** (si el producto offline lo pide) y **Bachillerato** por modalidad (priorizar Ciencias y Tecnología + Humanidades y CCSS).
 
@@ -687,6 +687,6 @@ Tipos de materias: **comunes**, **específicas de modalidad**, **optativas**. Re
 4. **Actualizaciones post-2022**: revalidar BOCyL antes de escribir contenido largo; PDFs fuente en `profesor-temario/fuentes/`.
 5. **Primaria**: bloques de CN/CS CyL usan etiquetas «Cultura científica / Tecnología y digitalización / …» (estructura propia CyL sobre el RD 157/2022).
 
-### Publicación parcial (Les vencimos)
+### Publicación completa (Les vencimos)
 
-- **1º ESO Educación Plástica, Visual y Audiovisual**: L01–L10/31 publicadas (hub + ZIP offline). L11–L31 en producción — no marcar curso completo.
+- **1º ESO Educación Plástica, Visual y Audiovisual**: pack completo L01–L31/31 (hub + ZIP offline). Revisor Dios CONFIRMA (0 críticos).
