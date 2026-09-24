@@ -39,6 +39,7 @@
     --desk-ico: 54px;
     --desk-label: 0.8rem;
     --desk-tile: 72px;
+    --desk-tile-bg: var(--fondo-3);
     --ico-accent: var(--acento);
   }
   body.theme-ambar {
@@ -286,7 +287,9 @@
   body.type-s .launch-tile .mod-ico-label,
   body.type-m .launch-tile .mod-ico-label,
   body.type-l .launch-tile .mod-ico-label { font-size: var(--desk-label); }
-  body.type-l .shelf-row { padding-bottom: 1.65rem; }
+  body.type-l .shelf-row { padding-bottom: 1.85rem; }
+  body.type-s .shelf-row { padding-bottom: 1.35rem; }
+  body.type-m .shelf-row { padding-bottom: 1.5rem; }
 
   /* Compact settings bar — NOT a thematic shelf / balda */
   #desk-ajustes-bar {
@@ -501,7 +504,7 @@
     display: flex;
     flex-direction: column;
     gap: 0.4rem;
-    padding: 0.55rem 0.4rem 1.4rem;
+    padding: 0.55rem 0.4rem 1.55rem;
     border-bottom: none;
     background:
       linear-gradient(180deg,
@@ -510,11 +513,13 @@
         var(--shelf-wood) 88%,
         color-mix(in srgb, var(--shelf-lip-mid) 35%, transparent) 100%);
     min-height: 8.6rem;
+    height: auto;
     position: relative;
     margin: 0 0.05rem 0.2rem;
     border-radius: 3px 3px 2px 2px;
+    overflow: visible;
   }
-  /* Ledge / rail — icons sit ON this lip */
+  /* Ledge / rail — behind tiles so icons sit ON it and cover the glow */
   .shelf-row::after {
     content: "";
     position: absolute;
@@ -533,7 +538,7 @@
       inset 0 1px 0 rgba(255,255,255,0.28),
       inset 0 -2px 4px rgba(0,0,0,0.28);
     pointer-events: none;
-    z-index: 2;
+    z-index: 0;
   }
   .shelf-row.shelf-no-ledge {
     min-height: auto;
@@ -579,9 +584,10 @@
     scroll-snap-type: x proximity;
     gap: 0.65rem 0.85rem;
     align-items: flex-end;
-    padding: 0.35rem 0.2rem 0.9rem;
+    /* bottom pad small so opaque tiles overlap the ledge ~8–12px */
+    padding: 0.45rem 0.2rem 0.28rem;
     position: relative;
-    z-index: 1;
+    z-index: 2;
     scrollbar-width: thin;
     scrollbar-color: color-mix(in srgb, var(--suave) 45%, transparent) transparent;
     /* one line only — never wrap tiles to a 2nd row */
@@ -594,9 +600,10 @@
     border-radius: 4px;
   }
   .shelf-icons::-webkit-scrollbar-track { background: transparent; }
-  /* Module launch tile — fixed size, no resize / ficha / shape */
+  /* Module launch tile — fixed box; opaque so it covers the shelf ledge */
   .launch-tile {
     position: relative;
+    z-index: 2;
     width: var(--desk-tile);
     flex: 0 0 auto;
     scroll-snap-align: start;
@@ -604,33 +611,36 @@
     flex-direction: column;
     align-items: center;
     gap: 0.28rem;
-    padding: 0.2rem 0.1rem 0.25rem;
+    padding: 0.2rem 0.15rem 0.55rem;
     margin: 0;
     border: 0;
-    background: transparent;
+    /* solid surface — covers glowing ledge where tile overlaps */
+    background: var(--desk-tile-bg, var(--fondo-3));
+    border-radius: 14px 14px 10px 10px;
     color: var(--tinta);
     cursor: pointer;
     -webkit-tap-highlight-color: transparent;
     touch-action: pan-x manipulation;
     overflow: visible;
+    box-shadow: 0 1px 0 color-mix(in srgb, var(--fondo-2) 55%, transparent);
   }
   .launch-tile:focus-visible {
     outline: 2px solid var(--acento);
     outline-offset: 2px;
-    border-radius: 10px;
+    border-radius: 14px;
   }
-  /* Varied tile silhouettes — sizes derived from --desk-ico so type-l never clips */
-  .launch-tile.shape-poster { width: calc(var(--desk-ico) * 1.55); }
+  /* Silhouettes: keep wrap inside fixed --desk-ico box; only radius/aspect nudge */
+  .launch-tile.shape-poster { width: var(--desk-tile); }
   .launch-tile.shape-poster .mod-ico-wrap {
-    width: calc(var(--desk-ico) * 1.45); height: calc(var(--desk-ico) * 0.95); border-radius: 11px;
+    width: var(--desk-ico); height: calc(var(--desk-ico) * 0.88); border-radius: 11px;
   }
-  .launch-tile.shape-tall { width: calc(var(--desk-ico) * 1.05); }
+  .launch-tile.shape-tall { width: var(--desk-tile); }
   .launch-tile.shape-tall .mod-ico-wrap {
-    width: calc(var(--desk-ico) * 0.9); height: calc(var(--desk-ico) * 1.25); border-radius: 14px;
+    width: calc(var(--desk-ico) * 0.88); height: var(--desk-ico); border-radius: 14px;
   }
-  .launch-tile.shape-wide { width: calc(var(--desk-ico) * 1.4); }
+  .launch-tile.shape-wide { width: var(--desk-tile); }
   .launch-tile.shape-wide .mod-ico-wrap {
-    width: calc(var(--desk-ico) * 1.3); height: calc(var(--desk-ico) * 0.85); border-radius: 12px;
+    width: var(--desk-ico); height: calc(var(--desk-ico) * 0.82); border-radius: 12px;
   }
   .launch-tile.shape-soft { width: var(--desk-tile); }
   .launch-tile.shape-soft .mod-ico-wrap {
@@ -640,13 +650,15 @@
     display: flex; align-items: center; justify-content: center;
     box-sizing: border-box;
     width: var(--desk-ico); height: var(--desk-ico);
-    overflow: visible;
+    overflow: hidden;
     border-radius: 50%;
-    background:
+    /* opaque disk — no transparent mixes so ledge cannot show through */
+    background-color: var(--desk-tile-bg, var(--fondo-3));
+    background-image:
       linear-gradient(160deg,
-        color-mix(in srgb, var(--ico-accent) 42%, transparent) 0%,
-        color-mix(in srgb, var(--ico-accent) 35%, var(--ico-disk)) 55%,
-        color-mix(in srgb, var(--ico-disk) 55%, var(--ico-accent) 28%) 100%);
+        color-mix(in srgb, var(--ico-accent) 48%, var(--fondo-3)) 0%,
+        color-mix(in srgb, var(--ico-accent) 32%, var(--fondo-3)) 55%,
+        color-mix(in srgb, var(--fondo-3) 88%, var(--ico-accent) 12%) 100%);
     border: 2px solid color-mix(in srgb, var(--ico-accent) 78%, var(--linea));
     box-shadow:
       0 2px 10px rgba(0,0,0,0.22),
@@ -706,23 +718,41 @@
     font-size: 0;
     line-height: 0;
     filter: drop-shadow(0 1px 1px rgba(0,0,0,0.18));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    max-width: 100%;
+    max-height: 100%;
   }
   .launch-tile .mod-ico-svg svg {
-    width: calc(var(--desk-ico) * 0.48);
-    height: calc(var(--desk-ico) * 0.48);
+    width: auto;
+    height: auto;
+    max-width: 58%;
+    max-height: 58%;
     display: block;
+    flex-shrink: 1;
+  }
+  .launch-tile.shape-wide .mod-ico-svg svg,
+  .launch-tile.shape-poster .mod-ico-svg svg {
+    max-width: 68%;
+    max-height: 62%;
   }
   .launch-tile .mod-ico-label {
     font-size: var(--desk-label);
     font-weight: 700;
     color: var(--label-ink);
     max-width: 100%;
+    width: 100%;
     overflow: hidden;
     white-space: normal;
     display: -webkit-box;
     -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
     line-height: 1.15;
+    /* reserved 2-line box so tiles in a row align */
+    min-height: calc(var(--desk-label) * 1.15 * 2);
     text-align: center;
     text-shadow: 0 1px 2px rgba(0,0,0,0.45), 0 0 1px rgba(0,0,0,0.55);
     pointer-events: none;
@@ -1318,7 +1348,7 @@
       </div>
     </div>
 
-    <footer class="site-foot">lesvencimos.com · escritorio / estantería offline · <span id="est-build">v20260924m</span></footer>
+    <footer class="site-foot">lesvencimos.com · escritorio / estantería offline · <span id="est-build">v20260924n</span></footer>
   </div>
 
   <div id="mod-viewer" role="dialog" aria-modal="true" aria-labelledby="mod-viewer-title" hidden>
@@ -1355,7 +1385,7 @@
       'supervivencia': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3.5 19.2L12 4.5l8.5 14.7z" fill="currentColor" fill-opacity="0.1"/><path d="M3.5 19.2L12 4.5l8.5 14.7z"/><path d="M12 9v7"/><path d="M10.2 16h3.6"/></svg>',
       'apagon': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 9h10v7a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2z" fill="currentColor" fill-opacity="0.1"/><path d="M7 9h10v7a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2z"/><path d="M10 9V6.2a2 2 0 0 1 4 0V9"/><path d="M10 18v2.2"/><path d="M14 18v2.2"/><path d="M4 4l16 16"/></svg>',
       'salud': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="3.5" width="17" height="17" rx="4" fill="currentColor" fill-opacity="0.1"/><rect x="3.5" y="3.5" width="17" height="17" rx="4"/><path d="M12 7.5v9"/><path d="M7.5 12h9"/></svg>',
-      'medicacion': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="8" y="3.2" width="8" height="17.6" rx="4" transform="rotate(45 12 12)" fill="currentColor" fill-opacity="0.12"/><rect x="8" y="3.2" width="8" height="17.6" rx="4" transform="rotate(45 12 12)"/><path d="M9.3 9.3l5.4 5.4"/></svg>',
+      'medicacion': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="8" width="17" height="8" rx="4" fill="currentColor" fill-opacity="0.14"/><rect x="3.5" y="8" width="17" height="8" rx="4"/><path d="M12 8v8"/></svg>',
       'gimnasio': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 8.8v6.4"/><path d="M18 8.8v6.4"/><path d="M3.8 10.4v3.2"/><path d="M20.2 10.4v3.2"/><path d="M6 12h12"/><path d="M9 10.2v3.6"/><path d="M15 10.2v3.6"/></svg>',
       'auxilios': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 4h10v4h4v8h-4v4H7v-4H3V8h4z" fill="currentColor" fill-opacity="0.12"/><path d="M7 4h10v4h4v8h-4v4H7v-4H3V8h4z"/></svg>',
       'informatica': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="12" rx="2" fill="currentColor" fill-opacity="0.1"/><rect x="3" y="4" width="18" height="12" rx="2"/><path d="M8 20h8"/><path d="M12 16v4"/></svg>',
@@ -1379,7 +1409,7 @@
       'widget-dia': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="8" fill="currentColor" fill-opacity="0.1"/><circle cx="12" cy="12" r="8"/><path d="M8 12h8"/><path d="M12 8v8"/></svg>',
       'hoja': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 3.5h7l4 4V20a1.5 1.5 0 0 1-1.5 1.5h-9.5A1.5 1.5 0 0 1 5.5 20V5A1.5 1.5 0 0 1 7 3.5z" fill="currentColor" fill-opacity="0.1"/><path d="M7 3.5h7l4 4V20a1.5 1.5 0 0 1-1.5 1.5h-9.5A1.5 1.5 0 0 1 5.5 20V5A1.5 1.5 0 0 1 7 3.5z"/><path d="M14 3.5V8h4"/><path d="M8.5 12h7"/><path d="M8.5 15.5h5"/></svg>',
       'orientacion': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="8" fill="currentColor" fill-opacity="0.1"/><circle cx="12" cy="12" r="8"/><path d="M12 7l2.2 5.5H9.8z" fill="currentColor" fill-opacity="0.18"/><path d="M12 7l2.2 5.5H9.8z"/><circle cx="12" cy="14.5" r="1"/></svg>',
-      'pastilla': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="8" y="3.2" width="8" height="17.6" rx="4" transform="rotate(45 12 12)" fill="currentColor" fill-opacity="0.12"/><rect x="8" y="3.2" width="8" height="17.6" rx="4" transform="rotate(45 12 12)"/><path d="M9.3 9.3l5.4 5.4"/></svg>',
+      'pastilla': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="8" width="17" height="8" rx="4" fill="currentColor" fill-opacity="0.14"/><rect x="3.5" y="8" width="17" height="8" rx="4"/><path d="M12 8v8"/></svg>',
       'tinta-escritura': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20h4l9.2-9.2a2 2 0 0 0-2.8-2.8L5.2 17.2V20z" fill="currentColor" fill-opacity="0.12"/><path d="M4 20h4l9.2-9.2a2 2 0 0 0-2.8-2.8L5.2 17.2V20z"/><path d="M13.2 7.2l2.8 2.8"/><path d="M16.5 4.5l2.2 2.2"/></svg>',
       'tinta-estudio': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="8.5" cy="9" r="3.2" fill="currentColor" fill-opacity="0.14"/><circle cx="14.5" cy="8" r="2.6" fill="currentColor" fill-opacity="0.1"/><circle cx="12" cy="13.5" r="3" fill="currentColor" fill-opacity="0.12"/><circle cx="8.5" cy="9" r="3.2"/><circle cx="14.5" cy="8" r="2.6"/><circle cx="12" cy="13.5" r="3"/><path d="M17.5 16.5l2.2 4.2-4.4-1.2 2.2-3z" fill="currentColor" fill-opacity="0.15"/><path d="M17.5 16.5l2.2 4.2-4.4-1.2 2.2-3z"/></svg>',
       'medita': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3c1.1 2 1.9 3.9 1.9 5.6a1.9 1.9 0 1 1-3.8 0c0-1.7.8-3.6 1.9-5.6z" fill="currentColor" fill-opacity="0.14"/><path d="M12 3c1.1 2 1.9 3.9 1.9 5.6a1.9 1.9 0 1 1-3.8 0c0-1.7.8-3.6 1.9-5.6z"/><path d="M8.2 14.2c1.1-.9 2.4-1.4 3.8-1.4s2.7.5 3.8 1.4"/><path d="M7 19c1.4-1.1 3-1.7 5-1.7s3.6.6 5 1.7"/></svg>',
@@ -1387,7 +1417,7 @@
       'brico': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14.6 5.4a3.4 3.4 0 0 1 3.9 3.9L12 16.2l-3 1 1-3 6.6-8.8z" fill="currentColor" fill-opacity="0.12"/><path d="M14.6 5.4a3.4 3.4 0 0 1 3.9 3.9L12 16.2l-3 1 1-3 6.6-8.8z"/><path d="M12 16.2L6.4 21.8"/></svg>',
       'electro': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M13 2L4.8 13.2h6.2L9.8 22 19.2 10.8H13z" fill="currentColor" fill-opacity="0.14"/><path d="M13 2L4.8 13.2h6.2L9.8 22 19.2 10.8H13z"/></svg>',
       'supervive': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3.5 19.2L12 4.5l8.5 14.7z" fill="currentColor" fill-opacity="0.1"/><path d="M3.5 19.2L12 4.5l8.5 14.7z"/><path d="M12 9v7"/><path d="M10.2 16h3.6"/></svg>',
-      'medica': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="8" y="3.2" width="8" height="17.6" rx="4" transform="rotate(45 12 12)" fill="currentColor" fill-opacity="0.12"/><rect x="8" y="3.2" width="8" height="17.6" rx="4" transform="rotate(45 12 12)"/><path d="M9.3 9.3l5.4 5.4"/></svg>',
+      'medica': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="8" width="17" height="8" rx="4" fill="currentColor" fill-opacity="0.14"/><rect x="3.5" y="8" width="17" height="8" rx="4"/><path d="M12 8v8"/></svg>',
       'gym': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 8.8v6.4"/><path d="M18 8.8v6.4"/><path d="M3.8 10.4v3.2"/><path d="M20.2 10.4v3.2"/><path d="M6 12h12"/><path d="M9 10.2v3.6"/><path d="M15 10.2v3.6"/></svg>',
       'primeros-auxilios': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 4h10v4h4v8h-4v4H7v-4H3V8h4z" fill="currentColor" fill-opacity="0.12"/><path d="M7 4h10v4h4v8h-4v4H7v-4H3V8h4z"/></svg>',
       'info': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="12" rx="2" fill="currentColor" fill-opacity="0.1"/><rect x="3" y="4" width="18" height="12" rx="2"/><path d="M8 20h8"/><path d="M12 16v4"/></svg>',
@@ -3494,7 +3524,7 @@
       });
     }
 
-    var EST_BUILD = 'v20260924m';
+    var EST_BUILD = 'v20260924n';
 
     function layoutPanelSheet() {
       var tb = document.getElementById('desk-toolbar');
