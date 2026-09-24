@@ -481,29 +481,49 @@
     return el;
   }
 
+  function placeAtajoControl(el, target) {
+    if (!el || !target) return;
+
+    // Older shells wrapped the link in .pie-maestro. Move the link itself so
+    // the footer returns to the Les vencimos line only.
+    var wrap = el.closest ? el.closest('.pie-maestro') : null;
+    if (wrap && wrap.parentNode) {
+      wrap.parentNode.insertBefore(el, wrap);
+      if (!wrap.children.length && !String(wrap.textContent || '').trim()) {
+        wrap.parentNode.removeChild(wrap);
+      }
+    }
+
+    var label = target.classList && target.classList.contains('leccion-progreso')
+      ? qs('.progreso-texto', target)
+      : null;
+    if (label && label.parentNode === target) {
+      target.insertBefore(el, label.nextSibling);
+    } else if (el.parentNode !== target || el !== target.lastElementChild) {
+      target.appendChild(el);
+    }
+  }
+
   function ensureAtajoControl() {
     if (!hasMaestroPage()) return null;
 
-    var pie = qs('.leccion-pie');
+    var barra = qs('.leccion-barra');
+    var progreso = qs('.leccion-progreso');
+    var target = progreso || barra;
     var existing = qs('.atajo-maestro');
 
-    // Prefer static / already-in-DOM control; keep it inside the pie when possible.
+    // Prefer the progress row. Static links already there are simply wired;
+    // legacy footer links are moved beside the N de 47 label.
     if (existing) {
-      if (pie) {
-        var wrap = existing.closest ? existing.closest('.pie-maestro') : null;
-        if (wrap) {
-          if (wrap.parentNode !== pie) pie.insertBefore(wrap, pie.firstChild);
-        } else if (existing.parentNode !== pie) {
-          pie.insertBefore(existing, pie.firstChild);
-        }
-      }
+      if (target) placeAtajoControl(existing, target);
       wireAtajoClick(existing);
       state.atajoEl = existing;
       updateAtajoLabel();
       return existing;
     }
 
-    // No static atajo: inject into pie, or fixed fallback if pie missing.
+    // Inject into the progress row (or barra). Use the fixed fallback only
+    // when the page has neither navigation structure.
     var el = document.createElement('a');
     el.href = '?maestro=1';
     el.className = 'atajo atajo-maestro';
@@ -512,11 +532,8 @@
     el.setAttribute('title', 'Activar modo maestro (voz + puntero)');
     el.setAttribute('aria-pressed', 'false');
 
-    if (pie) {
-      var p = document.createElement('p');
-      p.className = 'pie-maestro';
-      p.appendChild(el);
-      pie.insertBefore(p, pie.firstChild);
+    if (target) {
+      placeAtajoControl(el, target);
     } else {
       el.id = 'maestro-atajo-fijo';
       document.body.appendChild(el);
@@ -834,10 +851,13 @@
     api.__booted = true;
     state.reducedMotion = !!(global.matchMedia && global.matchMedia('(prefers-reduced-motion: reduce)').matches);
 
-    // Siempre: atajo en el pie (estático o inyectado). Si no hay pie, fijo.
+    // Siempre: atajo junto al progreso (estático o inyectado). Solo queda
+    // fijo si la página carece de barra y progreso.
     if (hasMaestroPage()) {
       ensureAtajoControl();
-      if (!qs('.atajo-maestro')) ensureFixedAtajo();
+      if (!qs('.atajo-maestro') && !qs('.leccion-barra') && !qs('.leccion-progreso')) {
+        ensureFixedAtajo();
+      }
       updateAtajoLabel();
     }
 

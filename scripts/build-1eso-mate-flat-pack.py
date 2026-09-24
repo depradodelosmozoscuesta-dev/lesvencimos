@@ -1870,6 +1870,7 @@ def nav_html(n: int, *, offline: bool) -> str:
        data-actual="{n}" data-total="{TOTAL}">
     <div class="leccion-progreso" role="status">
       <span class="progreso-texto"><strong>{n}</strong> de <strong>{TOTAL}</strong></span>
+      <a class="atajo atajo-maestro" href="?maestro=1">Modo maestro</a>
       <div class="progreso-pista" aria-hidden="true"><div class="progreso-lleno" style="width:{progress_pct(n)}%"></div></div>
     </div>
     <div class="leccion-atajos">
@@ -2096,15 +2097,30 @@ def render_lesson(lesson: dict, *, offline: bool) -> str:
   </section>
 
   <footer class="leccion-pie">
-    <p class="pie-maestro">
-      <a class="atajo atajo-maestro" href="?maestro=1">Modo maestro</a>
-    </p>
     <strong>Les vencimos</strong> · L{n:02d} de {TOTAL} · shell HTML · offline / file:// · sin instalar
   </footer>
 </div>
 </body>
 </html>
 """
+
+
+def place_maestro_shortcut_in_progress(doc: str) -> str:
+    """Move legacy static Modo maestro links beside the progress label."""
+    doc = re.sub(
+        r'(?ms)^[ \t]*<p class="pie-maestro">\s*<a\b[^>]*class="[^"\n]*\batajo-maestro\b[^"\n]*"[^>]*>.*?</a>\s*</p>[ \t]*\n',
+        '', doc,
+    )
+    doc = re.sub(
+        r'<a\b(?=[^>]*class="[^"\n]*\batajo-maestro\b[^"\n]*")[^>]*>.*?</a>',
+        '', doc, flags=re.S,
+    )
+    doc = re.sub(r'(?ms)^[ \t]*<p class="pie-maestro">\s*</p>[ \t]*\n', '', doc)
+    label = re.search(r'<span class="progreso-texto">.*?</span>', doc, flags=re.S)
+    if not label:
+        raise ValueError("lesson has no progreso-texto")
+    shortcut = '      <a class="atajo atajo-maestro" href="?maestro=1">Modo maestro</a>'
+    return doc[:label.end()] + "\n" + shortcut + doc[label.end():]
 
 
 def write_redirect(path: pathlib.Path, target: str, label: str) -> None:
@@ -2467,6 +2483,13 @@ todo en la misma carpeta.
         dest.parent.mkdir(parents=True, exist_ok=True)
         dest.write_bytes(data)
         print("Restored", rel)
+
+    # Normalize preserved lesson shells too (notably the maestro-enabled L01).
+    for lesson_path in sorted(root.glob("leccion-[0-9][0-9]-*.html")):
+        lesson_path.write_text(
+            place_maestro_shortcut_in_progress(lesson_path.read_text(encoding="utf-8")),
+            encoding="utf-8",
+        )
 
     # Always ship current _maestro runtime/CSS from repo (overwrite preserved copies).
     maestro_src = REPO / "profesor/_maestro"
