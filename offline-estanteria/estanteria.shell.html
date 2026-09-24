@@ -1426,7 +1426,7 @@
       </div>
     </div>
 
-    <footer class="site-foot">lesvencimos.com · escritorio / estantería offline · <span id="est-build">v20260924q</span></footer>
+    <footer class="site-foot">lesvencimos.com · escritorio / estantería offline · <span id="est-build">v20260924s</span></footer>
   </div>
 
   <div id="mod-viewer" role="dialog" aria-modal="true" aria-labelledby="mod-viewer-title" hidden>
@@ -1533,6 +1533,7 @@
       ocio: 'whatsapp',
       casa: 'navegador',
       salud: 'camara',
+      varios: 'mapas',
       sueltos: 'qr'
     };
 
@@ -3772,7 +3773,7 @@
       });
     }
 
-    var EST_BUILD = 'v20260924r';
+    var EST_BUILD = 'v20260924s';
 
     function layoutPanelSheet() {
       var tb = document.getElementById('desk-toolbar');
@@ -3975,6 +3976,7 @@
       var needRapido = !needSeed && state.layoutRev < 7;
       var needLeads = !needSeed && state.layoutRev < 8;
       var needCamaraQr = !needSeed && state.layoutRev < 9;
+      var needMapasLead = !needSeed && state.layoutRev < 10;
       if (typeof state.ajustesHidden !== 'boolean') state.ajustesHidden = false;
       if (typeof state.contrast !== 'number') state.contrast = 0;
       if (state.typeSize !== 's' && state.typeSize !== 'm' && state.typeSize !== 'l') state.typeSize = 'm';
@@ -4088,10 +4090,10 @@
         seedFullDesktop();
         ensureShelfLeads();
         arrangeToShelves();
-        state.layoutRev = 9;
+        state.layoutRev = 10;
         state.version = 4;
         saveState();
-      } else if (needRearrange || needEdu || needVariosEdu || needRapido || needLeads || needCamaraQr) {
+      } else if (needRearrange || needEdu || needVariosEdu || needRapido || needLeads || needCamaraQr || needMapasLead) {
         if (needEdu || needVariosEdu) {
           /* Packs escolares: asegurar en escritorio y shelf varios (sin balda Educación) */
           var schoolIds = ['profesor', 'mate-1eso', 'byg-1eso', 'geo-1eso', 'lengua-1eso', 'plastica-1eso', 'linux-essentials'];
@@ -4157,6 +4159,41 @@
             delete state.lastUsed.galeria;
           }
         })();
+        /* layoutRev 10: Mapas lead fijo en Varios (embed, no openNative) */
+        (function ensureMapasLead() {
+          var mod = catalogById('mapas');
+          if (!mod) return;
+          if (!hasModule('mapas')) {
+            state.items.push({
+              id: mod.id,
+              type: 'module',
+              kind: 'catalog',
+              titulo: mod.titulo,
+              icon: mod.icon || 'mapas',
+              href: mod.href || '',
+              embed: mod.embed || 'mapas',
+              external: mod.external || null,
+              openNative: null,
+              color: mod.color || '',
+              blurb: mod.blurb || '',
+              shelf: 'varios',
+              view: 'icon',
+              z: ++Z,
+              addedAt: new Date().toISOString()
+            });
+          } else {
+            var existing = findItem('mapas');
+            if (existing) {
+              existing.shelf = 'varios';
+              existing.embed = mod.embed || 'mapas';
+              existing.openNative = null;
+              if (mod.titulo) existing.titulo = mod.titulo;
+              if (mod.icon) existing.icon = mod.icon;
+              if (mod.color) existing.color = mod.color;
+              if (mod.blurb) existing.blurb = mod.blurb;
+            }
+          }
+        })();
         ensureShelfLeads();
         /* Reasignar shelves desde catálogo; educacion → varios; QR → sueltos */
         state.items.forEach(function (it) {
@@ -4182,7 +4219,7 @@
           }
         });
         arrangeToShelves();
-        state.layoutRev = 9;
+        state.layoutRev = 10;
         state.version = 4;
         saveState();
       } else {
