@@ -100,7 +100,7 @@ def inject_embedded(shell: str, embedded: dict[str, str]) -> str:
 def write_leeme() -> str:
     return """═══════════════════════════════════════
   ESCRITORIO / ESTANTERÍA — Les vencimos
-  Build v20260925c
+  Build v20260925d
   UN SOLO HTML (módulos dentro)
 ═══════════════════════════════════════
 
@@ -109,13 +109,14 @@ Este ZIP lleva esencialmente UN archivo:
   estanteria.html
   LEEME.txt
 
-Baldas deslizables por tema (Escritura, Ocio,
-Casa/Hogar, Salud, Varios): una sola línea,
-desliza en horizontal. Primer icono de cada balda
+Baldas deslizables por tema: una sola línea,
+desliza en horizontal. Solo el chip «Widgets»
+(sueltos) se muestra; el resto de baldas van
+sin etiqueta. Primer icono de cada balda
 más grande y FIJO (no desliza): Teléfono, WhatsApp,
 Navegador, Cámara, Mapas (Varios). Solo el resto
-de iconos desliza.
-QR fijo a la izquierda en Widgets sueltos.
+de iconos desliza. Iconos siempre redondos.
+QR fijo a la izquierda en Widgets.
 Atajos (Filmin, Polar Cloud, Grok, Claude, Gemini,
 Les vencimos) entre los iconos pequeños; en Android
 abren la app si está instalada (si no, la web).
@@ -245,7 +246,7 @@ def main() -> None:
     shutil.rmtree(STAGING)
 
     # Also keep last lettered snapshot name pointing at same bytes (bookmarks).
-    snapshot = ROOT / "downloads" / "estanteria-offline-v20260925c.zip"
+    snapshot = ROOT / "downloads" / "estanteria-offline-v20260925d.zip"
     shutil.copy2(OUT, snapshot)
     print(f"Wrote {OUT} ({OUT.stat().st_size} bytes)")
     print(f"Snapshot {snapshot}")
