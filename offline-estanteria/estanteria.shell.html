@@ -923,6 +923,125 @@
   body.theme-corcho .launch-tile .mod-ico-label {
     text-shadow: 0 1px 2px rgba(40,20,5,0.55);
   }
+
+  /* Folder magic pane (bottom free zone) + selection */
+  .folder-magic-pane {
+    flex-shrink: 0;
+    margin: 0.35rem 0.15rem 0.2rem;
+    min-height: 4.6rem;
+    padding: 0.45rem 0.55rem 0.55rem;
+    border-radius: 14px;
+    border: 1px dashed color-mix(in srgb, var(--linea) 70%, transparent);
+    background: color-mix(in srgb, var(--fondo-3) 55%, transparent);
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+  }
+  .folder-magic-pane.is-open {
+    border-style: solid;
+    border-color: color-mix(in srgb, #C4A15A 55%, var(--linea));
+    background: color-mix(in srgb, var(--fondo-3) 82%, #C4A15A 8%);
+  }
+  .folder-magic-pane.is-selecting {
+    border-style: solid;
+    border-color: color-mix(in srgb, var(--acento) 50%, var(--linea));
+  }
+  .folder-magic-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    min-height: 1.4rem;
+  }
+  .folder-magic-head strong {
+    font-family: var(--serif);
+    font-size: 0.95rem;
+    color: #C4A15A;
+  }
+  .folder-magic-hint {
+    font-size: 0.72rem;
+    color: var(--suave);
+    text-align: center;
+    padding: 0.55rem 0.35rem;
+    pointer-events: none;
+  }
+  .folder-magic-icons {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    gap: 0.55rem;
+    overflow-x: auto;
+    overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: thin;
+    padding: 0.15rem 0.1rem 0.35rem;
+  }
+  .folder-action-strip {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    align-items: center;
+    justify-content: center;
+    padding: 0.15rem 0;
+  }
+  .folder-action-strip button {
+    min-height: 40px;
+    padding: 0.35rem 0.75rem;
+    border-radius: 999px;
+    border: 1px solid var(--linea);
+    background: var(--fondo-2);
+    color: var(--tinta);
+    font: 600 0.8rem var(--sans);
+    cursor: pointer;
+  }
+  .folder-action-strip button.primary {
+    border-color: #C4A15A;
+    color: #C4A15A;
+    background: color-mix(in srgb, #C4A15A 16%, var(--fondo-3));
+  }
+  .folder-action-strip button.danger {
+    border-color: var(--peligro);
+    color: var(--peligro);
+  }
+  .launch-tile.folder-tile .mod-ico-wrap {
+    border-color: #C4A15A !important;
+    color: #C4A15A;
+    --ico-accent: #C4A15A;
+  }
+  .launch-tile.folder-tile.is-open-folder .mod-ico-wrap {
+    box-shadow:
+      0 0 0 2px color-mix(in srgb, #C4A15A 55%, transparent),
+      0 3px 12px rgba(0,0,0,0.28),
+      inset 0 1px 0 rgba(255,255,255,0.16);
+  }
+  .launch-tile.tile-selected .mod-ico-wrap {
+    box-shadow:
+      0 0 0 3px color-mix(in srgb, var(--acento) 70%, transparent),
+      0 2px 10px rgba(0,0,0,0.25);
+  }
+  .launch-tile.tile-selected::after {
+    content: '✓';
+    position: absolute;
+    top: 0.05rem;
+    right: 0.15rem;
+    width: 1.15rem;
+    height: 1.15rem;
+    border-radius: 50%;
+    background: var(--acento);
+    color: #111;
+    font: 700 0.7rem/1.15rem var(--sans);
+    text-align: center;
+    z-index: 2;
+    pointer-events: none;
+  }
+  .launch-tile { position: relative; }
+  body.desk-select-mode .launch-tile:not(.folder-tile) .mod-ico-wrap {
+    opacity: 0.92;
+  }
+  #desktop.launcher {
+    padding-bottom: 0.55rem;
+  }
+
   /* Desk edit modes (Borrar / Renombrar) — no permanent ✕ */
   body.desk-mode-borrar .launch-tile .mod-ico-wrap {
     box-shadow: 0 0 0 2px color-mix(in srgb, var(--peligro) 70%, transparent), 0 2px 8px rgba(0,0,0,0.2);
@@ -1423,7 +1542,7 @@
 
       <p class="offline-tip" id="offline-tip" role="status">
         <strong>Offline listo.</strong>
-        Pulsa <strong>Módulos</strong> o <strong>Widgets</strong> — se abre una lista (en el móvil, hoja inferior).
+        Pulsa <strong>Módulos</strong> o <strong>Widgets</strong> — se abre una lista. Mantén pulsado un icono para carpetas.
         Los módulos van <strong>dentro de este HTML</strong>. Mejor <code>file://</code> desde Archivos.
       </p>
         <h1>Escritorio / Estantería</h1>
@@ -1512,11 +1631,12 @@
           </button>
         </div>
         <div id="shelf-rails" class="shelf-rails" aria-hidden="true"></div>
+        <div id="folder-magic-pane" class="folder-magic-pane" aria-label="Panel de carpeta" hidden></div>
         <div class="desktop-empty">Todo quitado.<br>Widgets para añadir · Restaurar todo para volver a llenar.</div>
       </div>
     </div>
 
-    <footer class="site-foot">lesvencimos.com · escritorio / estantería offline · <span id="est-build">v20260925k</span></footer>
+    <footer class="site-foot">lesvencimos.com · escritorio / estantería offline · <span id="est-build">v20260925l</span></footer>
   </div>
 
   <div id="mod-viewer" role="dialog" aria-modal="true" aria-labelledby="mod-viewer-title" hidden>
@@ -1618,6 +1738,8 @@
       'gemini': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3c1.2 3.8 3.2 5.8 7 7-3.8 1.2-5.8 3.2-7 7-1.2-3.8-3.2-5.8-7-7 3.8-1.2 5.8-3.2 7-7z" fill="currentColor" fill-opacity="0.14"/><path d="M12 3c1.2 3.8 3.2 5.8 7 7-3.8 1.2-5.8 3.2-7 7-1.2-3.8-3.2-5.8-7-7 3.8-1.2 5.8-3.2 7-7z"/></svg>',
       'perplexity': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="6.5" fill="currentColor" fill-opacity="0.1"/><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/><path d="M8.5 9.2h5"/><path d="M8.5 12.2h3.5"/></svg>',
       'copilot': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 6.5h7a3.5 3.5 0 0 1 0 7H11l-4 4v-4H7a3.5 3.5 0 0 1 0-7z" fill="currentColor" fill-opacity="0.12"/><path d="M7 6.5h7a3.5 3.5 0 0 1 0 7H11l-4 4v-4H7a3.5 3.5 0 0 1 0-7z"/><circle cx="10" cy="10" r="0.9" fill="currentColor"/><circle cx="13.5" cy="10" r="0.9" fill="currentColor"/></svg>',
+      'carpeta': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 7.5A2.5 2.5 0 0 1 5.5 5H10l2 2h6.5A2.5 2.5 0 0 1 21 9.5v7A2.5 2.5 0 0 1 18.5 19h-13A2.5 2.5 0 0 1 3 16.5v-9z" fill="currentColor" fill-opacity="0.14"/><path d="M3 7.5A2.5 2.5 0 0 1 5.5 5H10l2 2h6.5A2.5 2.5 0 0 1 21 9.5v7A2.5 2.5 0 0 1 18.5 19h-13A2.5 2.5 0 0 1 3 16.5v-9z"/></svg>',
+
       'lesvencimos': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 11.2L12 4l8 7.2"/><path d="M6.5 10.5V20h11V10.5" fill="currentColor" fill-opacity="0.12"/><path d="M6.5 10.5V20h11V10.5"/><path d="M10 20v-5h4v5"/><circle cx="12" cy="13" r="1.6" fill="currentColor" fill-opacity="0.2"/><circle cx="12" cy="13" r="1.6"/></svg>',
       'polar-cloud': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 10.5a3.5 3.5 0 0 1 6.7-1.4A3.2 3.2 0 0 1 18 12.5c0 1.9-1.5 3.3-3.4 3.3H8.2A3.2 3.2 0 0 1 5 12.6c0-1.5 1-2.8 2.4-3.1z" fill="currentColor" fill-opacity="0.12"/><path d="M8 10.5a3.5 3.5 0 0 1 6.7-1.4A3.2 3.2 0 0 1 18 12.5c0 1.9-1.5 3.3-3.4 3.3H8.2A3.2 3.2 0 0 1 5 12.6c0-1.5 1-2.8 2.4-3.1z"/><path d="M8.5 18.5h7"/><path d="M9.5 15.8h5v2.7h-5z" fill="currentColor" fill-opacity="0.14"/><path d="M9.5 15.8h5v2.7h-5z"/></svg>',
 
@@ -1630,8 +1752,7 @@
       { id: 'ocio', label: 'Ocio' },
       { id: 'casa', label: 'Casa / Hogar' },
       { id: 'salud', label: 'Salud' },
-      { id: 'varios', label: 'Varios' },
-      { id: 'sueltos', label: 'Widgets', noLedge: true }
+      { id: 'varios', label: 'Varios' }
     ];
     /* System shortcuts pinned first on thematic shelves (never leave slot 1) */
     var SHELF_LEADS = {
@@ -1639,8 +1760,7 @@
       ocio: 'whatsapp',
       casa: 'navegador',
       salud: 'camara',
-      varios: 'mapas',
-      sueltos: 'qr'
+      varios: 'mapas'
     };
 
     /* After sticky lead: fixed pin order (before usage sort) */
@@ -1708,22 +1828,22 @@
       { id: 'polar-cloud', titulo: 'Polar Cloud', icon: 'polar-cloud', embed: null, openNative: true, href: 'https://polar3d.com/', blurb: 'App · web', shelf: 'casa', shape: 'round', color: '#5B8DEF' },
       { id: 'caja-fuerte', titulo: 'Caja fuerte', icon: 'caja', embed: 'caja', blurb: 'Claves y documentos', shelf: 'varios', shape: 'round', color: '#E8B84A' },
       { id: 'calculadora', titulo: 'Calculadora', icon: 'calculadora', embed: 'calc', blurb: 'Operaciones', shelf: 'varios', shape: 'round', color: '#4A8AD0' },
-      { id: 'qr', titulo: 'QR', icon: 'qr', embed: 'qr', blurb: 'Códigos e impresión', shelf: 'sueltos', shape: 'round', color: '#6A90B8' }
+      { id: 'qr', titulo: 'QR', icon: 'qr', embed: 'qr', blurb: 'Códigos e impresión', shelf: 'varios', shape: 'round', color: '#6A90B8' }
     ];
 
     var WIDGETS = [
       { id: 'w-hoja', widget: 'hoja', titulo: 'Hoja', w: 200, h: 200, shelf: 'escritura' },
-      { id: 'w-clock', widget: 'clock', titulo: 'Reloj', w: 200, h: 120, shelf: 'sueltos' },
-      { id: 'w-clock-lg', widget: 'clock-large', titulo: 'Reloj grande', w: 280, h: 160, shelf: 'sueltos' },
-      { id: 'w-date', widget: 'date', titulo: 'Fecha', w: 220, h: 100, shelf: 'sueltos' },
-      { id: 'w-dia', widget: 'dia', titulo: '¿Qué día es?', w: 260, h: 140, shelf: 'sueltos' },
-      { id: 'w-cal', widget: 'calendar', titulo: 'Calendario', w: 260, h: 240, shelf: 'sueltos' },
+      { id: 'w-clock', widget: 'clock', titulo: 'Reloj', w: 200, h: 120, shelf: 'varios' },
+      { id: 'w-clock-lg', widget: 'clock-large', titulo: 'Reloj grande', w: 280, h: 160, shelf: 'varios' },
+      { id: 'w-date', widget: 'date', titulo: 'Fecha', w: 220, h: 100, shelf: 'varios' },
+      { id: 'w-dia', widget: 'dia', titulo: '¿Qué día es?', w: 260, h: 140, shelf: 'varios' },
+      { id: 'w-cal', widget: 'calendar', titulo: 'Calendario', w: 260, h: 240, shelf: 'varios' },
       { id: 'w-ori', widget: 'orientacion', titulo: 'Orientación', w: 260, h: 140, shelf: 'varios' },
       { id: 'w-pill', widget: 'pastilla', titulo: 'Próxima pastilla', w: 240, h: 130, shelf: 'salud' }
     ];
 
     var urlCache = {};
-    var state = { version: 4, items: [], toolbarCollapsed: false, theme: 'ambar', layoutRev: 0, ajustesHidden: false, contrast: 0, typeSize: 's', deskFont: 'sans', useCount: {}, lastUsed: {}, statusPos: null };
+    var state = { version: 5, items: [], toolbarCollapsed: false, theme: 'ambar', layoutRev: 0, ajustesHidden: false, contrast: 0, typeSize: 's', deskFont: 'sans', useCount: {}, lastUsed: {}, statusPos: null, folders: [], openFolderId: null, selectMode: false, selectedIds: [] };
     var selectedId = null;
     var clockTimer = null;
     var hojaPaint = {}; /* id -> { drawing, last } */
@@ -1731,7 +1851,7 @@
     function loadState() {
       try {
         var raw = localStorage.getItem(LS_KEY);
-        if (!raw) return { version: 4, items: [], toolbarCollapsed: false, theme: 'ambar', layoutRev: 0, ajustesHidden: false, contrast: 0, typeSize: 's', deskFont: 'sans', useCount: {}, lastUsed: {}, statusPos: null };
+        if (!raw) return { version: 5, items: [], toolbarCollapsed: false, theme: 'ambar', layoutRev: 0, ajustesHidden: false, contrast: 0, typeSize: 's', deskFont: 'sans', useCount: {}, lastUsed: {}, statusPos: null, folders: [], openFolderId: null, selectMode: false, selectedIds: [] };
         var data = JSON.parse(raw);
         if (Array.isArray(data)) {
           return {
@@ -1779,11 +1899,15 @@
           if (!data.lastUsed || typeof data.lastUsed !== 'object') data.lastUsed = {};
           if (data.statusPos && (typeof data.statusPos.x !== 'number' || typeof data.statusPos.y !== 'number')) data.statusPos = null;
           if (data.statusPos == null) data.statusPos = null;
-          data.version = Math.max(4, data.version || 2);
+          if (!Array.isArray(data.folders)) data.folders = [];
+          if (data.openFolderId == null) data.openFolderId = null;
+          if (typeof data.selectMode !== 'boolean') data.selectMode = false;
+          if (!Array.isArray(data.selectedIds)) data.selectedIds = [];
+          data.version = Math.max(5, data.version || 2);
           return data;
         }
       } catch (e) {}
-      return { version: 4, items: [], toolbarCollapsed: false, theme: 'ambar', layoutRev: 0, ajustesHidden: false, contrast: 0, typeSize: 's', deskFont: 'sans', useCount: {}, lastUsed: {}, statusPos: null };
+      return { version: 5, items: [], toolbarCollapsed: false, theme: 'ambar', layoutRev: 0, ajustesHidden: false, contrast: 0, typeSize: 's', deskFont: 'sans', useCount: {}, lastUsed: {}, statusPos: null, folders: [], openFolderId: null, selectMode: false, selectedIds: [] };
     }
 
     function saveState() {
@@ -1883,12 +2007,12 @@
     function defaultShelfFor(it) {
       if (!it) return 'varios';
       /* migrate old shelf ids (rapido removed — fall through to catalog) */
-      var legacy = { cultura: 'varios', utilidades: 'varios', agenda: 'sueltos', educacion: 'varios' };
+      var legacy = { cultura: 'varios', utilidades: 'varios', agenda: 'varios', sueltos: 'varios', educacion: 'varios' };
       if (it.shelf && legacy[it.shelf]) it.shelf = legacy[it.shelf];
       if (it.shelf === 'rapido') it.shelf = null;
       if (it.type === 'widget' && isTallWidget(it.widget)) {
-        it.shelf = 'sueltos';
-        return 'sueltos';
+        it.shelf = 'varios';
+        return 'varios';
       }
       if (it.shelf && shelfById(it.shelf)) return it.shelf;
       if (it.type === 'widget') {
@@ -1898,7 +2022,7 @@
         if (it.widget === 'hoja') return 'escritura';
         if (it.widget === 'pastilla') return 'salud';
         if (it.widget === 'orientacion') return 'varios';
-        return 'sueltos';
+        return 'varios';
       }
       var cat = catalogById(it.id);
       if (cat && cat.shelf) return cat.shelf;
@@ -2144,9 +2268,12 @@
     }
 
     function groupItemsByShelf() {
+      ensureFolderState();
       var byShelf = {};
+      var hidden = idsInAnyFolder();
       SHELVES.forEach(function (s) { byShelf[s.id] = []; });
       state.items.forEach(function (it) {
+        if (hidden[it.id]) return;
         var sid = defaultShelfFor(it);
         it.shelf = sid;
         if (!byShelf[sid]) byShelf[sid] = [];
@@ -2157,6 +2284,385 @@
       });
       return byShelf;
     }
+
+
+    function ensureFolderState() {
+      if (!Array.isArray(state.folders)) state.folders = [];
+      if (state.openFolderId === undefined) state.openFolderId = null;
+      if (typeof state.selectMode !== 'boolean') state.selectMode = false;
+      if (!Array.isArray(state.selectedIds)) state.selectedIds = [];
+      /* drop membership for missing items; drop empty folders optional — keep empty OK */
+      var known = {};
+      state.items.forEach(function (it) { known[it.id] = true; });
+      state.folders.forEach(function (f) {
+        if (!f || !Array.isArray(f.ids)) { f.ids = []; return; }
+        f.ids = f.ids.filter(function (id) { return known[id]; });
+        if (!f.shelf || !shelfById(f.shelf)) f.shelf = 'varios';
+      });
+      if (state.openFolderId) {
+        var still = state.folders.some(function (f) { return f.id === state.openFolderId; });
+        if (!still) state.openFolderId = null;
+      }
+    }
+
+    function folderById(id) {
+      if (!id || !state.folders) return null;
+      for (var i = 0; i < state.folders.length; i++) {
+        if (state.folders[i].id === id) return state.folders[i];
+      }
+      return null;
+    }
+
+    function itemFolderId(itemId) {
+      if (!state.folders) return null;
+      for (var i = 0; i < state.folders.length; i++) {
+        var f = state.folders[i];
+        if (f.ids && f.ids.indexOf(itemId) >= 0) return f.id;
+      }
+      return null;
+    }
+
+    function idsInAnyFolder() {
+      var set = {};
+      (state.folders || []).forEach(function (f) {
+        (f.ids || []).forEach(function (id) { set[id] = true; });
+      });
+      return set;
+    }
+
+    function newFolderId() {
+      return 'f-' + Date.now().toString(36) + '-' + Math.floor(Math.random() * 1e4).toString(36);
+    }
+
+    function exitSelectMode(keepOpen) {
+      state.selectMode = false;
+      state.selectedIds = [];
+      document.body.classList.remove('desk-select-mode');
+      if (!keepOpen) { /* openFolderId untouched */ }
+      saveState();
+    }
+
+    function enterSelectMode(firstId) {
+      if (deskMode) {
+        clearPendingBorrar();
+        setDeskMode(null);
+      }
+      if (state.selectMode) {
+        if (firstId && state.selectedIds.indexOf(firstId) < 0) {
+          state.selectedIds.push(firstId);
+          saveState();
+          renderDesktop();
+        }
+        return;
+      }
+      state.selectMode = true;
+      state.selectedIds = firstId ? [firstId] : [];
+      document.body.classList.add('desk-select-mode');
+      saveState();
+      renderDesktop();
+      showToast('Selección · elige iconos');
+    }
+
+    function toggleSelectedId(id) {
+      if (!id) return;
+      var i = state.selectedIds.indexOf(id);
+      if (i >= 0) state.selectedIds.splice(i, 1);
+      else state.selectedIds.push(id);
+      if (!state.selectedIds.length) {
+        exitSelectMode(true);
+      } else {
+        saveState();
+      }
+      renderDesktop();
+    }
+
+    function shelfOfItemId(id) {
+      var it = findItem(id);
+      if (it) return defaultShelfFor(it);
+      return 'varios';
+    }
+
+    function removeIdsFromAllFolders(ids) {
+      var set = {};
+      (ids || []).forEach(function (id) { set[id] = true; });
+      (state.folders || []).forEach(function (f) {
+        f.ids = (f.ids || []).filter(function (id) { return !set[id]; });
+      });
+    }
+
+    function createFolderFromSelection() {
+      if (!state.selectedIds || !state.selectedIds.length) {
+        showToast('Selecciona al menos un icono');
+        return;
+      }
+      var name = prompt('Nombre de la carpeta:', '1º ESO');
+      if (name === null) return;
+      name = String(name).trim();
+      if (!name) {
+        showToast('Nombre vacío');
+        return;
+      }
+      var shelf = shelfOfItemId(state.selectedIds[0]);
+      var ids = state.selectedIds.slice();
+      removeIdsFromAllFolders(ids);
+      var folder = { id: newFolderId(), name: name, shelf: shelf, ids: ids };
+      state.folders.push(folder);
+      exitSelectMode(true);
+      state.openFolderId = folder.id;
+      saveState();
+      renderDesktop();
+      showToast('Carpeta · ' + name);
+    }
+
+    function moveSelectionToFolder() {
+      if (!state.selectedIds || !state.selectedIds.length) {
+        showToast('Selecciona al menos un icono');
+        return;
+      }
+      var folders = state.folders || [];
+      if (!folders.length) {
+        showToast('No hay carpetas · crea una primero');
+        return;
+      }
+      var lines = folders.map(function (f, idx) {
+        return (idx + 1) + ') ' + f.name + ' (' + (f.ids || []).length + ')';
+      });
+      var pick = prompt('Mover a carpeta (número):\n' + lines.join('\n'), '1');
+      if (pick === null) return;
+      var n = parseInt(String(pick).trim(), 10);
+      if (!(n >= 1 && n <= folders.length)) {
+        showToast('Número no válido');
+        return;
+      }
+      var folder = folders[n - 1];
+      var ids = state.selectedIds.slice();
+      removeIdsFromAllFolders(ids);
+      ids.forEach(function (id) {
+        if (folder.ids.indexOf(id) < 0) folder.ids.push(id);
+      });
+      exitSelectMode(true);
+      state.openFolderId = folder.id;
+      saveState();
+      renderDesktop();
+      showToast('Movido a · ' + folder.name);
+    }
+
+    function removeSelectionFromFolder() {
+      if (!state.openFolderId) {
+        showToast('Abre una carpeta primero');
+        return;
+      }
+      var folder = folderById(state.openFolderId);
+      if (!folder) return;
+      if (!state.selectedIds || !state.selectedIds.length) {
+        showToast('Selecciona iconos de la carpeta');
+        return;
+      }
+      var set = {};
+      state.selectedIds.forEach(function (id) { set[id] = true; });
+      folder.ids = (folder.ids || []).filter(function (id) { return !set[id]; });
+      exitSelectMode(true);
+      saveState();
+      renderDesktop();
+      showToast('Quitado de la carpeta');
+    }
+
+    function toggleOpenFolder(folderId) {
+      if (state.openFolderId === folderId) state.openFolderId = null;
+      else state.openFolderId = folderId;
+      saveState();
+      renderDesktop();
+    }
+
+    var _suppressTileClickUntil = 0;
+    function bindTileLongPress(tile, itemId, opts) {
+      opts = opts || {};
+      var timer = null;
+      var sx = 0, sy = 0;
+      var armed = false;
+      var moved = false;
+      function clearTimerOnly() {
+        if (timer) { clearTimeout(timer); timer = null; }
+      }
+      function clear() {
+        clearTimerOnly();
+        armed = false;
+      }
+      tile.addEventListener('contextmenu', function (e) {
+        e.preventDefault();
+      });
+      tile.addEventListener('pointerdown', function (e) {
+        if (e.button != null && e.button !== 0) return;
+        if (deskMode) return;
+        if (opts.skipLongPress) return;
+        sx = e.clientX; sy = e.clientY;
+        moved = false;
+        clearTimerOnly();
+        armed = true;
+        timer = setTimeout(function () {
+          timer = null;
+          if (!armed || moved) return;
+          armed = false;
+          _suppressTileClickUntil = Date.now() + 700;
+          try { tile.setPointerCapture(e.pointerId); } catch (err) {}
+          enterSelectMode(itemId);
+        }, 500);
+      });
+      tile.addEventListener('pointermove', function (e) {
+        if (!timer && !armed) return;
+        var dx = e.clientX - sx, dy = e.clientY - sy;
+        if (dx * dx + dy * dy > 144) { /* >12px */
+          moved = true;
+          clear();
+        }
+      });
+      tile.addEventListener('pointerup', clear);
+      tile.addEventListener('pointercancel', clear);
+      tile.addEventListener('pointerleave', function () {
+        if (timer) clear();
+      });
+    }
+
+    function buildFolderTile(folder) {
+      var tile = document.createElement('div');
+      tile.className = 'launch-tile folder-tile' + (state.openFolderId === folder.id ? ' is-open-folder' : '');
+      tile.dataset.folderId = folder.id;
+      tile.setAttribute('role', 'button');
+      tile.tabIndex = 0;
+      tile.setAttribute('aria-label', 'Carpeta ' + (folder.name || ''));
+      tile.style.setProperty('--ico-accent', '#C4A15A');
+      tile.style.color = '#C4A15A';
+      var wrap = document.createElement('span');
+      wrap.className = 'mod-ico-wrap';
+      wrap.setAttribute('aria-hidden', 'true');
+      wrap.style.setProperty('--ico-accent', '#C4A15A');
+      var ico = document.createElement('span');
+      ico.className = 'mod-ico mod-ico-svg';
+      ico.innerHTML = ICONS.carpeta || '📁';
+      wrap.appendChild(ico);
+      tile.appendChild(wrap);
+      var lab = document.createElement('span');
+      lab.className = 'mod-ico-label';
+      lab.textContent = folder.name || 'Carpeta';
+      tile.appendChild(lab);
+      function activate() {
+        if (state.selectMode) {
+          /* folders not selectable as members */
+          showToast('Toca iconos, no la carpeta');
+          return;
+        }
+        if (handleDeskItemMode({ id: folder.id, titulo: folder.name, type: 'folder' })) {
+          /* renombrar/borrar carpeta */
+          return;
+        }
+        toggleOpenFolder(folder.id);
+      }
+      tile.addEventListener('click', function (e) {
+        e.preventDefault();
+        activate();
+      });
+      tile.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          activate();
+        }
+      });
+      tile.addEventListener('contextmenu', function (e) { e.preventDefault(); });
+      return tile;
+    }
+
+    function renderFolderMagicPane(desk) {
+      var pane = document.getElementById('folder-magic-pane');
+      if (!pane) {
+        pane = document.createElement('div');
+        pane.id = 'folder-magic-pane';
+        pane.className = 'folder-magic-pane';
+        pane.setAttribute('aria-label', 'Panel de carpeta');
+        desk.appendChild(pane);
+      }
+      pane.innerHTML = '';
+      pane.hidden = false;
+      var selecting = !!state.selectMode;
+      var open = folderById(state.openFolderId);
+      pane.classList.toggle('is-open', !!open && !selecting);
+      pane.classList.toggle('is-selecting', selecting);
+
+      if (selecting) {
+        var strip = document.createElement('div');
+        strip.className = 'folder-action-strip';
+        strip.setAttribute('role', 'toolbar');
+        strip.setAttribute('aria-label', 'Acciones de carpeta');
+        function mk(label, cls, fn) {
+          var b = document.createElement('button');
+          b.type = 'button';
+          b.textContent = label;
+          if (cls) b.className = cls;
+          b.addEventListener('click', function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+            fn();
+          });
+          return b;
+        }
+        strip.appendChild(mk('Crear carpeta', 'primary', createFolderFromSelection));
+        strip.appendChild(mk('Mover a carpeta', '', moveSelectionToFolder));
+        if (open) {
+          strip.appendChild(mk('Quitar de carpeta', 'danger', removeSelectionFromFolder));
+        }
+        strip.appendChild(mk('Cancelar', '', function () {
+          exitSelectMode(true);
+          renderDesktop();
+        }));
+        pane.appendChild(strip);
+        var hint = document.createElement('div');
+        hint.className = 'folder-magic-hint';
+        hint.textContent = (state.selectedIds.length || 0) + ' seleccionado(s) · toca para marcar';
+        pane.appendChild(hint);
+        return;
+      }
+
+      if (open) {
+        var head = document.createElement('div');
+        head.className = 'folder-magic-head';
+        var title = document.createElement('strong');
+        title.textContent = open.name || 'Carpeta';
+        head.appendChild(title);
+        var closeB = document.createElement('button');
+        closeB.type = 'button';
+        closeB.className = 'cal-expand-close';
+        closeB.textContent = 'Cerrar';
+        closeB.addEventListener('click', function () {
+          state.openFolderId = null;
+          saveState();
+          renderDesktop();
+        });
+        head.appendChild(closeB);
+        pane.appendChild(head);
+        var row = document.createElement('div');
+        row.className = 'folder-magic-icons';
+        (open.ids || []).forEach(function (id) {
+          var it = findItem(id);
+          if (!it) return;
+          if (it.type === 'widget') row.appendChild(buildWidgetTile(it));
+          else row.appendChild(buildLaunchTile(it));
+        });
+        if (!row.childNodes.length) {
+          var emptyH = document.createElement('div');
+          emptyH.className = 'folder-magic-hint';
+          emptyH.textContent = 'Carpeta vacía';
+          pane.appendChild(emptyH);
+        } else {
+          pane.appendChild(row);
+        }
+        return;
+      }
+
+      var idle = document.createElement('div');
+      idle.className = 'folder-magic-hint';
+      idle.textContent = 'Mantén pulsado un icono · carpetas aquí';
+      pane.appendChild(idle);
+    }
+
 
     function agendaSlotFor(widget) {
       for (var k in AGENDA_SLOTS) {
@@ -2233,6 +2739,10 @@
       if (!key || !PRESET_LABELS[key]) return;
       var locals = state.items.filter(function (it) { return it.kind === 'local'; });
       state.items = locals.slice();
+      state.folders = [];
+      state.openFolderId = null;
+      state.selectMode = false;
+      state.selectedIds = [];
       state.statusPos = null;
       applyStatusPos();
       if (key === 'completo' || !PRESETS[key]) {
@@ -2434,6 +2944,31 @@
 
     function handleDeskItemMode(it) {
       if (!it || !deskMode) return false;
+      if (it.type === 'folder') {
+        var folder = folderById(it.id);
+        if (!folder) return true;
+        if (deskMode === 'borrar') {
+          if (!confirm('¿Eliminar carpeta «' + (folder.name || '') + '»? Los iconos vuelven a la balda.')) return true;
+          state.folders = state.folders.filter(function (f) { return f.id !== folder.id; });
+          if (state.openFolderId === folder.id) state.openFolderId = null;
+          saveState();
+          renderDesktop();
+          showToast('Carpeta eliminada');
+          return true;
+        }
+        if (deskMode === 'renombrar') {
+          var fn = prompt('Nuevo nombre:', folder.name || '');
+          if (fn === null) return true;
+          fn = String(fn).trim();
+          if (!fn) { showToast('Nombre vacío'); return true; }
+          folder.name = fn;
+          saveState();
+          renderDesktop();
+          showToast('Renombrado');
+          return true;
+        }
+        return true;
+      }
       if (deskMode === 'borrar') {
         if (pendingBorrarId === it.id) {
           /* segundo toque en la misma app: solo deja marcada; confirmar en papelera */
@@ -3290,7 +3825,7 @@
       desk.classList.toggle('has-items', state.items.length > 0);
       var empty = desk.querySelector('.desktop-empty');
       var rails = document.getElementById('shelf-rails');
-      desk.querySelectorAll('.shelf-row, #desk-ajustes-bar, .desk-item, .launch-tile, .cal-expand, .widget-inline-panel').forEach(function (n) { n.remove(); });
+      desk.querySelectorAll('.shelf-row, #desk-ajustes-bar, .desk-item, .launch-tile, .cal-expand, .widget-inline-panel, #folder-magic-pane').forEach(function (n) { n.remove(); });
       if (rails) rails.innerHTML = '';
 
       var byShelf = groupItemsByShelf();
@@ -3345,6 +3880,10 @@
             icons.appendChild(buildLaunchTile(it));
           }
         });
+        (state.folders || []).forEach(function (folder) {
+          if (!folder || folder.shelf !== sh.id) return;
+          icons.appendChild(buildFolderTile(folder));
+        });
 
         track.appendChild(icons);
         row.appendChild(track);
@@ -3371,6 +3910,10 @@
         if (status) desk.insertBefore(ajBar, afterStatus);
         else desk.insertBefore(ajBar, desk.firstChild);
       }
+      ensureFolderState();
+      document.body.classList.toggle('desk-select-mode', !!state.selectMode);
+      renderFolderMagicPane(desk);
+      if (empty && !desk.contains(empty)) desk.appendChild(empty);
       selectedId = null;
       if (pendingBorrarId) markPendingBorrar(pendingBorrarId);
       renderChips();
@@ -3391,6 +3934,9 @@
         }
       }
       tile.className = 'launch-tile' + (shape !== 'round' ? ' shape-' + shape : '') + (isLead ? ' lead-tile' : '');
+      if (state.selectMode && state.selectedIds && state.selectedIds.indexOf(it.id) >= 0) {
+        tile.className += ' tile-selected';
+      }
       tile.dataset.id = it.id;
       tile.setAttribute('role', 'button');
       tile.tabIndex = 0;
@@ -3418,6 +3964,11 @@
       tile.appendChild(lab);
 
       function activate() {
+        if (Date.now() < _suppressTileClickUntil) return;
+        if (state.selectMode) {
+          toggleSelectedId(it.id);
+          return;
+        }
         if (handleDeskItemMode(it)) return;
         openModule(it);
       }
@@ -3431,12 +3982,16 @@
           activate();
         }
       });
+      bindTileLongPress(tile, it.id);
       return tile;
     }
 
     function buildWidgetTile(it) {
       var tile = document.createElement('div');
       tile.className = 'launch-tile widget-tile';
+      if (state.selectMode && state.selectedIds && state.selectedIds.indexOf(it.id) >= 0) {
+        tile.className += ' tile-selected';
+      }
       tile.dataset.id = it.id;
       tile.setAttribute('role', 'button');
       tile.tabIndex = 0;
@@ -3463,6 +4018,11 @@
       tile.appendChild(lab);
 
       function activate() {
+        if (Date.now() < _suppressTileClickUntil) return;
+        if (state.selectMode) {
+          toggleSelectedId(it.id);
+          return;
+        }
         if (handleDeskItemMode(it)) return;
         bumpUsage(it.id);
         if (it.widget === 'hoja') {
@@ -3490,6 +4050,7 @@
           activate();
         }
       });
+      bindTileLongPress(tile, it.id);
       return tile;
     }
 
@@ -3742,6 +4303,7 @@
       var it = findItem(id);
       if (it && it.widget === 'hoja') flushHojaCanvas(it);
       state.items = state.items.filter(function (x) { return x.id !== id; });
+      removeIdsFromAllFolders([id]);
       saveState();
       if (urlCache[id]) {
         try { URL.revokeObjectURL(urlCache[id]); } catch (e) {}
@@ -3913,7 +4475,7 @@
     }
 
     function addWidget(def) {
-      var shelf = def.shelf || 'sueltos';
+      var shelf = def.shelf || 'varios';
       /* Hora/fecha ya viven en #desk-status — no duplicar abajo */
       if (def.widget === 'clock' || def.widget === 'clock-large' || def.widget === 'date') {
         showToast('Hora y fecha ya están arriba a la derecha');
@@ -3923,7 +4485,7 @@
         showToast('Ya tienes ese widget');
         return;
       }
-      if (isTallWidget(def.widget)) shelf = 'sueltos';
+      if (isTallWidget(def.widget)) shelf = 'varios';
       var id = def.widget + '-' + Date.now().toString(36);
       var item = {
         id: id,
@@ -4171,7 +4733,7 @@
       });
     }
 
-    var EST_BUILD = 'v20260925k';
+    var EST_BUILD = 'v20260925l';
 
     function layoutPanelSheet() {
       var tb = document.getElementById('desk-toolbar');
@@ -4266,7 +4828,7 @@
 
     function migrateItem(it) {
       if (it.z && it.z > Z) Z = it.z;
-      var legacy = { cultura: 'varios', utilidades: 'varios', agenda: 'sueltos' };
+      var legacy = { cultura: 'varios', utilidades: 'varios', agenda: 'varios', sueltos: 'varios' };
       if (it.shelf && legacy[it.shelf]) it.shelf = legacy[it.shelf];
       if (it.shelf === 'rapido') it.shelf = null;
       if (it.id === 'galeria') {
@@ -4277,8 +4839,8 @@
         it.openNative = true;
         it.shelf = 'salud';
       }
-      if (it.id === 'qr') it.shelf = 'sueltos';
-      if (it.type === 'widget' && isTallWidget(it.widget)) it.shelf = 'sueltos';
+      if (it.id === 'qr') it.shelf = 'varios';
+      if (it.type === 'widget' && isTallWidget(it.widget)) it.shelf = 'varios';
       if (!it.shelf) it.shelf = defaultShelfFor(it);
       var cat = catalogById(it.id);
       if (cat) {
@@ -4361,6 +4923,7 @@
         }
       })();
       state = loadState();
+      ensureFolderState();
       state.items.forEach(migrateItem);
       var stripped = stripDuplicateTimeWidgets();
       if (typeof state.layoutRev !== 'number') state.layoutRev = 0;
@@ -4378,6 +4941,7 @@
       var needAppShortcuts = !needSeed && state.layoutRev < 13;
       var needCasaModules = !needSeed && state.layoutRev < 15;
       var needCasaDeep = !needSeed && state.layoutRev < 15;
+      var needFolders = !needSeed && state.layoutRev < 16;
       if (typeof state.ajustesHidden !== 'boolean') state.ajustesHidden = false;
       if (typeof state.contrast !== 'number') state.contrast = 0;
       if (state.typeSize !== 's' && state.typeSize !== 'm' && state.typeSize !== 'l') state.typeSize = 's';
@@ -4453,6 +5017,10 @@
           clearPendingBorrar();
           setDeskMode(null);
         }
+        if (e.key === 'Escape' && state.selectMode) {
+          exitSelectMode(true);
+          renderDesktop();
+        }
       });
       var deskEl = document.getElementById('desktop');
       if (deskEl) {
@@ -4483,6 +5051,10 @@
           if (it.widget === 'hoja') idbDel(sheetIdbKey(it.id)).catch(function () {});
         });
         state.items = [];
+        state.folders = [];
+        state.openFolderId = null;
+        state.selectMode = false;
+        state.selectedIds = [];
         selectedId = null;
         saveState();
         renderDesktop();
@@ -4495,10 +5067,10 @@
         ensureCasaDeepModules();
         ensureShelfLeads();
         arrangeToShelves();
-        state.layoutRev = 15;
-        state.version = 4;
+        state.layoutRev = 16;
+        state.version = 5;
         saveState();
-      } else if (needRearrange || needEdu || needVariosEdu || needRapido || needLeads || needCamaraQr || needMapasLead || needAppShortcuts || needCasaModules || needCasaDeep) {
+      } else if (needRearrange || needEdu || needVariosEdu || needRapido || needLeads || needCamaraQr || needMapasLead || needAppShortcuts || needCasaModules || needCasaDeep || needFolders) {
         if (needEdu || needVariosEdu) {
           /* Packs escolares: asegurar en escritorio y shelf varios (sin balda Educación) */
           var schoolIds = ['profesor', 'mate-1eso', 'byg-1eso', 'geo-1eso', 'lengua-1eso', 'plastica-1eso', 'linux-essentials'];
@@ -4550,7 +5122,7 @@
               seenCam = true;
             }
             if (it.id === 'qr') {
-              it.shelf = 'sueltos';
+              it.shelf = 'varios';
             }
             next.push(it);
           });
@@ -4605,10 +5177,10 @@
         ensureCasaModules();
         ensureCasaDeepModules();
         ensureShelfLeads();
-        /* Reasignar shelves desde catálogo; educacion → varios; QR → sueltos */
+        /* Reasignar shelves desde catálogo; educacion → varios; QR → varios (sin balda Widgets) */
         state.items.forEach(function (it) {
-          if (it.shelf === 'educacion') it.shelf = 'varios';
-          if (it.id === 'qr') it.shelf = 'sueltos';
+          if (it.shelf === 'educacion' || it.shelf === 'sueltos') it.shelf = 'varios';
+          if (it.id === 'qr') it.shelf = 'varios';
           var cat = catalogById(it.id);
           if (cat && cat.shelf) {
             it.shelf = cat.shelf;
@@ -4629,8 +5201,31 @@
           }
         });
         arrangeToShelves();
-        state.layoutRev = 15;
-        state.version = 4;
+        /* layoutRev 16: sin balda Widgets; QR en Varios; carpetas */
+        (function migrateFoldersLayout() {
+          ensureFolderState();
+          state.items.forEach(function (it) {
+            if (it.shelf === 'sueltos' || it.shelf === 'agenda') it.shelf = 'varios';
+            if (it.id === 'qr') it.shelf = 'varios';
+          });
+          if (!Array.isArray(state.folders)) state.folders = [];
+          state.openFolderId = null;
+          state.selectMode = false;
+          state.selectedIds = [];
+        })();
+        arrangeToShelves();
+        state.layoutRev = 16;
+        state.version = 5;
+        saveState();
+      } else if (needFolders) {
+        ensureFolderState();
+        state.items.forEach(function (it) {
+          if (it.shelf === 'sueltos' || it.shelf === 'agenda') it.shelf = 'varios';
+          if (it.id === 'qr') it.shelf = 'varios';
+        });
+        arrangeToShelves();
+        state.layoutRev = 16;
+        state.version = 5;
         saveState();
       } else {
         renderDesktop();
