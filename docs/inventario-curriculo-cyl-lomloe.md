@@ -69,7 +69,7 @@ Motivo: un tutor/centro obtiene antes un **curso completo usable** (todas las tr
 4. `1º ESO Biología y Geología`
 5. `1º ESO Tecnología y Digitalización`
 
-Siguiente oleada 1º ESO: Lengua Extranjera (Inglés), Educación Física, Educación Plástica Visual y Audiovisual; **EPVA pack completo L01–L31/31** (Revisor Dios CONFIRMA). luego optativas frecuentes (Conocimiento de las Matemáticas / del Lenguaje / 2.ª LE) y Religión/Alternativa.
+Siguiente oleada 1º ESO: Lengua Extranjera (Inglés), Educación Física, Educación Plástica Visual y Audiovisual; **EPVA pack completo L01–L31/31** (Revisor Dios CONFIRMA). **Educación Física pack completo L01–L32/32** (Revisor Dios CONFIRMA). luego optativas frecuentes (Conocimiento de las Matemáticas / del Lenguaje / 2.ª LE) y Religión/Alternativa.
 
 Después: **2º ESO** (aparece Física y Química, Música; cae Biología/EPVA/TyD del horario común), **3º ESO**, **4º ESO** (Mate A/B + itinerarios), luego **Primaria** (si el producto offline lo pide) y **Bachillerato** por modalidad (priorizar Ciencias y Tecnología + Humanidades y CCSS).
 
@@ -690,3 +690,4 @@ Tipos de materias: **comunes**, **específicas de modalidad**, **optativas**. Re
 ### Publicación completa (Les vencimos)
 
 - **1º ESO Educación Plástica, Visual y Audiovisual**: pack completo L01–L31/31 (hub + ZIP offline). Revisor Dios CONFIRMA (0 críticos).
+- **1º ESO Educación Física**: pack completo L01–L32/32 (hub + ZIP offline). Revisor Dios CONFIRMA (0 críticos).
