@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0E0E0C">
+<title>Clima hogar — Les vencimos</title>
+<style>
+:root{
+  --fondo:#0E0E0C; --fondo-2:#161512; --fondo-3:#1C1A16;
+  --tinta:#E6E1D6; --suave:#9A9488;
+  --acento:#C4A15A; --acento-texto:#1A160E;
+  --linea:rgba(230,225,214,0.14);
+  --peligro:#C46A4A; --ok:#8F9A72; --fase:#5B8FA8;
+  --serif:"Iowan Old Style","Palatino Linotype",Palatino,"Times New Roman",Georgia,serif;
+  --sans:"Segoe UI",system-ui,-apple-system,sans-serif;
+  --radio:2px;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;min-height:100%;background:var(--fondo);color:var(--tinta);font-family:var(--sans)}
+body{padding:1.15rem 1rem 3.5rem;max-width:40rem;margin:0 auto}
+header{border-bottom:1px solid var(--linea);padding-bottom:.85rem;margin-bottom:1rem}
+header h1{margin:0;font-family:var(--serif);font-size:1.55rem;font-weight:600}
+header p{margin:.35rem 0 0;color:var(--suave);font-size:.72rem;letter-spacing:.12em;text-transform:uppercase}
+.badge-vida{display:inline-block;margin-top:.55rem;padding:.2rem .55rem;border:1px solid var(--acento);color:var(--acento);font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;border-radius:var(--radio)}
+.aviso{background:var(--fondo-2);border:1px solid var(--linea);border-left:4px solid var(--peligro);padding:.9rem 1rem;margin:0 0 1.1rem;border-radius:var(--radio);font-size:.95rem}
+.aviso.ok{border-left-color:var(--ok)}
+.aviso.info{border-left-color:var(--acento)}
+.aviso strong{color:var(--peligro)}
+.aviso.ok strong,.aviso.info strong{color:var(--acento)}
+.aviso ul{margin:.4rem 0 0;padding-left:1.15rem;color:var(--suave)}
+.aviso li{margin:.25rem 0}
+.toc{display:flex;flex-direction:column;gap:.45rem;margin-bottom:1.25rem}
+.toc button{text-align:left;padding:.9rem 1rem;background:var(--fondo-2);border:1px solid var(--linea);border-radius:var(--radio);color:inherit;font:inherit;cursor:pointer}
+.toc button:hover,.toc button:focus{border-color:var(--acento)}
+.toc .t{font-family:var(--serif);font-weight:600;font-size:1.08rem}
+.toc .m{color:var(--suave);font-size:.85rem;margin-top:.2rem}
+.back{margin:0 0 .85rem}
+button{min-height:48px;padding:0 1rem;font:600 .95rem var(--sans);border:1px solid var(--linea);border-radius:var(--radio);background:var(--fondo-3);color:var(--tinta);cursor:pointer}
+button.primary{background:var(--acento);color:var(--acento-texto);border-color:var(--acento)}
+button.ghost{background:transparent}
+button:disabled{opacity:.4;cursor:not-allowed}
+.lesson h2{margin:0 0 .75rem;font-family:var(--serif);font-size:1.45rem;font-weight:600}
+.step{background:var(--fondo-2);border:1px solid var(--linea);border-radius:var(--radio);padding:1rem;margin:0 0 .85rem}
+.step .num{display:inline-block;color:var(--acento);font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;font-weight:700;margin-bottom:.4rem}
+.step p{margin:.35rem 0 0;line-height:1.45}
+.tip{margin:.55rem 0 0;padding:.55rem .7rem;background:var(--fondo-3);border-left:3px solid var(--acento);font-size:.9rem;color:var(--suave)}
+.diag{background:#0a0a09;border:1px solid var(--linea);border-radius:var(--radio);padding:.75rem;margin:.75rem 0 0;overflow:hidden}
+.diag svg{display:block;width:100%;height:auto;max-height:220px}
+.nav-steps{display:flex;gap:.5rem;flex-wrap:wrap;margin-top:1rem}
+.foot{margin-top:1.6rem;color:var(--suave);font-size:.7rem;letter-spacing:.08em;text-transform:uppercase}
+.hidden{display:none!important}
+.plant-grid{display:grid;grid-template-columns:1fr 1fr;gap:.55rem;margin:.75rem 0}
+@media(max-width:420px){.plant-grid{grid-template-columns:1fr}}
+.plant-card{background:var(--fondo-2);border:1px solid var(--linea);border-radius:var(--radio);padding:.85rem}
+.plant-card h3{margin:0 0 .2rem;font-family:var(--serif);font-size:1.05rem}
+.plant-card .sci{margin:0 0 .45rem;color:var(--suave);font-size:.78rem}
+.plant-card p{margin:0;color:var(--suave);font-size:.88rem;line-height:1.4}
+.plant-card .meta{display:flex;flex-wrap:wrap;gap:.35rem;margin:.5rem 0 .35rem}
+.chip{display:inline-block;padding:.15rem .45rem;border:1px solid var(--linea);border-radius:var(--radio);font-size:.68rem;letter-spacing:.04em;text-transform:uppercase;color:var(--suave)}
+.chip.ok{border-color:var(--ok);color:var(--ok)}
+.chip.ac{border-color:var(--acento);color:var(--acento)}
+.chip.peligro{border-color:var(--peligro);color:var(--peligro)}
+.search-wrap{margin:0 0 .85rem}
+.search-wrap label{display:block;font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;color:var(--suave);margin-bottom:.35rem}
+.search-wrap input{width:100%;min-height:48px;padding:.7rem .9rem;background:var(--fondo-3);border:1px solid var(--linea);border-radius:var(--radio);color:var(--tinta);font:inherit}
+.search-wrap input:focus{outline:none;border-color:var(--acento)}
+.dict-count{color:var(--suave);font-size:.85rem;margin:0 0 .55rem}
+.tag-bar{display:flex;flex-wrap:wrap;gap:.4rem;margin:0 0 .75rem}
+.tag-bar button{min-height:40px;padding:.35rem .7rem;font-size:.8rem;font-weight:600}
+.tag-bar button.on{background:var(--acento);color:var(--acento-texto);border-color:var(--acento)}
+@keyframes drip{0%,100%{transform:translateY(0);opacity:.4}50%{transform:translateY(8px);opacity:1}}
+@keyframes sway{0%,100%{transform:rotate(-2deg)}50%{transform:rotate(2deg)}}
+@keyframes pulse{0%,100%{opacity:.4}50%{opacity:1}}
+@keyframes spin-slow{to{transform:rotate(360deg)}}
+@keyframes flow{to{stroke-dashoffset:-24}}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.25}}
+.drip{animation:drip 1.4s ease-in-out infinite}
+.sway{transform-origin:center bottom;animation:sway 2.5s ease-in-out infinite}
+.pulse{animation:pulse 1.6s ease-in-out infinite}
+.spin-slow{transform-origin:center;animation:spin-slow 4s linear infinite}
+.wire-flow{stroke-dasharray:6 6;animation:flow 1.2s linear infinite}
+.blink-warn{animation:blink 1.2s ease-in-out infinite}
+</style>
+</head>
+<body>
+<header>
+  <h1>Clima hogar</h1>
+  <p>Confort · ventilación · humedad</p>
+  <span class="badge-vida">Vida · no cole</span>
+</header>
+
+<div class="aviso" role="alert">
+  <strong>Seguridad y límites</strong>
+  <ul>
+    <li>Esto son hábitos y uso sensato. No diseña instalaciones ni sustituye a un técnico de gas, electricidad o climatización.</li>
+    <li>Monóxido de carbono (estufas, braseros, calentadores): ventila siempre la combustión. Si hay dolores de cabeza, náuseas o sospecha de CO → sal al aire libre y llama a emergencias (112).</li>
+    <li>Moho extenso, olores fuertes o humedades estructurales: deja de improvisar y pide profesional.</li>
+    <li>No abras ni manipules circuitos de gas, calderas o ACs sellados. Filtros de usuario sí; gas y electricidad, no.</li>
+  </ul>
+</div>
+
+<div id="toc" class="toc"></div>
+<main id="app"></main>
+<p class="foot">Les vencimos · dibujos SVG · offline · aprender para la vida</p>
+
+<script>
+(function(){
+  const LESSONS = [
+    {id:'bases', titulo:'Bases del confort térmico', meta:'Temperatura · humedad · sensación', steps:[
+      {t:'Temperatura no es lo único', d:'La sensación térmica mezcla aire, humedad, corrientes y ropa. 21 °C con corriente fría se siente peor que 19 °C quietos. Observa cómo te sientes, no solo el termómetro.', svg:'thermo'},
+      {t:'Humedad relativa', d:'En casa, orientativo: ~40–60 % suele ser cómodo. Muy seco: labios y garganta. Muy húmedo: «pesadez» y condensación. Un higrómetro barato ayuda a mirar, no a obsesionarte.', svg:'humidity'},
+      {t:'Capas y hábitos', d:'Antes de subir 2 °C el termostato: jersey, calcetines, manta en el sofá. Por la noche suele bastar menos calefacción si te abrigas bien en la cama.', svg:'layers'},
+      {t:'Zonas de la casa', d:'No todas las habitaciones necesitan lo mismo. Salón a uso normal; dormitorio un poco más fresco; pasillos y trasteros, menos. Zonificar ahorra y mejora el confort.', svg:'zones'}
+    ]},
+    {id:'frio', titulo:'Frío / invierno', meta:'Hábitos · noche · ropa de casa', steps:[
+      {t:'Cierra lo que no usas', d:'Puertas a habitaciones frías, trastero, tendedero exterior. Calienta donde estás. Un pasillo abierto «roba» calor del salón.', svg:'door'},
+      {t:'Noche sin derroche', d:'Baja un poco el termostato al dormir (si tienes programable). Cortinas cerradas tras el anochecer. No apagues del todo si la casa tarda mucho en recuperar: baja, no congela.', svg:'night'},
+      {t:'Ropa de casa', d:'Zapatillas, bata o jersey grueso en casa. Pies fríos = sensación de frío general. Una manta en el sofá evita subir grados «por costumbre».', svg:'layers'},
+      {t:'Sol de invierno', d:'Levanta persianas en fachadas soleadas de día: calor gratis. Al atardecer, cierra bien. En días nublados prioriza no perder lo poco que hay.', svg:'sun'},
+      {t:'Agua caliente y vapor', d:'Duchas: puerta cerrada y ventilar el baño después (extractor o ventana unos minutos). El vapor que se escapa al pasillo enfría y humedece otras zonas.', svg:'steam'}
+    ]},
+    {id:'calor', titulo:'Calor / verano', meta:'Sombras · persianas · ventilación', steps:[
+      {t:'Siesta térmica de la casa', d:'De día con sol fuerte: persianas bajadas, toldos, cortinas claras. La casa se «duerme» al calor. Abrir todo al mediodía mete el horno dentro.', svg:'blinds'},
+      {t:'Ventilación cruzada', d:'Cuando baje el sol o de madrugada: abre ventanas opuestas unos minutos para renovar. Si solo hay una fachada, ayuda un ventilador apuntando hacia fuera.', svg:'crossvent'},
+      {t:'Sombras y color', d:'Toldos, plantas en balcón, láminas solares temporales en cristal (sin obra). Claro refleja; oscuro absorbe. Evita dejar el coche al sol… y la terraza sin sombra si da al salón.', svg:'shade'},
+      {t:'Noche fresca', d:'Abre de noche si el aire exterior está más fresco que el interior. Por la mañana, cierra antes de que suba el sol. Ese ciclo marca la diferencia en pisos españoles.', svg:'night'},
+      {t:'Electrodomésticos', d:'Horno y vitro por la tarde-noche si puedes. Secadora y lavavajillas también aportan calor: úsalos cuando la casa ya esté ventilando fresca.', svg:'heat'}
+    ]},
+    {id:'calefaccion', titulo:'Uso sensato de calefacción', meta:'Termostato · radiadores · zonas', steps:[
+      {t:'Termostato estable', d:'Subir a 25 °C «para que vaya más rápido» no calienta antes: gasta más. Elige un setpoint razonable (muchas casas van bien ~19–21 °C en uso) y espera. Programa horarios si puedes.', svg:'thermo'},
+      {t:'No tapes radiadores', d:'Sofás, cortinas largas o tendederos encima del radiador bloquean el calor. Deja circular el aire. Muebles a unos centímetros.', svg:'radiator'},
+      {t:'Purgar aire (usuario)', d:'Si el radiador está frío arriba y caliente abajo, suele haber aire. Con la calefacción en marcha suave, usa la llave de purga con un recipiente: cierra cuando salga agua continua. Si no sabes o hay válvula especial, técnico.', svg:'purge'},
+      {t:'Zonas y válvulas', d:'Cierra o baja radiadores de habitaciones vacías (sin congelar tuberías en heladas fuertes). No manipules la caldera: solo termostato y radiadores de uso diario.', svg:'zones'},
+      {t:'Límite claro', d:'Olor a gas, manchas de hollín, caldera que falla o ruidos raros → apaga según manual del aparato, ventila y llama a técnico autorizado. No improvises con gas.', svg:'warn'}
+    ]},
+    {id:'frio-ac', titulo:'Refrigeración y ventiladores', meta:'Setpoints · filtros · hábitos', steps:[
+      {t:'Ventilador primero', d:'El ventilador mueve aire y ayuda a sudar; no baja la temperatura de la habitación. Úsalo solo cuando hay gente. Apágalo al salir: ahorras y no «enfría» la casa vacía.', svg:'fan'},
+      {t:'AC con cabeza', d:'Diferencia razonable con el exterior (evitar saltos de 10–12 °C). ~24–26 °C suele bastar con ventilador suave. Cierra puertas y persianas mientras enfría.', svg:'ac'},
+      {t:'Filtro de usuario', d:'Muchos splits permiten sacar el filtro frontal, aspirar o lavar con agua suave y secar bien antes de volver a poner. Sucio = menos frío y más consumo. Si no abre fácil, no fuerces: mira el manual o técnico.', svg:'filter'},
+      {t:'No pelees sistemas', d:'No dejes ventanas abiertas con el AC a tope. No combines calefacción y AC. Ventila en rachas cortas y luego cierra.', svg:'fight'},
+      {t:'Mantenimiento profesional', d:'Cada cierto tiempo (según uso y manual) conviene revisión de gas refrigerante y limpieza profunda. Eso no es bricolaje casero.', svg:'warn'}
+    ]},
+    {id:'ventilacion', titulo:'Ventilación', meta:'Cuándo abrir · cocina · baño', steps:[
+      {t:'Renovar sin vaciar el confort', d:'Mejor ventilación corta e intensa (5–10 min con corrientes) que dejar una ventana entornada horas en invierno o con AC. Renuevas aire y pierdes menos calor/frío.', svg:'crossvent'},
+      {t:'Cocina', d:'Campana o ventana al freír y hervir. El vapor y la grasa suben humedad y olores al resto de la casa. Si no hay campana, abre y cierra tras cocinar.', svg:'steam'},
+      {t:'Baño', d:'Tras ducha: extractor o ventana hasta que baje el vaho. Deja la puerta cerrada mientras tanto para no humedecer el pasillo.', svg:'steam'},
+      {t:'Evitar pelear calefacción/AC', d:'No ventiles a la vez que calientas o enfrías a máximo. Secuencia: apaga o baja → ventila corto → cierra → reanuda.', svg:'fight'},
+      {t:'Aire viciado', d:'Si hay mucha gente, velas o cocina intensa: prioriza renovar aunque haga un poco de frío 5 minutos. Dolor de cabeza y somnolencia pueden ser señal de mal aire (y en casos graves, de CO: ver lección de riesgos).', svg:'air'}
+    ]},
+    {id:'corrientes', titulo:'Corrientes de aire', meta:'Detectar · burletes · persianas', steps:[
+      {t:'Detectar', d:'En día de viento o frío: mano húmeda o incienso/vela cerca de marcos, bajo puertas y cajas de persiana. Donde tiemble la llama o notes frío, hay entrada.', svg:'draft'},
+      {t:'Burletes y juntas', d:'Burlete adhesivo o de cepillo en puertas y ventanas que cierren mal. Limpia el marco antes. Es temporal y reversible; no sustituye carpintería nueva.', svg:'seal'},
+      {t:'Bajo la puerta', d:'Felpudo grueso, burlete de umbral o «churro» de tela. Especialmente entre zona caliente y pasillo frío o portal.', svg:'door'},
+      {t:'Caja de persiana', d:'Suele ser un punto débil. Revisa tapas mal encajadas; a veces hay kits de aislamiento para cajón (sin obra mayor). Si hay filtraciones graves, carpintero o reformista.', svg:'blinds'},
+      {t:'Cortinas', d:'Cortina gruesa o térmica por la noche ayuda. No tape el radiador si está justo debajo: deja que el aire suba o acorta la cortina.', svg:'curtain'}
+    ]},
+    {id:'humedad', titulo:'Humedad y condensación', meta:'Causas típicas España', steps:[
+      {t:'Cristal «sudado»', d:'Aire caliente y húmedo toca un cristal frío. Ventila corto tras cocinar/duchar; no seques ropa en radiador todo el día; baja un poco la humedad (menos plantas amontonadas, tapa ollas).', svg:'condense'},
+      {t:'Puntos fríos', d:'Esquinas de fachada norte, detrás de armarios pegados a pared exterior, cajas de persiana. Deja circular aire (mueble unos cm) y vigila manchas.', svg:'coldspot'},
+      {t:'Ropa tendida', d:'Tender dentro sube mucho la humedad. Si no hay balcón: tendedero en habitación ventilable, ventana abierta a ratos, deshumidificador si es habitual.', svg:'laundry'},
+      {t:'Acuarios y plantas', d:'Aportan humedad. En piso pequeño y cerrado, dosifica. No es «malo»: solo cuéntalo si ya tienes condensación.', svg:'plants'},
+      {t:'Cuándo preocuparse', d:'Humedad que vuelve siempre en el mismo sitio, olor a cerrado persistente o pintura que se hincha → puede ser filtración o puente térmico serio: profesional.', svg:'warn'}
+    ]},
+    {id:'moho', titulo:'Moho', meta:'Signos · limpieza prudente · límites', steps:[
+      {t:'Signos', d:'Manchas negras/verdosas en esquinas, juntas de silicona, detrás de muebles; olor a humedad. No todo lunarcito es emergencia, pero no lo ignores si crece.', svg:'mold'},
+      {t:'Antes de limpiar', d:'Arregla la causa (ventilación, corriente de agua, condensación). Limpiar sin secar la causa es coser sin cortar el hilo.', svg:'cause'},
+      {t:'Limpieza prudente de superficies', d:'Guantes, ventila. En superficies duras pequeñas: agua con detergente o productos de moho de droguería según etiqueta. No mezcles lejía con amoniaco u otros limpia. Niños y asmáticos: fuera de la habitación.', svg:'clean'},
+      {t:'Qué no hacer', d:'No cepilles a lo loco sin mascarilla si hay mucha superficie (esporas al aire). No uses solo ambientador encima. No pinteis encima sin tratar y secar.', svg:'warn'},
+      {t:'Llama profesional', d:'Zonas grandes, moho en techos por filtración, problemas de salud (respirar mal) o duda de asbestos/materiales viejos → para DIY y contacta profesional / servicios sanitarios si hay síntomas graves.', svg:'pro'}
+    ]},
+    {id:'aislamiento', titulo:'Aislamiento práctico casero', meta:'Sin proyectar reformas', steps:[
+      {t:'Suelos fríos', d:'Alfombras, moquetas o felpudos en zonas de paso. Ayudan al confort de pies; no sustituyen aislante bajo forjado.', svg:'rug'},
+      {t:'Film o cortina térmica temporal', d:'En ventanas muy frías: film transparente de temporada o cortina gruesa bien cerrada de noche. Quita en verano si molesta.', svg:'film'},
+      {t:'Sellar rendijas', d:'Burletes, silicona de bricolaje en juntas muertas (no estructurales), tapar agujeros de cables con espuma o tapones. Pequeño, reversible, útil.', svg:'seal'},
+      {t:'Puerta del portal / caja de luces', d:'A veces el frío entra por el rellano. Burlete en la puerta de casa; no manipules cuadros eléctricos ajenos ni instalaciones comunitarias.', svg:'door'},
+      {t:'Límite', d:'Aislar fachada, cambiar ventanas o actuar en cubierta es obra: pide presupuestos y técnicos. Aquí solo trucos de uso y temporadas.', svg:'warn'}
+    ]},
+    {id:'riesgos', titulo:'Riesgos: CO y combustión', meta:'Estufas · braseros · detectores', steps:[
+      {t:'Qué es el monóxido', d:'Gas sin olor de combustión incompleta (estufas de gas/butano mal ventiladas, braseros, calentadores, grupos electrógenos en interior). Puede matar. Prudencia máxima.', svg:'co'},
+      {t:'Ventilación de combustión', d:'Nunca uses brasero, estufa de combustión o generador en habitación cerrada. Ventana entreabierta o tiro adecuado según aparato. Lee el manual.', svg:'ventfire'},
+      {t:'Calentadores y calderas', d:'Revisión periódica por técnico autorizado. Si hay hollín, olor raro o llama rara: no «apañes» — técnico. No tapones de ventilación de locales de caldera.', svg:'boiler'},
+      {t:'Detectores de CO', d:'Útiles en casas con combustión. Colócalos según instrucciones (altura y distancia al aparato). Sustituye pilas; no sustituyen buena ventilación.', svg:'detector'},
+      {t:'Emergencia', d:'Dolor de cabeza, náuseas, mareo, varios a la vez en casa con combustión → salid al aire libre, no reentréis, 112. Apagad aparatos solo si es seguro hacerlo al salir.', svg:'warn'}
+    ]},
+    {id:'acustica', titulo:'Confort acústico básico', meta:'Calle · vecinos · textiles', steps:[
+      {t:'Qué puedes esperar', d:'Textiles y burletes bajan un poco el ruido fino; no convierten un piso en estudio de grabación. Para obras graves hace falta insonorización profesional.', svg:'sound'},
+      {t:'Textiles', d:'Cortinas gruesas, alfombras, librerías llenas, cabecero tapizado: absorben eco dentro y algo de calle. Útil y barato.', svg:'curtain'},
+      {t:'Burletes también al sonido', d:'Las rendijas dejan pasar ruido. Sellar puertas y ventanas ayuda al confort acústico y térmico a la vez.', svg:'seal'},
+      {t:'Hábitos', d:'Horarios de lavadora y música respetuosos. Si el ruido viene de instalaciones (ascensor, bajantes), documenta y habla con comunidad; no es solo «tu pared».', svg:'habits'},
+      {t:'Límite', d:'Ruidos estructurales graves, bares, obras: vía vecinal, ayuntamiento o técnico de acústica. Este módulo no sustituye medición ni aislamiento profesional.', svg:'pro'}
+    ]},
+    {id:'temporadas', titulo:'Checklist por temporada', meta:'Otoño · invierno · primavera · verano', steps:[
+      {t:'Otoño — preparar', d:'Prueba calefacción un día suave antes del frío fuerte. Purga radiadores si hace falta. Revisa burletes. Limpia filtros de AC antes de guardarlo. Detector de humo/CO: pilas.', svg:'autumn'},
+      {t:'Invierno — mantener', d:'Persianas/cortinas: abiertas al sol, cerradas de noche. No tapes radiadores. Ventila corto. Vigila condensación en cristales. Braseros/estufas: ventilación siempre.', svg:'winter'},
+      {t:'Primavera — transicionar', d:'Limpia filtros, aspira cajas de persiana. Revisa moho de invierno en esquinas. Abre más ratos. Guarda mantas; saca ventiladores. Revisa toldos.', svg:'spring'},
+      {t:'Verano — defender la casa', d:'Persianas de día, ventilar de noche/madrugada. AC a setpoint sensato + ventilador. Hidrátate. No dejes velas/Braseros (obvio). Revisa que no pelees AC con ventanas.', svg:'summer'}
+    ]},
+    {id:'viviendas', titulo:'Casos típicos en España', meta:'Piso · bajo · ático · casa', steps:[
+      {t:'Piso intermedio', d:'Suele ser el más estable térmicamente (vecinos arriba/abajo). Prioriza: ventanas/corrientes, ventilación de cocina/baño, no pelear AC/calefacción. Menos urgencia de techo/suelo.', svg:'flat'},
+      {t:'Bajo / entresuelo', d:'Suelo frío y a veces humedad de contacto. Prioriza: alfombras, ventilación, vigilancia de moho en zócalos, burletes a portal. Humedades de muro: profesional.', svg:'ground'},
+      {t:'Ático', d:'Calor fuerte en verano y a veces frío en invierno (cubierta). Prioriza: sombras/persianas, ventilación nocturna, AC sensato, no acumular trastos que tapen rejillas. Filtraciones de tejado: comunidad/técnico.', svg:'attic'},
+      {t:'Casa unifamiliar', d:'Más fachada y cubierta expuestas. Prioriza: zonificar habitaciones, revisiones de combustión, sellar puertas a garaje, sombras en terrazas. Reformas de aislamiento = proyecto, no DIY de fin de semana.', svg:'house'},
+      {t:'Regla común', d:'Empieza por hábitos (ventilar, persianas, no tapar radiadores) antes de comprar aparatos. Observa una semana: dónde hay corriente, condensación o habitación rebelde.', svg:'habits'}
+    ]}
+  ];
+
+  const DICT = [
+    {"n":"Cristal sudado","tags":["humedad","invierno"],"s":"Condensación en vidrio frío","q":"Suele aire húmedo (ducha, cocina, ropa tendida) contra cristal frío.","p":"Ventila corto tras humedad; no seques ropa en radiador todo el día; deja circular aire.","c":"Si hay agua en el marco podrido o moho creciente → carpintero/técnico."},
+    {"n":"Olor a humedad","tags":["humedad","moho"],"s":"Mal olor a cerrado o sótano","q":"Humedad alta, poca ventilación, moho oculto o filtración.","p":"Ventila; busca manchas tras muebles; seca con deshumidificador si es recurrente.","c":"Olor fuerte persistente o manchas grandes → profesional."},
+    {"n":"Radiador frío arriba","tags":["calefacción"],"s":"Arriba frío, abajo caliente","q":"Aire en el circuito del radiador.","p":"Purga con llave y recipiente (calefacción suave). Cierra al salir agua continua.","c":"Si no hay llave, no calienta nada o hay fugas → técnico."},
+    {"n":"Habitación que no calienta","tags":["calefacción","corrientes"],"s":"Una estancia siempre fría","q":"Radiador tapado, válvula cerrada, corriente, o habitación a norte/poco usada.","p":"Libera radiador; abre válvula; cierra puerta a zonas frías; burlete.","c":"Toda la casa falla o caldera rara → técnico."},
+    {"n":"Calor de ático","tags":["verano","ático"],"s":"Ático mucho más caliente","q":"Cubierta soleada y poco sombra/ventilación nocturna.","p":"Persianas de día; ventilar de noche; ventilador; setpoint AC sensato.","c":"Filtraciones o aislamiento de cubierta → comunidad/profesional."},
+    {"n":"Corriente bajo puerta","tags":["corrientes","frío"],"s":"Aire frío por el umbral","q":"Holgura puerta-suelo hacia pasillo/portal frío.","p":"Burlete de umbral, felpudo grueso o churro de tela.","c":"Si la puerta no cierra o el marco está torcido → carpintero."},
+    {"n":"Manchas negras esquina","tags":["moho","humedad"],"s":"Puntos oscuros en rincón","q":"Condensación en punto frío o humedad acumulada.","p":"Ventila; separa mueble de pared; limpia superficie pequeña con prudencia.","c":"Zona grande, vuelve siempre o hay goteras → profesional."},
+    {"n":"Aire viciado","tags":["ventilación"],"s":"Pesadez, olor a cerrado, sueño","q":"Poca renovación de aire, mucha gente o cocina.","p":"Ventilación corta e intensa; campana al cocinar.","c":"Con combustión y mareos/náuseas → salir y 112 (posible CO)."},
+    {"n":"Persiana que sopla","tags":["corrientes","persianas"],"s":"Frío desde el cajón de persiana","q":"Caja de persiana mal sellada o tapa suelta.","p":"Revisa tapa; kits de aislamiento de cajón; burletes en ventana.","c":"Cajón podrido o filtración de agua → profesional."},
+    {"n":"AC echa poco frío","tags":["verano","AC"],"s":"Split sopla pero no enfría","q":"Filtro sucio, puertas/ventanas abiertas, unidad exterior tapada o falta gas.","p":"Limpia filtro de usuario; cierra habitación; quita obstáculos a la unidad exterior.","c":"Sigue fallando → técnico de climatización (no abras el circuito)."},
+    {"n":"Factura de luz alta en frío","tags":["calefacción","hábitos"],"s":"Gasto alto con calefacción eléctrica","q":"Termostato alto, fugas de aire, zonificación nula.","p":"Baja 1 °C; burletes; cierra habitaciones; capas de ropa.","c":"Si hay tarifa/contadores raros → comercializadora o electricista."},
+    {"n":"Pies fríos en casa","tags":["frío","confort"],"s":"Cuerpo ok, pies helados","q":"Suelo frío y poca circulación.","p":"Zapatillas; alfombra; no bajes tanto el termostato de noche si el suelo es gélido.","c":"—"},
+    {"n":"Vaho en baño que no se va","tags":["humedad","ventilación"],"s":"Espejo y paredes mojados rato largo","q":"Extractor flojo o ventana no usada; puerta abierta al pasillo.","p":"Extractor/ventana tras ducha; puerta cerrada mientras; rejilla limpia.","c":"Moho recurrente en techo de baño → revisar ventilación/profesional."},
+    {"n":"Ropa tendida que no seca","tags":["humedad"],"s":"Tarda días en secar dentro","q":"Humedad alta y poco aire.","p":"Ventila a ratos; tendedero cerca de corriente controlada; deshumidificador.","c":"—"},
+    {"n":"Olor a gas","tags":["riesgo","gas"],"s":"Sientes gas en cocina o caldera","q":"Posible fuga. No es tema de «hábitos».","p":"No enciendas luces ni llamas; ventila; cierra llave de paso si sabes; sal.","c":"Siempre: compañía de gas / bomberos / 112 según gravedad."},
+    {"n":"Dolor de cabeza con estufa","tags":["riesgo","CO"],"s":"Malestar con brasero o estufa","q":"Puede ser aire viciado o monóxido. Tómatelo en serio.","p":"Apaga si es seguro; ventila; salid al exterior.","c":"112 si hay mareos/náuseas/varios afectados. Detector CO."},
+    {"n":"Radiador que golpea","tags":["calefacción"],"s":"Golpes o tictac en tuberías","q":"Dilación metálica o aire/suciedad; a veces presión de caldera.","p":"Anota cuándo pasa; no toques válvulas de seguridad.","c":"Técnico de calefacción si es fuerte o hay fugas."},
+    {"n":"Ventana que no cierra del todo","tags":["corrientes"],"s":"Queda rendija al cerrar","q":"Herrajes desajustados o goma gastada.","p":"Limpia marcos; burlete temporal; no fuerces.","c":"Ajuste de herrajes o cambio de junta → carpintero."},
+    {"n":"Mueble contra pared fría","tags":["moho","humedad"],"s":"Mancha detrás del armario","q":"Poco aire en punto frío → condensación.","p":"Separa 5–10 cm; ventila; limpia si es poco.","c":"Pared muy húmeda o hinchada → profesional."},
+    {"n":"Calor seco en invierno","tags":["humedad","calefacción"],"s":"Garganta y labios secos","q":"Calefacción + humedad baja.","p":"No subas de más; recipiente de agua lejos de riesgos; ventila corto.","c":"Si usas humidificador, límpialo (legionela/moho en aparato)."},
+    {"n":"Vecino de ruido","tags":["acústica"],"s":"Se oye mucho al lado o arriba","q":"Transmisión por estructura o rendijas.","p":"Cortinas, alfombra, burletes; hablar horarios.","c":"Insonorización o mediación: no lo resuelve solo este módulo."},
+    {"n":"Nevera calienta la cocina","tags":["verano","hábitos"],"s":"Cocina más caliente cerca del frigo","q":"El frigorífico expulsa calor por detrás.","p":"Deja espacio trasero; limpia rejilla; no es avería típica.","c":"Si el frigo quema en exceso o no enfría → técnico."},
+    {"n":"Toldos y persianas olvidados","tags":["verano"],"s":"Salón horno a media tarde","q":"Sol directo horas sin sombra.","p":"Baja persianas antes del sol fuerte; ventila de noche.","c":"—"},
+    {"n":"Chimenea en desuso","tags":["corrientes","frío"],"s":"Corriente por conducto","q":"Tiro abierto sin uso.","p":"Cierra registro si existe; no obtures de forma peligrosa.","c":"Deshollinador/técnico antes de volver a usar."},
+    {"n":"Planta baja húmeda","tags":["humedad","bajo"],"s":"Zócalos fríos o manchados","q":"Humedad de contacto o condensación.","p":"Ventila; no tapes rejillas; alfombra lavable.","c":"Humedades de muro o capilaridad → profesional."},
+    {"n":"AC gotea dentro","tags":["AC"],"s":"Agua por la unidad interior","q":"Desagüe de condensados tapado o mal inclinación.","p":"Apaga; no uses hasta revisar. No taladres a ciegas.","c":"Técnico de climatización."},
+    {"n":"Caldera a presión rara","tags":["calefacción","riesgo"],"s":"Manómetro fuera de rango / avisos","q":"Presión de circuito o avería.","p":"No «reinicies» sin manual. Anota el valor.","c":"Técnico autorizado de gas/calefacción."},
+    {"n":"Silicona de bañera negra","tags":["moho"],"s":"Junta negra en mampara/bañera","q":"Moho en silicona por humedad constante.","p":"Limpieza según producto; ventila tras ducha; seca junta.","c":"Si la silicona está agrietada → fontanero/reformista para renovar junta."},
+    {"n":"Puerta de terraza sopla","tags":["corrientes","verano"],"s":"Aire por corredera","q":"Juntas gastadas o carril sucio.","p":"Limpia carril; burlete compatible; cortina térmica.","c":"Cambio de junta o ajuste → carpintero/aluminio."},
+    {"n":"Muchas plantas y vaho","tags":["humedad"],"s":"Condensación con jungla interior","q":"Transpiración de plantas + poco aire.","p":"Dosifica; agrupa lejos de cristales fríos; ventila.","c":"—"},
+    {"n":"Secadora en interior sin salida","tags":["humedad"],"s":"Casa húmeda tras secar","q":"Secadora de condensación/ventilación mal usada.","p":"Vacía depósito; ventila la habitación; limpia filtro de pelusa.","c":"Aparato que no calienta o huele a quemado → técnico."},
+    {"n":"Ruido de calle de noche","tags":["acústica"],"s":"Tráfico que impide dormir","q":"Ventanas ligeras y rendijas.","p":"Cortina gruesa; cerrar bien; tapones si es puntual.","c":"Doble ventana/insonorización → profesional; denuncias vía ayuntamiento si procede."},
+    {"n":"Termostato lejos del sofá","tags":["calefacción"],"s":"Salón frío o calor según sitio","q":"El termostato mide donde está, no donde te sientas.","p":"No lo tapes; evita sol directo sobre él; ajusta por sensación real.","c":"Reubicar sonda → técnico."},
+    {"n":"Humo de cocina en casa","tags":["ventilación"],"s":"Olor a frito en habitaciones","q":"Campana floja o no usada; puertas abiertas.","p":"Campana al máximo al freír; cierra puertas; ventila tras.","c":"Campana sin tiro real → revisar instalación con profesional."},
+    {"n":"Brasero eléctrico bajo mesa","tags":["riesgo","invierno"],"s":"Uso de brasero / «mesa camilla»","q":"Riesgo de quemaduras, incendio de telas y, si es de combustión, CO.","p":"Eléctrico: no tapar del todo; vigilado; apagar al salir. Combustión: ventilar sí o sí.","c":"Cualquier mareo → aire libre y 112."},
+    {"n":"Pared fría al tacto","tags":["frío","aislamiento"],"s":"Fachada interior muy fría","q":"Poco aislamiento o puente térmico.","p":"No pegues muebles; cortina; vigilá condensación.","c":"Aislar fachada = obra; proyecta con profesional."}
+  ];
+
+  const SVG = {
+    thermo:`<svg viewBox="0 0 320 160" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><rect x="140" y="20" width="24" height="90" rx="12" fill="#1C1A16" stroke="#C4A15A"/><circle cx="152" cy="120" r="22" fill="#C46A4A"/><rect class="pulse" x="146" y="50" width="12" height="70" fill="#C46A4A"/><text x="190" y="80" fill="#9A9488" font-size="12">°C + sensación</text></svg>`,
+    humidity:`<svg viewBox="0 0 320 160" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M160 25 C160 25 110 85 110 115 A50 35 0 0 0 210 115 C210 85 160 25 160 25" fill="#5B8FA8" opacity=".85"/><text x="160" y="150" text-anchor="middle" fill="#9A9488" font-size="12">~40–60 % HR</text></svg>`,
+    layers:`<svg viewBox="0 0 320 160" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><rect x="90" y="40" width="140" height="20" fill="#C4A15A" opacity=".9"/><rect x="100" y="70" width="120" height="20" fill="#8F9A72"/><rect x="110" y="100" width="100" height="20" fill="#5B8FA8"/><text x="160" y="145" text-anchor="middle" fill="#9A9488" font-size="12">Capas</text></svg>`,
+    zones:`<svg viewBox="0 0 320 160" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><rect x="30" y="40" width="80" height="80" fill="#1C1A16" stroke="#C4A15A"/><text x="70" y="85" text-anchor="middle" fill="#C4A15A" font-size="11">Salón</text><rect x="120" y="40" width="80" height="80" fill="#1C1A16" stroke="#5B8FA8"/><text x="160" y="85" text-anchor="middle" fill="#5B8FA8" font-size="11">Dorm.</text><rect x="210" y="40" width="80" height="80" fill="#1C1A16" stroke="#9A9488"/><text x="250" y="85" text-anchor="middle" fill="#9A9488" font-size="11">Paso</text></svg>`,
+    door:`<svg viewBox="0 0 320 160" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><rect x="110" y="20" width="100" height="120" fill="#1C1A16" stroke="#C4A15A" stroke-width="2"/><circle cx="190" cy="80" r="5" fill="#C4A15A"/><path class="pulse" d="M110 140 H210" stroke="#5B8FA8" stroke-width="4"/><text x="160" y="155" text-anchor="middle" fill="#9A9488" font-size="11">Umbral</text></svg>`,
+    night:`<svg viewBox="0 0 320 160" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><circle cx="220" cy="50" r="28" fill="#E6E1D6" opacity=".85"/><circle cx="232" cy="45" r="28" fill="#0E0E0C"/><rect x="40" y="70" width="100" height="60" fill="#1C1A16" stroke="#C4A15A"/><text x="90" y="105" text-anchor="middle" fill="#9A9488" font-size="11">Noche</text></svg>`,
+    sun:`<svg viewBox="0 0 320 160" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><circle class="pulse" cx="250" cy="45" r="24" fill="#C4A15A"/><rect x="40" y="50" width="130" height="80" fill="#1C1A16" stroke="#5B8FA8"/><line x1="230" y1="60" x2="170" y2="90" stroke="#C4A15A" stroke-dasharray="4 3"/></svg>`,
+    steam:`<svg viewBox="0 0 320 160" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path class="pulse" d="M100 120 Q110 80 100 50" fill="none" stroke="#5B8FA8" stroke-width="3"/><path class="pulse" d="M140 120 Q150 70 140 40" fill="none" stroke="#5B8FA8" stroke-width="3" style="animation-delay:.2s"/><path class="pulse" d="M180 120 Q190 80 180 55" fill="none" stroke="#5B8FA8" stroke-width="3" style="animation-delay:.4s"/><rect x="80" y="120" width="120" height="20" fill="#1C1A16" stroke="#C4A15A"/></svg>`,
+    blinds:`<svg viewBox="0 0 320 160" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><rect x="80" y="25" width="160" height="110" fill="#1C1A16" stroke="#C4A15A"/><line x1="80" y1="45" x2="240" y2="45" stroke="#9A9488"/><line x1="80" y1="65" x2="240" y2="65" stroke="#9A9488"/><line x1="80" y1="85" x2="240" y2="85" stroke="#9A9488"/><line x1="80" y1="105" x2="240" y2="105" stroke="#9A9488"/><text x="160" y="150" text-anchor="middle" fill="#9A9488" font-size="11">Persianas</text></svg>`,
+    crossvent:`<svg viewBox="0 0 320 160" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><rect x="40" y="40" width="60" height="80" fill="#1C1A16" stroke="#5B8FA8"/><rect x="220" y="40" width="60" height="80" fill="#1C1A16" stroke="#5B8FA8"/><path class="wire-flow" d="M100 80 H220" stroke="#C4A15A" stroke-width="3" fill="none"/><polygon points="210,70 230,80 210,90" fill="#C4A15A"/><text x="160" y="140" text-anchor="middle" fill="#9A9488" font-size="11">Ventilación cruzada</text></svg>`,
+    shade:`<svg viewBox="0 0 320 160" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><circle cx="260" cy="35" r="18" fill="#C4A15A"/><path d="M60 50 H200 L180 90 H80 Z" fill="#8F9A72" opacity=".7"/><rect x="80" y="90" width="100" height="50" fill="#1C1A16" stroke="#C4A15A"/></svg>`,
+    heat:`<svg viewBox="0 0 320 160" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><rect x="100" y="50" width="120" height="80" rx="4" fill="#1C1A16" stroke="#C46A4A"/><path class="pulse" d="M120 50 Q160 20 200 50" fill="none" stroke="#C46A4A" stroke-width="3"/><text x="160" y="100" text-anchor="middle" fill="#9A9488" font-size="12">Calor extra</text></svg>`,
+    radiator:`<svg viewBox="0 0 320 160" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><g fill="#C4A15A"><rect x="60" y="40" width="18" height="90"/><rect x="90" y="40" width="18" height="90"/><rect x="120" y="40" width="18" height="90"/><rect x="150" y="40" width="18" height="90"/><rect x="180" y="40" width="18" height="90"/><rect x="210" y="40" width="18" height="90"/></g><path class="pulse" d="M70 35 Q130 10 190 35" fill="none" stroke="#5B8FA8" stroke-width="2"/><text x="160" y="150" text-anchor="middle" fill="#9A9488" font-size="11">No tapar</text></svg>`,
+    purge:`<svg viewBox="0 0 320 160" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><rect x="50" y="40" width="140" height="70" fill="#1C1A16" stroke="#C4A15A"/><circle cx="210" cy="55" r="12" fill="#161512" stroke="#C4A15A"/><path class="drip" d="M210 70 L210 100" stroke="#5B8FA8" stroke-width="3"/><ellipse cx="210" cy="115" rx="25" ry="10" fill="#5B8FA8" opacity=".5"/><text x="120" y="145" text-anchor="middle" fill="#9A9488" font-size="11">Purgar aire</text></svg>`,
+    warn:`<svg viewBox="0 0 320 160" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path class="blink-warn" d="M160 25 L250 140 H70 Z" fill="#C46A4A" opacity=".9"/><text x="160" y="110" text-anchor="middle" fill="#0E0E0C" font-size="28" font-weight="700">!</text><text x="160" y="155" text-anchor="middle" fill="#9A9488" font-size="11">Para · profesional</text></svg>`,
+    fan:`<svg viewBox="0 0 320 160" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><g class="spin-slow"><ellipse cx="160" cy="80" rx="50" ry="14" fill="#5B8FA8" opacity=".7"/><ellipse cx="160" cy="80" rx="14" ry="50" fill="#8F9A72" opacity=".7"/><circle cx="160" cy="80" r="10" fill="#C4A15A"/></g></svg>`,
+    ac:`<svg viewBox="0 0 320 160" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><rect x="60" y="45" width="200" height="55" rx="6" fill="#1C1A16" stroke="#5B8FA8" stroke-width="2"/><line x1="80" y1="65" x2="240" y2="65" stroke="#9A9488"/><line x1="80" y1="80" x2="240" y2="80" stroke="#9A9488"/><path class="pulse" d="M100 110 Q160 140 220 110" fill="none" stroke="#5B8FA8" stroke-width="2"/><text x="160" y="40" text-anchor="middle" fill="#9A9488" font-size="11">~24–26 °C</text></svg>`,
+    filter:`<svg viewBox="0 0 320 160" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><rect x="70" y="40" width="180" height="80" rx="4" fill="#1C1A16" stroke="#C4A15A"/><path d="M90 50 H230 M90 70 H230 M90 90 H230 M90 110 H230" stroke="#8F9A72" stroke-width="2"/><text x="160" y="145" text-anchor="middle" fill="#9A9488" font-size="11">Filtro usuario</text></svg>`,
+    fight:`<svg viewBox="0 0 320 160" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><rect x="40" y="50" width="90" height="60" fill="#1C1A16" stroke="#C46A4A"/><text x="85" y="85" text-anchor="middle" fill="#C46A4A" font-size="11">AC / calef.</text><rect x="190" y="50" width="90" height="60" fill="#1C1A16" stroke="#5B8FA8"/><text x="235" y="85" text-anchor="middle" fill="#5B8FA8" font-size="11">Ventana</text><text x="160" y="130" text-anchor="middle" fill="#C4A15A" font-size="14">≠</text></svg>`,
+    air:`<svg viewBox="0 0 320 160" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path class="pulse" d="M40 50 H200" stroke="#5B8FA8" stroke-width="3"/><path class="pulse" d="M60 80 H240" stroke="#5B8FA8" stroke-width="3" style="animation-delay:.2s"/><path class="pulse" d="M40 110 H180" stroke="#5B8FA8" stroke-width="3" style="animation-delay:.4s"/><text x="160" y="145" text-anchor="middle" fill="#9A9488" font-size="11">Renovar aire</text></svg>`,
+    draft:`<svg viewBox="0 0 320 160" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><rect x="100" y="30" width="120" height="100" fill="#1C1A16" stroke="#C4A15A"/><path class="wire-flow" d="M40 80 H100" stroke="#5B8FA8" stroke-width="3" fill="none"/><path d="M160 60 L155 100 L165 100 Z" fill="#C4A15A" class="pulse"/><text x="160" y="150" text-anchor="middle" fill="#9A9488" font-size="11">Detectar corriente</text></svg>`,
+    seal:`<svg viewBox="0 0 320 160" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><rect x="80" y="30" width="160" height="100" fill="#1C1A16" stroke="#9A9488" stroke-dasharray="4 3"/><rect x="90" y="40" width="140" height="80" fill="none" stroke="#C4A15A" stroke-width="4"/><text x="160" y="145" text-anchor="middle" fill="#9A9488" font-size="11">Burlete / junta</text></svg>`,
+    curtain:`<svg viewBox="0 0 320 160" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><line x1="60" y1="30" x2="260" y2="30" stroke="#C4A15A" stroke-width="3"/><path d="M70 30 Q90 90 70 140" fill="none" stroke="#8F9A72" stroke-width="8"/><path d="M110 30 Q130 100 110 140" fill="none" stroke="#8F9A72" stroke-width="8"/><path d="M200 30 Q220 90 200 140" fill="none" stroke="#8F9A72" stroke-width="8"/><path d="M240 30 Q260 100 240 140" fill="none" stroke="#8F9A72" stroke-width="8"/></svg>`,
+    condense:`<svg viewBox="0 0 320 160" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><rect x="70" y="30" width="180" height="100" fill="#1C1A16" stroke="#5B8FA8"/><circle class="drip" cx="120" cy="70" r="4" fill="#5B8FA8"/><circle class="drip" cx="160" cy="90" r="4" fill="#5B8FA8" style="animation-delay:.3s"/><circle class="drip" cx="200" cy="60" r="4" fill="#5B8FA8" style="animation-delay:.6s"/><text x="160" y="150" text-anchor="middle" fill="#9A9488" font-size="11">Condensación</text></svg>`,
+    coldspot:`<svg viewBox="0 0 320 160" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><rect x="40" y="30" width="240" height="100" fill="#161512" stroke="#9A9488"/><path d="M40 30 L40 130 L100 130" fill="#5B8FA8" opacity=".35"/><circle class="pulse" cx="70" cy="110" r="12" fill="#C46A4A" opacity=".7"/><text x="160" y="150" text-anchor="middle" fill="#9A9488" font-size="11">Esquina fría</text></svg>`,
+    laundry:`<svg viewBox="0 0 320 160" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><line x1="60" y1="40" x2="260" y2="40" stroke="#C4A15A" stroke-width="2"/><rect x="90" y="45" width="40" height="60" fill="#5B8FA8" opacity=".5"/><rect x="150" y="45" width="40" height="70" fill="#5B8FA8" opacity=".5"/><rect x="210" y="45" width="40" height="55" fill="#5B8FA8" opacity=".5"/><circle class="drip" cx="110" cy="120" r="3" fill="#5B8FA8"/></svg>`,
+    plants:`<svg viewBox="0 0 320 160" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><g class="sway"><ellipse cx="120" cy="70" rx="16" ry="35" fill="#8F9A72"/><rect x="112" y="100" width="16" height="30" fill="#3a3428"/></g><g class="sway" style="animation-delay:.4s"><ellipse cx="200" cy="65" rx="20" ry="30" fill="#8F9A72"/><rect x="192" y="95" width="16" height="35" fill="#3a3428"/></g></svg>`,
+    mold:`<svg viewBox="0 0 320 160" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><rect x="50" y="30" width="220" height="100" fill="#1C1A16" stroke="#9A9488"/><circle cx="90" cy="100" r="8" fill="#0E0E0C"/><circle cx="110" cy="90" r="6" fill="#0E0E0C"/><circle cx="100" cy="110" r="5" fill="#0E0E0C"/><circle cx="130" cy="105" r="7" fill="#0E0E0C"/><text x="160" y="150" text-anchor="middle" fill="#C46A4A" font-size="11">Manchas</text></svg>`,
+    cause:`<svg viewBox="0 0 320 160" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><circle cx="80" cy="80" r="30" fill="#C46A4A" opacity=".8"/><text x="80" y="85" text-anchor="middle" fill="#0E0E0C" font-size="11">Causa</text><path d="M120 80 H180" stroke="#C4A15A" stroke-width="3" marker-end="url(#m)"/><circle cx="230" cy="80" r="30" fill="#8F9A72" opacity=".8"/><text x="230" y="85" text-anchor="middle" fill="#0E0E0C" font-size="11">Limpieza</text></svg>`,
+    clean:`<svg viewBox="0 0 320 160" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><rect x="140" y="40" width="50" height="70" rx="4" fill="#5B8FA8"/><rect x="150" y="30" width="30" height="15" fill="#C4A15A"/><path d="M80 120 Q160 90 240 120" fill="none" stroke="#9A9488" stroke-width="2"/><text x="160" y="145" text-anchor="middle" fill="#9A9488" font-size="11">Guantes · ventila</text></svg>`,
+    pro:`<svg viewBox="0 0 320 160" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><rect x="100" y="40" width="120" height="80" rx="4" fill="#1C1A16" stroke="#C4A15A"/><text x="160" y="85" text-anchor="middle" fill="#C4A15A" font-size="14">TÉCNICO</text><text x="160" y="145" text-anchor="middle" fill="#9A9488" font-size="11">Deja el DIY</text></svg>`,
+    rug:`<svg viewBox="0 0 320 160" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><rect x="40" y="100" width="240" height="30" fill="#3a3428"/><ellipse cx="160" cy="90" rx="90" ry="25" fill="#C4A15A" opacity=".7"/><text x="160" y="50" text-anchor="middle" fill="#9A9488" font-size="12">Alfombra</text></svg>`,
+    film:`<svg viewBox="0 0 320 160" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><rect x="70" y="25" width="180" height="110" fill="#1C1A16" stroke="#5B8FA8"/><rect x="85" y="40" width="150" height="80" fill="#5B8FA8" opacity=".2" stroke="#C4A15A" stroke-dasharray="6 4"/><text x="160" y="150" text-anchor="middle" fill="#9A9488" font-size="11">Film / cortina térmica</text></svg>`,
+    co:`<svg viewBox="0 0 320 160" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><circle class="blink-warn" cx="160" cy="70" r="40" fill="#C46A4A"/><text x="160" y="78" text-anchor="middle" fill="#0E0E0C" font-size="22" font-weight="700">CO</text><text x="160" y="140" text-anchor="middle" fill="#9A9488" font-size="11">Sin olor · peligro</text></svg>`,
+    ventfire:`<svg viewBox="0 0 320 160" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><rect x="110" y="70" width="100" height="60" fill="#1C1A16" stroke="#C46A4A"/><path class="pulse" d="M140 70 Q160 40 180 70" fill="#C46A4A" opacity=".8"/><rect x="40" y="40" width="40" height="60" fill="#1C1A16" stroke="#5B8FA8"/><path class="wire-flow" d="M80 70 H110" stroke="#5B8FA8" stroke-width="2" fill="none"/><text x="160" y="150" text-anchor="middle" fill="#9A9488" font-size="11">Ventilar combustión</text></svg>`,
+    boiler:`<svg viewBox="0 0 320 160" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><rect x="100" y="35" width="120" height="100" rx="4" fill="#1C1A16" stroke="#C4A15A"/><circle cx="160" cy="80" r="20" fill="#161512" stroke="#8F9A72"/><text x="160" y="85" text-anchor="middle" fill="#8F9A72" font-size="10">OK</text><text x="160" y="150" text-anchor="middle" fill="#9A9488" font-size="11">Solo técnico gas</text></svg>`,
+    detector:`<svg viewBox="0 0 320 160" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><circle cx="160" cy="75" r="45" fill="#1C1A16" stroke="#C4A15A" stroke-width="3"/><circle class="pulse" cx="160" cy="75" r="12" fill="#8F9A72"/><text x="160" y="145" text-anchor="middle" fill="#9A9488" font-size="11">Detector CO</text></svg>`,
+    sound:`<svg viewBox="0 0 320 160" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M80 80 L120 50 L120 110 Z" fill="#C4A15A"/><path class="pulse" d="M150 50 Q180 80 150 110" fill="none" stroke="#5B8FA8" stroke-width="3"/><path class="pulse" d="M180 35 Q230 80 180 125" fill="none" stroke="#5B8FA8" stroke-width="3" style="animation-delay:.2s"/></svg>`,
+    habits:`<svg viewBox="0 0 320 160" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><rect x="70" y="30" width="180" height="110" rx="4" fill="#1C1A16" stroke="#C4A15A"/><text x="160" y="75" text-anchor="middle" fill="#E6E1D6" font-size="14">Observa</text><text x="160" y="100" text-anchor="middle" fill="#9A9488" font-size="12">1 semana</text></svg>`,
+    autumn:`<svg viewBox="0 0 320 160" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><ellipse class="sway" cx="160" cy="90" rx="40" ry="50" fill="#C46A4A" opacity=".6"/><ellipse class="sway" cx="130" cy="100" rx="25" ry="35" fill="#C4A15A" opacity=".7" style="animation-delay:.3s"/><text x="160" y="40" text-anchor="middle" fill="#C4A15A" font-size="14">Otoño</text></svg>`,
+    winter:`<svg viewBox="0 0 320 160" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M160 30 L160 100" stroke="#5B8FA8" stroke-width="3"/><path d="M160 50 L140 70 M160 50 L180 70 M160 90 L145 110 M160 90 L175 110" stroke="#E6E1D6" stroke-width="2"/><text x="160" y="145" text-anchor="middle" fill="#5B8FA8" font-size="14">Invierno</text></svg>`,
+    spring:`<svg viewBox="0 0 320 160" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><g class="sway"><path d="M160 120 C160 70 120 60 130 40" fill="none" stroke="#8F9A72" stroke-width="4"/><circle cx="130" cy="38" r="8" fill="#C4A15A"/></g><text x="160" y="150" text-anchor="middle" fill="#8F9A72" font-size="14">Primavera</text></svg>`,
+    summer:`<svg viewBox="0 0 320 160" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><circle class="pulse" cx="160" cy="70" r="35" fill="#C4A15A"/><text x="160" y="145" text-anchor="middle" fill="#C4A15A" font-size="14">Verano</text></svg>`,
+    flat:`<svg viewBox="0 0 320 160" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><rect x="80" y="20" width="160" height="30" fill="#161512" stroke="#9A9488"/><rect x="80" y="55" width="160" height="40" fill="#1C1A16" stroke="#C4A15A" stroke-width="2"/><rect x="80" y="100" width="160" height="30" fill="#161512" stroke="#9A9488"/><text x="160" y="80" text-anchor="middle" fill="#C4A15A" font-size="11">Intermedio</text></svg>`,
+    ground:`<svg viewBox="0 0 320 160" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><rect x="80" y="40" width="160" height="50" fill="#161512" stroke="#9A9488"/><rect x="80" y="95" width="160" height="40" fill="#1C1A16" stroke="#5B8FA8" stroke-width="2"/><rect x="60" y="135" width="200" height="10" fill="#3a3428"/><text x="160" y="120" text-anchor="middle" fill="#5B8FA8" font-size="11">Bajo</text></svg>`,
+    attic:`<svg viewBox="0 0 320 160" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M160 20 L260 70 H60 Z" fill="#C46A4A" opacity=".5" stroke="#C4A15A"/><rect x="90" y="70" width="140" height="55" fill="#1C1A16" stroke="#C4A15A"/><text x="160" y="145" text-anchor="middle" fill="#9A9488" font-size="11">Ático</text></svg>`,
+    house:`<svg viewBox="0 0 320 160" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M160 25 L270 80 H50 Z" fill="#C4A15A" opacity=".6"/><rect x="80" y="80" width="160" height="55" fill="#1C1A16" stroke="#C4A15A"/><rect x="140" y="100" width="30" height="35" fill="#5B8FA8"/><text x="160" y="155" text-anchor="middle" fill="#9A9488" font-size="11">Casa</text></svg>`
+  };
+
+  let current=null, step=0, dictTag='', dictQ='';
+  const toc=document.getElementById('toc'), app=document.getElementById('app');
+  function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+  function showToc(){
+    current=null; app.innerHTML=''; toc.classList.remove('hidden');
+    toc.innerHTML=
+      '<button type="button" data-id="dict"><div class="t">Diccionario / síntomas</div><div class="m">'+DICT.length+' fichas · busca el problema</div></button>'+
+      LESSONS.map(l=>'<button type="button" data-id="'+l.id+'"><div class="t">'+l.titulo+'</div><div class="m">'+l.meta+'</div></button>').join('');
+    toc.querySelectorAll('[data-id]').forEach(b=>b.onclick=()=>{
+      const id=b.getAttribute('data-id');
+      if(id==='dict') openDict();
+      else openLesson(id);
+    });
+  }
+  function openDict(){
+    current='dict'; toc.classList.add('hidden');
+    renderDict();
+  }
+  function filtered(){
+    const q=dictQ.trim().toLowerCase();
+    return DICT.filter(p=>{
+      if(dictTag && p.tags.indexOf(dictTag)<0) return false;
+      if(!q) return true;
+      const hay=(p.n+' '+p.s+' '+p.q+' '+p.p+' '+p.tags.join(' ')).toLowerCase();
+      return hay.indexOf(q)>=0;
+    });
+  }
+  function renderDict(){
+    const tags=['','humedad','moho','calefacción','verano','corrientes','ventilación','riesgo','acústica','AC','frío','hábitos'];
+    const labels={'':'Todas','humedad':'Humedad','moho':'Moho','calefacción':'Calefacción','verano':'Verano','corrientes':'Corrientes','ventilación':'Ventilación','riesgo':'Riesgo','acústica':'Acústica','AC':'AC','frío':'Frío','hábitos':'Hábitos'};
+    const list=filtered();
+    app.innerHTML='<div class="back"><button type="button" class="ghost" id="back">← Temas</button></div><article class="lesson"><h2>Diccionario / síntomas</h2>'+
+      '<div class="aviso info"><strong>Guía práctica</strong><ul><li>Fichas orientativas para vivienda en España.</li><li>Hábitos primero. No sustituye técnico de gas, electricidad o climatización.</li><li>CO, gas o moho extenso: para y pide ayuda profesional / 112.</li></ul></div>'+
+      '<div class="search-wrap"><label for="q">Buscar</label><input id="q" type="search" placeholder="Ej. cristal sudado, radiador, moho…" value="'+esc(dictQ)+'" autocomplete="off"></div>'+
+      '<div class="tag-bar" id="tags">'+tags.map(t=>'<button type="button" data-tag="'+t+'" class="'+(dictTag===t?'on':'')+'">'+labels[t]+'</button>').join('')+'</div>'+
+      '<p class="dict-count" id="cnt">'+list.length+' de '+DICT.length+'</p>'+
+      '<div class="plant-grid" id="grid"></div></article>';
+    const grid=document.getElementById('grid');
+    grid.innerHTML=list.map(p=>{
+      const danger=p.tags.indexOf('riesgo')>=0;
+      const chips=p.tags.map(t=>'<span class="chip'+(t==='riesgo'?' peligro':'')+'">'+esc(t)+'</span>').join('');
+      return '<div class="plant-card"><h3>'+esc(p.n)+'</h3><p class="sci">'+esc(p.s)+'</p>'+
+        '<div class="meta">'+chips+'</div>'+
+        '<p><strong style="color:var(--tinta)">Qué suele significar:</strong> '+esc(p.q)+'</p>'+
+        '<p style="margin-top:.35rem"><strong style="color:var(--tinta)">Probar primero:</strong> '+esc(p.p)+'</p>'+
+        '<p class="tip" style="margin-top:.55rem">'+(danger?'<strong style="color:var(--peligro)">Cuándo pedir ayuda: </strong>':'<strong style="color:var(--tinta)">Cuándo pedir técnico: </strong>')+esc(p.c)+'</p></div>';
+    }).join('') || '<p style="color:var(--suave)">Sin resultados. Prueba otra palabra.</p>';
+    document.getElementById('back').onclick=showToc;
+    const inp=document.getElementById('q');
+    inp.oninput=function(){ dictQ=inp.value; renderDict(); const n=document.getElementById('q'); if(n){ n.focus(); try{ n.setSelectionRange(n.value.length,n.value.length);}catch(e){} } };
+    document.getElementById('tags').querySelectorAll('[data-tag]').forEach(b=>b.onclick=()=>{ dictTag=b.getAttribute('data-tag'); renderDict(); });
+  }
+  function openLesson(id){ current=LESSONS.find(x=>x.id===id); step=0; toc.classList.add('hidden'); renderStep(); }
+  function renderStep(){
+    const L=current, s=L.steps[step], svg=SVG[s.svg]||SVG.thermo;
+    app.innerHTML='<div class="back"><button type="button" class="ghost" id="back">← Temas</button></div><article class="lesson"><h2>'+L.titulo+'</h2><div class="step"><div class="num">Paso '+(step+1)+' de '+L.steps.length+'</div><strong style="font-family:var(--serif);font-size:1.15rem">'+s.t+'</strong><p>'+s.d+'</p><div class="diag">'+svg+'</div></div><div class="nav-steps"><button type="button" id="prev"'+(step<=0?' disabled':'')+'>Anterior</button><button type="button" class="primary" id="next">'+(step>=L.steps.length-1?'Terminar':'Siguiente')+'</button></div></article>';
+    document.getElementById('back').onclick=showToc;
+    document.getElementById('prev').onclick=()=>{if(step>0){step--;renderStep();}};
+    document.getElementById('next').onclick=()=>{if(step>=L.steps.length-1)showToc();else{step++;renderStep();}};
+  }
+  showToc();
+})();
+</script>
+</body>
+</html>

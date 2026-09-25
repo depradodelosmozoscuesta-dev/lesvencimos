@@ -1,0 +1,795 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0E0E0C">
+<meta name="description" content="Economía doméstica offline — Les vencimos. Presupuesto, gastos, ahorro, compra, menú, luz y agua. Sin nube.">
+<title>Economía — Les vencimos</title>
+<style>
+
+:root{
+  --fondo:#0E0E0C; --fondo-2:#161512; --fondo-3:#1C1A16;
+  --tinta:#E6E1D6; --suave:#9A9488;
+  --acento:#C4A15A; --acento-texto:#1A160E;
+  --linea:rgba(230,225,214,0.14);
+  --peligro:#C46A4A; --ok:#8F9A72; --aviso:#C4A15A;
+  --serif:"Iowan Old Style","Palatino Linotype",Palatino,"Times New Roman",Georgia,serif;
+  --sans:"Segoe UI",system-ui,-apple-system,sans-serif;
+  --radio:2px;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;min-height:100%;background:var(--fondo);color:var(--tinta);font-family:var(--sans)}
+body{padding:1.15rem 1rem 3rem;max-width:36rem;margin:0 auto}
+header{border-bottom:1px solid var(--linea);padding-bottom:.85rem;margin-bottom:1rem}
+header h1{margin:0;font-family:var(--serif);font-size:1.55rem;font-weight:600}
+header p{margin:.35rem 0 0;color:var(--suave);font-size:.72rem;letter-spacing:.12em;text-transform:uppercase}
+.disclaimer{background:var(--fondo-2);border:1px solid var(--linea);border-left:3px solid var(--peligro);padding:.85rem 1rem;margin:0 0 1rem;font-size:.9rem;color:var(--suave);border-radius:var(--radio)}
+.disclaimer strong{color:var(--tinta)}
+.tabs{display:flex;flex-wrap:wrap;gap:.4rem;margin:0 0 1rem}
+.tabs button{min-height:44px;padding:.45rem .85rem;font:600 .85rem var(--sans);border:1px solid var(--linea);border-radius:var(--radio);background:var(--fondo-3);color:var(--tinta);cursor:pointer}
+.tabs button.on{background:var(--acento);color:var(--acento-texto);border-color:var(--acento)}
+h2{margin:1.2rem 0 .65rem;font-size:.7rem;letter-spacing:.14em;text-transform:uppercase;color:var(--suave);font-weight:600}
+.panel{background:var(--fondo-2);border:1px solid var(--linea);border-radius:var(--radio);padding:1rem;margin-bottom:.85rem}
+.card{display:block;width:100%;text-align:left;padding:.85rem 1rem;margin:0 0 .5rem;background:var(--fondo-2);border:1px solid var(--linea);border-radius:var(--radio);color:inherit;font:inherit;cursor:pointer}
+.card:hover,.card:focus{border-color:var(--acento)}
+.card .t{font-family:var(--serif);font-weight:600;font-size:1.05rem}
+.card .m{color:var(--suave);font-size:.85rem;margin-top:.25rem}
+button,.btn{min-height:48px;padding:0 1rem;font:600 .95rem var(--sans);border:1px solid var(--linea);border-radius:var(--radio);background:var(--fondo-3);color:var(--tinta);cursor:pointer}
+button.primary,.btn.primary{background:var(--acento);color:var(--acento-texto);border-color:var(--acento)}
+button.danger{color:var(--peligro)}
+button.ghost{background:transparent}
+button.sm{min-height:40px;padding:0 .7rem;font-size:.85rem}
+label.field{display:block;margin:0 0 .75rem}
+label.field span{display:block;font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;color:var(--suave);margin-bottom:.3rem}
+input,select,textarea{width:100%;min-height:48px;padding:.55rem .75rem;font:inherit;background:var(--fondo-3);color:var(--tinta);border:1px solid var(--linea);border-radius:var(--radio)}
+textarea{min-height:6rem;resize:vertical}
+.row{display:flex;flex-wrap:wrap;gap:.5rem;align-items:center}
+.row > *{flex:1 1 auto}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:.5rem}
+@media(max-width:420px){.grid2{grid-template-columns:1fr}}
+.badge{display:inline-block;padding:.15rem .45rem;border:1px solid var(--linea);border-radius:var(--radio);font-size:.72rem;color:var(--acento);letter-spacing:.06em;text-transform:uppercase}
+.badge.alta{color:var(--peligro);border-color:var(--peligro)}
+.badge.media{color:var(--aviso)}
+.badge.baja{color:var(--ok);border-color:var(--ok)}
+.empty{color:var(--suave);font-size:.95rem;padding:.4rem 0}
+.foot{margin-top:1.6rem;color:var(--suave);font-size:.7rem;letter-spacing:.08em;text-transform:uppercase}
+.check-item{display:flex;align-items:flex-start;gap:.65rem;padding:.75rem .9rem;background:var(--fondo-2);border:1px solid var(--linea);border-radius:var(--radio);cursor:pointer;width:100%;text-align:left;font:inherit;color:inherit;margin:0 0 .45rem}
+.check-item.done{opacity:.55}
+.check-item .box{width:22px;height:22px;border:2px solid var(--linea);border-radius:var(--radio);flex-shrink:0;margin-top:.1rem}
+.check-item.done .box{background:var(--ok);border-color:var(--ok)}
+.check-item .txt{flex:1;line-height:1.35}
+.bar{height:10px;background:var(--fondo-3);border:1px solid var(--linea);border-radius:var(--radio);overflow:hidden;margin:.45rem 0}
+.bar > i{display:block;height:100%;background:var(--acento);width:0}
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:.5rem;margin:.5rem 0 1rem}
+.stat{background:var(--fondo-2);border:1px solid var(--linea);border-radius:var(--radio);padding:.75rem}
+.stat .n{font-family:var(--serif);font-size:1.35rem;font-weight:600}
+.stat .l{font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;color:var(--suave);margin-top:.2rem}
+.item{display:flex;gap:.5rem;align-items:flex-start;justify-content:space-between;padding:.75rem .9rem;background:var(--fondo-2);border:1px solid var(--linea);border-radius:var(--radio);margin:0 0 .45rem}
+.item .meta{flex:1;min-width:0}
+.item .meta .ttl{font-weight:600}
+.item .meta .sub{color:var(--suave);font-size:.85rem;margin-top:.15rem}
+.item .amt{font-family:var(--serif);font-weight:600;white-space:nowrap}
+.tip{margin:0 0 .65rem;padding:.75rem .9rem;background:var(--fondo-2);border:1px solid var(--linea);border-left:3px solid var(--acento);border-radius:var(--radio)}
+.tip .tt{font-weight:600;margin:0 0 .25rem}
+.tip .tb{margin:0;color:var(--suave);font-size:.92rem;line-height:1.4}
+.menu-day{margin:0 0 .75rem}
+.menu-day h3{margin:0 0 .4rem;font-family:var(--serif);font-size:1.1rem}
+.menu-day ul{margin:0;padding-left:1.1rem;color:var(--suave)}
+.menu-day li{margin:.2rem 0}
+.muted{color:var(--suave)}
+.ok-txt{color:var(--ok)}
+.bad-txt{color:var(--peligro)}
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);border:0}
+
+</style>
+</head>
+<body>
+<header>
+  <h1>Economía</h1>
+  <p>Les vencimos · offline en este aparato</p>
+</header>
+<nav class="tabs" id="tabs" aria-label="Secciones Economía"></nav>
+<main id="app"></main>
+<p class="foot">lesvencimos.com · sin nube · no es asesor financiero</p>
+<script>
+
+(function(){
+'use strict';
+var DATA = {"cats": [["vivienda", "Vivienda / alquiler / hipoteca"], ["comida", "Comida / supermercado"], ["luz_agua", "Luz / agua / gas"], ["transporte", "Transporte"], ["salud", "Salud / farmacia"], ["ocio", "Ocio / salidas"], ["ropa", "Ropa / calzado"], ["telecom", "Internet / móvil"], ["educacion", "Educación / material"], ["hogar", "Hogar / limpieza"], ["mascotas", "Mascotas"], ["otros", "Otros"]], "compraTips": [["lista", "Compra siempre con lista escrita. Reduce compras impulsivas."], ["vacio", "No vayas con el estómago vacío: compras más de lo necesario."], ["marca", "Prueba marca blanca en básicos (leche, arroz, pasta, papel, detergente)."], ["precio_ud", "Compara €/kg o €/l, no solo el precio del envase."], ["ofertas", "Oferta ≠ ahorro si no lo ibas a comprar. Calcula si lo usarás."], ["fechas", "Revisa fechas de caducidad: lo que caduca pronto a veces está rebajado."], ["temporada", "Verdura y fruta de temporada suelen ser más baratas y sabrosas."], ["congelado", "Congelado (verdura, pescado) puede ser más barato y evita desperdicio."], ["lote", "Compra a granel o packs solo si lo consumes antes de que se estropee."], ["ticket", "Guarda o fotografiá el ticket: facilita devoluciones y control de gasto."], ["local", "Mercado de barrio o frutería: a menudo mejor precio en fresco."], ["hora", "Última hora en panadería/pescadería: a veces rebajas el remanente."], ["agua", "Agua del grifo (si es potable en tu zona) ahorra mucho frente a embotellada."], ["cafe", "Café y bollería de máquina/bar suman: calcula el gasto mensual real."], ["bolsa", "Lleva bolsa reutilizable: evitas pagar bolsa y compras más consciente."], ["online", "Si compras online, suma envío y evita pedidos «por una cosa»."], ["fidelidad", "Tarjetas de fidelización: úsalas solo si no te empujan a gastar más."], ["limpieza", "Diluye lejía/limpiadores según instrucciones; no uses a tope."], ["carne", "Alterna legumbres y huevos con carne: proteína barata y sana."], ["pan", "Congela pan en rebanadas: menos desperdicio."]], "energiaTips": [["Calefacción / termostato", "Bajar 1 °C puede notar en la factura. 19–21 °C suele bastar en salón; dormitorio algo menos. No calientes habitaciones vacías."], ["Termo eléctrico", "Programa el termo en horas valle si tu tarifa lo permite. Baja temperatura a ~55–60 °C (evita legionela pero no hiervas el agua)."], ["Standby y enchufes", "Tele, router auxiliar, cargadores y consolas en standby suman. Usa regletas con interruptor."], ["Ducha vs bañera", "Ducha corta ahorra mucha agua caliente. Cierra el grifo al jabonarte."], ["Fugas de agua", "Un grifo que gotea o una cisterna que pierde pueden malgastar cientos de litros al mes. Repara pronto."], ["Lavadora y lavavajillas", "Programas eco y carga completa. Agua fría o 30–40 °C basta para ropa normal."], ["Nevera", "No dejes la puerta abierta. Descongela si hay escarcha. Temperatura ~4 °C nevera / −18 °C congelador."], ["Iluminación", "LED y apaga luces al salir. Aprovecha luz natural; limpia cristales."], ["Aire acondicionado", "Cierra persianas al sol. 26 °C en verano suele ser razonable. Mantén filtros limpios."], ["Cocina", "Tapa ollas, usa tapas y residual del vitro/inducción. Microondas para poca cantidad."], ["Aislamiento casero", "Burletes en ventanas/puertas, cortinas gruesas, alfombra: menos pérdida de calor sin obras grandes."], ["Secadora", "Tiende al aire si puedes. La secadora es de los electrodomésticos que más gastan."], ["Potencia contratada", "Revisa si puedes bajar potencia (con cuidado de no saltar el ICP). Es un coste fijo mensual."], ["Tarifa y discriminación", "Compara tu factura: peajes, potencia, energía. Cambia hábitos a horas más baratas si aplica."], ["Horno", "Precalienta solo lo necesario. Cocina varios platos seguidos aprovechando el calor."]], "energiaHabits": [["termo_noche", "Reviso o programo el termo (horas valle / apagado si no hace falta)."], ["regletas", "Apago regletas de TV/consola al acostarme."], ["ducha", "Ducha ≤ 5–7 minutos; cierro grifo al enjabonar."], ["lavadora", "Pongo lavadora/lavavajillas a carga completa y eco."], ["luces", "Apago luces y LED decorativos al salir de la habitación."], ["ventilar", "Ventilo 5–10 min con calefacción/AC apagados, luego cierro."], ["nevera", "No meto comida caliente; reviso juntas de la puerta."], ["fugas", "Miro cisterna y grifos por goteos."]], "habitos": [["revisar_gastos", "Reviso los gastos de la semana (app o tickets)."], ["nevera", "Miro nevera y despensa antes de hacer la compra."], ["lista", "Actualizo la lista de la compra con lo que falta de verdad."], ["menu", "Planifico menú de 3–7 días con lo que ya tengo."], ["ahorro", "Aporto algo (aunque sea poco) a una meta de ahorro."], ["facturas", "Reviso si hay recibos o facturas pendientes de mirar."], ["comparar", "Comparo precio/unidad en al menos un producto habitual."], ["desperdicio", "Uso sobras o congelo lo que no voy a comer ya."], ["suministros", "Miro si la calefacción/termo/standby están en modo sensato."], ["prioridades", "Repaso la lista de prioridades / deudas de atención."]], "menu": [["Lunes", [["Desayuno", "Tostadas con tomate y aceite + café/infusión"], ["Comida", "Lentejas estofadas con verdura y arroz"], ["Cena", "Tortilla francesa con ensalada verde"]]], ["Martes", [["Desayuno", "Yogur natural con avena y plátano"], ["Comida", "Pasta con salsa de tomate casera y atún de lata"], ["Cena", "Crema de calabacín + huevo duro"]]], ["Miércoles", [["Desayuno", "Café con leche y tostada de pan integral"], ["Comida", "Garbanzos con espinacas (o acelgas)"], ["Cena", "Arroz salteado con verdura congelada y huevo"]]], ["Jueves", [["Desayuno", "Avena cocida con manzana y canela"], ["Comida", "Pollo al horno (muslos) con patatas y cebolla"], ["Cena", "Sopa de verduras + queso fresco"]]], ["Viernes", [["Desayuno", "Tostadas con aguacate o tomate (según precio/temporada)"], ["Comida", "Merluza o pescado congelado al papillote con arroz"], ["Cena", "Pisto de verduras con huevo"]]], ["Sábado", [["Desayuno", "Huevos revueltos con pan"], ["Comida", "Paella / arroz con verduras (versión económica)"], ["Cena", "Bocadillo de tortilla de patata + ensalada"]]], ["Domingo", [["Desayuno", "Leche / bebida vegetal con cereales o tostadas"], ["Comida", "Cocido ligero o potaje de alubias (ración grande → sobras)"], ["Cena", "Ensalada completa (legumbre + huevo + verdura) o sobras"]]]], "menuTips": ["Planifica el menú mirando primero lo que ya tienes en nevera y despensa.", "Cocina de más un día (lentejas, arroz, pollo) y congela raciones.", "Legumbres secas o en bote: base barata de proteína. Remoja las secas la noche anterior.", "Huevos: versátiles y económicos. Combínalos con verdura.", "Pasta y arroz al vacío o a granel: stock de seguridad sin pasarte de cantidad.", "Verdura de temporada y congelada: menos merma y precio más estable.", "Evita pedir comida a domicilio salvo excepción: el sobrecoste semanal es alto.", "Especias básicas (pimentón, comino, orégano, ajo) mejoran platos simples.", "Agua del grifo y café/té en casa frente a bebidas envasadas diarias.", "Si comes fuera, menú del día o tupper suele salir más barato que carta."], "menuIngredientes": ["Lentejas", "Garbanzos", "Alubias", "Arroz", "Pasta", "Huevos", "Tomate frito / tomates", "Cebolla", "Ajo", "Patatas", "Calabacín", "Espinacas / acelgas", "Zanahoria", "Lechuga / ensalada", "Atún en lata", "Pollo (muslos)", "Pescado congelado", "Yogur natural", "Avena", "Pan", "Aceite de oliva", "Sal y especias", "Plátanos / manzanas", "Queso fresco"]};
+
+var KEYS = {
+  presupuesto: 'lv-economia-presupuesto-v1',
+  gastos: 'lv-economia-gastos-v1',
+  ahorro: 'lv-economia-ahorro-v1',
+  compraTips: 'lv-economia-compra-tips-v1',
+  lista: 'lv-economia-lista-v1',
+  suministros: 'lv-economia-suministros-v1',
+  energiaHabits: 'lv-economia-energia-habits-v1',
+  habitos: 'lv-economia-habitos-v1',
+  prioridades: 'lv-economia-prioridades-v1'
+};
+
+function esc(s){
+  return String(s==null?'':s)
+    .replace(/&/g,'&amp;')
+    .replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;')
+    .replace(/'/g,'&#39;');
+}
+function load(k, fb){
+  try{ var v=JSON.parse(localStorage.getItem(k)||'null'); return v==null?fb:v; }
+  catch(e){ return fb; }
+}
+function save(k,v){ try{ localStorage.setItem(k, JSON.stringify(v)); }catch(e){} }
+function euro(n){
+  n = Number(n)||0;
+  return n.toLocaleString('es-ES',{minimumFractionDigits:2,maximumFractionDigits:2})+' €';
+}
+function todayISO(){
+  var d=new Date();
+  var m=String(d.getMonth()+1); if(m.length<2)m='0'+m;
+  var day=String(d.getDate()); if(day.length<2)day='0'+day;
+  return d.getFullYear()+'-'+m+'-'+day;
+}
+function monthKey(iso){ return String(iso||'').slice(0,7); }
+function uid(){ return 'id'+Date.now().toString(36)+Math.random().toString(36).slice(2,7); }
+function catLabel(id){
+  for(var i=0;i<DATA.cats.length;i++){ if(DATA.cats[i][0]===id) return DATA.cats[i][1]; }
+  return id||'Otros';
+}
+function defaultPresupuesto(){
+  return {
+    ingresos: 0,
+    categorias: DATA.cats.map(function(c){ return {id:c[0], plan:0}; })
+  };
+}
+
+var tab = 'hub';
+var app = document.getElementById('app');
+var tabsEl = document.getElementById('tabs');
+
+var TABS = [
+  {id:'hub', label:'Inicio'},
+  {id:'presupuesto', label:'Presupuesto'},
+  {id:'gastos', label:'Gastos'},
+  {id:'ahorro', label:'Ahorro'},
+  {id:'compra', label:'Compra'},
+  {id:'menu', label:'Menú'},
+  {id:'luz', label:'Luz y agua'},
+  {id:'habitos', label:'Hábitos'},
+  {id:'prioridades', label:'Prioridades'}
+];
+
+function setTab(id){
+  tab = id;
+  renderTabs();
+  render();
+  try{ window.scrollTo(0,0); }catch(e){}
+}
+
+function renderTabs(){
+  tabsEl.innerHTML = '';
+  TABS.forEach(function(t){
+    var b = document.createElement('button');
+    b.type = 'button';
+    b.textContent = t.label;
+    if(t.id===tab) b.className = 'on';
+    b.setAttribute('aria-pressed', t.id===tab ? 'true' : 'false');
+    b.addEventListener('click', function(){ setTab(t.id); });
+    tabsEl.appendChild(b);
+  });
+}
+
+function gastoMesActual(){
+  var gastos = load(KEYS.gastos, []);
+  var mk = monthKey(todayISO());
+  var total = 0;
+  gastos.forEach(function(g){ if(monthKey(g.fecha)===mk) total += Number(g.importe)||0; });
+  return total;
+}
+
+function presupuestoTotales(){
+  var p = load(KEYS.presupuesto, null) || defaultPresupuesto();
+  var plan = 0;
+  (p.categorias||[]).forEach(function(c){ plan += Number(c.plan)||0; });
+  var ingresos = Number(p.ingresos)||0;
+  return {p:p, ingresos:ingresos, plan:plan, resto:ingresos-plan};
+}
+
+function renderHub(){
+  var tot = presupuestoTotales();
+  var gastado = gastoMesActual();
+  var metas = load(KEYS.ahorro, []);
+  var metaTxt = metas.length ? (metas.length+' meta'+(metas.length>1?'s':'')) : 'Sin metas aún';
+  var restoMes = tot.ingresos ? (tot.ingresos - gastado) : null;
+
+  var html = '';
+  html += '<div class="disclaimer"><strong>Aviso.</strong> No es asesor fiscal ni bancario certificado. No recomienda bancos, fondos, seguros ni productos financieros. No garantiza rentabilidades. Las cifras las introduces tú; los ejemplos son orientativos.</div>';
+
+  html += '<div class="stats">';
+  html += '<div class="stat"><div class="n">'+(tot.ingresos?euro(tot.ingresos):'—')+'</div><div class="l">Ingresos plan</div></div>';
+  html += '<div class="stat"><div class="n">'+(gastado?euro(gastado):'0,00 €')+'</div><div class="l">Gastado este mes</div></div>';
+  html += '<div class="stat"><div class="n">'+(restoMes==null?'—':euro(restoMes))+'</div><div class="l">Ingresos − gastos</div></div>';
+  html += '<div class="stat"><div class="n">'+esc(metaTxt)+'</div><div class="l">Ahorro</div></div>';
+  html += '</div>';
+
+  html += '<h2>Acciones rápidas</h2>';
+  html += '<button type="button" class="card" data-go="gastos"><div class="t">Registrar un gasto</div><div class="m">Fecha, categoría, importe y nota</div></button>';
+  html += '<button type="button" class="card" data-go="presupuesto"><div class="t">Ajustar presupuesto</div><div class="m">Ingresos y categorías planificadas</div></button>';
+  html += '<button type="button" class="card" data-go="compra"><div class="t">Lista / comparador de compra</div><div class="m">€/unidad, trucos y lista económica</div></button>';
+
+  html += '<h2>Secciones</h2>';
+  TABS.forEach(function(t){
+    if(t.id==='hub') return;
+    html += '<button type="button" class="card" data-go="'+t.id+'"><div class="t">'+esc(t.label)+'</div></button>';
+  });
+
+  html += '<h2>Datos en este aparato</h2>';
+  html += '<div class="panel"><p class="muted" style="margin-top:0">Todo se guarda en localStorage de este navegador. Sin nube. Puedes exportar un JSON de respaldo.</p>';
+  html += '<div class="row" style="margin-top:.5rem">';
+  html += '<button type="button" class="primary" id="btn-export">Exportar JSON</button>';
+  html += '<button type="button" id="btn-import">Importar JSON</button>';
+  html += '</div>';
+  html += '<label class="field" style="margin-top:.75rem"><span>Pegar JSON para importar</span><textarea id="import-area" placeholder=\'{"version":1,...}\' aria-label="JSON de importación"></textarea></label>';
+  html += '<button type="button" id="btn-import-go">Aplicar importación</button>';
+  html += '<button type="button" class="danger" id="btn-wipe" style="margin-top:.75rem;width:100%">Borrar datos de esta app</button>';
+  html += '</div>';
+
+  app.innerHTML = html;
+
+  app.querySelectorAll('[data-go]').forEach(function(el){
+    el.addEventListener('click', function(){ setTab(el.getAttribute('data-go')); });
+  });
+  document.getElementById('btn-export').addEventListener('click', doExport);
+  document.getElementById('btn-import-go').addEventListener('click', doImport);
+  document.getElementById('btn-wipe').addEventListener('click', doWipe);
+}
+
+function collectAll(){
+  var o = {version:1, app:'lesvencimos-economia', exportedAt: new Date().toISOString()};
+  Object.keys(KEYS).forEach(function(k){
+    o[k] = load(KEYS[k], null);
+  });
+  return o;
+}
+function doExport(){
+  var blob = new Blob([JSON.stringify(collectAll(),null,2)], {type:'application/json'});
+  var a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'lesvencimos-economia-backup.json';
+  a.click();
+  setTimeout(function(){ try{URL.revokeObjectURL(a.href);}catch(e){} }, 2000);
+}
+function doImport(){
+  var raw = (document.getElementById('import-area').value||'').trim();
+  if(!raw){ alert('Pega un JSON exportado antes.'); return; }
+  var data;
+  try{ data = JSON.parse(raw); }catch(e){ alert('JSON no válido.'); return; }
+  if(!data || typeof data!=='object'){ alert('Formato no reconocido.'); return; }
+  if(!confirm('¿Sustituir los datos guardados en este aparato por el JSON pegado?')) return;
+  Object.keys(KEYS).forEach(function(k){
+    if(data[k]!=null) save(KEYS[k], data[k]);
+  });
+  alert('Importación aplicada.');
+  render();
+}
+function doWipe(){
+  if(!confirm('¿Borrar TODOS los datos de Economía en este aparato? No se puede deshacer (salvo que hayas exportado).')) return;
+  if(!confirm('Confirma otra vez: se vaciarán presupuesto, gastos, ahorro, listas y checklists.')) return;
+  Object.keys(KEYS).forEach(function(k){ try{ localStorage.removeItem(KEYS[k]); }catch(e){} });
+  alert('Datos borrados.');
+  render();
+}
+
+function renderPresupuesto(){
+  var tot = presupuestoTotales();
+  var p = tot.p;
+  var html = '';
+  html += '<div class="disclaimer"><strong>Orientativo.</strong> Tú decides las cifras. Esto solo organiza tu plan mensual; no es un producto financiero.</div>';
+  html += '<div class="panel">';
+  html += '<label class="field"><span>Ingresos mensuales (€)</span><input type="number" inputmode="decimal" min="0" step="0.01" id="ing" value="'+(p.ingresos||'')+'" aria-label="Ingresos mensuales"></label>';
+  html += '<h2 style="margin-top:.2rem">Categorías planificadas (€ / mes)</h2>';
+  (p.categorias||[]).forEach(function(c, idx){
+    html += '<label class="field"><span>'+esc(catLabel(c.id))+'</span><input type="number" inputmode="decimal" min="0" step="0.01" data-cat="'+idx+'" value="'+(c.plan||'')+'" aria-label="'+esc(catLabel(c.id))+'"></label>';
+  });
+  html += '<button type="button" class="primary" id="btn-save-pres" style="width:100%">Guardar presupuesto</button>';
+  html += '</div>';
+
+  var pct = tot.ingresos>0 ? Math.round((tot.resto/tot.ingresos)*1000)/10 : null;
+  html += '<div class="stats">';
+  html += '<div class="stat"><div class="n">'+euro(tot.plan)+'</div><div class="l">Total planificado</div></div>';
+  html += '<div class="stat"><div class="n '+(tot.resto<0?'bad-txt':'ok-txt')+'">'+euro(tot.resto)+'</div><div class="l">Restante vs ingresos'+(pct!=null?' ('+pct+'%)':'')+'</div></div>';
+  html += '</div>';
+  if(tot.resto<0) html += '<p class="bad-txt">El plan supera los ingresos. Revisa categorías o ingresos.</p>';
+
+  app.innerHTML = html;
+  document.getElementById('btn-save-pres').addEventListener('click', function(){
+    var ingresos = parseFloat(document.getElementById('ing').value)||0;
+    var cats = (p.categorias||[]).map(function(c, idx){
+      var el = app.querySelector('[data-cat="'+idx+'"]');
+      return {id:c.id, plan: parseFloat(el&&el.value)||0};
+    });
+    // ensure all default cats present
+    var known = {};
+    cats.forEach(function(c){ known[c.id]=c; });
+    DATA.cats.forEach(function(dc){
+      if(!known[dc[0]]) cats.push({id:dc[0], plan:0});
+    });
+    save(KEYS.presupuesto, {ingresos:ingresos, categorias:cats});
+    alert('Presupuesto guardado.');
+    renderPresupuesto();
+  });
+}
+
+function renderGastos(){
+  var gastos = load(KEYS.gastos, []);
+  var filtro = (app.dataset.filtroCat)||'';
+  var mk = monthKey(todayISO());
+  var delMes = gastos.filter(function(g){ return monthKey(g.fecha)===mk; });
+  if(filtro) delMes = delMes.filter(function(g){ return g.cat===filtro; });
+  delMes.sort(function(a,b){ return String(b.fecha).localeCompare(String(a.fecha)); });
+  var total = 0; delMes.forEach(function(g){ total += Number(g.importe)||0; });
+
+  var opts = '<option value="">Todas las categorías</option>';
+  DATA.cats.forEach(function(c){
+    opts += '<option value="'+esc(c[0])+'"'+(filtro===c[0]?' selected':'')+'>'+esc(c[1])+'</option>';
+  });
+  var catOpts = '';
+  DATA.cats.forEach(function(c){ catOpts += '<option value="'+esc(c[0])+'">'+esc(c[1])+'</option>'; });
+
+  var html = '';
+  html += '<div class="panel">';
+  html += '<h2 style="margin-top:0">Nuevo gasto</h2>';
+  html += '<div class="grid2">';
+  html += '<label class="field"><span>Fecha</span><input type="date" id="g-fecha" value="'+todayISO()+'"></label>';
+  html += '<label class="field"><span>Importe (€)</span><input type="number" inputmode="decimal" min="0" step="0.01" id="g-imp"></label>';
+  html += '</div>';
+  html += '<label class="field"><span>Categoría</span><select id="g-cat">'+catOpts+'</select></label>';
+  html += '<label class="field"><span>Nota (opcional)</span><input type="text" id="g-nota" maxlength="120" placeholder="Ej. mercadona, farmacia…"></label>';
+  html += '<button type="button" class="primary" id="btn-add-g" style="width:100%">Añadir gasto</button>';
+  html += '</div>';
+
+  html += '<div class="panel">';
+  html += '<label class="field"><span>Filtro del mes ('+esc(mk)+')</span><select id="g-filtro">'+opts+'</select></label>';
+  html += '<div class="stat" style="margin-bottom:.75rem"><div class="n">'+euro(total)+'</div><div class="l">Total listado</div></div>';
+  if(!delMes.length) html += '<p class="empty">No hay gastos este mes'+(filtro?' con ese filtro':'')+'.</p>';
+  delMes.forEach(function(g){
+    html += '<div class="item"><div class="meta"><div class="ttl">'+esc(catLabel(g.cat))+'</div><div class="sub">'+esc(g.fecha)+(g.nota?' · '+esc(g.nota):'')+'</div></div>';
+    html += '<div style="text-align:right"><div class="amt">'+euro(g.importe)+'</div>';
+    html += '<button type="button" class="sm danger" data-del="'+esc(g.id)+'" style="margin-top:.35rem">Borrar</button></div></div>';
+  });
+  html += '</div>';
+
+  app.innerHTML = html;
+  document.getElementById('g-filtro').addEventListener('change', function(){
+    app.dataset.filtroCat = this.value;
+    renderGastos();
+  });
+  document.getElementById('btn-add-g').addEventListener('click', function(){
+    var fecha = document.getElementById('g-fecha').value || todayISO();
+    var importe = parseFloat(document.getElementById('g-imp').value);
+    var cat = document.getElementById('g-cat').value;
+    var nota = (document.getElementById('g-nota').value||'').trim();
+    if(!(importe>0)){ alert('Indica un importe válido.'); return; }
+    var list = load(KEYS.gastos, []);
+    list.push({id:uid(), fecha:fecha, cat:cat, importe:importe, nota:nota});
+    save(KEYS.gastos, list);
+    document.getElementById('g-imp').value='';
+    document.getElementById('g-nota').value='';
+    renderGastos();
+  });
+  app.querySelectorAll('[data-del]').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      var id = btn.getAttribute('data-del');
+      if(!confirm('¿Borrar este gasto?')) return;
+      var list = load(KEYS.gastos, []).filter(function(g){ return g.id!==id; });
+      save(KEYS.gastos, list);
+      renderGastos();
+    });
+  });
+}
+
+function renderAhorro(){
+  var metas = load(KEYS.ahorro, []);
+  var html = '';
+  html += '<div class="disclaimer"><strong>Solo organización.</strong> Metas de ahorro caseras. No es consejo de inversión ni de productos bancarios.</div>';
+  html += '<div class="panel">';
+  html += '<h2 style="margin-top:0">Nueva meta</h2>';
+  html += '<label class="field"><span>Nombre</span><input type="text" id="a-nom" maxlength="80" placeholder="Ej. Colchón de emergencias"></label>';
+  html += '<div class="grid2">';
+  html += '<label class="field"><span>Objetivo (€)</span><input type="number" inputmode="decimal" min="0" step="0.01" id="a-obj"></label>';
+  html += '<label class="field"><span>Ya aportado (€)</span><input type="number" inputmode="decimal" min="0" step="0.01" id="a-ap" value="0"></label>';
+  html += '</div>';
+  html += '<button type="button" class="primary" id="btn-add-a" style="width:100%">Crear meta</button>';
+  html += '</div>';
+
+  if(!metas.length) html += '<p class="empty">Aún no hay metas. Empieza con una pequeña y realista.</p>';
+  metas.forEach(function(m){
+    var obj = Number(m.objetivo)||0;
+    var ap = Number(m.aportado)||0;
+    var pct = obj>0 ? Math.min(100, Math.round((ap/obj)*1000)/10) : 0;
+    html += '<div class="panel">';
+    html += '<div class="row" style="justify-content:space-between"><div class="ttl" style="font-family:var(--serif);font-size:1.15rem;font-weight:600">'+esc(m.nombre)+'</div>';
+    html += '<button type="button" class="sm danger" data-adel="'+esc(m.id)+'">Eliminar</button></div>';
+    html += '<div class="bar" aria-hidden="true"><i style="width:'+pct+'%"></i></div>';
+    html += '<p class="muted" style="margin:.35rem 0">'+euro(ap)+' / '+euro(obj)+' · '+pct+'%</p>';
+    html += '<div class="row">';
+    html += '<label class="field" style="flex:1;margin:0"><span class="sr-only">Aportar</span><input type="number" inputmode="decimal" min="0" step="0.01" placeholder="Aportar €" data-apin="'+esc(m.id)+'"></label>';
+    html += '<button type="button" class="primary sm" data-ap="'+esc(m.id)+'">Sumar</button>';
+    html += '</div></div>';
+  });
+
+  app.innerHTML = html;
+  document.getElementById('btn-add-a').addEventListener('click', function(){
+    var nombre = (document.getElementById('a-nom').value||'').trim();
+    var objetivo = parseFloat(document.getElementById('a-obj').value)||0;
+    var aportado = parseFloat(document.getElementById('a-ap').value)||0;
+    if(!nombre){ alert('Pon un nombre a la meta.'); return; }
+    if(!(objetivo>0)){ alert('Indica un objetivo en euros.'); return; }
+    var list = load(KEYS.ahorro, []);
+    list.push({id:uid(), nombre:nombre, objetivo:objetivo, aportado:aportado});
+    save(KEYS.ahorro, list);
+    renderAhorro();
+  });
+  app.querySelectorAll('[data-adel]').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      if(!confirm('¿Eliminar esta meta?')) return;
+      var id = btn.getAttribute('data-adel');
+      save(KEYS.ahorro, load(KEYS.ahorro,[]).filter(function(m){ return m.id!==id; }));
+      renderAhorro();
+    });
+  });
+  app.querySelectorAll('[data-ap]').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      var id = btn.getAttribute('data-ap');
+      var inp = app.querySelector('[data-apin="'+id+'"]');
+      var add = parseFloat(inp && inp.value)||0;
+      if(!(add>0)){ alert('Indica cuánto aportas.'); return; }
+      var list = load(KEYS.ahorro, []);
+      list.forEach(function(m){ if(m.id===id) m.aportado = (Number(m.aportado)||0)+add; });
+      save(KEYS.ahorro, list);
+      renderAhorro();
+    });
+  });
+}
+
+function unitFactor(u){
+  u = String(u||'').toLowerCase();
+  if(u==='kg'||u==='l'||u==='ud') return 1;
+  if(u==='g'||u==='ml') return 0.001;
+  return 1;
+}
+function renderCompra(){
+  var tipsState = load(KEYS.compraTips, {});
+  var lista = load(KEYS.lista, []);
+
+  var html = '';
+  html += '<h2>Comparador precio / unidad</h2>';
+  html += '<div class="panel">';
+  html += '<p class="muted" style="margin-top:0">Calcula € por kg, litro o unidad. Orientativo; redondeos posibles.</p>';
+  html += '<div class="grid2">';
+  html += '<label class="field"><span>Precio (€)</span><input type="number" inputmode="decimal" min="0" step="0.01" id="c-precio"></label>';
+  html += '<label class="field"><span>Cantidad</span><input type="number" inputmode="decimal" min="0" step="0.01" id="c-cant"></label>';
+  html += '</div>';
+  html += '<label class="field"><span>Unidad del envase</span><select id="c-ud"><option value="kg">kg</option><option value="g">g</option><option value="l">l</option><option value="ml">ml</option><option value="ud">unidad(es)</option></select></label>';
+  html += '<button type="button" class="primary" id="btn-cmp" style="width:100%">Calcular</button>';
+  html += '<p id="c-res" class="muted" style="margin:.75rem 0 0"></p>';
+  html += '</div>';
+
+  html += '<h2>Trucos de compra (checklist)</h2>';
+  DATA.compraTips.forEach(function(t){
+    var done = !!tipsState[t[0]];
+    html += '<button type="button" class="check-item'+(done?' done':'')+'" data-tip="'+esc(t[0])+'"><span class="box" aria-hidden="true"></span><span class="txt">'+esc(t[1])+'</span></button>';
+  });
+
+  html += '<h2>Lista de la compra económica</h2>';
+  html += '<div class="panel">';
+  html += '<div class="row">';
+  html += '<label class="field" style="flex:1;margin:0"><span class="sr-only">Artículo</span><input type="text" id="l-item" maxlength="80" placeholder="Artículo a comprar"></label>';
+  html += '<button type="button" class="primary sm" id="btn-add-l">Añadir</button>';
+  html += '</div>';
+  if(!lista.length) html += '<p class="empty" style="margin-top:.75rem">Lista vacía.</p>';
+  lista.forEach(function(it){
+    html += '<button type="button" class="check-item'+(it.done?' done':'')+'" data-lid="'+esc(it.id)+'"><span class="box" aria-hidden="true"></span><span class="txt">'+esc(it.nombre)+'</span></button>';
+  });
+  html += '<div class="row" style="margin-top:.5rem">';
+  html += '<button type="button" class="sm" id="btn-clear-done">Quitar marcados</button>';
+  html += '<button type="button" class="sm danger" id="btn-clear-all">Vaciar lista</button>';
+  html += '</div></div>';
+
+  app.innerHTML = html;
+
+  document.getElementById('btn-cmp').addEventListener('click', function(){
+    var precio = parseFloat(document.getElementById('c-precio').value);
+    var cant = parseFloat(document.getElementById('c-cant').value);
+    var ud = document.getElementById('c-ud').value;
+    var out = document.getElementById('c-res');
+    if(!(precio>=0) || !(cant>0)){ out.textContent = 'Indica precio y cantidad válidos.'; return; }
+    var base = cant * unitFactor(ud);
+    if(!(base>0)){ out.textContent = 'Cantidad no válida.'; return; }
+    var per = precio / base;
+    var label = (ud==='g'||ud==='kg') ? '€/kg' : (ud==='ml'||ud==='l') ? '€/l' : '€/ud';
+    out.innerHTML = '<strong style="color:var(--tinta)">'+esc(per.toLocaleString('es-ES',{maximumFractionDigits:3}))+' '+label+'</strong> <span class="muted">(orientativo)</span>';
+  });
+
+  app.querySelectorAll('[data-tip]').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      var id = btn.getAttribute('data-tip');
+      var st = load(KEYS.compraTips, {});
+      st[id] = !st[id];
+      save(KEYS.compraTips, st);
+      renderCompra();
+    });
+  });
+  document.getElementById('btn-add-l').addEventListener('click', function(){
+    var nombre = (document.getElementById('l-item').value||'').trim();
+    if(!nombre) return;
+    var list = load(KEYS.lista, []);
+    list.push({id:uid(), nombre:nombre, done:false});
+    save(KEYS.lista, list);
+    renderCompra();
+  });
+  app.querySelectorAll('[data-lid]').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      var id = btn.getAttribute('data-lid');
+      var list = load(KEYS.lista, []);
+      list.forEach(function(it){ if(it.id===id) it.done = !it.done; });
+      save(KEYS.lista, list);
+      renderCompra();
+    });
+  });
+  document.getElementById('btn-clear-done').addEventListener('click', function(){
+    save(KEYS.lista, load(KEYS.lista,[]).filter(function(it){ return !it.done; }));
+    renderCompra();
+  });
+  document.getElementById('btn-clear-all').addEventListener('click', function(){
+    if(!confirm('¿Vaciar toda la lista?')) return;
+    save(KEYS.lista, []);
+    renderCompra();
+  });
+}
+
+function mergeIngredientesLista(){
+  var list = load(KEYS.lista, []);
+  var nombres = {};
+  list.forEach(function(it){ nombres[String(it.nombre).toLowerCase()] = true; });
+  var added = 0;
+  DATA.menuIngredientes.forEach(function(nom){
+    var k = nom.toLowerCase();
+    if(!nombres[k]){
+      list.push({id:uid(), nombre:nom, done:false});
+      nombres[k] = true;
+      added++;
+    }
+  });
+  save(KEYS.lista, list);
+  return added;
+}
+
+function renderMenu(){
+  var html = '';
+  html += '<div class="disclaimer ok" style="border-left-color:var(--ok)"><strong>Menú semanal orientativo</strong> (cocina española barata). Adáptalo a alergias, temporada y lo que ya tengas en casa. No es dieta médica.</div>';
+  html += '<button type="button" class="primary" id="btn-merge-ing" style="width:100%;margin-bottom:1rem">Pasar ingredientes a lista de la compra</button>';
+  html += '<p id="merge-msg" class="muted" style="margin-top:-.5rem"></p>';
+
+  DATA.menu.forEach(function(day){
+    html += '<div class="panel menu-day"><h3>'+esc(day[0])+'</h3><ul>';
+    day[1].forEach(function(meal){
+      html += '<li><strong style="color:var(--tinta)">'+esc(meal[0])+':</strong> '+esc(meal[1])+'</li>';
+    });
+    html += '</ul></div>';
+  });
+
+  html += '<h2>Tips de menú barato</h2>';
+  DATA.menuTips.forEach(function(t){
+    html += '<div class="tip"><p class="tb" style="margin:0">'+esc(t)+'</p></div>';
+  });
+
+  app.innerHTML = html;
+  document.getElementById('btn-merge-ing').addEventListener('click', function(){
+    var n = mergeIngredientesLista();
+    document.getElementById('merge-msg').textContent = n ? ('Se añadieron '+n+' ingredientes nuevos a la lista (Compra).') : 'La lista ya tenía todos esos ingredientes.';
+  });
+}
+
+function renderLuz(){
+  var regs = load(KEYS.suministros, []);
+  var habits = load(KEYS.energiaHabits, {});
+
+  var html = '';
+  html += '<div class="disclaimer"><strong>Tips por impacto (orientativos).</strong> Cada casa y tarifa es distinta. No recomendamos comercializadoras ni productos.</div>';
+
+  html += '<h2>Consejos (mayor → menor impacto típico)</h2>';
+  DATA.energiaTips.forEach(function(t, i){
+    html += '<div class="tip"><div class="tt">'+(i+1)+'. '+esc(t[0])+'</div><p class="tb">'+esc(t[1])+'</p></div>';
+  });
+
+  html += '<h2>Hábitos de energía / agua</h2>';
+  DATA.energiaHabits.forEach(function(h){
+    var done = !!habits[h[0]];
+    html += '<button type="button" class="check-item'+(done?' done':'')+'" data-eh="'+esc(h[0])+'"><span class="box" aria-hidden="true"></span><span class="txt">'+esc(h[1])+'</span></button>';
+  });
+
+  html += '<h2>Registro de facturas / lecturas (opcional)</h2>';
+  html += '<div class="panel">';
+  html += '<div class="grid2">';
+  html += '<label class="field"><span>Mes (AAAA-MM)</span><input type="month" id="s-mes" value="'+monthKey(todayISO())+'"></label>';
+  html += '<label class="field"><span>Luz (€)</span><input type="number" inputmode="decimal" min="0" step="0.01" id="s-luz"></label>';
+  html += '<label class="field"><span>Agua (€)</span><input type="number" inputmode="decimal" min="0" step="0.01" id="s-agua"></label>';
+  html += '<label class="field"><span>kWh (opc.)</span><input type="number" inputmode="decimal" min="0" step="0.01" id="s-kwh"></label>';
+  html += '<label class="field"><span>m³ agua (opc.)</span><input type="number" inputmode="decimal" min="0" step="0.01" id="s-m3"></label>';
+  html += '</div>';
+  html += '<button type="button" class="primary" id="btn-add-s" style="width:100%">Guardar registro</button>';
+  html += '</div>';
+
+  regs = regs.slice().sort(function(a,b){ return String(b.mes).localeCompare(String(a.mes)); });
+  if(!regs.length) html += '<p class="empty">Sin registros aún.</p>';
+  regs.forEach(function(r){
+    html += '<div class="item"><div class="meta"><div class="ttl">'+esc(r.mes)+'</div>';
+    html += '<div class="sub">Luz '+euro(r.luz)+' · Agua '+euro(r.agua);
+    if(r.kwh) html += ' · '+esc(r.kwh)+' kWh';
+    if(r.m3) html += ' · '+esc(r.m3)+' m³';
+    html += '</div></div>';
+    html += '<button type="button" class="sm danger" data-sdel="'+esc(r.id)+'">Borrar</button></div>';
+  });
+
+  app.innerHTML = html;
+
+  app.querySelectorAll('[data-eh]').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      var id = btn.getAttribute('data-eh');
+      var st = load(KEYS.energiaHabits, {});
+      st[id] = !st[id];
+      save(KEYS.energiaHabits, st);
+      renderLuz();
+    });
+  });
+  document.getElementById('btn-add-s').addEventListener('click', function(){
+    var mes = document.getElementById('s-mes').value;
+    if(!mes){ alert('Indica el mes.'); return; }
+    var rec = {
+      id: uid(),
+      mes: mes,
+      luz: parseFloat(document.getElementById('s-luz').value)||0,
+      agua: parseFloat(document.getElementById('s-agua').value)||0,
+      kwh: document.getElementById('s-kwh').value ? parseFloat(document.getElementById('s-kwh').value) : null,
+      m3: document.getElementById('s-m3').value ? parseFloat(document.getElementById('s-m3').value) : null
+    };
+    var list = load(KEYS.suministros, []).filter(function(x){ return x.mes!==mes; });
+    list.push(rec);
+    save(KEYS.suministros, list);
+    renderLuz();
+  });
+  app.querySelectorAll('[data-sdel]').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      if(!confirm('¿Borrar este registro?')) return;
+      var id = btn.getAttribute('data-sdel');
+      save(KEYS.suministros, load(KEYS.suministros,[]).filter(function(x){ return x.id!==id; }));
+      renderLuz();
+    });
+  });
+}
+
+function weekId(){
+  // ISO-ish week key for soft reset display
+  var d = new Date();
+  var onejan = new Date(d.getFullYear(),0,1);
+  var week = Math.ceil((((d - onejan) / 86400000) + onejan.getDay()+1)/7);
+  return d.getFullYear()+'-W'+week;
+}
+
+function renderHabitos(){
+  var st = load(KEYS.habitos, {week:'', checks:{}});
+  var w = weekId();
+  if(st.week && st.week!==w){
+    // soft: keep structure but show notice; user can reset
+  }
+  var html = '';
+  html += '<div class="disclaimer ok" style="border-left-color:var(--ok)"><strong>Checklist semanal</strong> de economía doméstica. Marca lo hecho. Puedes reiniciar la semana cuando quieras.</div>';
+  html += '<p class="muted">Semana actual: <strong style="color:var(--tinta)">'+esc(w)+'</strong>'+(st.week && st.week!==w?' · Última guardada: '+esc(st.week):'')+'</p>';
+  html += '<button type="button" class="sm" id="btn-reset-h" style="margin-bottom:1rem">Reiniciar checks de la semana</button>';
+
+  var checks = st.checks || {};
+  DATA.habitos.forEach(function(h){
+    var done = !!checks[h[0]];
+    html += '<button type="button" class="check-item'+(done?' done':'')+'" data-hab="'+esc(h[0])+'"><span class="box" aria-hidden="true"></span><span class="txt">'+esc(h[1])+'</span></button>';
+  });
+
+  app.innerHTML = html;
+  document.getElementById('btn-reset-h').addEventListener('click', function(){
+    if(!confirm('¿Poner todos los hábitos de la semana en blanco?')) return;
+    save(KEYS.habitos, {week:w, checks:{}});
+    renderHabitos();
+  });
+  app.querySelectorAll('[data-hab]').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      var id = btn.getAttribute('data-hab');
+      var cur = load(KEYS.habitos, {week:w, checks:{}});
+      if(!cur.checks) cur.checks = {};
+      cur.week = w;
+      cur.checks[id] = !cur.checks[id];
+      save(KEYS.habitos, cur);
+      renderHabitos();
+    });
+  });
+}
+
+function renderPrioridades(){
+  var list = load(KEYS.prioridades, []);
+  var html = '';
+  html += '<div class="disclaimer"><strong>Solo organizativo.</strong> Prioridades y deudas de atención (papel, plazos, gestiones). No es consejo de inversión ni refinanciación.</div>';
+  html += '<div class="panel">';
+  html += '<label class="field"><span>Qué atender</span><input type="text" id="p-nom" maxlength="120" placeholder="Ej. Revisar recibo comunidad"></label>';
+  html += '<label class="field"><span>Prioridad</span><select id="p-nivel"><option value="alta">Alta</option><option value="media" selected>Media</option><option value="baja">Baja</option></select></label>';
+  html += '<label class="field"><span>Nota</span><input type="text" id="p-nota" maxlength="160" placeholder="Opcional"></label>';
+  html += '<button type="button" class="primary" id="btn-add-p" style="width:100%">Añadir</button>';
+  html += '</div>';
+
+  var order = {alta:0, media:1, baja:2};
+  list = list.slice().sort(function(a,b){
+    var da = a.done?1:0, db=b.done?1:0;
+    if(da!==db) return da-db;
+    return (order[a.nivel]||9)-(order[b.nivel]||9);
+  });
+  if(!list.length) html += '<p class="empty">Lista vacía. Anota gestiones o pagos que no quieres olvidar.</p>';
+  list.forEach(function(it){
+    html += '<div class="item'+(it.done?'" style="opacity:.55"':'"')+'>';
+    html += '<div class="meta"><div class="ttl"><span class="badge '+esc(it.nivel)+'">'+esc(it.nivel)+'</span> '+esc(it.nombre)+'</div>';
+    if(it.nota) html += '<div class="sub">'+esc(it.nota)+'</div>';
+    html += '</div><div style="display:flex;flex-direction:column;gap:.35rem">';
+    html += '<button type="button" class="sm" data-ptog="'+esc(it.id)+'">'+(it.done?'Reabrir':'Hecho')+'</button>';
+    html += '<button type="button" class="sm danger" data-pdel="'+esc(it.id)+'">Borrar</button>';
+    html += '</div></div>';
+  });
+
+  app.innerHTML = html;
+  document.getElementById('btn-add-p').addEventListener('click', function(){
+    var nombre = (document.getElementById('p-nom').value||'').trim();
+    if(!nombre){ alert('Escribe qué hay que atender.'); return; }
+    var nivel = document.getElementById('p-nivel').value;
+    var nota = (document.getElementById('p-nota').value||'').trim();
+    var L = load(KEYS.prioridades, []);
+    L.push({id:uid(), nombre:nombre, nivel:nivel, nota:nota, done:false});
+    save(KEYS.prioridades, L);
+    renderPrioridades();
+  });
+  app.querySelectorAll('[data-ptog]').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      var id = btn.getAttribute('data-ptog');
+      var L = load(KEYS.prioridades, []);
+      L.forEach(function(it){ if(it.id===id) it.done = !it.done; });
+      save(KEYS.prioridades, L);
+      renderPrioridades();
+    });
+  });
+  app.querySelectorAll('[data-pdel]').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      if(!confirm('¿Borrar esta prioridad?')) return;
+      var id = btn.getAttribute('data-pdel');
+      save(KEYS.prioridades, load(KEYS.prioridades,[]).filter(function(it){ return it.id!==id; }));
+      renderPrioridades();
+    });
+  });
+}
+
+function render(){
+  if(tab==='hub') return renderHub();
+  if(tab==='presupuesto') return renderPresupuesto();
+  if(tab==='gastos') return renderGastos();
+  if(tab==='ahorro') return renderAhorro();
+  if(tab==='compra') return renderCompra();
+  if(tab==='menu') return renderMenu();
+  if(tab==='luz') return renderLuz();
+  if(tab==='habitos') return renderHabitos();
+  if(tab==='prioridades') return renderPrioridades();
+}
+
+renderTabs();
+render();
+})();
+
+</script>
+</body>
+</html>
