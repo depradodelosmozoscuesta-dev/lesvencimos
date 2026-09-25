@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#0E0E0C">
-<meta name="description" content="Economía doméstica offline — Les vencimos. Presupuesto, gastos, ahorro, compra, menú, luz y agua, Primer millón. Sin nube.">
+<meta name="description" content="Economía doméstica offline — Les vencimos. Presupuesto, gastos, ahorro, patrimonio, asesor educativo, Primer millón. Sin nube.">
 <title>Economía — Les vencimos</title>
 <style>
 
@@ -113,6 +113,17 @@ textarea{min-height:6rem;resize:vertical}
 .cmp-card.win{border-color:var(--ok)}
 .ttl{font-weight:600}
 
+
+.pat-val{margin-top:.35rem;font-size:1.05rem}
+.pat-card .row{gap:.4rem}
+.asesor-card .asesor-nivel{font-size:.72rem;letter-spacing:.06em;text-transform:uppercase;color:var(--suave)}
+.asesor-ul{margin:.2rem 0 .6rem;padding-left:1.15rem;line-height:1.45;font-size:.92rem}
+.asesor-ul li{margin:.25rem 0}
+button.sm.danger{border-color:var(--peligro);color:var(--peligro)}
+.check{display:flex;align-items:flex-start;gap:.5rem;font-size:.9rem;margin:.35rem 0;cursor:pointer}
+.check input{margin-top:.2rem;width:1.1rem;height:1.1rem;flex-shrink:0}
+.chart-compare{display:grid;gap:.5rem}
+
 </style>
 </head>
 <body>
@@ -122,7 +133,7 @@ textarea{min-height:6rem;resize:vertical}
 </header>
 <nav class="tabs" id="tabs" aria-label="Secciones Economía"></nav>
 <main id="app"></main>
-<p class="foot">lesvencimos.com · sin nube · no es asesor financiero</p>
+<p class="foot">lesvencimos.com · sin nube · orientación educativa (no certificado)</p>
 <script>
 (function(){
 'use strict';
@@ -139,7 +150,9 @@ var KEYS = {
   energiaHabits: 'lv-economia-energia-habits-v1',
   habitos: 'lv-economia-habitos-v1',
   prioridades: 'lv-economia-prioridades-v1',
-  millon: 'lv-economia-millon-v1'
+  millon: 'lv-economia-millon-v1',
+  patrimonio: 'lv-economia-patrimonio-v1',
+  asesor: 'lv-economia-asesor-v1'
 };
 
 function esc(s){
@@ -352,6 +365,8 @@ var menuSemana = 1;
 var TABS = [
   {id:'hub', label:'Inicio'},
   {id:'millon', label:'Primer millón'},
+  {id:'patrimonio', label:'Patrimonio'},
+  {id:'asesor', label:'Asesor'},
   {id:'presupuesto', label:'Presupuesto'},
   {id:'gastos', label:'Gastos'},
   {id:'ahorro', label:'Ahorro'},
@@ -427,11 +442,19 @@ function renderHub(){
   html += '<div class="stat"><div class="n">'+esc(metaTxt)+'</div><div class="l">Ahorro</div></div>';
   html += '</div>';
 
+  html += '<h2>Ingresos vs gastos (mes)</h2>';
+  html += '<div class="svg-wrap">'+svgIngresosVsGastos(tot.ingresos||0, gastado, 320, 160);
+  html += '<p class="svg-caption">Barras del mes en curso. Móvil: desplaza si hace falta. Detalle en Gastos / Presupuesto.</p></div>';
+
+  var patTot = totalPatrimonio();
+  html += '<button type="button" class="card" data-go="asesor"><div class="t">Asesor — consejos accionables</div><div class="m">Motor de reglas sobre tus números. Educativo, no colegiado.</div></button>';
+  html += '<button type="button" class="card" data-go="patrimonio"><div class="t">Patrimonio — inventario</div><div class="m">'+(patTot.n? (patTot.n+' bien(es) · orientativo '+euro0(patTot.sum)) : 'Coche, vivienda estimada, electrónica…')+'</div></button>';
+
   html += '<button type="button" class="card" data-go="millon" style="border-color:var(--acento)"><div class="t">Primer millón — simulador</div><div class="m">Capital '+euro0(millon.capital)+' · ahorro '+euro0(millon.ahorroMensual)+'/mes · horizonte '+esc(String(millon.horizonteAnios))+' años. Wizard paso a paso.</div></button>';
 
   if(items.length){
     html += '<h2>Gastos del mes (mini)</h2>';
-    html += '<div class="svg-wrap">'+svgBarrasCats(items, 320, 160)+'<p class="svg-caption">Barras por categoría este mes (top). Detalle en Gastos.</p></div>';
+    html += '<div class="svg-wrap">'+svgBarrasCats(items, 340, 190)+'<p class="svg-caption">Barras por categoría este mes (top 6). Más detalle en Gastos.</p></div>';
   }
   if(tot.plan>0){
     var parts = (tot.p.categorias||[]).filter(function(c){return c.plan>0;}).map(function(c){return {label:catLabel(c.id), value:c.plan};});
@@ -515,7 +538,7 @@ function renderHub(){
   });
 
   html += '<h2>Datos en este aparato</h2>';
-  html += '<div class="panel"><p class="muted" style="margin-top:0">Todo se guarda en localStorage de este navegador. Sin nube. Export/import incluye Primer millón.</p>';
+  html += '<div class="panel"><p class="muted" style="margin-top:0">Todo se guarda en localStorage de este navegador. Sin nube. Export/import JSON v3 incluye Primer millón, patrimonio y estado del asesor.</p>';
   html += '<div class="row" style="margin-top:.5rem">';
   html += '<button type="button" class="primary" id="btn-export">Exportar JSON</button>';
   html += '<button type="button" id="btn-import">Importar JSON</button>';
@@ -535,7 +558,7 @@ function renderHub(){
 }
 
 function collectAll(){
-  var o = {version:2, app:'lesvencimos-economia', exportedAt: new Date().toISOString()};
+  var o = {version:3, app:'lesvencimos-economia', exportedAt: new Date().toISOString()};
   Object.keys(KEYS).forEach(function(k){ o[k] = load(KEYS[k], null); });
   return o;
 }
@@ -562,7 +585,7 @@ function doImport(){
 }
 function doWipe(){
   if(!confirm('¿Borrar TODOS los datos de Economía en este aparato? No se puede deshacer (salvo que hayas exportado).')) return;
-  if(!confirm('Confirma otra vez: se vaciarán presupuesto, gastos, ahorro, listas, checklists y Primer millón.')) return;
+  if(!confirm('Confirma otra vez: se vaciarán presupuesto, gastos, ahorro, listas, checklists, Primer millón, patrimonio y asesor.')) return;
   Object.keys(KEYS).forEach(function(k){ try{ localStorage.removeItem(KEYS[k]); }catch(e){} });
   alert('Datos borrados.');
   render();
@@ -585,6 +608,10 @@ function renderPresupuesto(){
   var html = '';
   html += '<div class="disclaimer"><strong>Orientativo.</strong> Tú decides las cifras. Esto organiza tu plan mensual; no es un producto financiero. Las plantillas son órdenes de magnitud para España, no un estándar oficial.</div>';
 
+  html += '<h2>Ingresos vs plan de gasto</h2>';
+  html += '<div class="svg-wrap">'+svgIngresosVsGastos(tot.ingresos||0, tot.plan||0, 320, 160);
+  html += '<p class="svg-caption">Aquí «gastos» = suma del plan por categorías (no el gastado real del mes).</p></div>';
+
   html += '<h2>Plantillas cargables</h2>';
   html += '<div class="row">';
   html += '<button type="button" class="sm" data-tpl="solo">1 persona</button>';
@@ -605,6 +632,8 @@ function renderPresupuesto(){
   var parts = (p.categorias||[]).filter(function(c){return Number(c.plan)>0;}).map(function(c){return {label:catLabel(c.id), value:Number(c.plan)};});
   if(parts.length){
     html += '<h2>Distribución del plan</h2>';
+    var barPlan = parts.map(function(pt){ return {label:pt.label.split('/')[0].trim(), value:pt.value}; }).slice(0,8);
+    html += '<div class="svg-wrap">'+svgBarrasCats(barPlan, 340, 200)+'<p class="svg-caption">Barras del plan por categoría (legible en móvil).</p></div>';
     html += '<div class="svg-wrap" style="display:flex;flex-direction:column;align-items:center">'+svgAnillo(parts, 200);
     html += '<div class="legend">';
     parts.forEach(function(pt,i){
@@ -687,9 +716,13 @@ function renderGastos(){
 
   var barItems = Object.keys(porCat).map(function(k){ return {label:catLabel(k).split('/')[0].trim(), value:porCat[k], id:k}; });
   barItems.sort(function(a,b){ return b.value-a.value; });
+  html += '<h2>Ingresos plan vs gastado (mes)</h2>';
+  html += '<div class="svg-wrap">'+svgIngresosVsGastos(tot.ingresos||0, totalMes, 320, 160);
+  html += '<p class="svg-caption">Compara tu ingreso planificado con lo ya registrado este mes.</p></div>';
+
   if(barItems.length){
     html += '<h2>Gastos del mes por categoría</h2>';
-    html += '<div class="svg-wrap">'+svgBarrasCats(barItems, 320, 180)+'<p class="svg-caption">Total mes: '+euro(totalMes)+'. Mes '+esc(mk)+'.</p></div>';
+    html += '<div class="svg-wrap">'+svgBarrasCats(barItems, 340, 200)+'<p class="svg-caption">Total mes: '+euro(totalMes)+'. Mes '+esc(mk)+'.</p></div>';
 
     html += '<h2>Qué se come el presupuesto</h2>';
     barItems.forEach(function(it){
@@ -1536,8 +1569,729 @@ function bindMillon(step, m){
   }
 }
 
+/* === PATRIMONIO + ASESOR + CHARTS (inyectado) === */
+function svgIngresosVsGastos(ingresos, gastos, w, h){
+  w = w||320; h = h||160;
+  var padL=44, padR=12, padT=18, padB=36;
+  var maxV = Math.max(1, ingresos, gastos)*1.12;
+  function bar(x, val, color, label){
+    var bw = 56;
+    var bh = (val/maxV)*(h-padT-padB);
+    var y = padT + (h-padT-padB) - bh;
+    var s = '<rect x="'+x+'" y="'+y.toFixed(1)+'" width="'+bw+'" height="'+Math.max(1,bh).toFixed(1)+'" fill="'+color+'" rx="2"/>';
+    s += '<text x="'+(x+bw/2)+'" y="'+(y-4).toFixed(1)+'" fill="#E6E1D6" font-size="11" text-anchor="middle">'+esc(euro0(val))+'</text>';
+    s += '<text x="'+(x+bw/2)+'" y="'+(h-12)+'" fill="#9A9488" font-size="11" text-anchor="middle">'+esc(label)+'</text>';
+    return s;
+  }
+  var gap = ingresos - gastos;
+  var huecoColor = gap>=0 ? '#8F9A72' : '#C46A4A';
+  var svg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 '+w+' '+h+'" width="100%" role="img" aria-label="Ingresos '+euro0(ingresos)+' frente a gastos '+euro0(gastos)+'">';
+  svg += '<rect x="0" y="0" width="'+w+'" height="'+h+'" fill="#1C1A16"/>';
+  // grid lines
+  for(var i=0;i<4;i++){
+    var gy = padT + i*((h-padT-padB)/3);
+    svg += '<line x1="'+padL+'" y1="'+gy.toFixed(1)+'" x2="'+(w-padR)+'" y2="'+gy.toFixed(1)+'" stroke="rgba(230,225,214,0.08)"/>';
+  }
+  var x1 = padL + 28;
+  var x2 = padL + 140;
+  svg += bar(x1, ingresos, '#8F9A72', 'Ingresos');
+  svg += bar(x2, gastos, '#C46A4A', 'Gastos');
+  var midX = padL + 250;
+  svg += '<text x="'+midX+'" y="'+(h/2-6)+'" fill="'+huecoColor+'" font-size="12" text-anchor="middle" font-weight="600">'+(gap>=0?'Superávit':'Hueco')+'</text>';
+  svg += '<text x="'+midX+'" y="'+(h/2+12)+'" fill="'+huecoColor+'" font-size="14" text-anchor="middle">'+esc(euro0(Math.abs(gap)))+'</text>';
+  svg += '</svg>';
+  return svg;
+}
+
+function svgHuecoMini(ingresos, gastos, w, h){
+  w = w||280; h = h||56;
+  var maxV = Math.max(1, ingresos, gastos);
+  var iw = Math.round((ingresos/maxV)*(w-8));
+  var gw = Math.round((gastos/maxV)*(w-8));
+  var gap = ingresos - gastos;
+  var c = gap>=0 ? '#8F9A72' : '#C46A4A';
+  var svg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 '+w+' '+h+'" width="100%" role="img" aria-label="Comparativa rápida ingresos y gastos">';
+  svg += '<text x="4" y="12" fill="#9A9488" font-size="10">Ingresos</text>';
+  svg += '<rect x="4" y="16" width="'+iw+'" height="10" fill="#8F9A72" rx="1"/>';
+  svg += '<text x="4" y="40" fill="#9A9488" font-size="10">Gastos</text>';
+  svg += '<rect x="4" y="44" width="'+gw+'" height="10" fill="#C46A4A" rx="1"/>';
+  svg += '</svg>';
+  return svg;
+}
+
+var PAT_TIPOS = [
+  {id:'coche', label:'Coche / moto'},
+  {id:'vivienda', label:'Vivienda (valor estimado)'},
+  {id:'electronica', label:'Electrónica'},
+  {id:'herramientas', label:'Herramientas'},
+  {id:'otros', label:'Otros'}
+];
+var PAT_SEG = [
+  {id:'utilitario', label:'Utilitario'},
+  {id:'compacto', label:'Compacto'},
+  {id:'familiar', label:'Familiar'},
+  {id:'suv', label:'SUV'},
+  {id:'premium', label:'Premium'},
+  {id:'comercial', label:'Comercial'},
+  {id:'moto', label:'Moto'}
+];
+var PAT_COMB = [
+  {id:'gasolina', label:'Gasolina'},
+  {id:'diesel', label:'Diésel'},
+  {id:'hibrido', label:'Híbrido'},
+  {id:'electrico', label:'Eléctrico'},
+  {id:'otro', label:'Otro'}
+];
+var PAT_EST = [
+  {id:'regular', label:'Regular'},
+  {id:'bueno', label:'Bueno'},
+  {id:'muy_bueno', label:'Muy bueno'}
+];
+
+/* Bases: orden de magnitud € mercado usado España 2020s para vehículo «referencia» ~3 años / ~50 mil km, estado bueno. No es tasación. */
+var SEG_BASE = {
+  utilitario: {lo:5500, mid:9000, hi:13000},
+  compacto: {lo:8000, mid:13000, hi:18000},
+  familiar: {lo:9000, mid:15000, hi:21000},
+  suv: {lo:12000, mid:20000, hi:28000},
+  premium: {lo:18000, mid:30000, hi:45000},
+  comercial: {lo:7000, mid:12000, hi:18000},
+  moto: {lo:2000, mid:4500, hi:8000}
+};
+
+function defaultPatrimonio(){ return {items:[]}; }
+function defaultAsesor(){ return {dismissed:{}, checks:{}}; }
+
+function loadPatrimonio(){
+  var p = load(KEYS.patrimonio, null);
+  if(!p || typeof p!=='object') p = defaultPatrimonio();
+  if(!Array.isArray(p.items)) p.items = [];
+  return p;
+}
+function loadAsesor(){
+  var a = load(KEYS.asesor, null);
+  if(!a || typeof a!=='object') a = defaultAsesor();
+  if(!a.dismissed) a.dismissed = {};
+  if(!a.checks) a.checks = {};
+  return a;
+}
+
+function valorBien(it){
+  if(!it) return {mid:0, lo:0, hi:0, pedido:0, ok:false, why:'Sin datos'};
+  if(it.tipo==='coche') return valorarCoche(it);
+  var v = Number(it.valorUsuario)||0;
+  if(v<=0) return {mid:0, lo:0, hi:0, pedido:0, ok:false, why:'Indica un valor estimado (€)'};
+  return {mid:v, lo:Math.round(v*0.9), hi:Math.round(v*1.1), pedido:Math.round(v*1.05), ok:true, why:'Valor aportado por ti (no tasado)'};
+}
+
+function valorarCoche(it){
+  var seg = it.segmento || '';
+  var base = SEG_BASE[seg];
+  var year = Number(it.anio)||0;
+  var kmRaw = it.km;
+  var km = (kmRaw===''||kmRaw==null)?NaN:Number(kmRaw);
+  var nowY = (new Date()).getFullYear();
+  var missing = [];
+  if(!base) missing.push('segmento');
+  if(!year || year<1985 || year>nowY+1) missing.push('año');
+  if(isNaN(km) || km<0) missing.push('kilómetros');
+  if(!it.combustible) missing.push('combustible');
+  if(!it.estado) missing.push('estado');
+  if(missing.length){
+    return {mid:0, lo:0, hi:0, pedido:0, ok:false, why:'Faltan datos mínimos: '+missing.join(', '), missing:missing};
+  }
+  var age = Math.max(0, nowY - year);
+  // Partimos del mid de segmento (ref. ~3 años) y reescalamos por edad
+  var mid = base.mid;
+  // Factor edad: ref 3 años = 1.0; más nuevo sube, más viejo baja (compuesto ~9%/año tras el 3º; primeros años más suaves)
+  var ageFactor;
+  if(age <= 1) ageFactor = 1.35;
+  else if(age === 2) ageFactor = 1.15;
+  else if(age === 3) ageFactor = 1.00;
+  else {
+    ageFactor = Math.pow(0.91, age - 3);
+  }
+  // Suelo: no bajar de ~12% del mid de segmento (chatarra útil / piezas) salvo edad extrema
+  ageFactor = Math.max(0.12, ageFactor);
+  if(age > 25) ageFactor = Math.max(0.08, ageFactor * 0.85);
+
+  var expectedKm = Math.max(age, 0.5) * 17500; // media orientativa ES 15–20 mil/año
+  var kmFactor = 1;
+  if(km > expectedKm){
+    var excess = (km - expectedKm) / expectedKm;
+    kmFactor = Math.max(0.65, 1 - Math.min(0.35, excess * 0.22));
+  } else if(km < expectedKm * 0.7){
+    var spare = (expectedKm * 0.7 - km) / expectedKm;
+    kmFactor = Math.min(1.12, 1 + spare * 0.15);
+  }
+
+  var estMap = {regular:0.86, bueno:1.0, muy_bueno:1.09};
+  var estFactor = estMap[it.estado] || 1;
+  var combMap = {gasolina:1.0, diesel:(age>=12?0.90:0.97), hibrido:1.08, electrico:(age>=8?0.92:1.04), otro:0.94};
+  var combFactor = combMap[it.combustible] || 1;
+
+  mid = mid * ageFactor * kmFactor * estFactor * combFactor;
+
+  // Si hay precio compra y coche muy nuevo, anclar techo al precio compra * 0.95
+  var compra = Number(it.precioCompra)||0;
+  if(compra>0 && age<=2){
+    mid = Math.min(mid, compra * 0.95);
+  }
+  if(compra>0 && age>=8){
+    // no forzar por compra antigua; solo info
+  }
+
+  var spread = 0.14 + Math.min(0.08, age * 0.004);
+  var lo = Math.round(mid * (1 - spread));
+  var hi = Math.round(mid * (1 + spread));
+  mid = Math.round(mid);
+  var pedido = Math.round(mid * 1.07); // precio pedido típico en anuncios (un poco por encima)
+
+  var why = 'Heurística offline: base segmento «'+seg+'» (orden de magnitud ES 2020s), × edad ('+age+' años), × km ('+Math.round(km)+' vs ~'+Math.round(expectedKm)+' esperados), × estado, × combustible. No usa marca concreta ni red.';
+  return {
+    mid:mid, lo:lo, hi:hi, pedido:pedido, ok:true, why:why,
+    detail:{age:age, expectedKm:Math.round(expectedKm), ageFactor:ageFactor, kmFactor:kmFactor, estFactor:estFactor, combFactor:combFactor, baseMid:base.mid}
+  };
+}
+
+function totalPatrimonio(){
+  var p = loadPatrimonio();
+  var sum = 0, nOk = 0;
+  p.items.forEach(function(it){
+    var v = valorBien(it);
+    if(v.ok){ sum += v.mid; nOk++; }
+  });
+  return {sum:sum, n:p.items.length, nOk:nOk, items:p.items};
+}
+
+function tipoLabel(id){
+  for(var i=0;i<PAT_TIPOS.length;i++) if(PAT_TIPOS[i].id===id) return PAT_TIPOS[i].label;
+  return id||'—';
+}
+
+function renderPatrimonio(){
+  var p = loadPatrimonio();
+  var editId = app.dataset.patEdit || '';
+  var edit = null;
+  if(editId){
+    p.items.forEach(function(it){ if(it.id===editId) edit = it; });
+  }
+  var form = edit || {tipo:'coche', marcaModelo:'', anio:'', km:'', combustible:'gasolina', segmento:'compacto', estado:'bueno', precioCompra:'', valorUsuario:'', notas:'', vehiculo:'coche'};
+
+  var html = '';
+  html += '<div class="disclaimer"><strong>No es perito ni tasador oficial.</strong> La valoración del coche es una <em>heurística offline</em> (orden de magnitud España 2020s). El mercado real varía por zona, demanda, historial, ITV, accidentes y acabado. Contrastar siempre en portales de segunda mano de tu zona. Vivienda y demás: pones tú el € (catastro mental).</div>';
+
+  var tot = totalPatrimonio();
+  html += '<div class="stats">';
+  html += '<div class="stat"><div class="n">'+euro0(tot.sum)+'</div><div class="l">Patrimonio mueble orientativo</div></div>';
+  html += '<div class="stat"><div class="n">'+tot.n+'</div><div class="l">Bienes registrados</div></div>';
+  html += '<div class="stat"><div class="n">'+tot.nOk+'</div><div class="l">Con valoración</div></div>';
+  html += '</div>';
+
+  html += '<div class="panel">';
+  html += '<h2 style="margin-top:0">'+(edit?'Editar bien':'Añadir bien')+'</h2>';
+  html += '<label class="field"><span>Tipo</span><select id="pat-tipo">';
+  PAT_TIPOS.forEach(function(t){
+    html += '<option value="'+t.id+'"'+(form.tipo===t.id?' selected':'')+'>'+esc(t.label)+'</option>';
+  });
+  html += '</select></label>';
+
+  html += '<div id="pat-coche-fields">';
+  html += '<label class="field"><span>Marca / modelo (texto libre)</span><input type="text" id="pat-mm" maxlength="80" value="'+esc(form.marcaModelo||'')+'" placeholder="Ej. compacto 1.2 gasolina — sin inventar marca si no la sabes"></label>';
+  html += '<div class="grid2">';
+  html += '<label class="field"><span>Año matrícula / fabricación</span><input type="number" id="pat-anio" inputmode="numeric" min="1985" max="2030" value="'+(form.anio||'')+'"></label>';
+  html += '<label class="field"><span>Kilómetros</span><input type="number" id="pat-km" inputmode="numeric" min="0" step="100" value="'+(form.km||'')+'"></label>';
+  html += '</div>';
+  html += '<div class="grid2">';
+  html += '<label class="field"><span>Combustible</span><select id="pat-comb">';
+  PAT_COMB.forEach(function(t){ html += '<option value="'+t.id+'"'+(form.combustible===t.id?' selected':'')+'>'+esc(t.label)+'</option>'; });
+  html += '</select></label>';
+  html += '<label class="field"><span>Segmento orientativo</span><select id="pat-seg">';
+  PAT_SEG.forEach(function(t){ html += '<option value="'+t.id+'"'+(form.segmento===t.id?' selected':'')+'>'+esc(t.label)+'</option>'; });
+  html += '</select></label>';
+  html += '</div>';
+  html += '<div class="grid2">';
+  html += '<label class="field"><span>Estado</span><select id="pat-est">';
+  PAT_EST.forEach(function(t){ html += '<option value="'+t.id+'"'+(form.estado===t.id?' selected':'')+'>'+esc(t.label)+'</option>'; });
+  html += '</select></label>';
+  html += '<label class="field"><span>Precio de compra (€, opcional)</span><input type="number" id="pat-compra" inputmode="decimal" min="0" step="1" value="'+(form.precioCompra||'')+'"></label>';
+  html += '</div>';
+  html += '<p class="muted" style="font-size:.82rem;margin:.25rem 0 0">Mínimo para horquilla: año + km + segmento + combustible + estado. La marca/modelo es etiqueta; <strong>no inventamos</strong> precios por marca.</p>';
+  html += '</div>';
+
+  html += '<div id="pat-otros-fields" style="display:none">';
+  html += '<label class="field"><span>Nombre / descripción</span><input type="text" id="pat-nombre" maxlength="80" value="'+esc(form.marcaModelo||'')+'" placeholder="Ej. portátil, taladro, sofá…"></label>';
+  html += '<label class="field"><span>Valor que estimas (€)</span><input type="number" id="pat-valor" inputmode="decimal" min="0" step="1" value="'+(form.valorUsuario||'')+'"></label>';
+  html += '<p class="muted" style="font-size:.82rem">Vivienda: pon el valor que tú estimes (referencia mental / lo que pagarías o pedirías). No hay catastro online aquí.</p>';
+  html += '</div>';
+
+  html += '<label class="field"><span>Notas</span><input type="text" id="pat-notas" maxlength="160" value="'+esc(form.notas||'')+'"></label>';
+  html += '<div class="row">';
+  html += '<button type="button" class="primary" id="btn-pat-save">'+(edit?'Guardar cambios':'Añadir al inventario')+'</button>';
+  if(edit) html += '<button type="button" class="sm" id="btn-pat-cancel">Cancelar edición</button>';
+  html += '<button type="button" class="sm" id="btn-pat-preview">Previsualizar valoración</button>';
+  html += '</div>';
+  html += '<div id="pat-preview" class="tip" style="display:none;margin-top:.75rem"></div>';
+  html += '</div>';
+
+  html += '<h2>Cómo calcula el coche (transparencia)</h2>';
+  html += '<div class="panel prose" style="font-size:.9rem">';
+  html += '<ol style="margin:0;padding-left:1.2rem;line-height:1.45">';
+  html += '<li><strong>Base por segmento</strong> (rango orientativo ES 2020s, ref. ~3 años / estado bueno): utilitario ~5,5–13 k€ · compacto ~8–18 k€ · familiar ~9–21 k€ · SUV ~12–28 k€ · premium ~18–45 k€ · comercial ~7–18 k€ · moto ~2–8 k€.</li>';
+  html += '<li><strong>Edad:</strong> más nuevo que la ref. → sube; más viejo → depreciación ~9 %/año (suelo ~8–12 % del mid).</li>';
+  html += '<li><strong>Km:</strong> media ~17.500 km/año. Por encima → resta; por debajo → ligero plus (tope).</li>';
+  html += '<li><strong>Estado</strong> (regular / bueno / muy bueno) y <strong>combustible</strong> (diésel antiguo y eléctrico viejo penalizan un poco; híbrido suele sumar).</li>';
+  html += '<li>Salida: <strong>horquilla bajo–alto</strong>, valor medio, y «precio pedido típico en anuncios» (~+7 % sobre el medio). Contrastar en portales de tu zona.</li>';
+  html += '</ol></div>';
+
+  html += '<h2>Inventario</h2>';
+  if(!p.items.length){
+    html += '<p class="muted">Aún no hay bienes. Empieza por el coche si lo tienes: es el cálculo más útil offline.</p>';
+  } else {
+    p.items.forEach(function(it){
+      var v = valorBien(it);
+      html += '<div class="card pat-card" style="cursor:default">';
+      html += '<div class="t">'+esc(tipoLabel(it.tipo))+(it.marcaModelo?(' · '+esc(it.marcaModelo)):'')+'</div>';
+      if(it.tipo==='coche'){
+        html += '<div class="m">'+(it.anio?esc(String(it.anio)):'¿año?')+' · '+(it.km!=null&&it.km!==''?esc(String(it.km))+' km':'¿km?')+' · '+esc(it.segmento||'—')+' · '+esc(it.combustible||'—')+' · '+esc(it.estado||'—')+'</div>';
+      } else {
+        html += '<div class="m">Valor usuario: '+(it.valorUsuario?euro0(Number(it.valorUsuario)):'—')+'</div>';
+      }
+      if(v.ok){
+        html += '<div class="pat-val"><strong>'+euro0(v.mid)+'</strong> <span class="muted">horquilla '+euro0(v.lo)+' – '+euro0(v.hi)+'</span></div>';
+        if(it.tipo==='coche') html += '<div class="muted" style="font-size:.82rem">Pedido típico en anuncios (concepto): <strong>'+euro0(v.pedido)+'</strong></div>';
+      } else {
+        html += '<div class="muted" style="color:var(--aviso)">'+esc(v.why)+'</div>';
+      }
+      html += '<div class="row" style="margin-top:.5rem">';
+      html += '<button type="button" class="sm" data-pat-edit="'+esc(it.id)+'">Editar</button>';
+      html += '<button type="button" class="sm danger" data-pat-del="'+esc(it.id)+'">Borrar</button>';
+      html += '</div></div>';
+    });
+  }
+
+  app.innerHTML = html;
+  function syncTipo(){
+    var t = document.getElementById('pat-tipo').value;
+    document.getElementById('pat-coche-fields').style.display = t==='coche'?'block':'none';
+    document.getElementById('pat-otros-fields').style.display = t==='coche'?'none':'block';
+  }
+  syncTipo();
+  document.getElementById('pat-tipo').addEventListener('change', syncTipo);
+
+  function readForm(){
+    var tipo = document.getElementById('pat-tipo').value;
+    var o = {
+      id: edit ? edit.id : uid(),
+      tipo: tipo,
+      notas: (document.getElementById('pat-notas').value||'').trim(),
+      updatedAt: new Date().toISOString()
+    };
+    if(tipo==='coche'){
+      o.marcaModelo = (document.getElementById('pat-mm').value||'').trim();
+      o.anio = document.getElementById('pat-anio').value;
+      o.km = document.getElementById('pat-km').value;
+      o.combustible = document.getElementById('pat-comb').value;
+      o.segmento = document.getElementById('pat-seg').value;
+      o.estado = document.getElementById('pat-est').value;
+      o.precioCompra = document.getElementById('pat-compra').value;
+      o.valorUsuario = '';
+    } else {
+      o.marcaModelo = (document.getElementById('pat-nombre').value||'').trim();
+      o.valorUsuario = document.getElementById('pat-valor').value;
+      o.anio = o.km = o.combustible = o.segmento = o.estado = o.precioCompra = '';
+    }
+    return o;
+  }
+  function showPreview(it){
+    var box = document.getElementById('pat-preview');
+    var v = valorBien(it);
+    box.style.display = 'block';
+    if(!v.ok){
+      box.innerHTML = '<div class="tt">Faltan datos</div><p class="tb">'+esc(v.why)+'</p>';
+      return;
+    }
+    var h = '<div class="tt">Valoración orientativa</div>';
+    h += '<p class="tb"><strong>Horquilla:</strong> '+euro(v.lo)+' – '+euro(v.hi)+'<br>';
+    h += '<strong>Medio:</strong> '+euro(v.mid)+'<br>';
+    if(it.tipo==='coche') h += '<strong>Precio pedido típico (anuncios, concepto):</strong> '+euro(v.pedido)+'<br>';
+    h += '<span class="muted">'+esc(v.why)+'</span></p>';
+    h += '<p class="tb muted">No es tasación. Contrastar en portales de segunda mano de tu zona.</p>';
+    box.innerHTML = h;
+  }
+  document.getElementById('btn-pat-preview').addEventListener('click', function(){ showPreview(readForm()); });
+  document.getElementById('btn-pat-save').addEventListener('click', function(){
+    var o = readForm();
+    var v = valorBien(o);
+    if(o.tipo==='coche' && !v.ok){
+      showPreview(o);
+      alert('Completa los datos mínimos del coche antes de guardar (o guarda igual tras completar).');
+      // still allow save so user doesn't lose draft? Better require min for coche
+      return;
+    }
+    if(o.tipo!=='coche' && !(Number(o.valorUsuario)>0)){
+      alert('Indica un valor estimado en €.');
+      return;
+    }
+    var data = loadPatrimonio();
+    if(edit){
+      data.items = data.items.map(function(it){ return it.id===o.id ? o : it; });
+    } else {
+      data.items.push(o);
+    }
+    save(KEYS.patrimonio, data);
+    delete app.dataset.patEdit;
+    renderPatrimonio();
+  });
+  if(document.getElementById('btn-pat-cancel')){
+    document.getElementById('btn-pat-cancel').addEventListener('click', function(){
+      delete app.dataset.patEdit;
+      renderPatrimonio();
+    });
+  }
+  app.querySelectorAll('[data-pat-edit]').forEach(function(b){
+    b.addEventListener('click', function(){
+      app.dataset.patEdit = b.getAttribute('data-pat-edit');
+      renderPatrimonio();
+    });
+  });
+  app.querySelectorAll('[data-pat-del]').forEach(function(b){
+    b.addEventListener('click', function(){
+      if(!confirm('¿Borrar este bien del inventario?')) return;
+      var id = b.getAttribute('data-pat-del');
+      var data = loadPatrimonio();
+      data.items = data.items.filter(function(it){ return it.id!==id; });
+      save(KEYS.patrimonio, data);
+      renderPatrimonio();
+    });
+  });
+}
+
+function runAsesorRules(){
+  var rules = [];
+  var tot = presupuestoTotales();
+  var gastado = gastoMesActual();
+  var porCat = gastosPorCatMes();
+  var metas = load(KEYS.ahorro, []);
+  var millon = load(KEYS.millon, null) || defaultMillon();
+  var sum = load(KEYS.suministros, null) || {};
+  var pat = totalPatrimonio();
+  var ingresos = tot.ingresos || 0;
+  var planLuz = 0;
+  (tot.p.categorias||[]).forEach(function(c){ if(c.id==='luz_agua') planLuz = Number(c.plan)||0; });
+
+  // 1) Gastos >= ingresos
+  if(ingresos>0 && gastado >= ingresos){
+    var top = Object.keys(porCat).map(function(k){return {k:k,v:porCat[k]};}).sort(function(a,b){return b.v-a.v;}).slice(0,3);
+    var plan7 = [
+      'Días 1–2: anota TODO ≥2 € (sin cortar aún).',
+      'Día 3: elige las 2 categorías top y pon techo semanal escrito.',
+      'Días 4–5: lista férrea + 2 comidas batch; delivery solo emergencia.',
+      'Día 6: cancela o pausa 1 cargo recurrente no esencial.',
+      'Día 7: aparta aunque sea 10 € el día de cobro (o el próximo) y revisa el hueco.'
+    ];
+    rules.push({
+      id:'gasto_sobre_ingreso',
+      nivel:'alto',
+      titulo:'Este mes los gastos alcanzan o superan los ingresos',
+      problema:'Llevas '+euro0(gastado)+' gastados frente a '+euro0(ingresos)+' de ingreso plan. El hueco es '+euro0(gastado-ingresos)+'.',
+      acciones: [
+        'Corta primero: '+(top.map(function(t){return catLabel(t.k).split('/')[0].trim()+' ('+euro0(t.v)+')';}).join(', ')||'categorías top del mes')+'.',
+        'Plan 7 días: '+plan7.join(' ')
+      ],
+      visual:'hueco'
+    });
+  }
+
+  // 2) Sin colchón y hay meta millón
+  var colchon = 0;
+  metas.forEach(function(m){
+    var n = (m.nombre||'').toLowerCase();
+    if(n.indexOf('colch')>=0 || n.indexOf('emerg')>=0) colchon = Math.max(colchon, Number(m.actual)||Number(m.ahorrado)||0);
+  });
+  var capitalMillon = Number(millon.capital)||0;
+  var ahorroMillon = Number(millon.ahorroMensual)||0;
+  if((capitalMillon>0 || ahorroMillon>0 || (millon.step&&millon.step>1)) && colchon < 500 && capitalMillon < 3000){
+    rules.push({
+      id:'colchon_antes_millon',
+      nivel:'alto',
+      titulo:'Apuntas al millón (o ahorras a largo) sin colchón visible',
+      problema:'Sin un colchón mínimo, cualquier avería o retraso de nómina te empuja a deuda cara y tumba el plan largo.',
+      acciones:[
+        'Prioridad nº1: meta «Colchón» parcial (aunque sea 500–1.000 €) en la pestaña Ahorro.',
+        'Congela mentalmente el horizonte millón hasta tener 1 mes de esenciales aparcado.',
+        'Calcula esenciales (vivienda+comida+luz/agua+transporte) y usa esa cifra como norte del colchón.'
+      ]
+    });
+  }
+
+  // 3) Ocio se come mucho %
+  var ocio = porCat.ocio || 0;
+  if(ingresos>0 && ocio >= ingresos*0.12 && ocio>=80){
+    var pct = Math.round(ocio/ingresos*100);
+    rules.push({
+      id:'ocio_alto',
+      nivel:'medio',
+      titulo:'Ocio / salidas se come ~'+pct+' % del ingreso',
+      problema:euro0(ocio)+' en ocio este mes. No es pecado: es aritmética si el colchón o el restante sangran.',
+      acciones:[
+        'Techo semanal de ocio en € (escríbelo). Mitad delivery / mitad salidas.',
+        'Alternativas: menú del día, vermú en casa con amigos, cine en casa 1 de cada 2.',
+        '48 h sin delivery: anota lo no gastado y súmalo a Ahorro.'
+      ]
+    });
+  }
+
+  // 3b delivery-ish: ocio + otros hints via notas? We use ocio and comida overrun
+  var comida = porCat.comida || 0;
+  var planComida = 0;
+  (tot.p.categorias||[]).forEach(function(c){ if(c.id==='comida') planComida = Number(c.plan)||0; });
+  if(planComida>0 && comida >= planComida*1.25 && comida-planComida>=40){
+    rules.push({
+      id:'comida_sobre_plan',
+      nivel:'medio',
+      titulo:'Comida supera el plan en ≥25 %',
+      problema:'Gastado '+euro0(comida)+' vs plan '+euro0(planComida)+'. Suele esconder delivery, monodosis o compra sin lista.',
+      acciones:[
+        'Menú 5 días con lo de nevera (pestaña Menú) antes del súper.',
+        'Una compra semanal con lista férrea; café/bollería de máquina → anotar 7 días.',
+        'Batch domingo: legumbre + arroz + proteína. Sustituye 2 pedidos.'
+      ]
+    });
+  }
+
+  // 4) Luz/agua altos vs plantilla
+  var luzG = porCat.luz_agua || 0;
+  var luzFact = Number(sum.ultimoRecibo)||Number(sum.facturaMedia)||0;
+  var luzRef = Math.max(planLuz, luzFact);
+  if(planLuz>0 && (luzG >= planLuz*1.3 || luzFact >= planLuz*1.3)){
+    rules.push({
+      id:'luz_alta',
+      nivel:'medio',
+      titulo:'Luz / agua por encima de tu plantilla',
+      problema:'Plan '+euro0(planLuz)+'; gasto mes '+(luzG?euro0(luzG):'—')+(luzFact?('; recibo anotado '+euro0(luzFact)):'')+'.',
+      acciones:[
+        'Impacto alto: −1 °C calefacción, duchas cortas, termo ~55–60 °C, regletas off.',
+        'Prueba cisterna (colorante) y grifos; un goteo paga «cine» cada mes.',
+        'En Luz y agua: calcula un recorte realista (10–40 €) y míralo a 10 años a 0 %.'
+      ]
+    });
+  } else if(!planLuz && (luzG>=120 || luzFact>=120)){
+    rules.push({
+      id:'luz_alta_sin_plan',
+      nivel:'medio',
+      titulo:'Suministros altos sin plan de referencia',
+      problema:'Registras '+euro0(Math.max(luzG,luzFact))+' en luz/agua y el presupuesto no tiene techo en esa categoría.',
+      acciones:[
+        'Pon un plan en Presupuesto (categoría Luz/agua/gas) según tu última factura.',
+        'Aplica 3 hábitos de la pestaña Luz y agua esta semana.',
+        'Anota kWh y € de 2–3 periodos: sin números no hay mejora.'
+      ]
+    });
+  }
+
+  // 5) Ahorro mensual 0
+  if(ahorroMillon<=0){
+    var aportando = false;
+    metas.forEach(function(m){ if((Number(m.aportacion)||Number(m.mensual)||0)>0) aportando = true; });
+    if(!aportando){
+      rules.push({
+        id:'ahorro_cero',
+        nivel:'alto',
+        titulo:'Ahorro mensual = 0',
+        problema:'Ni en Primer millón ni en metas aparece una aportación mensual. Sin automatizar el día de cobro, «ya ahorraré» casi nunca llega.',
+        acciones:[
+          'El próximo cobro: aparta primero 20–50 € (ridículo pero sagrado) a meta Colchón.',
+          'Vive con el resto. Si «sobra al final», casi nunca sobra.',
+          'Escribe el importe en Ahorro o en Primer millón para que el simulador deje de mentirte con 0.'
+        ]
+      });
+    }
+  }
+
+  // 6) Coche viejo / km altos y patrimonio concentrado
+  var coches = [];
+  pat.items.forEach(function(it){
+    if(it.tipo==='coche'){
+      var v = valorarCoche(it);
+      coches.push({it:it, v:v});
+    }
+  });
+  coches.forEach(function(c){
+    if(!c.v.ok) return;
+    var age = c.v.detail.age;
+    var km = Number(c.it.km)||0;
+    var share = pat.sum>0 ? (c.v.mid/pat.sum) : 1;
+    if((age>=15 || km>=220000) && share>=0.55 && c.v.mid>=1500){
+      rules.push({
+        id:'coche_concentrado_'+c.it.id,
+        nivel:'medio',
+        titulo:'Patrimonio muy concentrado en un coche antiguo o de km altos',
+        problema:(c.it.marcaModelo?c.it.marcaModelo+' · ':'')+'~'+age+' años, '+Math.round(km)+' km; ~'+Math.round(share*100)+' % del inventario orientativo ('+euro0(c.v.mid)+').',
+        acciones:[
+          'No es un «vende ya». Es un checklist de decisión:',
+          '1) Coste real 12 meses: taller+ITV+seguro+impuesto+ruedas+combustible.',
+          '2) Fiabilidad: ¿te deja tirado? ¿necesitas coche para el curro?',
+          '3) Alternativa: transporte público / segundo coche más barato de mantener — calcula €/mes, no romanticismo.',
+          '4) Si vendes, usa la horquilla de Patrimonio y contrastar anuncios de tu zona; no amplíes deuda de consumo para «estrenar».'
+        ]
+      });
+    }
+  });
+
+  // 7) Presupuesto plan > ingresos
+  if(ingresos>0 && tot.plan > ingresos){
+    rules.push({
+      id:'plan_imposible',
+      nivel:'alto',
+      titulo:'El plan de categorías supera los ingresos',
+      problema:'Plan '+euro0(tot.plan)+' vs ingresos '+euro0(ingresos)+' (resto '+euro0(tot.resto)+'). Es un presupuesto de ficción.',
+      acciones:[
+        'Ajusta categorías hasta resto ≥ 0 (empiea por ocio, ropa, otros).',
+        'Si vivienda+esenciales > ingreso: el tip de café no basta — ingreso, muda o convivencia.',
+        'Guarda de nuevo el presupuesto y vuelve a Asesor.'
+      ],
+      visual:'hueco'
+    });
+  }
+
+  // 8) Deudas de consumo en plan altas
+  var deudas = 0;
+  (tot.p.categorias||[]).forEach(function(c){ if(c.id==='deudas') deudas = Number(c.plan)||0; });
+  var deudasG = porCat.deudas || 0;
+  if(deudas>=150 || deudasG>=150){
+    rules.push({
+      id:'deudas_consumo',
+      nivel:'medio',
+      titulo:'Hay una partida relevante de deudas de consumo',
+      problema:'Plan '+euro0(deudas)+' / gastado '+euro0(deudasG)+'. Sin juzgar: el interés caro come el futuro.',
+      acciones:[
+        'Lista deudas con tipo de interés aproximado y cuota. Mínimo en todas; extra a la más cara (avalancha conceptual).',
+        'No abras deuda nueva de consumo para pagar otra.',
+        'Si la situación es extrema, busca información oficial de tu comunidad sobre sobreendeudamiento — esta app no es ese servicio.'
+      ]
+    });
+  }
+
+  // 9) Sin datos base
+  if(ingresos<=0 && gastado<=0 && !pat.n){
+    rules.push({
+      id:'sin_datos',
+      nivel:'bajo',
+      titulo:'Aún no hay números suficientes',
+      problema:'Sin ingresos/gastos/patrimonio, el asesor solo puede dar el guión de arranque.',
+      acciones:[
+        'Rellena Presupuesto con el mes pasado real.',
+        'Registra gastos 7 días.',
+        'Si tienes coche, añádelo en Patrimonio (año+km+segmento).'
+      ]
+    });
+  }
+
+  // 10) Superávit sano — refuerzo
+  if(ingresos>0 && gastado>0 && gastado < ingresos*0.85 && (ahorroMillon>0 || metas.length)){
+    rules.push({
+      id:'superavit_ok',
+      nivel:'ok',
+      titulo:'Hay margen: no lo dejes al azar',
+      problema:'Gastado '+euro0(gastado)+' sobre '+euro0(ingresos)+'. El sobrante no protegido suele evaporarse.',
+      acciones:[
+        'Automatiza el día de cobro: aparta el ahorro antes del ocio.',
+        'Revisa si el colchón ya cubre ≥1 mes de esenciales; si sí, refuerza la meta escrita.',
+        'Exporta JSON desde Inicio (respaldo offline).'
+      ],
+      visual:'superavit'
+    });
+  }
+
+  return rules;
+}
+
+function renderAsesor(){
+  var st = loadAsesor();
+  var rules = runAsesorRules();
+  var tot = presupuestoTotales();
+  var gastado = gastoMesActual();
+  var html = '';
+  html += '<div class="disclaimer aviso"><strong>Orientación educativa.</strong> No sustituye asesor fiscal/bancario colegiado. No recomienda productos financieros. No recomienda bancos, fondos, ETFs, criptos, seguros ni brokers. Tú decides con tus números.</div>';
+
+  html += '<h2>Tu foto rápida</h2>';
+  html += '<div class="svg-wrap">'+svgHuecoMini(tot.ingresos||0, gastado, 300, 56);
+  html += '<p class="svg-caption">Ingresos plan '+euro0(tot.ingresos||0)+' · gastos del mes '+euro0(gastado)+' · diferencia '+euro0((tot.ingresos||0)-gastado)+'</p></div>';
+
+  var visibles = rules.filter(function(r){ return !st.dismissed[r.id]; });
+  html += '<div class="stats">';
+  html += '<div class="stat"><div class="n">'+visibles.length+'</div><div class="l">Avisos activos</div></div>';
+  html += '<div class="stat"><div class="n">'+rules.length+'</div><div class="l">Reglas evaluadas</div></div>';
+  html += '</div>';
+
+  if(!visibles.length){
+    html += '<div class="panel"><p style="margin:0">No hay avisos activos con tus datos actuales (o los ocultaste). Sigue midiendo: el motor se alimenta de Presupuesto, Gastos, Ahorro, Millón, Patrimonio y Luz/agua.</p></div>';
+  }
+
+  visibles.forEach(function(r){
+    var border = r.nivel==='alto'?'var(--peligro)':(r.nivel==='ok'?'var(--ok)':'var(--aviso)');
+    html += '<div class="panel asesor-card" style="border-left:3px solid '+border+'">';
+    html += '<div class="asesor-nivel">'+esc(r.nivel==='alto'?'Prioritario':(r.nivel==='ok'?'Refuerzo':(r.nivel==='bajo'?'Arranque':'Atención')))+'</div>';
+    html += '<h2 style="margin:.15rem 0 .35rem;font-size:1.05rem">'+esc(r.titulo)+'</h2>';
+    html += '<p class="muted" style="margin:0 0 .5rem">'+esc(r.problema)+'</p>';
+    if(r.visual==='hueco' || r.visual==='superavit'){
+      html += '<div class="svg-wrap">'+svgIngresosVsGastos(tot.ingresos||0, gastado, 320, 150)+'</div>';
+    }
+    html += '<div class="tt" style="font-size:.8rem;letter-spacing:.04em;text-transform:uppercase;color:var(--suave);margin:.4rem 0">Qué hacer</div>';
+    html += '<ul class="asesor-ul">';
+    (r.acciones||[]).forEach(function(a){ html += '<li>'+esc(a)+'</li>'; });
+    html += '</ul>';
+    var checkId = 'chk_'+r.id;
+    var checked = !!st.checks[r.id];
+    html += '<label class="check"><input type="checkbox" data-as-check="'+esc(r.id)+'"'+(checked?' checked':'')+'> Lo estoy trabajando</label>';
+    html += '<div class="row" style="margin-top:.4rem">';
+    html += '<button type="button" class="sm" data-as-dismiss="'+esc(r.id)+'">Ocultar un tiempo</button>';
+    html += '</div></div>';
+  });
+
+  html += '<h2>Reglas que mira el motor</h2>';
+  html += '<div class="panel prose" style="font-size:.88rem"><ul style="margin:0;padding-left:1.1rem;line-height:1.45">';
+  html += '<li>Gastos del mes ≥ ingresos → corte de categorías top + plan 7 días.</li>';
+  html += '<li>Millón/ahorro largo sin colchón → priorizar colchón.</li>';
+  html += '<li>Ocio o comida desbocados vs plan/ingreso → techos y alternativas.</li>';
+  html += '<li>Luz/agua altos vs plantilla → tips de impacto.</li>';
+  html += '<li>Ahorro mensual 0 → automatizar día de cobro.</li>';
+  html += '<li>Coche antiguo/km altos y patrimonio concentrado → checklist de decisión (no «vende ya»).</li>';
+  html += '<li>Plan imposible, deudas de consumo, superávit sin anclar.</li>';
+  html += '</ul><p class="muted" style="margin:.6rem 0 0">Nunca recomienda entidades ni productos. Si ocultas un aviso, puedes restaurarlos abajo.</p>';
+  html += '<button type="button" class="sm" id="btn-as-reset">Restaurar avisos ocultos</button></div>';
+
+  app.innerHTML = html;
+  app.querySelectorAll('[data-as-check]').forEach(function(cb){
+    cb.addEventListener('change', function(){
+      var s = loadAsesor();
+      s.checks[cb.getAttribute('data-as-check')] = !!cb.checked;
+      save(KEYS.asesor, s);
+    });
+  });
+  app.querySelectorAll('[data-as-dismiss]').forEach(function(b){
+    b.addEventListener('click', function(){
+      var s = loadAsesor();
+      s.dismissed[b.getAttribute('data-as-dismiss')] = Date.now();
+      save(KEYS.asesor, s);
+      renderAsesor();
+    });
+  });
+  var rst = document.getElementById('btn-as-reset');
+  if(rst) rst.addEventListener('click', function(){
+    var s = loadAsesor();
+    s.dismissed = {};
+    save(KEYS.asesor, s);
+    renderAsesor();
+  });
+}
+
+
 function render(){
   if(tab==='hub') return renderHub();
+  if(tab==='patrimonio') return renderPatrimonio();
+  if(tab==='asesor') return renderAsesor();
   if(tab==='millon') return renderMillon();
   if(tab==='presupuesto') return renderPresupuesto();
   if(tab==='gastos') return renderGastos();
