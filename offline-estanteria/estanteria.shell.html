@@ -970,12 +970,23 @@
     backdrop-filter: blur(6px);
     -webkit-backdrop-filter: blur(6px);
     pointer-events: auto;
+    touch-action: none;
+    cursor: grab;
+    user-select: none;
+    -webkit-user-select: none;
+  }
+  #desk-status.dragging { cursor: grabbing; }
+  #desk-status.status-custom {
+    right: auto;
   }
   body.desk-immersive #desk-status {
     position: fixed;
     top: max(0.45rem, env(safe-area-inset-top, 0px));
     right: max(0.45rem, env(safe-area-inset-right, 0px));
     z-index: 95;
+  }
+  body.desk-immersive #desk-status.status-custom {
+    right: auto;
   }
   #desk-clock {
     font-family: var(--serif);
@@ -1477,7 +1488,7 @@
           <div id="wid-chips" class="chip-list"></div>
         </div>
         <p class="file-err" id="file-err" aria-live="polite"></p>
-        <p class="hint desk-hint">Barra Ajustes arriba · packs escolares en Varios (desliza) · iconos de color · baldas deslizables · papelera (doble toque) · Disposición / Restaurar. Engranaje si ocultas Ajustes. Mantén pulsado el escritorio (menú oculto) para recuperar el menú.</p>
+        <p class="hint desk-hint">Barra Ajustes arriba · packs escolares en Varios (desliza) · iconos de color · baldas deslizables · arrastra la pastilla hora/papelera · papelera (doble toque) · Disposición / Restaurar. Engranaje si ocultas Ajustes. Mantén pulsado el escritorio (menú oculto) para recuperar el menú.</p>
       </div>
 
       <button type="button" id="btn-show-toolbar" class="menu-peek" aria-label="Mostrar menú" title="Mostrar menú" hidden>
@@ -1505,7 +1516,7 @@
       </div>
     </div>
 
-    <footer class="site-foot">lesvencimos.com · escritorio / estantería offline · <span id="est-build">v20260925d</span></footer>
+    <footer class="site-foot">lesvencimos.com · escritorio / estantería offline · <span id="est-build">v20260925e</span></footer>
   </div>
 
   <div id="mod-viewer" role="dialog" aria-modal="true" aria-labelledby="mod-viewer-title" hidden>
@@ -1704,7 +1715,7 @@
     ];
 
     var urlCache = {};
-    var state = { version: 4, items: [], toolbarCollapsed: false, theme: 'ambar', layoutRev: 0, ajustesHidden: false, contrast: 0, typeSize: 's', deskFont: 'sans', useCount: {}, lastUsed: {} };
+    var state = { version: 4, items: [], toolbarCollapsed: false, theme: 'ambar', layoutRev: 0, ajustesHidden: false, contrast: 0, typeSize: 's', deskFont: 'sans', useCount: {}, lastUsed: {}, statusPos: null };
     var selectedId = null;
     var clockTimer = null;
     var hojaPaint = {}; /* id -> { drawing, last } */
@@ -1712,7 +1723,7 @@
     function loadState() {
       try {
         var raw = localStorage.getItem(LS_KEY);
-        if (!raw) return { version: 4, items: [], toolbarCollapsed: false, theme: 'ambar', layoutRev: 0, ajustesHidden: false, contrast: 0, typeSize: 's', deskFont: 'sans', useCount: {}, lastUsed: {} };
+        if (!raw) return { version: 4, items: [], toolbarCollapsed: false, theme: 'ambar', layoutRev: 0, ajustesHidden: false, contrast: 0, typeSize: 's', deskFont: 'sans', useCount: {}, lastUsed: {}, statusPos: null };
         var data = JSON.parse(raw);
         if (Array.isArray(data)) {
           return {
@@ -1726,6 +1737,7 @@
             deskFont: 'sans',
             useCount: {},
             lastUsed: {},
+            statusPos: null,
             items: data.map(function (it, i) {
               return {
                 id: it.id,
@@ -1757,11 +1769,13 @@
           if (data.deskFont !== 'serif' && data.deskFont !== 'sans') data.deskFont = 'sans';
           if (!data.useCount || typeof data.useCount !== 'object') data.useCount = {};
           if (!data.lastUsed || typeof data.lastUsed !== 'object') data.lastUsed = {};
+          if (data.statusPos && (typeof data.statusPos.x !== 'number' || typeof data.statusPos.y !== 'number')) data.statusPos = null;
+          if (data.statusPos == null) data.statusPos = null;
           data.version = Math.max(4, data.version || 2);
           return data;
         }
       } catch (e) {}
-      return { version: 4, items: [], toolbarCollapsed: false, theme: 'ambar', layoutRev: 0, ajustesHidden: false, contrast: 0, typeSize: 's', deskFont: 'sans', useCount: {}, lastUsed: {} };
+      return { version: 4, items: [], toolbarCollapsed: false, theme: 'ambar', layoutRev: 0, ajustesHidden: false, contrast: 0, typeSize: 's', deskFont: 'sans', useCount: {}, lastUsed: {}, statusPos: null };
     }
 
     function saveState() {
@@ -2173,6 +2187,8 @@
       if (!key || !PRESET_LABELS[key]) return;
       var locals = state.items.filter(function (it) { return it.kind === 'local'; });
       state.items = locals.slice();
+      state.statusPos = null;
+      applyStatusPos();
       if (key === 'completo' || !PRESETS[key]) {
         fillDesktop(true);
         showToast('Disposición · Completo');
@@ -3313,6 +3329,7 @@
       if (pendingBorrarId) markPendingBorrar(pendingBorrarId);
       renderChips();
       tickClocks();
+      applyStatusPos();
       requestAnimationFrame(function () {
         requestAnimationFrame(startShelfDrift);
       });
@@ -3974,6 +3991,111 @@
       }
     }
 
+
+    function statusCoordBox() {
+      var immersive = document.body.classList.contains('desk-immersive');
+      if (immersive) {
+        return { ox: 0, oy: 0, w: window.innerWidth, h: window.innerHeight };
+      }
+      var desk = document.getElementById('desktop');
+      if (!desk) return { ox: 0, oy: 0, w: window.innerWidth, h: window.innerHeight };
+      var r = desk.getBoundingClientRect();
+      return { ox: r.left, oy: r.top, w: desk.clientWidth, h: desk.clientHeight };
+    }
+
+    function clampStatusPos(x, y) {
+      var el = document.getElementById('desk-status');
+      var box = statusCoordBox();
+      var pw = el ? el.offsetWidth : 160;
+      var ph = el ? el.offsetHeight : 44;
+      var maxX = Math.max(0, box.w - pw);
+      var maxY = Math.max(0, box.h - ph);
+      return {
+        x: Math.max(0, Math.min(x, maxX)),
+        y: Math.max(0, Math.min(y, maxY))
+      };
+    }
+
+    function applyStatusPos() {
+      var el = document.getElementById('desk-status');
+      if (!el) return;
+      if (!state.statusPos || typeof state.statusPos.x !== 'number' || typeof state.statusPos.y !== 'number') {
+        el.style.left = '';
+        el.style.top = '';
+        el.style.right = '';
+        el.classList.remove('status-custom');
+        return;
+      }
+      var pos = clampStatusPos(state.statusPos.x, state.statusPos.y);
+      state.statusPos = pos;
+      el.style.left = pos.x + 'px';
+      el.style.top = pos.y + 'px';
+      el.style.right = 'auto';
+      el.classList.add('status-custom');
+    }
+
+    function bindStatusDrag() {
+      var el = document.getElementById('desk-status');
+      if (!el || el.dataset.dragBound === '1') return;
+      el.dataset.dragBound = '1';
+      var THRESH = 49; /* ~7px squared */
+      el.addEventListener('pointerdown', function (e) {
+        if (e.button != null && e.button !== 0) return;
+        var startX = e.clientX, startY = e.clientY;
+        var moved = false;
+        var pid = e.pointerId;
+        var box = statusCoordBox();
+        var rect = el.getBoundingClientRect();
+        var origX = rect.left - box.ox;
+        var origY = rect.top - box.oy;
+        try { el.setPointerCapture(pid); } catch (err) {}
+
+        function move(ev) {
+          var dx = ev.clientX - startX, dy = ev.clientY - startY;
+          if (!moved && (dx * dx + dy * dy) > THRESH) {
+            moved = true;
+            el.classList.add('dragging');
+          }
+          if (!moved) return;
+          if (ev.cancelable) ev.preventDefault();
+          var pos = clampStatusPos(origX + dx, origY + dy);
+          el.style.left = pos.x + 'px';
+          el.style.top = pos.y + 'px';
+          el.style.right = 'auto';
+          el.classList.add('status-custom');
+          state.statusPos = pos;
+        }
+        function end(ev) {
+          try { el.releasePointerCapture(pid); } catch (err) {}
+          el.removeEventListener('pointermove', move);
+          el.removeEventListener('pointerup', end);
+          el.removeEventListener('pointercancel', end);
+          el.classList.remove('dragging');
+          if (moved) {
+            var pos = clampStatusPos(state.statusPos.x, state.statusPos.y);
+            state.statusPos = pos;
+            el.style.left = pos.x + 'px';
+            el.style.top = pos.y + 'px';
+            el.style.right = 'auto';
+            saveState();
+            /* swallow the click that would fire after a drag (trash/gear) */
+            function suppress(ce) {
+              ce.preventDefault();
+              ce.stopPropagation();
+              el.removeEventListener('click', suppress, true);
+            }
+            el.addEventListener('click', suppress, true);
+            setTimeout(function () {
+              el.removeEventListener('click', suppress, true);
+            }, 0);
+          }
+        }
+        el.addEventListener('pointermove', move);
+        el.addEventListener('pointerup', end);
+        el.addEventListener('pointercancel', end);
+      });
+    }
+
     function tickClocks() {
       var now = new Date();
       var hhmm = String(now.getHours()).padStart(2, '0') + ':' +
@@ -4003,7 +4125,7 @@
       });
     }
 
-    var EST_BUILD = 'v20260925d';
+    var EST_BUILD = 'v20260925e';
 
     function layoutPanelSheet() {
       var tb = document.getElementById('desk-toolbar');
@@ -4213,6 +4335,7 @@
       if (typeof state.contrast !== 'number') state.contrast = 0;
       if (state.typeSize !== 's' && state.typeSize !== 'm' && state.typeSize !== 'l') state.typeSize = 's';
       if (state.deskFont !== 'serif') state.deskFont = 'sans';
+      if (!state.statusPos || typeof state.statusPos.x !== 'number' || typeof state.statusPos.y !== 'number') state.statusPos = null;
       applyTheme(state.theme || 'ambar');
       applyToolbarCollapsed();
       applyContrast();
@@ -4472,9 +4595,15 @@
           arrangeToShelves();
         }
       })();
+      bindStatusDrag();
+      applyStatusPos();
       if (clockTimer) clearInterval(clockTimer);
       clockTimer = setInterval(tickClocks, 30000);
       window.addEventListener('resize', function () {
+        if (state.statusPos) {
+          state.statusPos = clampStatusPos(state.statusPos.x, state.statusPos.y);
+          saveState();
+        }
         renderDesktop();
       });
     }

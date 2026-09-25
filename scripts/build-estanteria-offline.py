@@ -100,7 +100,7 @@ def inject_embedded(shell: str, embedded: dict[str, str]) -> str:
 def write_leeme() -> str:
     return """═══════════════════════════════════════
   ESCRITORIO / ESTANTERÍA — Les vencimos
-  Build v20260925d
+  Build v20260925e
   UN SOLO HTML (módulos dentro)
 ═══════════════════════════════════════
 
@@ -123,8 +123,9 @@ abren la app si está instalada (si no, la web).
 Packs escolares en Varios (no hay balda Educación
 ni Rápido). Barra Ajustes compacta arriba (no es
 una balda). Iconos de color vivos.
-Hora y fecha fijas arriba a la derecha; papelera
-ahí (elige app · otra vez para confirmar).
+Hora/fecha/papelera en pastilla arrastrable
+(arriba a la derecha por defecto; Restaurar la
+vuelve). Papelera: elige app · otra vez confirma.
 Disposición: Completo / Casa / Estudio / Educación / Mínimo.
 Calendario opcional como mosaico (sin cortar la
 balda). Sin ficha libre ni redimensionar a mano.
@@ -246,7 +247,7 @@ def main() -> None:
     shutil.rmtree(STAGING)
 
     # Also keep last lettered snapshot name pointing at same bytes (bookmarks).
-    snapshot = ROOT / "downloads" / "estanteria-offline-v20260925d.zip"
+    snapshot = ROOT / "downloads" / "estanteria-offline-v20260925e.zip"
     shutil.copy2(OUT, snapshot)
     print(f"Wrote {OUT} ({OUT.stat().st_size} bytes)")
     print(f"Snapshot {snapshot}")
