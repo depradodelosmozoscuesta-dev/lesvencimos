@@ -6,7 +6,7 @@
   <meta name="referrer" content="strict-origin-when-cross-origin">
   <meta http-equiv="Content-Security-Policy" content="default-src 'self' blob: data:; base-uri 'self'; object-src 'none'; img-src 'self' data: blob:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; font-src 'self' data:; connect-src 'self'; form-action 'self'; media-src 'self' blob:; frame-src 'self' blob: data:">
   <meta name="description" content="Escritorio / Estantería — baldas deslizables por temas, packs escolares en Varios, fondos y papelera.">
-  <meta name="theme-color" content="#5A4030">
+  <meta name="theme-color" content="#2A3038">
   <title>Escritorio / Estantería — Les vencimos</title>
   <style>
   :root {
@@ -20,7 +20,7 @@
     --linea: rgba(242, 240, 234, 0.16);
     --peligro: #D27862;
     --ok: #8F9A72;
-    --serif: "Iowan Old Style", "Palatino Linotype", Palatino, "Times New Roman", Georgia, serif;
+    --serif: "Iowan Old Style", "Palatino Linotype", Palatino, "Noto Serif", "Liberation Serif", "Times New Roman", Georgia, serif;
     --sans: "Segoe UI", system-ui, -apple-system, sans-serif;
     --radio: 8px;
     --max: 44rem;
@@ -122,7 +122,16 @@
     --ico-disk: rgba(40,25,10,0.22); --label-ink: #FFF6E8;
   }
   * { box-sizing: border-box; }
+  html {
+    color-scheme: dark;
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+  }
   html, body { margin: 0; min-height: 100%; }
+  body.theme-papel,
+  body.theme-cuaderno {
+    color-scheme: light;
+  }
   body {
     color: var(--tinta);
     background: var(--fondo);
@@ -613,17 +622,26 @@
     position: relative;
     z-index: 2;
     scrollbar-width: thin;
-    scrollbar-color: color-mix(in srgb, var(--suave) 45%, transparent) transparent;
+    scrollbar-color: var(--suave) transparent;
+    touch-action: pan-x;
     /* one line only — never wrap tiles to a 2nd row */
     flex-direction: row;
     white-space: nowrap;
   }
   .shelf-icons::-webkit-scrollbar { height: 4px; }
   .shelf-icons::-webkit-scrollbar-thumb {
-    background: color-mix(in srgb, var(--suave) 40%, transparent);
+    background: var(--suave);
     border-radius: 4px;
   }
   .shelf-icons::-webkit-scrollbar-track { background: transparent; }
+  @supports (color: color-mix(in srgb, red 50%, blue)) {
+    .shelf-icons {
+      scrollbar-color: color-mix(in srgb, var(--suave) 45%, transparent) transparent;
+    }
+    .shelf-icons::-webkit-scrollbar-thumb {
+      background: color-mix(in srgb, var(--suave) 40%, transparent);
+    }
+  }
   /* Module launch tile — fixed box; opaque so it covers the shelf ledge */
   .launch-tile {
     position: relative;
@@ -645,7 +663,7 @@
     color: var(--tinta);
     cursor: pointer;
     -webkit-tap-highlight-color: transparent;
-    touch-action: pan-x manipulation;
+    touch-action: manipulation;
     overflow: visible;
     box-shadow: 0 1px 0 color-mix(in srgb, var(--fondo-2) 55%, transparent);
   }
@@ -726,14 +744,10 @@
     width: var(--desk-ico); height: var(--desk-ico);
     overflow: hidden;
     border-radius: 50%;
-    /* opaque disk — no transparent mixes so ledge cannot show through */
+    /* solid fallback first — Chromium without reliable color-mix */
     background-color: var(--desk-tile-bg, var(--fondo-3));
-    background-image:
-      linear-gradient(160deg,
-        color-mix(in srgb, var(--ico-accent) 48%, var(--fondo-3)) 0%,
-        color-mix(in srgb, var(--ico-accent) 32%, var(--fondo-3)) 55%,
-        color-mix(in srgb, var(--fondo-3) 88%, var(--ico-accent) 12%) 100%);
-    border: 2px solid color-mix(in srgb, var(--ico-accent) 78%, var(--linea));
+    background-image: none;
+    border: 2px solid var(--ico-accent);
     box-shadow:
       0 2px 10px rgba(0,0,0,0.22),
       inset 0 1px 0 rgba(255,255,255,0.18),
@@ -742,6 +756,16 @@
     pointer-events: none;
     transition: border-color 0.15s ease, box-shadow 0.15s ease;
     color: var(--ico-accent);
+  }
+  @supports (color: color-mix(in srgb, red 50%, blue)) {
+    .launch-tile .mod-ico-wrap {
+      background-image:
+        linear-gradient(160deg,
+          color-mix(in srgb, var(--ico-accent) 48%, var(--fondo-3)) 0%,
+          color-mix(in srgb, var(--ico-accent) 32%, var(--fondo-3)) 55%,
+          color-mix(in srgb, var(--fondo-3) 88%, var(--ico-accent) 12%) 100%);
+      border: 2px solid color-mix(in srgb, var(--ico-accent) 78%, var(--linea));
+    }
   }
   .launch-tile:hover .mod-ico-wrap,
   .launch-tile:focus-visible .mod-ico-wrap {
@@ -818,6 +842,7 @@
     max-height: 85%;
   }
   .launch-tile .mod-ico-label {
+    font-family: var(--sans);
     font-size: var(--desk-label);
     font-weight: 700;
     color: var(--label-ink);
@@ -826,6 +851,7 @@
     overflow: hidden;
     white-space: normal;
     display: -webkit-box;
+    line-clamp: 2;
     -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
     line-height: 1.15;
@@ -1320,7 +1346,7 @@
   #est-toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
   </style>
 </head>
-<body class="theme-corcho">
+<body class="theme-ambar">
   <div class="wrap">
     <header class="top">
       <div class="brand" aria-label="Les vencimos">
@@ -1356,6 +1382,7 @@
           <input id="local-file" type="file" accept=".html,.htm,text/html">
           <!-- Fondo / contraste / tipo: barra Ajustes (compacta, no balda) -->
           <select id="theme-sel" class="theme-sel" aria-label="Fondo del escritorio" title="Fondo del escritorio" hidden>
+            <option value="ambar">Ámbar</option>
             <option value="azul">Mesa oscura</option>
             <option value="cuaderno">Cuaderno</option>
             <option value="pizarra">Pizarra</option>
@@ -1426,7 +1453,7 @@
       </div>
     </div>
 
-    <footer class="site-foot">lesvencimos.com · escritorio / estantería offline · <span id="est-build">v20260924v</span></footer>
+    <footer class="site-foot">lesvencimos.com · escritorio / estantería offline · <span id="est-build">v20260925b</span></footer>
   </div>
 
   <div id="mod-viewer" role="dialog" aria-modal="true" aria-labelledby="mod-viewer-title" hidden>
@@ -1625,7 +1652,7 @@
     ];
 
     var urlCache = {};
-    var state = { version: 4, items: [], toolbarCollapsed: false, theme: 'corcho', layoutRev: 0, ajustesHidden: false, contrast: 0, typeSize: 'm', deskFont: 'sans', useCount: {}, lastUsed: {} };
+    var state = { version: 4, items: [], toolbarCollapsed: false, theme: 'ambar', layoutRev: 0, ajustesHidden: false, contrast: 0, typeSize: 'm', deskFont: 'sans', useCount: {}, lastUsed: {} };
     var selectedId = null;
     var clockTimer = null;
     var hojaPaint = {}; /* id -> { drawing, last } */
@@ -1639,7 +1666,7 @@
           return {
             version: 4,
             toolbarCollapsed: false,
-            theme: 'corcho',
+            theme: 'ambar',
             layoutRev: 0,
             ajustesHidden: false,
             contrast: 0,
@@ -1669,7 +1696,7 @@
         }
         if (data && Array.isArray(data.items)) {
           if (typeof data.toolbarCollapsed !== 'boolean') data.toolbarCollapsed = false;
-          if (!data.theme || THEMES.indexOf(data.theme) < 0) data.theme = 'corcho';
+          if (!data.theme || THEMES.indexOf(data.theme) < 0) data.theme = 'ambar';
           if (typeof data.layoutRev !== 'number') data.layoutRev = 0;
           if (typeof data.ajustesHidden !== 'boolean') data.ajustesHidden = false;
           if (typeof data.contrast !== 'number') data.contrast = 0;
@@ -2137,7 +2164,7 @@
     }
 
     function applyTheme(name) {
-      if (THEMES.indexOf(name) < 0) name = 'corcho';
+      if (THEMES.indexOf(name) < 0) name = 'ambar';
       state.theme = name;
       THEMES.forEach(function (t) { document.body.classList.remove('theme-' + t); });
       document.body.classList.add('theme-' + name);
@@ -3010,15 +3037,15 @@
     }
 
     function cycleTheme() {
-      var order = ['corcho', 'azul', 'cuaderno', 'pizarra', 'verde', 'papel'];
-      var cur = state.theme || 'corcho';
+      var order = ['ambar', 'corcho', 'azul', 'cuaderno', 'pizarra', 'verde', 'papel'];
+      var cur = state.theme || 'ambar';
       var ix = order.indexOf(cur);
       var next = order[(ix < 0 ? 0 : ix + 1) % order.length];
       applyTheme(next);
       saveState();
       showToast('Fondo · ' + ({
         azul: 'Mesa', cuaderno: 'Cuaderno', pizarra: 'Pizarra',
-        corcho: 'Corcho', verde: 'Verde', papel: 'Papel'
+        corcho: 'Corcho', verde: 'Verde', papel: 'Papel', ambar: 'Ámbar'
       }[next] || next));
       renderDesktop();
     }
@@ -3026,7 +3053,7 @@
     function themeLabel(name) {
       return ({
         azul: 'Mesa', cuaderno: 'Cuaderno', pizarra: 'Pizarra',
-        corcho: 'Corcho', verde: 'Verde', papel: 'Papel', ambar: 'Mesa'
+        corcho: 'Corcho', verde: 'Verde', papel: 'Papel', ambar: 'Ámbar'
       })[name] || name;
     }
 
@@ -3089,12 +3116,12 @@
       var sel = document.createElement('select');
       sel.setAttribute('aria-label', 'Fondo del escritorio');
       [
-        ['corcho', 'Corcho'], ['azul', 'Mesa'], ['cuaderno', 'Cuaderno'],
+        ['ambar', 'Ámbar'], ['corcho', 'Corcho'], ['azul', 'Mesa'], ['cuaderno', 'Cuaderno'],
         ['pizarra', 'Pizarra'], ['verde', 'Verde'], ['papel', 'Papel']
       ].forEach(function (pair) {
         var o = document.createElement('option');
         o.value = pair[0]; o.textContent = pair[1];
-        if ((state.theme || 'corcho') === pair[0]) o.selected = true;
+        if ((state.theme || 'ambar') === pair[0]) o.selected = true;
         sel.appendChild(o);
       });
       sel.addEventListener('change', function () {
@@ -3923,7 +3950,7 @@
       });
     }
 
-    var EST_BUILD = 'v20260925a';
+    var EST_BUILD = 'v20260925b';
 
     function layoutPanelSheet() {
       var tb = document.getElementById('desk-toolbar');
@@ -4133,7 +4160,7 @@
       if (typeof state.contrast !== 'number') state.contrast = 0;
       if (state.typeSize !== 's' && state.typeSize !== 'm' && state.typeSize !== 'l') state.typeSize = 'm';
       if (state.deskFont !== 'serif') state.deskFont = 'sans';
-      applyTheme(state.theme || 'corcho');
+      applyTheme(state.theme || 'ambar');
       applyToolbarCollapsed();
       applyContrast();
       applyTypeSize();
