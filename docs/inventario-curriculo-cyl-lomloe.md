@@ -688,6 +688,7 @@ Tipos de materias: **comunes**, **específicas de modalidad**, **optativas**. Re
 5. **Primaria**: bloques de CN/CS CyL usan etiquetas «Cultura científica / Tecnología y digitalización / …» (estructura propia CyL sobre el RD 157/2022).
 
 ### Publicación completa (Les vencimos)
+- **1º ESO Francés / Segunda Lengua Extranjera**: pack completo L01–L40/40 (hub + ZIP offline, Decreto 39/2022 CyL LOMLOE). Revisor Dios CONFIRMA (0 críticos). No es Inglés.
 - **1º ESO Inglés / Lengua Extranjera**: pack completo L01–L40/40 (hub + ZIP offline, Decreto 39/2022 CyL LOMLOE). Revisor Dios CONFIRMA (0 críticos). No es Francés.
 - **1º ESO Religión Católica**: pack completo L01–L30/30 (hub + ZIP offline, marco confesional BOE-A-2022-10452). Revisor Dios CONFIRMA (0 críticos). No es Alternativa laica.
 - **1º ESO Alternativa a la Religión**: pack completo L01–L28/28 (hub + ZIP offline). Revisor Dios CONFIRMA (0 críticos).
