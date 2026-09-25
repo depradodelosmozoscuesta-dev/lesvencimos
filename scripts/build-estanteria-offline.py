@@ -14,7 +14,6 @@ STAGING = ROOT / "downloads" / ".estanteria-staging"
 EMBED_SOURCES = {
     "hogar": ROOT / "modulos" / "hogar.html",
     "salud": ROOT / "modulos" / "salud.html",
-    "radio": ROOT / "modulos" / "radio.html",
     "qr": ROOT / "modulos" / "qr.html",
     "electro": ROOT / "modulos" / "electricidad.html",
     "brico": ROOT / "modulos" / "bricolaje.html",
@@ -104,7 +103,7 @@ def inject_embedded(shell: str, embedded: dict[str, str]) -> str:
 def write_leeme() -> str:
     return """═══════════════════════════════════════
   ESCRITORIO / ESTANTERÍA — Les vencimos
-  Build v20260925o
+  Build v20260925p
   UN SOLO HTML (módulos dentro)
 ═══════════════════════════════════════
 
@@ -135,7 +134,7 @@ vuelve). Papelera: elige app · otra vez confirma.
 Disposición: Completo / Casa / Estudio / Educación / Mínimo.
 Calendario opcional como mosaico (sin cortar la
 balda). Sin ficha libre ni redimensionar a mano.
-Al abrir ya viene llena. Sin Radio ni Alarma Cuba.
+Al abrir ya viene llena. Sin Radio (necesita internet; pack aparte) ni Alarma Cuba.
 
 Los módulos (Hogar, Salud, QR, Electricidad,
 Bricolaje, Jardín, Economía, Clima, Moda, Legal, Mascotas, Campo, Resiliencia, Apagón, Calculadora,
@@ -208,7 +207,7 @@ def main() -> None:
         raise SystemExit("shell missing EMBEDDED placeholder (need estanteria.shell.html)")
 
     embedded = build_embedded()
-    for need in ("hogar", "salud", "radio", "qr", "electro", "brico", "jardin", "economia", "clima", "moda", "legal", "mascotas", "campo", "supervive", "apagon", "caja", "gym", "guitarra", "calc", "medica", "medita", "auxilios", "escritura", "dibujo", "info", "guias", "mapas", "alarma", "biblio"):
+    for need in ("hogar", "salud", "qr", "electro", "brico", "jardin", "economia", "clima", "moda", "legal", "mascotas", "campo", "supervive", "apagon", "caja", "gym", "guitarra", "calc", "medica", "medita", "auxilios", "escritura", "dibujo", "info", "guias", "mapas", "alarma", "biblio"):
         if need not in embedded:
             raise SystemExit(f"missing embed {need}")
 
@@ -253,7 +252,7 @@ def main() -> None:
     shutil.rmtree(STAGING)
 
     # Also keep last lettered snapshot name pointing at same bytes (bookmarks).
-    snapshot = ROOT / "downloads" / "estanteria-offline-v20260925o.zip"
+    snapshot = ROOT / "downloads" / "estanteria-offline-v20260925p.zip"
     shutil.copy2(OUT, snapshot)
     print(f"Wrote {OUT} ({OUT.stat().st_size} bytes)")
     print(f"Snapshot {snapshot}")
