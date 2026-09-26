@@ -651,14 +651,28 @@ button:disabled{opacity:.4;cursor:default}
     tocEl.querySelectorAll('[data-sec]').forEach(b=>b.onclick=()=>openSeccion(b.getAttribute('data-sec')));
   }
 
+  function openHogarLavado(){
+    try{
+      if(window.parent && window.parent !== window){
+        window.parent.postMessage({ lvOpen: 'hogar' }, '*');
+        return;
+      }
+    }catch(e){}
+    try{ location.href = 'hogar.html#lavado'; }catch(e2){}
+  }
   function openSeccion(id){
     const s=SECCIONES.find(x=>x.id===id);
     if(!s) return;
     seccionActual=s; vista='seccion'; tocEl.classList.add('hidden');
+    var puente = (id==='cuidado')
+      ? '<p class="sub" style="margin-top:.65rem">Colada de casa (rutina semanal) → <button type="button" class="ghost" id="go-hogar-lavado" style="text-decoration:underline;padding:0;border:0;background:none;color:inherit;cursor:pointer;font:inherit">Hogar · Lavado</button></p>'
+      : '';
     app.innerHTML='<div class="back"><button type="button" class="ghost" id="back">← Temas</button></div>'+
-      '<article class="lesson"><h2>'+esc(s.titulo)+'</h2><p class="sub">'+esc(s.meta)+'</p>'+
+      '<article class="lesson"><h2>'+esc(s.titulo)+'</h2><p class="sub">'+esc(s.meta)+'</p>'+puente+
       '<div class="toc" id="subtoc"></div></article>';
     document.getElementById('back').onclick=showToc;
+    var goH=document.getElementById('go-hogar-lavado');
+    if(goH) goH.onclick=openHogarLavado;
     const sub=document.getElementById('subtoc');
     sub.innerHTML=s.lessons.map(l=>'<button type="button" data-les="'+l.id+'"><div class="t">'+esc(l.titulo)+'</div><div class="m">'+esc(l.meta)+(l.tool?' · herramienta':'')+'</div></button>').join('');
     sub.querySelectorAll('[data-les]').forEach(b=>b.onclick=()=>{

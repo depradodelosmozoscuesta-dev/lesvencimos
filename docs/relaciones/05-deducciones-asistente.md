@@ -1,37 +1,72 @@
-# Deducciones para el futuro asistente personal
+# 05 — Deducciones del asistente (modos)
 
-Contexto: asistente offline = corazón; módulos = opcionales; privacidad en el aparato.  
-**No mezclar** con Ruleta/patente ni red ciudadana/juego (fuera de alcance).
+Fecha: 26 sep 2026 · Europe/Madrid (UTC+2)  
+Cómo debe razonar un asistente futuro sobre este catálogo **sin** inventar módulos ni duplicar datos.
 
 ---
 
-## Modos sugeridos (núcleo)
+## Modos de asistencia
 
-| Modo | Módulos que enciende | Datos locales que lee |
-|---|---|---|
-| **Hogar** | Hogar, Economía (compra/menú), Clima, Jardín (opcional), Moda lavado | `lv-hogar-*`, lista compra unificada, hábitos energía |
-| **Salud** | Medicación (fuente), Salud (vista), Primeros auxilios (emergencia), Gimnasio/Meditación (opcional) | medicinas Hoy; no diagnosticar |
-| **Agenda** | *(hueco: no hay módulo)* — nacer en núcleo | eventos propios del asistente; deep-link Listas Hogar / Prioridades Economía |
-| **Resiliencia** | Apagón, Supervivencia, Campo, Electricidad, Radio, Mapas | checklists; 112 siempre visible |
-| **Casa legal/€** | Economía, Legal-casa, Hogar mantén. | presupuesto, patrimonio, avisos derrama |
-| **Cultura** | Biblioteca, Guitarra, Tinta×2, Guías, Informática | progreso lecciones Informática; no mezclar con Profesor cole |
+### Modo A — Enrutado (router)
+Entrada: frase del usuario. Salida: 1 módulo + tab/lección sugerida + aviso de frontera.
 
-## Reglas de diseño
+Ejemplos:
+- «lista de la compra» → Hogar `super` *o* Economía `compra` (misma clave).
+- «símbolo de lavado» → Moda `simbolos`.
+- «se fue la luz» → Apagón primero; Electricidad si pregunta por el cuadro/enchufe.
+- «pastilla de las 8» → Medicación (simple) / Salud Pastillas.
 
-1. El asistente **no copia** el HTML del módulo: deep-link + resumen de 1–2 datos.
-2. Una sola fuente de verdad por dominio (compra; medicación).
-3. Tonos: educativo / prudente / 112 — nunca consejo médico/legal/fiscal vinculante.
-4. Packs pesados: el asistente detecta «módulo no instalado» → CTA Añadir módulo / ZIP.
-5. Cuba: no sugerir Alarma/Central en home; Informática puede mencionar Central como lección.
-6. Perfiles especiales (`asistente-alzheimer.html`, `asistente-negocios.html`) viven aparte; este mapa es el asistente general doméstico.
+### Modo B — Puente (bridge)
+Cuando la necesidad cruza dos dueños: ofrecer **secuencia**, no fusión.
 
-## Señales situacionales (ejemplos)
+Ejemplo: «pasar menos frío gastando menos» → Clima `calefaccion`/`frio` **luego** Economía `luz`.
 
-- Sin luz / usuario dice apagón → modo Resiliencia (Apagón primero).
-- Ola calor → Clima + Economía luz + Hogar nevera.
-- «Lista de la compra» → lista unificada.
-- «Pastilla» → Medicación Hoy.
-- «Viaje a Salamanca» → Guías + Mapas pack.
-- «Ruido vecino» → Legal convivencia (divulgativo).
+### Modo C — Dueño de dato (data-owner)
+Antes de proponer «guardar», consultar `plan-fronteras.md`:
+- ¿Existe clave canónica? usarla.
+- ¿Legacy? no escribir; solo migrate.
+- ¿Checks duales meds? preferir la clave del módulo cuya UI está abierta; no crear tercera.
 
-*Fin deducciones.*
+### Modo D — Hueco consciente (gap)
+Si piden fontanería / gas DIY / pintura / CCAA de guías no escritas:
+- Decir que **no hay módulo** (o es piloto).
+- Ofrecer el satélite más cercano (Hogar `manten`, Clima riesgos, Guías ciudades existentes).
+- No improvisar temario largo.
+
+### Modo E — Seguridad (safety)
+Forzar freno en: gas, cuadro eléctrico, plagas/moho extenso, medicación clínica, veterinaria, legal personal.
+Texto tipo: «Esto no sustituye a profesional · 112 en emergencia».
+
+### Modo F — Densidad (depth)
+Elegir módulo según profundidad pedida:
+- Denso (Hogar/Eco/Jardín/Gym…) para «enséñame a fondo».
+- Fino (Apagón/Campo…) para checklist corta.
+- Esqueleto (Guías piloto, Calculadora) — no prometer más de lo que hay.
+
+---
+
+## Heurísticas rápidas
+
+| Señal en el mensaje | Preferir |
+|---------------------|----------|
+| €, factura, ahorro, millón, patrimonio | Economía |
+| nevera, receta, fregar, colada, mancha sofá | Hogar |
+| humedad, CO, termostato confort, moho pared | Clima |
+| look, etiqueta lavado, costura, silueta | Moda |
+| dosis, horario pastilla | Medicación / Salud pastillas |
+| médico, analítica, historial | Salud |
+| RCP, atragantamiento | Primeros auxilios |
+| enchufe, clavija | Electricidad |
+| corte luz ahora | Apagón |
+| mochila casa, botiquín stock | Supervivencia |
+| monte, fuego outdoor | Campo |
+
+## Anti-patrones
+
+1. Crear segunda lista de compra «para economía».
+2. Copiar guía de moho dentro de Economía.
+3. Tratar aliases como módulos distintos.
+4. Incluir Cuba en Escritorio home (aparte).
+5. Hablar de Ruleta/patente (fuera de alcance Relaciones).
+
+*Fin deducciones*

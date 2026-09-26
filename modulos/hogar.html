@@ -247,6 +247,15 @@ ul.ings{margin:.4rem 0;padding-left:1.1rem;color:var(--suave)}
     app.querySelectorAll('[data-casa]').forEach(b=>b.onclick=()=>{ state.casa=b.getAttribute('data-casa'); state.casaItem=null; render(); });
   }
 
+  function openModaEtiquetas(){
+    try{
+      if(window.parent && window.parent !== window){
+        window.parent.postMessage({ lvOpen: 'moda' }, '*');
+        return;
+      }
+    }catch(e){}
+    try{ location.href = 'moda.html'; }catch(e2){}
+  }
   function renderLavado(app){
     if(state.lavadoItem!=null){
       const item = DATA.LAVADO[state.lavadoItem];
@@ -254,7 +263,10 @@ ul.ings{margin:.4rem 0;padding-left:1.1rem;color:var(--suave)}
       return renderFichaGen(app, item, ()=>{ state.lavadoItem=null; render(); }, 'Lavado');
     }
     app.innerHTML = '<p class="empty">'+DATA.LAVADO.length+' fichas · colada y plancha</p>'+
+      '<p class="empty" style="margin-top:.35rem"><button type="button" class="ghost" id="go-moda-etiquetas" style="text-decoration:underline;padding:0;border:0;background:none;color:inherit;cursor:pointer;font:inherit">Etiquetas y cuidado en Moda</button></p>'+
       DATA.LAVADO.map((it,i)=>'<button type="button" class="card" data-li="'+i+'"><div class="t">'+esc(it.titulo)+'</div><div class="m">~ '+it.tiempo+' min</div></button>').join('');
+    var goM=document.getElementById('go-moda-etiquetas');
+    if(goM) goM.onclick=openModaEtiquetas;
     app.querySelectorAll('[data-li]').forEach(b=>b.onclick=()=>{ state.lavadoItem=+b.getAttribute('data-li'); render(); });
   }
 
@@ -564,6 +576,10 @@ ul.ings{margin:.4rem 0;padding-left:1.1rem;color:var(--suave)}
     app.querySelectorAll('[data-fn]').forEach(b=>b.onclick=()=>{state.ficha=b.getAttribute('data-fn');render();});
   }
 
+  try{
+    var h=(location.hash||'').replace(/^#/, '');
+    if(h && tabs.some(function(t){ return t.id===h; })) tab=h;
+  }catch(eHash){}
   render();
 })();
 </script>

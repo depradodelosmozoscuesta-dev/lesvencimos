@@ -1,152 +1,78 @@
-# Mapa sintético de relaciones
+# Mapa de relaciones — síntesis
 
-Unifica `inventario.md`, `solapes.md`, `huecos.md`, `puentes.md`.  
-29 módulos únicos · 5 aliases · Cuba aparte · Ruleta/red/juego fuera de alcance.
-
----
+Fecha: 26 sep 2026 · Europe/Madrid (UTC+2)
 
 ## Diagrama (Mermaid)
 
 ```mermaid
 flowchart TB
-  subgraph nucleo["Núcleo asistente offline"]
-    AST[Asistente / Estantería / Añadir módulo]
+  subgraph cocina_casa["Clúster cocina / casa"]
+    H[Hogar hub]
+    E[Economía]
+    C[Clima]
+    M[Moda]
+    H -->|lv-lista-compra-v1| E
+    E -->|luz € / hábitos| C
+    C -->|humedad-moho causa| H
+    H -->|lavado procedimiento| M
+    M -->|símbolos / criterio prenda| H
   end
 
-  subgraph clusterHEC["Clúster Hogar-Economía-Clima"]
-    HOG[Hogar]
-    ECO[Economía]
-    CLI[Clima]
-    HOG <-.lista/menú.-> ECO
-    ECO <-.energía €.-> CLI
-    HOG <-.humedad/moho.-> CLI
+  subgraph sanidad["Clúster sanidad"]
+    S[Salud]
+    Med[Medicación]
+    PA[Primeros auxilios]
+    S -->|lv-medicacion-v1| Med
+    PA -.->|urgencia educativa| S
   end
 
-  subgraph verde["Verde / vivo"]
-    JAR[Jardín]
-    CAM[Campo]
-    MAS[Mascotas]
-    JAR --- CAM
-    JAR --- MAS
+  subgraph resiliencia["Resiliencia / vida"]
+    A[Apagón]
+    El[Electricidad]
+    Sup[Supervivencia]
+    Cam[Campo]
+    Bri[Bricolaje]
+    A --> El
+    A --> Sup
+    El -.-> Bri
+    Cam -.-> Sup
   end
 
-  subgraph salud["Salud cuerpo"]
-    SAL[Salud]
-    MED[Medicación]
-    AUX[Primeros auxilios]
-    GYM[Gimnasio]
-    MDT[Meditación]
-    SAL -.duplicado pastillas.-> MED
-    AUX --- SAL
-  end
-
-  subgraph resili["Resiliencia"]
-    APA[Apagón]
-    SUP[Supervivencia]
-    ELE[Electricidad]
-    BRI[Bricolaje]
-    APA --- ELE
-    APA --- SUP
-    SUP --- CAM
-    APA --- AUX
-  end
-
-  subgraph casa_legal["Casa formal"]
-    LEG[Legal-casa]
-    LEG --- ECO
-    LEG --- HOG
-    LEG --- MAS
-  end
-
-  subgraph ropa["Ropa"]
-    MOD[Moda]
-    MOD --- HOG
-    MOD --- ECO
-  end
-
-  subgraph tools["Herramientas"]
-    CAJ[Caja fuerte]
-    QR[QR]
-    RAD[Radio]
-    CAL[Calculadora]
-    INF[Informática]
-    INF --- CAJ
-    INF --- QR
-    QR --> AST
-  end
-
-  subgraph viaje["Viaje"]
-    MAP[Mapas]
-    GUI[Guías viaje]
-    MAP --- GUI
-  end
-
-  subgraph cultura["Cultura / estudio"]
-    BIB[Biblioteca]
-    GUI_T[Guitarra]
-    TE[Tinta escritura]
-    TD[Tinta estudio]
-    PROF[[Profesor — fuera pack]]
-    TE -.frontera.-> PROF
-    INF -.frontera.-> PROF
-  end
-
-  subgraph aparte["Aparte Cuba"]
-    CUB[Alarma / Central Cuba]
-  end
-
-  AST --> HOG
-  AST --> ECO
-  AST --> SAL
-  AST --> APA
-  HOG --- JAR
-  RAD --- APA
-  INF -.-> CUB
+  H -.->|mantén límites| El
+  H -.->|mantén límites| Bri
+  A -.->|nevera / meds| Med
+  E -.->|patrimonio vivienda| L[Legal-casa]
+  J[Jardín] -.-> Mas[Mascotas]
+  G[Guías viaje] -.-> Map[Mapas]
 ```
 
----
+## Tabla síntesis relaciones
 
-## Tabla clúster × módulo
+| De | A | Tipo | Evidencia |
+|----|---|------|-----------|
+| Hogar | Economía | dato compartido | `lv-lista-compra-v1` |
+| Hogar | Clima | contenido puente | moho/humedad vs limpieza |
+| Hogar | Moda | contenido parcial | lavado ↔ cuidado |
+| Hogar | Electricidad/Bricolaje | límite | mantén «llamar profesional» |
+| Economía | Clima | frontera € vs confort | tabs `luz` vs lecciones clima |
+| Economía | Legal-casa | puente | patrimonio / impuestos Va |
+| Salud | Medicación | dato compartido | `lv-medicacion-v1` |
+| Apagón | Electricidad | enlace declarado | LEEME-apagon |
+| Apagón | Supervivencia | tema afín | corte / stock |
+| Campo | Supervivencia | frontera outdoor/casa | LEEME-campo |
+| Jardín | Mascotas | aviso toxicidad | diccionario jardín |
+| Guías | Mapas | viaje ES | piloto + packs |
+| Informática | Aparte Cuba | aparte | `_aparte-cuba.md` |
 
-| Clúster | Módulos | Solape fuerte | Hueco / tensión | Puente prioritario |
-|---|---|---|---|---|
-| Hogar-€-Clima | Hogar, Economía, Clima | Compra/menú; termostato/€ | Doble lista compra | P1 lista unificada; P3 hábitos energía |
-| Verde | Jardín, Campo, Mascotas | Toxicidad; supervivencia plantas | Vet en apagón | Deep-link toxicidad |
-| Salud | Salud, Medicación, Auxilios, Gym, Medita | Pastillas duplicadas | Fuente de verdad | P2 Medicación→Salud |
-| Resiliencia | Apagón, Supervivencia, Campo, Elec, Radio | Corte luz / agua / 112 | Radio no offline audio | Hub Resiliencia 3 chips |
-| Legal-€ | Legal, Economía, Hogar | Derramas, vivienda | IRPF no cubierto | Derrama→gasto |
-| Ropa | Moda, Hogar, Economía | Lavado/manchas | — | Etiqueta `lavado` |
-| Herramientas | Info, Caja, QR, Radio, Calc | Secretos / catálogo | Cuba en Info vs home | QR ids canónicos |
-| Viaje | Mapas, Guías | Ciudad Va | Guías esqueleto en modulos/ | CTA pack cruzado |
-| Cultura | Biblio, Guitarra, Tintas, Info | Frontera Profesor | Plantilla 1 KB en modulos | No mezclar estantes |
+## Densidad por clúster
 
----
+| Clúster | Núcleo denso | Satélites finos |
+|---------|--------------|-----------------|
+| Casa | Hogar, Economía, Jardín | Clima, Moda, Legal, Bricolaje, Electricidad |
+| Salud | — | Salud, Medicación, PA, Gimnasio*, Meditación* |
+| Cultura | Biblioteca, Informática | Tintas, Guitarra, Guías, QR |
+| Resiliencia | — | Apagón, Supervivencia, Campo, Radio, Mapas |
 
-## Conteos
+\*Gimnasio/Meditación son densos pero de bienestar, no solapan datos con Salud.
 
-- HTML en `modulos/`: 34  
-- Únicos: **29**  
-- Aliases: **5**  
-- LEEME: 28 (+ vida sin HTML)  
-- Docs carpeta: HOGAR-INDICE, _aparte-cuba  
-
-## Top 5 solapes
-1. Hogar ↔ Economía (compra/menú/nevera)  
-2. Economía ↔ Clima (energía/confort)  
-3. Moda ↔ Hogar (lavado/manchas)  
-4. Salud ↔ Medicación (pastillas)  
-5. Apagón ↔ Electricidad ↔ Supervivencia  
-
-## Top 5 huecos
-1. Fontanería / gas / pintura (LEEME-vida)  
-2. Lista compra no unificada  
-3. Duplicado Salud/Medicación  
-4. Guías viaje esqueleto en modulos/  
-5. Agenda personal inexistente en estantería  
-
-## 3 puentes prioritarios
-1. Lista compra Hogar↔Economía  
-2. Medicación como fuente → Salud  
-3. Hábitos energía Clima↔Economía  
-
-*Fin mapa.*
+*Fin mapa*

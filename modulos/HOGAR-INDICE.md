@@ -2,7 +2,7 @@
 
 Módulo offline de un solo archivo (`hogar.html`). Cocina + casa. Datos locales (`localStorage`). Sin nube. Sin marcas inventadas ni precios.
 
-**Claves localStorage:** `lv-hogar-compra-v1`, `lv-hogar-nevera-v1`, `lv-hogar-listas-v1`, `lv-hogar-reloj-v1`.
+**Claves localStorage:** `lv-lista-compra-v1` (lista canónica compartida con Economía), `lv-hogar-nevera-v1`, `lv-hogar-listas-v1`, `lv-hogar-reloj-v1`.
 
 ---
 
@@ -13,7 +13,7 @@ Módulo offline de un solo archivo (`hogar.html`). Cocina + casa. Datos locales 
 | **Inicio** | Hub a todas las secciones | — |
 | **Recetas** | Platos por grupos + paso a paso | 109 |
 | **Nevera** | Nevera / hielo / armario / fruta | 4 zonas |
-| **Súper** | Lista de la compra | ~24 sugerencias |
+| **Súper** | Lista de la compra (lista canónica compartida con Economía) | ~24 sugerencias |
 | **Alimentos** | Conservación / caducidad / combina | 447 |
 | **Casa → Limpieza zonas** | Cocina, baño, salón, dormitorio, suelos, cristales, electrodomésticos | 12 |
 | **Casa → Limpieza materiales** | Madera, cristal, acero, piedra, tela, plástico, microondas, horno, azulejo | 9 |

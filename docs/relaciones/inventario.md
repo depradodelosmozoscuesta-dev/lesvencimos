@@ -1,156 +1,121 @@
-# Inventario de módulos publicados
+# Inventario de módulos — Les vencimos (Relaciones)
 
-**Ámbito:** `/workspace/lesvencimos/modulos/` (Escritorio / estantería offline).  
-**Fecha del inventario:** 25 sep 2026 (Europe/Madrid).  
-**Fuera de alcance:** Ruleta / patente; red ciudadana / juego (solo se menciona como frontera). Cuba queda en línea aparte (`_aparte-cuba.md` / `docs/aparado-cuba.md`).
+Fecha: 26 sep 2026 · Europe/Madrid (UTC+2)  
+Fuente: estado ACTUAL de `/workspace/lesvencimos/modulos/` (HTML + LEEME + HOGAR-INDICE + `_aparte-cuba`).  
+Método: listado de disco, `md5sum` + `cmp` byte-a-byte para aliases, lectura de todos los LEEME-*.
 
-**Conteo:** 34 HTML en `modulos/` → **29 módulos únicos** + **5 aliases idénticos** (byte-a-byte).  
-Aliases: `gym.html`=`gimnasio.html`, `caja.html`=`caja-fuerte.html`, `guitar.html`=`guitarra.html`, `medita.html`=`meditacion.html`, `biblio.html`=`biblioteca.html`.
+## Resumen
 
-**Docs anexos en la carpeta:** `HOGAR-INDICE.md`, `_aparte-cuba.md`, 28 `LEEME-*.txt` (incluido `LEEME-vida.txt` sin HTML gemelo aún).
+| Métrica | Valor |
+|--------|------:|
+| HTML en `modulos/` | 34 |
+| **Módulos únicos** (hash MD5) | **29** |
+| Pares alias idénticos | 5 |
+| LEEME-*.txt | 28 (+ LEEME-vida meta sin HTML) |
+| Hub temario extra | `HOGAR-INDICE.md` |
+| Nota aparte | `_aparte-cuba.md` → `docs/aparado-cuba.md` |
 
-**Núcleo asistente:** la mayoría de LEEME solo indican `file://` / Archivos. Menciones explícitas al hub: Calculadora («se puede enlazar luego desde el asistente»), Gimnasio («como el Asistente»), QR (catálogo compartido con Estantería), Informática (antes pack Profesor, ahora módulo aparte). Arquitectura Jorge: web = escaparate; asistente offline = corazón; módulos pesados descargables; «Añadir módulo»; privacidad en dispositivo.
+**Aliases byte-a-byte (`cmp -s` = idénticos):**
 
----
+| Canónico (LEEME) | Alias |
+|------------------|-------|
+| `biblioteca.html` | `biblio.html` |
+| `caja-fuerte.html` | `caja.html` |
+| `guitarra.html` | `guitar.html` |
+| `gimnasio.html` | `gym.html` |
+| `meditacion.html` | `medita.html` |
 
-## Tabla rápida
-
-| Módulo (canónico) | Archivo | Tamaño ≈ | LEEME | Estado | Aliases |
-|---|---|---:|---|---|---|
-| Apagón | `apagon.html` | 17 KB | `LEEME-apagon.txt` | Contenido útil (5 lecciones) | — |
-| Biblioteca | `biblioteca.html` | 4,3 MB | — | Contenido rico (catálogo + JSON en `biblioteca-libros/`) | `biblio.html` |
-| Bricolaje | `bricolaje.html` | 17 KB | `LEEME-bricolaje.txt` | Contenido (5 guías) | — |
-| Caja fuerte | `caja-fuerte.html` | 23 KB | `LEEME-caja-fuerte.txt` | Contenido (PIN + entradas) | `caja.html` |
-| Calculadora | `calculadora.html` | 7 KB | `LEEME-calculadora.txt` | Contenido ligero | — |
-| Campo | `campo.html` | 11 KB | `LEEME-campo.txt` | Contenido (6 lecciones outdoor) | — |
-| Clima hogar | `clima.html` | 57 KB | `LEEME-clima.txt` | Contenido rico (14 lecciones) | — |
-| Economía | `economia.html` | 187 KB | `LEEME-economia.txt` | Contenido muy rico + localStorage | — |
-| Electricidad | `electricidad.html` | 21 KB | `LEEME-electricidad.txt` | Contenido (5 guías SVG) | — |
-| Gimnasio | `gimnasio.html` | 52 KB | `LEEME-gimnasio.txt` | Contenido rico (hubs niveles) | `gym.html` |
-| Guías de viaje | `guias-viaje.html` | 4 KB | `LEEME-guias-viaje.txt` | **Esqueleto / lanzadera** al pack `/guias-viaje/` + ZIP | — |
-| Guitarra | `guitarra.html` | 38 KB | `LEEME-guitarra.txt` | Contenido rico | `guitar.html` |
-| Hogar | `hogar.html` | 179 KB | `LEEME-hogar.txt` + `HOGAR-INDICE.md` | Contenido muy rico | — |
-| Informática | `informatica.html` | 228 KB | `LEEME-informatica.txt` | Contenido muy rico (14 materias / quizzes) | — |
-| Jardín | `jardin.html` | 158 KB | `LEEME-jardin.txt` | Contenido muy rico + diccionario ~150 | — |
-| Legal casa | `legal-casa.html` | 95 KB | `LEEME-legal-casa.txt` | Contenido rico (A–F + fiscal Va 2026) | — |
-| Mapas | `mapas.html` | 22 KB | `LEEME-mapas.txt` | Núcleo GPS + punta a packs ZIP | — |
-| Mascotas | `mascotas.html` | 154 KB | `LEEME-mascotas.txt` | Contenido rico | — |
-| Medicación | `medicacion.html` | 10 KB | `LEEME-medicacion.txt` | Contenido útil (recordatorios) | — |
-| Meditación | `meditacion.html` | 20 KB | `LEEME-meditacion.txt` | Contenido (estaciones + diario) | `medita.html` |
-| Moda | `moda.html` | 104 KB | `LEEME-moda.txt` + `moda-svg-kit/` | Contenido rico | — |
-| Primeros auxilios | `primeros-auxilios.html` | 51 KB | `LEEME-primeros-auxilios.txt` | Contenido rico + quizzes | — |
-| Pack tono (plantilla) | `profesor-pack-plantilla.html` | 1 KB | — | **Esqueleto** frontera Profesor | — |
-| QR | `qr.html` | 33 KB | `LEEME-qr.txt` | Contenido (generador offline) | — |
-| Radio | `radio.html` | 8 KB | `LEEME-radio.txt` | UI offline; **audio necesita red** | — |
-| Salud | `salud.html` | 19 KB | `LEEME-salud.txt` | Contenido (pastillas/médicos/informes) | — |
-| Resiliencia | `supervivencia.html` | 17 KB | `LEEME-supervivencia.txt` | Contenido (5 lecciones domésticas) | — |
-| Tinta escritura | `tinta-escritura.html` | 67 KB | `LEEME-tinta-escritura.txt` | Contenido (editor) | — |
-| Tinta estudio | `tinta-estudio.html` | 78 KB | `LEEME-tinta-estudio.txt` | Contenido (dibujo) | — |
-
-**Sin HTML aún:** `LEEME-vida.txt` («Aprender para la vida») — Electricidad ya existe; anuncia Fontanería, Gas/calefacción, Pintura/yeso *en preparación*.
+Aliases = OK (mismo archivo duplicado por nombre corto). No son datos duplicados.
 
 ---
 
-## Fichas por módulo
+## Lista de módulos únicos
 
-### Hogar — `hogar.html` (179 KB)
-- **Title/H1:** Hogar — Les vencimos / Hogar.
-- **LEEME:** descriptivo + claves `lv-hogar-compra-v1`, `lv-hogar-nevera-v1`, `lv-hogar-listas-v1`, `lv-hogar-reloj-v1`. Temario en `HOGAR-INDICE.md`.
-- **Secciones (tabs):** Inicio, Recetas (109), Nevera (4 zonas), Súper, Alimentos (447 fichas), Casa → Limpieza zonas/materiales, Manchas, Olores, Orden, Lavado (20), Mantén. (14), Listas (4), Reloj, Consejos (36).
-- **Estado:** contenido rico. Sin domótica. Límites: no gas ni electricidad interna → profesional / 112.
-- **Asistente:** candidato natural a modo Hogar (listas, nevera, reloj).
+Densidad: **denso** / **medio** / **fino** / **esqueleto** (tamaño + riqueza de secciones/fichas).
 
-### Economía — `economia.html` (187 KB)
-- **Title/H1:** Economía.
-- **LEEME:** muy descriptivo; localStorage v3 (presupuesto, gastos, ahorro, compra, menú, suministros, hábitos, prioridades, millón, patrimonio, asesor).
-- **Secciones:** Hub, Primer millón, Patrimonio, Asesor, Presupuesto, Gastos, Ahorro, Compra (≥35 tips + comparador), Menú 2 semanas, Luz y agua (≥25 tips + calc), Hábitos, Prioridades.
-- **Estado:** contenido muy rico. Educativo; no asesor colegiado.
-- **Cruce:** compra/menú/nevera → Hogar; luz/agua/termostato → Clima; vivienda/derramas → Legal-casa; categoría mascotas/ropa → Mascotas/Moda.
+| # | Módulo | Tamaño | Densidad | Tema | Aliases | LEEME |
+|--:|--------|-------:|----------|------|---------|-------|
+| 1 | `hogar.html` | 176K | denso | Cocina + casa (hub) | — | `LEEME-hogar.txt` + `HOGAR-INDICE.md` |
+| 2 | `economia.html` | 185K | denso | Presupuesto, gastos, compra, energía, patrimonio, asesor | — | `LEEME-economia.txt` |
+| 3 | `clima.html` | 56K | medio | Confort térmico, humedad, moho, CO | — | `LEEME-clima.txt` |
+| 4 | `salud.html` | 19K | fino | Pastillas, médicos, informes, historial | — | `LEEME-salud.txt` |
+| 5 | `medicacion.html` | 11K | fino | Recordatorio medicinas + checklist hoy | — | `LEEME-medicacion.txt` |
+| 6 | `moda.html` | 102K | medio | Principios, cuidado, estilos, costura, probador SVG | kit `moda-svg-kit/` | `LEEME-moda.txt` |
+| 7 | `jardin.html` | 171K | denso | Plantas, huerto, diccionario ~150 | — | `LEEME-jardin.txt` |
+| 8 | `mascotas.html` | 151K | denso | Tekel + razas + gatos + urgencias | — | `LEEME-mascotas.txt` |
+| 9 | `gimnasio.html` | 347K | denso | Ejercicios, rutinas, Moverse | `gym.html` | `LEEME-gimnasio.txt` |
+| 10 | `meditacion.html` | 178K | denso | Sentarse, camino, viaje, biblioteca | `medita.html` | `LEEME-meditacion.txt` |
+| 11 | `informatica.html` | 224K | denso | 14 materias · 108 lecciones · Central Cuba | — | `LEEME-informatica.txt` |
+| 12 | `biblioteca.html` | 4.2M | denso | Libros offline (+ `biblioteca-libros/`) | `biblio.html` | (no LEEME en modulos; pack en downloads) |
+| 13 | `legal-casa.html` | 93K | medio | CyL / Valladolid · fiscal 2026 | — | `LEEME-legal-casa.txt` |
+| 14 | `tinta-estudio.html` | 77K | medio | Dibujo / ilustración | — | `LEEME-tinta-estudio.txt` |
+| 15 | `tinta-escritura.html` | 66K | medio | Editor de texto | — | `LEEME-tinta-escritura.txt` |
+| 16 | `primeros-auxilios.html` | 50K | medio | RCP, enfermería básica, quizzes | — | `LEEME-primeros-auxilios.txt` |
+| 17 | `guitarra.html` | 38K | fino | Teoría, afinador, acordes | `guitar.html` | `LEEME-guitarra.txt` |
+| 18 | `qr.html` | 33K | fino | Generador QR offline | — | `LEEME-qr.txt` |
+| 19 | `caja-fuerte.html` | 23K | fino | Caja con PIN local | `caja.html` | `LEEME-caja-fuerte.txt` |
+| 20 | `mapas.html` | 22K | fino | Núcleo GPS; packs en downloads | — | `LEEME-mapas.txt` |
+| 21 | `electricidad.html` | 21K | fino | Enchufes, clavijas, se va la luz | — | `LEEME-electricidad.txt` |
+| 22 | `apagon.html` | 18K | fino | Preparación corte de luz | — | `LEEME-apagon.txt` |
+| 23 | `supervivencia.html` | 17K | fino | Resiliencia doméstica (no militar) | — | `LEEME-supervivencia.txt` |
+| 24 | `bricolaje.html` | 17K | fino | DIY básico (cuadro, taladro…) | — | `LEEME-bricolaje.txt` |
+| 25 | `campo.html` | 12K | fino | Supervivencia outdoor | — | `LEEME-campo.txt` |
+| 26 | `radio.html` | 8.0K | fino | Lista emisoras (audio necesita red) | — | `LEEME-radio.txt` |
+| 27 | `calculadora.html` | 6.8K | esqueleto | Calculadora táctil | — | `LEEME-calculadora.txt` |
+| 28 | `guias-viaje.html` | 4.9K | esqueleto | Piloto España (CCAA parcial) | — | `LEEME-guias-viaje.txt` |
+| 29 | `profesor-pack-plantilla.html` | 1.1K | esqueleto | Plantilla stub pack Profesor | — | — |
 
-### Clima hogar — `clima.html` (57 KB)
-- **Title/H1:** Clima hogar.
-- **LEEME:** confort térmico, calefacción/refrigeración, ventilación, humedad, aislamiento, riesgos CO/moho.
-- **Lecciones:** Bases confort; Frío; Calor; Calefacción; Refrigeración; Ventilación; Corrientes; Humedad; Moho; Aislamiento casero; Riesgos CO; Confort acústico; Checklist temporada; Casos España.
-- **Estado:** rico. No sustituye técnico.
-- **Cruce:** tips energía Economía; humedad/moho Hogar limpieza; frío/calor Supervivencia/Apagón.
+### Meta / fuera de lista de módulos HTML
 
-### Jardín — `jardin.html` (158 KB)
-- **LEEME:** muy descriptivo (casa/balcón/huerto ES + diccionario ~150 + toxicidad mascotas/niños).
-- **Lecciones:** Empezar; Luz; Riego; Sustratos; Macetas; Plagas leves; Poda; Temporada ES; Balcón; Huerto mínimo; Huerto serio; Interior; Bonsáis; Supervivencia/catástrofes; Problemas frecuentes.
-- **Cruce:** Campo (recolectar/qué no comer); Mascotas (toxicidad); Clima (humedad interior); Economía (riego/terraza en tips energía).
-
-### Legal casa — `legal-casa.html` (95 KB)
-- **LEEME:** España / CyL / Valladolid capital; fiscal 2026 embebido (Guía contribuyente, OOFF, residuos, Aquavall, ITP/AJD). Mantenimiento semanal del bloque fiscal.
-- **Bloques:** A Comunidades; B Convivencia; C Alquiler; D Reclamaciones; E Impuestos/tasas Va; F Puntos de vista; glosarios.
-- **Lecciones clave:** PH, cuotas/derramas, ruidos, animales comunidad, humedades, arrendamiento, facturas/servicios, IVTM/novedades fiscales (vía E).
-- **Cruce:** Economía (vivienda, comunidad, derramas); Hogar (humedades/mantenimiento ligero); Mascotas (animales en comunidad).
-
-### Moda — `moda.html` (104 KB)
-- **Secciones:** Principios; Cuidado (etiquetas, lavar, manchas, plancha); Estilos; Combinar + SVG; Ocasiones; Costura básica; Curiosidades. Kit `moda-svg-kit/`.
-- **Cruce fuerte:** Hogar → Lavado / Manchas / Plancha. Economía → presupuesto ropa / comprar menos.
-
-### Informática — `informatica.html` (228 KB)
-- **LEEME:** 14 materias · 108 lecciones · 324 preguntas; Linux, ciberseguridad, Python, C++, algoritmos, LPI, **Central Cuba**.
-- **Estado:** muy rico. Cultura general; *no* temario escolar Profesor (frontera).
-- **Cuba:** materia «Central de la casa (Cuba)» — respetar línea aparte del Escritorio/home (ver `_aparte-cuba.md`).
-- **Cruce herramientas:** Caja fuerte, QR, Radio (herramientas digitales offline).
-
-### Mascotas — `mascotas.html` (154 KB)
-- **Secciones:** Salchicha/Tekel; Razas perro; Gatos; Peso; Urgencias; Veterinario ES; Biblioteca práctica.
-- **Cruce:** Jardín (plantas tóxicas); Legal (animales comunidad); Economía (partida mascotas); Primeros auxilios (urgencias humanas ≠ vet).
-
-### Apagón — `apagon.html` (17 KB)
-- Lecciones: Se fue la luz ahora; Nevera/comida; Luz y pilas; Personas/vecinos; Preparar el próximo. Enlace ligero a Electricidad «se va la luz». Cruce: Radio, Medicación, Supervivencia, Hogar nevera.
-
-### Campo — `campo.html` (11 KB)
-- Prioridades; Agua; Comida; Recolectar; Fuego; Orientación. Distinto de Resiliencia (casa). Cruce: Jardín supervivencia; Mapas; Primeros auxilios; Supervivencia.
-
-### Resiliencia (`supervivencia.html`) — 17 KB
-- Agua casa; Botiquín; Comunicación; Frío/calor; Mochila casa. Solo civil/hogar. Cruce: Apagón, Clima, Primeros auxilios, Campo (frontera indoor/outdoor).
-
-### Electricidad — 21 KB · Bricolaje — 17 KB
-- Electricidad: enchufe, clavija, antena, se va la luz (SVG). Bricolaje: cuadro, taladro, silicona, manilla, estante. LEEME-vida anuncia más oficios vida.
-
-### Salud / Medicación / Primeros auxilios / Gimnasio / Meditación
-- **Salud** (19 KB): Pastillas, Médicos, Informes, Historial, Consejos — solapa recordatorios con Medicación.
-- **Medicación** (10 KB): Hoy / Mis medicinas / Añadir — localStorage; modo letras grandes.
-- **Primeros auxilios** (51 KB): RCP, PAS, heridas, medicamentos, DESA, quizzes — frontera con Salud/Medicación (educativo ≠ historial personal).
-- **Gimnasio** (52 KB, alias gym): Básico/Medio/Difícil/Mayores/Abdomen; chico/chica; voz/pitido. «Como el Asistente» (sin Mari/avatar).
-- **Meditación** (20 KB, alias medita): árbol nombres, estaciones, diario. No terapia.
-
-### Mapas / Guías de viaje
-- **Mapas** (22 KB): GPS, rumbo, km, ETA; packs `valladolid-offline.zip`, `espana-offline.zip`.
-- **Guías viaje** (4 KB): lanzadera piloto ES (Va, Salamanca, León, Madrid, Barcelona, Sevilla) → contenido real en `/guias-viaje/` + ZIP. **Hueco de densidad** en el HTML de módulos/.
-
-### Herramientas: Calculadora, Caja fuerte, QR, Radio
-- Calculadora: aritmética grande.
-- Caja fuerte: PIN maestro; tipos Wi‑Fi, DNI, login, nota — irrecuperable si se olvida PIN.
-- QR: texto/Wi‑Fi/URL/nombre módulo catálogo Estantería; print.
-- Radio: lista emisoras; UI offline, stream online.
-
-### Cultura / estudio: Biblioteca, Guitarra, Tinta×2, Informática, Profesor-plantilla
-- Biblioteca 4,3 MB (alias biblio) + `biblioteca-libros/*.json`.
-- Guitarra: teoría, afinador, acordes/escalas (sin tablaturas de canciones).
-- Tinta escritura / estudio: editor texto y estudio dibujo.
-- `profesor-pack-plantilla.html` (1 KB): plantilla tono — **frontera** con `profesor.html` / pack Profesor en raíz (no inventariar el pack completo aquí).
-- Tinta escritura/estudio ↔ Profesor: solo nota de frontera (estudio personal vs temario cole).
-
-### Cuba (línea aparte)
-- `_aparte-cuba.md`: Alarma Cuba → `/alarma-cuba.html`; Central Cuba → `/downloads/central-cuba.zip`. Fuera del listado Escritorio/home (2026-09-24). Informática sigue mencionando Central Cuba como materia. No mezclar en el escaparate del Escritorio.
-
-### LEEME-vida (sin módulo HTML)
-- Catálogo «aprender para la vida»: Electricidad disponible; Fontanería, Gas/calefacción, Pintura/yeso en preparación. Profesor = cole; estos = vida.
+| Archivo | Rol |
+|---------|-----|
+| `LEEME-vida.txt` | Catálogo «Aprender para la vida»; anuncia Fontanería / Gas / Pintura **en preparación** (sin HTML) |
+| `HOGAR-INDICE.md` | Temario contadores Hogar (recetas 109, alimentos 447, lavado 20…) |
+| `_aparte-cuba.md` | Alarma/Central Cuba fuera del Escritorio; ver `docs/aparado-cuba.md` |
 
 ---
 
-## Relación con núcleo (asistente / estantería)
+## Tabs / secciones clave (evidencia HTML actual)
 
-| Señal | Módulos |
-|---|---|
-| «Como el Asistente» / enlazable | Gimnasio, Calculadora |
-| Catálogo Estantería / QR de módulos | QR |
-| Antes Profesor → módulo aparte | Informática, Primeros auxilios, Guías (cultura ≠ cole) |
-| Datos locales listos para modos asistente | Hogar, Economía, Salud, Medicación, Clima (hábitos), Meditación |
-| Packs externos (ZIP) | Mapas, Guías viaje, Hogar offline zip, Informática zip |
+### Hogar (`hogar.html`)
+Tabs: `hub`, `recetas`, `nevera`, `super`, `fichas` (Alimentos), `casa`, `lavado`, `manten`, `listas`, `reloj`, `tips`.  
+Sub-Casa: `zonas`, `materiales`, `manchas`, `olores`, `orden`.
 
-*Fin inventario.*
+**localStorage (KEYS reales):**
+- `lv-lista-compra-v1` ← canónica lista compra (KEYS.compra)
+- `lv-hogar-nevera-v1`, `lv-hogar-listas-v1`, `lv-hogar-reloj-v1`
+- Legado leído en migración: `lv-hogar-compra-v1`, `lv-economia-lista-v1`
+- Flag: `lv-lista-compra-migrated-v1`
+
+> LEEME-hogar aún cita `lv-hogar-compra-v1` como clave viva — **desfasado** respecto al HTML (ver limpieza).
+
+### Economía
+Tabs: `hub`, `millon`, `patrimonio`, `asesor`, `presupuesto`, `gastos`, `ahorro`, `compra`, `menu`, `luz`, `habitos`, `prioridades`.
+
+**KEYS:**
+- `lv-economia-presupuesto-v1`, `…-gastos-v1`, `…-ahorro-v1`, `…-compra-tips-v1`
+- `lv-lista-compra-v1` (KEYS.lista — **compartida con Hogar**)
+- `lv-economia-suministros-v1`, `…-energia-habits-v1`, `…-habitos-v1`, `…-prioridades-v1`
+- `lv-economia-millon-v1`, `…-patrimonio-v1`, `…-asesor-v1`
+- Misma migración/flag que Hogar
+
+### Clima
+Lecciones id: `bases`, `frio`, `calor`, `calefaccion`, `frio-ac`, `ventilacion`, `corrientes`, `humedad`, `moho`, `aislamiento`, `riesgos`, `acustica`, `temporadas`, `viviendas`.  
+Sin localStorage propio.
+
+### Salud
+Tabs: `hub`, `pastillas`, `medicos`, `informes`, `historial`, `consejos`.  
+Pastillas → `lv-medicacion-v1` (canónica). Legacy `lv-salud-meds-v1` + flag `lv-salud-meds-migrated-v1`.  
+También: `lv-salud-docs-v1`, `lv-salud-reports-v1`, `lv-salud-hist-v1`, checks `lv-salud-check-YYYY-MM-DD`.  
+Medicación suelta: `lv-medicacion-v1`, `lv-med-check-…`, `lv-med-simple`.
+
+### Moda
+Temas (entre otros): `cuidado` → `simbolos`, `lavar`, `manchas`, `plancha-guardar`; más estilos/combinar/costura/probador. Sin LS persistente de inventario.
+
+---
+
+## Packs downloads (solo densidad)
+
+Usados como contexto, no inventariados como módulos: `hogar-offline.zip`, `economia-offline.zip`, `clima-offline.zip`, `moda-offline.zip`, `salud-offline.zip`, `medicacion-offline.zip`, `mapas/` (valladolid/españa), etc.
+
+*Fin inventario · Les vencimos · offline*

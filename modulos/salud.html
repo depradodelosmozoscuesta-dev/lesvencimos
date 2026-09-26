@@ -81,8 +81,8 @@ ul.ings{margin:.4rem 0;padding-left:1.1rem;color:var(--suave)}
   const TIPS = [{"id": "agua", "titulo": "Agua a ratos", "cuerpo": "Un vaso al levantarte y otro a media mañana. No hace falta beber de golpe: el cuerpo lo aprovecha mejor a sorbos."}, {"id": "pies", "titulo": "Pies en el suelo", "cuerpo": "Al salir de la cama, siéntate un minuto. Luego ponte de pie. Evitas mareos y caídas."}, {"id": "pastilla", "titulo": "Pastilla con rutina", "cuerpo": "Deja la caja junto a algo que ya haces: el café, el cepillo, el vaso de la noche."}, {"id": "luz", "titulo": "Diez minutos de luz", "cuerpo": "Abre la persiana o sal al balcón. La luz de la mañana ordena el sueño y el ánimo."}, {"id": "sal", "titulo": "Sal poco a poco", "cuerpo": "Prueba la comida antes de echar más sal. El sofrito de ajo, cebolla y hierbas ya aporta sabor."}, {"id": "pasamanos", "titulo": "Mano en el pasamanos", "cuerpo": "En escaleras, una mano siempre en el pasamanos. Sin prisa. El orgullo no pega con el suelo."}, {"id": "fruta", "titulo": "Fruta a la vista", "cuerpo": "Un plato con naranjas o peras en la mesa invita más que un cajón. Lo que se ve, se come."}, {"id": "ojos", "titulo": "Ojos al médico", "cuerpo": "Anota la fecha de la cita el mismo día que te la dan. Si cambia, tacha y escribe la nueva."}, {"id": "respirar", "titulo": "Respirar en cuatro", "cuerpo": "Inhala cuatro tiempos, suelta seis. Tres veces. Sirve antes de una analítica o si te agitas."}, {"id": "zapatos", "titulo": "Zapatos que sujetan", "cuerpo": "En casa, zapatillas cerradas. Las abiertas y los calcetines en suelo de baldosa resbalan."}, {"id": "hablar", "titulo": "Hablar un poco", "cuerpo": "Una llamada corta cuenta. El oído y la cabeza se mantienen si hay alguien al otro lado."}, {"id": "envase", "titulo": "No apures el envase", "cuerpo": "Cuando queden tres pastillas, apúntalo en la compra o avisa a farmacia. Así no llegas a cero un domingo."}];
   const MEDS_DEF = ["Levotiroxina", "Enalapril", "Omeprazol", "Metformina", "AAS", "Atorvastatina", "Paracetamol", "Ibuprofeno", "Amoxicilina", "Vitamina D"];
   const K = {
-    meds:'lv-salud-meds-v1',
-    checks:()=>'lv-salud-check-'+new Date().toISOString().slice(0,10),
+    meds:'lv-salud-meds-v1', /* legado: solo lectura en migrate */
+    /* checks muerto: canónico lv-med-check-YYYY-MM-DD */
     docs:'lv-salud-docs-v1',
     reports:'lv-salud-reports-v1',
     hist:'lv-salud-hist-v1'
@@ -95,18 +95,54 @@ ul.ings{margin:.4rem 0;padding-left:1.1rem;color:var(--suave)}
   function saveMedicacion(arr){ localStorage.setItem(MED_KEY, JSON.stringify(arr)); }
   function loadMedChecks(){ try{ return JSON.parse(localStorage.getItem('lv-med-check-'+new Date().toISOString().slice(0,10))||'{}'); }catch(e){return{}} }
   function saveMedChecks(o){ localStorage.setItem('lv-med-check-'+new Date().toISOString().slice(0,10), JSON.stringify(o)); }
+  function migrateSaludChecksToMed(){
+    try{
+      var FLAG='lv-salud-checks-migrated-v1';
+      if(localStorage.getItem(FLAG)==='1') return;
+      var today = new Date().toISOString().slice(0,10);
+      var prefix = 'lv-salud-check-';
+      var keys = [];
+      try{
+        for(var i=0;i<localStorage.length;i++){
+          var k = localStorage.key(i);
+          if(k && k.indexOf(prefix)===0) keys.push(k);
+        }
+      }catch(eScan){}
+      if(keys.indexOf(prefix+today)<0) keys.push(prefix+today);
+      keys.forEach(function(oldKey){
+        var day = oldKey.slice(prefix.length);
+        if(!day) return;
+        var dest = 'lv-med-check-'+day;
+        var oldObj = {};
+        var newObj = {};
+        try{ oldObj = JSON.parse(localStorage.getItem(oldKey)||'{}')||{}; }catch(e1){ oldObj={}; }
+        try{ newObj = JSON.parse(localStorage.getItem(dest)||'{}')||{}; }catch(e2){ newObj={}; }
+        if(!oldObj || typeof oldObj!=='object') return;
+        var changed = false;
+        Object.keys(oldObj).forEach(function(id){
+          if(newObj[id]==null && oldObj[id]){ newObj[id]=oldObj[id]; changed=true; }
+        });
+        if(changed || (Object.keys(oldObj).length && !localStorage.getItem(dest))){
+          localStorage.setItem(dest, JSON.stringify(newObj));
+        }
+      });
+      localStorage.setItem(FLAG,'1');
+    }catch(e){}
+  }
   function migrateSaludMedsToMedicacion(){
     try{
-      if(localStorage.getItem(MED_FLAG)==='1') return;
-      var existing = loadMedicacion();
-      var old = load(K.meds, []);
-      if((!existing || !existing.length) && Array.isArray(old) && old.length){
-        var mapped = old.map(function(m){
-          return { id: m.id || ('m'+Date.now().toString(36)), nombre: m.nombre||'', dosis: m.dosis||'', horas: m.horas||[] };
-        });
-        saveMedicacion(mapped);
+      if(localStorage.getItem(MED_FLAG)!=='1'){
+        var existing = loadMedicacion();
+        var old = load(K.meds, []);
+        if((!existing || !existing.length) && Array.isArray(old) && old.length){
+          var mapped = old.map(function(m){
+            return { id: m.id || ('m'+Date.now().toString(36)), nombre: m.nombre||'', dosis: m.dosis||'', horas: m.horas||[] };
+          });
+          saveMedicacion(mapped);
+        }
+        localStorage.setItem(MED_FLAG,'1');
       }
-      localStorage.setItem(MED_FLAG,'1');
+      migrateSaludChecksToMed();
     }catch(e){}
   }
 
