@@ -9,7 +9,7 @@
 6. Empaque de herramienta profesional: radio 2 px, mate, sin glow.
 7. Lámpara de aceite / apagón: carbón y ámbar quemado. Nada de indigo SaaS.
 8. Revista impresa: márgenes levemente asimétricos, claim al cierre, footer-colofón.
-9. Cero mascota, cero blob, cero ilustración genérica, cero raster en landing.
+9. Cero mascota, cero blob, cero ilustración genérica, cero raster en landing. (La figura Chico/Chica del Gimnasio es silueta de ejercicio, no mascota «Mari».)
 10. El paraguas de cuatro pétalos se queda. No se redibuja cute.
 
 ## Tokens

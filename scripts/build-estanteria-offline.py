@@ -38,7 +38,6 @@ EMBED_SOURCES = {
     "info": ROOT / "modulos" / "informatica.html",
     "guias": ROOT / "modulos" / "guias-viaje.html",
     "mapas": ROOT / "modulos" / "mapas.html",
-    "alarma": ROOT / "alarma-cuba.html",
     "biblio": ROOT / "modulos" / "biblioteca.html",
 }
 
@@ -72,8 +71,6 @@ def build_embedded() -> dict[str, str]:
         if not path.exists():
             raise SystemExit(f"missing embed source {path}")
         html = path.read_text(encoding="utf-8")
-        if key == "alarma":
-            html = ungate_alarma(html)
         out[key] = html
     return out
 
@@ -103,7 +100,7 @@ def inject_embedded(shell: str, embedded: dict[str, str]) -> str:
 def write_leeme() -> str:
     return """═══════════════════════════════════════
   ESCRITORIO / ESTANTERÍA — Les vencimos
-  Build v20260925r
+  Build v20260926a
   UN SOLO HTML (módulos dentro)
 ═══════════════════════════════════════
 
@@ -112,40 +109,37 @@ Este ZIP lleva esencialmente UN archivo:
   estanteria.html
   LEEME.txt
 
-Baldas deslizables por tema: una sola línea,
-desliza en horizontal. Solo el chip «Widgets»
-(sueltos) se muestra; el resto de baldas van
-sin etiqueta. Primer icono de cada balda
-más grande y FIJO (no desliza): Teléfono, WhatsApp,
-Navegador, Cámara, Mapas (Varios). Solo el resto
-de iconos desliza. Formas variadas: carteles (Gym, Brico…),
-estrella en especiales, y un fade suave en 2–4 iconos
-(respeta prefers-reduced-motion).
-QR fijo a la izquierda en Widgets.
-Atajos (Filmin, Polar Cloud, Grok, Claude, Gemini,
-Les vencimos) entre los iconos pequeños; en Android
-abren la app si está instalada (si no, la web).
-Packs escolares en Varios (no hay balda Educación
-ni Rápido). Barra Ajustes compacta arriba (no es
-una balda). Iconos de color vivos.
+Baldas deslizables por tema, con etiqueta tipográfica
+(Escritura · Ocio · Casa · Salud · Varios). Desliza
+en horizontal. Primer icono de cada balda más grande
+y FIJO (no desliza): Escritura, Biblioteca, Hogar,
+Salud, Caja fuerte. Solo el resto de iconos desliza.
+Fade 24 px + chevron si hay overflow (respeta
+prefers-reduced-motion).
+
+Preset Completo = solo módulos embebidos offline.
+Atajos de red (Tel, WhatsApp, IAs, Filmin…) viven
+en balda Red — fuera de Completo y de Casa.
+Packs escolares en Varios con etiqueta visible
+(o Disposición Educación). Barra Ajustes arriba
+(no es una balda). Iconos de color vivos.
 Hora/fecha/papelera en pastilla arrastrable
 (arriba a la derecha por defecto; Restaurar la
 vuelve). Papelera: elige app · otra vez confirma.
 Disposición: Completo / Casa / Estudio / Educación / Mínimo.
-Calendario opcional como mosaico (sin cortar la
-balda). Sin ficha libre ni redimensionar a mano.
+Sin ficha libre ni redimensionar a mano.
 Al abrir ya viene llena. Sin Radio (necesita internet; pack aparte) ni Alarma Cuba.
 
 Los módulos (Hogar, Salud, QR, Electricidad,
 Bricolaje, Jardín, Economía, Clima, Moda, Legal, Mascotas, Campo, Resiliencia, Apagón, Calculadora,
 Gimnasio, Guitarra, Caja fuerte, Medicación, Meditación,
-Auxilios, Escritura, Dibujo, Informática, Guías de viaje, Mapas, Biblioteca…)
+Auxilios, Escritura, Dibujo, Informática, Guías, Mapas, Biblioteca…)
 van EMBEBIDOS dentro del HTML.
 Al tocar un icono se abren en la misma página
 (← Escritorio para volver).
 
 Profesor (cole) es grande: descarga aparte en
-lesvencimos.com/descargas.html (o «Archivo local…»).
+lesvencimos.com/descargas.html (o «Archivo local»).
 
 ─── Android — pasos ───
 
@@ -154,9 +148,9 @@ lesvencimos.com/descargas.html (o «Archivo local…»).
    Descargas del navegador).
 3) Descomprime y entra en la carpeta.
 4) Toca ABRE-AQUI.html → Chrome / Samsung Internet.
-5) Debe verse «Modo offline · file://».
+5) Debe verse «Offline · file://».
 6) Lanzadera llena al abrir. Widgets para añadir;
-   Módulos / Restaurar todo si quitaste algo.
+   Módulos / Restaurar si quitaste algo.
 
 Con content:// los embebidos también abren, pero
 file:// desde Archivos es lo más fiable.
@@ -207,7 +201,7 @@ def main() -> None:
         raise SystemExit("shell missing EMBEDDED placeholder (need estanteria.shell.html)")
 
     embedded = build_embedded()
-    for need in ("hogar", "salud", "qr", "electro", "brico", "jardin", "economia", "clima", "moda", "legal", "mascotas", "campo", "supervive", "apagon", "caja", "gym", "guitarra", "calc", "medica", "medita", "auxilios", "escritura", "dibujo", "info", "guias", "mapas", "alarma", "biblio"):
+    for need in ("hogar", "salud", "qr", "electro", "brico", "jardin", "economia", "clima", "moda", "legal", "mascotas", "campo", "supervive", "apagon", "caja", "gym", "guitarra", "calc", "medica", "medita", "auxilios", "escritura", "dibujo", "info", "guias", "mapas", "biblio"):
         if need not in embedded:
             raise SystemExit(f"missing embed {need}")
 
@@ -252,7 +246,7 @@ def main() -> None:
     shutil.rmtree(STAGING)
 
     # Also keep last lettered snapshot name pointing at same bytes (bookmarks).
-    snapshot = ROOT / "downloads" / "estanteria-offline-v20260925r.zip"
+    snapshot = ROOT / "downloads" / "estanteria-offline-v20260926a.zip"
     shutil.copy2(OUT, snapshot)
     print(f"Wrote {OUT} ({OUT.stat().st_size} bytes)")
     print(f"Snapshot {snapshot}")
