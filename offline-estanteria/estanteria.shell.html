@@ -1511,6 +1511,43 @@
   .offline-tip strong { color: var(--acento); }
   .file-err { color: var(--peligro); font-size: 0.85rem; margin: 0.5rem 0 0; min-height: 1.1em; }
 
+  /* Photo fullscreen (local camera save) */
+  body.mod-photo #mod-frame,
+  body.mod-photo #mod-external { display: none !important; }
+  body.mod-photo #mod-host { display: flex !important; flex: 1; min-height: 0; align-items: center; justify-content: center; background: #0E0E0C; padding: 0.5rem; }
+  body.mod-photo #mod-host .photo-full {
+    max-width: 100%; max-height: 100%; object-fit: contain;
+    border-radius: 4px;
+  }
+  .launch-tile.photo-tile .mod-ico-wrap {
+    background: color-mix(in srgb, var(--ico-accent, #FF8A65) 22%, transparent);
+  }
+  .cam-live-overlay {
+    position: fixed; inset: 0; z-index: 11000;
+    display: flex; flex-direction: column;
+    background: #0E0E0C; color: #F4F0E6;
+  }
+  .cam-live-overlay video {
+    flex: 1; min-height: 0; width: 100%; object-fit: cover; background: #000;
+  }
+  .cam-live-bar {
+    flex: 0 0 auto; display: flex; gap: 0.65rem; padding: 0.75rem;
+    background: #1A1814; border-top: 1px solid rgba(196,161,90,0.35);
+  }
+  .cam-live-bar button {
+    flex: 1; min-height: 48px; border-radius: 10px;
+    font: 700 0.95rem var(--sans); cursor: pointer; border: 1px solid transparent;
+  }
+  .cam-live-bar button.primary {
+    background: #C4A15A; color: #1A1814; border-color: #C4A15A;
+  }
+  .cam-live-bar button.ghost {
+    background: transparent; color: #F4F0E6; border-color: rgba(255,255,255,0.28);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .cam-live-overlay video { object-fit: contain; }
+  }
+
   /* In-page module viewer (must live OUTSIDE .wrap — wrap is visibility:hidden when open) */
   #mod-viewer {
     display: none;
@@ -1679,8 +1716,8 @@
           <div class="howto-body">
             <p>Baldas deslizables por tema. Desliza en horizontal; el primer icono de cada balda queda fijo.</p>
             <p>Arriba, barra de <strong>Ajustes</strong> (no es una balda): contraste, fondo, tamaño, fuente; Renombrar vive ahí. <strong>Ocultar</strong> está en la barra de herramientas. El engranaje vuelve a mostrar Ajustes.</p>
-            <p>Packs escolares viven en la carpeta <strong>Educación</strong> (balda Varios), que funciona como una carpeta normal. Atajos de red (Tel, WA, IAs…) en balda <strong>Red</strong> — fuera de Completo.</p>
-            <p><strong>Disposición</strong>: Completo (solo embebidos + carpeta Educación), Casa, Estudio, Educación, Mínimo. Papelera: toca app · otra vez confirma.</p>
+            <p>Packs escolares viven en la carpeta <strong>Educación</strong> (balda Varios). <strong>Cámara</strong> es offline (Varios): las fotos se guardan en la carpeta <strong>Fotos</strong>. Atajos que necesitan red (Tel, WA, IAs…) en balda <strong>Red</strong> — fuera de Completo.</p>
+            <p><strong>Disposición</strong>: Completo (embebidos + Cámara/Fotos + carpeta Educación), Casa, Estudio, Educación, Mínimo. Papelera: toca app · otra vez confirma.</p>
             <p>Sin Radio ni Alarma Cuba en el ZIP. Mantén pulsado el escritorio (menú oculto) para recuperar el menú.</p>
           </div>
         </details>
@@ -1731,7 +1768,7 @@
       </div>
     </div>
 
-    <footer class="site-foot">lesvencimos.com · escritorio / estantería offline · <span id="est-build">v20260926i</span></footer>
+    <footer class="site-foot">lesvencimos.com · escritorio / estantería offline · <span id="est-build">v20260926j</span></footer>
   </div>
 
   <div id="mod-viewer" role="dialog" aria-modal="true" aria-labelledby="mod-viewer-title" hidden>
@@ -1865,7 +1902,7 @@
       ocio: ['guitarra', 'meditacion'],
       casa: ['jardin', 'economia'],
       salud: ['medicacion', 'gimnasio', 'primeros-auxilios'],
-      varios: ['calculadora', 'qr', 'mapas'],
+      varios: ['calculadora', 'qr', 'mapas', 'camara'],
       red: ['telefono', 'whatsapp', 'navegador']
     };
 
@@ -1885,6 +1922,7 @@
     /* Packs escolares: viven en carpeta Educación (no como baldosas sueltas en Completo) */
     var SCHOOL_IDS = ['profesor', 'mate-1eso', 'byg-1eso', 'geo-1eso', 'lengua-1eso', 'plastica-1eso', 'linux-essentials'];
     var EDUCACION_FOLDER_ID = 'f-educacion';
+    var FOTOS_FOLDER_ID = 'f-fotos';
 
     function isSchoolId(id) {
       return SCHOOL_IDS.indexOf(id) >= 0;
@@ -1968,7 +2006,7 @@
       { id: 'tel', titulo: 'Teléfono', icon: 'telefono', embed: null, openNative: true, href: 'tel:', blurb: 'Marcar · app del móvil', shelf: 'red', shape: 'round', color: '#34C759' },
       { id: 'whatsapp', titulo: 'WhatsApp', icon: 'whatsapp', embed: null, openNative: true, href: 'https://wa.me/', blurb: 'Chat · app del móvil', shelf: 'red', shape: 'soft', color: '#25D366' },
       { id: 'navegador', titulo: 'Navegador', icon: 'navegador', embed: null, openNative: true, href: 'https://duckduckgo.com/', blurb: 'Abrir navegador', shelf: 'red', shape: 'wide', color: '#4A9BE8' },
-      { id: 'camara', titulo: 'Cámara', icon: 'camara', embed: null, openNative: true, href: '', blurb: 'Cámara · foto en el móvil', shelf: 'red', shape: 'soft', color: '#FF8A65' },
+      { id: 'camara', titulo: 'Cámara', icon: 'camara', embed: null, openNative: true, href: '', blurb: 'Foto · se guarda en Fotos', shelf: 'varios', shape: 'soft', color: '#FF8A65', offlineDevice: true },
       { id: 'filmin', titulo: 'Filmin', icon: 'filmin', embed: null, openNative: true, href: 'https://www.filmin.es/', androidPackage: 'com.filmin.app', blurb: 'App · web', shelf: 'red', shape: 'poster', color: '#9B2D6B' },
       { id: 'grok', titulo: 'Grok', icon: 'grok', embed: null, openNative: true, href: 'https://grok.com/', androidPackage: 'ai.x.grok', blurb: 'App si está · si no web', shelf: 'red', shape: 'soft', color: '#F0A020' },
       { id: 'claude', titulo: 'Claude', icon: 'claude', embed: null, openNative: true, href: 'https://claude.ai/', androidPackage: 'com.anthropic.claude', blurb: 'App si está · si no web', shelf: 'red', shape: 'soft', color: '#D97757' },
@@ -2175,6 +2213,7 @@
       }
       var cat = catalogById(it.id);
       if (cat && cat.shelf) return cat.shelf;
+      if (it.kind === 'photo') return 'varios';
       if (it.kind === 'local') return 'varios';
       return 'varios';
     }
@@ -2511,6 +2550,78 @@
       return f;
     }
 
+    function ensureFotosFolder() {
+      ensureFolderState();
+      var f = folderById(FOTOS_FOLDER_ID);
+      if (!f) {
+        f = {
+          id: FOTOS_FOLDER_ID,
+          name: 'Fotos',
+          shelf: 'varios',
+          ids: [],
+          hub: 'fotos'
+        };
+        state.folders.push(f);
+      } else {
+        f.hub = 'fotos';
+        if (!f.name) f.name = 'Fotos';
+        if (!f.shelf || !shelfById(f.shelf)) f.shelf = 'varios';
+        if (!Array.isArray(f.ids)) f.ids = [];
+        f.parent = null;
+      }
+      return f;
+    }
+
+    function rehomePhotosInFotosFolder() {
+      var folder = ensureFotosFolder();
+      if (!folder) return;
+      if (!Array.isArray(folder.ids)) folder.ids = [];
+      state.items.forEach(function (it) {
+        if (!it || it.kind !== 'photo') return;
+        var cur = itemFolderId(it.id);
+        if (cur && cur !== FOTOS_FOLDER_ID) return;
+        if (folder.ids.indexOf(it.id) < 0) folder.ids.push(it.id);
+        it.shelf = 'varios';
+      });
+    }
+
+    function ensureCamaraModule() {
+      var mod = catalogById('camara');
+      if (!mod) return null;
+      if (!hasModule('camara')) {
+        state.items.push({
+          id: mod.id,
+          type: 'module',
+          kind: 'catalog',
+          titulo: mod.titulo,
+          icon: mod.icon || 'camara',
+          href: '',
+          embed: null,
+          external: null,
+          openNative: true,
+          color: mod.color || '#FF8A65',
+          blurb: mod.blurb || '',
+          shelf: 'varios',
+          view: 'icon',
+          z: ++Z,
+          addedAt: new Date().toISOString()
+        });
+      } else {
+        var existing = findItem('camara');
+        if (existing) {
+          existing.shelf = 'varios';
+          existing.openNative = true;
+          existing.href = '';
+          existing.embed = null;
+          if (mod.titulo) existing.titulo = mod.titulo;
+          if (mod.icon) existing.icon = mod.icon;
+          if (mod.color) existing.color = mod.color;
+          if (mod.blurb) existing.blurb = mod.blurb;
+        }
+      }
+      return findItem('camara');
+    }
+
     function childFoldersOf(parentId) {
       return (state.folders || []).filter(function (folder) {
         return folder && folder.parent === parentId;
@@ -2525,6 +2636,14 @@
 
     function isEducacionHub(folder) {
       return !!(folder && (folder.hub === 'educacion' || folder.id === EDUCACION_FOLDER_ID));
+    }
+
+    function isFotosHub(folder) {
+      return !!(folder && (folder.hub === 'fotos' || folder.id === FOTOS_FOLDER_ID));
+    }
+
+    function isSystemFolder(folder) {
+      return isEducacionHub(folder) || isFotosHub(folder);
     }
 
     function exitSelectMode(keepOpen) {
@@ -2958,7 +3077,9 @@
         added++;
       });
       /* Hora/fecha van fijas en #desk-status; no forzar widgets altos en baldas. */
+      ensureCamaraModule();
       ensureEducacionFolder();
+      ensureFotosFolder();
       arrangeToShelves();
       if (!quiet) {
         showToast(added
@@ -2974,7 +3095,9 @@
 
     function applyPreset(key) {
       if (!key || !PRESET_LABELS[key]) return;
-      var locals = state.items.filter(function (it) { return it.kind === 'local'; });
+      var locals = state.items.filter(function (it) {
+        return it.kind === 'local' || it.kind === 'photo';
+      });
       state.items = locals.slice();
       state.folders = [];
       state.openFolderId = null;
@@ -2984,7 +3107,10 @@
       applyStatusPos();
       if (key === 'completo' || !PRESETS[key]) {
         fillDesktop(true);
+        ensureCamaraModule();
         ensureEducacionFolder();
+        ensureFotosFolder();
+        rehomePhotosInFotosFolder();
         showToast('Disposición · Completo');
       } else {
         PRESETS[key].forEach(function (id) {
@@ -3009,7 +3135,10 @@
             });
           }
         });
+        ensureCamaraModule();
         ensureEducacionFolder();
+        ensureFotosFolder();
+        rehomePhotosInFotosFolder();
         if (key === 'educacion') {
           state.openFolderId = EDUCACION_FOLDER_ID;
         }
@@ -3077,6 +3206,7 @@
       for (var i = 0; i < candidates.length; i++) {
         if (ICONS[candidates[i]]) return candidates[i];
       }
+      if (it && it.kind === 'photo') return 'camara';
       if (it && it.kind === 'local') return 'local';
       return 'default';
     }
@@ -3200,6 +3330,10 @@
             showToast('Educación se queda · es la carpeta de packs');
             return true;
           }
+          if (isFotosHub(folder)) {
+            showToast('Fotos se queda · ahí se guardan las fotos');
+            return true;
+          }
           if (!confirm('¿Eliminar carpeta «' + (folder.name || '') + '»? Los iconos vuelven a la balda.')) return true;
           var removedId = folder.id;
           state.folders = state.folders.filter(function (f) { return f.id !== removedId; });
@@ -3277,7 +3411,7 @@
       var frame = document.getElementById('mod-frame');
       var host = document.getElementById('mod-host');
       var ext = document.getElementById('mod-external');
-      document.body.classList.remove('mod-open', 'mod-external', 'mod-host');
+      document.body.classList.remove('mod-open', 'mod-external', 'mod-host', 'mod-photo');
       if (modLoadTimer) { clearTimeout(modLoadTimer); modLoadTimer = null; }
       if (viewer) viewer.hidden = true;
       if (frame) {
@@ -3488,8 +3622,195 @@
     }
 
 
-    function openCameraCapture() {
-      /* Privacy: open phone camera via capture input; discard any file — no upload */
+    function photoTitleNow() {
+      try {
+        var d = new Date();
+        var dias = ['dom', 'lun', 'mar', 'mié', 'jue', 'vie', 'sáb'];
+        var hh = String(d.getHours()).padStart(2, '0');
+        var mm = String(d.getMinutes()).padStart(2, '0');
+        return 'Foto · ' + dias[d.getDay()] + ' ' + d.getDate() + ' · ' + hh + ':' + mm;
+      } catch (e) {
+        return 'Foto';
+      }
+    }
+
+    function newPhotoId() {
+      return 'photo:' + Date.now().toString(36) + '-' + Math.floor(Math.random() * 1e5).toString(36);
+    }
+
+    function saveCapturedPhoto(blobOrFile, mimeHint) {
+      if (!blobOrFile) {
+        showToast('No hay foto');
+        return Promise.resolve(null);
+      }
+      var mime = mimeHint || blobOrFile.type || 'image/jpeg';
+      if (!/^image\//i.test(mime)) mime = 'image/jpeg';
+      var id = newPhotoId();
+      var titulo = photoTitleNow();
+      var name = titulo.replace(/[·:\s]+/g, '-').replace(/-+/g, '-') + '.jpg';
+      return idbPut({ id: id, name: name, blob: blobOrFile, mime: mime })
+        .then(function () {
+          ensureFotosFolder();
+          var folder = folderById(FOTOS_FOLDER_ID);
+          state.items.push({
+            id: id,
+            type: 'module',
+            kind: 'photo',
+            titulo: titulo,
+            icon: 'camara',
+            href: '',
+            shelf: 'varios',
+            color: '#FF8A65',
+            shape: 'soft',
+            view: 'icon',
+            z: ++Z,
+            addedAt: new Date().toISOString()
+          });
+          if (folder) {
+            if (!Array.isArray(folder.ids)) folder.ids = [];
+            if (folder.ids.indexOf(id) < 0) folder.ids.push(id);
+          }
+          state.openFolderId = FOTOS_FOLDER_ID;
+          saveState();
+          renderDesktop();
+          showToast('Guardada en · Fotos');
+          return id;
+        })
+        .catch(function () {
+          showToast('No se pudo guardar la foto');
+          return null;
+        });
+    }
+
+    function openPhoto(id) {
+      idbGet(id).then(function (rec) {
+        if (!rec || !rec.blob) {
+          showToast('Foto no encontrada');
+          return;
+        }
+        var it = findItem(id);
+        var title = (it && it.titulo) || rec.name || 'Foto';
+        var viewer = document.getElementById('mod-viewer');
+        var host = document.getElementById('mod-host');
+        var t = document.getElementById('mod-viewer-title');
+        if (!viewer || !host) {
+          showToast('No se pudo abrir');
+          return;
+        }
+        closeModuleViewer();
+        if (t) t.textContent = title;
+        var url = '';
+        try {
+          if (typeof rec.blob === 'string') url = rec.blob;
+          else {
+            url = URL.createObjectURL(rec.blob);
+            modBlobUrl = url;
+          }
+        } catch (eUrl) {
+          showToast('No se pudo abrir');
+          return;
+        }
+        host.innerHTML = '';
+        var img = document.createElement('img');
+        img.className = 'photo-full';
+        img.alt = title;
+        img.src = url;
+        host.appendChild(img);
+        viewer.hidden = false;
+        document.body.classList.add('mod-open', 'mod-host', 'mod-photo');
+      }).catch(function () {
+        showToast('No se pudo abrir la foto');
+      });
+    }
+
+    function stopCamLiveStream(stream) {
+      try {
+        if (!stream) return;
+        var tracks = stream.getTracks ? stream.getTracks() : [];
+        tracks.forEach(function (tr) { try { tr.stop(); } catch (e) {} });
+      } catch (e2) {}
+    }
+
+    function openCameraLiveCapture() {
+      if (!navigator.mediaDevices || typeof navigator.mediaDevices.getUserMedia !== 'function') {
+        return Promise.reject(new Error('no-media'));
+      }
+      return navigator.mediaDevices.getUserMedia({
+        audio: false,
+        video: { facingMode: { ideal: 'environment' } }
+      }).then(function (stream) {
+        return new Promise(function (resolve, reject) {
+          var overlay = document.createElement('div');
+          overlay.className = 'cam-live-overlay';
+          overlay.setAttribute('role', 'dialog');
+          overlay.setAttribute('aria-modal', 'true');
+          overlay.setAttribute('aria-label', 'Cámara');
+          var video = document.createElement('video');
+          video.setAttribute('playsinline', '');
+          video.setAttribute('autoplay', '');
+          video.muted = true;
+          video.srcObject = stream;
+          var bar = document.createElement('div');
+          bar.className = 'cam-live-bar';
+          var btnCap = document.createElement('button');
+          btnCap.type = 'button';
+          btnCap.className = 'primary';
+          btnCap.textContent = 'Capturar';
+          var btnCancel = document.createElement('button');
+          btnCancel.type = 'button';
+          btnCancel.className = 'ghost';
+          btnCancel.textContent = 'Cancelar';
+          bar.appendChild(btnCancel);
+          bar.appendChild(btnCap);
+          overlay.appendChild(video);
+          overlay.appendChild(bar);
+          document.body.appendChild(overlay);
+          try { video.play(); } catch (ePlay) {}
+
+          function cleanup() {
+            stopCamLiveStream(stream);
+            try { video.srcObject = null; } catch (eSo) {}
+            if (overlay.parentNode) overlay.parentNode.removeChild(overlay);
+          }
+          btnCancel.addEventListener('click', function () {
+            cleanup();
+            reject(new Error('cancel'));
+          });
+          btnCap.addEventListener('click', function () {
+            try {
+              var w = video.videoWidth || 1280;
+              var h = video.videoHeight || 720;
+              var canvas = document.createElement('canvas');
+              canvas.width = w;
+              canvas.height = h;
+              var ctx = canvas.getContext('2d');
+              ctx.drawImage(video, 0, 0, w, h);
+              cleanup();
+              if (canvas.toBlob) {
+                canvas.toBlob(function (blob) {
+                  if (!blob) {
+                    try {
+                      var dataUrl = canvas.toDataURL('image/jpeg', 0.92);
+                      resolve({ blob: dataUrl, mime: 'image/jpeg' });
+                    } catch (eDu) { reject(eDu); }
+                    return;
+                  }
+                  resolve({ blob: blob, mime: blob.type || 'image/jpeg' });
+                }, 'image/jpeg', 0.92);
+              } else {
+                var dataUrl2 = canvas.toDataURL('image/jpeg', 0.92);
+                resolve({ blob: dataUrl2, mime: 'image/jpeg' });
+              }
+            } catch (eCap) {
+              cleanup();
+              reject(eCap);
+            }
+          });
+        });
+      });
+    }
+
+    function openCameraFileCapture() {
       var input = document.getElementById('cam-capture-input');
       if (!input) {
         input = document.createElement('input');
@@ -3501,7 +3822,10 @@
         input.tabIndex = -1;
         input.style.cssText = 'position:fixed;left:-9999px;width:1px;height:1px;opacity:0;';
         input.addEventListener('change', function () {
+          var f = input.files && input.files[0];
           try { input.value = ''; } catch (eClear) {}
+          if (!f) return;
+          saveCapturedPhoto(f, f.type || 'image/jpeg');
         });
         document.body.appendChild(input);
       }
@@ -3514,6 +3838,30 @@
       } catch (eClick) {
         showToast('Abre la cámara en tu teléfono');
       }
+    }
+
+    function openCameraCapture() {
+      /* Offline-capable: getUserMedia when allowed; else <input capture> — save into Fotos */
+      ensureFotosFolder();
+      var proto = (location && location.protocol) || '';
+      var canLive = !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia)
+        && (proto === 'https:' || proto === 'http:' || /localhost/i.test(location.hostname || ''));
+      /* file:// / content:// → capture input (getUserMedia usually blocked) */
+      if (proto === 'file:' || proto === 'content:') canLive = false;
+      if (!canLive) {
+        openCameraFileCapture();
+        return;
+      }
+      openCameraLiveCapture().then(function (res) {
+        if (!res || !res.blob) {
+          openCameraFileCapture();
+          return;
+        }
+        return saveCapturedPhoto(res.blob, res.mime);
+      }).catch(function (err) {
+        if (err && err.message === 'cancel') return;
+        openCameraFileCapture();
+      });
     }
 
     /* Android: intent:// + package + S.browser_fallback_url → app if installed, else https */
@@ -3541,6 +3889,11 @@
       if (now - _openGuard < 350) return;
       _openGuard = now;
       try { closePanels(); } catch (eClose) {}
+      if (it.kind === 'photo') {
+        bumpUsage(it.id);
+        openPhoto(it.id);
+        return;
+      }
       if (it.kind === 'local') {
         bumpUsage(it.id);
         openLocal(it.id);
@@ -4230,6 +4583,7 @@
         }
       }
       tile.className = 'launch-tile' + (shape !== 'round' ? ' shape-' + shape : '') + (isLead ? ' lead-tile' : '');
+      if (it.kind === 'photo') tile.className += ' photo-tile';
       if (tilePulseFor(it)) tile.className += ' ico-pulse';
       if (state.selectMode && state.selectedIds && state.selectedIds.indexOf(it.id) >= 0) {
         tile.className += ' tile-selected';
@@ -4600,7 +4954,7 @@
         try { URL.revokeObjectURL(urlCache[id]); } catch (e) {}
         delete urlCache[id];
       }
-      if (String(id).indexOf('local:') === 0) idbDel(id).catch(function () {});
+      if (String(id).indexOf('local:') === 0 || String(id).indexOf('photo:') === 0) idbDel(id).catch(function () {});
       idbDel(sheetIdbKey(id)).catch(function () {});
       if (selectedId === id) selectedId = null;
       delete hojaPaint[id];
@@ -5029,7 +5383,7 @@
       });
     }
 
-    var EST_BUILD = 'v20260926i';
+    var EST_BUILD = 'v20260926j';
 
     function layoutPanelSheet() {
       var tb = document.getElementById('desk-toolbar');
@@ -5397,14 +5751,17 @@
       var needCompletoPurity = !needSeed && state.layoutRev < 19;
       var needCanonicalIds = !needSeed && state.layoutRev < 20;
       var needEducacionHub = !needSeed && state.layoutRev < 21;
+      var needCamaraFotos = !needSeed && state.layoutRev < 22;
       if (needSeed) {
         seedFullDesktop();
         ensureCasaModules();
         ensureCasaDeepModules();
         ensureShelfLeads();
         arrangeToShelves();
+        ensureCamaraModule();
         ensureEducacionFolder();
-        state.layoutRev = 21;
+        ensureFotosFolder();
+        state.layoutRev = 22;
         state.version = 5;
         saveState();
       } else if (needRearrange || needEdu || needVariosEdu || needRapido || needLeads || needCamaraQr || needMapasLead || needAppShortcuts || needCasaModules || needCasaDeep || needFolders || needCompletoPurity || needCanonicalIds || needEducacionHub) {
@@ -5587,8 +5944,10 @@
           arrangeToShelves();
         })();
         /* layoutRev 21: carpeta Educación (hub) + packs escolares dentro, no sueltos */
+        ensureCamaraModule();
         ensureEducacionFolder();
-        state.layoutRev = 21;
+        ensureFotosFolder();
+        state.layoutRev = 22;
         state.version = 5;
         saveState();
       } else if (needFolders) {
@@ -5604,8 +5963,10 @@
           if (cat && cat.shape) it.shape = cat.shape;
           else delete it.shape;
         });
+        ensureCamaraModule();
         ensureEducacionFolder();
-        state.layoutRev = 21;
+        ensureFotosFolder();
+        state.layoutRev = 22;
         state.version = 5;
         saveState();
       } else if (needShapesRestore || needCarteles) {
@@ -5616,26 +5977,45 @@
           if (cat && cat.shape) it.shape = cat.shape;
           else delete it.shape;
         });
+        ensureCamaraModule();
         ensureEducacionFolder();
-        state.layoutRev = 21;
+        ensureFotosFolder();
+        state.layoutRev = 22;
         saveState();
         renderDesktop();
       } else {
         ensureEducacionFolder();
-        if (state.layoutRev < 21) {
-          state.layoutRev = 21;
+        if (state.layoutRev < 22) {
+          state.layoutRev = 22;
           saveState();
         }
         renderDesktop();
       }
-      /* Casa modules idempotente; atajos Red NO se reinyectan (Completo = solo embebidos). */
+      /* Casa modules idempotente; Cámara/Fotos offline en Varios; Red no se reinyecta. */
       (function () {
         var n0 = state.items.length;
+        var f0 = (state.folders || []).length;
         ensureCasaModules();
         ensureCasaDeepModules();
         ensureShelfLeads();
+        ensureCamaraModule();
         ensureEducacionFolder();
-        if (state.items.length !== n0) {
+        ensureFotosFolder();
+        rehomePhotosInFotosFolder();
+        /* layoutRev 22: Cámara fuera de Red → Varios + carpeta Fotos */
+        if (typeof state.layoutRev !== 'number' || state.layoutRev < 22) {
+          state.items.forEach(function (it) {
+            if (it && it.id === 'camara') {
+              it.shelf = 'varios';
+              it.openNative = true;
+              it.href = '';
+              it.blurb = 'Foto · se guarda en Fotos';
+            }
+          });
+          state.layoutRev = 22;
+          saveState();
+        }
+        if (state.items.length !== n0 || (state.folders || []).length !== f0) {
           arrangeToShelves();
         }
       })();
