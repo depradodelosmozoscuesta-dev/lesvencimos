@@ -144,7 +144,7 @@ input[type=range]{width:100%;accent-color:var(--acento)}
 
   <h2>Efectos del texto</h2>
   <div class="panel">
-    <p class="hint">Al leer o al tocar un párrafo (ES/EN): lluvia, truenos, mar, bosque, caballos, fuego, noche, viento, río, puerta, campana, espada, lobo, grillos, pasos, cristal, reloj, susurro, disparo lejano, muchedumbre/mercado… Capas Web Audio; el ambiente hace duck. El botón «Efectos» / SFX lo activa o apaga.</p>
+    <p class="hint">Al leer o al tocar un párrafo (ES/EN): lluvia, truenos, mar, bosque, caballos, fuego, noche, viento, río, agua/derrame, puerta, campana, espada, lobo, grillos, pasos, cristal, reloj, susurro, disparo lejano, muchedumbre/mercado… Capas Web Audio; el ambiente hace duck. En bosque, los pajaritos a veces «hablan». El botón «Efectos» / SFX lo activa o apaga.</p>
     <label class="field"><span>Volumen efectos</span>
       <input type="range" id="sfx-vol" min="0" max="1" step="0.01" value="0.45">
     </label>
@@ -187,14 +187,22 @@ input[type=range]{width:100%;accent-color:var(--acento)}
     <p class="status" id="amb-status">Ambiente: apagado</p>
   </div>
 
-  <h2>Melodía · tensión</h2>
+  <h2>Melodía · 10 presets</h2>
   <div class="panel">
-    <div class="row" id="tens-presets">
-      <button type="button" data-tens="0" class="on">Calma</button>
-      <button type="button" data-tens="0.45">Media</button>
-      <button type="button" data-tens="0.85">Tensión</button>
+    <p class="hint">Diez melodías distintas (escala, tempo, onda, registro). La tensión afina la intensidad dentro de la elegida. Los pajaritos a veces «hablan» en bosque.</p>
+    <div class="row" id="mel-presets">
+      <button type="button" data-mel="calma" class="on">Calma</button>
+      <button type="button" data-mel="pastoral">Pastoral</button>
+      <button type="button" data-mel="marcha">Marcha</button>
+      <button type="button" data-mel="misterio">Misterio</button>
+      <button type="button" data-mel="tension">Tensión</button>
+      <button type="button" data-mel="marina">Marina</button>
+      <button type="button" data-mel="noche">Noche</button>
+      <button type="button" data-mel="festival">Festival</button>
+      <button type="button" data-mel="melancolia">Melancolía</button>
+      <button type="button" data-mel="aventura">Aventura</button>
     </div>
-    <label class="field"><span>Tensión</span>
+    <label class="field"><span>Tensión (intensidad)</span>
       <input type="range" id="tens-slider" min="0" max="1" step="0.01" value="0.15">
     </label>
     <label class="field"><span>Volumen melodía</span>
@@ -216,7 +224,7 @@ input[type=range]{width:100%;accent-color:var(--acento)}
       <li>En Leer: Continuar (posición guardada), Desde el principio, o toca un párrafo. «Mantener lectura con pantalla apagada» intenta Wake Lock + audio silencioso; Android a menudo mata speechSynthesis igual — al volver te ofrecemos Continuar.</li>
       <li>Activa «Efectos del texto» para SFX al hablar de lluvia, caballos, mar…</li>
       <li>La voz del sistema basta. Solo si quieres, puedes añadir el paquete «voz natural» (opcional, pesado).</li>
-      <li>Ambientes y melodía son capas aparte; Mute apaga todo.</li>
+      <li>Ambientes y melodía (10 presets) son capas aparte; Mute apaga todo.</li>
     </ol>
   </div>
   <h2>Licencia</h2>
@@ -1085,6 +1093,57 @@ input[type=range]{width:100%;accent-color:var(--acento)}
     }, ms || 600);
   }
 
+  /* ─── Bird «speech» (Web Audio only — never speechSynthesis) ─── */
+  var lastBirdSpeechAt = 0;
+  function maybeBirdSpeech(force) {
+    if (!force && !sfxOn) return;
+    if (!AC && !force) return;
+    var now = Date.now();
+    if (now - lastBirdSpeechAt < 5200) return;
+    if (Math.random() > 0.32) return; /* ~32% when invited */
+    lastBirdSpeechAt = now;
+    playBirdPhrase(!!force);
+  }
+  function playBirdPhrase(viaAmb) {
+    if (!ensureAC()) return;
+    if (AC.state === 'suspended') AC.resume();
+    var dest = (viaAmb && masterAmb) ? masterAmb : (masterSfx || AC.destination);
+    var t0 = AC.currentTime;
+    /* Rapid formant-ish warble: short chirps with varied rhythm = tiny «spoken» twitter */
+    var n = 5 + Math.floor(Math.random() * 5);
+    var base = 1800 + Math.random() * 900;
+    var delay = 0;
+    for (var i = 0; i < n; i++) {
+      var f0 = base * (0.85 + Math.random() * 0.45) * (i % 3 === 0 ? 1.25 : 1);
+      (function (whenOff, fStart) {
+        var when = t0 + whenOff;
+        var o1 = AC.createOscillator();
+        var o2 = AC.createOscillator();
+        var g = AC.createGain();
+        var bp = AC.createBiquadFilter();
+        bp.type = 'bandpass';
+        bp.frequency.setValueAtTime(fStart, when);
+        bp.Q.value = 6 + Math.random() * 4;
+        o1.type = 'sine';
+        o2.type = 'triangle';
+        var glide = fStart * (0.72 + Math.random() * 0.7);
+        o1.frequency.setValueAtTime(fStart, when);
+        o1.frequency.exponentialRampToValueAtTime(Math.max(200, glide), when + 0.055);
+        o2.frequency.setValueAtTime(fStart * 1.5, when);
+        o2.frequency.exponentialRampToValueAtTime(Math.max(300, glide * 1.4), when + 0.05);
+        var dur = 0.045 + Math.random() * 0.07;
+        g.gain.setValueAtTime(0.0001, when);
+        g.gain.exponentialRampToValueAtTime(0.055 + Math.random() * 0.03, when + 0.008);
+        g.gain.exponentialRampToValueAtTime(0.0001, when + dur);
+        o1.connect(bp); o2.connect(bp); bp.connect(g); g.connect(dest);
+        o1.start(when); o2.start(when);
+        o1.stop(when + dur + 0.02); o2.stop(when + dur + 0.02);
+      })(delay, f0);
+      delay += (Math.random() < 0.35 ? 0.045 : 0.09) + Math.random() * 0.07;
+      if (Math.random() < 0.2) delay += 0.08; /* tiny pause = syllable break */
+    }
+  }
+
   /* ─── SFX keyword map (ES + EN) ─── */
   var SFX_MAP = [
     { re: /muchedumbre|multitud|plaza|mercado|feria|vocer[ií]o|alboroto|gent[ií]o|bullicio|coro de voces|crowd|marketplace|throng|hubbub|bustle|town square/i, kind: 'muchedumbre' },
@@ -1092,6 +1151,7 @@ input[type=range]{width:100%;accent-color:var(--acento)}
     { re: /pasos en (la )?madera|cruj(?:i[oó]|en|ir) (?:el|la|los|las)? ?tabl|piso de madera|creak(?:ing)? (?:floor|board|wood)|footsteps? on (?:the )?wood|wooden floor/i, kind: 'pasos' },
     { re: /caballos?|galope|jinete|troc[eé]|relinch|roc[ií]n|\bhorses?\b|gallop|hoof|hooves|steed|cavalry/i, kind: 'caballos' },
     { re: /truenos?|tormenta|rel[aá]mpago|tempestad|rayo|tormentoso|\bthunder\b|lightning|tempest|thunderstorm/i, kind: 'trueno' },
+    { re: /se le cay[oó] el agua|se cay[oó] el agua|derram[oó](?:ron)?(?: el)? agua|volc[oó](?:ron)?(?: el)? agua|chapuz[oó]n|salpic[oó]|jarro de agua|gotas? de agua|cubo(?: de agua)?|cantimplora|water spilled|spilled the water|spilled water|\bsplash\b|knocked over the water|poured out|derrame(?: de agua)?|volc(?:ó|o) el jarro|water poured|overflow(?:ed)? (?:the )?water/i, kind: 'agua' },
     { re: /lluvia|llovizna|aguacero|chaparr[oó]n|\brain\b|drizzle|downpour|rainfall/i, kind: 'lluvia' },
     { re: /\bmar\b|olas?|oc[eé]ano|oleaje|playa|nav[ií]o|bergant[ií]n|velero|puerto|\bsea\b|\bocean\b|waves?|surf|shore|harbour|harbor|sailing/i, kind: 'mar' },
     { re: /bosque|p[aá]jaros?|hayas?|encinas?|selva|arboleda|\bforest\b|\bwoods?\b|birds? sing|grove/i, kind: 'bosque' },
@@ -1281,7 +1341,18 @@ input[type=range]{width:100%;accent-color:var(--acento)}
       burstNoise(1.2, 'lowpass', 220, 0.22, 0.4);
       tone(110, 0.9, 'sine', 0.06);
       tone(165, 0.7, 'triangle', 0.03, 0.15);
+    } else if (kind === 'agua') {
+      /* Derrame / chapuzón: noise splash + descending drip tones */
+      burstNoise(0.32, 'bandpass', 900, 0.48, 0.7);
+      burstNoise(0.55, 'lowpass', 420, 0.32, 0.45, 0.04);
+      burstNoise(0.22, 'highpass', 2800, 0.14, 1.1, 0.02);
+      tone(780, 0.18, 'sine', 0.1, 0.08, 220);
+      tone(540, 0.22, 'triangle', 0.08, 0.18, 160);
+      tone(360, 0.28, 'sine', 0.06, 0.32, 90);
+      tone(980, 0.09, 'sine', 0.05, 0.42, 400);
+      tone(620, 0.12, 'triangle', 0.04, 0.55, 180);
     }
+    if (kind === 'bosque') maybeBirdSpeech();
     document.getElementById('sfx-status').textContent = 'Efecto: ' + kind;
     updateDock();
   }
@@ -1424,6 +1495,7 @@ input[type=range]{width:100%;accent-color:var(--acento)}
         g.gain.exponentialRampToValueAtTime(0.07, AC.currentTime + 0.02);
         g.gain.exponentialRampToValueAtTime(0.0001, AC.currentTime + 0.2);
         o.connect(g); g.connect(masterAmb); o.start(); o.stop(AC.currentTime + 0.22);
+        if (Math.random() < 0.28) maybeBirdSpeech(true);
       }, 1600);
     } else if (kind === 'caballos') {
       bed({ type: 'lowpass', freq: 160, vol: 0.06, q: 0.5 });
@@ -1700,9 +1772,108 @@ input[type=range]{width:100%;accent-color:var(--acento)}
     if (masterAmb) masterAmb.gain.value = parseFloat(this.value) * ambDuck;
   });
 
-  /* Melody */
-  var scale = [196.00, 220.00, 233.08, 261.63, 293.66, 311.13, 349.23];
+  /* Melody — 10 named presets (Web Audio only) */
+  var LS_MEL = 'lv-biblio-mel-preset';
+  var MEL_PRESETS = {
+    calma: {
+      label: 'Calma',
+      scale: [196.00, 220.00, 246.94, 261.63, 293.66, 329.63, 349.23], /* A minor-ish soft */
+      pattern: [0, 2, 4, 2, 0, 4, 5, 4],
+      wave: 'sine', drone: [98, 146.83], droneWave: 'sine',
+      beat: 980, register: 1, filt: 700, baseT: 0.12
+    },
+    pastoral: {
+      label: 'Pastoral',
+      scale: [174.61, 196.00, 220.00, 261.63, 293.66, 329.63, 349.23], /* F lydian-ish */
+      pattern: [0, 2, 4, 5, 4, 2, 3, 4, 7, 5],
+      wave: 'triangle', drone: [87.31, 130.81], droneWave: 'sine',
+      beat: 820, register: 1.0, filt: 1100, baseT: 0.2
+    },
+    marcha: {
+      label: 'Marcha',
+      scale: [130.81, 146.83, 164.81, 196.00, 220.00, 246.94, 261.63], /* C major low */
+      pattern: [0, 0, 4, 4, 5, 5, 4, 2, 2, 1, 1, 0],
+      wave: 'square', drone: [65.41, 98], droneWave: 'triangle',
+      beat: 420, register: 0.5, filt: 1600, baseT: 0.45
+    },
+    misterio: {
+      label: 'Misterio',
+      scale: [155.56, 185.00, 196.00, 233.08, 277.18, 311.13, 369.99], /* Locrian / dim */
+      pattern: [0, 1, 3, 2, 5, 3, 6, 4, 1, 0],
+      wave: 'sawtooth', drone: [77.78, 116.54], droneWave: 'sine',
+      beat: 1100, register: 0.75, filt: 500, baseT: 0.55
+    },
+    tension: {
+      label: 'Tensión',
+      scale: [220.00, 233.08, 277.18, 293.66, 349.23, 370.00, 415.30], /* Phrygian tense */
+      pattern: [0, 1, 0, 2, 1, 4, 3, 5, 4, 6],
+      wave: 'sawtooth', drone: [110, 138.59], droneWave: 'triangle',
+      beat: 560, register: 1.0, filt: 2200, baseT: 0.85
+    },
+    marina: {
+      label: 'Marina',
+      scale: [146.83, 164.81, 174.61, 196.00, 220.00, 246.94, 261.63], /* D dorian */
+      pattern: [0, 3, 5, 3, 4, 7, 5, 3, 2, 0],
+      wave: 'sine', drone: [73.42, 110], droneWave: 'sine',
+      beat: 900, register: 0.85, filt: 900, baseT: 0.25
+    },
+    noche: {
+      label: 'Noche',
+      scale: [110.00, 130.81, 146.83, 164.81, 196.00, 220.00, 246.94], /* low Aeolian */
+      pattern: [0, 2, 3, 2, 5, 3, 4, 2, 0],
+      wave: 'triangle', drone: [55, 82.41], droneWave: 'sine',
+      beat: 1200, register: 0.65, filt: 450, baseT: 0.18
+    },
+    festival: {
+      label: 'Festival',
+      scale: [261.63, 293.66, 329.63, 349.23, 392.00, 440.00, 523.25], /* C major bright */
+      pattern: [0, 2, 4, 7, 4, 2, 5, 4, 2, 0, 4, 7],
+      wave: 'square', drone: [130.81, 196], droneWave: 'triangle',
+      beat: 380, register: 1.0, filt: 2800, baseT: 0.4
+    },
+    melancolia: {
+      label: 'Melancolía',
+      scale: [196.00, 220.00, 233.08, 261.63, 293.66, 311.13, 349.23], /* A harmonic minor */
+      pattern: [4, 3, 2, 0, 2, 3, 5, 4, 2, 1, 0],
+      wave: 'sine', drone: [98, 155.56], droneWave: 'sine',
+      beat: 1050, register: 0.9, filt: 650, baseT: 0.3
+    },
+    aventura: {
+      label: 'Aventura',
+      scale: [146.83, 164.81, 185.00, 220.00, 246.94, 277.18, 329.63], /* D mixolydish */
+      pattern: [0, 4, 5, 4, 7, 5, 4, 2, 5, 7, 9, 7],
+      wave: 'triangle', drone: [73.42, 110, 146.83], droneWave: 'sawtooth',
+      beat: 480, register: 1.15, filt: 1800, baseT: 0.5
+    }
+  };
+  var melPresetId = 'calma';
+  try {
+    var savedMel = localStorage.getItem(LS_MEL);
+    if (savedMel && MEL_PRESETS[savedMel]) melPresetId = savedMel;
+  } catch (eMel) {}
   var melStep = 0, melTimer = null;
+
+  function melStatusText() {
+    var p = MEL_PRESETS[melPresetId] || MEL_PRESETS.calma;
+    if (!melOn) return 'Melodía: apagada · ' + p.label;
+    return 'Melodía: ' + p.label + ' · tensión ' + Math.round(tension * 100) + '%';
+  }
+  function syncMelPresetUI() {
+    document.querySelectorAll('#mel-presets button').forEach(function (b) {
+      b.classList.toggle('on', b.getAttribute('data-mel') === melPresetId);
+    });
+    document.getElementById('mel-status').textContent = melStatusText();
+  }
+  function setMelPreset(id, restart) {
+    if (!MEL_PRESETS[id]) return;
+    melPresetId = id;
+    try { localStorage.setItem(LS_MEL, id); } catch (eS) {}
+    var p = MEL_PRESETS[id];
+    tension = p.baseT;
+    document.getElementById('tens-slider').value = String(tension);
+    syncMelPresetUI();
+    if (restart && melOn) startMel();
+  }
   function stopMel() {
     if (melTimer) { clearTimeout(melTimer); melTimer = null; }
     if (melNodes) {
@@ -1710,73 +1881,84 @@ input[type=range]{width:100%;accent-color:var(--acento)}
       melNodes = null;
     }
     melOn = false;
-    document.getElementById('mel-status').textContent = 'Melodía: apagada';
+    document.getElementById('mel-status').textContent = melStatusText();
     document.getElementById('mel-on').classList.remove('on');
     updateDock();
-  }
-  function applyTensionUI(t) {
-    tension = Math.max(0, Math.min(1, t));
-    document.getElementById('tens-slider').value = String(tension);
-    document.querySelectorAll('#tens-presets button').forEach(function (b) {
-      var v = parseFloat(b.getAttribute('data-tens'));
-      b.classList.toggle('on', Math.abs(v - tension) < 0.08);
-    });
   }
   function startMel() {
     if (!ensureAC()) { document.getElementById('mel-status').textContent = 'Sin Web Audio.'; return; }
     if (AC.state === 'suspended') AC.resume();
     stopMel();
-    melOn = true; melNodes = [];
-    [98, 146.83, 196].forEach(function (f, idx) {
+    melOn = true; melNodes = []; melStep = 0;
+    var preset = MEL_PRESETS[melPresetId] || MEL_PRESETS.calma;
+    var drones = preset.drone || [98, 146.83];
+    drones.forEach(function (f, idx) {
       var o = AC.createOscillator(); var g = AC.createGain(); var fil = AC.createBiquadFilter();
-      o.type = idx === 0 ? 'sine' : 'triangle'; o.frequency.value = f;
-      fil.type = 'lowpass'; fil.frequency.value = 400 + tension * 1200;
-      g.gain.value = 0.07 - idx * 0.015;
+      o.type = preset.droneWave || 'sine'; o.frequency.value = f;
+      fil.type = 'lowpass'; fil.frequency.value = (preset.filt || 700) * 0.55 + tension * 800;
+      g.gain.value = (0.055 - idx * 0.012) * (0.7 + tension * 0.5);
       o.connect(fil); fil.connect(g); g.connect(masterMel); o.start();
       melNodes.push(o, g, fil);
     });
-    function beatMs() { return 900 - tension * 480; }
+    function beatMs() {
+      var base = preset.beat || 900;
+      return Math.max(220, base - tension * base * 0.45);
+    }
     function tick() {
       if (!melOn || !AC) return;
+      var p = MEL_PRESETS[melPresetId] || MEL_PRESETS.calma;
+      var pat = p.pattern || [0, 2, 4, 2];
+      var sc = p.scale;
+      var deg = pat[melStep % pat.length];
+      var oct = 1 + Math.floor(deg / sc.length);
+      var idx = deg % sc.length;
+      var freq = sc[idx] * oct * (p.register || 1);
+      /* occasional leap / neighbor for character */
+      if (tension > 0.6 && melStep % 7 === 3) freq *= 1.5;
       var o = AC.createOscillator(); var g = AC.createGain(); var fil = AC.createBiquadFilter();
-      fil.type = 'lowpass'; fil.frequency.value = 600 + tension * 1800;
-      var base = scale[melStep % scale.length];
-      o.type = 'sine'; o.frequency.value = base;
+      fil.type = 'lowpass';
+      fil.frequency.value = (p.filt || 800) + tension * 1400;
+      o.type = p.wave || 'sine';
+      o.frequency.value = freq;
       var now = AC.currentTime;
+      var attack = p.wave === 'square' || p.wave === 'sawtooth' ? 0.012 : 0.03;
+      var dur = 0.22 + (1 - tension) * 0.35 + (p.beat > 800 ? 0.15 : 0);
       g.gain.setValueAtTime(0.0001, now);
-      g.gain.exponentialRampToValueAtTime(0.09 + tension * 0.05, now + 0.03);
-      g.gain.exponentialRampToValueAtTime(0.0001, now + 0.35 + (1 - tension) * 0.25);
-      o.connect(fil); fil.connect(g); g.connect(masterMel); o.start(now); o.stop(now + 0.7);
+      g.gain.exponentialRampToValueAtTime(0.08 + tension * 0.06, now + attack);
+      g.gain.exponentialRampToValueAtTime(0.0001, now + dur);
+      o.connect(fil); fil.connect(g); g.connect(masterMel);
+      o.start(now); o.stop(now + dur + 0.05);
       melStep++;
       if (melTimer) clearTimeout(melTimer);
       melTimer = setTimeout(tick, beatMs());
     }
     tick();
-    document.getElementById('mel-status').textContent = 'Melodía: on · tensión ' + Math.round(tension * 100) + '%';
+    document.getElementById('mel-status').textContent = melStatusText();
     document.getElementById('mel-on').classList.add('on');
+    syncMelPresetUI();
     updateDock();
   }
   document.getElementById('mel-on').addEventListener('click', function () { if (melOn) stopMel(); else startMel(); });
   document.getElementById('mel-off').addEventListener('click', stopMel);
   document.getElementById('mel-vol').addEventListener('input', function () { if (masterMel) masterMel.gain.value = parseFloat(this.value); });
   document.getElementById('tens-slider').addEventListener('input', function () {
-    applyTensionUI(parseFloat(this.value));
-    if (melOn) document.getElementById('mel-status').textContent = 'Melodía: on · tensión ' + Math.round(tension * 100) + '%';
+    tension = Math.max(0, Math.min(1, parseFloat(this.value) || 0));
+    document.getElementById('mel-status').textContent = melStatusText();
   });
-  document.querySelectorAll('#tens-presets button').forEach(function (b) {
+  document.querySelectorAll('#mel-presets button').forEach(function (b) {
     b.addEventListener('click', function () {
-      applyTensionUI(parseFloat(b.getAttribute('data-tens')));
-      if (melOn) startMel();
+      setMelPreset(b.getAttribute('data-mel'), true);
     });
   });
-  applyTensionUI(0.15);
+  /* init preset (sets base tension from preset) */
+  setMelPreset(melPresetId, false);
 
   function updateDock() {
     var parts = [];
     if (window.speechSynthesis && speechSynthesis.speaking) parts.push('voz');
     if (sfxOn) parts.push('sfx');
     if (ambKind) parts.push(ambKind);
-    if (melOn) parts.push('melodía');
+    if (melOn) parts.push((MEL_PRESETS[melPresetId] || MEL_PRESETS.calma).label);
     document.getElementById('dock-status').textContent = parts.length ? ('Activo: ' + parts.join(' · ')) : 'Capas listas · offline';
   }
   document.getElementById('q-tts').addEventListener('click', function () { document.getElementById('tts-play').click(); goLeer(); });
