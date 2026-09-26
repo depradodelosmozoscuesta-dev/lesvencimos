@@ -1724,7 +1724,7 @@
       </div>
     </div>
 
-    <footer class="site-foot">lesvencimos.com · escritorio / estantería offline · <span id="est-build">v20260926a</span></footer>
+    <footer class="site-foot">lesvencimos.com · escritorio / estantería offline · <span id="est-build">v20260926b</span></footer>
   </div>
 
   <div id="mod-viewer" role="dialog" aria-modal="true" aria-labelledby="mod-viewer-title" hidden>
@@ -1876,6 +1876,48 @@
     };
 
     /* shape: round | poster | tall | wide | soft | billboard | star ; pulse: true = soft fade */
+
+    /* Canonical id aliases (old state / forbidden short ids → canónicos) */
+    var ID_ALIASES = {
+      legal: 'legal-casa',
+      gym: 'gimnasio',
+      brico: 'bricolaje',
+      electro: 'electricidad',
+      medica: 'medicacion',
+      auxilios: 'primeros-auxilios',
+      info: 'informatica',
+      supervive: 'supervivencia',
+      guias: 'guias-viaje',
+      caja: 'caja-fuerte',
+      medita: 'meditacion',
+      biblio: 'biblioteca',
+      calc: 'calculadora'
+    };
+
+    function migrateCanonicalIds() {
+      var changed = false;
+      var seen = {};
+      var next = [];
+      (state.items || []).forEach(function (it) {
+        if (!it || !it.id) return;
+        var nid = ID_ALIASES[it.id] || it.id;
+        if (nid !== it.id) { it.id = nid; changed = true; }
+        var cat = catalogById(it.id);
+        if (cat) {
+          if (cat.titulo) it.titulo = cat.titulo;
+          if (cat.icon) it.icon = cat.icon;
+          if (cat.embed !== undefined) it.embed = cat.embed;
+          if (cat.shelf) it.shelf = cat.shelf;
+        }
+        if (seen[it.id]) return;
+        seen[it.id] = true;
+        next.push(it);
+      });
+      if (next.length !== (state.items || []).length) changed = true;
+      state.items = next;
+      return changed;
+    }
+
     var CATALOG = [
       { id: 'tinta-escritura', titulo: 'Escritura', icon: 'escritura', embed: 'escritura', blurb: 'Hoja para escribir', shelf: 'escritura', shape: 'soft', color: '#4A9BE8' },
       { id: 'tinta-estudio', titulo: 'Dibujo', icon: 'dibujo', embed: 'dibujo', blurb: 'Hoja para pintar', shelf: 'escritura', shape: 'soft', color: '#F0A060' },
@@ -1894,7 +1936,7 @@
       { id: 'economia', titulo: 'Economía', icon: 'economia', embed: 'economia', blurb: 'Presupuesto · ahorro', shelf: 'casa', shape: 'wide', color: '#3D9B6E' },
       { id: 'clima', titulo: 'Clima', icon: 'clima', embed: 'clima', blurb: 'Confort · ventilación', shelf: 'casa', shape: 'soft', color: '#5B9FCF' },
       { id: 'moda', titulo: 'Moda', icon: 'moda', embed: 'moda', blurb: 'Estilos · cuidado ropa', shelf: 'varios', shape: 'poster', color: '#D45A8A' },
-      { id: 'legal', titulo: 'Legal casa', icon: 'legal', embed: 'legal', blurb: 'Comunidad · alquiler', shelf: 'varios', shape: 'poster', color: '#8B7355' },
+      { id: 'legal-casa', titulo: 'Legal casa', icon: 'legal', embed: 'legal', blurb: 'Comunidad · alquiler', shelf: 'varios', shape: 'poster', color: '#8B7355' },
       { id: 'mascotas', titulo: 'Mascotas', icon: 'mascotas', embed: 'mascotas', blurb: 'Tekel · razas · vet', shelf: 'casa', shape: 'soft', color: '#E8A060' },
       { id: 'bricolaje', titulo: 'Brico', icon: 'bricolaje', embed: 'brico', blurb: 'DIY casa', shelf: 'casa', shape: 'billboard', color: '#E87722' },
       { id: 'electricidad', titulo: 'Electro', icon: 'electricidad', embed: 'electro', blurb: 'Vida · bricolaje', shelf: 'casa', shape: 'poster', color: '#FFD13A' },
@@ -1904,9 +1946,9 @@
       { id: 'salud', titulo: 'Salud', icon: 'salud', embed: 'salud', blurb: 'Pastillas y médicos', shelf: 'salud', shape: 'round', pulse: true, color: '#FF6B7A' },
       { id: 'medicacion', titulo: 'Medicinas', icon: 'medicacion', embed: 'medica', blurb: 'Recordatorio local', shelf: 'salud', shape: 'soft', pulse: true, color: '#E85A9A' },
       { id: 'gimnasio', titulo: 'Gimnasio', icon: 'gimnasio', embed: 'gym', blurb: 'Movimiento suave', shelf: 'salud', shape: 'billboard', color: '#FF7A00' },
-      { id: 'primeros-auxilios', titulo: 'Auxilios', icon: 'auxilios', embed: 'auxilios', blurb: 'RCP · cultura útil', shelf: 'salud', shape: 'round', color: '#FF4444' },
+      { id: 'primeros-auxilios', titulo: 'Auxilios', icon: 'primeros-auxilios', embed: 'auxilios', blurb: 'RCP · cultura útil', shelf: 'salud', shape: 'round', color: '#FF4444' },
       { id: 'informatica', titulo: 'Informática', icon: 'informatica', embed: 'info', blurb: 'Cultura general · Linux', shelf: 'varios', shape: 'wide', color: '#3A9BFF' },
-      { id: 'guias-viaje', titulo: 'Guías', icon: 'guias', embed: 'guias', blurb: 'España · piloto', shelf: 'varios', shape: 'soft', color: '#2AB8B0' },
+      { id: 'guias-viaje', titulo: 'Guías', icon: 'guias-viaje', embed: 'guias', blurb: 'España · piloto', shelf: 'varios', shape: 'soft', color: '#2AB8B0' },
       { id: 'mapas', titulo: 'Mapas', icon: 'mapas', embed: 'mapas', blurb: 'GPS · rumbo · km offline', shelf: 'varios', shape: 'billboard', color: '#2ECC71' },
       { id: 'tel', titulo: 'Teléfono', icon: 'telefono', embed: null, openNative: true, href: 'tel:', blurb: 'Marcar · app del móvil', shelf: 'red', shape: 'round', color: '#34C759' },
       { id: 'whatsapp', titulo: 'WhatsApp', icon: 'whatsapp', embed: null, openNative: true, href: 'https://wa.me/', blurb: 'Chat · app del móvil', shelf: 'red', shape: 'soft', color: '#25D366' },
@@ -1918,7 +1960,7 @@
       { id: 'gemini', titulo: 'Gemini', icon: 'gemini', embed: null, openNative: true, href: 'https://gemini.google.com/', androidPackage: 'com.google.android.apps.bard', blurb: 'App si está · si no web', shelf: 'red', shape: 'soft', color: '#4285F4' },
       { id: 'lesvencimos', titulo: 'Les vencimos', icon: 'lesvencimos', embed: null, openNative: true, href: 'https://lesvencimos.com/', blurb: 'App · web', shelf: 'red', shape: 'star', pulse: true, color: '#C4A15A' },
       { id: 'polar-cloud', titulo: 'Polar Cloud', icon: 'polar-cloud', embed: null, openNative: true, href: 'https://polar3d.com/', blurb: 'App · web', shelf: 'red', shape: 'soft', color: '#5B8DEF' },
-      { id: 'caja-fuerte', titulo: 'Caja fuerte', icon: 'caja', embed: 'caja', blurb: 'Claves y documentos', shelf: 'varios', shape: 'star', color: '#E8B84A' },
+      { id: 'caja-fuerte', titulo: 'Caja fuerte', icon: 'caja-fuerte', embed: 'caja', blurb: 'Claves y documentos', shelf: 'varios', shape: 'star', color: '#E8B84A' },
       { id: 'calculadora', titulo: 'Calculadora', icon: 'calculadora', embed: 'calc', blurb: 'Operaciones', shelf: 'varios', shape: 'soft', color: '#4A8AD0' },
       { id: 'qr', titulo: 'QR', icon: 'qr', embed: 'qr', blurb: 'Códigos e impresión', shelf: 'varios', shape: 'round', color: '#6A90B8' }
     ];
@@ -2231,7 +2273,7 @@
 
 
     function ensureCasaDeepModules() {
-      var ids = ['economia', 'clima', 'moda', 'legal'];
+      var ids = ['economia', 'clima', 'moda', 'legal-casa'];
       ids.forEach(function (id) {
         var mod = catalogById(id);
         if (!mod) return;
@@ -2775,6 +2817,37 @@
       });
       saveState();
       renderDesktop();
+    }
+
+
+    function escHtml(s) {
+      return String(s == null ? '' : s)
+        .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+    }
+
+    function nextMedicacionLabel() {
+      try {
+        var raw = localStorage.getItem('lv-medicacion-v1');
+        var meds = raw ? JSON.parse(raw) : [];
+        if (!Array.isArray(meds) || !meds.length) return '';
+        var now = new Date();
+        var hm = ('0' + now.getHours()).slice(-2) + ':' + ('0' + now.getMinutes()).slice(-2);
+        var slots = [];
+        meds.forEach(function (m) {
+          (m.horas || []).forEach(function (h) {
+            slots.push({ hora: h, nombre: m.nombre || '', dosis: m.dosis || '' });
+          });
+        });
+        slots.sort(function (a, b) { return String(a.hora).localeCompare(String(b.hora)); });
+        var pick = null;
+        for (var i = 0; i < slots.length; i++) {
+          if (slots[i].hora >= hm) { pick = slots[i]; break; }
+        }
+        if (!pick && slots.length) pick = slots[0];
+        if (!pick) return '';
+        return pick.hora + ' · ' + pick.nombre + (pick.dosis ? (' · ' + pick.dosis) : '');
+      } catch (e) { return ''; }
     }
 
     function isOfflineEmbed(mod) {
@@ -3515,8 +3588,8 @@
         return '<p class="w-tip">' + tip + '</p>';
       }
       if (w === 'pastilla') {
-        var stub = it.pillText || 'Aún no configurado. Ábrelo Medicación o escribe aquí tu hora.';
-        return '<div class="w-pill"><strong>Próxima toma</strong>' + stub + '</div>';
+        var stub = nextMedicacionLabel() || it.pillText || 'Sin tomas en Medicación. Ábrela desde la balda Salud.';
+        return '<div class="w-pill"><strong>Próxima toma</strong>' + escHtml(stub) + '</div>';
       }
       return '';
     }
@@ -4248,12 +4321,9 @@
       if (it.widget === 'pastilla') {
         body.addEventListener('dblclick', function () {
           if (deskMode) return;
-          var v = prompt('Texto de próxima pastilla (hora / nombre):', it.pillText || '');
-          if (v !== null) {
-            it.pillText = v.trim() || 'Sin hora anotada.';
-            saveState();
-            renderDesktop();
-          }
+          var mod = catalogById('medicacion');
+          if (mod) openModule({ id: 'medicacion', kind: 'catalog', titulo: mod.titulo, embed: mod.embed, icon: mod.icon, shelf: mod.shelf });
+
         });
       }
       var head2 = document.createElement('div');
@@ -4377,12 +4447,9 @@
         if (it.widget === 'pastilla') {
           body.addEventListener('dblclick', function () {
             if (deskMode) return;
-            var v = prompt('Texto de próxima pastilla (hora / nombre):', it.pillText || '');
-            if (v !== null) {
-              it.pillText = v.trim() || 'Sin hora anotada.';
-              saveState();
-              renderDesktop();
-            }
+            var mod = catalogById('medicacion');
+            if (mod) openModule({ id: 'medicacion', kind: 'catalog', titulo: mod.titulo, embed: mod.embed, icon: mod.icon, shelf: mod.shelf });
+
           });
         }
       }
@@ -4877,7 +4944,7 @@
       });
     }
 
-    var EST_BUILD = 'v20260926a';
+    var EST_BUILD = 'v20260926b';
 
     function layoutPanelSheet() {
       var tb = document.getElementById('desk-toolbar');
@@ -5069,6 +5136,7 @@
       state = loadState();
       ensureFolderState();
       state.items.forEach(migrateItem);
+      if (migrateCanonicalIds()) saveState();
       var stripped = stripDuplicateTimeWidgets();
       if (typeof state.layoutRev !== 'number') state.layoutRev = 0;
       state.version = Math.max(4, state.version || 0);
@@ -5206,18 +5274,37 @@
         saveState();
         renderDesktop();
       });
+
+      window.addEventListener('message', function (ev) {
+        try {
+          var d = ev && ev.data;
+          if (!d || typeof d !== 'object') return;
+          var mid = d.lvOpen || d.openModule || null;
+          if (!mid || typeof mid !== 'string') return;
+          mid = ID_ALIASES[mid] || mid;
+          var mod = catalogById(mid);
+          if (!mod) return;
+          closeModuleViewer();
+          openModule({
+            id: mod.id, kind: 'catalog', titulo: mod.titulo, icon: mod.icon,
+            embed: mod.embed || null, href: mod.href || '', external: mod.external || null,
+            openNative: mod.openNative || null, shelf: mod.shelf || 'varios', color: mod.color || ''
+          });
+        } catch (eMsg) {}
+      });
       bindDesktopLongPress();
       var needCompletoPurity = !needSeed && state.layoutRev < 19;
+      var needCanonicalIds = !needSeed && state.layoutRev < 20;
       if (needSeed) {
         seedFullDesktop();
         ensureCasaModules();
         ensureCasaDeepModules();
         ensureShelfLeads();
         arrangeToShelves();
-        state.layoutRev = 19;
+        state.layoutRev = 20;
         state.version = 5;
         saveState();
-      } else if (needRearrange || needEdu || needVariosEdu || needRapido || needLeads || needCamaraQr || needMapasLead || needAppShortcuts || needCasaModules || needCasaDeep || needFolders || needCompletoPurity) {
+      } else if (needRearrange || needEdu || needVariosEdu || needRapido || needLeads || needCamaraQr || needMapasLead || needAppShortcuts || needCasaModules || needCasaDeep || needFolders || needCompletoPurity || needCanonicalIds) {
         if (needEdu || needVariosEdu) {
           /* Packs escolares: asegurar en escritorio y shelf varios (sin balda Educación) */
           var schoolIds = ['profesor', 'mate-1eso', 'byg-1eso', 'geo-1eso', 'lengua-1eso', 'plastica-1eso', 'linux-essentials'];
@@ -5396,7 +5483,7 @@
           ensureShelfLeads();
           arrangeToShelves();
         })();
-        state.layoutRev = 19;
+        state.layoutRev = 20;
         state.version = 5;
         saveState();
       } else if (needFolders) {
@@ -5412,7 +5499,7 @@
           if (cat && cat.shape) it.shape = cat.shape;
           else delete it.shape;
         });
-        state.layoutRev = 19;
+        state.layoutRev = 20;
         state.version = 5;
         saveState();
       } else if (needShapesRestore || needCarteles) {
@@ -5423,7 +5510,7 @@
           if (cat && cat.shape) it.shape = cat.shape;
           else delete it.shape;
         });
-        state.layoutRev = 19;
+        state.layoutRev = 20;
         saveState();
         renderDesktop();
       } else {

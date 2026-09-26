@@ -145,7 +145,7 @@ var KEYS = {
   gastos: 'lv-economia-gastos-v1',
   ahorro: 'lv-economia-ahorro-v1',
   compraTips: 'lv-economia-compra-tips-v1',
-  lista: 'lv-economia-lista-v1',
+  lista: 'lv-lista-compra-v1',
   suministros: 'lv-economia-suministros-v1',
   energiaHabits: 'lv-economia-energia-habits-v1',
   habitos: 'lv-economia-habitos-v1',
@@ -171,6 +171,44 @@ function save(k,v){ try{ localStorage.setItem(k, JSON.stringify(v)); }catch(e){}
 function euro(n){
   n = Number(n)||0;
   return n.toLocaleString('es-ES',{minimumFractionDigits:2,maximumFractionDigits:2})+' €';
+}
+
+
+function uidCompra(){ return 'c'+Date.now().toString(36)+Math.random().toString(36).slice(2,6); }
+function normalizeCompraItem(it){
+  if(!it || typeof it!=='object') return null;
+  var nombre = (it.nombre!=null?it.nombre:it.t)||'';
+  nombre = String(nombre).trim();
+  if(!nombre) return null;
+  return { id: it.id || uidCompra(), nombre: nombre, done: !!it.done };
+}
+function migrateListaCompra(){
+  var FLAG='lv-lista-compra-migrated-v1';
+  try{
+    if(localStorage.getItem(FLAG)==='1' && localStorage.getItem(KEYS.lista)) return;
+    var canon = load(KEYS.lista, null);
+    var hogar = null, eco = null;
+    try{ hogar = JSON.parse(localStorage.getItem('lv-hogar-compra-v1')||'null'); }catch(err){}
+    try{ eco = JSON.parse(localStorage.getItem('lv-economia-lista-v1')||'null'); }catch(err){}
+    var merged = [];
+    var seen = {};
+    function addAll(arr){
+      if(!Array.isArray(arr)) return;
+      arr.forEach(function(it){
+        var n = normalizeCompraItem(it);
+        if(!n) return;
+        var k = n.nombre.toLowerCase();
+        if(seen[k]) return;
+        seen[k]=true; merged.push(n);
+      });
+    }
+    if(Array.isArray(canon) && canon.length) addAll(canon);
+    else { addAll(hogar); addAll(eco); }
+    if(merged.length || !localStorage.getItem(KEYS.lista)){
+      save(KEYS.lista, merged);
+    }
+    localStorage.setItem(FLAG,'1');
+  }catch(err){}
 }
 function euro0(n){
   n = Number(n)||0;
@@ -860,8 +898,9 @@ function unitFactor(u){
   return 1;
 }
 function renderCompra(){
+  migrateListaCompra();
   var tipsState = load(KEYS.compraTips, {});
-  var lista = load(KEYS.lista, []);
+  var lista = load(KEYS.lista, []).map(normalizeCompraItem).filter(Boolean);
 
   var html = '';
   html += '<h2>Comparador A vs B (€ / unidad)</h2>';
@@ -896,6 +935,7 @@ function renderCompra(){
   });
 
   html += '<h2>Lista de la compra económica</h2>';
+  html += '<p class="muted">Misma lista que <strong>Hogar</strong> (también en Hogar · Súper).</p>';
   html += '<div class="panel">';
   html += '<div class="row">';
   html += '<label class="field" style="flex:1;margin:0"><span class="sr-only">Artículo</span><input type="text" id="l-item" maxlength="80" placeholder="Artículo a comprar"></label>';
@@ -985,7 +1025,8 @@ function renderCompra(){
 }
 
 function mergeIngredientesLista(){
-  var list = load(KEYS.lista, []);
+  migrateListaCompra();
+  var list = load(KEYS.lista, []).map(normalizeCompraItem).filter(Boolean);
   var nombres = {};
   list.forEach(function(it){ nombres[String(it.nombre).toLowerCase()] = true; });
   var added = 0;

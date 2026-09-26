@@ -89,6 +89,27 @@ ul.ings{margin:.4rem 0;padding-left:1.1rem;color:var(--suave)}
   };
   function load(k, fb){ try{ const v=JSON.parse(localStorage.getItem(k)||'null'); return v==null?fb:v; }catch(e){return fb} }
   function save(k,v){ localStorage.setItem(k, JSON.stringify(v)); }
+  const MED_KEY='lv-medicacion-v1';
+  const MED_FLAG='lv-salud-meds-migrated-v1';
+  function loadMedicacion(){ try{ const v=JSON.parse(localStorage.getItem(MED_KEY)||'[]'); return Array.isArray(v)?v:[]; }catch(e){return[]} }
+  function saveMedicacion(arr){ localStorage.setItem(MED_KEY, JSON.stringify(arr)); }
+  function loadMedChecks(){ try{ return JSON.parse(localStorage.getItem('lv-med-check-'+new Date().toISOString().slice(0,10))||'{}'); }catch(e){return{}} }
+  function saveMedChecks(o){ localStorage.setItem('lv-med-check-'+new Date().toISOString().slice(0,10), JSON.stringify(o)); }
+  function migrateSaludMedsToMedicacion(){
+    try{
+      if(localStorage.getItem(MED_FLAG)==='1') return;
+      var existing = loadMedicacion();
+      var old = load(K.meds, []);
+      if((!existing || !existing.length) && Array.isArray(old) && old.length){
+        var mapped = old.map(function(m){
+          return { id: m.id || ('m'+Date.now().toString(36)), nombre: m.nombre||'', dosis: m.dosis||'', horas: m.horas||[] };
+        });
+        saveMedicacion(mapped);
+      }
+      localStorage.setItem(MED_FLAG,'1');
+    }catch(e){}
+  }
+
   function esc(s){ return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c]); }
   function uid(){ return 's'+Date.now().toString(36)+Math.random().toString(36).slice(2,5); }
 
@@ -134,66 +155,60 @@ ul.ings{margin:.4rem 0;padding-left:1.1rem;color:var(--suave)}
   }
 
   function renderPastillas(app){
-    let meds=load(K.meds,[]);
-    let checks=load(K.checks(),{});
-    app.innerHTML='<h2>Hoy</h2><div class="list" id="hoy"></div><h2>Mis medicinas</h2><div class="list" id="lista"></div>'+
-      '<section class="panel"><h2 style="margin-top:0">Añadir</h2>'+
-      '<label class="field"><span>Nombre</span><input id="nombre" list="sug" placeholder="Ej. Metformina"></label>'+
-      '<datalist id="sug">'+MEDS_DEF.map(m=>'<option value="'+esc(m)+'">').join('')+'</datalist>'+
-      '<label class="field"><span>Dosis</span><input id="dosis" placeholder="Ej. 850 mg"></label>'+
-      '<div class="row" style="margin-bottom:.6rem">'+[['08:00','Mañana'],['14:00','Mediodía'],['21:00','Noche']].map(([v,l])=>'<label class="chip"><input type="checkbox" value="'+v+'"> '+l+' '+v+'</label>').join('')+'</div>'+
-      '<label class="field"><span>Otra hora</span><input id="otra" type="time"></label>'+
-      '<button type="button" class="primary" id="add">Guardar</button></section>';
-
+    migrateSaludMedsToMedicacion();
+    var meds = loadMedicacion();
+    var checks = loadMedChecks();
+    var html = '<p class="empty" style="margin:0 0 .75rem">La fuente de pastillas es <strong>Medicación</strong>. Aquí solo ves el checklist de hoy.</p>';
+    html += '<p style="margin:0 0 .75rem"><button type="button" class="primary" id="open-med">Abrir Medicación</button></p>';
+    html += '<h2>Hoy</h2><div class="list" id="hoy"></div>';
+    html += '<h2>Mis medicinas</h2><div class="list" id="lista"></div>';
+    if(!meds.length){
+      html += '<p class="empty">Aún no hay medicinas en Medicación. Pulsa «Abrir Medicación» para dar de alta.</p>';
+    }
+    app.innerHTML = html;
+    document.getElementById('open-med').onclick = function(){
+      try{
+        if(window.parent && window.parent !== window){
+          window.parent.postMessage({ lvOpen: 'medicacion' }, '*');
+          return;
+        }
+      }catch(e){}
+      try{ location.href = 'medicacion.html'; }catch(e2){}
+    };
     function slots(){
-      const out=[];
-      meds.forEach(m=>{ (m.horas||[]).forEach(h=>out.push({id:m.id+':'+h, hora:h, nombre:m.nombre, dosis:m.dosis, mid:m.id})); });
-      out.sort((a,b)=>a.hora.localeCompare(b.hora));
+      var out=[];
+      meds.forEach(function(m){
+        (m.horas||[]).forEach(function(h){
+          out.push({id:m.id+'@'+h, hora:h, nombre:m.nombre, dosis:m.dosis||''});
+        });
+      });
+      out.sort(function(a,b){ return a.hora.localeCompare(b.hora); });
       return out;
     }
     function paint(){
-      const hoy=document.getElementById('hoy');
-      const s=slots();
-      hoy.innerHTML=s.length?s.map(x=>{
-        const done=!!checks[x.id];
+      var hoy=document.getElementById('hoy');
+      var sl=slots();
+      hoy.innerHTML = sl.length ? sl.map(function(x){
+        var done=!!checks[x.id];
         return '<button type="button" class="check-item'+(done?' done':'')+'" data-id="'+x.id+'"><span class="box"></span><span style="color:var(--acento);font-weight:700;min-width:3.2rem">'+x.hora+'</span><span style="flex:1"><strong>'+esc(x.nombre)+'</strong> · '+esc(x.dosis||'')+'</span></button>';
-      }).join(''):'<p class="empty">Sin tomas hoy. Añade medicinas abajo.</p>';
-      hoy.querySelectorAll('[data-id]').forEach(b=>b.onclick=()=>{
-        const id=b.getAttribute('data-id');
-        checks[id]=!checks[id];
-        save(K.checks(),checks);
-        if(checks[id]){
-          const hist=load(K.hist,[]);
-          hist.unshift({when:new Date().toISOString(), id, label:b.textContent.trim()});
-          save(K.hist, hist.slice(0,200));
-        }
-        paint();
+      }).join('') : '<p class="empty">Sin tomas hoy. Añade medicinas en Medicación.</p>';
+      hoy.querySelectorAll('[data-id]').forEach(function(b){
+        b.onclick=function(){
+          var id=b.getAttribute('data-id');
+          checks[id]=!checks[id];
+          saveMedChecks(checks);
+          paint();
+        };
       });
-      const lista=document.getElementById('lista');
-      lista.innerHTML=meds.length?meds.map(m=>'<div class="panel" style="margin:0"><div class="row" style="justify-content:space-between"><div><div style="font-family:var(--serif);font-weight:600">'+esc(m.nombre)+'</div><div class="m" style="color:var(--suave)">'+esc(m.dosis||'')+' · '+(m.horas||[]).join(', ')+'</div></div><button type="button" class="danger" data-del="'+m.id+'">Borrar</button></div></div>').join(''):'<p class="empty">Aún no hay medicinas.</p>';
-      lista.querySelectorAll('[data-del]').forEach(b=>b.onclick=()=>{ meds=meds.filter(x=>x.id!==b.getAttribute('data-del')); save(K.meds,meds); paint(); });
+      var lista=document.getElementById('lista');
+      lista.innerHTML = meds.length ? meds.map(function(m){
+        return '<div class="panel" style="margin:0"><div style="font-family:var(--serif);font-weight:600">'+esc(m.nombre)+'</div><div class="m" style="color:var(--suave)">'+esc(m.dosis||'')+' · '+(m.horas||[]).join(', ')+'</div></div>';
+      }).join('') : '';
     }
     paint();
-    document.getElementById('add').onclick=()=>{
-      const nombre=(document.getElementById('nombre').value||'').trim();
-      if(!nombre) return;
-      const dosis=(document.getElementById('dosis').value||'').trim();
-      const horas=[...app.querySelectorAll('.chip input:checked')].map(i=>i.value);
-      const otra=(document.getElementById('otra').value||'').trim();
-      if(otra && horas.indexOf(otra)<0) horas.push(otra);
-      if(!horas.length){ alert('Elige al menos un horario'); return; }
-      horas.sort();
-      meds.push({id:uid(), nombre, dosis, horas});
-      save(K.meds,meds);
-      document.getElementById('nombre').value='';
-      document.getElementById('dosis').value='';
-      document.getElementById('otra').value='';
-      app.querySelectorAll('.chip input').forEach(i=>i.checked=false);
-      paint();
-    };
   }
 
-  function renderMedicos(app){
+function renderMedicos(app){
     let docs=load(K.docs,[]);
     app.innerHTML='<div class="list" id="lista"></div><section class="panel"><h2 style="margin-top:0">Añadir médico o centro</h2>'+
       '<label class="field"><span>Nombre</span><input id="n" placeholder="Dra. Pérez / Centro de salud…"></label>'+

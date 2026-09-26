@@ -100,7 +100,7 @@ def inject_embedded(shell: str, embedded: dict[str, str]) -> str:
 def write_leeme() -> str:
     return """═══════════════════════════════════════
   ESCRITORIO / ESTANTERÍA — Les vencimos
-  Build v20260926a
+  Build v20260926b
   UN SOLO HTML (módulos dentro)
 ═══════════════════════════════════════
 
@@ -118,6 +118,8 @@ Fade 24 px + chevron si hay overflow (respeta
 prefers-reduced-motion).
 
 Preset Completo = solo módulos embebidos offline.
+IDs canónicos (legal-casa, caja-fuerte…). Una lista de la compra
+(Hogar ↔ Economía). Pastillas: fuente Medicación.
 Atajos de red (Tel, WhatsApp, IAs, Filmin…) viven
 en balda Red — fuera de Completo y de Casa.
 Packs escolares en Varios con etiqueta visible
@@ -246,7 +248,7 @@ def main() -> None:
     shutil.rmtree(STAGING)
 
     # Also keep last lettered snapshot name pointing at same bytes (bookmarks).
-    snapshot = ROOT / "downloads" / "estanteria-offline-v20260926a.zip"
+    snapshot = ROOT / "downloads" / "estanteria-offline-v20260926b.zip"
     shutil.copy2(OUT, snapshot)
     print(f"Wrote {OUT} ({OUT.stat().st_size} bytes)")
     print(f"Snapshot {snapshot}")
