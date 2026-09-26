@@ -100,7 +100,7 @@ def inject_embedded(shell: str, embedded: dict[str, str]) -> str:
 def write_leeme() -> str:
     return """═══════════════════════════════════════
   ESCRITORIO / ESTANTERÍA — Les vencimos
-  Build v20260926e
+  Build v20260926f
   UN SOLO HTML (módulos dentro)
 ═══════════════════════════════════════
 
@@ -122,8 +122,10 @@ IDs canónicos (legal-casa, caja-fuerte…). Una lista de la compra
 (Hogar ↔ Economía). Pastillas: fuente Medicación.
 Atajos de red (Tel, WhatsApp, IAs, Filmin…) viven
 en balda Red — fuera de Completo y de Casa.
-Packs escolares en Varios con etiqueta visible
-(o Disposición Educación). Barra Ajustes arriba
+Carpeta Educación (balda Varios): packs escolares
+y subida múltiple (Examinar / Carpeta). Cada lote
+crea su carpeta; Educación se queda. Completo no
+muestra Lengua/Geo/… sueltos. Barra Ajustes arriba
 (no es una balda). Iconos de color vivos.
 Hora/fecha/papelera en pastilla arrastrable
 (arriba a la derecha por defecto; Restaurar la
@@ -140,8 +142,9 @@ van EMBEBIDOS dentro del HTML.
 Al tocar un icono se abren en la misma página
 (← Escritorio para volver).
 
-Profesor (cole) es grande: descarga aparte en
-lesvencimos.com/descargas.html (o «Archivo local»).
+Profesor / ESO son grandes: descarga aparte en
+lesvencimos.com/descargas.html y súbelos en Educación
+(Examinar / Carpeta, varios HTML de golpe).
 
 ─── Android — pasos ───
 
@@ -248,7 +251,7 @@ def main() -> None:
     shutil.rmtree(STAGING)
 
     # Also keep last lettered snapshot name pointing at same bytes (bookmarks).
-    snapshot = ROOT / "downloads" / "estanteria-offline-v20260926e.zip"
+    snapshot = ROOT / "downloads" / "estanteria-offline-v20260926f.zip"
     shutil.copy2(OUT, snapshot)
     print(f"Wrote {OUT} ({OUT.stat().st_size} bytes)")
     print(f"Snapshot {snapshot}")
