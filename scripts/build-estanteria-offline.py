@@ -100,7 +100,7 @@ def inject_embedded(shell: str, embedded: dict[str, str]) -> str:
 def write_leeme() -> str:
     return """═══════════════════════════════════════
   ESCRITORIO / ESTANTERÍA — Les vencimos
-  Build v20260926g
+  Build v20260926h
   UN SOLO HTML (módulos dentro)
 ═══════════════════════════════════════
 
@@ -123,7 +123,7 @@ IDs canónicos (legal-casa, caja-fuerte…). Una lista de la compra
 Atajos de red (Tel, WhatsApp, IAs, Filmin…) viven
 en balda Red — fuera de Completo y de Casa.
 Carpeta Educación (balda Varios): packs escolares
-y subida múltiple (Examinar / Carpeta). Cada lote
+y subida múltiple (Añadir asignatura / Elegir carpeta). Cada lote
 crea su carpeta; Educación se queda. Completo no
 muestra Lengua/Geo/… sueltos. Barra Ajustes arriba
 (no es una balda). Iconos de color vivos.
@@ -144,7 +144,7 @@ Al tocar un icono se abren en la misma página
 
 Profesor / ESO son grandes: descarga aparte en
 lesvencimos.com/descargas.html y súbelos en Educación
-(Examinar / Carpeta, varios HTML de golpe).
+(Añadir asignatura / Elegir carpeta, varios HTML de golpe).
 
 ─── Android — pasos ───
 
@@ -251,7 +251,7 @@ def main() -> None:
     shutil.rmtree(STAGING)
 
     # Also keep last lettered snapshot name pointing at same bytes (bookmarks).
-    snapshot = ROOT / "downloads" / "estanteria-offline-v20260926g.zip"
+    snapshot = ROOT / "downloads" / "estanteria-offline-v20260926h.zip"
     shutil.copy2(OUT, snapshot)
     print(f"Wrote {OUT} ({OUT.stat().st_size} bytes)")
     print(f"Snapshot {snapshot}")
