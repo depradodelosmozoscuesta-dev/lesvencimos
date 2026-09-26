@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#FAF7F0">
+<title>L17 · Planificador Proyecto 2</title>
+<style>
+
+
+:root{--bg:#FAF7F0;--ink:#2A2620;--muted:#5C564C;--card:#fff;--gold:#C4A15A;--gold-soft:#F5EDD8;--gold-deep:#8A6B2F;--green:#3D6B4F;--green-soft:#E4F0E8;--blue:#2F5D7A;--blue-soft:#E3EEF4;--rose:#9B3A4A;--rose-soft:#F8E8EB;--shadow:0 10px 32px rgba(42,38,32,.09);--radius:18px}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{min-height:100%;background:var(--bg);color:var(--ink);font-family:"Segoe UI",system-ui,-apple-system,sans-serif;-webkit-font-smoothing:antialiased}
+body{display:flex;flex-direction:column;align-items:center;padding:14px 10px 36px}
+.wrap{width:100%;max-width:720px}
+header{text-align:center;margin-bottom:12px}
+.badge{display:inline-block;font-size:.78rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--gold-deep);background:var(--gold-soft);padding:4px 12px;border-radius:999px;margin-bottom:8px}
+h1{font-size:clamp(1.25rem,4.5vw,1.75rem);line-height:1.2;font-weight:800;color:#0E0E0C}
+.subtitle{margin-top:6px;font-size:clamp(.9rem,2.8vw,1.02rem);color:var(--muted);font-weight:500}
+.story{background:linear-gradient(135deg,#F5EDD8,#E3EEF4 55%,#E4F0E8);border:2px solid #E0D0A8;border-radius:var(--radius);padding:12px 14px;margin-bottom:14px;font-size:clamp(.9rem,2.5vw,1.02rem);line-height:1.45}
+.story strong{color:var(--gold-deep)}
+.card{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);padding:18px 16px 20px;margin-bottom:14px;min-height:300px;display:flex;flex-direction:column}
+.progress{font-size:.82rem;font-weight:800;color:var(--muted);margin-bottom:8px}
+.item-text{font-size:clamp(1.05rem,3.2vw,1.22rem);font-weight:800;line-height:1.35;margin:8px 0 14px;flex:1}
+.btns{display:grid;gap:10px}
+.btns.cols2{grid-template-columns:1fr 1fr}
+.btns.cols1{grid-template-columns:1fr}
+button.choice{appearance:none;border:2px solid #D9D0C0;border-radius:14px;padding:12px 14px;font-weight:800;font-size:clamp(.9rem,2.5vw,1.02rem);cursor:pointer;background:#fff;color:var(--ink);text-align:left;line-height:1.3;transition:transform .15s,border-color .15s,background .15s}
+button.choice:hover:not(:disabled){border-color:var(--gold);transform:translateY(-1px)}
+button.choice:disabled{cursor:default}
+button.choice.ok{border-color:var(--green);background:var(--green-soft);color:#2A5238}
+button.choice.bad{border-color:var(--rose);background:var(--rose-soft);color:#7A2A36}
+.feedback{margin-top:14px;padding:12px 14px;border-radius:12px;border:2px solid #E0D0A8;background:#FFFcf5;font-size:clamp(.9rem,2.5vw,1.02rem);line-height:1.45;display:none}
+.feedback.show{display:block}
+.feedback.ok{background:var(--green-soft);border-color:#9BC4A8;color:#2A5238}
+.feedback.bad{background:var(--rose-soft);border-color:#E8A8B0;color:#7A2A36}
+.feedback .tag{display:inline-block;font-size:.72rem;font-weight:800;text-transform:uppercase;letter-spacing:.04em;padding:2px 8px;border-radius:999px;margin-bottom:6px;background:#fff}
+.feedback.ok .tag{color:var(--green)}
+.feedback.bad .tag{color:var(--rose)}
+.nav{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:14px}
+button.action{appearance:none;border:none;border-radius:999px;padding:10px 18px;font-weight:800;font-size:.95rem;cursor:pointer;background:var(--gold);color:#fff}
+button.action.secondary{background:#fff;color:var(--gold-deep);border:2px solid var(--gold)}
+button.action:disabled{opacity:.45;cursor:not-allowed}
+.score{text-align:center;font-weight:800;font-size:1.1rem;margin:8px 0}
+.mnemonic{font-size:.95rem;font-weight:700;color:var(--gold-deep);background:var(--gold-soft);border-left:4px solid var(--gold);padding:10px 14px;border-radius:0 12px 12px 0;margin-top:4px;line-height:1.4}
+.dots{display:flex;gap:6px;justify-content:center;margin:10px 0 4px;flex-wrap:wrap}
+.dot{width:10px;height:10px;border-radius:50%;background:#D9D0C0}
+.dot.done-ok{background:var(--green)}.dot.done-bad{background:var(--rose)}.dot.current{outline:2px solid var(--gold);outline-offset:2px}
+footer{text-align:center;font-size:.8rem;color:var(--muted);margin-top:4px}
+body.preview-mode .story,body.preview-mode footer,body.preview-mode .hide-preview{display:none}
+@media (max-width:480px){.btns.cols2{grid-template-columns:1fr}}
+
+
+.check-list{list-style:none;margin:8px 0 12px;padding:0}
+.check-list li{margin:6px 0;padding:10px 12px;border:2px solid #E0D0A8;border-radius:12px;background:#FFFcf5;font-weight:700;font-size:.95rem;display:flex;gap:10px;align-items:flex-start;cursor:pointer}
+.check-list li.on{border-color:var(--green);background:var(--green-soft)}
+.check-list input{width:18px;height:18px;margin-top:2px;flex:0 0 auto}
+.step-num{display:inline-block;min-width:1.4em;color:var(--gold-deep)}
+.bar{height:10px;background:#E8D9B8;border-radius:999px;overflow:hidden;margin:8px 0 4px}
+.bar>i{display:block;height:100%;width:0;background:var(--green);transition:width .25s}
+
+
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="badge">Lección 17 · UD D · CE3 · Proyecto 2</div>
+    <h1>Planificador: reto o avance de CyL</h1>
+    <p class="subtitle">1º ESO Alternativa a la Religión · CyL · laica</p>
+  </header>
+  <div class="story">Marca los <strong>pasos</strong>. Luego controles: fuentes, evidencia, propuesta, rúbrica.</div>
+
+  <div class="card" style="min-height:auto">
+    <h2 style="font-size:1.1rem;font-weight:800;margin-bottom:6px">Checklist de pasos</h2>
+    <p class="progress" id="check-progress">0 / 6 pasos</p>
+    <div class="bar"><i id="bar"></i></div>
+    <ul class="check-list" id="checks">
+      <li data-k="1"><input type="checkbox"> <span><span class="step-num">1.</span> Elegir un reto o avance cercano (pregunta clara)</span></li>
+      <li data-k="2"><input type="checkbox"> <span><span class="step-num">2.</span> Repartir roles (L03)</span></li>
+      <li data-k="3"><input type="checkbox"> <span><span class="step-num">3.</span> Conseguir ≥2 fuentes con autor/fecha (L02/L15)</span></li>
+      <li data-k="4"><input type="checkbox"> <span><span class="step-num">4.</span> Redactar informe (PRO-EVI-BIE) + propuesta local</span></li>
+      <li data-k="5"><input type="checkbox"> <span><span class="step-num">5.</span> Ensayar exposición (todos hablan)</span></li>
+      <li data-k="6"><input type="checkbox"> <span><span class="step-num">6.</span> Autoevaluar con rúbrica + reflexión AARR</span></li>
+    </ul>
+    <div class="mnemonic"><strong>RET-INF-PROP</strong> — Reto/avance · Informe · Propuesta</div>
+  </div>
+
+  <div class="card" id="panel">
+    <div class="progress" id="progress">Control 1 / 6</div>
+    <div class="dots" id="dots" aria-hidden="true"></div>
+    <p class="item-text" id="item-text"></p>
+    <div class="btns cols1" id="btns"></div>
+    <div class="feedback" id="feedback"></div>
+    <div class="nav hide-preview">
+      <button type="button" class="action secondary" id="btn-prev" disabled>Anterior</button>
+      <button type="button" class="action" id="btn-next" disabled>Siguiente</button>
+    </div>
+  </div>
+
+  <div class="card hide-preview" id="end" style="display:none;min-height:auto">
+    <h2 style="font-size:1.2rem;font-weight:800;margin-bottom:8px;text-align:center">Listo para el Proyecto 2</h2>
+    <p class="score" id="score"></p>
+    <p style="text-align:center;color:var(--muted);line-height:1.45;margin-bottom:12px">Informe + propuesta local. Sin inventar. Cierre CE3.</p>
+    <div class="mnemonic"><strong>Mnemónico:</strong> RET-INF-PROP — Reto/avance · Informe · Propuesta</div>
+    <div class="nav"><button type="button" class="action" id="btn-restart">Repetir controles</button></div>
+  </div>
+  <footer>1º ESO Alternativa a la Religión · CyL · offline file://</footer>
+</div>
+<script>
+(function(){
+  if(/[?&]preview=1\b/.test(location.search)) document.body.classList.add('preview-mode');
+
+  var checks=document.querySelectorAll('#checks li');
+  var bar=document.getElementById('bar');
+  var cp=document.getElementById('check-progress');
+  function syncCheck(){
+    var n=0;
+    checks.forEach(function(li){
+      var on=li.querySelector('input').checked;
+      li.classList.toggle('on',on);
+      if(on) n++;
+    });
+    cp.textContent=n+' / 6 pasos';
+    bar.style.width=(n/6*100)+'%';
+  }
+  checks.forEach(function(li){
+    li.addEventListener('click',function(e){
+      if(e.target.tagName!=='INPUT'){ var inp=li.querySelector('input'); inp.checked=!inp.checked; }
+      syncCheck();
+    });
+    li.querySelector('input').addEventListener('click',function(e){ e.stopPropagation(); syncCheck(); });
+  });
+  syncCheck();
+
+  var SCORE_LABEL="controles ok";
+  var PROGRESS_PREFIX="Control";
+  var ITEMS = [{"text": "RET-INF-PROP significa…", "options": [{"label": "Reír · Insultar · Perder", "ok": false}, {"label": "Reto/avance · Informe · Propuesta", "ok": true}, {"label": "Copiar · Inventar · Publicar", "ok": false}], "ok_fb": "Reto/avance, informe, propuesta.", "bad_fb": "RET-INF-PROP = Reto/avance · Informe · Propuesta."}, {"text": "Mínimo de fuentes en el Proyecto 2:", "options": [{"label": "Ninguna", "ok": false}, {"label": "Solo un WhatsApp anónimo", "ok": false}, {"label": "Al menos 2 con autor/fecha", "ok": true}], "ok_fb": "≥2 fuentes (L02/L15).", "bad_fb": "Hacen falta al menos 2 fuentes citadas."}, {"text": "El informe debe mostrar (L14)…", "options": [{"label": "Problema · evidencia · bienestar", "ok": true}, {"label": "Solo un eslogan verde", "ok": false}, {"label": "Biografías inventadas", "ok": false}], "ok_fb": "PRO-EVI-BIE.", "bad_fb": "Estructura: problema, evidencia, bienestar."}, {"text": "La propuesta debe ser…", "options": [{"label": "Un milagro mundial sin pasos", "ok": false}, {"label": "Cifras de impacto inventadas", "ok": false}, {"label": "Una acción local realista que suma (L16)", "ok": true}], "ok_fb": "Local y realista.", "bad_fb": "Propuesta cercana, sin inventar datos."}, {"text": "La rúbrica mira sobre todo…", "options": [{"label": "Solo la tipografía", "ok": false}, {"label": "Honestidad, ciencia/sostenibilidad, propuesta local, equipo/exposición", "ok": true}, {"label": "Quién gritó más", "ok": false}], "ok_fb": "Cuatro criterios claros.", "bad_fb": "Rúbrica = honestidad + CE3 + propuesta + equipo."}, {"text": "En la exposición de grupo…", "options": [{"label": "Solo habla una persona", "ok": false}, {"label": "Se humilla a otros pueblos", "ok": false}, {"label": "Todos aportan algo oral", "ok": true}], "ok_fb": "Todas las voces (L03).", "bad_fb": "Todos hablan algo; respeto."}];
+
+  var i=0, answered=[], results=[];
+  var progress=document.getElementById('progress'), dots=document.getElementById('dots');
+  var itemText=document.getElementById('item-text'), btns=document.getElementById('btns');
+  var feedback=document.getElementById('feedback');
+  var btnPrev=document.getElementById('btn-prev'), btnNext=document.getElementById('btn-next');
+  var panel=document.getElementById('panel'), end=document.getElementById('end'), scoreEl=document.getElementById('score');
+  function buildDots(){ dots.innerHTML=''; for(var d=0;d<ITEMS.length;d++){ var s=document.createElement('span'); s.className='dot'; if(d===i)s.classList.add('current'); if(answered[d])s.classList.add(results[d]?'done-ok':'done-bad'); dots.appendChild(s); } }
+  function showFb(ok,it){ feedback.className='feedback show '+(ok?'ok':'bad'); feedback.innerHTML='<span class="tag">'+(ok?'Bien':'Revisa')+'</span> '+(ok?it.ok_fb:it.bad_fb); }
+  function render(){
+    if(i>=ITEMS.length){ panel.style.display='none'; end.style.display='block'; scoreEl.textContent=results.filter(Boolean).length+' / '+ITEMS.length+' '+SCORE_LABEL; return; }
+    panel.style.display='flex'; end.style.display='none';
+    var it=ITEMS[i]; progress.textContent=PROGRESS_PREFIX+' '+(i+1)+' / '+ITEMS.length; itemText.textContent=it.text;
+    feedback.className='feedback'; feedback.textContent=''; btns.innerHTML='';
+    it.options.forEach(function(opt,idx){ var b=document.createElement('button'); b.type='button'; b.className='choice'; b.textContent=opt.label; b.onclick=function(){ choose(idx); }; btns.appendChild(b); });
+    if(answered[i]){ var kids=btns.querySelectorAll('button'); kids.forEach(function(b,idx){ b.disabled=true; if(it.options[idx].ok)b.classList.add('ok'); }); if(!results[i]){ var w=answered[i]-1; if(kids[w]&&!it.options[w].ok) kids[w].classList.add('bad'); } showFb(results[i],it); btnNext.disabled=false; } else btnNext.disabled=true;
+    btnPrev.disabled=(i===0); buildDots();
+  }
+  function choose(idx){ if(answered[i])return; var it=ITEMS[i], ok=!!it.options[idx].ok; answered[i]=idx+1; results[i]=ok; btns.querySelectorAll('button').forEach(function(b,j){ b.disabled=true; if(it.options[j].ok)b.classList.add('ok'); else if(j===idx)b.classList.add('bad'); }); showFb(ok,it); btnNext.disabled=false; buildDots(); }
+  btnNext.onclick=function(){ if(!answered[i])return; i++; render(); };
+  btnPrev.onclick=function(){ if(i>0){ i--; render(); } };
+  document.getElementById('btn-restart').onclick=function(){ i=0; answered=[]; results=[]; end.style.display='none'; render(); };
+  render();
+
+})();
+</script>
+</body>
+</html>

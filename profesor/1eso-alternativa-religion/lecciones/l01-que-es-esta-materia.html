@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#FAF7F0">
+<title>L01 · ¿Es de esta materia?</title>
+<style>
+:root{--bg:#FAF7F0;--ink:#2A2620;--muted:#5C564C;--card:#fff;--gold:#C4A15A;--gold-soft:#F5EDD8;--gold-deep:#8A6B2F;--green:#3D6B4F;--green-soft:#E4F0E8;--blue:#2F5D7A;--blue-soft:#E3EEF4;--rose:#9B3A4A;--rose-soft:#F8E8EB;--shadow:0 10px 32px rgba(42,38,32,.09);--radius:18px}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{min-height:100%;background:var(--bg);color:var(--ink);font-family:"Segoe UI",system-ui,-apple-system,sans-serif;-webkit-font-smoothing:antialiased}
+body{display:flex;flex-direction:column;align-items:center;padding:14px 10px 36px}
+.wrap{width:100%;max-width:720px}
+header{text-align:center;margin-bottom:12px}
+.badge{display:inline-block;font-size:.78rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--gold-deep);background:var(--gold-soft);padding:4px 12px;border-radius:999px;margin-bottom:8px}
+h1{font-size:clamp(1.25rem,4.5vw,1.75rem);line-height:1.2;font-weight:800;color:#0E0E0C}
+.subtitle{margin-top:6px;font-size:clamp(.9rem,2.8vw,1.02rem);color:var(--muted);font-weight:500}
+.story{background:linear-gradient(135deg,#F5EDD8,#E3EEF4 55%,#E4F0E8);border:2px solid #E0D0A8;border-radius:var(--radius);padding:12px 14px;margin-bottom:14px;font-size:clamp(.9rem,2.5vw,1.02rem);line-height:1.45}
+.story strong{color:var(--gold-deep)}
+.card{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);padding:18px 16px 20px;margin-bottom:14px;min-height:320px;display:flex;flex-direction:column}
+.progress{font-size:.82rem;font-weight:800;color:var(--muted);margin-bottom:8px;letter-spacing:.02em}
+.item-text{font-size:clamp(1.05rem,3.2vw,1.25rem);font-weight:800;line-height:1.35;margin:8px 0 16px;flex:1}
+.btns{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+button.choice{appearance:none;border:2px solid #D9D0C0;border-radius:14px;padding:14px 12px;font-weight:800;font-size:clamp(.92rem,2.6vw,1.05rem);cursor:pointer;background:#fff;color:var(--ink);transition:transform .15s ease,border-color .15s,background .15s;line-height:1.3}
+button.choice:hover:not(:disabled){border-color:var(--gold);transform:translateY(-1px)}
+button.choice:disabled{cursor:default}
+button.choice.ok{border-color:var(--green);background:var(--green-soft);color:#2A5238}
+button.choice.bad{border-color:var(--rose);background:var(--rose-soft);color:#7A2A36}
+.feedback{margin-top:14px;padding:12px 14px;border-radius:12px;border:2px solid #E0D0A8;background:#FFFcf5;font-size:clamp(.9rem,2.5vw,1.02rem);line-height:1.45;display:none}
+.feedback.show{display:block}
+.feedback.ok{background:var(--green-soft);border-color:#9BC4A8;color:#2A5238}
+.feedback.bad{background:var(--rose-soft);border-color:#E8A8B0;color:#7A2A36}
+.feedback .tag{display:inline-block;font-size:.72rem;font-weight:800;text-transform:uppercase;letter-spacing:.04em;padding:2px 8px;border-radius:999px;margin-bottom:6px}
+.feedback.ok .tag{background:#fff;color:var(--green)}
+.feedback.bad .tag{background:#fff;color:var(--rose)}
+.nav{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:14px}
+button.action{appearance:none;border:none;border-radius:999px;padding:10px 18px;font-weight:800;font-size:.95rem;cursor:pointer;background:var(--gold);color:#fff}
+button.action:hover{box-shadow:0 4px 12px rgba(196,161,90,.35)}
+button.action.secondary{background:#fff;color:var(--gold-deep);border:2px solid var(--gold)}
+button.action:disabled{opacity:.45;cursor:not-allowed;box-shadow:none}
+.score{text-align:center;font-weight:800;font-size:1.1rem;margin:8px 0}
+.mnemonic{font-size:.95rem;font-weight:700;color:var(--gold-deep);background:var(--gold-soft);border-left:4px solid var(--gold);padding:10px 14px;border-radius:0 12px 12px 0;margin-top:4px;line-height:1.4}
+.dots{display:flex;gap:6px;justify-content:center;margin:10px 0 4px;flex-wrap:wrap}
+.dot{width:10px;height:10px;border-radius:50%;background:#D9D0C0}
+.dot.done-ok{background:var(--green)}
+.dot.done-bad{background:var(--rose)}
+.dot.current{outline:2px solid var(--gold);outline-offset:2px}
+footer{text-align:center;font-size:.8rem;color:var(--muted);margin-top:4px}
+body.preview-mode .story,body.preview-mode footer,body.preview-mode .hide-preview{display:none}
+@media (max-width:480px){.btns{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="badge">Lección 01 · UD A · Arranque</div>
+    <h1>¿Es de esta materia?</h1>
+    <p class="subtitle">1º ESO Alternativa a la Religión · CyL · laica</p>
+  </header>
+
+  <div class="story">
+    Clasifica cada actividad: <strong>es de esta materia</strong> (proyectos, valores, cultura CyL) o <strong>no lo es</strong>. Lee el porqué después de cada respuesta.
+  </div>
+
+  <div class="card" id="panel">
+    <div class="progress" id="progress">Ítem 1 / 8</div>
+    <div class="dots" id="dots" aria-hidden="true"></div>
+    <p class="item-text" id="item-text"></p>
+    <div class="btns" id="btns"></div>
+    <div class="feedback" id="feedback"></div>
+    <div class="nav hide-preview">
+      <button type="button" class="action secondary" id="btn-prev" disabled>Anterior</button>
+      <button type="button" class="action" id="btn-next" disabled>Siguiente</button>
+    </div>
+  </div>
+
+  <div class="card hide-preview" id="end" style="display:none;min-height:auto">
+    <h2 style="font-size:1.2rem;font-weight:800;margin-bottom:8px;text-align:center">Resultado</h2>
+    <p class="score" id="score"></p>
+    <p style="text-align:center;color:var(--muted);line-height:1.45;margin-bottom:12px">Recuerda: laica · proyectos · CyL. Sin catequesis ni deberes de otras materias.</p>
+    <div class="mnemonic"><strong>Mnemónico:</strong> Va-Cul-Ci-Ar-Na-Cas — Valores · Cultura · Ciencia · Arte · Naturaleza · Castellano</div>
+    <div class="nav">
+      <button type="button" class="action" id="btn-restart">Repetir</button>
+    </div>
+  </div>
+
+  <footer>1º ESO Alternativa a la Religión · CyL · offline file://</footer>
+</div>
+
+<script>
+(function(){
+  if(/[?&]preview=1\b/.test(location.search)) document.body.classList.add('preview-mode');
+
+  /* Cada ítem: pertenece (bool) + yesFirst (bool) para repartir la opción correcta */
+  var ITEMS = [
+    {
+      text: 'Investigar una tradición de mi pueblo o barrio y exponerla con respeto.',
+      esMateria: true,
+      firstIsYes: true,
+      ok: 'Sí: cultura y tradiciones de CyL (CE2). Proyecto con producto.',
+      bad: 'Sí forma parte: tradiciones locales con enfoque cultural, sin doctrina.'
+    },
+    {
+      text: 'Copiar oraciones o aprender el catecismo de una religión.',
+      esMateria: false,
+      firstIsYes: false,
+      ok: 'Correcto: eso es hecho religioso / catequesis. Esta materia es laica.',
+      bad: 'No: Atención educativa no enseña doctrina religiosa.'
+    },
+    {
+      text: 'Usar esta hora solo para terminar los deberes de Matemáticas o Física.',
+      esMateria: false,
+      firstIsYes: true,
+      ok: 'Correcto: no sustituye ni duplica otra asignatura.',
+      bad: 'No: esta materia tiene sus propios proyectos; no es «hora de deberes».'
+    },
+    {
+      text: 'Debatir valores de convivencia democrática en el aula y en la comunidad.',
+      esMateria: true,
+      firstIsYes: false,
+      ok: 'Sí: valores de la sociedad de CyL y convivencia (CE1).',
+      bad: 'Sí encaja: CE1 trabaja valores, reflexión y convivencia democrática.'
+    },
+    {
+      text: 'Inventar cifras o nombres de monumentos «para que el cartel quede lleno».',
+      esMateria: false,
+      firstIsYes: true,
+      ok: 'Correcto: honestidad CyL — no inventar datos. Mejor «no lo sé» o consultar fuentes.',
+      bad: 'No: inventar datos va contra el método de esta materia.'
+    },
+    {
+      text: 'Crear un mural o audio sencillo sobre un elemento artístico de CyL.',
+      esMateria: true,
+      firstIsYes: true,
+      ok: 'Sí: patrimonio artístico (CE4) — apreciar y crear con medios simples.',
+      bad: 'Sí es de aquí: arte de CyL con creación y cuidado (CE4).'
+    },
+    {
+      text: 'Proponer una mejora sostenible en el instituto o en el barrio (con fuentes).',
+      esMateria: true,
+      firstIsYes: false,
+      ok: 'Sí: ciencia / sostenibilidad y bienestar colectivo (CE3).',
+      bad: 'Sí: CE3 pide investigación y propuestas hacia una sociedad sostenible.'
+    },
+    {
+      text: 'Valorar el castellano como legado cultural de CyL al escribir el informe del proyecto.',
+      esMateria: true,
+      firstIsYes: true,
+      ok: 'Sí: castellano como acervo (CE6) — creativo, crítico y empático.',
+      bad: 'Sí: CE6 vincula lengua y cultura de CyL en prácticas comunicativas.'
+    }
+  ];
+
+  var i = 0;
+  var answered = [];
+  var results = [];
+
+  var progress = document.getElementById('progress');
+  var dots = document.getElementById('dots');
+  var itemText = document.getElementById('item-text');
+  var btns = document.getElementById('btns');
+  var feedback = document.getElementById('feedback');
+  var btnPrev = document.getElementById('btn-prev');
+  var btnNext = document.getElementById('btn-next');
+  var panel = document.getElementById('panel');
+  var end = document.getElementById('end');
+  var scoreEl = document.getElementById('score');
+
+  function buildDots(){
+    dots.innerHTML = '';
+    for(var d=0; d<ITEMS.length; d++){
+      var s = document.createElement('span');
+      s.className = 'dot';
+      if(d === i) s.classList.add('current');
+      if(answered[d]) s.classList.add(results[d] ? 'done-ok' : 'done-bad');
+      dots.appendChild(s);
+    }
+  }
+
+  function render(){
+    if(i >= ITEMS.length){
+      panel.style.display = 'none';
+      end.style.display = 'block';
+      var ok = results.filter(Boolean).length;
+      scoreEl.textContent = ok + ' / ' + ITEMS.length + ' aciertos';
+      return;
+    }
+    panel.style.display = 'flex';
+    end.style.display = 'none';
+    var it = ITEMS[i];
+    progress.textContent = 'Ítem ' + (i+1) + ' / ' + ITEMS.length;
+    itemText.textContent = it.text;
+    feedback.className = 'feedback';
+    feedback.textContent = '';
+    btns.innerHTML = '';
+
+    var labels = it.firstIsYes
+      ? [{label:'Es de esta materia', val:true}, {label:'No es de esta materia', val:false}]
+      : [{label:'No es de esta materia', val:false}, {label:'Es de esta materia', val:true}];
+
+    labels.forEach(function(L){
+      var b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'choice';
+      b.textContent = L.label;
+      b.onclick = function(){ choose(L.val, b); };
+      if(answered[i]){
+        b.disabled = true;
+        var correct = (L.val === it.esMateria);
+        if(correct) b.classList.add('ok');
+        else if(results[i] === false && L.val !== it.esMateria){ /* leave unmarked unless it was wrong pick — handled below */ }
+      }
+      btns.appendChild(b);
+    });
+
+    if(answered[i]){
+      var kids = btns.querySelectorAll('button');
+      kids.forEach(function(b){
+        b.disabled = true;
+        var isYesBtn = b.textContent.indexOf('Es de') === 0;
+        var val = isYesBtn;
+        if(val === it.esMateria) b.classList.add('ok');
+        else if(!results[i]) b.classList.add('bad');
+      });
+      showFeedback(results[i], it);
+      btnNext.disabled = false;
+    } else {
+      btnNext.disabled = true;
+    }
+
+    btnPrev.disabled = (i === 0);
+    buildDots();
+  }
+
+  function showFeedback(ok, it){
+    feedback.className = 'feedback show ' + (ok ? 'ok' : 'bad');
+    feedback.innerHTML = '<span class="tag">' + (ok ? 'Bien' : 'Revisa') + '</span> ' +
+      (ok ? it.ok : it.bad);
+  }
+
+  function choose(val, btn){
+    if(answered[i]) return;
+    var it = ITEMS[i];
+    var ok = (val === it.esMateria);
+    answered[i] = true;
+    results[i] = ok;
+    var kids = btns.querySelectorAll('button');
+    kids.forEach(function(b){
+      b.disabled = true;
+      var isYesBtn = b.textContent.indexOf('Es de') === 0;
+      if(isYesBtn === it.esMateria) b.classList.add('ok');
+      else if(b === btn) b.classList.add('bad');
+    });
+    showFeedback(ok, it);
+    btnNext.disabled = false;
+    buildDots();
+  }
+
+  btnNext.onclick = function(){
+    if(!answered[i]) return;
+    i++;
+    render();
+  };
+  btnPrev.onclick = function(){
+    if(i > 0){ i--; render(); }
+  };
+  document.getElementById('btn-restart').onclick = function(){
+    i = 0; answered = []; results = [];
+    render();
+  };
+
+  render();
+})();
+</script>
+</body>
+</html>
