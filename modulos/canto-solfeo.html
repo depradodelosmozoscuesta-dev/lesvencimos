@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0E0E0C">
+<title>Canto y solfeo — Les vencimos</title>
+<style>
+:root{
+  --fondo:#0E0E0C; --fondo-2:#161512; --fondo-3:#1C1A16;
+  --tinta:#E6E1D6; --suave:#9A9488; --acento:#C4A15A; --acento-texto:#1A160E;
+  --linea:rgba(230,225,214,.14); --peligro:#C46A4A; --ok:#8F9A72;
+  --serif:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;
+  --sans:"Segoe UI",system-ui,-apple-system,sans-serif; --radio:2px;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;min-height:100%;background:var(--fondo);color:var(--tinta);font-family:var(--sans);line-height:1.5}
+html{color-scheme:dark}
+.wrap{max-width:52rem;margin:0 auto;padding:1.4rem 1.1rem 4rem}
+header.top{display:flex;align-items:baseline;justify-content:space-between;gap:1rem;flex-wrap:wrap;padding-bottom:1rem;border-bottom:1px solid var(--linea);margin-bottom:1.1rem}
+header.top h1{margin:0;font-family:var(--serif);font-weight:600;font-size:1.7rem}
+header.top p{margin:0;color:var(--suave);font-size:.78rem;letter-spacing:.1em;text-transform:uppercase}
+.lead{color:var(--suave);margin:0 0 1rem}
+.tabs{display:flex;flex-wrap:wrap;gap:.35rem;margin:0 0 1rem}
+.tabs button{min-height:44px;padding:.45rem .8rem;border:1px solid var(--linea);background:var(--fondo-2);color:var(--tinta);border-radius:var(--radio);font:600 .88rem var(--sans);cursor:pointer}
+.tabs button.on{background:var(--acento);color:var(--acento-texto);border-color:var(--acento)}
+.box{background:var(--fondo-2);border:1px solid var(--linea);border-radius:var(--radio);padding:.9rem 1rem;margin:.55rem 0}
+h2{font-family:var(--serif);font-weight:600;font-size:1.2rem;margin:.2rem 0 .5rem}
+.chips{display:flex;flex-wrap:wrap;gap:.35rem}
+.chips button,.box button{min-height:40px;padding:.3rem .7rem;border:1px solid var(--linea);background:var(--fondo-3);color:var(--tinta);border-radius:var(--radio);font:600 .85rem var(--sans);cursor:pointer}
+.chips button.on{border-color:var(--acento);color:var(--acento)}
+button.primary{background:var(--acento);color:var(--acento-texto);border-color:var(--acento)}
+.meta{color:var(--suave);font-size:.88rem}
+table{width:100%;border-collapse:collapse;font-size:.92rem}
+th,td{border-bottom:1px solid var(--linea);text-align:left;padding:.4rem .3rem;vertical-align:top}
+th{color:var(--suave);font-size:.72rem;letter-spacing:.08em;text-transform:uppercase}
+.staff{width:100%;max-width:30rem;height:100px}
+.aviso{border-left:3px solid var(--acento);padding:.2rem 0 .2rem .7rem;color:var(--suave);margin:.5rem 0}
+.stop{border-left:3px solid var(--peligro);padding:.2rem 0 .2rem .7rem;color:var(--suave);margin:.5rem 0}
+.foot{margin-top:2rem;padding-top:.8rem;border-top:1px solid var(--linea);color:var(--suave);font-size:.8rem}
+input[type=range]{width:100%}
+textarea{width:100%;min-height:7rem;background:var(--fondo-3);color:var(--tinta);border:1px solid var(--linea);border-radius:var(--radio);padding:.6rem;font:inherit}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header class="top">
+  <div>
+    <h1>Canto y solfeo</h1>
+    <p>Voz · oído · offline</p>
+  </div>
+</header>
+<p class="lead">Teoría y voz en un archivo. Sin nube. Diapasón, intervalos, respiración, solfeo. No hay partituras de discos. No sustituye a un profesor ni a un otorrino.</p>
+<div class="tabs" id="tabs"></div>
+<main id="view"></main>
+<p class="foot">Les vencimos · file:// · Web Audio<br>
+<button type="button" id="wipe">Borrar datos de este módulo</button></p>
+</div>
+<script>
+(function(){
+  var KEY='lv-canto-v1';
+  var st={tab:'camino', tipo:'mixto', bpm:70, ref:60};
+  try{ Object.assign(st, JSON.parse(localStorage.getItem(KEY)||'{}')); }catch(e){}
+  function save(){ try{ localStorage.setItem(KEY, JSON.stringify(st)); }catch(e){} }
+
+  var TABS=[['camino','Camino'],['afinar','Diapasón'],['pulso','Pulso'],['intervalos','Intervalos'],['solfeo','Solfeo'],['voz','Voz'],['cuaderno','Cuaderno']];
+  var CAMINO=[
+    'Semana 1 — Habla un semitono más bajo que de costumbre. Relaja mandíbula. Agua. Cinco minutos, no una hora.',
+    'Semana 2 — Respiración: cuatro tiempos entra, cuatro sale. El hombro no sube. Tumbado primero, de pie después.',
+    'Semana 3 — Unísono con el diapasón de La 440 y luego de Do. No fuerces. Si pica la garganta, para.',
+    'Semana 4 — Escala mayor de Do con «do re mi fa sol la si do». Lento. Oído antes que volumen.',
+    'Semana 5 — Intervalos: 2ª mayor y 3ª menor. Canta la primera, oye la segunda, cántala.',
+    'Semana 6 — 5ª justa y octava. Son las que afinan un coro.',
+    'Semana 7 — Una frase de ocho sílabas a un tono cómodo. Graba. Escucha si el final cae.',
+    'Semana 8 — Staccato suave en «pa-pa-pa» sobre una quinta. Articulación, no grito.',
+    'Semana 9 — Ligado: do–mi–sol–mi–do. Un soplo.',
+    'Semana 10 — 3/4. El 1 se siente en el cuerpo. Cuenta en voz baja.',
+    'Semana 11 — Lee a primera vista tres notas en clave de Sol (abajo).',
+    'Semana 12 — Una melodía tuya de ocho compases. Escríbela en el cuaderno. Sin copiar un disco.'
+  ];
+  var PC=['Do','Do#','Re','Re#','Mi','Fa','Fa#','Sol','Sol#','La','La#','Si'];
+  function midiToFreq(m){ return 440*Math.pow(2,(m-69)/12); }
+  function pcName(m){ return PC[((m%12)+12)%12]; }
+  var ctx=null;
+  function ensure(){ if(!ctx) ctx=new (window.AudioContext||window.webkitAudioContext)(); return ctx; }
+  function beep(freq,dur,type){
+    var c=ensure(); var o=c.createOscillator(); var g=c.createGain();
+    o.type=type||'sine'; o.frequency.value=freq;
+    g.gain.setValueAtTime(0.0001,c.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.1,c.currentTime+0.03);
+    g.gain.exponentialRampToValueAtTime(0.0001,c.currentTime+(dur||0.6));
+    o.connect(g); g.connect(c.destination); o.start(); o.stop(c.currentTime+(dur||0.65));
+  }
+  function note(m){ beep(midiToFreq(m), 0.7, 'sine'); }
+
+  function paint(){
+    document.getElementById('tabs').innerHTML=TABS.map(function(t){return '<button type="button" data-tab="'+t[0]+'" class="'+(st.tab===t[0]?'on':'')+'">'+t[1]+'</button>';}).join('');
+    document.getElementById('tabs').onclick=function(e){ var b=e.target.closest('button'); if(!b)return; st.tab=b.getAttribute('data-tab'); save(); paint(); };
+    var v=document.getElementById('view');
+    if(st.tab==='camino') v.innerHTML=viewCamino();
+    else if(st.tab==='afinar') v.innerHTML=viewAfinar();
+    else if(st.tab==='pulso') v.innerHTML=viewPulso();
+    else if(st.tab==='intervalos') v.innerHTML=viewInt();
+    else if(st.tab==='solfeo') v.innerHTML=viewSolfeo();
+    else if(st.tab==='voz') v.innerHTML=viewVoz();
+    else v.innerHTML=viewCuaderno();
+    bind();
+  }
+
+  function viewCamino(){
+    return '<div class="box"><h2>Camino de doce semanas</h2><ol>'+CAMINO.map(function(x){return '<li>'+x+'</li>';}).join('')+'</ol>'+
+      '<p class="stop">Dolor, ronquera que no pasa, sangre: para y cita. Esto no es medicina. Agua, sueño, no fumar el material.</p></div>';
+  }
+
+  var REFS=[['Do3',48],['Mi3',52],['Sol3',55],['Do4',60],['Mi4',64],['Sol4',67],['La4',69],['Do5',72]];
+  function viewAfinar(){
+    var btns=REFS.map(function(r){return '<button type="button" data-midi="'+r[1]+'">'+r[0]+' · '+midiToFreq(r[1]).toFixed(1)+' Hz</button>';}).join(' ');
+    return '<div class="box"><h2>Diapasón</h2><p class="meta">En file:// estos tonos bastan. El micrófono del navegador suele pedir https. Canta al unísono, no más alto «para que se oiga».</p>'+
+      '<p>'+btns+'</p>'+
+      '<p><button type="button" class="primary" data-midi="69">La 440</button> <button type="button" data-midi="60">Do central</button></p></div>';
+  }
+  function viewPulso(){
+    return '<div class="box"><h2>Pulso</h2><p>Negra = '+st.bpm+' BPM</p>'+
+      '<input id="bpm" type="range" min="40" max="140" value="'+st.bpm+'">'+
+      '<p><button type="button" id="tick">Negra</button> <button type="button" id="resp">4 in + 4 out</button></p>'+
+      '<p class="meta">La respiración de 4+4 a 60 BPM es un minuto de oficio, no un ejercicio de moda.</p></div>';
+  }
+
+  var INTS=[['2ª menor',1],['2ª mayor',2],['3ª menor',3],['3ª mayor',4],['4ª justa',5],['5ª justa',7],['6ª mayor',9],['8ª',12]];
+  function viewInt(){
+    var rows=INTS.map(function(x,i){return '<tr><th>'+x[0]+'</th><td><button type="button" data-int="'+i+'">Oír</button></td></tr>';}).join('');
+    return '<div class="box"><h2>Intervalos</h2><p class="meta">Siempre desde Do4, para comparar peras con peras. Canta la primera, espera, canta la segunda.</p>'+
+      '<table><tbody>'+rows+'</tbody></table></div>';
+  }
+
+  function viewSolfeo(){
+    return '<div class="box"><h2>Solfeo</h2>'+
+      '<svg class="staff" viewBox="0 0 340 100" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">'+
+      '<rect width="340" height="100" fill="#161512"/>'+
+      '<g stroke="#E6E1D6" fill="none" stroke-width="1">'+
+      '<path d="M40 22 H320"/><path d="M40 34 H320"/><path d="M40 46 H320"/><path d="M40 58 H320"/><path d="M40 70 H320"/></g>'+
+      '<text x="44" y="58" fill="#C4A15A" font-size="32" font-family="Georgia,serif">𝄞</text>'+
+      '<circle cx="130" cy="70" r="5" fill="#E6E1D6"/><circle cx="160" cy="64" r="5" fill="#E6E1D6"/>'+
+      '<circle cx="190" cy="58" r="5" fill="#E6E1D6"/><circle cx="220" cy="52" r="5" fill="#E6E1D6"/>'+
+      '<circle cx="250" cy="46" r="5" fill="#E6E1D6"/><circle cx="280" cy="40" r="5" fill="#E6E1D6"/>'+
+      '<circle cx="310" cy="34" r="5" fill="#E6E1D6"/>'+
+      '</svg>'+
+      '<table><tbody>'+
+      '<tr><th>Clave de Sol</th><td>La segunda línea es Sol. Do central cuelga debajo.</td></tr>'+
+      '<tr><th>Nombres</th><td>Do Re Mi Fa Sol La Si. En España no usamos C D E en clase de solfeo; el cifrado sí.</td></tr>'+
+      '<tr><th>Figuras</th><td>Redonda 4 · blanca 2 · negra 1 · corchea 1/2. El silencio tiene la misma duración.</td></tr>'+
+      '<tr><th>Compás</th><td>4/4 el 1 pesa. 3/4 el 1 pesa más. 6/8 se siente a dos.</td></tr>'+
+      '</tbody></table>'+
+      '<p><button type="button" id="escala">Tocar escala de Do</button></p></div>';
+  }
+
+  function viewVoz(){
+    return '<div class="box"><h2>Voz</h2>'+
+      '<table><tbody>'+
+      '<tr><th>Hablar</th><td>Si no puedes hablar el texto con aire, no lo cantes fuerte.</td></tr>'+
+      '<tr><th>Registro</th><td>Donde la voz sale sin empujar. No hace falta ponerse etiqueta de tesitura el primer mes.</td></tr>'+
+      '<tr><th>Vocales</th><td>A y O abren. I y U cierran. En un agudo, no muerdas la I.</td></tr>'+
+      '<tr><th>Consonantes</th><td>P T K cortan. L M N ligan. La letra se entiende en la consonante, se sostiene en la vocal.</td></tr>'+
+      '<tr><th>Volumen</th><td>El teatro no se gana aplastando la garganta. Se gana con aire y texto.</td></tr>'+
+      '</tbody></table>'+
+      '<p class="stop">Dolor al tragar, ronquera de más de dos semanas, o esfuerzo que deja la voz hecha polvo: cita. Aquí no hay diagnóstico.</p>'+
+      '<p class="aviso">El módulo Letrista guarda versos. Este guarda oído. No copies estribillos protegidos para «practicar el hit».</p></div>';
+  }
+
+  function viewCuaderno(){
+    return '<div class="box"><h2>Cuaderno de frase</h2><p class="meta">Una frase tuya. Ocho a doce sílabas. Se guarda en este aparato.</p>'+
+      '<textarea id="notes" placeholder="En la plaza la sombra se queda…"></textarea>'+
+      '<p><button type="button" class="primary" id="saveN">Guardar</button></p></div>';
+  }
+
+  function bind(){
+    document.querySelectorAll('[data-midi]').forEach(function(b){ b.onclick=function(){ note(+b.getAttribute('data-midi')); }; });
+    document.querySelectorAll('[data-int]').forEach(function(b){ b.onclick=function(){
+      var n=INTS[+b.getAttribute('data-int')][1];
+      note(60); setTimeout(function(){ note(60+n); }, 550);
+    }; });
+    var bpm=document.getElementById('bpm');
+    if(bpm) bpm.oninput=function(){ st.bpm=+bpm.value; save(); };
+    var tick=document.getElementById('tick');
+    if(tick) tick.onclick=function(){ beep(880,0.06,'square'); };
+    var resp=document.getElementById('resp');
+    if(resp) resp.onclick=function(){
+      var q=60000/Math.max(40,st.bpm);
+      beep(660,0.05,'sine');
+      setTimeout(function(){beep(520,0.05,'sine');}, q*4);
+    };
+    var es=document.getElementById('escala');
+    if(es) es.onclick=function(){
+      [60,62,64,65,67,69,71,72].forEach(function(m,i){ setTimeout(function(){note(m);}, i*280); });
+    };
+    var ta=document.getElementById('notes');
+    if(ta){
+      try{ ta.value=localStorage.getItem('lv-canto-frase-v1')||''; }catch(e){}
+      var sv=document.getElementById('saveN');
+      if(sv) sv.onclick=function(){ try{ localStorage.setItem('lv-canto-frase-v1', ta.value); }catch(e){} };
+    }
+  }
+
+  document.getElementById('wipe').onclick=function(){
+    try{ localStorage.removeItem(KEY); localStorage.removeItem('lv-canto-frase-v1'); }catch(e){}
+    st={tab:'camino', tipo:'mixto', bpm:70}; paint();
+  };
+  paint();
+})();
+</script>
+</body>
+</html>

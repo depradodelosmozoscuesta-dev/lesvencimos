@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0E0E0C">
+<title>Bajo — Les vencimos</title>
+<style>
+:root{
+  --fondo:#0E0E0C; --fondo-2:#161512; --fondo-3:#1C1A16;
+  --tinta:#E6E1D6; --suave:#9A9488; --acento:#C4A15A; --acento-texto:#1A160E;
+  --linea:rgba(230,225,214,.14); --peligro:#C46A4A; --ok:#8F9A72;
+  --serif:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;
+  --sans:"Segoe UI",system-ui,-apple-system,sans-serif; --radio:2px;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;min-height:100%;background:var(--fondo);color:var(--tinta);font-family:var(--sans);line-height:1.5}
+html{color-scheme:dark}
+.wrap{max-width:52rem;margin:0 auto;padding:1.4rem 1.1rem 4rem}
+header.top{display:flex;align-items:baseline;justify-content:space-between;gap:1rem;flex-wrap:wrap;padding-bottom:1rem;border-bottom:1px solid var(--linea);margin-bottom:1.1rem}
+header.top h1{margin:0;font-family:var(--serif);font-weight:600;font-size:1.7rem}
+header.top p{margin:0;color:var(--suave);font-size:.78rem;letter-spacing:.1em;text-transform:uppercase}
+.lead{color:var(--suave);margin:0 0 1rem}
+.tabs{display:flex;flex-wrap:wrap;gap:.35rem;margin:0 0 1rem}
+.tabs button{min-height:44px;padding:.45rem .8rem;border:1px solid var(--linea);background:var(--fondo-2);color:var(--tinta);border-radius:var(--radio);font:600 .88rem var(--sans);cursor:pointer}
+.tabs button.on{background:var(--acento);color:var(--acento-texto);border-color:var(--acento)}
+.box{background:var(--fondo-2);border:1px solid var(--linea);border-radius:var(--radio);padding:.9rem 1rem;margin:.55rem 0}
+h2{font-family:var(--serif);font-weight:600;font-size:1.2rem;margin:.2rem 0 .5rem}
+h3{font-family:var(--serif);font-weight:600;font-size:1.02rem;margin:.8rem 0 .3rem}
+.chips{display:flex;flex-wrap:wrap;gap:.35rem}
+.chips button{min-height:40px;padding:.3rem .7rem;border:1px solid var(--linea);background:var(--fondo-3);color:var(--tinta);border-radius:var(--radio);font:600 .85rem var(--sans);cursor:pointer}
+.chips button.on{border-color:var(--acento);color:var(--acento)}
+button.primary{background:var(--acento);color:var(--acento-texto);border-color:var(--acento)}
+button{min-height:44px;padding:0 .9rem;border:1px solid var(--linea);background:var(--fondo-3);color:var(--tinta);border-radius:var(--radio);font:600 .9rem var(--sans);cursor:pointer}
+.fb{display:grid;grid-template-columns:2.4rem repeat(13,1.55rem);gap:2px;overflow-x:auto;margin:.6rem 0;font-size:.72rem}
+.fb b{display:flex;align-items:center;justify-content:center;min-height:28px;color:var(--suave)}
+.fb i{display:flex;align-items:center;justify-content:center;min-height:28px;border:1px solid var(--linea);border-radius:var(--radio);font-style:normal}
+.fb i.on{background:var(--acento);color:var(--acento-texto);border-color:var(--acento)}
+.fb i.root{outline:1px solid var(--ok)}
+.meta{color:var(--suave);font-size:.88rem}
+table{width:100%;border-collapse:collapse;font-size:.92rem}
+th,td{border-bottom:1px solid var(--linea);text-align:left;padding:.4rem .3rem;vertical-align:top}
+th{color:var(--suave);font-size:.72rem;letter-spacing:.08em;text-transform:uppercase}
+.staff{width:100%;max-width:28rem;height:90px}
+.foot{margin-top:2rem;padding-top:.8rem;border-top:1px solid var(--linea);color:var(--suave);font-size:.8rem}
+.aviso{border-left:3px solid var(--acento);padding:.2rem 0 .2rem .7rem;color:var(--suave);margin:.5rem 0}
+input[type=range]{width:100%}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header class="top">
+  <div>
+    <h1>Bajo</h1>
+    <p>Oficio · cuatro cuerdas · offline</p>
+  </div>
+</header>
+<p class="lead">Teoría y diapasón en un archivo. Sin nube. Elige el instrumento, afina, marca el pulso, mira la digitación. No hay tablaturas de discos: hay grados, formas y oído. No sustituye a un profesor.</p>
+<div class="tabs" id="tabs"></div>
+<main id="view"></main>
+<p class="foot">Les vencimos · file:// · la voz del aparato sale de Web Audio<br>
+<button type="button" id="wipe">Borrar datos de este módulo</button></p>
+</div>
+<script>
+(function(){
+  var KEY='lv-bajo-v1';
+  var st={tipo:'precision', tun:'std', tab:'camino', bpm:80, compas:'4/4'};
+  try{ var s=JSON.parse(localStorage.getItem(KEY)||'{}'); Object.assign(st,s);}catch(e){}
+  function save(){ try{ localStorage.setItem(KEY, JSON.stringify({tipo:st.tipo,tun:st.tun,tab:st.tab,bpm:st.bpm})); }catch(e){} }
+
+  var TIPOS=[
+    ['precision','Precision / Jazz'],
+    ['activo','Activo / 5 cuerdas'],
+    ['fretless','Fretless'],
+    ['acustico','Acústico']
+  ];
+  var TUNS={
+    std:{n:'Estándar E A D G', midi:[28,33,38,43], names:['Mi','La','Re','Sol']},
+    dropd:{n:'Drop D  D A D G', midi:[26,33,38,43], names:['Re','La','Re','Sol']},
+    fifth:{n:'Cinco cuerdas B E A D G', midi:[23,28,33,38,43], names:['Si','Mi','La','Re','Sol']}
+  };
+  var TABS=[
+    ['camino','Camino'],['afinar','Afinador'],['ritmo','Pulso'],
+    ['grados','Grados'],['escalas','Escalas'],['solfeo','Solfeo'],['estilo','Estilo']
+  ];
+  var CAMINO=[
+    'Semana 1 — Nombra las cuatro cuerdas al aire (Mi La Re Sol, grave a agudo) y afina cada día con la referencia.',
+    'Semana 2 — Postura: correa o sentado, muñeca suelta. Negras a 70 en la cuerda de La. El pulgar ancla o flota; no ambos a la vez el primer mes.',
+    'Semana 3 — Tónica y quinta de Do, Fa, Sol. Un acorde por compás. El bajo no rellena: señala.',
+    'Semana 4 — Corcheas. Alterna dedos índice y medio. Metrónomo a 80. Si se adelanta, baja a 70.',
+    'Semana 5 — Walking de tres notas: 1–2–3–1 sobre un blues de 12 en La (A7 D7 E7). Grados, no un disco.',
+    'Semana 6 — Pentatónica menor de La, caja en 5º traste (La–Do–Re–Mi–Sol). Sube y baja. Sin slap.',
+    'Semana 7 — Silencio. Toca negras y deja el 2 y el 4 al batería. El hueco también es nota.',
+    'Semana 8 — Octava. Tónica abajo, octava arriba, misma cuerda + dos. Reggae y funk viven aquí.',
+    'Semana 9 — Ghost notes: el dedo toca y apaga. No es slap todavía.',
+    'Semana 10 — Slap solo si el pulgar está sano: golpe seco en la cuerda de Mi o La, no uña.',
+    'Semana 11 — 3/4 y 6/8. El bajo marca el 1. Cuenta en voz alta.',
+    'Semana 12 — Una línea de 12 compases tuya. Grábala. Escucha si la tónica cae en el 1.'
+  ];
+  var PC=['Do','Do#','Re','Re#','Mi','Fa','Fa#','Sol','Sol#','La','La#','Si'];
+  function pcName(m){ return PC[((m%12)+12)%12]; }
+  function midiToFreq(m){ return 440*Math.pow(2,(m-69)/12); }
+
+  var ctx=null;
+  function ensure(){ if(!ctx) ctx=new (window.AudioContext||window.webkitAudioContext)(); return ctx; }
+  function beep(freq, dur, type){
+    var c=ensure(); var o=c.createOscillator(); var g=c.createGain();
+    o.type=type||'sine'; o.frequency.value=freq;
+    g.gain.setValueAtTime(0.0001,c.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.12,c.currentTime+0.02);
+    g.gain.exponentialRampToValueAtTime(0.0001,c.currentTime+(dur||0.4));
+    o.connect(g); g.connect(c.destination); o.start(); o.stop(c.currentTime+(dur||0.45));
+  }
+  function pluck(midi){ beep(midiToFreq(midi), 0.55, 'triangle'); }
+
+  function renderTabs(){
+    var h='';
+    TABS.forEach(function(t){ h+='<button type="button" data-tab="'+t[0]+'" class="'+(st.tab===t[0]?'on':'')+'">'+t[1]+'</button>'; });
+    document.getElementById('tabs').innerHTML=h;
+    document.getElementById('tabs').onclick=function(e){
+      var b=e.target.closest('button'); if(!b) return;
+      st.tab=b.getAttribute('data-tab'); save(); paint();
+    };
+  }
+
+  function paint(){
+    renderTabs();
+    var v=document.getElementById('view');
+    if(st.tab==='camino') v.innerHTML=viewCamino();
+    else if(st.tab==='afinar') v.innerHTML=viewAfinar();
+    else if(st.tab==='ritmo') v.innerHTML=viewRitmo();
+    else if(st.tab==='grados') v.innerHTML=viewGrados();
+    else if(st.tab==='escalas') v.innerHTML=viewEscalas();
+    else if(st.tab==='solfeo') v.innerHTML=viewSolfeo();
+    else v.innerHTML=viewEstilo();
+    bind();
+  }
+
+  function viewCamino(){
+    var tipos=TIPOS.map(function(t){return '<button type="button" data-tipo="'+t[0]+'" class="'+(st.tipo===t[0]?'on':'')+'">'+t[1]+'</button>';}).join('');
+    var ol=CAMINO.map(function(x){return '<li>'+x+'</li>';}).join('');
+    return '<div class="box"><h2>Instrumento</h2><div class="chips">'+tipos+'</div>'+
+      '<p class="meta" style="margin:.6rem 0 0">Precision y Jazz: cuerda redonda o plana, ataque con dedo. Activo: más nivel, no más oficio. Fretless: oído primero. Acústico: menos sustain, más pulso.</p></div>'+
+      '<div class="box"><h2>Camino de doce semanas</h2><ol>'+ol+'</ol>'+
+      '<p class="aviso">No hay tablatura de discos. Si una semana duele la mano, para. Las orejas mandan.</p></div>';
+  }
+
+  function viewAfinar(){
+    var tun=TUNS[st.tun]||TUNS.std;
+    var chips=Object.keys(TUNS).map(function(k){return '<button type="button" data-tun="'+k+'" class="'+(st.tun===k?'on':'')+'">'+TUNS[k].n+'</button>';}).join('');
+    var rows='';
+    tun.midi.forEach(function(m,i){
+      rows+='<p><button type="button" data-beep="'+m+'">'+tun.names[i]+' · '+pcName(m)+' · '+midiToFreq(m).toFixed(1)+' Hz</button></p>';
+    });
+    return '<div class="box"><h2>Afinador</h2><p class="meta">En file:// usa estos diapasones. El micrófono del navegador suele pedir https.</p>'+
+      '<div class="chips">'+chips+'</div>'+rows+
+      '<p class="aviso">Afina de grave a agudo. La quinta entre cuerdas contiguas (salvo Si grave de 5 cuerdas, que es cuarta también en estándar de 5).</p></div>';
+  }
+
+  function viewRitmo(){
+    return '<div class="box"><h2>Pulso</h2>'+
+      '<p>Negra = '+st.bpm+' BPM</p>'+
+      '<input id="bpm" type="range" min="50" max="160" value="'+st.bpm+'">'+
+      '<p><button type="button" id="tick">Negra</button> <button type="button" id="ocho">Dos corcheas</button></p>'+
+      '<p class="meta">4/4: el bajo vive en el 1 y el 3, o en las corcheas si el tema lo pide. 3/4: el 1 es ley. No llenes los silencios del cantante.</p></div>';
+  }
+
+  var ROOTS=['La','Re','Sol','Do','Mi','Fa','Si','Mib'];
+  var rootMidi={La:33,Re:38,Sol:31,Do:36,Mi:28,Fa:41,Si:35,Mib:39};
+  var GRADOS=[
+    ['1','tónica','La nota que dice el acorde.'],
+    ['5','quinta','La otra pata. Casi siempre segura.'],
+    ['8','octava','La misma tónica arriba. Funk y reggae.'],
+    ['3','tercera','Mayor o menor. Cambia el color. No siempre.'],
+    ['b7','séptima menor','Blues y dominante.'],
+    ['6','sexta','Walking y soul.']
+  ];
+
+  function viewGrados(){
+    var chips=ROOTS.map(function(r){return '<button type="button" data-root="'+r+'" class="'+(st.root===r?'on':'')+'">'+r+'</button>';}).join('');
+    var t=GRADOS.map(function(g){return '<tr><th>'+g[0]+'</th><td>'+g[1]+'</td><td>'+g[2]+'</td></tr>';}).join('');
+    return '<div class="box"><h2>Grados sobre un acorde</h2><div class="chips" id="roots">'+chips+'</div>'+
+      '<p><button type="button" class="primary" id="play135">Tocar 1–5–8</button> <button type="button" id="playwalk">Walking 1–2–3–5</button></p>'+
+      '<table><thead><tr><th>Grado</th><th>Nombre</th><th>Uso</th></tr></thead><tbody>'+t+'</tbody></table>'+
+      '<p class="aviso">Elige tónica y toca. No es un tema: es el esqueleto de mil temas.</p></div>'+fretboard();
+  }
+
+  function intervalsFrom(root, ints){
+    var m=rootMidi[root||'La']||33;
+    return ints.map(function(i){return m+i;});
+  }
+
+  function fretboard(){
+    var tun=TUNS[st.tun]||TUNS.std;
+    var html='<div class="fb">';
+    html+='<b></b>';
+    for(var f=0;f<=12;f++) html+='<b>'+f+'</b>';
+    tun.midi.slice().reverse().forEach(function(open,si){
+      html+='<b>'+tun.names[tun.midi.length-1-si]+'</b>';
+      for(var f=0;f<=12;f++){
+        var m=open+f;
+        html+='<i data-midi="'+m+'">'+pcName(m)+'</i>';
+      }
+    });
+    html+='</div>';
+    return html;
+  }
+
+  var ESC=[
+    ['penta-min','Pentatónica menor','0,3,5,7,10'],
+    ['mayor','Mayor','0,2,4,5,7,9,11'],
+    ['mixo','Mixolidia (dominante)','0,2,4,5,7,9,10'],
+    ['dorica','Dórica','0,2,3,5,7,9,10']
+  ];
+  function viewEscalas(){
+    var chips=ESC.map(function(e,i){return '<button type="button" data-esc="'+i+'" class="'+(st.esc===i?'on':'')+'">'+e[1]+'</button>';}).join('');
+    return '<div class="box"><h2>Escalas</h2><div class="chips" id="esc">'+chips+'</div>'+
+      '<p class="meta" id="escmeta"></p>'+
+      '<p><button type="button" class="primary" id="playesc">Tocar escala</button></p>'+
+      fretboard()+'</div>';
+  }
+
+  function viewSolfeo(){
+    return '<div class="box"><h2>Solfeo de bajo</h2>'+
+      '<svg class="staff" viewBox="0 0 320 90" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">'+
+      '<rect width="320" height="90" fill="#161512"/>'+
+      '<g stroke="#E6E1D6" stroke-width="1" fill="none">'+
+      '<path d="M20 18 H300"/><path d="M20 30 H300"/><path d="M20 42 H300"/><path d="M20 54 H300"/><path d="M20 66 H300"/></g>'+
+      '<text x="24" y="50" fill="#C4A15A" font-size="28" font-family="Georgia,serif">𝄢</text>'+
+      '<circle cx="120" cy="54" r="5" fill="#E6E1D6"/><circle cx="150" cy="48" r="5" fill="#E6E1D6"/>'+
+      '<circle cx="180" cy="42" r="5" fill="#E6E1D6"/><circle cx="210" cy="36" r="5" fill="#E6E1D6"/>'+
+      '</svg>'+
+      '<p>Clave de Fa en 4ª. El bajo lee grave. Do grave queda por debajo del pentagrama; La del aire de la cuerda de La es el espacio bajo la primera línea si afinamos estándar — el oído manda más que el dibujo.</p>'+
+      '<table><tbody>'+
+      '<tr><th>Intervalo</th><td>2ª menor / 2ª mayor / 3ª menor / 3ª mayor / 4ª / 5ª / 8ª</td></tr>'+
+      '<tr><th>Cifrado</th><td>C, Cm, C7, Cmaj7. El bajo toca 1 y 5 salvo que el arreglo pida otra cosa.</td></tr>'+
+      '<tr><th>Compás</th><td>El 1 se oye. Si no se oye, no hay bajo.</td></tr>'+
+      '</tbody></table>'+
+      '<p><button type="button" id="int3">3ª menor</button> <button type="button" id="int5">5ª justa</button> <button type="button" id="int8">Octava</button></p></div>';
+  }
+
+  function viewEstilo(){
+    return '<div class="box"><h2>Estilo · no tablatura</h2>'+
+      '<table><tbody>'+
+      '<tr><th>Motown</th><td>Melódico, 8ª y cromáticos de paso. El bajo canta sin tapar la voz.</td></tr>'+
+      '<tr><th>Reggae</th><td>Hueco. Tónica y 5ª. El silencio entre notas es el groove.</td></tr>'+
+      '<tr><th>Funk</th><td>16avos, ghost, a veces slap. Menos notas de las que apetece.</td></tr>'+
+      '<tr><th>Rock</th><td>1 y 5 con la batería. Palm no; dedo firme.</td></tr>'+
+      '<tr><th>Jazz</th><td>Walking: 1–2–3–5 y cromatismos al siguiente acorde. El 1 cae en el cambio.</td></tr>'+
+      '<tr><th>Fretless</th><td>Vibrato corto. Entonación o nada.</td></tr>'+
+      '</tbody></table>'+
+      '<p class="aviso">No hay líneas de discos. Hay maneras. Copia el aire, no el riff protegido.</p></div>';
+  }
+
+  function bind(){
+    document.querySelectorAll('[data-tipo]').forEach(function(b){ b.onclick=function(){ st.tipo=b.getAttribute('data-tipo'); save(); paint(); }; });
+    document.querySelectorAll('[data-tun]').forEach(function(b){ b.onclick=function(){ st.tun=b.getAttribute('data-tun'); save(); paint(); }; });
+    document.querySelectorAll('[data-beep]').forEach(function(b){ b.onclick=function(){ pluck(+b.getAttribute('data-beep')); }; });
+    document.querySelectorAll('[data-root]').forEach(function(b){ b.onclick=function(){ st.root=b.getAttribute('data-root'); save(); paint(); }; });
+    document.querySelectorAll('[data-esc]').forEach(function(b){ b.onclick=function(){ st.esc=+b.getAttribute('data-esc'); save(); paint(); }; });
+    document.querySelectorAll('.fb i').forEach(function(i){ i.onclick=function(){ pluck(+i.getAttribute('data-midi')); }; });
+    var bpm=document.getElementById('bpm');
+    if(bpm) bpm.oninput=function(){ st.bpm=+bpm.value; save(); };
+    var tick=document.getElementById('tick');
+    if(tick) tick.onclick=function(){ beep(80, 0.08, 'square'); };
+    var ocho=document.getElementById('ocho');
+    if(ocho) ocho.onclick=function(){ beep(80,0.06,'square'); setTimeout(function(){beep(80,0.06,'square');}, 30000/st.bpm); };
+    var p135=document.getElementById('play135');
+    if(p135) p135.onclick=function(){
+      var n=intervalsFrom(st.root||'La',[0,7,12]);
+      n.forEach(function(m,i){ setTimeout(function(){ pluck(m); }, i*320); });
+    };
+    var pw=document.getElementById('playwalk');
+    if(pw) pw.onclick=function(){
+      var n=intervalsFrom(st.root||'La',[0,2,4,7]);
+      n.forEach(function(m,i){ setTimeout(function(){ pluck(m); }, i*280); });
+    };
+    var pe=document.getElementById('playesc');
+    if(pe) pe.onclick=function(){
+      var e=ESC[st.esc||0];
+      var ints=e[2].split(',').map(Number);
+      var n=intervalsFrom(st.root||'La', ints);
+      n.forEach(function(m,i){ setTimeout(function(){ pluck(m); }, i*220); });
+    };
+    var i3=document.getElementById('int3'); if(i3) i3.onclick=function(){ pluck(33); setTimeout(function(){pluck(36);},400); };
+    var i5=document.getElementById('int5'); if(i5) i5.onclick=function(){ pluck(33); setTimeout(function(){pluck(40);},400); };
+    var i8=document.getElementById('int8'); if(i8) i8.onclick=function(){ pluck(33); setTimeout(function(){pluck(45);},400); };
+  }
+
+  document.getElementById('wipe').onclick=function(){
+    try{ localStorage.removeItem(KEY); }catch(e){}
+    st={tipo:'precision', tun:'std', tab:'camino', bpm:80};
+    paint();
+  };
+  paint();
+})();
+</script>
+</body>
+</html>

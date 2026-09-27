@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0E0E0C">
+<title>Piano — Les vencimos</title>
+<style>
+:root{--fondo:#0E0E0C;--fondo-2:#161512;--fondo-3:#1C1A16;--tinta:#E6E1D6;--suave:#9A9488;--acento:#C4A15A;--acento-texto:#1A160E;--linea:rgba(230,225,214,.14);--peligro:#C46A4A;--ok:#8F9A72;--serif:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;--sans:"Segoe UI",system-ui,-apple-system,sans-serif;--radio:2px}
+*{box-sizing:border-box}html,body{margin:0;min-height:100%}html{color-scheme:dark}
+body{color:var(--tinta);background:var(--fondo);font-family:var(--sans);font-size:1.02rem;line-height:1.5;-webkit-font-smoothing:antialiased}
+.wrap{max-width:52rem;margin:0 auto;padding:1.4rem 1.1rem 4rem}
+header.top{display:flex;align-items:baseline;justify-content:space-between;gap:1rem;flex-wrap:wrap;padding-bottom:1rem;border-bottom:1px solid var(--linea);margin-bottom:1.25rem}
+.brand{color:var(--tinta);text-decoration:none;font-family:var(--serif);font-weight:600}
+.status{font-size:.7rem;letter-spacing:.14em;text-transform:uppercase;color:var(--suave);font-weight:600}
+h1{margin:0 0 .4rem;font-family:var(--serif);font-size:clamp(1.7rem,4.5vw,2.4rem);font-weight:600;line-height:1.12}
+.lead{margin:0 0 1.1rem;color:var(--suave)}.lead strong{color:var(--tinta)}
+.row{display:flex;flex-wrap:wrap;gap:.4rem}
+label{display:block;font-size:.78rem;color:var(--suave);font-weight:600;letter-spacing:.04em;text-transform:uppercase;margin:0 0 .3rem}
+input[type=range]{width:100%;background:var(--fondo-3)}
+.tabs{display:flex;flex-wrap:wrap;gap:.3rem;margin:0 0 1rem}
+.tab{appearance:none;min-height:40px;padding:.4rem .7rem;border:1px solid var(--linea);background:var(--fondo-2);color:var(--tinta);font:600 .8rem var(--sans);letter-spacing:.04em;text-transform:uppercase;cursor:pointer;border-radius:var(--radio)}
+.tab.on{border-color:var(--acento);background:rgba(196,161,90,.12);color:var(--acento)}
+.panel{display:none}.panel.on{display:block}
+.box{background:var(--fondo-2);border:1px solid var(--linea);border-radius:var(--radio);padding:1rem 1rem 1.1rem;margin:0 0 1rem}
+.box h2{margin:0 0 .65rem;font-size:.7rem;letter-spacing:.16em;text-transform:uppercase;color:var(--suave);font-weight:600}
+button.primary,button.ghost{appearance:none;min-height:44px;padding:.55rem 1rem;border-radius:var(--radio);cursor:pointer;font:700 .9rem var(--sans)}
+button.primary{border:1px solid var(--acento);background:var(--acento);color:var(--acento-texto)}
+button.ghost{border:1px solid var(--linea);background:transparent;color:var(--tinta)}
+button.ghost.on{border-color:var(--acento);color:var(--acento);background:rgba(196,161,90,.1)}
+.hint{color:var(--suave);font-size:.84rem;margin:.4rem 0 0}
+.note-chip{min-width:2.1rem;min-height:36px;padding:.25rem .4rem;border:1px solid var(--linea);background:var(--fondo-3);color:var(--tinta);font:600 .8rem var(--sans);cursor:pointer;border-radius:var(--radio)}
+.note-chip.on{border-color:var(--acento);color:var(--acento)}
+.path ol{margin:.2rem 0 0;padding-left:1.2rem}.path li{margin:.35rem 0}
+.keys{display:flex;height:128px;border:1px solid var(--linea);user-select:none}
+.wkey{flex:1;background:#E6E1D6;color:#1A160E;border-right:1px solid #1C1A16;position:relative;cursor:pointer;font:600 .65rem var(--sans);display:flex;align-items:flex-end;justify-content:center;padding-bottom:.25rem}
+.wkey.on{background:var(--acento)}
+.bkey{position:absolute;width:60%;height:62%;background:#0E0E0C;color:#E6E1D6;right:-30%;top:0;z-index:2;cursor:pointer;border:1px solid #1C1A16;font:600 .55rem var(--sans);display:flex;align-items:flex-end;justify-content:center;padding-bottom:.15rem}
+.bkey.on{background:var(--acento);color:var(--acento-texto)}
+.grid16{display:grid;grid-template-columns:3.2rem repeat(16,1fr);gap:3px;margin:.4rem 0}
+.grid16 b{font-size:.68rem;color:var(--suave);align-self:center}
+.step{height:28px;border:1px solid var(--linea);background:var(--fondo-3);cursor:pointer}
+.step.on{background:var(--acento);border-color:var(--acento)}
+footer{margin-top:2rem;padding-top:1rem;border-top:1px solid var(--linea);color:var(--suave);font-size:.75rem;letter-spacing:.08em;text-transform:uppercase}
+@media (prefers-reduced-motion:reduce){*{animation:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top"><a class="brand" href="../index.html">Les vencimos</a><span class="status">Offline</span></header>
+  <h1>Piano</h1>
+  <p class="lead">Teclado, grados y oído en un archivo. <strong>Sin nube.</strong> Elige el instrumento, toca el teclado, arma el acorde y la escala. No hay partituras de discos: hay digitación, inversiones y pulso.</p>
+
+  <div class="box">
+    <h2>Instrumento</h2>
+    <div class="row" id="tipos"></div>
+    <p class="hint" id="tipo-hint"></p>
+  </div>
+  <nav class="tabs" id="tabs"></nav>
+
+  <section class="panel on" id="p-camino">
+    <div class="box path">
+      <h2>Camino · principiante → medio</h2>
+      <ol>
+        <li>Siéntate al medio del teclado. Do central está frente a ti (la raya entre las dos teclas negras del grupo de dos, a la izquierda, es Do).</li>
+        <li>Mano curva, muñeca nivelada. No hundes el peso del brazo: el dedo cae y suelta.</li>
+        <li>Cinco dedos sobre Do–Re–Mi–Fa–Sol. Toca ligado y suelto. Nombra en voz alta.</li>
+        <li>Escala de Do mayor, dos octavas, pulgares por debajo (1-2-3-1-2-3-4-5…).</li>
+        <li>Acordes tríada en estado fundamental, 1ª y 2ª inversión. Mano izquierda toca la tónica.</li>
+        <li>Cadencia I–IV–V–I en Do, Sol y Fa. Luego en La menor.</li>
+        <li>Pedal derecho: pisa después de la nota, suelta al cambiar de acorde. El de sordina (izquierdo) no es «suave» mágico: acerca los martillos.</li>
+        <li>Lee un pentagrama de clave de sol y otro de fa. Una clave cada semana basta.</li>
+      </ol>
+    </div>
+  </section>
+
+  <section class="panel" id="p-teclado">
+    <div class="box">
+      <h2>Teclado · dos octavas</h2>
+      <p class="hint">Toca. A4 = 440 Hz. El sonido sale de este aparato (Web Audio).</p>
+      <div class="keys" id="keys"></div>
+      <p style="font-family:var(--serif);font-size:1.8rem;margin:.8rem 0 .2rem" id="now">Do</p>
+      <p class="hint" id="nowf">261.63 Hz · C4</p>
+      <div class="row">
+        <button class="primary" type="button" id="btn-a4">Tocar La 440</button>
+        <button class="ghost" type="button" id="btn-stop">Silencio</button>
+      </div>
+    </div>
+    <div class="box">
+      <h2>Pulso</h2>
+      <label>Tempo <span id="bpmv">88</span></label>
+      <input id="bpm" type="range" min="40" max="180" value="88">
+      <div class="row">
+        <button class="primary" type="button" id="btn-play">Play</button>
+        <button class="ghost" type="button" id="btn-clear">Vaciar</button>
+      </div>
+      <div id="seq"></div>
+    </div>
+  </section>
+
+  <section class="panel" id="p-acordes">
+    <div class="box">
+      <h2>Diccionario de acordes</h2>
+      <label>Tónica</label><div class="row" id="chord-roots"></div>
+      <label style="margin-top:.7rem">Calidad</label><div class="row" id="chord-q"></div>
+      <label style="margin-top:.7rem">Inversión</label>
+      <div class="row">
+        <button class="ghost on" type="button" data-inv="0">Fundamental</button>
+        <button class="ghost" type="button" data-inv="1">1ª</button>
+        <button class="ghost" type="button" data-inv="2">2ª</button>
+      </div>
+      <p style="font-family:var(--serif);font-size:1.6rem;margin:.8rem 0 .3rem" id="chord-name">Do mayor</p>
+      <p class="hint" id="chord-formula"></p>
+      <div class="row"><button class="primary" type="button" id="btn-chord">Tocar acorde</button></div>
+      <p class="hint">Digitación cerrada en una octava. La izquierda puede doblar la tónica una octava abajo.</p>
+    </div>
+  </section>
+
+  <section class="panel" id="p-escalas">
+    <div class="box">
+      <h2>Diccionario de escalas</h2>
+      <label>Tónica</label><div class="row" id="scale-roots"></div>
+      <label style="margin-top:.7rem">Escala</label><div class="row" id="scale-q"></div>
+      <p style="font-family:var(--serif);font-size:1.4rem;margin:.8rem 0 .3rem" id="scale-name">Do mayor</p>
+      <p class="hint" id="scale-notes"></p>
+      <div class="row"><button class="primary" type="button" id="btn-scale">Tocar escala</button></div>
+      <p class="hint">En piano la escala se ve: teclas negras = alteraciones. Do mayor no pisa ninguna negra.</p>
+    </div>
+  </section>
+
+  <section class="panel" id="p-pedal">
+    <div class="box">
+      <h2>Pedales y toque</h2>
+      <p><strong>Derecho (resonancia).</strong> Levanta los apagadores. Pisa un instante después de atacar el acorde, suelta al cambiar. Pedal permanente = barro.</p>
+      <p><strong>Izquierdo (sordina / una corda).</strong> En cola desplaza el teclado: el martillo pega dos cuerdas en vez de tres. En vertical suele acercar los martillos. No es un interruptor de volumen.</p>
+      <p><strong>Central.</strong> En vertical suele ser sordina de práctica (fieltro). En cola, sostenuto: retiene solo las notas que ya están abajo.</p>
+      <p class="hint">Toque: el piano no se «aprieta». El peso cae y el dedo suelta. Legato = el segundo dedo llega antes de que el primero suelte del todo.</p>
+    </div>
+  </section>
+
+  <section class="panel" id="p-solfeo">
+    <div class="box">
+      <h2>Solfeo de teclado</h2>
+      <p>Clave de sol: mano derecha, Do central en la primera línea adicional debajo. Clave de fa: mano izquierda, Do central en la primera adicional arriba.</p>
+      <p><strong>Figuras:</strong> redonda 4 · blanca 2 · negra 1 · corchea 1/2 · semicorchea 1/4.</p>
+      <p><strong>Intervalos desde Do:</strong> 2m Re♭ · 2M Re · 3m Mi♭ · 3M Mi · 4J Fa · 5J Sol · 6M La · 7M Si · 8J Do.</p>
+      <p class="hint">Un semitono = tecla contigua, sea blanca o negra. Mi–Fa y Si–Do ya son semitono sin negra en medio.</p>
+    </div>
+  </section>
+
+  <section class="panel" id="p-ejemplos">
+    <div class="box" id="ejemplos"></div>
+  </section>
+
+  <p class="hint">No sustituye a un profesor. No hay partituras de temas protegidos.</p>
+  <div class="row"><button class="ghost" type="button" id="btn-wipe">Borrar datos de este módulo</button></div>
+  <footer>lesvencimos.com · piano</footer>
+</div>
+<script>
+(function(){
+  var NOTES=['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
+  var ES=['Do','Do#','Re','Re#','Mi','Fa','Fa#','Sol','Sol#','La','La#','Si'];
+  var tipos={
+    vertical:{nom:'Vertical',txt:'El de casa. Cuerdas cruzadas, marco de hierro. Pedal izquierdo suele acercar martillos. Afinación: técnico cada año o dos. No lo apoyes en tabique húmedo.'},
+    cola:{nom:'De cola',txt:'Cuerdas horizontales, tapa que proyecta. Una corda de verdad. Sostenuto en el central. Más mantenimiento. No es «mejor profesor»: es otra mecánica.'},
+    digital:{nom:'Digital',txt:'Teclado con muestras o modelado. Pedal de fuste si puedes. Contrapeso importa más que el número de sonidos. A4 a 440 salvo que afines con otros.'},
+    electrico:{nom:'Eléctrico',txt:'Rhodes, Wurlitzer, clavinet: martillo a lengüeta o púa. Tímbre propio. Los acordes son los mismos; el ataque no.'}
+  };
+  var QUAL=[
+    {id:'maj',nom:'Mayor',int:[0,4,7],cif:''},{id:'min',nom:'Menor',int:[0,3,7],cif:'m'},
+    {id:'7',nom:'7ª dominante',int:[0,4,7,10],cif:'7'},{id:'m7',nom:'Menor 7ª',int:[0,3,7,10],cif:'m7'},
+    {id:'maj7',nom:'Mayor 7ª',int:[0,4,7,11],cif:'maj7'},{id:'dim',nom:'Disminuido',int:[0,3,6],cif:'dim'},
+    {id:'aug',nom:'Aumentado',int:[0,4,8],cif:'aug'},{id:'sus4',nom:'Sus4',int:[0,5,7],cif:'sus4'}
+  ];
+  var SCALES=[
+    {id:'major',nom:'Mayor',int:[0,2,4,5,7,9,11]},{id:'min',nom:'Menor natural',int:[0,2,3,5,7,8,10]},
+    {id:'hmin',nom:'Menor armónica',int:[0,2,3,5,7,8,11]},{id:'pmin',nom:'Pentatónica menor',int:[0,3,5,7,10]},
+    {id:'pmaj',nom:'Pentatónica mayor',int:[0,2,4,7,9]},{id:'blues',nom:'Blues',int:[0,3,5,6,7,10]},
+    {id:'dor',nom:'Dórico',int:[0,2,3,5,7,9,10]},{id:'mix',nom:'Mixolidio',int:[0,2,4,5,7,9,10]}
+  ];
+  var TABS=[['camino','Camino'],['teclado','Teclado'],['acordes','Acordes'],['escalas','Escalas'],['pedal','Pedal'],['solfeo','Solfeo'],['ejemplos','Ejemplos']];
+  var st={tipo:localStorage.getItem('lv-p-tipo')||'vertical',tab:localStorage.getItem('lv-p-tab')||'camino',cRoot:0,cQ:0,inv:0,sRoot:0,sQ:0,bpm:88,
+    grid:[1,0,0,0,1,0,0,0,1,0,0,0,1,0,0,0]};
+  var ctx,oscRef=null,playing=false,timer=null,stepI=0;
+  function midiToFreq(m){return 440*Math.pow(2,(m-69)/12)}
+  function ensure(){if(!ctx)ctx=new(window.AudioContext||window.webkitAudioContext)();if(ctx.state==='suspended')ctx.resume();return ctx}
+  function beep(freq,dur,type,gain){
+    var ac=ensure(),o=ac.createOscillator(),g=ac.createGain();
+    o.type=type||'triangle';o.frequency.value=freq;
+    g.gain.setValueAtTime(0.0001,ac.currentTime);
+    g.gain.exponentialRampToValueAtTime(gain||0.16,ac.currentTime+0.01);
+    g.gain.exponentialRampToValueAtTime(0.0001,ac.currentTime+(dur||0.4));
+    o.connect(g);g.connect(ac.destination);o.start();o.stop(ac.currentTime+(dur||0.45)+0.02);oscRef=o;
+  }
+  function save(){localStorage.setItem('lv-p-tipo',st.tipo);localStorage.setItem('lv-p-tab',st.tab)}
+  function pcName(pc,es){pc=((pc%12)+12)%12;return es?ES[pc]:NOTES[pc]}
+
+  function renderTipos(){
+    var el=document.getElementById('tipos');el.innerHTML='';
+    Object.keys(tipos).forEach(function(k){
+      var b=document.createElement('button');b.className='ghost'+(st.tipo===k?' on':'');b.type='button';b.textContent=tipos[k].nom;
+      b.onclick=function(){st.tipo=k;save();renderTipos()};el.appendChild(b);
+    });
+    document.getElementById('tipo-hint').textContent=tipos[st.tipo].txt;
+  }
+  function renderTabs(){
+    var el=document.getElementById('tabs');el.innerHTML='';
+    TABS.forEach(function(t){
+      var b=document.createElement('button');b.className='tab'+(st.tab===t[0]?' on':'');b.textContent=t[1];
+      b.onclick=function(){st.tab=t[0];save();document.querySelectorAll('.tab').forEach(function(x,i){x.classList.toggle('on',TABS[i][0]===st.tab)});
+        document.querySelectorAll('.panel').forEach(function(p){p.classList.toggle('on',p.id==='p-'+st.tab)})};
+      el.appendChild(b);
+    });
+    document.querySelectorAll('.panel').forEach(function(p){p.classList.toggle('on',p.id==='p-'+st.tab)});
+  }
+  function renderKeys(){
+    var el=document.getElementById('keys');el.innerHTML='';
+    var whites=[0,2,4,5,7,9,11];
+    for(var oct=0;oct<2;oct++){
+      whites.forEach(function(w,wi){
+        var midi=60+oct*12+w;
+        var d=document.createElement('div');d.className='wkey';d.textContent=pcName(w,true);
+        d.onmousedown=d.ontouchstart=function(e){e.preventDefault();hit(midi,d)};
+        if(w===0||w===2||w===5||w===7||w===9){
+          var black=document.createElement('div');black.className='bkey';
+          var bm=midi+1;black.textContent=pcName((w+1)%12,true);
+          black.onmousedown=black.ontouchstart=function(e){e.preventDefault();e.stopPropagation();hit(bm,black)};
+          d.appendChild(black);
+        }
+        el.appendChild(d);
+      });
+    }
+  }
+  function hit(midi,el){
+    beep(midiToFreq(midi),0.5,'triangle',0.18);
+    document.getElementById('now').textContent=pcName(midi,true)+' · '+pcName(midi,false)+(Math.floor(midi/12)-1);
+    document.getElementById('nowf').textContent=midiToFreq(midi).toFixed(2)+' Hz';
+    if(el){el.classList.add('on');setTimeout(function(){el.classList.remove('on')},180)}
+  }
+  function chips(el,on,set){
+    el.innerHTML='';
+    for(var i=0;i<12;i++){
+      var b=document.createElement('button');b.className='note-chip'+(on===i?' on':'');b.type='button';b.textContent=ES[i];
+      (function(i){b.onclick=function(){set(i)}})(i);el.appendChild(b);
+    }
+  }
+  function renderChords(){
+    chips(document.getElementById('chord-roots'),st.cRoot,function(i){st.cRoot=i;renderChords()});
+    var qel=document.getElementById('chord-q');qel.innerHTML='';
+    QUAL.forEach(function(q,i){
+      var b=document.createElement('button');b.className='ghost'+(st.cQ===i?' on':'');b.type='button';b.textContent=q.nom;
+      b.onclick=function(){st.cQ=i;renderChords()};qel.appendChild(b);
+    });
+    var q=QUAL[st.cQ], ints=q.int.slice();
+    for(var k=0;k<st.inv;k++) ints.push(ints.shift()+12);
+    document.getElementById('chord-name').textContent=ES[st.cRoot]+' '+q.nom+(st.inv?(' · inv. '+st.inv):'');
+    document.getElementById('chord-formula').textContent=ints.map(function(x){return pcName(st.cRoot+x,true)}).join(' – ');
+    st._ints=ints;
+  }
+  function renderScales(){
+    chips(document.getElementById('scale-roots'),st.sRoot,function(i){st.sRoot=i;renderScales()});
+    var qel=document.getElementById('scale-q');qel.innerHTML='';
+    SCALES.forEach(function(q,i){
+      var b=document.createElement('button');b.className='ghost'+(st.sQ===i?' on':'');b.type='button';b.textContent=q.nom;
+      b.onclick=function(){st.sQ=i;renderScales()};qel.appendChild(b);
+    });
+    var q=SCALES[st.sQ];
+    document.getElementById('scale-name').textContent=ES[st.sRoot]+' '+q.nom;
+    document.getElementById('scale-notes').textContent=q.int.map(function(x){return pcName(st.sRoot+x,true)}).join(' · ');
+    st._sint=q.int;
+  }
+  function renderSeq(){
+    var el=document.getElementById('seq');el.innerHTML='';
+    var row=document.createElement('div');row.className='grid16';
+    var lab=document.createElement('b');lab.textContent='Clic';row.appendChild(lab);
+    for(var i=0;i<16;i++){
+      var s=document.createElement('div');s.className='step'+(st.grid[i]?' on':'');
+      (function(i){s.onclick=function(){st.grid[i]=st.grid[i]?0:1;renderSeq()}})(i);
+      row.appendChild(s);
+    }
+    el.appendChild(row);
+  }
+  document.getElementById('ejemplos').innerHTML='<h2>Ejemplos de camino</h2>'+
+    '<p><strong>Semana 1.</strong> Cinco dedos en Do. Negra = pulso. Sin pedal.</p>'+
+    '<p><strong>Semana 3.</strong> I–V–vi–IV en Do. Inversiones para no saltar.</p>'+
+    '<p><strong>Semana 6.</strong> Blues de 12 compases en Fa. Mano izquierda: bajo + quinta.</p>'+
+    '<p class="hint">No hay «Moonlight» ni «Let It Be». Hay grados.</p>';
+
+  document.getElementById('btn-a4').onclick=function(){beep(440,1.2,'sine',0.2)};
+  document.getElementById('btn-stop').onclick=function(){if(ctx)ctx.suspend();playing=false;document.getElementById('btn-play').textContent='Play'};
+  document.getElementById('btn-chord').onclick=function(){
+    (st._ints||[0,4,7]).forEach(function(iv,i){setTimeout(function(){beep(midiToFreq(60+st.cRoot+iv),0.7,'triangle',0.12)},i*40)});
+  };
+  document.getElementById('btn-scale').onclick=function(){
+    (st._sint||[0,2,4,5,7,9,11]).concat([12]).forEach(function(iv,i){setTimeout(function(){beep(midiToFreq(60+st.sRoot+iv),0.28,'triangle',0.14)},i*220)});
+  };
+  document.querySelectorAll('[data-inv]').forEach(function(b){
+    b.onclick=function(){st.inv=+b.getAttribute('data-inv');document.querySelectorAll('[data-inv]').forEach(function(x){x.classList.toggle('on',x===b)});renderChords()};
+  });
+  document.getElementById('bpm').oninput=function(){st.bpm=+this.value;document.getElementById('bpmv').textContent=st.bpm};
+  document.getElementById('btn-play').onclick=function(){
+    playing=!playing;this.textContent=playing?'Parar':'Play';
+    if(!playing){clearInterval(timer);return}
+    ensure();stepI=0;
+    var tick=function(){
+      if(st.grid[stepI]) beep(880,0.05,'square',0.08);
+      stepI=(stepI+1)%16;
+    };
+    tick();timer=setInterval(tick,60000/st.bpm/4);
+  };
+  document.getElementById('btn-clear').onclick=function(){st.grid=st.grid.map(function(){return 0});renderSeq()};
+  document.getElementById('btn-wipe').onclick=function(){
+    localStorage.removeItem('lv-p-tipo');localStorage.removeItem('lv-p-tab');location.reload();
+  };
+
+  renderTipos();renderTabs();renderKeys();renderChords();renderScales();renderSeq();
+})();
+</script>
+</body>
+</html>
