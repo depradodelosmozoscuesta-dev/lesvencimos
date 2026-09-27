@@ -26,7 +26,6 @@ EMBED_SOURCES = {
     "mascotas": ROOT / "modulos" / "mascotas.html",
     "campo": ROOT / "modulos" / "campo.html",
     "supervive": ROOT / "modulos" / "supervivencia.html",
-    "apagon": ROOT / "modulos" / "apagon.html",
     "caja": ROOT / "modulos" / "caja-fuerte.html",
     "calc": ROOT / "modulos" / "calculadora.html",
     "gym": ROOT / "modulos" / "gimnasio.html",
@@ -46,8 +45,9 @@ EMBED_SOURCES = {
     "arte": ROOT / "modulos" / "arte.html",
     "protocolo": ROOT / "modulos" / "protocolo.html",
     "ideas": ROOT / "modulos" / "ideas.html",
-    "tabaco-pipa": ROOT / "modulos" / "tabaco-pipa.html",
-    "puros": ROOT / "modulos" / "puros.html",
+    "tabaco": ROOT / "modulos" / "tabaco.html",
+    "comunicacion": ROOT / "modulos" / "comunicacion.html",
+    "gas": ROOT / "modulos" / "gas.html",
 }
 
 
@@ -109,7 +109,7 @@ def inject_embedded(shell: str, embedded: dict[str, str]) -> str:
 def write_leeme() -> str:
     return """═══════════════════════════════════════
   ESCRITORIO / ESTANTERÍA — Les vencimos
-  Build v20260927f
+  Build v20260927g
   UN SOLO HTML (módulos dentro)
 ═══════════════════════════════════════
 
@@ -145,11 +145,11 @@ Sin ficha libre ni redimensionar a mano.
 Al abrir ya viene llena. Sin Radio (necesita internet; pack aparte) ni Alarma Cuba.
 
 Los módulos (Hogar [Hoy+buscador], Salud, Higiene, QR,
-Oficio [Luz · Taller · Fontanería], Jardín, Economía, Clima, Moda, Legal, Mascotas, Campo, Resiliencia, Apagón, Calculadora,
+Oficio [Luz · Taller · Fontanería · Gas], Jardín, Economía, Clima, Moda, Legal, Mascotas, Campo, Casa preparada, Calculadora,
 Gimnasio, Guitarra, Caja fuerte, Medicación, Meditación,
-Auxilios, Escritura, Dibujo, Informática, Guías [piloto CyL], Mapas, Biblioteca, Teatro de marionetas, Tanteo, Arte, Ideas, Protocolo, Tabaco de pipa y Puros…)
+Auxilios, Escritura, Dibujo, Informática, Guías [piloto CyL], Mapas, Biblioteca, Teatro de marionetas, Tanteo, Arte, Ideas, Protocolo, Tabaco, Sin internet, Gas (límites)…)
 van EMBEBIDOS dentro del HTML.
-Carpeta Oficio (balda Casa): agrupa Electricidad, Bricolaje y Fontanería
+Carpeta Oficio (balda Casa): agrupa Electricidad, Bricolaje, Fontanería y Gas (límites)
 (sin gas ni caldera). Higiene vive en Salud (cuerpo).
 Al tocar un icono se abren en la misma página
 (← Escritorio para volver).
@@ -218,7 +218,7 @@ def main() -> None:
         raise SystemExit("shell missing EMBEDDED placeholder (need estanteria.shell.html)")
 
     embedded = build_embedded()
-    for need in ("hogar", "salud", "qr", "electro", "brico", "fontaneria", "jardin", "economia", "clima", "moda", "legal", "mascotas", "campo", "supervive", "apagon", "caja", "gym", "guitarra", "calc", "medica", "medita", "auxilios", "escritura", "dibujo", "info", "guias", "mapas", "biblio", "teatro", "tanteo", "higiene", "arte", "protocolo", "ideas", "tabaco-pipa", "puros"):
+    for need in ("hogar", "salud", "qr", "electro", "brico", "fontaneria", "jardin", "economia", "clima", "moda", "legal", "mascotas", "campo", "supervive", "caja", "gym", "guitarra", "calc", "medica", "medita", "auxilios", "escritura", "dibujo", "info", "guias", "mapas", "biblio", "teatro", "tanteo", "higiene", "arte", "protocolo", "ideas", "tabaco", "comunicacion", "gas"):
         if need not in embedded:
             raise SystemExit(f"missing embed {need}")
 
@@ -263,7 +263,7 @@ def main() -> None:
     shutil.rmtree(STAGING)
 
     # Also keep last lettered snapshot name pointing at same bytes (bookmarks).
-    snapshot = ROOT / "downloads" / "estanteria-offline-v20260927f.zip"
+    snapshot = ROOT / "downloads" / "estanteria-offline-v20260927g.zip"
     shutil.copy2(OUT, snapshot)
     print(f"Wrote {OUT} ({OUT.stat().st_size} bytes)")
     print(f"Snapshot {snapshot}")
