@@ -7,7 +7,6 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 LIB = ROOT / "modulos" / "biblioteca-libros"
 HTML = ROOT / "modulos" / "biblioteca.html"
-BIBLIO = ROOT / "modulos" / "biblio.html"
 CATALOG = LIB / "catalog.json"
 ZIP_OUT = ROOT / "downloads" / "biblioteca-offline.zip"
 INLINE_CAP = 45000  # keep zip/html lean; huge texts still load via src
@@ -67,7 +66,6 @@ def build_zip():
         ZIP_OUT.unlink()
     with zipfile.ZipFile(ZIP_OUT, "w", compression=zipfile.ZIP_DEFLATED) as z:
         z.write(HTML, "biblioteca.html")
-        z.write(BIBLIO, "biblio.html")
         leeme = ROOT / "downloads" / "LEEME-biblioteca.txt"
         if leeme.exists():
             z.write(leeme, "LEEME.txt")
@@ -81,7 +79,6 @@ def main():
     html = HTML.read_text(encoding="utf-8")
     html = inject_books(html, books)
     HTML.write_text(html, encoding="utf-8")
-    BIBLIO.write_text(html, encoding="utf-8")
     size = build_zip()
     print(f"books={len(books)} html={HTML.stat().st_size} zip={size}")
 
