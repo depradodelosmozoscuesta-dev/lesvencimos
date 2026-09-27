@@ -40,6 +40,11 @@ EMBED_SOURCES = {
     "mapas": ROOT / "modulos" / "mapas.html",
     "biblio": ROOT / "modulos" / "biblioteca.html",
     "teatro": ROOT / "modulos" / "teatro-marionetas.html",
+    "arte": ROOT / "modulos" / "arte.html",
+    "protocolo": ROOT / "modulos" / "protocolo.html",
+    "ideas": ROOT / "modulos" / "ideas.html",
+    "tabaco-pipa": ROOT / "modulos" / "tabaco-pipa.html",
+    "puros": ROOT / "modulos" / "puros.html",
 }
 
 
@@ -101,7 +106,7 @@ def inject_embedded(shell: str, embedded: dict[str, str]) -> str:
 def write_leeme() -> str:
     return """═══════════════════════════════════════
   ESCRITORIO / ESTANTERÍA — Les vencimos
-  Build v20260927a
+  Build v20260927b
   UN SOLO HTML (módulos dentro)
 ═══════════════════════════════════════
 
@@ -139,7 +144,7 @@ Al abrir ya viene llena. Sin Radio (necesita internet; pack aparte) ni Alarma Cu
 Los módulos (Hogar, Salud, QR, Electricidad,
 Bricolaje, Jardín, Economía, Clima, Moda, Legal, Mascotas, Campo, Resiliencia, Apagón, Calculadora,
 Gimnasio, Guitarra, Caja fuerte, Medicación, Meditación,
-Auxilios, Escritura, Dibujo, Informática, Guías, Mapas, Biblioteca, Teatro de marionetas…)
+Auxilios, Escritura, Dibujo, Informática, Guías, Mapas, Biblioteca, Teatro de marionetas, Arte, Ideas, Protocolo, Tabaco de pipa y Puros…)
 van EMBEBIDOS dentro del HTML.
 Al tocar un icono se abren en la misma página
 (← Escritorio para volver).
@@ -208,7 +213,7 @@ def main() -> None:
         raise SystemExit("shell missing EMBEDDED placeholder (need estanteria.shell.html)")
 
     embedded = build_embedded()
-    for need in ("hogar", "salud", "qr", "electro", "brico", "jardin", "economia", "clima", "moda", "legal", "mascotas", "campo", "supervive", "apagon", "caja", "gym", "guitarra", "calc", "medica", "medita", "auxilios", "escritura", "dibujo", "info", "guias", "mapas", "biblio", "teatro"):
+    for need in ("hogar", "salud", "qr", "electro", "brico", "jardin", "economia", "clima", "moda", "legal", "mascotas", "campo", "supervive", "apagon", "caja", "gym", "guitarra", "calc", "medica", "medita", "auxilios", "escritura", "dibujo", "info", "guias", "mapas", "biblio", "teatro", "arte", "protocolo", "ideas", "tabaco-pipa", "puros"):
         if need not in embedded:
             raise SystemExit(f"missing embed {need}")
 
@@ -253,7 +258,7 @@ def main() -> None:
     shutil.rmtree(STAGING)
 
     # Also keep last lettered snapshot name pointing at same bytes (bookmarks).
-    snapshot = ROOT / "downloads" / "estanteria-offline-v20260927a.zip"
+    snapshot = ROOT / "downloads" / "estanteria-offline-v20260927b.zip"
     shutil.copy2(OUT, snapshot)
     print(f"Wrote {OUT} ({OUT.stat().st_size} bytes)")
     print(f"Snapshot {snapshot}")
