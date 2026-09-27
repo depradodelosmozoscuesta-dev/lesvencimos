@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="referrer" content="strict-origin-when-cross-origin">
   <meta http-equiv="Content-Security-Policy" content="default-src 'self' blob: data:; base-uri 'self'; object-src 'none'; img-src 'self' data: blob:; media-src 'self' blob:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; font-src 'self' data:; connect-src 'self'; form-action 'self'; frame-src 'self' blob:">
-  <meta name="description" content="Escritorio versión B (piloto) - Les vencimos. Icono maestro, 7 columnas con scroll vertical independiente, snap-back, editar módulos.">
+  <meta name="description" content="Escritorio versión B (piloto) - Les vencimos. Lápiz azul arriba, dock debajo, columnas con scroll vertical, carpeta Música, ajustes Completo.">
   <meta name="theme-color" content="#0E0E0C">
   <title>Escritorio B · piloto - Les vencimos</title>
   <style>
@@ -26,10 +26,11 @@
       --col-min: clamp(64px, 14vw, 88px);
       --tile: clamp(52px, 12vw, 72px);
       --master: clamp(88px, 20vw, 120px);
+      --dock-tile: clamp(48px, 11vw, 64px);
       --touch: 44px;
       --font-display: "Iowan Old Style", Palatino, "Palatino Linotype", Georgia, serif;
       --font-body: "Segoe UI", system-ui, -apple-system, sans-serif;
-      --rail-w: calc(var(--master) + 1.1rem);
+      --lab-size: 0.62rem;
     }
     *, *::before, *::after { box-sizing: border-box; }
     html, body {
@@ -42,27 +43,107 @@
     body { min-height: 100dvh; overflow: hidden; }
     button { font: inherit; color: inherit; background: none; border: 0; cursor: pointer; }
     a { color: var(--ambar); }
+    select {
+      font: inherit; color: var(--tinta); background: var(--superficie);
+      border: 1px solid color-mix(in srgb, var(--ambar) 40%, transparent);
+      border-radius: 2px; padding: 0.35rem 0.45rem; min-height: 36px;
+    }
 
-    /* Desk: master rail + columns viewport */
+    /* Themes (Completo-compatible display settings) */
+    body.theme-ambar {
+      --fondo: #0E0E0C; --superficie: #161512; --panel: #1C1A16;
+      --tinta: #E6E1D6; --suave: #9A9488; --ambar: #C4A15A; --ambar-ink: #1A160E;
+      --peligro: #C46A4A; --ok: #8F9A72;
+    }
+    body.theme-corcho {
+      --fondo: #5A4030; --superficie: #8B6B48; --panel: #A08058;
+      --tinta: #FFF6E8; --suave: #D8C8A8; --ambar: #FFE0A0; --ambar-ink: #3A2818;
+      --peligro: #E09070; --ok: #A0C070;
+    }
+    body.theme-azul {
+      --fondo: #2A3038; --superficie: #323840; --panel: #3C4654;
+      --tinta: #E8ECF2; --suave: #95A0B0; --ambar: #8AA4C4; --ambar-ink: #0E1218;
+      --peligro: #C46A4A; --ok: #8F9A72;
+    }
+    body.theme-cuaderno {
+      --fondo: #E4DCC8; --superficie: #F4ECD8; --panel: #FFF8EC;
+      --tinta: #1A2230; --suave: #5A6470; --ambar: #2F5A8A; --ambar-ink: #F7FAFC;
+      --peligro: #A04830; --ok: #5A6A48;
+    }
+    body.theme-pizarra {
+      --fondo: #152218; --superficie: #1E2E22; --panel: #283828;
+      --tinta: #E8F0E0; --suave: #A0B098; --ambar: #D0E8A8; --ambar-ink: #152218;
+      --peligro: #E09070; --ok: #A0C070;
+    }
+    body.theme-verde {
+      --fondo: #101612; --superficie: #161C18; --panel: #1C241E;
+      --tinta: #E8EEE6; --suave: #94A094; --ambar: #9BB592; --ambar-ink: #101610;
+      --peligro: #C46A4A; --ok: #8F9A72;
+    }
+    body.theme-papel {
+      --fondo: #E8E4DA; --superficie: #F3EFE6; --panel: #FFFCF7;
+      --tinta: #1E2228; --suave: #5A606A; --ambar: #3D5A80; --ambar-ink: #F7FAFC;
+      --peligro: #A04830; --ok: #5A6A48;
+    }
+    body.contrast-1 {
+      --tinta: color-mix(in srgb, var(--tinta) 88%, #fff);
+      --suave: color-mix(in srgb, var(--suave) 75%, var(--tinta));
+    }
+    body.contrast-2 {
+      --tinta: color-mix(in srgb, var(--tinta) 70%, #fff);
+      --suave: color-mix(in srgb, var(--suave) 55%, var(--tinta));
+    }
+    body.theme-cuaderno.contrast-1, body.theme-papel.contrast-1,
+    body.theme-cuaderno.contrast-2, body.theme-papel.contrast-2 {
+      --tinta: color-mix(in srgb, var(--tinta) 85%, #000);
+      --suave: color-mix(in srgb, var(--suave) 70%, #000);
+    }
+    body.type-s {
+      --tile: clamp(44px, 10vw, 64px);
+      --dock-tile: clamp(42px, 9.5vw, 56px);
+      --master: clamp(76px, 17vw, 104px);
+      --lab-size: 0.58rem;
+      --col-min: clamp(58px, 12.5vw, 78px);
+    }
+    body.type-m {
+      --tile: clamp(52px, 12vw, 72px);
+      --dock-tile: clamp(48px, 11vw, 64px);
+      --master: clamp(88px, 20vw, 120px);
+      --lab-size: 0.62rem;
+      --col-min: clamp(64px, 14vw, 88px);
+    }
+    body.type-l {
+      --tile: clamp(58px, 13.5vw, 84px);
+      --dock-tile: clamp(54px, 12vw, 72px);
+      --master: clamp(96px, 22vw, 132px);
+      --lab-size: 0.72rem;
+      --col-min: clamp(72px, 15vw, 96px);
+    }
+    body.desk-font-serif { font-family: var(--font-display); }
+    body.desk-font-serif .tile .lab,
+    body.desk-font-serif .ajustes-chip,
+    body.desk-font-serif .mod-list li .mtitle { font-family: var(--font-display); }
+    body.desk-font-sans { font-family: var(--font-body); }
+
+    /* Desk: chrome (master + dock) on top, columns below */
     .desk {
       display: flex;
-      align-items: stretch;
+      flex-direction: column;
       height: 100dvh;
       height: 100svh;
       padding-top: env(safe-area-inset-top);
       padding-bottom: env(safe-area-inset-bottom);
       padding-left: env(safe-area-inset-left);
-      background: linear-gradient(180deg, #12110E 0%, var(--fondo) 28%);
+      padding-right: env(safe-area-inset-right);
+      background: linear-gradient(180deg, color-mix(in srgb, var(--superficie) 70%, var(--fondo)) 0%, var(--fondo) 28%);
     }
-
-    /* Left rail: only the blue master (clock lives in its panel) */
-    .master-rail {
-      flex: 0 0 var(--rail-w);
-      width: var(--rail-w);
+    .chrome {
+      flex: 0 0 auto;
       display: flex;
       flex-direction: column;
       align-items: center;
-      padding: 0.65rem 0.4rem 0.5rem;
+      gap: 0.55rem;
+      padding: 0.55rem 0.65rem 0.45rem;
       z-index: 20;
     }
     .master {
@@ -86,20 +167,51 @@
       border: 1px solid color-mix(in srgb, var(--blue-pen) 40%, transparent);
       pointer-events: none; opacity: .6;
     }
-    .rail-hint {
-      margin-top: 0.55rem;
+    .chrome-hint {
+      margin: 0;
       font-size: 0.62rem;
       letter-spacing: 0.06em;
       text-transform: uppercase;
       color: var(--suave);
       text-align: center;
       line-height: 1.25;
-      max-width: 6.5rem;
+    }
+    .dock-row {
+      display: flex;
+      flex-wrap: nowrap;
+      justify-content: center;
+      align-items: flex-start;
+      gap: clamp(0.35rem, 1.8vw, 0.85rem);
+      width: 100%;
+      max-width: 100%;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      padding: 0.15rem 0.25rem 0.35rem;
+      scrollbar-width: none;
+    }
+    .dock-row::-webkit-scrollbar { display: none; }
+    .dock-row .tile {
+      width: auto;
+      min-width: calc(var(--dock-tile) + 4px);
+      max-width: 5.2rem;
+      flex: 0 0 auto;
+    }
+    .dock-row .tile .ico {
+      width: var(--dock-tile); height: var(--dock-tile);
+    }
+    .dock-row .tile.shape-billboard .ico {
+      width: calc(var(--dock-tile) * 1.28);
+      height: var(--dock-tile);
+    }
+    .dock-row .tile.shape-wide .ico {
+      width: calc(var(--dock-tile) * 1.2);
+      height: var(--dock-tile);
     }
 
     /* Horizontal swipe across columns */
     .cols-viewport {
       flex: 1 1 auto;
+      min-height: 0;
       min-width: 0;
       overflow-x: auto;
       overflow-y: hidden;
@@ -107,7 +219,7 @@
       scroll-behavior: smooth;
       overscroll-behavior-x: contain;
       touch-action: pan-x;
-      padding: 0.65rem 0.75rem 0.5rem 0.15rem;
+      padding: 0.25rem 0.75rem 0.5rem;
     }
     .cols-track {
       display: grid;
@@ -119,7 +231,6 @@
       min-width: 100%;
       padding-right: 0.75rem;
     }
-    /* Each column scrolls vertically on its own */
     .col {
       height: 100%;
       overflow-x: hidden;
@@ -169,7 +280,7 @@
     .tile .ico svg { width: 54%; height: 54%; display: block; }
     .tile.shape-billboard .ico svg { width: 48%; height: 48%; }
     .tile .lab {
-      font-size: 0.62rem; color: var(--suave); text-align: center;
+      font-size: var(--lab-size); color: var(--suave); text-align: center;
       line-height: 1.15; max-width: 100%;
       overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
     }
@@ -177,24 +288,19 @@
     .tile.dock-tile .ico {
       box-shadow: 0 4px 14px rgba(0,0,0,.45), 0 0 0 1px color-mix(in srgb, var(--ambar) 22%, transparent);
     }
-    .tile.dock-tile {
-      position: sticky; top: 0; z-index: 2;
-      background: linear-gradient(180deg, #12110E 70%, transparent);
-      padding-bottom: 0.15rem;
-    }
     .tile .ledge {
-      display: block; width: calc(var(--tile) + 8px); height: 6px; margin-top: -0.1rem;
+      display: block; width: calc(var(--dock-tile) + 8px); height: 6px; margin-top: -0.1rem;
       border-radius: 1px;
       background: linear-gradient(180deg, var(--ledge-hi), var(--ledge));
       box-shadow: 0 3px 8px rgba(0,0,0,.35);
-      opacity: 0.9;
+      opacity: 1;
     }
-    .tile.dock-tile .ledge { opacity: 1; }
+    .tile.folder-tile .ico {
+      border: 1px solid color-mix(in srgb, #9B59D0 55%, transparent);
+      box-shadow: 0 3px 10px rgba(0,0,0,.35), 0 0 0 1px color-mix(in srgb, #9B59D0 25%, transparent);
+    }
 
-    /* Edit mode: hide control on each tile */
-    body.editing .tile .hide-x {
-      display: grid;
-    }
+    body.editing .tile .hide-x { display: grid; }
     .tile .hide-x {
       display: none;
       position: absolute; top: -4px; right: calc(50% - var(--tile) / 2 - 6px);
@@ -203,8 +309,10 @@
       place-items: center; font-size: 0.85rem; line-height: 1;
       z-index: 3; box-shadow: 0 2px 6px rgba(0,0,0,.4);
     }
+    .dock-row .tile .hide-x {
+      right: calc(50% - var(--dock-tile) / 2 - 6px);
+    }
 
-    /* Master panel — sole chrome for clock / settings / modules */
     .backdrop {
       display: none; position: fixed; inset: 0;
       background: rgba(0,0,0,.55); z-index: 40;
@@ -218,6 +326,7 @@
       background: var(--panel); border: 1px solid rgba(255,255,255,0.08);
       border-radius: 4px; padding: 1rem 1.1rem 1.15rem;
       box-shadow: 0 16px 40px rgba(0,0,0,.55);
+      margin: 0 auto;
     }
     .master-panel.open { display: block; }
     .master-panel h2 {
@@ -232,10 +341,11 @@
     .master-panel .row {
       display: flex; flex-wrap: wrap; gap: 0.45rem; margin-top: 0.55rem;
     }
-    .master-panel .chip {
+    .master-panel .chip, .ajustes-chip {
       border: 1px solid color-mix(in srgb, var(--ambar) 40%, transparent);
       color: var(--ambar); padding: 0.45rem 0.7rem; border-radius: 2px;
       font-size: 0.82rem; min-height: var(--touch);
+      display: inline-flex; align-items: center; gap: 0.35rem;
     }
     .master-panel .chip.primary {
       background: var(--ambar); color: var(--ambar-ink); border-color: var(--ambar);
@@ -243,6 +353,18 @@
     .master-panel .chip.danger {
       border-color: color-mix(in srgb, var(--peligro) 50%, transparent);
       color: var(--peligro);
+    }
+    .ajustes-chip.on {
+      background: color-mix(in srgb, var(--ambar) 22%, transparent);
+      border-color: var(--ambar);
+    }
+    .ajustes-chip select {
+      margin-left: 0.15rem; min-height: 32px; padding: 0.2rem 0.35rem;
+      color: var(--ambar); border-color: color-mix(in srgb, var(--ambar) 40%, transparent);
+      background: transparent;
+    }
+    .ajustes-size-group {
+      display: inline-flex; gap: 0.25rem; flex-wrap: wrap;
     }
     .master-panel .note {
       margin-top: 0.75rem; font-size: 0.78rem; color: var(--suave); line-height: 1.45;
@@ -260,7 +382,7 @@
     .mod-list {
       list-style: none; margin: 0; padding: 0;
       display: flex; flex-direction: column; gap: 0.35rem;
-      max-height: 40vh; overflow-y: auto;
+      max-height: 36vh; overflow-y: auto;
     }
     .mod-list li {
       display: flex; align-items: center; gap: 0.55rem;
@@ -268,6 +390,7 @@
       background: color-mix(in srgb, var(--superficie) 80%, transparent);
       border: 1px solid rgba(255,255,255,0.05);
     }
+    .mod-list li.child-mod { margin-left: 0.85rem; opacity: 0.95; }
     .mod-list li .mico {
       width: 32px; height: 32px; border-radius: 22%;
       display: grid; place-items: center; background: var(--panel); flex-shrink: 0;
@@ -286,9 +409,36 @@
       background: var(--ambar); color: var(--ambar-ink); border-color: var(--ambar);
     }
     .mod-list li.hidden-mod { opacity: 0.72; }
-    .mod-list .empty {
-      font-size: 0.8rem; color: var(--suave); padding: 0.4rem;
+    .mod-list .empty { font-size: 0.8rem; color: var(--suave); padding: 0.4rem; }
+
+    /* Folder panel */
+    .folder-panel {
+      display: none; position: fixed;
+      left: 0.75rem; right: 0.75rem; bottom: max(0.75rem, env(safe-area-inset-bottom));
+      top: auto; max-height: min(70dvh, 520px);
+      overflow-y: auto; z-index: 55;
+      background: var(--panel); border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 4px; padding: 0.9rem 1rem 1.1rem;
+      box-shadow: 0 16px 40px rgba(0,0,0,.55);
+      max-width: 480px; margin: 0 auto;
     }
+    .folder-panel.open { display: block; }
+    .folder-panel h2 {
+      font-family: var(--font-display); font-size: 1.15rem; margin: 0 0 0.65rem;
+      padding-right: 2.2rem;
+    }
+    .folder-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(72px, 1fr));
+      gap: 0.65rem 0.45rem;
+      justify-items: center;
+    }
+    .folder-panel .close-x {
+      position: absolute; top: 0.45rem; right: 0.45rem;
+      width: 40px; height: 40px; display: grid; place-items: center;
+      color: var(--suave); font-size: 1.2rem;
+    }
+    .folder-panel .empty { color: var(--suave); font-size: 0.85rem; }
 
     #mod-viewer {
       display: none; position: fixed; inset: 0; z-index: 60;
@@ -331,20 +481,21 @@
     }
   </style>
 </head>
-<body>
+<body class="theme-ambar type-m desk-font-sans">
   <div class="desk" id="desk">
-    <aside class="master-rail">
+    <header class="chrome" aria-label="Lápiz maestro y dock">
       <button type="button" class="master" id="btn-master" aria-label="Menú, hora, módulos y ajustes" aria-expanded="false" aria-controls="master-panel">
         <span class="pulse-ring" aria-hidden="true"></span>
       </button>
-      <p class="rail-hint">Toca el lápiz</p>
-    </aside>
+      <p class="chrome-hint">Toca el lápiz · ajustes</p>
+      <div class="dock-row" id="dock-row" aria-label="Dock · 7 accesos"></div>
+    </header>
     <div class="cols-viewport" id="cols-viewport" tabindex="0" aria-label="Columnas · desliza horizontal · cada columna vertical">
       <div class="cols-track" id="cols-track"></div>
     </div>
   </div>
 
-  <footer class="b-foot">lesvencimos.com · Escritorio B piloto · <span id="est-build">v20260927c-piloto</span></footer>
+  <footer class="b-foot">lesvencimos.com · Escritorio B piloto · <span id="est-build">v20260927d-piloto</span></footer>
 
   <div class="backdrop" id="backdrop" hidden></div>
   <div class="master-panel" id="master-panel" role="dialog" aria-modal="true" aria-labelledby="mp-title" hidden>
@@ -359,9 +510,19 @@
       <button type="button" class="chip" id="mp-edit">Añadir / quitar módulos</button>
       <button type="button" class="chip danger" id="mp-reset-mods" hidden>Mostrar todos</button>
     </div>
+
+    <p class="section-title">Ajustes</p>
+    <div class="row" id="ajustes-row" role="toolbar" aria-label="Ajustes del escritorio"></div>
+
     <p class="section-title" id="mods-section-title">Módulos en la mesa</p>
     <ul class="mod-list" id="mod-list" aria-label="Lista de módulos"></ul>
-    <p class="note">Piloto experimental. 7 columnas con scroll vertical independiente · desliz horizontal · retorno automático tras ~7 s. Reloj, ajustes y módulos solo desde el lápiz azul.</p>
+    <p class="note">Piloto experimental. Lápiz azul arriba · dock debajo · 7 columnas con scroll vertical · desliz horizontal · snap-back ~7 s · carpeta Música · ajustes (contraste, fondo, tamaño, fuente). Sin enlace a Completo A.</p>
+  </div>
+
+  <div class="folder-panel" id="folder-panel" role="dialog" aria-modal="true" aria-labelledby="folder-title" hidden>
+    <button type="button" class="close-x" id="folder-close" aria-label="Cerrar carpeta">×</button>
+    <h2 id="folder-title">Carpeta</h2>
+    <div class="folder-grid" id="folder-grid"></div>
   </div>
 
   <div id="mod-viewer" role="dialog" aria-modal="true" aria-labelledby="mod-viewer-title" hidden>
@@ -378,10 +539,15 @@
   <script>
 (function () {
   'use strict';
-  var EST_BUILD = 'v20260927c-piloto';
+  var EST_BUILD = 'v20260927d-piloto';
   var SNAP_MS = 7000;
-  var LS_KEY = 'lv-escritorio-b-v1';
+  var LS_KEY = 'lv-escritorio-b-v2';
   var COLS = 7;
+  var THEMES = ['ambar', 'corcho', 'azul', 'cuaderno', 'pizarra', 'verde', 'papel'];
+  var THEME_LABELS = {
+    ambar: 'Ámbar', corcho: 'Corcho', azul: 'Mesa', cuaderno: 'Cuaderno',
+    pizarra: 'Pizarra', verde: 'Verde', papel: 'Papel'
+  };
 
   var ICONS = {
       "escritura": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M4 20h4l9.2-9.2a2 2 0 0 0-2.8-2.8L5.2 17.2V20z\" fill=\"currentColor\" fill-opacity=\"0.12\"/><path d=\"M4 20h4l9.2-9.2a2 2 0 0 0-2.8-2.8L5.2 17.2V20z\"/><path d=\"M13.2 7.2l2.8 2.8\"/><path d=\"M16.5 4.5l2.2 2.2\"/></svg>",
@@ -421,7 +587,9 @@
       "tabaco": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M4 16h8c3 0 4-1.2 4-3.4V10\"/><path d=\"M16 10h4v3h-4z\" fill=\"currentColor\" fill-opacity=\"0.12\"/><path d=\"M12 16v4\"/><path d=\"M9 20h6\"/><path d=\"M17 7c.7-1.3.7-2.4 0-3.5M19.5 7c.7-1.3.7-2.4 0-3.5\"/></svg>",
       "comunicacion": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M4 14v-2a8 8 0 0 1 16 0v2\" fill=\"currentColor\" fill-opacity=\"0.08\"/><path d=\"M4 14v-2a8 8 0 0 1 16 0v2\"/><path d=\"M4 14h3v5H4zM17 14h3v5h-3z\"/><path d=\"M9 18h6\"/><circle cx=\"12\" cy=\"7\" r=\"1.5\"/></svg>",
       "gas": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M12 3c2 3 4 5 4 8a4 4 0 1 1-8 0c0-3 2-5 4-8z\" fill=\"currentColor\" fill-opacity=\"0.12\"/><path d=\"M12 3c2 3 4 5 4 8a4 4 0 1 1-8 0c0-3 2-5 4-8z\"/><path d=\"M9 21h6\"/><path d=\"M4 4l16 16\"/></svg>",
-      "higiene": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M4 11.2L12 4l8 7.2\"/><path d=\"M6.5 10.5V20h11V10.5\" fill=\"currentColor\" fill-opacity=\"0.1\"/><path d=\"M6.5 10.5V20h11V10.5\"/><path d=\"M10 20v-5h4v5\"/></svg>"
+      "higiene": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M4 11.2L12 4l8 7.2\"/><path d=\"M6.5 10.5V20h11V10.5\" fill=\"currentColor\" fill-opacity=\"0.1\"/><path d=\"M6.5 10.5V20h11V10.5\"/><path d=\"M10 20v-5h4v5\"/></svg>",
+      "folder": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M3 7.5A1.5 1.5 0 0 1 4.5 6H9l2 2h8.5A1.5 1.5 0 0 1 21 9.5v8A1.5 1.5 0 0 1 19.5 19h-15A1.5 1.5 0 0 1 3 17.5z\" fill=\"currentColor\" fill-opacity=\"0.12\"/><path d=\"M3 7.5A1.5 1.5 0 0 1 4.5 6H9l2 2h8.5A1.5 1.5 0 0 1 21 9.5v8A1.5 1.5 0 0 1 19.5 19h-15A1.5 1.5 0 0 1 3 17.5z\"/></svg>",
+      "musica": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M9 18V5l12-2v13\" fill=\"currentColor\" fill-opacity=\"0.1\"/><path d=\"M9 18V5l12-2v13\"/><circle cx=\"6\" cy=\"18\" r=\"3\" fill=\"currentColor\" fill-opacity=\"0.14\"/><circle cx=\"6\" cy=\"18\" r=\"3\"/><circle cx=\"18\" cy=\"16\" r=\"3\" fill=\"currentColor\" fill-opacity=\"0.14\"/><circle cx=\"18\" cy=\"16\" r=\"3\"/></svg>",
   };
 
   var DOCK = [
@@ -489,252 +657,87 @@
   }
 ];
 
+
+  var MUSICA_ITEMS = [
+    { id: 'guitarra', titulo: 'Guitarra', icon: 'guitarra', color: '#B45CFF', file: 'guitarra.html', shape: 'tall' },
+    { id: 'piano', titulo: 'Piano', icon: 'guitarra', color: '#8B6FD8', file: 'piano.html', shape: 'wide' },
+    { id: 'armonica', titulo: 'Armónica', icon: 'guitarra', color: '#D68A4A', file: 'armonica.html', shape: 'soft' },
+    { id: 'saxofon', titulo: 'Saxofón', icon: 'guitarra', color: '#C7A64B', file: 'saxofon.html', shape: 'tall' },
+    { id: 'bajo', titulo: 'Bajo', icon: 'guitarra', color: '#3E9B8A', file: 'bajo.html', shape: 'wide' },
+    { id: 'canto-solfeo', titulo: 'Canto y solfeo', icon: 'guitarra', color: '#D85E87', file: 'canto-solfeo.html', shape: 'soft' },
+    { id: 'historia-musica', titulo: 'Historia de la música', icon: 'guitarra', color: '#A26B4F', file: 'historia-musica.html', shape: 'poster' }
+  ];
+
+  var FOLDERS = [
+    {
+      id: 'f-musica',
+      titulo: 'Música',
+      icon: 'musica',
+      color: '#9B59D0',
+      kind: 'folder',
+      hub: 'musica',
+      items: MUSICA_ITEMS
+    }
+  ];
+
   var SHELVES = [
   [
     "Escritura",
     [
-      {
-        "id": "tinta-escritura",
-        "titulo": "Escritura",
-        "icon": "escritura",
-        "color": "#4A9BE8",
-        "file": "tinta-escritura.html"
-      },
-      {
-        "id": "tinta-estudio",
-        "titulo": "Dibujo",
-        "icon": "dibujo",
-        "color": "#F0A060",
-        "file": "tinta-estudio.html"
-      }
+      { id: "tinta-escritura", titulo: "Escritura", icon: "escritura", color: "#4A9BE8", file: "tinta-escritura.html" },
+      { id: "tinta-estudio", titulo: "Dibujo", icon: "dibujo", color: "#F0A060", file: "tinta-estudio.html" }
     ]
   ],
   [
     "Ocio",
     [
-      {
-        "id": "biblioteca",
-        "titulo": "Libros",
-        "icon": "biblioteca",
-        "color": "#E8B84A",
-        "file": "biblioteca.html",
-        "optional": true
-      },
-      {
-        "id": "guitarra",
-        "titulo": "Guitarra",
-        "icon": "guitarra",
-        "color": "#B45CFF",
-        "file": "guitarra.html"
-      },
-      {
-        "id": "meditacion",
-        "titulo": "Medita",
-        "icon": "meditacion",
-        "color": "#3DB8A8",
-        "file": "meditacion.html"
-      },
-      {
-        "id": "tanteo",
-        "titulo": "Tanteo",
-        "icon": "ideas",
-        "color": "#C4A15A",
-        "file": "tanteo.html"
-      },
-      {
-        "id": "teatro-marionetas",
-        "titulo": "Marionetas",
-        "icon": "teatro-marionetas",
-        "color": "#C4A15A",
-        "file": "teatro-marionetas.html"
-      },
-      {
-        "id": "ideas",
-        "titulo": "Ideas",
-        "icon": "ideas",
-        "color": "#C4A15A",
-        "file": "ideas.html"
-      },
-      {
-        "id": "tabaco",
-        "titulo": "Tabaco",
-        "icon": "tabaco",
-        "color": "#C4A15A",
-        "file": "tabaco.html"
-      }
+      { id: "biblioteca", titulo: "Libros", icon: "biblioteca", color: "#E8B84A", file: "biblioteca.html", optional: true },
+      { id: "f-musica", titulo: "Música", icon: "musica", color: "#9B59D0", kind: "folder", folderId: "f-musica" },
+      { id: "meditacion", titulo: "Medita", icon: "meditacion", color: "#3DB8A8", file: "meditacion.html" },
+      { id: "tanteo", titulo: "Tanteo", icon: "ideas", color: "#C4A15A", file: "tanteo.html" },
+      { id: "teatro-marionetas", titulo: "Marionetas", icon: "teatro-marionetas", color: "#C4A15A", file: "teatro-marionetas.html" },
+      { id: "ideas", titulo: "Ideas", icon: "ideas", color: "#C4A15A", file: "ideas.html" },
+      { id: "tabaco", titulo: "Tabaco", icon: "tabaco", color: "#C4A15A", file: "tabaco.html" }
     ]
   ],
   [
     "Casa",
     [
-      {
-        "id": "hogar",
-        "titulo": "Hogar",
-        "icon": "hogar",
-        "color": "#F0C040",
-        "file": "hogar.html"
-      },
-      {
-        "id": "jardin",
-        "titulo": "Jardín",
-        "icon": "jardin",
-        "color": "#2FBF4A",
-        "file": "jardin.html"
-      },
-      {
-        "id": "economia",
-        "titulo": "Economía",
-        "icon": "economia",
-        "color": "#3D9B6E",
-        "file": "economia.html"
-      },
-      {
-        "id": "clima",
-        "titulo": "Clima",
-        "icon": "clima",
-        "color": "#5B9FCF",
-        "file": "clima.html"
-      },
-      {
-        "id": "mascotas",
-        "titulo": "Mascotas",
-        "icon": "mascotas",
-        "color": "#E8A060",
-        "file": "mascotas.html"
-      },
-      {
-        "id": "bricolaje",
-        "titulo": "Taller",
-        "icon": "bricolaje",
-        "color": "#E87722",
-        "file": "bricolaje.html"
-      },
-      {
-        "id": "electricidad",
-        "titulo": "Luz",
-        "icon": "electricidad",
-        "color": "#FFD13A",
-        "file": "electricidad.html"
-      },
-      {
-        "id": "fontaneria",
-        "titulo": "Agua",
-        "icon": "fontaneria",
-        "color": "#5B8FA8",
-        "file": "fontaneria.html"
-      },
-      {
-        "id": "campo",
-        "titulo": "Campo",
-        "icon": "campo",
-        "color": "#6B8F5E",
-        "file": "campo.html"
-      },
-      {
-        "id": "supervivencia",
-        "titulo": "Casa preparada",
-        "icon": "supervivencia",
-        "color": "#C87828",
-        "file": "supervivencia.html"
-      },
-      {
-        "id": "comunicacion",
-        "titulo": "Sin internet",
-        "icon": "comunicacion",
-        "color": "#5B8FA8",
-        "file": "comunicacion.html"
-      },
-      {
-        "id": "gas",
-        "titulo": "Gas",
-        "icon": "gas",
-        "color": "#C46A4A",
-        "file": "gas.html"
-      }
+      { id: "hogar", titulo: "Hogar", icon: "hogar", color: "#F0C040", file: "hogar.html" },
+      { id: "jardin", titulo: "Jardín", icon: "jardin", color: "#2FBF4A", file: "jardin.html" },
+      { id: "economia", titulo: "Economía", icon: "economia", color: "#3D9B6E", file: "economia.html" },
+      { id: "clima", titulo: "Clima", icon: "clima", color: "#5B9FCF", file: "clima.html" },
+      { id: "mascotas", titulo: "Mascotas", icon: "mascotas", color: "#E8A060", file: "mascotas.html" },
+      { id: "bricolaje", titulo: "Taller", icon: "bricolaje", color: "#E87722", file: "bricolaje.html" },
+      { id: "electricidad", titulo: "Luz", icon: "electricidad", color: "#FFD13A", file: "electricidad.html" },
+      { id: "fontaneria", titulo: "Agua", icon: "fontaneria", color: "#5B8FA8", file: "fontaneria.html" },
+      { id: "campo", titulo: "Campo", icon: "campo", color: "#6B8F5E", file: "campo.html" },
+      { id: "supervivencia", titulo: "Casa preparada", icon: "supervivencia", color: "#C87828", file: "supervivencia.html" },
+      { id: "comunicacion", titulo: "Sin internet", icon: "comunicacion", color: "#5B8FA8", file: "comunicacion.html" },
+      { id: "gas", titulo: "Gas", icon: "gas", color: "#C46A4A", file: "gas.html" }
     ]
   ],
   [
     "Salud",
     [
-      {
-        "id": "salud",
-        "titulo": "Salud",
-        "icon": "salud",
-        "color": "#FF6B7A",
-        "file": "salud.html"
-      },
-      {
-        "id": "medicacion",
-        "titulo": "Pastillas",
-        "icon": "medicacion",
-        "color": "#E85A9A",
-        "file": "medicacion.html"
-      },
-      {
-        "id": "higiene",
-        "titulo": "Higiene",
-        "icon": "higiene",
-        "color": "#C4A15A",
-        "file": "higiene.html"
-      },
-      {
-        "id": "primeros-auxilios",
-        "titulo": "Auxilio",
-        "icon": "primeros-auxilios",
-        "color": "#FF4444",
-        "file": "primeros-auxilios.html"
-      }
+      { id: "salud", titulo: "Salud", icon: "salud", color: "#FF6B7A", file: "salud.html" },
+      { id: "medicacion", titulo: "Pastillas", icon: "medicacion", color: "#E85A9A", file: "medicacion.html" },
+      { id: "higiene", titulo: "Higiene", icon: "higiene", color: "#C4A15A", file: "higiene.html" },
+      { id: "primeros-auxilios", titulo: "Auxilio", icon: "primeros-auxilios", color: "#FF4444", file: "primeros-auxilios.html" }
     ]
   ],
   [
     "Varios",
     [
-      {
-        "id": "caja-fuerte",
-        "titulo": "Caja fuerte",
-        "icon": "caja-fuerte",
-        "color": "#E8B84A",
-        "file": "caja-fuerte.html"
-      },
-      {
-        "id": "mapas",
-        "titulo": "Mapas",
-        "icon": "mapas",
-        "color": "#2ECC71",
-        "file": "mapas.html"
-      },
-      {
-        "id": "informatica",
-        "titulo": "Info",
-        "icon": "informatica",
-        "color": "#3A9BFF",
-        "file": "informatica.html"
-      },
-      {
-        "id": "guias-viaje",
-        "titulo": "Guías",
-        "icon": "guias-viaje",
-        "color": "#2AB8B0",
-        "file": "guias-viaje.html"
-      },
-      {
-        "id": "legal-casa",
-        "titulo": "Legal",
-        "icon": "legal",
-        "color": "#8B7355",
-        "file": "legal-casa.html"
-      },
-      {
-        "id": "protocolo",
-        "titulo": "Protocolo",
-        "icon": "protocolo",
-        "color": "#C4A15A",
-        "file": "protocolo.html"
-      }
+      { id: "caja-fuerte", titulo: "Caja fuerte", icon: "caja-fuerte", color: "#E8B84A", file: "caja-fuerte.html" },
+      { id: "mapas", titulo: "Mapas", icon: "mapas", color: "#2ECC71", file: "mapas.html" },
+      { id: "informatica", titulo: "Info", icon: "informatica", color: "#3A9BFF", file: "informatica.html" },
+      { id: "guias-viaje", titulo: "Guías", icon: "guias-viaje", color: "#2AB8B0", file: "guias-viaje.html" },
+      { id: "legal-casa", titulo: "Legal", icon: "legal", color: "#8B7355", file: "legal-casa.html" },
+      { id: "protocolo", titulo: "Protocolo", icon: "protocolo", color: "#C4A15A", file: "protocolo.html" }
     ]
   ]
 ];
-
 
   var isFile = (function () {
     try { return location.protocol === 'file:'; } catch (e) { return false; }
@@ -754,16 +757,35 @@
     return '<span class="' + (cls || 'ico') + '" style="color:' + (color || 'var(--ambar)') + '">' + svg + '</span>';
   }
 
-  /* -- Persist show/hide -- */
+  function defaultPrefs() {
+    return { hidden: [], theme: 'ambar', contrast: 0, typeSize: 'm', deskFont: 'sans' };
+  }
   function loadState() {
     try {
       var raw = localStorage.getItem(LS_KEY);
-      if (!raw) return { hidden: [] };
+      if (!raw) {
+        // migrate v1 hidden list if present
+        var old = localStorage.getItem('lv-escritorio-b-v1');
+        if (old) {
+          try {
+            var o1 = JSON.parse(old);
+            var s = defaultPrefs();
+            if (o1 && Array.isArray(o1.hidden)) s.hidden = o1.hidden.slice();
+            return s;
+          } catch (e2) {}
+        }
+        return defaultPrefs();
+      }
       var o = JSON.parse(raw);
-      if (!o || typeof o !== 'object') return { hidden: [] };
+      if (!o || typeof o !== 'object') return defaultPrefs();
+      var d = defaultPrefs();
       if (!Array.isArray(o.hidden)) o.hidden = [];
+      if (THEMES.indexOf(o.theme) < 0) o.theme = d.theme;
+      o.contrast = Math.max(0, Math.min(2, o.contrast|0));
+      if (o.typeSize !== 's' && o.typeSize !== 'm' && o.typeSize !== 'l') o.typeSize = d.typeSize;
+      if (o.deskFont !== 'serif' && o.deskFont !== 'sans') o.deskFont = d.deskFont;
       return o;
-    } catch (e) { return { hidden: [] }; }
+    } catch (e) { return defaultPrefs(); }
   }
   function saveState(state) {
     try { localStorage.setItem(LS_KEY, JSON.stringify(state)); } catch (e) {}
@@ -777,20 +799,28 @@
     saveState(state);
   }
 
-  /* Flat catalog: dock first (col order), then shelf modules */
+  function folderById(id) {
+    for (var i = 0; i < FOLDERS.length; i++) {
+      if (FOLDERS[i].id === id) return FOLDERS[i];
+    }
+    return null;
+  }
+
   function allModules() {
     var list = [];
     DOCK.forEach(function (m, idx) {
-      list.push(Object.assign({}, m, { _dock: true, _col: idx, _order: idx }));
+      list.push(Object.assign({}, m, { _dock: true, _folder: false, _col: idx, _order: idx }));
     });
     var n = 0;
     SHELVES.forEach(function (pair) {
       pair[1].forEach(function (m) {
+        var isFolder = m.kind === 'folder' || !!m.folderId;
         list.push(Object.assign({}, m, {
           _dock: false,
+          _folder: isFolder,
           _col: n % COLS,
           _order: COLS + n,
-          kind: m.kind || 'mod'
+          kind: m.kind || (isFolder ? 'folder' : 'mod')
         }));
         n++;
       });
@@ -798,7 +828,143 @@
     return list;
   }
 
-  /* -- Clock (panel only) -- */
+  function catalogForList() {
+    var list = allModules();
+    var out = [];
+    list.forEach(function (m) {
+      out.push(m);
+      if (m.kind === 'folder' || m.folderId) {
+        var f = folderById(m.folderId || m.id);
+        if (f && f.items) {
+          f.items.forEach(function (child) {
+            out.push(Object.assign({}, child, {
+              _dock: false,
+              _folder: false,
+              _child: true,
+              _parentFolder: f.id,
+              kind: 'mod'
+            }));
+          });
+        }
+      }
+    });
+    return out;
+  }
+
+  /* -- Display settings (Completo-like) -- */
+  function applyTheme(name) {
+    if (THEMES.indexOf(name) < 0) name = 'ambar';
+    state.theme = name;
+    THEMES.forEach(function (t) { document.body.classList.remove('theme-' + t); });
+    document.body.classList.add('theme-' + name);
+    var meta = document.querySelector('meta[name="theme-color"]');
+    if (meta) {
+      var bg = getComputedStyle(document.body).getPropertyValue('--fondo').trim() || '#0E0E0C';
+      meta.setAttribute('content', bg);
+    }
+  }
+  function applyContrast() {
+    var n = Math.max(0, Math.min(2, state.contrast|0));
+    state.contrast = n;
+    document.body.classList.remove('contrast-1', 'contrast-2');
+    if (n === 1) document.body.classList.add('contrast-1');
+    if (n === 2) document.body.classList.add('contrast-2');
+  }
+  function applyTypeSize() {
+    var sz = state.typeSize === 's' || state.typeSize === 'l' ? state.typeSize : 'm';
+    state.typeSize = sz;
+    document.body.classList.remove('type-s', 'type-m', 'type-l');
+    document.body.classList.add('type-' + sz);
+  }
+  function applyDeskFont() {
+    var f = state.deskFont === 'serif' ? 'serif' : 'sans';
+    state.deskFont = f;
+    document.body.classList.remove('desk-font-serif', 'desk-font-sans');
+    document.body.classList.add('desk-font-' + f);
+  }
+  function applyAllPrefs() {
+    applyTheme(state.theme);
+    applyContrast();
+    applyTypeSize();
+    applyDeskFont();
+  }
+
+  function renderAjustes() {
+    var row = document.getElementById('ajustes-row');
+    if (!row) return;
+    row.innerHTML = '';
+    function mk(label, title, onClick, on) {
+      var b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'ajustes-chip' + (on ? ' on' : '');
+      b.textContent = label;
+      if (title) b.title = title;
+      b.addEventListener('click', function (e) {
+        e.preventDefault();
+        onClick();
+        renderAjustes();
+        resetIdle();
+      });
+      return b;
+    }
+    row.appendChild(mk('Más contraste', 'Subir contraste', function () {
+      state.contrast = Math.min(2, (state.contrast|0) + 1);
+      applyContrast(); saveState(state);
+      showToast(state.contrast ? ('Contraste · ' + state.contrast) : 'Contraste · normal');
+    }, (state.contrast|0) > 0));
+    row.appendChild(mk('Menos contraste', 'Bajar contraste', function () {
+      state.contrast = Math.max(0, (state.contrast|0) - 1);
+      applyContrast(); saveState(state);
+      showToast(state.contrast ? ('Contraste · ' + state.contrast) : 'Contraste · normal');
+    }));
+
+    var fondoWrap = document.createElement('label');
+    fondoWrap.className = 'ajustes-chip';
+    fondoWrap.title = 'Fondo del escritorio';
+    fondoWrap.appendChild(document.createTextNode('Fondo'));
+    var sel = document.createElement('select');
+    sel.setAttribute('aria-label', 'Fondo del escritorio');
+    THEMES.forEach(function (t) {
+      var o = document.createElement('option');
+      o.value = t; o.textContent = THEME_LABELS[t] || t;
+      if (state.theme === t) o.selected = true;
+      sel.appendChild(o);
+    });
+    sel.addEventListener('change', function () {
+      applyTheme(sel.value); saveState(state);
+      showToast('Fondo · ' + (THEME_LABELS[sel.value] || sel.value));
+      renderAjustes();
+      resetIdle();
+    });
+    fondoWrap.appendChild(sel);
+    row.appendChild(fondoWrap);
+
+    var sizeGroup = document.createElement('span');
+    sizeGroup.className = 'ajustes-size-group';
+    sizeGroup.setAttribute('role', 'group');
+    sizeGroup.setAttribute('aria-label', 'Tamaño de iconos');
+    ['s', 'm', 'l'].forEach(function (sz) {
+      sizeGroup.appendChild(mk(sz.toUpperCase(), 'Tamaño iconos ' + sz.toUpperCase(), function () {
+        state.typeSize = sz;
+        applyTypeSize(); saveState(state);
+        showToast('Tamaño · ' + sz.toUpperCase());
+        renderDock();
+        renderColumns();
+      }, state.typeSize === sz));
+    });
+    row.appendChild(sizeGroup);
+
+    row.appendChild(mk('Sans', 'Fuente sans-serif', function () {
+      state.deskFont = 'sans'; applyDeskFont(); saveState(state);
+      showToast('Fuente · Sans');
+    }, state.deskFont !== 'serif'));
+    row.appendChild(mk('Serif', 'Fuente serif', function () {
+      state.deskFont = 'serif'; applyDeskFont(); saveState(state);
+      showToast('Fuente · Serif');
+    }, state.deskFont === 'serif'));
+  }
+
+  /* -- Clock -- */
   var days = ['domingo','lunes','martes','miércoles','jueves','viernes','sábado'];
   var months = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
   function pad(n) { return n < 10 ? '0' + n : '' + n; }
@@ -811,7 +977,7 @@
     el = document.getElementById('mp-date'); if (el) el.textContent = dateStr + ' · ' + d.getFullYear();
   }
 
-  /* -- Idle snap-back: all columns + horizontal home -- */
+  /* -- Idle snap-back -- */
   var idleTimer = null;
   var colsViewport = null;
   function goHome(smooth) {
@@ -825,6 +991,7 @@
       try { cols[i].scrollTo({ top: 0, behavior: behavior }); }
       catch (e2) { cols[i].scrollTop = 0; }
     }
+    closeFolder();
   }
   function resetIdle() {
     if (idleTimer) clearTimeout(idleTimer);
@@ -832,6 +999,9 @@
       if (document.body.classList.contains('mod-open')) return;
       if (document.getElementById('master-panel').classList.contains('open')) {
         closeMaster();
+      }
+      if (document.getElementById('folder-panel').classList.contains('open')) {
+        closeFolder();
       }
       if (document.body.classList.contains('editing')) {
         setEditing(false);
@@ -850,7 +1020,6 @@
     resetIdle();
   }
 
-  /* -- Toast -- */
   var toastTimer = null;
   function showToast(msg) {
     var t = document.getElementById('toast');
@@ -861,14 +1030,15 @@
     toastTimer = setTimeout(function () { t.classList.remove('show'); }, 1600);
   }
 
-  /* -- Master panel -- */
   function openMaster() {
+    closeFolder();
     var p = document.getElementById('master-panel');
     var b = document.getElementById('backdrop');
     p.hidden = false; b.hidden = false;
     p.classList.add('open'); b.classList.add('open');
     document.getElementById('btn-master').setAttribute('aria-expanded', 'true');
     tickClock();
+    renderAjustes();
     renderModList();
     resetIdle();
   }
@@ -887,9 +1057,10 @@
     var reset = document.getElementById('mp-reset-mods');
     if (reset) reset.hidden = !on;
     renderModList();
+    renderDock();
+    renderColumns();
   }
 
-  /* -- Module open -- */
   function openModule(titulo, file) {
     if (!file) { showToast('No disponible offline'); return; }
     var url = modUrl(file);
@@ -900,6 +1071,7 @@
     viewer.hidden = false;
     document.body.classList.add('mod-open');
     closeMaster();
+    closeFolder();
     resetIdle();
   }
   function closeModule() {
@@ -922,9 +1094,49 @@
     inp.click();
   }
 
+  function openFolder(folderId) {
+    var f = folderById(folderId);
+    if (!f) return;
+    closeMaster();
+    var panel = document.getElementById('folder-panel');
+    var grid = document.getElementById('folder-grid');
+    var bd = document.getElementById('backdrop');
+    document.getElementById('folder-title').textContent = f.titulo;
+    grid.innerHTML = '';
+    var shown = 0;
+    (f.items || []).forEach(function (m) {
+      if (isHidden(m.id)) return;
+      shown++;
+      var btn = makeTile(Object.assign({}, m, { _dock: false, _folder: false, kind: 'mod' }));
+      grid.appendChild(btn);
+    });
+    if (!shown) {
+      grid.innerHTML = '<p class="empty">Sin módulos en esta carpeta (revisa Añadir / quitar).</p>';
+    }
+    panel.hidden = false; bd.hidden = false;
+    panel.classList.add('open'); bd.classList.add('open');
+    resetIdle();
+  }
+  function closeFolder() {
+    var panel = document.getElementById('folder-panel');
+    var bd = document.getElementById('backdrop');
+    if (!panel) return;
+    panel.classList.remove('open');
+    panel.hidden = true;
+    // only hide backdrop if master also closed
+    if (!document.getElementById('master-panel').classList.contains('open')) {
+      bd.classList.remove('open');
+      bd.hidden = true;
+    }
+  }
+
   function activateModule(m) {
     resetIdle();
     if (document.body.classList.contains('editing')) return;
+    if (m.kind === 'folder' || m.folderId) {
+      openFolder(m.folderId || m.id);
+      return;
+    }
     if (m.kind === 'native') openNative(m.href);
     else if (m.kind === 'camera') openCamera();
     else openModule(m.titulo, m.file);
@@ -933,7 +1145,11 @@
   function makeTile(m) {
     var btn = document.createElement('button');
     btn.type = 'button';
-    btn.className = 'tile' + (m._dock ? ' dock-tile' : '') + (m.shape ? ' shape-' + m.shape : '');
+    var cls = 'tile';
+    if (m._dock) cls += ' dock-tile';
+    if (m.kind === 'folder' || m.folderId) cls += ' folder-tile';
+    if (m.shape) cls += ' shape-' + m.shape;
+    btn.className = cls;
     btn.dataset.id = m.id;
     btn.setAttribute('aria-label', m.titulo);
     btn.innerHTML = icoHtml(m.icon, m.color) +
@@ -945,8 +1161,14 @@
         ev.preventDefault();
         ev.stopPropagation();
         setHidden(m.id, true);
+        renderDock();
         renderColumns();
         renderModList();
+        if (document.getElementById('folder-panel').classList.contains('open')) {
+          var openTitle = document.getElementById('folder-title').textContent;
+          var f = FOLDERS.filter(function (x) { return x.titulo === openTitle; })[0];
+          if (f) openFolder(f.id);
+        }
         showToast('Quitado · ' + m.titulo);
         resetIdle();
         return;
@@ -954,6 +1176,16 @@
       activateModule(m);
     });
     return btn;
+  }
+
+  function renderDock() {
+    var row = document.getElementById('dock-row');
+    if (!row) return;
+    row.innerHTML = '';
+    DOCK.forEach(function (m, idx) {
+      if (isHidden(m.id)) return;
+      row.appendChild(makeTile(Object.assign({}, m, { _dock: true, _col: idx })));
+    });
   }
 
   function renderColumns() {
@@ -964,7 +1196,7 @@
     for (var i = 0; i < existing.length; i++) scrollTops[i] = existing[i].scrollTop;
 
     track.innerHTML = '';
-    var catalog = allModules();
+    var catalog = allModules().filter(function (m) { return !m._dock; });
     var buckets = [];
     for (var c = 0; c < COLS; c++) buckets.push([]);
 
@@ -992,22 +1224,27 @@
     var ul = document.getElementById('mod-list');
     if (!ul) return;
     ul.innerHTML = '';
-    var catalog = allModules();
+    var catalog = catalogForList();
     var hiddenCount = 0;
     catalog.forEach(function (m) {
       var hidden = isHidden(m.id);
       if (hidden) hiddenCount++;
       var li = document.createElement('li');
       if (hidden) li.className = 'hidden-mod';
+      if (m._child) li.className = (li.className ? li.className + ' ' : '') + 'child-mod';
+      var tag = '';
+      if (m._dock) tag = ' <span class="mtag">dock</span>';
+      else if (m.kind === 'folder' || m.folderId) tag = ' <span class="mtag">carpeta</span>';
+      else if (m._child) tag = ' <span class="mtag">Música</span>';
       li.innerHTML = icoHtml(m.icon, m.color, 'mico') +
-        '<span class="mtitle">' + m.titulo +
-        (m._dock ? ' <span class="mtag">dock</span>' : '') + '</span>';
+        '<span class="mtitle">' + m.titulo + tag + '</span>';
       var tog = document.createElement('button');
       tog.type = 'button';
       tog.className = 'toggle';
       tog.textContent = hidden ? 'Añadir' : 'Quitar';
       tog.addEventListener('click', function () {
         setHidden(m.id, !hidden);
+        renderDock();
         renderColumns();
         renderModList();
         showToast((!hidden ? 'Quitado · ' : 'Añadido · ') + m.titulo);
@@ -1046,7 +1283,9 @@
     var ver = document.getElementById('est-build');
     if (ver) ver.textContent = EST_BUILD;
     colsViewport = document.getElementById('cols-viewport');
+    applyAllPrefs();
     injectMasterIcon();
+    renderDock();
     renderColumns();
     setOfflineLabel();
     tickClock();
@@ -1058,7 +1297,11 @@
       if (p.classList.contains('open')) closeMaster(); else openMaster();
     });
     document.getElementById('mp-close').addEventListener('click', closeMaster);
-    document.getElementById('backdrop').addEventListener('click', closeMaster);
+    document.getElementById('folder-close').addEventListener('click', closeFolder);
+    document.getElementById('backdrop').addEventListener('click', function () {
+      if (document.getElementById('folder-panel').classList.contains('open')) closeFolder();
+      else closeMaster();
+    });
     document.getElementById('btn-back').addEventListener('click', closeModule);
     document.getElementById('mp-home').addEventListener('click', function () {
       closeMaster();
@@ -1078,6 +1321,7 @@
     document.getElementById('mp-reset-mods').addEventListener('click', function () {
       state.hidden = [];
       saveState(state);
+      renderDock();
       renderColumns();
       renderModList();
       showToast('Todos los módulos visibles');
@@ -1092,6 +1336,7 @@
     document.addEventListener('keydown', function (ev) {
       if (ev.key === 'Escape') {
         if (document.body.classList.contains('mod-open')) closeModule();
+        else if (document.getElementById('folder-panel').classList.contains('open')) closeFolder();
         else if (document.getElementById('master-panel').classList.contains('open')) closeMaster();
         else if (document.body.classList.contains('editing')) setEditing(false);
       }
