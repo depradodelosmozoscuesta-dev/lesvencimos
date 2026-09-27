@@ -1,0 +1,652 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0E0E0C">
+<title>Teatro de marionetas — Les vencimos</title>
+<style>
+:root{
+  --fondo:#0E0E0C; --fondo-2:#161512; --fondo-3:#1C1A16;
+  --tinta:#E6E1D6; --suave:#9A9488;
+  --acento:#C4A15A; --acento-texto:#1A160E;
+  --linea:rgba(230,225,214,0.14);
+  --ok:#8F9A72; --madera:#6B4E2E; --madera-clara:#8B6840;
+  --cortina:#7A2430; --cortina-osc:#5A1820;
+  --serif:"Iowan Old Style","Palatino Linotype",Palatino,"Times New Roman",Georgia,serif;
+  --sans:"Segoe UI",system-ui,-apple-system,sans-serif;
+  --radio:2px;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;min-height:100%;background:var(--fondo);color:var(--tinta);font-family:var(--sans)}
+body{padding:1rem 1rem 2.5rem;max-width:42rem;margin:0 auto}
+header{border-bottom:1px solid var(--linea);padding-bottom:.75rem;margin-bottom:1rem}
+header h1{margin:0;font-family:var(--serif);font-size:1.55rem;font-weight:600}
+header p{margin:.35rem 0 0;color:var(--suave);font-size:.72rem;letter-spacing:.12em;text-transform:uppercase}
+.blurb{color:var(--suave);font-size:.95rem;line-height:1.45;margin:0 0 1.1rem}
+.grid{display:grid;grid-template-columns:1fr;gap:.7rem}
+@media(min-width:520px){.grid{grid-template-columns:1fr 1fr}}
+.show-card{
+  display:flex;flex-direction:column;gap:.35rem;text-align:left;
+  padding:1rem 1.05rem;background:var(--fondo-2);border:1px solid var(--linea);
+  border-radius:var(--radio);color:inherit;font:inherit;cursor:pointer;min-height:44px;
+}
+.show-card:hover,.show-card:focus-visible{border-color:rgba(196,161,90,.55);outline:none}
+.show-card .emoji{font-size:1.6rem;line-height:1}
+.show-card .t{font-family:var(--serif);font-weight:600;font-size:1.12rem}
+.show-card .m{color:var(--suave);font-size:.86rem;line-height:1.35}
+.show-card.create{border-style:dashed;border-color:rgba(196,161,90,.4)}
+.screen{display:none}
+.screen.on{display:block}
+.btn-row{display:flex;flex-wrap:wrap;gap:.5rem;margin:.85rem 0}
+button, .btn{
+  min-height:48px;min-width:48px;padding:.55rem 1.05rem;font:600 .95rem var(--sans);
+  border:1px solid var(--linea);border-radius:var(--radio);background:var(--fondo-3);
+  color:var(--tinta);cursor:pointer;
+}
+button.primary{background:var(--acento);color:var(--acento-texto);border-color:var(--acento)}
+button:disabled{opacity:.45;cursor:default}
+button.ghost{background:transparent}
+.foot{margin-top:1.6rem;color:var(--suave);font-size:.7rem;letter-spacing:.08em;text-transform:uppercase}
+
+/* Stage */
+.stage-wrap{position:relative;margin:0 auto;max-width:40rem}
+.stage-frame{
+  position:relative;background:linear-gradient(180deg,#2a2218,#1a1510);
+  border:10px solid var(--madera);border-radius:6px 6px 2px 2px;
+  box-shadow:inset 0 0 0 3px var(--madera-clara), 0 8px 24px rgba(0,0,0,.45);
+  overflow:hidden;aspect-ratio:16/11;
+}
+.stage-bg{
+  position:absolute;inset:0;
+  background:linear-gradient(180deg,#3a5a4a 0%,#2a4a3a 38%,#4a3a28 38%,#3a2e20 100%);
+}
+.stage-bg.bosque{background:linear-gradient(180deg,#2d4a38 0%,#1e3528 40%,#3a2e1c 40%,#2a2014 100%)}
+.stage-bg.casa{background:linear-gradient(180deg,#4a3a50 0%,#2e2438 40%,#5a4830 40%,#3a3018 100%)}
+.stage-bg.pantano{background:linear-gradient(180deg,#3a5a48 0%,#2a4034 36%,#3a5038 36%,#2a3828 70%,#1e2820 100%)}
+.stage-bg.cielo{background:linear-gradient(180deg,#5a7a9a 0%,#3a5a78 40%,#6a8a58 40%,#4a6a40 100%)}
+.floor-line{position:absolute;left:0;right:0;top:38%;height:2px;background:rgba(0,0,0,.25)}
+.puppets{position:absolute;left:0;right:0;bottom:8%;height:58%;display:flex;align-items:flex-end;justify-content:center;gap:4%;padding:0 6%;pointer-events:none}
+.puppet{
+  width:28%;max-width:7.5rem;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;
+  transition:transform .45s ease;transform:translateY(8%);
+  opacity:.92;
+}
+.puppet.on{transform:translateY(0) scale(1.04);opacity:1}
+.puppet svg{width:100%;height:auto;filter:drop-shadow(0 4px 6px rgba(0,0,0,.35));animation:bob 1.8s ease-in-out infinite}
+.puppet:nth-child(2) svg{animation-delay:.35s}
+.puppet:nth-child(3) svg{animation-delay:.7s}
+@keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+@media(prefers-reduced-motion:reduce){
+  .puppet svg{animation:none!important}
+  .puppet,.curtain,.bubble{transition:none!important}
+}
+.curtains{position:absolute;inset:0;pointer-events:none;z-index:5}
+.curtain{
+  position:absolute;top:0;bottom:0;width:52%;
+  background:repeating-linear-gradient(90deg,var(--cortina) 0 14px,var(--cortina-osc) 14px 18px);
+  transition:transform .9s cubic-bezier(.4,.0,.2,1);box-shadow:inset -8px 0 20px rgba(0,0,0,.35);
+}
+.curtain.left{left:0;transform-origin:left center;border-right:3px solid #3a1018}
+.curtain.right{right:0;transform-origin:right center;border-left:3px solid #3a1018}
+.stage-frame.open .curtain.left{transform:translateX(-88%)}
+.stage-frame.open .curtain.right{transform:translateX(88%)}
+.curtain-bar{position:absolute;top:0;left:0;right:0;height:14px;background:linear-gradient(#8B6840,#5A4020);z-index:6;border-bottom:2px solid #3a2810}
+.bubble{
+  position:absolute;left:8%;right:8%;top:10%;z-index:4;
+  background:rgba(230,225,214,.95);color:#1A160E;border-radius:14px;padding:.7rem .9rem;
+  font-size:1.02rem;line-height:1.35;min-height:3.2rem;box-shadow:0 4px 14px rgba(0,0,0,.3);
+  transition:opacity .25s ease;
+}
+.bubble .who{display:block;font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;color:#6a5a40;margin-bottom:.2rem;font-weight:700}
+.bubble.narr{background:rgba(196,161,90,.92)}
+.subbar{
+  margin-top:.65rem;background:var(--fondo-2);border:1px solid var(--linea);border-radius:var(--radio);
+  padding:.75rem 1rem;min-height:3.4rem;font-size:1.02rem;line-height:1.4;
+}
+.subbar .who{font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;color:var(--acento);margin-bottom:.2rem;font-weight:700}
+.progress{height:4px;background:var(--fondo-3);border-radius:2px;margin:.55rem 0 0;overflow:hidden}
+.progress > i{display:block;height:100%;background:var(--acento);width:0%;transition:width .3s ease}
+.stage-title{font-family:var(--serif);font-size:1.15rem;margin:0 0 .4rem}
+.hint{color:var(--suave);font-size:.88rem}
+
+/* Create mode */
+.chips{display:flex;flex-wrap:wrap;gap:.4rem;margin:.4rem 0 .8rem}
+.chip{
+  min-height:44px;padding:.4rem .75rem;border:1px solid var(--linea);border-radius:999px;
+  background:var(--fondo-3);color:var(--tinta);font:600 .85rem var(--sans);cursor:pointer;
+}
+.chip.on{background:var(--acento);color:var(--acento-texto);border-color:var(--acento)}
+.field{display:block;margin:0 0 .7rem}
+.field span{display:block;font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;color:var(--suave);margin-bottom:.3rem}
+input,textarea,select{
+  width:100%;min-height:48px;padding:.55rem .75rem;font:inherit;background:var(--fondo-3);
+  color:var(--tinta);border:1px solid var(--linea);border-radius:var(--radio);
+}
+textarea{min-height:3.2rem;resize:vertical}
+.line-row{display:grid;grid-template-columns:7rem 1fr auto;gap:.4rem;align-items:start;margin-bottom:.45rem}
+@media(max-width:520px){.line-row{grid-template-columns:1fr;}}
+.panel{background:var(--fondo-2);border:1px solid var(--linea);border-radius:var(--radio);padding:1rem;margin-bottom:.85rem}
+h2.sec{margin:1.1rem 0 .55rem;font-size:.7rem;letter-spacing:.14em;text-transform:uppercase;color:var(--suave);font-weight:600}
+</style>
+</head>
+<body>
+<header>
+  <h1>Teatro de marionetas</h1>
+  <p>Les vencimos · offline · niños</p>
+</header>
+
+<section id="lobby" class="screen on" aria-label="Vestíbulo">
+  <p class="blurb">Elige un cuento o inventa tu propia función. Las marionetas se mueven en el escenario; tú pasas las frases con «Siguiente» o dejas el autoplay. Sin internet, sin vídeos.</p>
+  <div class="grid" id="showGrid"></div>
+  <p class="foot">Archivo local · sin nube · 4–8 años</p>
+</section>
+
+<section id="stageScreen" class="screen" aria-label="Escenario">
+  <div class="btn-row">
+    <button type="button" class="ghost" id="btnBackLobby">← Vestíbulo</button>
+    <span class="hint" id="sceneHint"></span>
+  </div>
+  <h2 class="stage-title" id="stageTitle"></h2>
+  <div class="stage-wrap">
+    <div class="stage-frame" id="stageFrame">
+      <div class="curtain-bar"></div>
+      <div class="stage-bg" id="stageBg"></div>
+      <div class="floor-line"></div>
+      <div class="bubble" id="bubble" hidden><span class="who" id="bubbleWho"></span><span id="bubbleText"></span></div>
+      <div class="puppets" id="puppets"></div>
+      <div class="curtains" aria-hidden="true">
+        <div class="curtain left"></div>
+        <div class="curtain right"></div>
+      </div>
+    </div>
+  </div>
+  <div class="subbar" id="subbar" aria-live="polite">
+    <div class="who" id="subWho"></div>
+    <div id="subText">Toca «Abrir telón» para empezar.</div>
+  </div>
+  <div class="progress" aria-hidden="true"><i id="progBar"></i></div>
+  <div class="btn-row">
+    <button type="button" id="btnCurtain" class="primary">Abrir telón</button>
+    <button type="button" id="btnPrev" disabled>Anterior</button>
+    <button type="button" id="btnNext" disabled>Siguiente</button>
+    <button type="button" id="btnPlay" disabled>▶ Play</button>
+  </div>
+</section>
+
+<section id="createScreen" class="screen" aria-label="Crear función">
+  <div class="btn-row">
+    <button type="button" class="ghost" id="btnBackCreate">← Vestíbulo</button>
+  </div>
+  <h2 class="stage-title">Crear función</h2>
+  <p class="hint">Elige 2 o 3 marionetas y escribe 4 a 6 frases. También puedes tocar las fichas de ejemplo.</p>
+
+  <h2 class="sec">Marionetas (2–3)</h2>
+  <div class="chips" id="puppetChips"></div>
+
+  <h2 class="sec">Diálogo</h2>
+  <div class="panel" id="linesPanel"></div>
+  <div class="btn-row">
+    <button type="button" id="btnAddLine">+ Frase</button>
+    <button type="button" id="btnChipsHelp">Frases de ejemplo</button>
+  </div>
+  <div class="chips" id="exampleChips" hidden></div>
+  <div class="btn-row">
+    <button type="button" class="primary" id="btnPlayCreate">Representar</button>
+  </div>
+</section>
+
+<script>
+(function(){
+  'use strict';
+
+  /* ——— Web Audio beeps (optional, local) ——— */
+  var audioCtx = null;
+  function beep(freq, dur, type, vol){
+    try{
+      if(!audioCtx) audioCtx = new (window.AudioContext||window.webkitAudioContext)();
+      var o = audioCtx.createOscillator();
+      var g = audioCtx.createGain();
+      o.type = type || 'sine';
+      o.frequency.value = freq;
+      g.gain.value = vol == null ? 0.04 : vol;
+      o.connect(g); g.connect(audioCtx.destination);
+      var t = audioCtx.currentTime;
+      g.gain.setValueAtTime(g.gain.value, t);
+      g.gain.exponentialRampToValueAtTime(0.001, t + (dur||0.12));
+      o.start(t); o.stop(t + (dur||0.12) + 0.02);
+    }catch(e){}
+  }
+  function sndCurtain(){ beep(220, 0.18, 'triangle', 0.05); setTimeout(function(){ beep(330, 0.14, 'triangle', 0.04); }, 90); }
+  function sndStep(){ beep(480, 0.06, 'square', 0.025); }
+
+  /* ——— SVG puppet templates ——— */
+  var PUPPET_SVG = {
+    nina: '<svg viewBox="0 0 80 120" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><circle cx="40" cy="22" r="14" fill="#F0C8A0"/><path d="M22 18c0-12 36-12 36 0v6H22z" fill="#C62828"/><circle cx="34" cy="22" r="1.6" fill="#333"/><circle cx="46" cy="22" r="1.6" fill="#333"/><path d="M35 28c2 2 8 2 10 0" stroke="#A06040" fill="none" stroke-width="1.4"/><path d="M24 38h32l-4 42H28z" fill="#E53935"/><rect x="28" y="78" width="10" height="28" rx="3" fill="#F0C8A0"/><rect x="42" y="78" width="10" height="28" rx="3" fill="#F0C8A0"/><circle cx="40" cy="8" r="5" fill="#C62828"/></svg>',
+    lobo: '<svg viewBox="0 0 80 120" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><ellipse cx="40" cy="28" rx="18" ry="16" fill="#6B6B78"/><polygon points="22,18 18,4 30,14" fill="#6B6B78"/><polygon points="58,18 62,4 50,14" fill="#6B6B78"/><circle cx="33" cy="26" r="2.2" fill="#1a1a1a"/><circle cx="47" cy="26" r="2.2" fill="#1a1a1a"/><ellipse cx="40" cy="34" rx="6" ry="4" fill="#C8A090"/><path d="M28 42c4 18 20 18 24 0" fill="#6B6B78"/><ellipse cx="40" cy="70" rx="16" ry="22" fill="#6B6B78"/><rect x="28" y="88" width="10" height="24" rx="3" fill="#5A5A66"/><rect x="42" y="88" width="10" height="24" rx="3" fill="#5A5A66"/></svg>',
+    abuela: '<svg viewBox="0 0 80 120" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><circle cx="40" cy="24" r="14" fill="#F0D0B0"/><path d="M22 20c2-14 34-14 36 0" fill="#E8E4DC"/><circle cx="34" cy="24" r="1.5" fill="#333"/><circle cx="46" cy="24" r="1.5" fill="#333"/><path d="M34 30c3 2 9 2 12 0" stroke="#A07050" fill="none"/><path d="M22 40h36l-3 50H25z" fill="#6A8AB8"/><circle cx="40" cy="18" r="3" fill="#E8E4DC"/><rect x="28" y="88" width="10" height="24" rx="3" fill="#F0D0B0"/><rect x="42" y="88" width="10" height="24" rx="3" fill="#F0D0B0"/><path d="M18 48h44" stroke="#C4A15A" stroke-width="3"/></svg>',
+    madre: '<svg viewBox="0 0 80 120" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><circle cx="40" cy="22" r="13" fill="#E8B890"/><path d="M24 18c0-10 32-10 32 0" fill="#5D4037"/><circle cx="34" cy="22" r="1.5" fill="#333"/><circle cx="46" cy="22" r="1.5" fill="#333"/><path d="M34 28c3 2 9 2 12 0" stroke="#A06040" fill="none"/><path d="M24 38h32l-4 48H28z" fill="#5B8C5A"/><rect x="28" y="84" width="10" height="28" rx="3" fill="#E8B890"/><rect x="42" y="84" width="10" height="28" rx="3" fill="#E8B890"/></svg>',
+    cazador: '<svg viewBox="0 0 80 120" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><circle cx="40" cy="22" r="13" fill="#E0B090"/><path d="M26 16l14-10 14 10v6H26z" fill="#3E5C3A"/><circle cx="34" cy="22" r="1.5" fill="#333"/><circle cx="46" cy="22" r="1.5" fill="#333"/><path d="M34 28c3 1.5 9 1.5 12 0" stroke="#8A6040" fill="none"/><path d="M24 38h32l-3 46H27z" fill="#4A6741"/><rect x="28" y="82" width="10" height="30" rx="3" fill="#3A3020"/><rect x="42" y="82" width="10" height="30" rx="3" fill="#3A3020"/><rect x="58" y="48" width="4" height="36" rx="1" fill="#8B6840"/></svg>',
+    cerdito: '<svg viewBox="0 0 80 120" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><ellipse cx="40" cy="30" rx="18" ry="16" fill="#F5A8B8"/><ellipse cx="40" cy="36" rx="7" ry="5" fill="#E8889A"/><circle cx="32" cy="28" r="2" fill="#333"/><circle cx="48" cy="28" r="2" fill="#333"/><ellipse cx="26" cy="18" rx="5" ry="7" fill="#F5A8B8"/><ellipse cx="54" cy="18" rx="5" ry="7" fill="#F5A8B8"/><ellipse cx="40" cy="68" rx="18" ry="24" fill="#F5A8B8"/><rect x="28" y="88" width="10" height="24" rx="4" fill="#E8889A"/><rect x="42" y="88" width="10" height="24" rx="4" fill="#E8889A"/><circle cx="37" cy="36" r="1.2" fill="#333"/><circle cx="43" cy="36" r="1.2" fill="#333"/></svg>',
+    cerdito2: '<svg viewBox="0 0 80 120" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><ellipse cx="40" cy="30" rx="18" ry="16" fill="#F0B0C0"/><ellipse cx="40" cy="36" rx="7" ry="5" fill="#D88898"/><circle cx="32" cy="28" r="2" fill="#333"/><circle cx="48" cy="28" r="2" fill="#333"/><ellipse cx="26" cy="18" rx="5" ry="7" fill="#F0B0C0"/><ellipse cx="54" cy="18" rx="5" ry="7" fill="#F0B0C0"/><ellipse cx="40" cy="68" rx="18" ry="24" fill="#E8A0B0"/><rect x="28" y="88" width="10" height="24" rx="4" fill="#D88898"/><rect x="42" y="88" width="10" height="24" rx="4" fill="#D88898"/><circle cx="37" cy="36" r="1.2" fill="#333"/><circle cx="43" cy="36" r="1.2" fill="#333"/><path d="M22 55h8v20h-8z" fill="#C4A15A" opacity=".5"/></svg>',
+    cerdito3: '<svg viewBox="0 0 80 120" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><ellipse cx="40" cy="30" rx="18" ry="16" fill="#E898A8"/><ellipse cx="40" cy="36" rx="7" ry="5" fill="#C87080"/><circle cx="32" cy="28" r="2" fill="#333"/><circle cx="48" cy="28" r="2" fill="#333"/><ellipse cx="26" cy="18" rx="5" ry="7" fill="#E898A8"/><ellipse cx="54" cy="18" rx="5" ry="7" fill="#E898A8"/><ellipse cx="40" cy="68" rx="18" ry="24" fill="#D88898"/><rect x="28" y="88" width="10" height="24" rx="4" fill="#C87080"/><rect x="42" y="88" width="10" height="24" rx="4" fill="#C87080"/><circle cx="37" cy="36" r="1.2" fill="#333"/><circle cx="43" cy="36" r="1.2" fill="#333"/><rect x="30" y="58" width="20" height="14" rx="2" fill="#8B6840" opacity=".55"/></svg>',
+    ogro: '<svg viewBox="0 0 80 120" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><ellipse cx="40" cy="26" rx="17" ry="16" fill="#6B9B4A"/><polygon points="26,16 22,6 32,14" fill="#6B9B4A"/><polygon points="54,16 58,6 48,14" fill="#6B9B4A"/><circle cx="33" cy="24" r="2.4" fill="#1a2a10"/><circle cx="47" cy="24" r="2.4" fill="#1a2a10"/><ellipse cx="40" cy="32" rx="5" ry="3.5" fill="#4A7A30"/><path d="M33 34c3 3 11 3 14 0" stroke="#2A4A18" fill="none" stroke-width="1.5"/><ellipse cx="40" cy="68" rx="20" ry="26" fill="#5A8A3A"/><path d="M28 55h24v8H28z" fill="#C4A15A"/><rect x="27" y="90" width="11" height="24" rx="3" fill="#4A7A30"/><rect x="42" y="90" width="11" height="24" rx="3" fill="#4A7A30"/></svg>',
+    princesa: '<svg viewBox="0 0 80 120" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><circle cx="40" cy="24" r="13" fill="#F0C8A8"/><path d="M24 18c0-8 32-8 32 0" fill="#F5D76E"/><polygon points="28,14 40,4 52,14" fill="#C4A15A"/><circle cx="40" cy="8" r="2.5" fill="#E8B84A"/><circle cx="34" cy="24" r="1.5" fill="#333"/><circle cx="46" cy="24" r="1.5" fill="#333"/><path d="M34 29c3 2 9 2 12 0" stroke="#A06040" fill="none"/><path d="M22 40h36l-4 48H26z" fill="#7B5EA7"/><rect x="28" y="86" width="10" height="26" rx="3" fill="#F0C8A8"/><rect x="42" y="86" width="10" height="26" rx="3" fill="#F0C8A8"/></svg>',
+    dragon: '<svg viewBox="0 0 80 120" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><ellipse cx="40" cy="32" rx="20" ry="16" fill="#5B9B8A"/><polygon points="22,24 14,10 30,20" fill="#3A7A6A"/><polygon points="58,24 66,10 50,20" fill="#3A7A6A"/><circle cx="32" cy="30" r="2.5" fill="#1a2a20"/><circle cx="48" cy="30" r="2.5" fill="#1a2a20"/><ellipse cx="40" cy="38" rx="6" ry="4" fill="#3A7A6A"/><path d="M34 40c2 4 10 4 12 0" stroke="#2A5A4A" fill="none"/><ellipse cx="40" cy="70" rx="18" ry="22" fill="#4A8A78"/><path d="M18 55c-8 4-10 16-4 22 8-6 12-14 4-22z" fill="#7BC4A8" opacity=".85"/><path d="M62 55c8 4 10 16 4 22-8-6-12-14-4-22z" fill="#7BC4A8" opacity=".85"/><rect x="28" y="88" width="10" height="24" rx="3" fill="#3A7A6A"/><rect x="42" y="88" width="10" height="24" rx="3" fill="#3A7A6A"/><path d="M55 42c8 2 12 8 10 14" stroke="#E07040" stroke-width="2" fill="none"/></svg>',
+    nino: '<svg viewBox="0 0 80 120" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><circle cx="40" cy="22" r="13" fill="#E8B890"/><path d="M24 18c0-10 32-10 32 0" fill="#3A5A8A"/><circle cx="34" cy="22" r="1.5" fill="#333"/><circle cx="46" cy="22" r="1.5" fill="#333"/><path d="M34 28c3 2 9 2 12 0" stroke="#A06040" fill="none"/><path d="M24 38h32l-4 46H28z" fill="#3D7AB5"/><rect x="28" y="82" width="10" height="30" rx="3" fill="#E8B890"/><rect x="42" y="82" width="10" height="30" rx="3" fill="#E8B890"/></svg>'
+  };
+  // fix typo in nino fill
+  PUPPET_SVG.nino = '<svg viewBox="0 0 80 120" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><circle cx="40" cy="22" r="13" fill="#E8B890"/><path d="M24 18c0-10 32-10 32 0" fill="#3A5A8A"/><circle cx="34" cy="22" r="1.5" fill="#333"/><circle cx="46" cy="22" r="1.5" fill="#333"/><path d="M34 28c3 2 9 2 12 0" stroke="#A06040" fill="none"/><path d="M24 38h32l-4 46H28z" fill="#3D7AB5"/><rect x="28" y="82" width="10" height="30" rx="3" fill="#E8B890"/><rect x="42" y="82" width="10" height="30" rx="3" fill="#E8B890"/></svg>';
+
+  var PUPPET_META = {
+    nina:{label:'Niña', color:'#E53935'},
+    lobo:{label:'Lobo', color:'#6B6B78'},
+    abuela:{label:'Abuela', color:'#6A8AB8'},
+    madre:{label:'Mamá', color:'#5B8C5A'},
+    cazador:{label:'Guardabosques', color:'#4A6741'},
+    cerdito:{label:'Cerdito 1', color:'#F5A8B8'},
+    cerdito2:{label:'Cerdito 2', color:'#E8A0B0'},
+    cerdito3:{label:'Cerdito 3', color:'#D88898'},
+    ogro:{label:'Ogro', color:'#6B9B4A'},
+    princesa:{label:'Princesa', color:'#7B5EA7'},
+    dragon:{label:'Dragón', color:'#5B9B8A'},
+    nino:{label:'Niño', color:'#3D7AB5'},
+    narr:{label:'Narrador', color:'#C4A15A'}
+  };
+
+  /* ——— Scripts (Spanish, gentle, ~8–14 scenes) ——— */
+  var SHOWS = [
+    {
+      id:'caperucita',
+      titulo:'Caperucita Roja',
+      blurb:'Un camino al bosque, una abuela y un lobo con malas ideas. Moraleja: no te fíes de desconocidos.',
+      emoji:'📕',
+      bg:'bosque',
+      scenes:[
+        {who:'narr', text:'Había una vez una niña con una capa roja. Todos la llamaban Caperucita.', puppets:['nina'], bg:'casa'},
+        {who:'madre', text:'Hija, lleva esta cesta a la abuela. Ve por el camino y no hables con extraños.', puppets:['madre','nina'], bg:'casa'},
+        {who:'nina', text:'¡Sí, mamá! Iré directa a casa de la abuela.', puppets:['nina'], bg:'bosque'},
+        {who:'narr', text:'En el bosque apareció un lobo con una sonrisa demasiado grande.', puppets:['nina','lobo'], bg:'bosque'},
+        {who:'lobo', text:'¡Hola, niña! ¿Adónde vas con esa cesta tan rica?', puppets:['nina','lobo'], bg:'bosque'},
+        {who:'nina', text:'Voy a ver a mi abuela. Está enferma y le llevo pan y miel.', puppets:['nina','lobo'], bg:'bosque'},
+        {who:'lobo', text:'(Piensa en secreto) Si llego antes… ¡podré engañarla!', puppets:['lobo'], bg:'bosque'},
+        {who:'narr', text:'El lobo corrió a la casita. La abuela se escondió bajo la cama, muy lista.', puppets:['lobo','abuela'], bg:'casa'},
+        {who:'lobo', text:'(Con voz falsa) ¡Pasa, querida! Estoy en la cama…', puppets:['lobo'], bg:'casa'},
+        {who:'nina', text:'¡Abuela! ¡Qué ojos tan grandes tienes!', puppets:['nina','lobo'], bg:'casa'},
+        {who:'lobo', text:'Son para… ¡verte mejor! Bueno, la verdad: ¡soy el lobo!', puppets:['lobo'], bg:'casa'},
+        {who:'cazador', text:'¡Alto! Yo cuido este bosque. ¡Lobo, fuera de aquí y no vuelvas a engañar!', puppets:['cazador','lobo','nina'], bg:'casa'},
+        {who:'abuela', text:'¡Gracias! Caperucita, la próxima vez no hables con desconocidos.', puppets:['abuela','nina'], bg:'casa'},
+        {who:'nina', text:'Lo prometo. El camino seguro es el mejor camino.', puppets:['nina'], bg:'bosque'}
+      ]
+    },
+    {
+      id:'cerditos',
+      titulo:'Los tres cerditos',
+      blurb:'Tres casitas, un lobo soplón y una lección: lo bien hecho resiste.',
+      emoji:'🐷',
+      bg:'cielo',
+      scenes:[
+        {who:'narr', text:'Tres cerditos hermanos decidieron hacerse cada uno su casita.', puppets:['cerdito','cerdito2','cerdito3'], bg:'cielo'},
+        {who:'cerdito', text:'Yo haré la mía de paja. ¡Será rapidito y podré jugar!', puppets:['cerdito'], bg:'cielo'},
+        {who:'cerdito2', text:'Yo usaré madera. Un poco más fuerte… y aún tendré tiempo.', puppets:['cerdito2'], bg:'cielo'},
+        {who:'cerdito3', text:'Yo construiré con ladrillos. Me costará, pero dormiré tranquilo.', puppets:['cerdito3'], bg:'cielo'},
+        {who:'narr', text:'Llegó un lobo hambriento, olisqueando por el campo.', puppets:['lobo'], bg:'cielo'},
+        {who:'lobo', text:'¡Soplaré y soplaré y tu casa derribaré!', puppets:['lobo','cerdito'], bg:'cielo'},
+        {who:'cerdito', text:'¡Ay! La paja vuela… ¡Corro a la casa de madera!', puppets:['cerdito','cerdito2'], bg:'cielo'},
+        {who:'lobo', text:'¡También soplo la de madera! ¡Fuera, cerditos!', puppets:['lobo','cerdito','cerdito2'], bg:'cielo'},
+        {who:'cerdito2', text:'¡A la casa de ladrillo! Nuestro hermano sí trabajó bien.', puppets:['cerdito','cerdito2','cerdito3'], bg:'cielo'},
+        {who:'lobo', text:'¡Soplo… soplo…! ¿Eh? ¿No se cae?', puppets:['lobo','cerdito3'], bg:'cielo'},
+        {who:'cerdito3', text:'Los ladrillos no se asustan con el viento. ¡Aquí estamos seguros!', puppets:['cerdito3'], bg:'cielo'},
+        {who:'lobo', text:'Buf… Me voy. La próxima vez buscaré manzanas, no casas.', puppets:['lobo'], bg:'cielo'},
+        {who:'cerdito', text:'Gracias, hermano. Aprenderé a hacer las cosas con calma.', puppets:['cerdito','cerdito2','cerdito3'], bg:'cielo'},
+        {who:'narr', text:'Y los tres cerditos vivieron seguros. Lo bien hecho dura más.', puppets:['cerdito','cerdito2','cerdito3'], bg:'cielo'}
+      ]
+    },
+    {
+      id:'ogro',
+      titulo:'El ogro amable',
+      blurb:'Un ogro del pantano, una princesa amiga y un dragón un poco tonto. Cuento original: la bondad se contagia.',
+      emoji:'🟢',
+      bg:'pantano',
+      scenes:[
+        {who:'narr', text:'En un pantano tranquilo vivía un ogro grande de corazón blando. Se llamaba Bruno.', puppets:['ogro'], bg:'pantano'},
+        {who:'ogro', text:'Me gusta el barro suave y oír a las ranas. Ojalá tuviera un amigo…', puppets:['ogro'], bg:'pantano'},
+        {who:'narr', text:'Un día se perdió por allí la princesa Luna, con el mapa al revés.', puppets:['princesa'], bg:'pantano'},
+        {who:'princesa', text:'¿Hola? Busco el camino al pueblo. ¿Tú… eres un ogro?', puppets:['princesa','ogro'], bg:'pantano'},
+        {who:'ogro', text:'Sí, pero no muerdo. Puedo enseñarte el sendero seco, si quieres.', puppets:['ogro','princesa'], bg:'pantano'},
+        {who:'princesa', text:'¡Qué amable! Nadie me había ofrecido ayuda con tanta calma.', puppets:['princesa'], bg:'pantano'},
+        {who:'narr', text:'De pronto llegó un dragón joven que quería parecer feroz.', puppets:['dragon'], bg:'cielo'},
+        {who:'dragon', text:'¡Roooar! Soy terrible… bueno, un poquito. ¿Me teméis?', puppets:['dragon','ogro','princesa'], bg:'pantano'},
+        {who:'ogro', text:'No hace falta asustar para que te vean. ¿Quieres pan de hierbas con nosotros?', puppets:['ogro','dragon'], bg:'pantano'},
+        {who:'dragon', text:'¿Pan? Yo solo sé hacer humito. ¡Pero el pan suena rico!', puppets:['dragon'], bg:'pantano'},
+        {who:'princesa', text:'Tres amigos: ogro, princesa y dragón. ¡Qué equipo más raro y bonito!', puppets:['princesa','ogro','dragon'], bg:'pantano'},
+        {who:'dragon', text:'Si alguien se pierde, soplaré humito suave para señalar el camino. Sin fuego.', puppets:['dragon'], bg:'cielo'},
+        {who:'ogro', text:'En este pantano siempre habrá sitio para quien sea bueno de verdad.', puppets:['ogro'], bg:'pantano'},
+        {who:'narr', text:'Y así, el pantano se llenó de risas. Ser amable es una magia que no se agota.', puppets:['ogro','princesa','dragon'], bg:'pantano'}
+      ]
+    }
+  ];
+
+  /* ——— State ——— */
+  var currentShow = null;
+  var sceneIdx = 0;
+  var curtainsOpen = false;
+  var playing = false;
+  var playTimer = null;
+  var createSelected = [];
+  var createLines = [];
+
+  var lobby = document.getElementById('lobby');
+  var stageScreen = document.getElementById('stageScreen');
+  var createScreen = document.getElementById('createScreen');
+  var stageFrame = document.getElementById('stageFrame');
+  var stageBg = document.getElementById('stageBg');
+  var puppetsEl = document.getElementById('puppets');
+  var bubble = document.getElementById('bubble');
+  var bubbleWho = document.getElementById('bubbleWho');
+  var bubbleText = document.getElementById('bubbleText');
+  var subWho = document.getElementById('subWho');
+  var subText = document.getElementById('subText');
+  var progBar = document.getElementById('progBar');
+  var stageTitle = document.getElementById('stageTitle');
+  var sceneHint = document.getElementById('sceneHint');
+  var btnCurtain = document.getElementById('btnCurtain');
+  var btnPrev = document.getElementById('btnPrev');
+  var btnNext = document.getElementById('btnNext');
+  var btnPlay = document.getElementById('btnPlay');
+
+  function showScreen(id){
+    [lobby, stageScreen, createScreen].forEach(function(s){ s.classList.remove('on'); });
+    document.getElementById(id).classList.add('on');
+    window.scrollTo(0,0);
+  }
+
+  function whoLabel(w){
+    if(w === 'narr') return 'Narrador';
+    return (PUPPET_META[w] && PUPPET_META[w].label) || w;
+  }
+
+  function renderLobby(){
+    var g = document.getElementById('showGrid');
+    g.innerHTML = '';
+    SHOWS.forEach(function(s){
+      var b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'show-card';
+      b.innerHTML = '<span class="emoji">'+s.emoji+'</span><span class="t">'+s.titulo+'</span><span class="m">'+s.blurb+'</span>';
+      b.addEventListener('click', function(){ openShow(s); });
+      g.appendChild(b);
+    });
+    var c = document.createElement('button');
+    c.type = 'button';
+    c.className = 'show-card create';
+    c.innerHTML = '<span class="emoji">🎭</span><span class="t">Crear función</span><span class="m">Elige marionetas y escribe tus frases. Tú eres el director.</span>';
+    c.addEventListener('click', openCreate);
+    g.appendChild(c);
+  }
+
+  function openShow(show){
+    currentShow = { titulo: show.titulo, scenes: show.scenes.slice(), bg: show.bg };
+    sceneIdx = 0;
+    curtainsOpen = false;
+    stopPlay();
+    stageTitle.textContent = show.titulo;
+    stageFrame.classList.remove('open');
+    btnCurtain.textContent = 'Abrir telón';
+    btnCurtain.disabled = false;
+    btnPrev.disabled = true;
+    btnNext.disabled = true;
+    btnPlay.disabled = true;
+    btnPlay.textContent = '▶ Play';
+    subWho.textContent = '';
+    subText.textContent = 'Toca «Abrir telón» para empezar.';
+    bubble.hidden = true;
+    puppetsEl.innerHTML = '';
+    stageBg.className = 'stage-bg ' + (show.bg || '');
+    progBar.style.width = '0%';
+    sceneHint.textContent = show.scenes.length + ' escenas';
+    showScreen('stageScreen');
+  }
+
+  function setPuppets(ids, activeWho){
+    puppetsEl.innerHTML = '';
+    (ids || []).forEach(function(id){
+      if(id === 'narr') return;
+      if(!PUPPET_SVG[id]) return;
+      var d = document.createElement('div');
+      d.className = 'puppet' + (activeWho === id ? ' on' : '');
+      d.innerHTML = PUPPET_SVG[id];
+      d.setAttribute('data-who', id);
+      puppetsEl.appendChild(d);
+    });
+  }
+
+  function renderScene(){
+    if(!currentShow) return;
+    var sc = currentShow.scenes[sceneIdx];
+    if(!sc) return;
+    if(sc.bg) stageBg.className = 'stage-bg ' + sc.bg;
+    setPuppets(sc.puppets || [], sc.who);
+    var label = whoLabel(sc.who);
+    var text = sc.text;
+    bubbleWho.textContent = label;
+    bubbleText.textContent = text;
+    bubble.hidden = false;
+    bubble.className = 'bubble' + (sc.who === 'narr' ? ' narr' : '');
+    subWho.textContent = label;
+    subText.textContent = text;
+    var pct = ((sceneIdx + 1) / currentShow.scenes.length) * 100;
+    progBar.style.width = pct + '%';
+    sceneHint.textContent = (sceneIdx + 1) + ' / ' + currentShow.scenes.length;
+    btnPrev.disabled = sceneIdx <= 0;
+    btnNext.disabled = sceneIdx >= currentShow.scenes.length - 1 && !playing;
+    if(sceneIdx >= currentShow.scenes.length - 1){
+      btnNext.disabled = false;
+      btnNext.textContent = 'Fin';
+    } else {
+      btnNext.textContent = 'Siguiente';
+    }
+  }
+
+  function openCurtains(){
+    if(curtainsOpen) return;
+    curtainsOpen = true;
+    stageFrame.classList.add('open');
+    sndCurtain();
+    btnCurtain.textContent = 'Cerrar telón';
+    btnPrev.disabled = false;
+    btnNext.disabled = false;
+    btnPlay.disabled = false;
+    renderScene();
+  }
+  function closeCurtains(){
+    curtainsOpen = false;
+    stageFrame.classList.remove('open');
+    stopPlay();
+    sndCurtain();
+    btnCurtain.textContent = 'Abrir telón';
+    btnPlay.disabled = true;
+    btnPrev.disabled = true;
+    btnNext.disabled = true;
+    bubble.hidden = true;
+    subText.textContent = 'Telón cerrado. Toca «Abrir telón» para seguir.';
+  }
+
+  function nextScene(){
+    if(!curtainsOpen || !currentShow) return;
+    if(sceneIdx >= currentShow.scenes.length - 1){
+      stopPlay();
+      subWho.textContent = 'Fin';
+      subText.textContent = '¡Función terminada! Vuelve al vestíbulo o cierra el telón.';
+      bubbleWho.textContent = 'Fin';
+      bubbleText.textContent = '👏 ¡Bravo!';
+      btnNext.disabled = true;
+      return;
+    }
+    sceneIdx++;
+    sndStep();
+    renderScene();
+  }
+  function prevScene(){
+    if(!curtainsOpen || !currentShow || sceneIdx <= 0) return;
+    sceneIdx--;
+    sndStep();
+    renderScene();
+  }
+
+  function stopPlay(){
+    playing = false;
+    if(playTimer){ clearInterval(playTimer); playTimer = null; }
+    btnPlay.textContent = '▶ Play';
+  }
+  function togglePlay(){
+    if(!curtainsOpen) return;
+    if(playing){ stopPlay(); return; }
+    playing = true;
+    btnPlay.textContent = '⏸ Pausa';
+    playTimer = setInterval(function(){
+      if(sceneIdx >= currentShow.scenes.length - 1){
+        nextScene();
+        stopPlay();
+        return;
+      }
+      nextScene();
+    }, 4200);
+  }
+
+  btnCurtain.addEventListener('click', function(){
+    if(curtainsOpen) closeCurtains(); else openCurtains();
+  });
+  btnNext.addEventListener('click', nextScene);
+  btnPrev.addEventListener('click', prevScene);
+  btnPlay.addEventListener('click', togglePlay);
+  document.getElementById('btnBackLobby').addEventListener('click', function(){
+    stopPlay(); showScreen('lobby');
+  });
+
+  /* ——— Create mode ——— */
+  var CREATE_POOL = ['nina','nino','lobo','ogro','princesa','dragon','abuela','cerdito'];
+  var EXAMPLE_LINES = [
+    {who:'nina', text:'¡Hola! ¿Quieres jugar conmigo?'},
+    {who:'nino', text:'¡Claro! Yo traigo la pelota.'},
+    {who:'ogro', text:'En mi pantano hay sitio para todos.'},
+    {who:'princesa', text:'La amistad es un tesoro mejor que una corona.'},
+    {who:'dragon', text:'¡Puedo hacer humito… de chocolate imaginario!'},
+    {who:'lobo', text:'Hoy no soplo casas: hoy cuento chistes.'},
+    {who:'abuela', text:'Un vaso de leche y a dormir temprano.'},
+    {who:'cerdito', text:'Mi casita es pequeña, pero acogedora.'},
+    {who:'narr', text:'Y fueron felices porque se trataron bien.'}
+  ];
+
+  function openCreate(){
+    createSelected = ['nina','ogro'];
+    createLines = [
+      {who:'nina', text:'¡Hola, ogro! ¿Me ayudas a cruzar el puente?'},
+      {who:'ogro', text:'Con mucho gusto. Dame la mano.'},
+      {who:'nina', text:'¡Gracias! Eres muy amable.'},
+      {who:'ogro', text:'Los amigos se cuidan unos a otros.'}
+    ];
+    renderCreate();
+    showScreen('createScreen');
+  }
+
+  function renderCreate(){
+    var chips = document.getElementById('puppetChips');
+    chips.innerHTML = '';
+    CREATE_POOL.forEach(function(id){
+      var b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'chip' + (createSelected.indexOf(id) >= 0 ? ' on' : '');
+      b.textContent = PUPPET_META[id].label;
+      b.addEventListener('click', function(){
+        var i = createSelected.indexOf(id);
+        if(i >= 0){
+          if(createSelected.length <= 2) return;
+          createSelected.splice(i,1);
+        } else {
+          if(createSelected.length >= 3) createSelected.shift();
+          createSelected.push(id);
+        }
+        renderCreate();
+      });
+      chips.appendChild(b);
+    });
+    var panel = document.getElementById('linesPanel');
+    panel.innerHTML = '';
+    createLines.forEach(function(ln, idx){
+      var row = document.createElement('div');
+      row.className = 'line-row';
+      var sel = document.createElement('select');
+      var opts = createSelected.concat(['narr']);
+      opts.forEach(function(id){
+        var o = document.createElement('option');
+        o.value = id; o.textContent = whoLabel(id);
+        if(ln.who === id) o.selected = true;
+        sel.appendChild(o);
+      });
+      if(opts.indexOf(ln.who) < 0) ln.who = opts[0];
+      sel.value = ln.who;
+      sel.addEventListener('change', function(){ ln.who = sel.value; });
+      var ta = document.createElement('textarea');
+      ta.rows = 2; ta.value = ln.text;
+      ta.addEventListener('input', function(){ ln.text = ta.value; });
+      var rm = document.createElement('button');
+      rm.type = 'button'; rm.textContent = '×'; rm.title = 'Quitar';
+      rm.addEventListener('click', function(){
+        if(createLines.length <= 4) return;
+        createLines.splice(idx,1);
+        renderCreate();
+      });
+      row.appendChild(sel); row.appendChild(ta); row.appendChild(rm);
+      panel.appendChild(row);
+    });
+  }
+
+  document.getElementById('btnBackCreate').addEventListener('click', function(){ showScreen('lobby'); });
+  document.getElementById('btnAddLine').addEventListener('click', function(){
+    if(createLines.length >= 6) return;
+    createLines.push({who: createSelected[0] || 'nina', text: ''});
+    renderCreate();
+  });
+  document.getElementById('btnChipsHelp').addEventListener('click', function(){
+    var box = document.getElementById('exampleChips');
+    box.hidden = !box.hidden;
+    if(box.hidden) return;
+    box.innerHTML = '';
+    EXAMPLE_LINES.forEach(function(ex){
+      var b = document.createElement('button');
+      b.type = 'button'; b.className = 'chip';
+      b.textContent = whoLabel(ex.who) + ': ' + ex.text.slice(0,28) + (ex.text.length>28?'…':'');
+      b.addEventListener('click', function(){
+        if(createLines.length < 6) createLines.push({who:ex.who, text:ex.text});
+        else createLines[createLines.length-1] = {who:ex.who, text:ex.text};
+        if(ex.who !== 'narr' && createSelected.indexOf(ex.who) < 0 && createSelected.length < 3){
+          createSelected.push(ex.who);
+        }
+        renderCreate();
+      });
+      box.appendChild(b);
+    });
+  });
+  document.getElementById('btnPlayCreate').addEventListener('click', function(){
+    var lines = createLines.filter(function(l){ return (l.text||'').trim(); });
+    if(createSelected.length < 2){ alert('Elige al menos 2 marionetas.'); return; }
+    if(lines.length < 4){ alert('Escribe al menos 4 frases.'); return; }
+    var scenes = lines.map(function(l){
+      var pups = createSelected.slice();
+      return { who: l.who, text: l.text.trim(), puppets: pups, bg: 'pantano' };
+    });
+    openShow({
+      titulo: 'Mi función',
+      blurb: '',
+      emoji: '🎭',
+      bg: 'pantano',
+      scenes: scenes
+    });
+  });
+
+  renderLobby();
+})();
+</script>
+</body>
+</html>
