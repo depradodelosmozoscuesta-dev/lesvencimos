@@ -1,0 +1,933 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="dark">
+<title>Higiene · Les vencimos</title>
+<style>
+:root {
+  --bg: #0e0e0c;
+  --bg2: #161512;
+  --bg3: #1c1a16;
+  --ink: #e6e1d6;
+  --muted: #9a9488;
+  --accent: #c4a15a;
+  --on: #1a160e;
+  --danger: #c46a4a;
+  --ok: #8f9a72;
+  --line: #2e2b24;
+  --line2: #3a362c;
+  --radius: 8px;
+  --sans: system-ui, "Segoe UI", sans-serif;
+  --serif: Georgia, Palatino, "Palatino Linotype", "Times New Roman", serif;
+  color-scheme: dark;
+}
+*, *::before, *::after { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; background: var(--bg); color: var(--ink); }
+html { overflow-x: hidden; }
+body {
+  font-family: var(--sans);
+  font-size: 16.5px;
+  line-height: 1.45;
+  font-weight: 400;
+  min-height: 100vh;
+  padding:
+    max(12px, env(safe-area-inset-top))
+    max(16px, env(safe-area-inset-right))
+    max(28px, env(safe-area-inset-bottom))
+    max(16px, env(safe-area-inset-left));
+}
+button, input, select, textarea { font: inherit; color: inherit; }
+button { cursor: pointer; }
+button, [role="button"] { cursor: pointer; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+#contenido:focus { outline: none; }
+a { color: var(--accent); }
+a.sec, a.item { color: inherit; text-decoration: none; }
+.sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+.skip {
+  position: absolute;
+  left: -999px;
+  top: 0;
+}
+.skip:focus {
+  left: 8px;
+  top: 8px;
+  z-index: 5;
+  background: var(--accent);
+  color: var(--on);
+  padding: 10px 12px;
+  border-radius: var(--radius);
+}
+.marco { max-width: 760px; margin: 0 auto; }
+.top { margin-bottom: 14px; }
+.top-row, .top-title {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  justify-content: space-between;
+}
+.top-title { margin-top: 8px; align-items: center; }
+.marca, .modulo, .meta, .ayuda, .sec-d, .item-m, .item-r {
+  color: var(--muted);
+}
+.marca, .modulo {
+  margin: 0;
+  font-size: 0.78rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-weight: 500;
+}
+h1, h2, .h1 {
+  font-family: var(--serif);
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  margin: 0;
+}
+.h1, h1 { font-size: 1.7rem; line-height: 1.15; }
+h2 { font-size: 1.2rem; margin: 1.1rem 0 0.4rem; }
+.lead { margin: 0 0 12px; }
+.aviso, .tip, .resultado {
+  margin: 0 0 12px;
+  padding: 10px 12px;
+  background: var(--bg3);
+  border-radius: var(--radius);
+}
+.aviso { border-left: 3px solid var(--danger); }
+.tip { border-left: 3px solid var(--ok); }
+.resultado { border-left: 3px solid var(--accent); }
+.buscar { display: block; margin: 0 0 12px; }
+input, select, textarea {
+  width: 100%;
+  min-height: 44px;
+  background: var(--bg3);
+  border: 1px solid var(--line2);
+  border-radius: var(--radius);
+  padding: 10px 12px;
+}
+textarea { min-height: 96px; resize: vertical; }
+.secs, .lista { display: grid; gap: 8px; }
+@media (min-width: 720px) {
+  .secs { grid-template-columns: 1fr 1fr; }
+}
+.sec, .item, .check, .card {
+  background: var(--bg2);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  color: inherit;
+  text-align: left;
+}
+.sec, .item, .check {
+  width: 100%;
+  min-height: 44px;
+  padding: 12px;
+}
+.sec, .item { display: flex; flex-direction: column; align-items: flex-start; gap: 3px; }
+.sec-t, .item-t { font-weight: 500; }
+.sec-n { color: var(--accent); font-variant-numeric: tabular-nums; }
+.check { display: flex; gap: 12px; align-items: flex-start; }
+.check .box {
+  width: 22px;
+  height: 22px;
+  margin-top: 2px;
+  border: 1.5px solid var(--muted);
+  border-radius: 4px;
+  flex: none;
+  position: relative;
+}
+.check.on { border-color: var(--accent); }
+.check.on .box { background: var(--accent); border-color: var(--accent); }
+.check.on .box::after {
+  content: "";
+  position: absolute;
+  left: 7px;
+  top: 3px;
+  width: 5px;
+  height: 10px;
+  border: solid var(--on);
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}
+.card { padding: 12px 14px; }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; }
+.chip, .btn {
+  min-height: 44px;
+  padding: 10px 14px;
+  border-radius: var(--radius);
+  border: 1px solid var(--line2);
+  background: transparent;
+  color: var(--ink);
+  font-weight: 500;
+}
+.chip.on, .btn.primary { background: var(--accent); color: var(--on); border-color: var(--accent); }
+.btn.danger { border-color: var(--danger); color: var(--ink); }
+.btn.ghost { background: transparent; }
+.navp { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
+.prosa ul, .prosa ol { margin: 0.2rem 0 0.6rem; padding-left: 1.2rem; }
+.prosa li { margin: 0.35rem 0; }
+.prosa p { margin: 0.4rem 0 0.7rem; }
+.dibujo {
+  width: 100%;
+  height: auto;
+  display: block;
+  margin: 0 0 12px;
+  background: var(--bg2);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+}
+.form label { display: flex; flex-direction: column; gap: 6px; margin: 0 0 12px; }
+.ayuda { margin: -6px 0 12px; font-size: 0.92rem; }
+.vacio { color: var(--muted); }
+.aparato {
+  margin-top: 22px;
+  padding-top: 12px;
+  border-top: 1px solid var(--line);
+}
+.colofon {
+  max-width: 760px;
+  margin: 22px auto 0;
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+.facil { font-size: 19px; }
+.facil .h1, .facil h1 { font-size: 2rem; }
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+</style>
+</head>
+<body>
+<a class="skip" href="#contenido">Saltar al contenido</a>
+<div class="marco">
+<header class="top" id="top"></header>
+<main id="contenido" tabindex="-1"></main>
+<footer class="colofon" id="pie"></footer>
+</div>
+<div id="aviso-vivo" class="sr" aria-live="polite"></div>
+<script>
+window.LV_DATA = {"slug": "higiene", "titulo": "Higiene", "lead": "Hábitos de manos, boca, cuerpo y casa. Concreto y sin botes con nombre.", "aviso": "No sustituye al médico, al dentista ni a la farmacia. No diagnóstica, no da dosis y no dice qué producto te toca. Si algo duele, sangra, supura o te preocupa, pide cita.", "fichas": [{"id": "manos", "sec": "zonas", "titulo": "Manos", "grupo": "Día", "meta": "Varias veces", "resumen": "El hábito que más cambia el resto del día.", "dibujo": null, "piezas": [{"t": "p", "txt": "Se lavan al llegar de la calle, antes de comer o de cocinar, después del baño, después de sonarte y cuando están visiblemente sucias."}, {"t": "pasos", "items": ["Mójalas.", "Jabón por palmas, dorsos, entre los dedos, pulgares y alrededor de las uñas.", "Sin prisa: el tiempo de tararear despacio un estribillo corto, unos veinte segundos.", "Aclara.", "Sécalas con una toalla que esté seca, no con la que lleva todo el día húmeda."]}, {"t": "tip", "txt": "Más jabón no limpia más. El jabón que no frotas no hace el trabajo."}], "busca": "lavado jabón"}, {"id": "unas", "sec": "zonas", "titulo": "Uñas", "grupo": "Día", "meta": "Cortas y limpias", "resumen": "Debajo de la uña se queda lo que las manos no sueltan.", "dibujo": null, "piezas": [{"t": "pasos", "items": ["Córtalas rectas o con una curva suave, no hasta que duela.", "La lima quita el pico. Un pico engancha suciedad y se rompe.", "Limpia el borde con el cepillo de uñas, no con un objeto punzante.", "En los pies, corta recto para no clavar la esquina en el dedo.", "Si una uña se pone negra tras un golpe, duele mucho o supura, eso se consulta."]}, {"t": "aviso", "txt": "Cortar una uña encarnada «a ver si sale» suele empeorarla. Si ya duele al andar, pide cita."}], "busca": "cortauñas pies"}, {"id": "boca", "sec": "zonas", "titulo": "Boca y dientes", "grupo": "Día", "meta": "Mañana y noche", "resumen": "Dos cepillados, y el hilo donde el cepillo no entra.", "dibujo": null, "piezas": [{"t": "p", "txt": "Por la noche importa más: te vas a la cama con la boca limpia y no bebes nada más que agua después."}, {"t": "pasos", "items": ["Cepilla las caras exteriores, interiores y de masticar, sin apretar hasta hacerte sangrar.", "Dos minutos es una referencia útil. Un reloj de cocina basta.", "El hilo dental o un cepillo interdental pasa entre diente y diente, una vez al día.", "No compartas el cepillo.", "Enjuágalo y déjalo secar de pie. La capucha puesta todo el día lo deja húmedo."]}, {"t": "tip", "txt": "La pasta con flúor es lo que suelen recomendar los dentistas. Si el tuyo te indicó otra, manda lo que te dijo."}, {"t": "aviso", "txt": "Este módulo no dice qué pasta ni qué tratamiento te toca. El sangrado que no cede se consulta."}], "busca": "cepillo hilo dental flúor"}, {"id": "encias", "sec": "zonas", "titulo": "Encías", "grupo": "Día", "meta": "Sin restregar", "resumen": "Sangre al cepillar no es «normal y ya está».", "dibujo": null, "piezas": [{"t": "p", "txt": "Un poco de sangre porque nunca usas hilo puede mejorar al cabo de unos días de hacerlo con suavidad. Sangre que sigue, hinchazón o mal aliento que no se va con el cepillado es motivo de cita, no de un cepillo más duro."}, {"t": "aviso", "txt": "No cambies a un cepillo duro para «quitar más». Estropea la encía y el esmalte."}], "busca": ""}, {"id": "cara", "sec": "zonas", "titulo": "Cara", "grupo": "Día", "meta": "Por la mañana y al acabar el día", "resumen": "Agua y un jabón suave o el gel que toleres. No hace falta un estante de botes.", "dibujo": null, "piezas": [{"t": "pasos", "items": ["Manos limpias.", "Agua tibia, no caliente.", "Un poco de jabón o gel en la cara, sin restregar con una toalla áspera.", "Aclara.", "Seca a toques, no arrastrando."]}, {"t": "tip", "txt": "Si un producto te escuece o te deja la piel tirante y roja, déjalo. No es que «se esté acostumbrando»."}], "busca": ""}, {"id": "ducha", "sec": "zonas", "titulo": "Ducha", "grupo": "Día", "meta": "El cuerpo", "resumen": "Lo bastante para quitar sudor y suciedad. No es una prueba de resistencia.", "dibujo": null, "piezas": [{"t": "pasos", "items": ["Agua templada. La muy caliente reseca y no limpia mejor.", "Jabón o gel en axilas, ingles, pies, y donde haya sudor o suciedad visible. No hace falta enjabonar cada centímetro cada vez si ese día no lo pide.", "Aclara el jabón. Dejarlo puesto irrita.", "Seca pliegues: entre los dedos de los pies, ingles, debajo del pecho.", "La toalla se extiende para que se seque."]}, {"t": "tip", "txt": "No todo el mundo necesita una ducha larga cada día. Sí hace falta no acumular sudor seco y ropa húmeda."}], "busca": "baño gel"}, {"id": "pelo", "sec": "zonas", "titulo": "Pelo", "grupo": "Día", "meta": "Cuando toque, no por decreto", "resumen": "Hay cabellos que piden lavado a diario y otros que se estropean si los lavas así.", "dibujo": null, "piezas": [{"t": "p", "txt": "La norma es el cuero cabelludo: si está sucio, huele o pica, se lava. Si está bien, no ganas nada por lavarlo «porque toca»."}, {"t": "pasos", "items": ["Moja.", "Champú en el cuero, no solo en las puntas.", "Aclara hasta que no quede resbaladizo.", "El acondicionador, si lo usas, va en las longitudes, no pegado a la raíz si se te engrasa.", "Seca el pelo antes de irte a la cama si duermes con él mojado sobre la almohada: la funda y el cuero se quedan húmedos."]}], "busca": "champú"}, {"id": "axilas", "sec": "zonas", "titulo": "Axilas y sudor", "grupo": "Día", "meta": "Limpieza, no vergüenza", "resumen": "El sudor no es suciedad. El olor aparece cuando el sudor se queda en piel y en tela.", "dibujo": null, "piezas": [{"t": "pasos", "items": ["Lava las axilas en la ducha.", "Sécalas.", "Si usas desodorante, va sobre piel limpia y seca, no encima del de ayer.", "La camiseta que ha sudado se cambia.", "El desodorante no sustituye a la ducha."]}], "busca": "olor desodorante"}, {"id": "pies", "sec": "zonas", "titulo": "Pies", "grupo": "Día", "meta": "Secos", "resumen": "El pie cerrado en el zapato es un pliegue húmedo.", "dibujo": null, "piezas": [{"t": "pasos", "items": ["Lávalos, también entre los dedos.", "Sécalos del todo.", "Calcetín seco, de un material que no se quede empapado.", "Alterna el zapato si puedes, para que el otro airee.", "Si hay grietas que sangran, picor fuerte o la piel se pone blanca y blanda entre los dedos y no mejora al secar, se consulta."]}, {"t": "aviso", "txt": "No eches polvos ni líquidos «por si acaso» sin saber qué es. Secar es el primer paso; el diagnóstico, si hace falta, es de consulta."}], "busca": "calcetín zapato"}, {"id": "orejas", "sec": "zonas", "titulo": "Oídos", "grupo": "Día", "meta": "Solo por fuera", "resumen": "El pabellón se lava. El conducto no se explora.", "dibujo": null, "piezas": [{"t": "p", "txt": "Limpia el pabellón con el dedo y la toalla, en la ducha. No metas bastoncillos, horquillas ni la esquina de la toalla en el conducto. Empujas la cera hacia dentro y puedes hacerte daño."}, {"t": "aviso", "txt": "Dolor, supuración o pérdida de oído no se arreglan con un bastoncillo. Se consultan."}], "busca": "cerumen bastoncillo"}, {"id": "ojos", "sec": "zonas", "titulo": "Ojos", "grupo": "Día", "meta": "No se frotan con la mano sucia", "resumen": "El lagrimal se limpia de dentro hacia fuera si hay legaña.", "dibujo": null, "piezas": [{"t": "pasos", "items": ["Manos limpias.", "Agua o una gasa limpia, una pasada por ojo. No uses la misma esquina para los dos si hay mucha legaña.", "No compartas toalla de cara ni rimel.", "Las lentillas, si las llevas, siguen las instrucciones de quien te las adaptó, no un resumen de internet ni este.", "Dolor, luz que molesta de pronto o un ojo rojo que no cede: consulta."]}], "busca": "legaña lentillas"}, {"id": "nariz", "sec": "zonas", "titulo": "Nariz", "grupo": "Día", "meta": "Pañuelo, y manos después", "resumen": "Sonarse es normal. Dejar el pañuelo usado en el bolsillo una semana, no.", "dibujo": null, "piezas": [{"t": "pasos", "items": ["Pañuelo de papel o de tela que luego se lava.", "Tapa boca y nariz si estornudas, con el codo si no llegas al pañuelo.", "Tira el papel.", "Lávate las manos.", "No te toques los ojos a continuación."]}], "busca": "estornudo"}, {"id": "afeitado", "sec": "zonas", "titulo": "Afeitado", "grupo": "Cuando toque", "meta": "Hoja limpia y piel", "resumen": "Si no te afeitas, sáltatelo. Si te afeitas, que la hoja no sea un secreto compartido.", "dibujo": null, "piezas": [{"t": "pasos", "items": ["Piel limpia.", "Agua tibia.", "La hoja o la máquina, limpias. No se comparte la hoja.", "Sin prisa sobre granos o heridas.", "Aclara y seca. Si te escuece siempre, la hoja está mal o el jabón no te vale: no lo resuelvas apretando más."]}, {"t": "aviso", "txt": "Un grano que crece, duele y se pone caliente no se abre con las uñas. Se consulta."}], "busca": "cuchilla barba"}, {"id": "menstrual", "sec": "zonas", "titulo": "Regla", "grupo": "Cuando toque", "meta": "Cambiar y lavarse las manos", "resumen": "No es suciedad. Es un flujo. Se gestiona con calma y con las manos limpias.", "dibujo": null, "piezas": [{"t": "p", "txt": "Usa el producto que te funcione: compresa, tampón, copa u otro. Sigue el tiempo de uso que trae ese producto. Pasarte de horas con un tampón no es un detalle menor: respeta lo que indica el envase."}, {"t": "pasos", "items": ["Manos limpias antes y después de cambiar.", "No tires por el inodoro lo que el envase dice que no se tira.", "Lleva uno de repuesto en la bolsa si te baja lejos de casa.", "La ropa manchada se aclara con agua fría y se lava. El agua caliente fija la mancha.", "Dolor que te impide hacer tu día, o un sangrado que te asusta, se consulta. No es «aguantar por norma»."]}, {"t": "aviso", "txt": "Nada de aquí sustituye a una visita si el dolor o el sangrado se salen de lo que ya conoces."}], "busca": "compresa tampón copa"}, {"id": "piel-pliegues", "sec": "zonas", "titulo": "Pliegues de la piel", "grupo": "Día", "meta": "Secar", "resumen": "Donde la piel toca piel se queda humedad.", "dibujo": null, "piezas": [{"t": "p", "txt": "Ingles, axilas, bajo el pecho, entre los dedos, el pliegue del abdomen si lo hay. Se lavan cuando te duchas y se secan. La ropa de esa zona, seca."}, {"t": "tip", "txt": "Si un pliegue se pone rojo, pica y no mejora al secarlo durante unos días, se consulta. No lo tapes con una crema al azar."}], "busca": ""}, {"id": "ropa-int", "sec": "zonas", "titulo": "Ropa interior", "grupo": "Día", "meta": "Limpia y seca", "resumen": "Se cambia cada día, y antes si ha sudado o se ha mojado.", "dibujo": null, "piezas": [{"t": "p", "txt": "El algodón o una tela que transpira suele ir mejor que un tejido que se queda húmedo todo el día. De noche, si puedes, que la zona airee."}], "busca": "calzoncillos bragas"}, {"id": "toalla-zona", "sec": "zonas", "titulo": "Toallas", "grupo": "Casa", "meta": "Una de cara, y que se seque", "resumen": "La toalla no es un trapo eterno.", "dibujo": null, "piezas": [{"t": "p", "txt": "La de la cara no limpia el baño ni los pies. Se cuelga extendida. Si huele a húmedo, se lava aunque «la usaras poco». No se comparte la de la cara."}], "busca": "lavabo"}, {"id": "sabanas", "sec": "zonas", "titulo": "Sábanas y pijama", "grupo": "Casa", "meta": "Un ritmo, no una ley", "resumen": "Cuando están sudadas, manchadas o huelen, se cambian. Si no, una vez por semana es una referencia razonable.", "dibujo": null, "piezas": [{"t": "p", "txt": "En una semana de fiebre o de calor fuerte, antes. La funda de la almohada se ensucia más que la encimera: no la dejes para el final."}], "busca": ""}, {"id": "cepillo-pelo", "sec": "zonas", "titulo": "Peine y cepillo del pelo", "grupo": "Casa", "meta": "Se lavan", "resumen": "El peine guarda grasa y piel.", "dibujo": null, "piezas": [{"t": "pasos", "items": ["Quita el pelo.", "Agua tibia y un poco de jabón.", "Aclara.", "Deja secar.", "No hace falta cada día. Sí cuando se ve gris o huele."]}], "busca": ""}, {"id": "manos-cocina", "sec": "zonas", "titulo": "Manos en la cocina", "grupo": "Día", "meta": "Antes y entre alimentos", "resumen": "Crudo y listo para comer no se tocan con las mismas manos sin lavado de por medio.", "dibujo": null, "piezas": [{"t": "pasos", "items": ["Antes de empezar, lávate.", "Después de tocar carne o pescado crudos, otra vez.", "El trapo que secó las manos no seca luego el pollo crudo.", "La tabla del crudo no sirve para el pan, sin lavarla.", "Una herida en la mano se cubre con un apósito limpio para cocinar."]}], "busca": "comida crudo"}, {"id": "despues-calle", "sec": "zonas", "titulo": "Al llegar a casa", "grupo": "Día", "meta": "Manos, y lo que traigas", "resumen": "El abrigo puede esperar. Las manos, no.", "dibujo": null, "piezas": [{"t": "p", "txt": "Deja bolso y llaves, y lávate antes de tocarte la cara o de abrir la nevera. Si has estado en una obra, en el jardín o en el transporte un día de mucho calor, la ducha va antes que el sofá."}], "busca": ""}, {"id": "deporte", "sec": "zonas", "titulo": "Después de moverte", "grupo": "Situación", "meta": "No te quedes con la ropa sudada", "resumen": "El hábito es quitarse la ropa húmeda y secar la piel.", "dibujo": null, "piezas": [{"t": "pasos", "items": ["Ropa seca.", "Ducha o, si no hay, lavado de axilas, ingles y pies, y camiseta nueva.", "El chándal húmedo no vuelve al bolso cerrado toda la tarde: al menos ábrelo.", "Botella de agua tuya.", "Una rozadura se lava y se seca. Si se infecta —calor, pus, raya roja— se consulta."]}], "busca": "gimnasio sudor"}, {"id": "calor", "sec": "zonas", "titulo": "Día de calor", "grupo": "Situación", "meta": "Ropa seca", "resumen": "Más agua y muda de ropa. No más jabón a lo loco.", "dibujo": null, "piezas": [{"t": "p", "txt": "El calor pide beber agua y cambiar lo que esté empapado. Una ducha tibia refresca más que una helada. El desodorante va sobre piel limpia. No te eches colonias encima del sudor y des por cerrado el asunto."}], "busca": ""}, {"id": "frio", "sec": "zonas", "titulo": "Día de frío", "grupo": "Situación", "meta": "La piel se agrieta", "resumen": "Manos y labios se resienten del agua caliente y del viento.", "dibujo": null, "piezas": [{"t": "p", "txt": "Agua tibia en el lavado. Secar bien. Una crema sencilla de manos, sin marca que recomendar, si se te agrietan. Los labios: no te los muerdas; un bálsamo neutro basta a mucha gente. Grietas que sangran y no cierran se consultan."}], "busca": ""}, {"id": "sit-viaje", "sec": "situaciones", "titulo": "De viaje", "grupo": "Fuera", "meta": "Un neceser pequeño", "resumen": "Lo justo para no depender de la tienda del aeropuerto.", "dibujo": null, "piezas": [{"t": "lista", "titulo": "Dentro", "items": ["Cepillo y pasta.", "Jabón sólido o un bote pequeño de gel: el sólido no se derrama.", "Desodorante si lo usas.", "Peine.", "Ropa interior de recambio.", "Lo que uses para la regla, de más.", "Una toalla pequeña si no te fías de la del alojamiento.", "El medicamento que ya te hayan pautado, en su envase. Este módulo no te dice cuál."]}, {"t": "tip", "txt": "En el neceser, los tapones hacia arriba y la crema en una bolsa. Se abre siempre."}], "busca": "maleta"}, {"id": "sit-sin-ducha", "sec": "situaciones", "titulo": "Sin ducha a mano", "grupo": "Fuera", "meta": "Lavado por partes", "resumen": "Acampada, avería, un día largo fuera de casa.", "dibujo": null, "piezas": [{"t": "pasos", "items": ["Manos con agua y jabón, o con un gel que no necesite aclarado si no hay agua, y luego agua en cuanto haya.", "Axilas, ingles y pies con un paño húmedo y jabón, y secar.", "Ropa interior nueva.", "Boca: cepillo si puedes; si no, un enjuague no sustituye al cepillado de la noche, pero es mejor que nada hasta que puedas.", "Al día siguiente, ducha de verdad."]}], "busca": "camping"}, {"id": "sit-playa", "sec": "situaciones", "titulo": "Después de playa o piscina", "grupo": "Fuera", "meta": "Quitar sal, cloro y arena", "resumen": "La piel y el pelo se quedan con resto.", "dibujo": null, "piezas": [{"t": "pasos", "items": ["Aclara el cuerpo con agua dulce.", "Ducha normal cuando llegues.", "Seca el pelo y los pliegues. El bañador mojado no se queda puesto toda la tarde.", "Los oídos: inclina la cabeza y seca por fuera. No metas nada.", "La ropa de baño se lava. No la dejes hecha un ovillo en la bolsa."]}], "busca": ""}, {"id": "sit-obra", "sec": "situaciones", "titulo": "Obra, jardín o polvo", "grupo": "Fuera", "meta": "Antes de sentarte", "resumen": "El polvo no es «sucio de mentira».", "dibujo": null, "piezas": [{"t": "pasos", "items": ["Quítate los zapatos en la puerta.", "Sacude la ropa fuera, no en el dormitorio.", "Manos y cara, y ducha si el polvo es de obra.", "Las uñas, con cepillo.", "La ropa de faena no se mezcla en la cama."]}], "busca": ""}, {"id": "sit-casa", "sec": "situaciones", "titulo": "Casa compartida", "grupo": "Casa", "meta": "Lo común y lo de cada cual", "resumen": "Cuatro personas, un lavabo.", "dibujo": null, "piezas": [{"t": "lista", "titulo": "Acuerdos que evitan discusiones", "items": ["Cada cual su toalla, marcada.", "El cepillo no se apoya en el del otro.", "Quien acaba el jabón lo dice, o lo repone.", "El pelo que sale del desagüe se quita, no se empuja.", "Un paño para el lavabo, distinto del paño de la cocina.", "La ropa interior no se queda días en el suelo del baño."]}], "busca": ""}, {"id": "sit-resfriado", "sec": "situaciones", "titulo": "Casa con mocos", "grupo": "Casa", "meta": "No es un tratamiento", "resumen": "Es convivencia. El resfriado se lo mirará quien te atienda si hace falta. Aquí, los hábitos.", "dibujo": null, "piezas": [{"t": "lista", "titulo": "Mientras tanto", "items": ["Pañuelos al cubo.", "Manos después de sonarte.", "No compartir vaso ni cubierto ese día.", "Ventila la habitación.", "La fiebre alta, la dificultad para respirar o un malestar que te asusta no se quedan en esta lista: se consultan."]}, {"t": "aviso", "txt": "Esto no cura nada. No tomes nada «porque sí» solo porque alguien en casa lo toma."}], "busca": "gripe catarro"}, {"id": "sit-noche", "sec": "situaciones", "titulo": "Antes de dormir", "grupo": "Día", "meta": "Cuatro gestos", "resumen": "Cierran el día.", "dibujo": null, "piezas": [{"t": "pasos", "items": ["Dientes.", "Cara, si no lo has hecho.", "Ropa de dormir limpia, o al menos que no sea la camiseta sudada.", "El móvil no es un paso de higiene. Lavarte las manos sí, si has estado en el baño."]}], "busca": ""}, {"id": "sit-manana", "sec": "situaciones", "titulo": "Al levantarte", "grupo": "Día", "meta": "Antes de salir", "resumen": "En este orden cabe en diez minutos.", "dibujo": null, "piezas": [{"t": "pasos", "items": ["Agua y boca.", "Dientes.", "Cara.", "Axilas, si no te duchas por la mañana, y desodorante sobre piel seca.", "Ropa interior limpia.", "Manos otra vez si has tocado los zapatos."]}], "busca": ""}, {"id": "sit-invitado", "sec": "situaciones", "titulo": "Vas a dormir fuera", "grupo": "Fuera", "meta": "No des por hecho el baño", "resumen": "Lleva lo mínimo aunque te digan que hay de todo.", "dibujo": null, "piezas": [{"t": "p", "txt": "Cepillo, pasta, desodorante y lo que uses para la regla. Una toalla pequeña si es una casa con poco repuesto. Pregunta qué toalla puedes usar en vez de coger la primera que cuelga."}], "busca": ""}, {"id": "sit-nino", "sec": "situaciones", "titulo": "Higiene con niños en casa", "grupo": "Casa", "meta": "El ejemplo y el alcance", "resumen": "Manos, dientes, baño. Sin convertirlo en un examen.", "dibujo": null, "piezas": [{"t": "p", "txt": "Las manos se lavan al llegar, antes de comer y después del baño, y se hace juntos para que se vea. Los dientes: mañana y noche, con un adulto cerca hasta que de verdad lo hagan. El baño o la ducha, con agua templada, secando pliegues. Lo que es médico —fiebre, un sarpullido que te preocupa, un golpe en la boca— no se resuelve con este texto."}, {"t": "aviso", "txt": "Las cantidades de pasta y los productos de un niño los marca quien le atiende, no una lista genérica."}], "busca": ""}, {"id": "mito-pelo", "sec": "mitos", "titulo": "«El pelo se lava cada día»", "grupo": "Ideas", "meta": "No es una ley", "resumen": "Depende del cuero, no del calendario.", "dibujo": null, "piezas": [{"t": "p", "txt": "Si lo lavas a diario y se te reseca o se te engrasa más, prueba a espaciar. Si a las veinticuatro horas está sucio, lávalo. Las dos cosas pueden ser ciertas en dos cabezas distintas."}], "busca": ""}, {"id": "mito-caliente", "sec": "mitos", "titulo": "«El agua muy caliente limpia más»", "grupo": "Ideas", "meta": "Limpia igual y reseca más", "resumen": "El jabón y el frotado hacen el trabajo. El agua abrasadora, no.", "dibujo": null, "piezas": [{"t": "p", "txt": "Templada basta. En invierno dan ganas de escaldarse las manos: es cuando más se agrietan."}], "busca": ""}, {"id": "mito-jabon", "sec": "mitos", "titulo": "«Más jabón, más limpio»", "grupo": "Ideas", "meta": "El exceso se queda en la piel", "resumen": "Una pasada bien frotada y bien aclarada gana a tres capas sin aclarar.", "dibujo": null, "piezas": [{"t": "p", "txt": "El jabón que pica al secarte suele ser jabón que no te has quitado, o un jabón que no te sienta."}], "busca": ""}, {"id": "mito-desodorante", "sec": "mitos", "titulo": "«Con desodorante vale»", "grupo": "Ideas", "meta": "No sustituye el lavado", "resumen": "Tapa un rato. No quita el sudor seco ni la ropa húmeda.", "dibujo": null, "piezas": [{"t": "p", "txt": "Primero piel limpia y seca. Luego, si quieres, desodorante. Encima de la camiseta de ayer no hay producto que obre."}], "busca": ""}, {"id": "mito-bastoncillo", "sec": "mitos", "titulo": "«El bastoncillo es para el oído por dentro»", "grupo": "Ideas", "meta": "No", "resumen": "Sirve, como mucho, para el pabellón. El conducto no es un estante.", "dibujo": null, "piezas": [{"t": "p", "txt": "Empuja la cera y puede herir. El oído se limpia solo hacia fuera. Si te tapona, se consulta."}], "busca": ""}, {"id": "mito-cuchilla", "sec": "mitos", "titulo": "«Prestarse la cuchilla no pasa nada»", "grupo": "Ideas", "meta": "Pasa", "resumen": "La hoja lleva piel y sangre microscópica. No se comparte.", "dibujo": null, "piezas": [{"t": "p", "txt": "Cada cual la suya. Cuando tira, se cambia. No se deja oxidar en la ducha."}], "busca": ""}, {"id": "mito-cara-jabon", "sec": "mitos", "titulo": "«El jabón del cuerpo vale siempre para la cara»", "grupo": "Ideas", "meta": "A veces irrite", "resumen": "La cara suele tolerar peor un jabón muy desengrasante.", "dibujo": null, "piezas": [{"t": "p", "txt": "Si te deja roja y tirante, usa otro más suave solo en la cara, o agua. No insistas por aprovechar el bote."}], "busca": ""}, {"id": "mito-aliento", "sec": "mitos", "titulo": "«Si no me huele el aliento, no hace falta cepillar»", "grupo": "Ideas", "meta": "Hace falta igual", "resumen": "El aliento no mide la placa.", "dibujo": null, "piezas": [{"t": "p", "txt": "Noche y mañana. El aliento de primera hora no se arregla solo con un enjuague."}], "busca": ""}, {"id": "mito-unas-raiz", "sec": "mitos", "titulo": "«Las uñas, cuanto más cortas mejor»", "grupo": "Ideas", "meta": "Hasta el vivo, no", "resumen": "Cortar hasta que duela abre la puerta a una uña encarnada y a una infección.", "dibujo": null, "piezas": [{"t": "p", "txt": "Rectas en los pies, con un milímetro de margen. La lima mata el pico."}], "busca": ""}, {"id": "mito-sol", "sec": "mitos", "titulo": "«El sol seca los granos»", "grupo": "Ideas", "meta": "No es un tratamiento", "resumen": "El sol quema. No es una herramienta de cuidado de la piel.", "dibujo": null, "piezas": [{"t": "p", "txt": "Un grano se deja en paz y se consulta si se infecta o si te preocupa. No lo pongas al sol «para que se seque» ni lo revientes."}], "busca": ""}, {"id": "mito-ducha-obligatoria", "sec": "mitos", "titulo": "«Hay que ducharse largo cada día, sí o sí»", "grupo": "Ideas", "meta": "El objetivo es no acumular suciedad", "resumen": "Hay trabajos y climas que lo piden a diario. Hay días quietos en casa en los que un lavado de lo necesario basta.", "dibujo": null, "piezas": [{"t": "p", "txt": "Lo que no vale es ir acumulando días de sudor, ni obsesionarse con tres duchas. Huele tu ropa y mira tu día, no una norma de revista."}], "busca": ""}, {"id": "mito-humedo", "sec": "mitos", "titulo": "«Da igual ir todo el día con la ropa húmeda»", "grupo": "Ideas", "meta": "No da igual", "resumen": "La piel en humedad constante se macera.", "dibujo": null, "piezas": [{"t": "p", "txt": "Baño, deporte, lluvia. Te cambias cuando puedes. Si no puedes en ese momento, te cambias en cuanto llegas."}], "busca": ""}, {"id": "cons-encia", "sec": "consultar", "titulo": "Encías que sangran siempre", "grupo": "Pide cita", "meta": "Boca", "resumen": "Unos días de hilo suave pueden manchar el cepillo. Semanas de sangrado, no.", "dibujo": null, "piezas": [{"t": "p", "txt": "Pide cita con el dentista. Mientras tanto, no pases a un cepillo duro."}], "busca": ""}, {"id": "cons-muela", "sec": "consultar", "titulo": "Dolor de muela", "grupo": "Pide cita", "meta": "Boca", "resumen": "Duele al morder, de noche, o se hincha la cara.", "dibujo": null, "piezas": [{"t": "p", "txt": "No se espera «a ver si se pasa el mes». La cita es con el dentista. Un analgésico que ya te hayan indicado para otras cosas no es un plan."}], "busca": ""}, {"id": "cons-lunar", "sec": "consultar", "titulo": "Un lunar que cambia", "grupo": "Pide cita", "meta": "Piel", "resumen": "Forma, color, borde o tamaño, o uno que sangra.", "dibujo": null, "piezas": [{"t": "p", "txt": "Se lo enseñas a un médico. No lo quemes, no lo cortes y no lo tapes con maquillaje para olvidarlo."}], "busca": ""}, {"id": "cons-herida", "sec": "consultar", "titulo": "Una herida que no cierra", "grupo": "Pide cita", "meta": "Piel", "resumen": "Roja, caliente, con pus, o una raya que sube.", "dibujo": null, "piezas": [{"t": "p", "txt": "Se consulta. Una herida limpia y seca del día a día es otra cosa: agua, jabón, apósito. Lo que empeora no se queda en casa «por vergüenza»."}], "busca": ""}, {"id": "cons-orina", "sec": "consultar", "titulo": "Ardor al orinar o flujo que no reconoces", "grupo": "Pide cita", "meta": "Zona genital", "resumen": "No es un tema de ducha más fuerte.", "dibujo": null, "piezas": [{"t": "p", "txt": "Lavarte más no lo resuelve y puede irritar. Pide cita. No uses un producto de otra persona."}], "busca": ""}, {"id": "cons-pie", "sec": "consultar", "titulo": "Pie que pica y no mejora", "grupo": "Pide cita", "meta": "Pies", "resumen": "Entre los dedos, con la piel blanca y blanda, o con grietas que se abren.", "dibujo": null, "piezas": [{"t": "p", "txt": "Secar ayuda siempre. Si en unos días sigue igual, se consulta. No camines descalzo por casa compartiendo toalla."}], "busca": ""}, {"id": "cons-oido", "sec": "consultar", "titulo": "Oído tapado o que supura", "grupo": "Pide cita", "meta": "Oído", "resumen": "Sobre todo si duele o si oyes peor.", "dibujo": null, "piezas": [{"t": "p", "txt": "No metas nada. La cita es médica."}], "busca": ""}, {"id": "cons-regla", "sec": "consultar", "titulo": "Regla que te deja tirada", "grupo": "Pide cita", "meta": "Regla", "resumen": "Dolor que impide tu día, o un sangrado mucho mayor de lo que ya conoces.", "dibujo": null, "piezas": [{"t": "p", "txt": "Se consulta. No es el precio obligatorio de tener regla."}], "busca": ""}, {"id": "cons-cabeza", "sec": "consultar", "titulo": "Un golpe en la boca o un diente roto", "grupo": "Pide cita", "meta": "Boca", "resumen": "Aunque «solo» sea un trozo.", "dibujo": null, "piezas": [{"t": "p", "txt": "Guarda el trozo en leche o en suero si te lo indican al llamar, y habla con un dentista ese día. No lo pegues con pegamento de la casa."}], "busca": ""}, {"id": "cons-general", "sec": "consultar", "titulo": "Cuando dudes", "grupo": "Pide cita", "meta": "Criterio", "resumen": "Este texto no te ve.", "dibujo": null, "piezas": [{"t": "p", "txt": "Si algo duele, crece, huele mal de una forma nueva, sangra o te asusta, la persona adecuada es un médico, un dentista o una farmacia para que te orienten. Una ficha no ausculta."}], "busca": ""}], "secciones": [{"id": "hoy", "titulo": "Hoy", "lead": "La lista del día y la de la semana.", "tipo": "hoy", "cuenta": "18", "clave": "lv-higiene-hoy-v1", "claveHist": "lv-higiene-historial-v1", "intro": "Marca lo que ya has hecho. El día cambia a medianoche de este aparato. La semana, el lunes.", "diarias": [{"id": "d-manos-am", "label": "Manos al levantarte", "nota": "Antes de la cara y de la cocina."}, {"id": "d-dientes-am", "label": "Dientes por la mañana", "nota": "Dos minutos, sin apretar."}, {"id": "d-cara", "label": "Cara", "nota": "Agua tibia y secar a toques."}, {"id": "d-ropa", "label": "Ropa interior limpia", "nota": "La de ayer, al cesto."}, {"id": "d-deso", "label": "Axilas secas", "nota": "Desodorante solo si lo usas, sobre piel seca."}, {"id": "d-manos-comer", "label": "Manos antes de comer", "nota": "También entre un crudo y un listo."}, {"id": "d-calle", "label": "Manos al llegar", "nota": "Antes de la nevera y de la cara."}, {"id": "d-dientes-noche", "label": "Dientes por la noche", "nota": "Y no te quedes dormido sin ellos."}, {"id": "d-hilo", "label": "Hilo dental", "nota": "Una vez, da igual mañana o noche, pero que sea."}, {"id": "d-toalla", "label": "Toalla extendida", "nota": "Si huele a húmedo, toca lavarla."}], "semanales": [{"id": "s-sabanas", "label": "Sábanas y funda", "nota": "Antes si hubo fiebre o mucho sudor."}, {"id": "s-toallas", "label": "Toallas a lavar", "nota": "Cara y cuerpo."}, {"id": "s-unas", "label": "Mirar las uñas", "nota": "Manos y pies. Lima el pico."}, {"id": "s-peine", "label": "Peine o cepillo", "nota": "Si está gris, agua y jabón."}, {"id": "s-cepillo", "label": "Estado del cepillo de dientes", "nota": "Si las cerdas se han abierto, toca otro. Unos tres meses es una referencia habitual: confirma con tu dentista."}, {"id": "s-zapatos", "label": "Airear los zapatos", "nota": "No los mismos dos días seguidos si han sudado."}, {"id": "s-bano", "label": "El lavabo, un repaso", "nota": "Pelo en el desagüe, grifo, un paño limpio."}, {"id": "s-neceser", "label": "Revisar el neceser", "nota": "Pasta, jabón, lo de la regla. Antes de que falte."}]}, {"id": "zonas", "titulo": "Por zonas", "lead": "Manos, boca, piel, pelo, pies y el resto.", "tipo": "catalogo", "intro": "Cada ficha es un hábito, no un tratamiento."}, {"id": "situaciones", "titulo": "Situaciones", "lead": "Viaje, calor, casa compartida, un día sin ducha.", "tipo": "catalogo", "intro": "Lo que cambia según el día, no según una marca."}, {"id": "mitos", "titulo": "Ideas que sobran", "lead": "Lo que se repite y no ayuda.", "tipo": "catalogo", "intro": "Frases hechas, y por qué no mandan."}, {"id": "consultar", "titulo": "Cuándo pedir cita", "lead": "Señales para no quedarse en una ficha.", "tipo": "catalogo", "intro": "No es una lista de enfermedades. Es un empujón para llamar."}, {"id": "kit", "titulo": "Kit", "lead": "Lo que conviene tener, sin marcas.", "tipo": "check", "cuenta": "18", "clave": "lv-higiene-kit-v1", "intro": "Marca lo que ya está en casa.", "items": [{"id": "k-jabon", "label": "Jabón o gel", "nota": "El que toleres, sin elegir por la etiqueta."}, {"id": "k-champu", "label": "Champú", "nota": "Si te lavas el pelo con él."}, {"id": "k-cepillo", "label": "Cepillo de dientes", "nota": "Tuyo."}, {"id": "k-pasta", "label": "Pasta", "nota": "Con flúor salvo que tu dentista diga otra cosa."}, {"id": "k-hilo", "label": "Hilo dental o cepillo interdental", "nota": "El que de verdad uses."}, {"id": "k-deso", "label": "Desodorante", "nota": "Si lo usas."}, {"id": "k-cortauñas", "label": "Cortauñas", "nota": "Y una lima."}, {"id": "k-peine", "label": "Peine", "nota": "Limpio."}, {"id": "k-toalla", "label": "Toalla de cara", "nota": "Distinta de la del cuerpo."}, {"id": "k-manos-crema", "label": "Crema de manos sencilla", "nota": "Si se te agrietan. No es obligatoria."}, {"id": "k-panuelo", "label": "Pañuelos", "nota": "Y una papelera cerca."}, {"id": "k-aposito", "label": "Apósitos", "nota": "Para una rozadura, no para tapar una infección."}, {"id": "k-regla", "label": "Lo que uses para la regla", "nota": "Con repuesto."}, {"id": "k-interior", "label": "Ropa interior de recambio", "nota": "También en la bolsa del trabajo."}, {"id": "k-unas-cep", "label": "Cepillo de uñas", "nota": "Pequeño."}, {"id": "k-solido", "label": "Un jabón sólido de viaje", "nota": "No se derrama."}, {"id": "k-bolsa", "label": "Bolsa para la ropa húmeda", "nota": "El bañador y el chándal no van sueltos."}, {"id": "k-med", "label": "Lo que ya te hayan pautado", "nota": "En su envase, no suelto. Este módulo no añade nada."}]}, {"id": "notas", "titulo": "Notas", "lead": "Recordatorios y preguntas para la consulta.", "tipo": "notas", "cuenta": "notas", "clave": "lv-higiene-notas-v1", "intro": "Sirve para apuntar lo que quieres preguntar en la consulta. No guarda historial clínico de nadie más, y no sale de este aparato.", "tipos": ["Hábito", "Recordatorio", "Pregunta para la consulta"], "estados": ["Pendiente", "Hecho"], "placeholder": "Preguntar por el sangrado de encías", "phnota": "Desde cuándo, qué has notado"}], "claves": {"ui": "lv-higiene-ui-v1"}, "borrar": ["lv-higiene-ui-v1", "lv-higiene-hoy-v1", "lv-higiene-historial-v1", "lv-higiene-kit-v1", "lv-higiene-notas-v1"]};
+</script>
+<script>
+(function () {
+  "use strict";
+  var D = window.LV_DATA;
+  var uiKey = D.claves.ui;
+  var app = document.getElementById("contenido");
+  var top = document.getElementById("top");
+  var pie = document.getElementById("pie");
+  var vivo = document.getElementById("aviso-vivo");
+
+  function load(k, fb) {
+    try {
+      var r = localStorage.getItem(k);
+      if (!r) return fb;
+      var v = JSON.parse(r);
+      return v == null ? fb : v;
+    } catch (e) {
+      return fb;
+    }
+  }
+  function save(k, v) {
+    try {
+      localStorage.setItem(k, JSON.stringify(v));
+      return true;
+    } catch (e) {
+      if (vivo) vivo.textContent = "No se ha podido guardar en este navegador.";
+      return false;
+    }
+  }
+  function esc(s) {
+    var str = String(s == null ? "" : s);
+    var out = "";
+    var i, c;
+    for (i = 0; i < str.length; i++) {
+      c = str.charAt(i);
+      if (c === "&") out += "&" + "amp;";
+      else if (c === "<") out += "&" + "lt;";
+      else if (c === ">") out += "&" + "gt;";
+      else if (c === '"') out += "&" + "quot;";
+      else if (c === "'") out += "&" + "#39;";
+      else out += c;
+    }
+    return out;
+  }
+  function ui() {
+    return load(uiKey, { facil: false });
+  }
+  function applyUi() {
+    document.body.classList.toggle("facil", !!ui().facil);
+  }
+  function say(t) {
+    if (vivo) vivo.textContent = t || "";
+  }
+  function fichaById(id) {
+    var i, list = D.fichas || [];
+    for (i = 0; i < list.length; i++) if (list[i].id === id) return list[i];
+    return null;
+  }
+  function secById(id) {
+    var i;
+    for (i = 0; i < D.secciones.length; i++) if (D.secciones[i].id === id) return D.secciones[i];
+    return null;
+  }
+  function fichasDe(secId) {
+    var out = [], i, list = D.fichas || [];
+    for (i = 0; i < list.length; i++) if (list[i].sec === secId) out.push(list[i]);
+    return out;
+  }
+  function parse() {
+    var raw = (location.hash || "#/").slice(1);
+    var p = raw.split("/").filter(Boolean);
+    var id;
+    if (!p.length) return { name: "home" };
+    try { id = decodeURIComponent(p[1] || ""); } catch (e) { id = p[1] || ""; }
+    if (p[0] === "s" && id) return { name: "sec", id: id };
+    if (p[0] === "i" && id) return { name: "item", id: id };
+    return { name: "home" };
+  }
+  function go(hash) {
+    if (location.hash === hash) render();
+    else location.hash = hash;
+  }
+  function header(opts) {
+    var u = ui();
+    var back = opts.back
+      ? '<button type="button" class="btn ghost" id="volver">Volver</button>'
+      : "";
+    top.innerHTML =
+      '<div class="top-row"><p class="marca">Les vencimos</p>' +
+      '<button type="button" class="btn ghost" id="btn-facil">' +
+      (u.facil ? "Modo normal" : "Modo fácil") +
+      "</button></div>" +
+      '<div class="top-title">' + back +
+      "<div><p class=\"modulo\">" + esc(D.titulo) + "</p>" +
+      '<h1 class="h1">' + esc(opts.h1 || D.titulo) + "</h1></div></div>";
+    document.title = (opts.h1 || D.titulo) + " · Les vencimos";
+    document.getElementById("btn-facil").addEventListener("click", function () {
+      var n = ui();
+      n.facil = !n.facil;
+      save(uiKey, n);
+      applyUi();
+      render();
+    });
+    var vb = document.getElementById("volver");
+    if (vb) {
+      vb.addEventListener("click", function () {
+        go(opts.back === "home" ? "#/" : opts.back);
+      });
+    }
+    pie.textContent = "Les vencimos · offline · " + D.slug;
+  }
+  function dibujoSvg(d) {
+    if (!d) return "";
+    if (typeof d === "string") return stitchSvg(d);
+    if (d.tipo === "mesa") return mesaSvg(d);
+    return "";
+  }
+  function stitchSvg(kind) {
+    var thread = {
+      recta: "M16 40 H36 M52 40 H72 M88 40 H108 M124 40 H144 M160 40 H180 M196 40 H216",
+      hilvan: "M12 40 H52 M72 40 H112 M132 40 H172 M192 40 H228",
+      atras: "M16 40 H74 M50 40 H108 M84 40 H142 M118 40 H176 M152 40 H214",
+      escondido: "M24 48 L40 28 L56 48 M72 48 L88 28 L104 48 M120 48 L136 28 L152 48 M168 48 L184 28 L200 48",
+      feston: "M28 50 V26 H46 V50 M62 50 V26 H80 V50 M96 50 V26 H114 V50 M130 50 V26 H148 V50 M164 50 V26 H182 V50 M198 50 V26",
+      cadeneta: "M28 40 q14 -16 16 0 q14 16 16 0 q14 -16 16 0 q14 16 16 0 q14 -16 16 0 q14 16 16 0",
+      ojal: "M48 24 H168 M48 24 v26 M168 24 v26 M58 24 v26 M70 24 v26 M82 24 v26 M94 24 v26 M106 24 v26 M118 24 v26 M130 24 v26 M142 24 v26 M154 24 v26",
+      zurcido: "M36 18 V56 M56 18 V56 M76 18 V56 M96 18 V56 M116 18 V56 M136 18 V56 M156 18 V56 M176 18 V56 M196 18 V56 M28 26 H212 M28 38 H212 M28 50 H212",
+      cruz: "M28 22 L52 50 M52 22 L28 50 M76 22 L100 50 M100 22 L76 50 M124 22 L148 50 M148 22 L124 50 M172 22 L196 50 M196 22 L172 50",
+      tallo: "M16 46 Q40 18 64 42 T112 42 T160 42 T208 42",
+      sobre: "M24 52 L40 22 M56 52 L72 22 M88 52 L104 22 M120 52 L136 22 M152 52 L168 22 M184 52 L200 22",
+      zigzag: "M16 26 L40 52 L64 26 L88 52 L112 26 L136 52 L160 26 L184 52 L208 26",
+      presilla: "M64 22 H176 M64 30 H176 M64 38 H176 M64 46 H176 M74 22 V50 M166 22 V50",
+      francesa: "M48 16 V56 M78 16 V56 M108 16 V56 M138 16 V56 M48 16 H138",
+      inglesa: "M40 20 H200 M40 36 H200 M40 52 H200 M70 20 V52 M170 20 V52",
+      vivo: "M20 34 H220 M20 46 H220",
+      frunce: "M20 28 H220 M30 28 Q40 50 50 28 Q60 50 70 28 Q80 50 90 28 Q100 50 110 28 Q120 50 130 28 Q140 50 150 28 Q160 50 170 28 Q180 50 190 28",
+      bies: "M20 56 L200 16 M36 56 L216 16 M20 40 L160 16"
+    };
+    var p = thread[kind] || thread.recta;
+    var knots = "";
+    if (kind === "nudo") {
+      var xs = [48, 96, 144, 192];
+      var i;
+      for (i = 0; i < xs.length; i++) {
+        knots += '<circle cx="' + xs[i] + '" cy="36" r="6" fill="none" stroke="#C4A15A" stroke-width="2"/>';
+      }
+      p = "M20 36 H220";
+    }
+    return (
+      '<svg class="dibujo" viewBox="0 0 240 72" role="img" aria-label="Esquema de la labor">' +
+      '<rect x="8" y="12" width="224" height="48" rx="4" fill="#161512" stroke="#2E2B24"/>' +
+      '<path d="' + p + '" fill="none" stroke="#C4A15A" stroke-width="2" stroke-linecap="square" stroke-linejoin="miter"/>' +
+      knots + "</svg>"
+    );
+  }
+  function mesaSvg(d) {
+    var bolas = d.bolas || [];
+    var colors = {
+      blanca: "#E6E1D6",
+      objeto: "#C4A15A",
+      tres: "#C46A4A",
+      ocho: "#E6E1D6",
+      amarilla: "#C4A15A",
+      roja: "#C46A4A"
+    };
+    var html = '<svg class="dibujo" viewBox="0 0 240 120" role="img" aria-label="Esquema de la mesa">';
+    html += '<rect x="10" y="10" width="220" height="100" rx="8" fill="#1A2218" stroke="#3A362C"/>';
+    var pockets = [[18, 18], [120, 14], [222, 18], [18, 102], [120, 106], [222, 102]];
+    var i, b, fill, stroke;
+    for (i = 0; i < pockets.length; i++) {
+      html += '<circle cx="' + pockets[i][0] + '" cy="' + pockets[i][1] + '" r="5.5" fill="#0E0E0C"/>';
+    }
+    if (d.linea) {
+      html += '<path d="' + d.linea + '" fill="none" stroke="#9A9488" stroke-width="1.4" stroke-dasharray="4 3"/>';
+    }
+    for (i = 0; i < bolas.length; i++) {
+      b = bolas[i];
+      fill = colors[b.c] || "#E6E1D6";
+      stroke = b.c === "blanca" ? "#9A9488" : "#1A160E";
+      html += '<circle cx="' + Number(b.x) + '" cy="' + Number(b.y) + '" r="7" fill="' + fill + '" stroke="' + stroke + '" stroke-width="1.4"/>';
+      if (b.c === "ocho") {
+        html += '<circle cx="' + Number(b.x) + '" cy="' + Number(b.y) + '" r="3" fill="#0E0E0C"/>';
+      }
+    }
+    html += "</svg>";
+    return html;
+  }
+  function piezasHtml(piezas) {
+    if (!piezas) return "";
+    var h = "", i, p, j;
+    for (i = 0; i < piezas.length; i++) {
+      p = piezas[i];
+      if (p.t === "p") h += "<p>" + esc(p.txt) + "</p>";
+      else if (p.t === "lista") {
+        h += "<h2>" + esc(p.titulo) + "</h2><ul>";
+        for (j = 0; j < p.items.length; j++) h += "<li>" + esc(p.items[j]) + "</li>";
+        h += "</ul>";
+      } else if (p.t === "pasos") {
+        h += "<h2>Pasos</h2><ol>";
+        for (j = 0; j < p.items.length; j++) h += "<li>" + esc(p.items[j]) + "</li>";
+        h += "</ol>";
+      } else if (p.t === "tip") h += '<p class="tip"><strong>Consejo. </strong>' + esc(p.txt) + "</p>";
+      else if (p.t === "aviso") h += '<p class="aviso">' + esc(p.txt) + "</p>";
+    }
+    return h;
+  }
+  function fichaBtn(f) {
+    return (
+      '<button type="button" class="item" data-id="' + esc(f.id) + '"><span class="item-t">' +
+      esc(f.titulo) + '</span><span class="item-m">' + esc(f.meta || f.grupo || "") +
+      '</span><span class="item-r">' + esc(f.resumen) + "</span></button>"
+    );
+  }
+  function bindFichas(root) {
+    var nodes = root.querySelectorAll("[data-id]");
+    var i;
+    for (i = 0; i < nodes.length; i++) {
+      nodes[i].addEventListener("click", function () {
+        go("#/i/" + encodeURIComponent(this.getAttribute("data-id")));
+      });
+    }
+  }
+  function aparatoHtml() {
+    return (
+      '<section class="aparato"><h2>En este aparato</h2>' +
+      '<p class="ayuda">Sin cuenta y sin red. Si borras los datos del navegador, se pierde lo guardado en este módulo. Ábrelo siempre desde el mismo archivo: si lo mueves, algunos navegadores lo tratan como otro sitio.</p>' +
+      '<button type="button" class="btn danger" id="borrar">Borrar datos del módulo</button></section>'
+    );
+  }
+  function bindAparato() {
+    var b = document.getElementById("borrar");
+    if (!b) return;
+    b.addEventListener("click", function () {
+      if (!window.confirm("Se borrarán las notas y marcas de este módulo en este navegador. No se puede deshacer.")) return;
+      var ks = D.borrar || [], i;
+      for (i = 0; i < ks.length; i++) localStorage.removeItem(ks[i]);
+      say("Datos del módulo borrados.");
+      render();
+    });
+  }
+  function renderHome() {
+    var html = "", i, s, n;
+    if (D.aviso) html += '<p class="aviso">' + esc(D.aviso) + "</p>";
+    html += '<p class="lead">' + esc(D.lead) + "</p>";
+    html += '<label class="buscar"><span class="sr">Buscar en el módulo</span><input id="q" type="search" placeholder="Buscar" autocomplete="off" enterkeyhint="search"></label>';
+    html += '<div class="secs" id="secs">';
+    for (i = 0; i < D.secciones.length; i++) {
+      s = D.secciones[i];
+      n = s.tipo === "catalogo" ? fichasDe(s.id).length : (s.cuenta != null ? s.cuenta : "");
+      html += '<button type="button" class="sec" data-sec="' + esc(s.id) + '"><span class="sec-t">' + esc(s.titulo) +
+        '</span><span class="sec-d">' + esc(s.lead) + "</span>" +
+        (n !== "" ? '<span class="sec-n">' + esc(String(n)) + "</span>" : "") + "</button>";
+    }
+    html += '</div><div id="resultados"></div>' + aparatoHtml();
+    app.innerHTML = html;
+    document.getElementById("q").addEventListener("input", onSearch);
+    var buttons = app.querySelectorAll("[data-sec]");
+    for (i = 0; i < buttons.length; i++) {
+      buttons[i].addEventListener("click", function () {
+        go("#/s/" + encodeURIComponent(this.getAttribute("data-sec")));
+      });
+    }
+    bindAparato();
+  }
+  function onSearch() {
+    var q = document.getElementById("q").value.trim().toLowerCase();
+    var box = document.getElementById("resultados");
+    var secs = document.getElementById("secs");
+    var hits = [], i, f, blob, h, j;
+    if (q.length < 2) {
+      box.innerHTML = "";
+      secs.hidden = false;
+      return;
+    }
+    secs.hidden = true;
+    for (i = 0; i < (D.fichas || []).length; i++) {
+      f = D.fichas[i];
+      blob = (f.titulo + " " + f.resumen + " " + (f.grupo || "") + " " + (f.busca || "")).toLowerCase();
+      if (blob.indexOf(q) !== -1) hits.push(f);
+    }
+    if (!hits.length) {
+      box.innerHTML = '<p class="vacio">Nada con «' + esc(q) + "». Prueba con otra palabra.</p>";
+      return;
+    }
+    h = '<p class="meta">' + hits.length + (hits.length === 1 ? " ficha" : " fichas") + '</p><div class="lista">';
+    for (j = 0; j < hits.length && j < 50; j++) h += fichaBtn(hits[j]);
+    if (hits.length > 50) h += '<p class="meta">Hay más. Afina la búsqueda.</p>';
+    h += "</div>";
+    box.innerHTML = h;
+    bindFichas(box);
+  }
+  function renderCatalogo(s) {
+    var items = fichasDe(s.id);
+    var grupos = [], i, g, html, state;
+    for (i = 0; i < items.length; i++) {
+      g = items[i].grupo || "";
+      if (g && grupos.indexOf(g) === -1) grupos.push(g);
+    }
+    html = "";
+    if (s.intro) html += '<p class="lead">' + esc(s.intro) + "</p>";
+    html += '<label class="buscar"><span class="sr">Filtrar</span><input id="qf" type="search" placeholder="Filtrar en esta sección" autocomplete="off"></label>';
+    if (grupos.length > 1) {
+      html += '<div class="chips" id="chips"><button type="button" class="chip on" data-g="">Todo</button>';
+      for (i = 0; i < grupos.length; i++) {
+        html += '<button type="button" class="chip" data-g="' + esc(grupos[i]) + '">' + esc(grupos[i]) + "</button>";
+      }
+      html += "</div>";
+    }
+    html += '<div class="lista" id="lista"></div>';
+    app.innerHTML = html;
+    state = { g: "", q: "" };
+    function paint() {
+      var list = document.getElementById("lista");
+      var h = "", n = 0, k, f, blob;
+      for (k = 0; k < items.length; k++) {
+        f = items[k];
+        if (state.g && f.grupo !== state.g) continue;
+        if (state.q) {
+          blob = (f.titulo + " " + f.resumen + " " + (f.busca || "") + " " + (f.grupo || "")).toLowerCase();
+          if (blob.indexOf(state.q) === -1) continue;
+        }
+        h += fichaBtn(f);
+        n++;
+      }
+      list.innerHTML = n ? h : '<p class="vacio">Ninguna ficha con ese filtro.</p>';
+      bindFichas(list);
+    }
+    paint();
+    document.getElementById("qf").addEventListener("input", function () {
+      state.q = this.value.trim().toLowerCase();
+      paint();
+    });
+    var chips = app.querySelectorAll(".chip");
+    for (i = 0; i < chips.length; i++) {
+      chips[i].addEventListener("click", function () {
+        var all, a;
+        state.g = this.getAttribute("data-g") || "";
+        all = app.querySelectorAll(".chip");
+        for (a = 0; a < all.length; a++) all[a].classList.toggle("on", all[a] === this);
+        paint();
+      });
+    }
+  }
+  function renderItem(f) {
+    var html = dibujoSvg(f.dibujo);
+    var sibs = fichasDe(f.sec);
+    var idx = -1, i, gs;
+    if (f.meta) html += '<p class="meta">' + esc(f.meta) + "</p>";
+    if (f.resumen) html += '<p class="lead">' + esc(f.resumen) + "</p>";
+    html += '<article class="prosa">' + piezasHtml(f.piezas) + "</article>";
+    for (i = 0; i < sibs.length; i++) if (sibs[i].id === f.id) idx = i;
+    html += '<div class="navp">';
+    if (idx > 0) html += '<button type="button" class="btn" data-go="' + esc(sibs[idx - 1].id) + '">Anterior</button>';
+    if (idx >= 0 && idx < sibs.length - 1) html += '<button type="button" class="btn" data-go="' + esc(sibs[idx + 1].id) + '">Siguiente</button>';
+    html += "</div>";
+    app.innerHTML = html;
+    gs = app.querySelectorAll("[data-go]");
+    for (i = 0; i < gs.length; i++) {
+      gs[i].addEventListener("click", function () {
+        go("#/i/" + encodeURIComponent(this.getAttribute("data-go")));
+      });
+    }
+  }
+  function renderCheck(s) {
+    var key = s.clave;
+    var st = load(key, {});
+    var html = "", hechos = 0, i, it, on;
+    if (s.intro) html += '<p class="lead">' + esc(s.intro) + "</p>";
+    for (i = 0; i < s.items.length; i++) if (st[s.items[i].id]) hechos++;
+    html += '<p class="meta" id="progreso">' + hechos + " de " + s.items.length + " marcados</p><div class=\"lista\" id=\"checks\">";
+    for (i = 0; i < s.items.length; i++) {
+      it = s.items[i];
+      on = !!st[it.id];
+      html += '<button type="button" class="check' + (on ? " on" : "") + '" data-id="' + esc(it.id) + '" aria-pressed="' +
+        (on ? "true" : "false") + '"><span class="box" aria-hidden="true"></span><span><span class="item-t">' +
+        esc(it.label) + "</span>" + (it.nota ? '<span class="item-r">' + esc(it.nota) + "</span>" : "") + "</span></button>";
+    }
+    html += "</div>";
+    app.innerHTML = html;
+    var nodes = app.querySelectorAll(".check");
+    for (i = 0; i < nodes.length; i++) {
+      nodes[i].addEventListener("click", function () {
+        var id = this.getAttribute("data-id");
+        var cur = load(key, {});
+        var n = 0, k;
+        cur[id] = !cur[id];
+        if (!save(key, cur)) return;
+        this.classList.toggle("on", !!cur[id]);
+        this.setAttribute("aria-pressed", cur[id] ? "true" : "false");
+        for (k = 0; k < s.items.length; k++) if (cur[s.items[k].id]) n++;
+        document.getElementById("progreso").textContent = n + " de " + s.items.length + " marcados";
+      });
+    }
+  }
+  function renderNotas(s) {
+    var key = s.clave;
+    var items = load(key, []);
+    var tipos = s.tipos || ["Arreglo", "Prenda nueva", "Zurcido", "Otro"];
+    var estados = s.estados || ["Por hacer", "En curso", "Hecho"];
+    var html = "", i;
+    if (!Array.isArray(items)) items = [];
+    if (s.intro) html += '<p class="lead">' + esc(s.intro) + "</p>";
+    html += '<form id="nota" class="form"><label>Nombre<input name="nombre" required maxlength="80" placeholder="' + esc(s.placeholder || "Nombre") + '"></label>';
+    html += '<label>Tipo<select name="tipo">';
+    for (i = 0; i < tipos.length; i++) html += "<option>" + esc(tipos[i]) + "</option>";
+    html += '</select></label><label>Estado<select name="estado">';
+    for (i = 0; i < estados.length; i++) html += "<option>" + esc(estados[i]) + "</option>";
+    html += '</select></label><label>Notas<textarea name="nota" maxlength="2000" rows="4" placeholder="' + esc(s.phnota || "Qué quieres recordar") + '"></textarea></label>';
+    html += '<button class="btn primary" type="submit">Guardar</button></form><div class="lista" id="notas"></div>';
+    app.innerHTML = html;
+    function paint() {
+      var box = document.getElementById("notas");
+      var h = "", n;
+      if (!items.length) {
+        box.innerHTML = '<p class="vacio">Todavía no hay notas. Lo que guardes se queda en este aparato.</p>';
+        return;
+      }
+      for (n = 0; n < items.length; n++) {
+        h += '<article class="card"><h2>' + esc(items[n].nombre) + '</h2><p class="meta">' + esc(items[n].tipo) + " · " + esc(items[n].estado) + "</p>";
+        if (items[n].nota) h += "<p>" + esc(items[n].nota) + "</p>";
+        h += '<div class="navp">';
+        if (items[n].estado !== "Hecho") h += '<button type="button" class="btn" data-hecho="' + esc(items[n].id) + '">Marcar hecho</button>';
+        h += '<button type="button" class="btn danger" data-del="' + esc(items[n].id) + '">Borrar</button></div></article>';
+      }
+      box.innerHTML = h;
+      var hb = box.querySelectorAll("[data-hecho]");
+      var db = box.querySelectorAll("[data-del]");
+      var t;
+      for (t = 0; t < hb.length; t++) {
+        hb[t].addEventListener("click", function () {
+          var id = this.getAttribute("data-hecho"), k;
+          for (k = 0; k < items.length; k++) if (items[k].id === id) items[k].estado = "Hecho";
+          save(key, items);
+          say("Marcado como hecho.");
+          paint();
+        });
+      }
+      for (t = 0; t < db.length; t++) {
+        db[t].addEventListener("click", function () {
+          var id = this.getAttribute("data-del");
+          items = items.filter(function (it) { return it.id !== id; });
+          save(key, items);
+          paint();
+        });
+      }
+    }
+    paint();
+    document.getElementById("nota").addEventListener("submit", function (ev) {
+      var fd, nombre;
+      ev.preventDefault();
+      fd = new FormData(ev.target);
+      nombre = String(fd.get("nombre") || "").trim();
+      if (!nombre) return;
+      items.unshift({
+        id: String(Date.now()),
+        nombre: nombre,
+        tipo: String(fd.get("tipo") || ""),
+        estado: String(fd.get("estado") || ""),
+        nota: String(fd.get("nota") || "").trim()
+      });
+      if (!save(key, items)) return;
+      ev.target.reset();
+      say("Nota guardada.");
+      paint();
+    });
+  }
+  function renderMedidas(s) {
+    var key = s.clave;
+    var m = load(key, {});
+    var campos = s.campos;
+    var html = "", i, c;
+    if (s.intro) html += '<p class="lead">' + esc(s.intro) + "</p>";
+    html += '<form id="med" class="form">';
+    for (i = 0; i < campos.length; i++) {
+      c = campos[i];
+      html += "<label>" + esc(c.label) + '<input name="' + esc(c.id) + '" inputmode="decimal" maxlength="12" value="' + esc(m[c.id] || "") + '" placeholder="cm"></label>';
+      if (c.ayuda) html += '<p class="ayuda">' + esc(c.ayuda) + "</p>";
+    }
+    html += '<button class="btn primary" type="submit">Guardar medidas</button></form>';
+    html += "<h2>Tela orientativa</h2><p class=\"ayuda\">Cifra de taller para una talla media, sin vuelo ni pinzas raras. Extiende el patrón sobre la tela antes de cortar. No incluye forro ni vistas.</p>";
+    html += '<form id="calc" class="form"><label>Prenda<select name="prenda">';
+    for (i = 0; i < s.telas.length; i++) html += '<option value="' + esc(s.telas[i].id) + '">' + esc(s.telas[i].label) + "</option>";
+    html += '</select></label><label>Ancho de tela<select name="ancho"><option value="90">90 cm</option><option value="140" selected>140 cm</option><option value="150">150 cm</option></select></label>';
+    html += '<button class="btn primary" type="submit">Calcular</button></form><p id="calc-out" class="resultado" hidden></p>';
+    app.innerHTML = html;
+    document.getElementById("med").addEventListener("submit", function (ev) {
+      var fd, o, out;
+      ev.preventDefault();
+      fd = new FormData(ev.target);
+      o = {};
+      for (var k = 0; k < campos.length; k++) o[campos[k].id] = String(fd.get(campos[k].id) || "").trim();
+      if (!save(key, o)) return;
+      out = document.getElementById("calc-out");
+      out.hidden = false;
+      out.textContent = "Medidas guardadas en este aparato.";
+      say("Medidas guardadas.");
+    });
+    document.getElementById("calc").addEventListener("submit", function (ev) {
+      var fd, id, ancho, row, out, metros;
+      ev.preventDefault();
+      fd = new FormData(ev.target);
+      id = String(fd.get("prenda"));
+      ancho = String(fd.get("ancho"));
+      row = null;
+      for (var k = 0; k < s.telas.length; k++) if (s.telas[k].id === id) row = s.telas[k];
+      metros = row && row.m ? row.m[ancho] : "";
+      out = document.getElementById("calc-out");
+      out.hidden = false;
+      out.textContent = row.label + ", tela de " + ancho + " cm: unos " + String(metros).replace(".", ",") + " m. Suma un canto si el orillo viene torcido. Es una estimación, no un patrón de una marca.";
+    });
+  }
+  function num(v) {
+    var n = Number(String(v || "").replace(",", "."));
+    return isFinite(n) ? n : 0;
+  }
+  function renderDiario(s) {
+    var key = s.clave;
+    var items = load(key, []);
+    var html = "", min = 0, tac = 0, intentos = 0, i, ruts;
+    if (!Array.isArray(items)) items = [];
+    if (s.intro) html += '<p class="lead">' + esc(s.intro) + "</p>";
+    for (i = 0; i < items.length; i++) {
+      min += num(items[i].minutos);
+      tac += num(items[i].limpias);
+      intentos += num(items[i].intentos);
+    }
+    html += '<p class="meta">' + items.length + " sesiones · " + Math.round(min) + " min";
+    if (intentos) html += " · " + Math.round(tac) + " limpias de " + Math.round(intentos);
+    html += "</p>";
+    html += '<form id="dia" class="form"><label>Minutos<input name="minutos" inputmode="numeric" required placeholder="30"></label>';
+    html += '<label>Rutina<select name="rutina"><option value="">Sin rutina concreta</option>';
+    ruts = s.rutinas || [];
+    for (i = 0; i < ruts.length; i++) html += "<option>" + esc(ruts[i]) + "</option>";
+    html += '</select></label><label>Tacadas limpias<input name="limpias" inputmode="numeric" placeholder="0"></label>';
+    html += '<label>Intentos<input name="intentos" inputmode="numeric" placeholder="0"></label>';
+    html += '<label>Nota<textarea name="nota" rows="3" maxlength="1000" placeholder="Qué salió y qué repetir"></textarea></label>';
+    html += '<p id="dia-err" class="aviso" hidden></p><button class="btn primary" type="submit">Guardar sesión</button></form>';
+    html += '<div class="lista" id="ses"></div>';
+    app.innerHTML = html;
+    function paint() {
+      var box = document.getElementById("ses");
+      var h = "", n, nodes, t;
+      if (!items.length) {
+        box.innerHTML = '<p class="vacio">Aún no hay sesiones.</p>';
+        return;
+      }
+      for (n = 0; n < items.length; n++) {
+        h += '<article class="card"><h2>' + esc(items[n].fecha) + '</h2><p class="meta">' + esc(items[n].minutos) + " min";
+        if (items[n].rutina) h += " · " + esc(items[n].rutina);
+        if (num(items[n].intentos)) h += " · " + esc(items[n].limpias) + "/" + esc(items[n].intentos);
+        h += "</p>";
+        if (items[n].nota) h += "<p>" + esc(items[n].nota) + "</p>";
+        h += '<button type="button" class="btn danger" data-del="' + esc(items[n].id) + '">Borrar</button></article>';
+      }
+      box.innerHTML = h;
+      nodes = box.querySelectorAll("[data-del]");
+      for (t = 0; t < nodes.length; t++) {
+        nodes[t].addEventListener("click", function () {
+          var id = this.getAttribute("data-del");
+          items = items.filter(function (it) { return it.id !== id; });
+          save(key, items);
+          render();
+        });
+      }
+    }
+    paint();
+    document.getElementById("dia").addEventListener("submit", function (ev) {
+      var fd, minutos, err, d, fecha;
+      ev.preventDefault();
+      fd = new FormData(ev.target);
+      minutos = num(fd.get("minutos"));
+      err = document.getElementById("dia-err");
+      if (minutos <= 0 || minutos > 600) {
+        err.hidden = false;
+        err.textContent = "Pon los minutos entre 1 y 600.";
+        return;
+      }
+      err.hidden = true;
+      d = new Date();
+      fecha = d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
+      items.unshift({
+        id: String(Date.now()),
+        fecha: fecha,
+        minutos: String(Math.round(minutos)),
+        rutina: String(fd.get("rutina") || ""),
+        limpias: String(fd.get("limpias") || "").trim(),
+        intentos: String(fd.get("intentos") || "").trim(),
+        nota: String(fd.get("nota") || "").trim()
+      });
+      if (!save(key, items)) return;
+      say("Sesión guardada.");
+      render();
+    });
+  }
+  function todayKey() {
+    var d = new Date();
+    return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
+  }
+  function weekKey() {
+    var d = new Date();
+    var t = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
+    var day = t.getUTCDay() || 7;
+    var y, y0, w;
+    t.setUTCDate(t.getUTCDate() + 4 - day);
+    y = t.getUTCFullYear();
+    y0 = new Date(Date.UTC(y, 0, 1));
+    w = Math.ceil((((t - y0) / 86400000) + 1) / 7);
+    return y + "-W" + String(w).padStart(2, "0");
+  }
+  function renderHoy(s) {
+    var key = s.clave;
+    var histKey = s.claveHist;
+    var all = load(key, {});
+    var dk = todayKey();
+    var wk = weekKey();
+    var html;
+    if (!all[dk] || typeof all[dk] !== "object") all[dk] = {};
+    if (!all[wk] || typeof all[wk] !== "object") all[wk] = {};
+    function block(titulo, lista, bucket) {
+      var h = "<h2>" + esc(titulo) + "</h2>", hechos = 0, i, it, on;
+      for (i = 0; i < lista.length; i++) if (bucket[lista[i].id]) hechos++;
+      h += '<p class="meta" data-count="' + (lista === s.diarias ? "d" : "w") + '">' + hechos + " de " + lista.length + '</p><div class="lista">';
+      for (i = 0; i < lista.length; i++) {
+        it = lista[i];
+        on = !!bucket[it.id];
+        h += '<button type="button" class="check' + (on ? " on" : "") + '" data-id="' + esc(it.id) + '" data-bucket="' +
+          (lista === s.diarias ? "d" : "w") + '" aria-pressed="' + (on ? "true" : "false") +
+          '"><span class="box" aria-hidden="true"></span><span><span class="item-t">' + esc(it.label) + "</span>" +
+          (it.nota ? '<span class="item-r">' + esc(it.nota) + "</span>" : "") + "</span></button>";
+      }
+      return h + "</div>";
+    }
+    html = "";
+    if (s.intro) html += '<p class="lead">' + esc(s.intro) + "</p>";
+    html += '<p class="meta">Hoy es ' + esc(dk) + ".</p>";
+    html += block("Este día", s.diarias, all[dk]);
+    html += block("Esta semana", s.semanales, all[wk]);
+    app.innerHTML = html;
+    var nodes = app.querySelectorAll(".check"), i;
+    for (i = 0; i < nodes.length; i++) {
+      nodes[i].addEventListener("click", function () {
+        var id = this.getAttribute("data-id");
+        var which = this.getAttribute("data-bucket") === "d" ? dk : wk;
+        var cur = load(key, {});
+        var lista = which === dk ? s.diarias : s.semanales;
+        var n = 0, k, meter;
+        if (!cur[which] || typeof cur[which] !== "object") cur[which] = {};
+        cur[which][id] = !cur[which][id];
+        if (!save(key, cur)) return;
+        this.classList.toggle("on", !!cur[which][id]);
+        this.setAttribute("aria-pressed", cur[which][id] ? "true" : "false");
+        for (k = 0; k < lista.length; k++) if (cur[which][lista[k].id]) n++;
+        meter = app.querySelector('[data-count="' + (which === dk ? "d" : "w") + '"]');
+        if (meter) meter.textContent = n + " de " + lista.length;
+        if (histKey && which === dk) {
+          var hist = load(histKey, {});
+          var keys;
+          hist[dk] = { hechos: n, total: s.diarias.length };
+          keys = Object.keys(hist).sort();
+          while (keys.length > 28) {
+            delete hist[keys[0]];
+            keys.shift();
+          }
+          save(histKey, hist);
+        }
+      });
+    }
+  }
+  function renderTexto(s) {
+    var html = "";
+    if (s.intro) html += '<p class="lead">' + esc(s.intro) + "</p>";
+    html += '<article class="prosa">' + piezasHtml(s.piezas) + "</article>";
+    app.innerHTML = html;
+  }
+  function render() {
+    var r, s, f;
+    applyUi();
+    r = parse();
+    if (r.name === "item") {
+      f = fichaById(r.id);
+      if (!f) { go("#/"); return; }
+      header({ back: "#/s/" + encodeURIComponent(f.sec), h1: f.titulo });
+      renderItem(f);
+    } else if (r.name === "sec") {
+      s = secById(r.id);
+      if (!s) { go("#/"); return; }
+      header({ back: "home", h1: s.titulo });
+      if (s.tipo === "check") renderCheck(s);
+      else if (s.tipo === "notas") renderNotas(s);
+      else if (s.tipo === "medidas") renderMedidas(s);
+      else if (s.tipo === "diario") renderDiario(s);
+      else if (s.tipo === "hoy") renderHoy(s);
+      else if (s.tipo === "texto") renderTexto(s);
+      else renderCatalogo(s);
+    } else {
+      header({ h1: D.titulo });
+      renderHome();
+    }
+    window.scrollTo(0, 0);
+  }
+  window.addEventListener("hashchange", render);
+  render();
+})();
+
+</script>
+</body>
+</html>

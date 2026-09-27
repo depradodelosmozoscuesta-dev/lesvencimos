@@ -1,0 +1,793 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="dark">
+<title>Tanteo · Les vencimos</title>
+<style>
+:root {
+  --bg: #0e0e0c;
+  --bg2: #161512;
+  --bg3: #1c1a16;
+  --ink: #e6e1d6;
+  --muted: #9a9488;
+  --accent: #c4a15a;
+  --on: #1a160e;
+  --danger: #c46a4a;
+  --ok: #8f9a72;
+  --line: #2e2b24;
+  --line2: #3a362c;
+  --radius: 8px;
+  --sans: system-ui, "Segoe UI", sans-serif;
+  --serif: Georgia, Palatino, "Palatino Linotype", "Times New Roman", serif;
+  color-scheme: dark;
+}
+*, *::before, *::after { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; background: var(--bg); color: var(--ink); }
+html { overflow-x: hidden; }
+body {
+  font-family: var(--sans);
+  font-size: 16.5px;
+  line-height: 1.45;
+  font-weight: 400;
+  min-height: 100vh;
+  padding:
+    max(12px, env(safe-area-inset-top))
+    max(16px, env(safe-area-inset-right))
+    max(28px, env(safe-area-inset-bottom))
+    max(16px, env(safe-area-inset-left));
+}
+button, input, select, textarea { font: inherit; color: inherit; }
+button { cursor: pointer; }
+button, [role="button"] { cursor: pointer; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+#contenido:focus { outline: none; }
+a { color: var(--accent); }
+a.sec, a.item { color: inherit; text-decoration: none; }
+.sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+.skip {
+  position: absolute;
+  left: -999px;
+  top: 0;
+}
+.skip:focus {
+  left: 8px;
+  top: 8px;
+  z-index: 5;
+  background: var(--accent);
+  color: var(--on);
+  padding: 10px 12px;
+  border-radius: var(--radius);
+}
+.marco { max-width: 760px; margin: 0 auto; }
+.top { margin-bottom: 14px; }
+.top-row, .top-title {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  justify-content: space-between;
+}
+.top-title { margin-top: 8px; align-items: center; }
+.marca, .modulo, .meta, .ayuda, .sec-d, .item-m, .item-r {
+  color: var(--muted);
+}
+.marca, .modulo {
+  margin: 0;
+  font-size: 0.78rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-weight: 500;
+}
+h1, h2, .h1 {
+  font-family: var(--serif);
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  margin: 0;
+}
+.h1, h1 { font-size: 1.7rem; line-height: 1.15; }
+h2 { font-size: 1.2rem; margin: 1.1rem 0 0.4rem; }
+.lead { margin: 0 0 12px; }
+.aviso, .tip, .resultado {
+  margin: 0 0 12px;
+  padding: 10px 12px;
+  background: var(--bg3);
+  border-radius: var(--radius);
+}
+.aviso { border-left: 3px solid var(--danger); }
+.tip { border-left: 3px solid var(--ok); }
+.resultado { border-left: 3px solid var(--accent); }
+.buscar { display: block; margin: 0 0 12px; }
+input, select, textarea {
+  width: 100%;
+  min-height: 44px;
+  background: var(--bg3);
+  border: 1px solid var(--line2);
+  border-radius: var(--radius);
+  padding: 10px 12px;
+}
+textarea { min-height: 96px; resize: vertical; }
+.secs, .lista { display: grid; gap: 8px; }
+@media (min-width: 720px) {
+  .secs { grid-template-columns: 1fr 1fr; }
+}
+.sec, .item, .check, .card {
+  background: var(--bg2);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  color: inherit;
+  text-align: left;
+}
+.sec, .item, .check {
+  width: 100%;
+  min-height: 44px;
+  padding: 12px;
+}
+.sec, .item { display: flex; flex-direction: column; align-items: flex-start; gap: 3px; }
+.sec-t, .item-t { font-weight: 500; }
+.sec-n { color: var(--accent); font-variant-numeric: tabular-nums; }
+.check { display: flex; gap: 12px; align-items: flex-start; }
+.check .box {
+  width: 22px;
+  height: 22px;
+  margin-top: 2px;
+  border: 1.5px solid var(--muted);
+  border-radius: 4px;
+  flex: none;
+  position: relative;
+}
+.check.on { border-color: var(--accent); }
+.check.on .box { background: var(--accent); border-color: var(--accent); }
+.check.on .box::after {
+  content: "";
+  position: absolute;
+  left: 7px;
+  top: 3px;
+  width: 5px;
+  height: 10px;
+  border: solid var(--on);
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}
+.card { padding: 12px 14px; }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; }
+.chip, .btn {
+  min-height: 44px;
+  padding: 10px 14px;
+  border-radius: var(--radius);
+  border: 1px solid var(--line2);
+  background: transparent;
+  color: var(--ink);
+  font-weight: 500;
+}
+.chip.on, .btn.primary { background: var(--accent); color: var(--on); border-color: var(--accent); }
+.btn.danger { border-color: var(--danger); color: var(--ink); }
+.btn.ghost { background: transparent; }
+.navp { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
+.prosa ul, .prosa ol { margin: 0.2rem 0 0.6rem; padding-left: 1.2rem; }
+.prosa li { margin: 0.35rem 0; }
+.prosa p { margin: 0.4rem 0 0.7rem; }
+.dibujo {
+  width: 100%;
+  height: auto;
+  display: block;
+  margin: 0 0 12px;
+  background: var(--bg2);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+}
+.form label { display: flex; flex-direction: column; gap: 6px; margin: 0 0 12px; }
+.ayuda { margin: -6px 0 12px; font-size: 0.92rem; }
+.vacio { color: var(--muted); }
+.aparato {
+  margin-top: 22px;
+  padding-top: 12px;
+  border-top: 1px solid var(--line);
+}
+.colofon {
+  max-width: 760px;
+  margin: 22px auto 0;
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+.facil { font-size: 19px; }
+.facil .h1, .facil h1 { font-size: 2rem; }
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+.gridj { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; max-width: 340px; margin: 12px 0 8px; }
+.tile {
+  min-height: 52px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid var(--line2);
+  border-radius: var(--radius);
+  font-family: var(--serif);
+  font-size: 1.45rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  background: var(--bg);
+}
+.tile[data-s="correct"] { background: var(--accent); color: var(--on); border-color: var(--accent); }
+.tile[data-s="present"] { background: var(--ok); color: var(--on); border-color: var(--ok); }
+.tile[data-s="absent"] { background: var(--bg2); color: var(--muted); border-color: var(--line); }
+.tile.now { border-color: var(--accent); }
+.kb { max-width: 520px; display: grid; gap: 6px; margin-top: 8px; }
+.kbrow { display: flex; gap: 6px; justify-content: center; }
+.key {
+  flex: 1 1 0;
+  min-height: 48px;
+  min-width: 44px;
+  max-width: 72px;
+  padding: 0 2px;
+  border-radius: var(--radius);
+  border: 1px solid var(--line2);
+  background: var(--bg3);
+  color: var(--ink);
+  font-weight: 500;
+  text-transform: uppercase;
+}
+.key.wide { flex: 1 1 0; max-width: none; min-width: 44px; text-transform: none; font-size: 0.95rem; }
+.key[data-s="correct"] { background: var(--accent); color: var(--on); border-color: var(--accent); }
+.key[data-s="present"] { background: var(--ok); color: var(--on); border-color: var(--ok); }
+.key[data-s="absent"] { background: var(--bg); color: var(--muted); }
+.msg { min-height: 1.4em; margin: 8px 0; }
+.bars { display: grid; gap: 6px; margin-top: 8px; }
+.barrow { display: grid; grid-template-columns: 1.2rem 1fr 2rem; gap: 8px; align-items: center; }
+.bar { height: 12px; background: var(--line); border-radius: 4px; overflow: hidden; }
+.bar > span { display: block; height: 100%; background: var(--accent); }
+.ej { display: flex; gap: 4px; margin: 8px 0; }
+.ej i {
+  width: 36px; height: 36px; display: flex; align-items: center; justify-content: center;
+  border-radius: 6px; font-style: normal; font-family: var(--serif); font-weight: 500;
+}
+.ej i.c { background: var(--accent); color: var(--on); }
+.ej i.p { background: var(--ok); color: var(--on); }
+.ej i.a { background: var(--bg2); color: var(--muted); border: 1px solid var(--line); }
+@keyframes shake {
+  25% { transform: translateX(-3px); }
+  50% { transform: translateX(3px); }
+  75% { transform: translateX(-2px); }
+}
+.shake { animation: shake 0.35s linear; }
+
+</style>
+</head>
+<body>
+<a class="skip" href="#contenido">Saltar al contenido</a>
+<div class="marco">
+<header class="top" id="top"></header>
+<main id="contenido" tabindex="-1"></main>
+<footer class="colofon" id="pie"></footer>
+</div>
+<div id="aviso-vivo" class="sr" aria-live="polite"></div>
+<script>
+window.LV_TANTEO = {"words": [{"w": "abrir", "theme": "verbo", "show": "abrir", "gloss": "Separar lo que estaba cerrado"}, {"w": "andar", "theme": "verbo", "show": "andar", "gloss": "Ir a pie"}, {"w": "beber", "theme": "verbo", "show": "beber", "gloss": "Tomar un líquido"}, {"w": "cazar", "theme": "verbo", "show": "cazar", "gloss": "Buscar y coger una presa"}, {"w": "cocer", "theme": "verbo", "show": "cocer", "gloss": "Guisar con agua y calor"}, {"w": "coger", "theme": "verbo", "show": "coger", "gloss": "Agarrar"}, {"w": "comer", "theme": "verbo", "show": "comer", "gloss": "Tomar alimento"}, {"w": "coser", "theme": "verbo", "show": "coser", "gloss": "Unir con hilo"}, {"w": "crear", "theme": "verbo", "show": "crear", "gloss": "Hacer que exista"}, {"w": "creer", "theme": "verbo", "show": "creer", "gloss": "Tener por cierto"}, {"w": "curar", "theme": "verbo", "show": "curar", "gloss": "Cuidar para que sane"}, {"w": "dejar", "theme": "verbo", "show": "dejar", "gloss": "Soltar o permitir"}, {"w": "decir", "theme": "verbo", "show": "decir", "gloss": "Contar con palabras"}, {"w": "errar", "theme": "verbo", "show": "errar", "gloss": "Equivocarse"}, {"w": "estar", "theme": "verbo", "show": "estar", "gloss": "Hallarse en un sitio o en un estado"}, {"w": "fijar", "theme": "verbo", "show": "fijar", "gloss": "Dejar sujeto"}, {"w": "fluir", "theme": "verbo", "show": "fluir", "gloss": "Correr un líquido"}, {"w": "fumar", "theme": "verbo", "show": "fumar", "gloss": "Aspirar humo de tabaco"}, {"w": "ganar", "theme": "verbo", "show": "ganar", "gloss": "Salir vencedor"}, {"w": "gemir", "theme": "verbo", "show": "gemir", "gloss": "Quejarse con un sonido"}, {"w": "girar", "theme": "verbo", "show": "girar", "gloss": "Dar vuelta"}, {"w": "gozar", "theme": "verbo", "show": "gozar", "gloss": "Sentir un placer"}, {"w": "hacer", "theme": "verbo", "show": "hacer", "gloss": "Realizar algo"}, {"w": "helar", "theme": "verbo", "show": "helar", "gloss": "Convertir en hielo"}, {"w": "herir", "theme": "verbo", "show": "herir", "gloss": "Causar una herida"}, {"w": "hilar", "theme": "verbo", "show": "hilar", "gloss": "Sacar hilo"}, {"w": "jugar", "theme": "verbo", "show": "jugar", "gloss": "Hacer un juego"}, {"w": "jurar", "theme": "verbo", "show": "jurar", "gloss": "Prometer en serio"}, {"w": "lavar", "theme": "verbo", "show": "lavar", "gloss": "Limpiar con agua"}, {"w": "ligar", "theme": "verbo", "show": "ligar", "gloss": "Atar o unir"}, {"w": "lucir", "theme": "verbo", "show": "lucir", "gloss": "Brillar o sentar bien"}, {"w": "medir", "theme": "verbo", "show": "medir", "gloss": "Hallar una medida"}, {"w": "meter", "theme": "verbo", "show": "meter", "gloss": "Introducir"}, {"w": "mirar", "theme": "verbo", "show": "mirar", "gloss": "Dirigir la vista"}, {"w": "moler", "theme": "verbo", "show": "moler", "gloss": "Hacer polvo"}, {"w": "morir", "theme": "verbo", "show": "morir", "gloss": "Dejar de vivir"}, {"w": "mover", "theme": "verbo", "show": "mover", "gloss": "Cambiar de sitio"}, {"w": "nacer", "theme": "verbo", "show": "nacer", "gloss": "Empezar a vivir"}, {"w": "nadar", "theme": "verbo", "show": "nadar", "gloss": "Avanzar en el agua"}, {"w": "negar", "theme": "verbo", "show": "negar", "gloss": "Decir que no"}, {"w": "notar", "theme": "verbo", "show": "notar", "gloss": "Darse cuenta"}, {"w": "optar", "theme": "verbo", "show": "optar", "gloss": "Elegir"}, {"w": "pagar", "theme": "verbo", "show": "pagar", "gloss": "Entregar lo que se debe"}, {"w": "parar", "theme": "verbo", "show": "parar", "gloss": "Detener"}, {"w": "pasar", "theme": "verbo", "show": "pasar", "gloss": "Ir de un lado a otro"}, {"w": "pelar", "theme": "verbo", "show": "pelar", "gloss": "Quitar la piel o la cáscara"}, {"w": "pedir", "theme": "verbo", "show": "pedir", "gloss": "Solicitar"}, {"w": "picar", "theme": "verbo", "show": "picar", "gloss": "Pinchar, o trocear menudo"}, {"w": "pisar", "theme": "verbo", "show": "pisar", "gloss": "Poner el pie encima"}, {"w": "poder", "theme": "verbo", "show": "poder", "gloss": "Tener capacidad"}, {"w": "poner", "theme": "verbo", "show": "poner", "gloss": "Colocar"}, {"w": "rayar", "theme": "verbo", "show": "rayar", "gloss": "Hacer rayas"}, {"w": "regar", "theme": "verbo", "show": "regar", "gloss": "Echar agua a las plantas"}, {"w": "reñir", "theme": "verbo", "show": "reñir", "gloss": "Discutir con enfado"}, {"w": "rezar", "theme": "verbo", "show": "rezar", "gloss": "Orar"}, {"w": "robar", "theme": "verbo", "show": "robar", "gloss": "Llevarse lo ajeno"}, {"w": "rodar", "theme": "verbo", "show": "rodar", "gloss": "Avanzar dando vueltas"}, {"w": "rogar", "theme": "verbo", "show": "rogar", "gloss": "Pedir con insistencia"}, {"w": "saber", "theme": "verbo", "show": "saber", "gloss": "Conocer, o tener un sabor"}, {"w": "sacar", "theme": "verbo", "show": "sacar", "gloss": "Poner fuera"}, {"w": "salir", "theme": "verbo", "show": "salir", "gloss": "Irse de un sitio"}, {"w": "sanar", "theme": "verbo", "show": "sanar", "gloss": "Recuperar la salud"}, {"w": "secar", "theme": "verbo", "show": "secar", "gloss": "Quitar la humedad"}, {"w": "soler", "theme": "verbo", "show": "soler", "gloss": "Tener por costumbre"}, {"w": "sonar", "theme": "verbo", "show": "sonar", "gloss": "Emitir sonido"}, {"w": "soñar", "theme": "verbo", "show": "soñar", "gloss": "Imaginar mientras se duerme"}, {"w": "subir", "theme": "verbo", "show": "subir", "gloss": "Ir hacia arriba"}, {"w": "sumar", "theme": "verbo", "show": "sumar", "gloss": "Añadir cantidades"}, {"w": "tapar", "theme": "verbo", "show": "tapar", "gloss": "Cubrir"}, {"w": "temer", "theme": "verbo", "show": "temer", "gloss": "Tener miedo"}, {"w": "tener", "theme": "verbo", "show": "tener", "gloss": "Poseer o sostener"}, {"w": "tirar", "theme": "verbo", "show": "tirar", "gloss": "Arrojar"}, {"w": "tocar", "theme": "verbo", "show": "tocar", "gloss": "Poner la mano encima"}, {"w": "tomar", "theme": "verbo", "show": "tomar", "gloss": "Coger, beber o comer"}, {"w": "toser", "theme": "verbo", "show": "toser", "gloss": "Expulsar el aire de golpe"}, {"w": "untar", "theme": "verbo", "show": "untar", "gloss": "Extender algo graso"}, {"w": "urdir", "theme": "verbo", "show": "urdir", "gloss": "Tramar"}, {"w": "valer", "theme": "verbo", "show": "valer", "gloss": "Tener un valor"}, {"w": "velar", "theme": "verbo", "show": "velar", "gloss": "Quedarse despierto cuidando"}, {"w": "venir", "theme": "verbo", "show": "venir", "gloss": "Llegar hacia aquí"}, {"w": "virar", "theme": "verbo", "show": "virar", "gloss": "Cambiar de dirección"}, {"w": "vivir", "theme": "verbo", "show": "vivir", "gloss": "Estar con vida"}, {"w": "volar", "theme": "verbo", "show": "volar", "gloss": "Ir por el aire"}, {"w": "votar", "theme": "verbo", "show": "votar", "gloss": "Dar el voto"}, {"w": "yacer", "theme": "verbo", "show": "yacer", "gloss": "Estar echado"}, {"w": "silla", "theme": "casa", "show": "silla", "gloss": "Asiento con respaldo"}, {"w": "llave", "theme": "casa", "show": "llave", "gloss": "Abre una cerradura"}, {"w": "reloj", "theme": "casa", "show": "reloj", "gloss": "Marca la hora"}, {"w": "radio", "theme": "casa", "show": "radio", "gloss": "Aparato de sonido"}, {"w": "grifo", "theme": "casa", "show": "grifo", "gloss": "Por donde sale el agua"}, {"w": "plato", "theme": "casa", "show": "plato", "gloss": "Donde se sirve la comida"}, {"w": "jarra", "theme": "casa", "show": "jarra", "gloss": "Recipiente para líquidos"}, {"w": "cajon", "theme": "casa", "show": "cajón", "gloss": "Caja que se saca de un mueble"}, {"w": "techo", "theme": "casa", "show": "techo", "gloss": "Lo de arriba de la habitación"}, {"w": "suelo", "theme": "casa", "show": "suelo", "gloss": "Lo de abajo"}, {"w": "pared", "theme": "casa", "show": "pared", "gloss": "Muro de dentro"}, {"w": "salon", "theme": "casa", "show": "salón", "gloss": "Pieza principal"}, {"w": "horno", "theme": "casa", "show": "horno", "gloss": "Cierra el calor para cocer"}, {"w": "flexo", "theme": "casa", "show": "flexo", "gloss": "Lámpara de brazo"}, {"w": "manta", "theme": "casa", "show": "manta", "gloss": "Tela gruesa de la cama"}, {"w": "cojin", "theme": "casa", "show": "cojín", "gloss": "Almohadón pequeño"}, {"w": "trapo", "theme": "casa", "show": "trapo", "gloss": "Paño de cocina"}, {"w": "ducha", "theme": "casa", "show": "ducha", "gloss": "Agua para lavarse de pie"}, {"w": "jabon", "theme": "casa", "show": "jabón", "gloss": "Sirve para lavar"}, {"w": "cable", "theme": "casa", "show": "cable", "gloss": "Lleva la corriente"}, {"w": "clavo", "theme": "casa", "show": "clavo", "gloss": "Pieza para fijar en la pared"}, {"w": "buzon", "theme": "casa", "show": "buzón", "gloss": "Donde entran las cartas"}, {"w": "cofre", "theme": "casa", "show": "cofre", "gloss": "Caja con tapa"}, {"w": "termo", "theme": "casa", "show": "termo", "gloss": "Mantiene caliente el líquido"}, {"w": "tapon", "theme": "casa", "show": "tapón", "gloss": "Cierra una botella"}, {"w": "tarro", "theme": "casa", "show": "tarro", "gloss": "Recipiente de cristal"}, {"w": "bolsa", "theme": "casa", "show": "bolsa", "gloss": "De tela o de papel"}, {"w": "cesto", "theme": "casa", "show": "cesto", "gloss": "Recipiente de mimbre"}, {"w": "libro", "theme": "casa", "show": "libro", "gloss": "Hojas encuadernadas"}, {"w": "lapiz", "theme": "casa", "show": "lápiz", "gloss": "Sirve para escribir"}, {"w": "regla", "theme": "casa", "show": "regla", "gloss": "Para trazar una recta"}, {"w": "folio", "theme": "casa", "show": "folio", "gloss": "Hoja de papel"}, {"w": "cinta", "theme": "casa", "show": "cinta", "gloss": "Tira estrecha"}, {"w": "arroz", "theme": "comida", "show": "arroz", "gloss": "Grano que se cuece"}, {"w": "pasta", "theme": "comida", "show": "pasta", "gloss": "Masa de harina"}, {"w": "carne", "theme": "comida", "show": "carne", "gloss": "Alimento de músculo animal"}, {"w": "pollo", "theme": "comida", "show": "pollo", "gloss": "Ave de corral"}, {"w": "huevo", "theme": "comida", "show": "huevo", "gloss": "Lo que pone un ave"}, {"w": "queso", "theme": "comida", "show": "queso", "gloss": "Lácteo curado"}, {"w": "leche", "theme": "comida", "show": "leche", "gloss": "Líquido del ordeño"}, {"w": "fruta", "theme": "comida", "show": "fruta", "gloss": "Alimento vegetal dulce"}, {"w": "fresa", "theme": "comida", "show": "fresa", "gloss": "Fruta roja pequeña"}, {"w": "limon", "theme": "comida", "show": "limón", "gloss": "Fruta ácida"}, {"w": "melon", "theme": "comida", "show": "melón", "gloss": "Fruta grande y dulce"}, {"w": "mango", "theme": "comida", "show": "mango", "gloss": "Fruta de hueso y pulpa"}, {"w": "caldo", "theme": "comida", "show": "caldo", "gloss": "Líquido de una cocción"}, {"w": "tarta", "theme": "comida", "show": "tarta", "gloss": "Dulce de horno"}, {"w": "grano", "theme": "comida", "show": "grano", "gloss": "Semilla"}, {"w": "trigo", "theme": "comida", "show": "trigo", "gloss": "Cereal del pan"}, {"w": "avena", "theme": "comida", "show": "avena", "gloss": "Cereal en copos o en grano"}, {"w": "asado", "theme": "comida", "show": "asado", "gloss": "Hecho al fuego"}, {"w": "frito", "theme": "comida", "show": "frito", "gloss": "Hecho en aceite"}, {"w": "salsa", "theme": "comida", "show": "salsa", "gloss": "Líquido que acompaña"}, {"w": "oliva", "theme": "comida", "show": "oliva", "gloss": "Fruto del olivo"}, {"w": "judia", "theme": "comida", "show": "judía", "gloss": "Legumbre"}, {"w": "clara", "theme": "comida", "show": "clara", "gloss": "Lo blanco del huevo"}, {"w": "cacao", "theme": "comida", "show": "cacao", "gloss": "Semilla del chocolate"}, {"w": "menta", "theme": "comida", "show": "menta", "gloss": "Hierba aromática"}, {"w": "sabor", "theme": "comida", "show": "sabor", "gloss": "Lo que se nota al probar"}, {"w": "dulce", "theme": "comida", "show": "dulce", "gloss": "De sabor como el azúcar"}, {"w": "acido", "theme": "comida", "show": "ácido", "gloss": "De sabor agrio"}, {"w": "brazo", "theme": "cuerpo", "show": "brazo", "gloss": "Del hombro a la mano"}, {"w": "muslo", "theme": "cuerpo", "show": "muslo", "gloss": "Parte alta de la pierna"}, {"w": "oreja", "theme": "cuerpo", "show": "oreja", "gloss": "Oído por fuera"}, {"w": "nariz", "theme": "cuerpo", "show": "nariz", "gloss": "Por donde se respira y se huele"}, {"w": "muela", "theme": "cuerpo", "show": "muela", "gloss": "Diente de atrás"}, {"w": "labio", "theme": "cuerpo", "show": "labio", "gloss": "Borde de la boca"}, {"w": "hueso", "theme": "cuerpo", "show": "hueso", "gloss": "Pieza del esqueleto"}, {"w": "riñon", "theme": "cuerpo", "show": "riñón", "gloss": "Filtra la sangre"}, {"w": "tripa", "theme": "cuerpo", "show": "tripa", "gloss": "El vientre, en llano"}, {"w": "talle", "theme": "cuerpo", "show": "talle", "gloss": "La cintura del cuerpo"}, {"w": "pecho", "theme": "cuerpo", "show": "pecho", "gloss": "Parte delantera del tronco"}, {"w": "sudor", "theme": "cuerpo", "show": "sudor", "gloss": "Lo que suda la piel"}, {"w": "encia", "theme": "cuerpo", "show": "encía", "gloss": "La carne de los dientes"}, {"w": "barba", "theme": "cuerpo", "show": "barba", "gloss": "Pelo de la cara"}, {"w": "talon", "theme": "cuerpo", "show": "talón", "gloss": "Parte de atrás del pie"}, {"w": "femur", "theme": "cuerpo", "show": "fémur", "gloss": "Hueso del muslo"}, {"w": "tibia", "theme": "cuerpo", "show": "tibia", "gloss": "Hueso de la pierna"}, {"w": "calle", "theme": "calle", "show": "calle", "gloss": "Vía entre edificios"}, {"w": "plaza", "theme": "calle", "show": "plaza", "gloss": "Espacio abierto"}, {"w": "acera", "theme": "calle", "show": "acera", "gloss": "Por donde se camina"}, {"w": "farol", "theme": "calle", "show": "farol", "gloss": "Luz de la calle"}, {"w": "banco", "theme": "calle", "show": "banco", "gloss": "Asiento de la calle"}, {"w": "tunel", "theme": "calle", "show": "túnel", "gloss": "Paso por debajo"}, {"w": "coche", "theme": "calle", "show": "coche", "gloss": "Automóvil"}, {"w": "avion", "theme": "calle", "show": "avión", "gloss": "Aparato que vuela"}, {"w": "barco", "theme": "calle", "show": "barco", "gloss": "Nave"}, {"w": "norte", "theme": "calle", "show": "norte", "gloss": "Un punto cardinal"}, {"w": "oeste", "theme": "calle", "show": "oeste", "gloss": "Por donde se pone el sol"}, {"w": "plano", "theme": "calle", "show": "plano", "gloss": "Mapa de calles, o liso"}, {"w": "cruce", "theme": "calle", "show": "cruce", "gloss": "Donde se cruzan caminos"}, {"w": "señal", "theme": "calle", "show": "señal", "gloss": "Aviso en la vía"}, {"w": "anden", "theme": "calle", "show": "andén", "gloss": "Borde del tren"}, {"w": "vagon", "theme": "calle", "show": "vagón", "gloss": "Coche de un tren"}, {"w": "rueda", "theme": "calle", "show": "rueda", "gloss": "Pieza que gira"}, {"w": "freno", "theme": "calle", "show": "freno", "gloss": "Lo que detiene"}, {"w": "motor", "theme": "calle", "show": "motor", "gloss": "Hace mover una máquina"}, {"w": "ruido", "theme": "calle", "show": "ruido", "gloss": "Sonido que molesta"}, {"w": "obras", "theme": "calle", "show": "obras", "gloss": "Trabajo en la vía"}, {"w": "valla", "theme": "calle", "show": "valla", "gloss": "Cierre"}, {"w": "campo", "theme": "campo", "show": "campo", "gloss": "Terreno fuera de la ciudad"}, {"w": "olivo", "theme": "campo", "show": "olivo", "gloss": "Árbol del aceite"}, {"w": "riego", "theme": "campo", "show": "riego", "gloss": "El agua que se echa al cultivo"}, {"w": "arado", "theme": "campo", "show": "arado", "gloss": "Apero que abre la tierra"}, {"w": "monte", "theme": "campo", "show": "monte", "gloss": "Tierra que se eleva"}, {"w": "valle", "theme": "campo", "show": "valle", "gloss": "Hundido entre alturas"}, {"w": "prado", "theme": "campo", "show": "prado", "gloss": "Tierra de hierba"}, {"w": "savia", "theme": "campo", "show": "savia", "gloss": "Jugo de la planta"}, {"w": "roble", "theme": "campo", "show": "roble", "gloss": "Árbol de madera dura"}, {"w": "alamo", "theme": "campo", "show": "álamo", "gloss": "Árbol de ribera"}, {"w": "chopo", "theme": "campo", "show": "chopo", "gloss": "Árbol alto y derecho"}, {"w": "cerca", "theme": "campo", "show": "cerca", "gloss": "Valla del campo"}, {"w": "oveja", "theme": "campo", "show": "oveja", "gloss": "Ganado de lana"}, {"w": "cabra", "theme": "campo", "show": "cabra", "gloss": "Ganado de cuerno"}, {"w": "burro", "theme": "campo", "show": "burro", "gloss": "Animal de carga"}, {"w": "yegua", "theme": "campo", "show": "yegua", "gloss": "Hembra del caballo"}, {"w": "potro", "theme": "campo", "show": "potro", "gloss": "Caballo joven"}, {"w": "cerdo", "theme": "campo", "show": "cerdo", "gloss": "Ganado de granja"}, {"w": "gallo", "theme": "campo", "show": "gallo", "gloss": "Ave de cresta"}, {"w": "ganso", "theme": "campo", "show": "ganso", "gloss": "Ave de pico fuerte"}, {"w": "abeja", "theme": "campo", "show": "abeja", "gloss": "Insecto de la miel"}, {"w": "mosca", "theme": "campo", "show": "mosca", "gloss": "Insecto volador"}, {"w": "araña", "theme": "campo", "show": "araña", "gloss": "Teje un hilo"}, {"w": "zorro", "theme": "campo", "show": "zorro", "gloss": "Animal de cola espesa"}, {"w": "corzo", "theme": "campo", "show": "corzo", "gloss": "Cérvido pequeño"}, {"w": "raton", "theme": "campo", "show": "ratón", "gloss": "Roedor pequeño"}, {"w": "pluma", "theme": "campo", "show": "pluma", "gloss": "Cobertura de un ave"}, {"w": "fruto", "theme": "campo", "show": "fruto", "gloss": "Lo que da una planta"}, {"w": "selva", "theme": "campo", "show": "selva", "gloss": "Bosque denso y cálido"}, {"w": "playa", "theme": "campo", "show": "playa", "gloss": "Orilla de arena"}, {"w": "arena", "theme": "campo", "show": "arena", "gloss": "Granos sueltos"}, {"w": "barro", "theme": "campo", "show": "barro", "gloss": "Tierra mojada"}, {"w": "musgo", "theme": "campo", "show": "musgo", "gloss": "Verde de los sitios húmedos"}, {"w": "zarza", "theme": "campo", "show": "zarza", "gloss": "Arbusto que pincha"}, {"w": "cardo", "theme": "campo", "show": "cardo", "gloss": "Planta con pinchos"}, {"w": "amigo", "theme": "general", "show": "amigo", "gloss": "Persona de confianza"}, {"w": "carta", "theme": "general", "show": "carta", "gloss": "Papel que se envía"}, {"w": "madre", "theme": "general", "show": "madre", "gloss": "Progenitora"}, {"w": "padre", "theme": "general", "show": "padre", "gloss": "Progenitor"}, {"w": "perro", "theme": "general", "show": "perro", "gloss": "Animal de compañía"}, {"w": "mujer", "theme": "general", "show": "mujer", "gloss": "Persona adulta"}, {"w": "joven", "theme": "general", "show": "joven", "gloss": "De poca edad"}, {"w": "viejo", "theme": "general", "show": "viejo", "gloss": "De mucha edad"}, {"w": "nuevo", "theme": "general", "show": "nuevo", "gloss": "Recién llegado o recién hecho"}, {"w": "bueno", "theme": "general", "show": "bueno", "gloss": "De buena calidad o buen carácter"}, {"w": "verde", "theme": "general", "show": "verde", "gloss": "Color de la hierba"}, {"w": "negro", "theme": "general", "show": "negro", "gloss": "El más oscuro"}, {"w": "mundo", "theme": "general", "show": "mundo", "gloss": "La gente, o el planeta"}, {"w": "fuego", "theme": "general", "show": "fuego", "gloss": "Llamas"}, {"w": "cielo", "theme": "general", "show": "cielo", "gloss": "Lo que hay sobre el horizonte"}, {"w": "noche", "theme": "general", "show": "noche", "gloss": "Cuando no hay sol"}, {"w": "gente", "theme": "general", "show": "gente", "gloss": "Un conjunto de personas"}, {"w": "miedo", "theme": "general", "show": "miedo", "gloss": "Temor"}, {"w": "sueño", "theme": "general", "show": "sueño", "gloss": "Ganas de dormir, o lo soñado"}, {"w": "señor", "theme": "general", "show": "señor", "gloss": "Trato de respeto"}, {"w": "niñez", "theme": "general", "show": "niñez", "gloss": "La edad de niño"}, {"w": "cañon", "theme": "general", "show": "cañón", "gloss": "Un barranco hondo"}, {"w": "baile", "theme": "general", "show": "baile", "gloss": "Danza"}, {"w": "canto", "theme": "general", "show": "canto", "gloss": "El cantar, o un borde"}, {"w": "verso", "theme": "general", "show": "verso", "gloss": "Línea de un poema"}, {"w": "prosa", "theme": "general", "show": "prosa", "gloss": "Texto que no va en verso"}, {"w": "letra", "theme": "general", "show": "letra", "gloss": "Signo, o un mensaje breve"}, {"w": "frase", "theme": "general", "show": "frase", "gloss": "Palabras con sentido"}, {"w": "punto", "theme": "general", "show": "punto", "gloss": "Un signo, o un lugar"}, {"w": "tilde", "theme": "general", "show": "tilde", "gloss": "La rayita de la eñe"}, {"w": "calor", "theme": "general", "show": "calor", "gloss": "Hace sentir bochorno"}, {"w": "nieve", "theme": "general", "show": "nieve", "gloss": "Agua que cae helada"}, {"w": "claro", "theme": "general", "show": "claro", "gloss": "Con luz, o evidente"}, {"w": "largo", "theme": "general", "show": "largo", "gloss": "De mucha longitud"}, {"w": "corto", "theme": "general", "show": "corto", "gloss": "De poca longitud"}, {"w": "ancho", "theme": "general", "show": "ancho", "gloss": "De lado a lado amplio"}, {"w": "grave", "theme": "general", "show": "grave", "gloss": "Serio, o un sonido hondo"}, {"w": "agudo", "theme": "general", "show": "agudo", "gloss": "Fino, o que pincha"}, {"w": "feliz", "theme": "general", "show": "feliz", "gloss": "Contento"}, {"w": "rabia", "theme": "general", "show": "rabia", "gloss": "Enfado fuerte"}, {"w": "calma", "theme": "general", "show": "calma", "gloss": "Sin alboroto"}, {"w": "prisa", "theme": "general", "show": "prisa", "gloss": "Apuro de tiempo"}, {"w": "tarde", "theme": "general", "show": "tarde", "gloss": "Después del mediodía"}, {"w": "hogar", "theme": "general", "show": "hogar", "gloss": "La casa como refugio"}, {"w": "grupo", "theme": "general", "show": "grupo", "gloss": "Varios que van juntos"}, {"w": "clase", "theme": "general", "show": "clase", "gloss": "Un tipo, o un aula"}, {"w": "orden", "theme": "general", "show": "orden", "gloss": "Colocación, o un mandato"}, {"w": "lista", "theme": "general", "show": "lista", "gloss": "Cosas enumeradas"}, {"w": "nivel", "theme": "general", "show": "nivel", "gloss": "Una altura o un grado"}, {"w": "grado", "theme": "general", "show": "grado", "gloss": "Un escalón de intensidad"}, {"w": "forma", "theme": "general", "show": "forma", "gloss": "La figura de algo"}, {"w": "color", "theme": "general", "show": "color", "gloss": "Cómo se ve la luz en una cosa"}, {"w": "linea", "theme": "general", "show": "línea", "gloss": "Una raya"}, {"w": "sobre", "theme": "general", "show": "sobre", "gloss": "Encima, o la cubierta de una carta"}, {"w": "enero", "theme": "general", "show": "enero", "gloss": "El primer mes"}, {"w": "marzo", "theme": "general", "show": "marzo", "gloss": "El tercer mes"}, {"w": "abril", "theme": "general", "show": "abril", "gloss": "El cuarto mes"}, {"w": "junio", "theme": "general", "show": "junio", "gloss": "El sexto mes"}, {"w": "julio", "theme": "general", "show": "julio", "gloss": "El séptimo mes"}, {"w": "lunes", "theme": "general", "show": "lunes", "gloss": "Un día de la semana"}, {"w": "siglo", "theme": "general", "show": "siglo", "gloss": "Cien años"}, {"w": "fecha", "theme": "general", "show": "fecha", "gloss": "Un día concreto"}, {"w": "lugar", "theme": "general", "show": "lugar", "gloss": "Un sitio"}, {"w": "sitio", "theme": "general", "show": "sitio", "gloss": "Un lugar"}, {"w": "causa", "theme": "general", "show": "causa", "gloss": "Lo que provoca otra cosa"}, {"w": "mente", "theme": "general", "show": "mente", "gloss": "Con lo que se piensa"}, {"w": "mitad", "theme": "general", "show": "mitad", "gloss": "Cada una de dos partes"}, {"w": "final", "theme": "general", "show": "final", "gloss": "El término"}, {"w": "metro", "theme": "general", "show": "metro", "gloss": "Unidad de longitud, o el tren urbano"}], "extra": ["coman", "comen", "comia", "comio", "tengo", "tiene", "tenia", "haces", "dicen", "decia", "puedo", "puede", "podia", "sabes", "sabia", "pongo", "ponia", "vengo", "viene", "venia", "salgo", "salia", "miran", "andan", "abren", "beben", "cosen", "juega", "jugue", "ganan", "pasan", "dejas", "toman", "viven", "llamo", "llama", "llora", "piden", "ponen", "saben", "salen", "suben", "tocan", "vuela", "nacen", "casas", "cosas", "meses", "horas", "gatos", "pelos", "ninos", "ninas", "rojos", "todos", "todas", "estos", "estas", "antes", "luego", "nunca", "jamas", "quiza", "desde", "hasta", "hacia", "donde", "quien", "entre", "menos", "igual", "mismo", "ambos", "mucho", "tanto", "medio", "parte", "resto", "abajo", "fuera", "lejos", "tazas", "cubos", "sopas", "zumos", "yemas", "natas", "rutas", "mapas"]};
+</script>
+<script>
+(function () {
+  "use strict";
+  var PACK = window.LV_TANTEO;
+  var WORDS = PACK.words;
+  var DICT = {};
+  var BY = {};
+  var i;
+  for (i = 0; i < WORDS.length; i++) {
+    DICT[WORDS[i].w] = true;
+    BY[WORDS[i].w] = WORDS[i];
+  }
+  for (i = 0; i < PACK.extra.length; i++) DICT[PACK.extra[i]] = true;
+  var THEMES = [
+    ["casa", "Casa"],
+    ["comida", "Comida"],
+    ["cuerpo", "Cuerpo"],
+    ["verbo", "Verbo"],
+    ["calle", "Calle"],
+    ["campo", "Campo"],
+    ["general", "General"]
+  ];
+  var THEME_NAME = {};
+  for (i = 0; i < THEMES.length; i++) THEME_NAME[THEMES[i][0]] = THEMES[i][1];
+  var DAILY = WORDS.slice().sort(function (a, b) { return a.w < b.w ? -1 : a.w > b.w ? 1 : 0; });
+  var KEYS = {
+    ui: "lv-tanteo-ui-v1",
+    dia: "lv-tanteo-dia-v1",
+    libre: "lv-tanteo-libre-v1",
+    tema: "lv-tanteo-tema-v1",
+    ensayo: "lv-tanteo-ensayo-v1",
+    stats: "lv-tanteo-stats-v1"
+  };
+  var app = document.getElementById("contenido");
+  var top = document.getElementById("top");
+  var pie = document.getElementById("pie");
+  var vivo = document.getElementById("aviso-vivo");
+
+  function load(k, fb) {
+    try {
+      var r = localStorage.getItem(k);
+      if (!r) return fb;
+      var v = JSON.parse(r);
+      return v == null ? fb : v;
+    } catch (e) { return fb; }
+  }
+  function save(k, v) {
+    try { localStorage.setItem(k, JSON.stringify(v)); return true; }
+    catch (e) { say("No se ha podido guardar en este navegador."); return false; }
+  }
+  function esc(s) {
+    var str = String(s == null ? "" : s);
+    var out = "";
+    var i, c;
+    for (i = 0; i < str.length; i++) {
+      c = str.charAt(i);
+      if (c === "&") out += "&" + "amp;";
+      else if (c === "<") out += "&" + "lt;";
+      else if (c === ">") out += "&" + "gt;";
+      else if (c === '"') out += "&" + "quot;";
+      else if (c === "'") out += "&" + "#39;";
+      else out += c;
+    }
+    return out;
+  }
+  function say(t) { if (vivo) vivo.textContent = t || ""; }
+  function ui() { return load(KEYS.ui, { facil: false, duro: false }); }
+  function pad(n) { return String(n).padStart(2, "0"); }
+  function ymd(d) { return d.getFullYear() + "-" + pad(d.getMonth() + 1) + "-" + pad(d.getDate()); }
+  function today() { return ymd(new Date()); }
+  function prevDay(key) {
+    var p = key.split("-");
+    var d = new Date(Number(p[0]), Number(p[1]) - 1, Number(p[2]));
+    d.setDate(d.getDate() - 1);
+    return ymd(d);
+  }
+  function fnv(str) {
+    var h = 2166136261;
+    for (var n = 0; n < str.length; n++) {
+      h ^= str.charCodeAt(n);
+      h = Math.imul(h, 16777619);
+    }
+    return h >>> 0;
+  }
+  function norm(s) {
+    return String(s || "").toLowerCase()
+      .replace(/[áàä]/g, "a").replace(/[éèë]/g, "e").replace(/[íìï]/g, "i")
+      .replace(/[óòö]/g, "o").replace(/[úùü]/g, "u");
+  }
+  function emptyStats() {
+    return { dia: { jugadas: 0, ganadas: 0, racha: 0, mejor: 0, ultimo: "", reparto: [0, 0, 0, 0, 0, 0, 0, 0] }, otras: { jugadas: 0, ganadas: 0 } };
+  }
+  function themeOf(id) {
+    var out = [];
+    for (var n = 0; n < WORDS.length; n++) if (WORDS[n].theme === id) out.push(WORDS[n]);
+    return out;
+  }
+  function keyFor(modo) {
+    if (modo === "dia") return KEYS.dia;
+    if (modo === "libre") return KEYS.libre;
+    if (modo === "tema") return KEYS.tema;
+    return KEYS.ensayo;
+  }
+  function score(guess, answer) {
+    var res = ["absent", "absent", "absent", "absent", "absent"];
+    var rest = answer.split("");
+    var n, j;
+    for (n = 0; n < 5; n++) if (guess[n] === answer[n]) { res[n] = "correct"; rest[n] = null; }
+    for (n = 0; n < 5; n++) {
+      if (res[n] === "correct") continue;
+      j = rest.indexOf(guess[n]);
+      if (j !== -1) { res[n] = "present"; rest[j] = null; }
+    }
+    return res;
+  }
+  function hardOk(next, guesses, answer) {
+    var pos = [null, null, null, null, null];
+    var minC = {};
+    var g, sc, counts, n, ch, need, have;
+    for (g = 0; g < guesses.length; g++) {
+      sc = score(guesses[g], answer);
+      counts = {};
+      for (n = 0; n < 5; n++) {
+        if (sc[n] === "correct") pos[n] = guesses[g][n];
+        if (sc[n] === "correct" || sc[n] === "present") counts[guesses[g][n]] = (counts[guesses[g][n]] || 0) + 1;
+      }
+      for (ch in counts) if (counts[ch] > (minC[ch] || 0)) minC[ch] = counts[ch];
+    }
+    for (n = 0; n < 5; n++) if (pos[n] && next[n] !== pos[n]) return "Una verde tiene que seguir en su sitio.";
+    have = {};
+    for (n = 0; n < 5; n++) have[next[n]] = (have[next[n]] || 0) + 1;
+    for (need in minC) if ((have[need] || 0) < minC[need]) return "Te falta una letra que ya habías descubierto.";
+    return "";
+  }
+  function fresh(modo, tema) {
+    var u = ui();
+    var pool, answer, fecha = today();
+    if (modo === "ensayo") answer = "reloj";
+    else if (modo === "dia") {
+      pool = DAILY;
+      answer = pool[fnv(fecha) % pool.length].w;
+    } else if (modo === "tema") {
+      pool = themeOf(tema);
+      if (!pool.length) pool = DAILY;
+      answer = pool[Math.floor(Math.random() * pool.length)].w;
+    } else {
+      var guard = 0, last = load(KEYS.libre, null);
+      answer = DAILY[Math.floor(Math.random() * DAILY.length)].w;
+      while (last && last.answer === answer && guard < 8) {
+        answer = DAILY[Math.floor(Math.random() * DAILY.length)].w;
+        guard++;
+      }
+    }
+    return {
+      modo: modo, tema: tema || "", fecha: fecha, answer: answer,
+      guesses: [], cur: "", status: "play", easy: !!u.facil, hard: !!u.duro && modo !== "ensayo",
+      rows: u.facil ? 7 : 6, contabilizada: false
+    };
+  }
+  function partida(modo, tema) {
+    var key = keyFor(modo);
+    var st = load(key, null);
+    var u = ui();
+    if (modo === "dia") {
+      if (!st || st.fecha !== today() || !BY[st.answer]) st = fresh("dia");
+    } else if (modo === "tema") {
+      if (!st || st.tema !== tema || !BY[st.answer]) st = fresh("tema", tema);
+    } else if (modo === "libre") {
+      if (!st || !BY[st.answer]) st = fresh("libre");
+    } else if (!st || st.answer !== "reloj") {
+      st = fresh("ensayo");
+    }
+    if (!st.cur) st.cur = "";
+    if (!st.guesses) st.guesses = [];
+    if (st.status === "play" && st.guesses.length === 0 && !st.cur) {
+      st.easy = !!u.facil;
+      st.hard = !!u.duro && st.modo !== "ensayo";
+      st.rows = u.facil ? 7 : 6;
+    }
+    if (!st.rows) st.rows = st.easy ? 7 : 6;
+    persist(st);
+    return st;
+  }
+  function persist(st) { save(keyFor(st.modo), st); }
+  function record(st, win) {
+    if (st.contabilizada || st.modo === "ensayo") { st.contabilizada = true; persist(st); return; }
+    var stats = load(KEYS.stats, emptyStats());
+    if (!stats.dia) stats = emptyStats();
+    if (st.modo === "dia") {
+      stats.dia.jugadas++;
+      if (win) {
+        stats.dia.ganadas++;
+        var n = st.guesses.length;
+        if (n >= 0 && n < stats.dia.reparto.length) stats.dia.reparto[n]++;
+        if (stats.dia.ultimo === prevDay(st.fecha)) stats.dia.racha++;
+        else stats.dia.racha = 1;
+        if (stats.dia.racha > stats.dia.mejor) stats.dia.mejor = stats.dia.racha;
+      } else stats.dia.racha = 0;
+      stats.dia.ultimo = st.fecha;
+    } else {
+      stats.otras.jugadas++;
+      if (win) stats.otras.ganadas++;
+    }
+    st.contabilizada = true;
+    save(KEYS.stats, stats);
+    persist(st);
+  }
+  function header(opts) {
+    var u = ui();
+    var back = opts.back ? '<button type="button" class="btn ghost" id="volver">Volver</button>' : "";
+    top.innerHTML =
+      '<div class="top-row"><p class="marca">Les vencimos</p>' +
+      '<button type="button" class="btn ghost" id="btn-facil">' + (u.facil ? "Modo normal" : "Modo fácil") + "</button></div>" +
+      '<div class="top-title">' + back + '<div><p class="modulo">Tanteo</p><h1 class="h1">' + esc(opts.h1) + "</h1></div></div>";
+    document.title = opts.h1 + " · Les vencimos";
+    document.body.classList.toggle("facil", !!u.facil);
+    document.getElementById("btn-facil").addEventListener("click", function () {
+      var n = ui();
+      n.facil = !n.facil;
+      save(KEYS.ui, n);
+      render();
+    });
+    var vb = document.getElementById("volver");
+    if (vb) vb.addEventListener("click", function () { location.hash = opts.back === "home" ? "#/" : opts.back; });
+    pie.textContent = "Les vencimos · offline · tanteo";
+  }
+  function parse() {
+    var raw = (location.hash || "#/").slice(1);
+    var p = raw.split("/").filter(Boolean);
+    if (!p.length) return { name: "home" };
+    if (p[0] === "como") return { name: "como" };
+    if (p[0] === "stats") return { name: "stats" };
+    if (p[0] === "temas") return { name: "temas" };
+    if (p[0] === "j" && p[1]) return { name: "juego", modo: p[1], tema: p[2] || "" };
+    return { name: "home" };
+  }
+  function renderHome() {
+    header({ h1: "Tanteo" });
+    var u = ui();
+    var dia = load(KEYS.dia, null);
+    var hecho = dia && dia.fecha === today() && dia.status !== "play";
+    var html = '<p class="lead">Cinco letras. La del día sale del calendario de este aparato, sin servidor y sin marca ajena.</p>';
+    html += '<p class="meta">' + (hecho ? "La de hoy ya está cerrada." : "La de hoy está sin cerrar.") + "</p>";
+    html += '<div class="secs">';
+    html += '<button type="button" class="sec" data-go="#/j/dia"><span class="sec-t">Partida del día</span><span class="sec-d">La misma para este calendario, hasta medianoche.</span></button>';
+    html += '<button type="button" class="sec" data-go="#/j/libre"><span class="sec-t">Partida libre</span><span class="sec-d">Otra palabra, cuando quieras.</span></button>';
+    html += '<button type="button" class="sec" data-go="#/temas"><span class="sec-t">Por tema</span><span class="sec-d">Casa, comida, verbos y el resto.</span></button>';
+    html += '<button type="button" class="sec" data-go="#/j/ensayo"><span class="sec-t">Ensayo</span><span class="sec-d">Una partida de prueba. No cuenta.</span></button>';
+    html += '<button type="button" class="sec" data-go="#/como"><span class="sec-t">Cómo se juega</span><span class="sec-d">Verdes, verdes oliva, y lo que no está.</span></button>';
+    html += '<button type="button" class="sec" data-go="#/stats"><span class="sec-t">Marcas</span><span class="sec-d">Racha del día y reparto.</span></button>';
+    html += "</div>";
+    html += '<div class="navp"><button type="button" class="btn' + (u.duro ? " primary" : "") + '" id="duro">' + (u.duro ? "Modo duro activo" : "Activar modo duro") + "</button></div>";
+    html += '<p class="ayuda">El modo fácil agranda el texto y da siete intentos en la partida nueva, más el tema de la palabra. El modo duro obliga a usar las letras ya descubiertas. El ensayo no usa el modo duro.</p>';
+    html += '<section class="aparato"><h2>En este aparato</h2><p class="ayuda">Sin cuenta y sin red. Si borras los datos del navegador, se van la racha y la partida a medias.</p><button type="button" class="btn danger" id="borrar">Borrar datos del módulo</button></section>';
+    app.innerHTML = html;
+    app.querySelectorAll("[data-go]").forEach(function (b) {
+      b.addEventListener("click", function () { location.hash = b.getAttribute("data-go"); });
+    });
+    document.getElementById("duro").addEventListener("click", function () {
+      var n = ui();
+      n.duro = !n.duro;
+      save(KEYS.ui, n);
+      render();
+    });
+    document.getElementById("borrar").addEventListener("click", function () {
+      if (!window.confirm("Se borrarán la racha y las partidas de Tanteo en este navegador.")) return;
+      Object.keys(KEYS).forEach(function (k) { localStorage.removeItem(KEYS[k]); });
+      say("Datos borrados.");
+      render();
+    });
+  }
+  function renderTemas() {
+    header({ h1: "Por tema", back: "home" });
+    var html = '<p class="lead">El tema es la única pista. La palabra sigue teniendo cinco letras.</p><div class="secs">';
+    THEMES.forEach(function (t) {
+      var n = themeOf(t[0]).length;
+      html += '<button type="button" class="sec" data-go="#/j/tema/' + t[0] + '"><span class="sec-t">' + esc(t[1]) + '</span><span class="sec-d">' + n + " palabras en este tema.</span></button>";
+    });
+    html += "</div>";
+    app.innerHTML = html;
+    app.querySelectorAll("[data-go]").forEach(function (b) {
+      b.addEventListener("click", function () { location.hash = b.getAttribute("data-go"); });
+    });
+  }
+  function renderComo() {
+    header({ h1: "Cómo se juega", back: "home" });
+    app.innerHTML =
+      '<p class="lead">Adivinas una palabra de cinco letras. Tienes seis intentos, o siete si empiezas en modo fácil.</p>' +
+      '<p>Después de cada intento las casillas cambian:</p>' +
+      '<div class="ej" aria-hidden="true"><i class="c">M</i><i class="p">O</i><i class="p">N</i><i class="a">T</i><i class="a">E</i></div>' +
+      '<ul><li>Dorado: la letra está y va en ese sitio.</li><li>Verde oliva: la letra está, en otro sitio.</li><li>Apagada: la letra no está, o ya no queda ninguna más.</li></ul>' +
+      '<p>En el ejemplo, la palabra era MUNDO. La M está bien puesta. La O y la N están, pero no ahí. La T y la E no están.</p>' +
+      '<p>Una letra repetida solo se marca las veces que de verdad aparece. Si pruebas LLAMA y solo hay una L, una de las dos se apaga.</p>' +
+      '<p>Se escribe sin tildes: árbol entra como ARBOL. La eñe sí cuenta, y está en el teclado.</p>' +
+      '<p>La lista es amplia y no es el diccionario entero. Una palabra real puede no entrar. No hay trampas de nombres propios.</p>' +
+      '<p>El modo duro: si una letra salió verde, sigue en su casilla; si salió verde oliva, tienes que usarla.</p>' +
+      '<p>La partida del día no se elige. Sale de la fecha de este aparato, así que dos personas con el mismo calendario y la misma lista coinciden, sin enviarse nada.</p>' +
+      '<p>El ensayo usa siempre RELOJ y no toca la racha.</p>';
+  }
+  function renderStats() {
+    header({ h1: "Marcas", back: "home" });
+    var s = load(KEYS.stats, emptyStats());
+    if (!s.dia || !s.dia.reparto) s = emptyStats();
+    var pct = s.dia.jugadas ? Math.round(100 * s.dia.ganadas / s.dia.jugadas) : 0;
+    var max = 1, n;
+    for (n = 1; n < s.dia.reparto.length; n++) if (s.dia.reparto[n] > max) max = s.dia.reparto[n];
+    var html = '<p class="lead">La racha solo mira la partida del día, y solo si jugaste ayer y hoy.</p>';
+    html += '<p class="meta">Del día: ' + s.dia.jugadas + " jugadas · " + s.dia.ganadas + " ganadas · " + pct + " %</p>";
+    html += '<p class="meta">Racha: ' + s.dia.racha + " · mejor: " + s.dia.mejor + "</p>";
+    html += '<p class="meta">Otras partidas: ' + s.otras.jugadas + " jugadas · " + s.otras.ganadas + " ganadas. El ensayo no entra.</p>";
+    html += '<div class="bars">';
+    for (n = 1; n <= 7; n++) {
+      var v = s.dia.reparto[n] || 0;
+      var w = Math.round(100 * v / max);
+      html += '<div class="barrow"><span>' + n + '</span><div class="bar"><span style="width:' + w + '%"></span></div><span>' + v + "</span></div>";
+    }
+    html += "</div>";
+    app.innerHTML = html;
+  }
+  function letraNombre(ch, st) {
+    if (!ch) return "vacía";
+    if (st === "correct") return ch + ", bien puesta";
+    if (st === "present") return ch + ", en otro sitio";
+    if (st === "absent") return ch + ", no está";
+    return ch;
+  }
+  function renderJuego(modo, tema) {
+    if (modo === "tema" && !tema) { location.hash = "#/temas"; return; }
+    var st = partida(modo, tema);
+    var titles = { dia: "Partida del día", libre: "Partida libre", tema: "Tema", ensayo: "Ensayo" };
+    var h1 = titles[modo] || "Partida";
+    if (modo === "tema") h1 = THEME_NAME[st.tema] || "Tema";
+    header({ h1: h1, back: modo === "tema" ? "#/temas" : "home" });
+    var info = BY[st.answer] || { w: st.answer, show: st.answer, gloss: "", theme: "" };
+    var html = "";
+    if (modo === "ensayo") html += '<p class="aviso">Ensayo con una palabra fija. No cuenta en las marcas.</p>';
+    if (modo === "dia") html += '<p class="meta">' + esc(st.fecha) + " · " + st.rows + " intentos" + (st.hard ? " · modo duro" : "") + "</p>";
+    else html += '<p class="meta">' + st.rows + " intentos" + (st.hard ? " · modo duro" : "") + (st.easy ? " · modo fácil" : "") + "</p>";
+    if (st.easy) html += '<p class="meta">Pista: ' + esc(THEME_NAME[info.theme] || "General") + ".</p>";
+    html += '<div class="gridj" id="grid">';
+    var r, c, ch, state, label;
+    for (r = 0; r < st.rows; r++) {
+      var guess = st.guesses[r] || "";
+      var sc = guess ? score(guess, st.answer) : null;
+      var editing = st.status === "play" && r === st.guesses.length;
+      for (c = 0; c < 5; c++) {
+        ch = editing ? (st.cur[c] || "") : (guess[c] || "");
+        state = sc ? sc[c] : "";
+        label = letraNombre(ch, state);
+        html += '<div class="tile' + (editing ? " now" : "") + '"' + (state ? ' data-s="' + state + '"' : "") + ' role="img" aria-label="' + esc(label) + '">' + esc(ch) + "</div>";
+      }
+    }
+    html += '</div><p class="msg" id="msg" role="status"></p>';
+    if (st.status === "play") html += teclado();
+    else {
+      html += '<p class="resultado">' + (st.status === "win" ? "Resuelta en " + st.guesses.length + "." : "No ha salido.") + " " + esc(info.show) + ". " + esc(info.gloss) + "</p>";
+      html += '<div class="navp"><button type="button" class="btn" id="copiar">Copiar resultado</button>';
+      if (modo !== "dia") html += '<button type="button" class="btn primary" id="otra">Otra</button>';
+      html += "</div>";
+    }
+    app.innerHTML = html;
+    if (st.status === "play") bindTeclado(st);
+    else {
+      document.getElementById("copiar").addEventListener("click", function () { copyResult(st, info); });
+      var otra = document.getElementById("otra");
+      if (otra) otra.addEventListener("click", function () {
+        var nuevo = fresh(st.modo, st.tema);
+        persist(nuevo);
+        render();
+      });
+    }
+  }
+  function teclado() {
+    var rows = ["qwerty", "uiopas", "dfghjk", "lñzxcv", "bnm"];
+    var html = '<div class="kb">';
+    rows.forEach(function (row) {
+      html += '<div class="kbrow">';
+      for (var n = 0; n < row.length; n++) html += '<button type="button" class="key" data-k="' + row[n] + '">' + row[n] + "</button>";
+      html += "</div>";
+    });
+    html += '<div class="kbrow"><button type="button" class="key wide" data-k="enter">Probar</button><button type="button" class="key wide" data-k="back">Borrar</button></div>';
+    return html + "</div>";
+  }
+  function paintKeys(st) {
+    var rank = { absent: 1, present: 2, correct: 3 };
+    var best = {};
+    var g, sc, n, ch, btn, s;
+    for (g = 0; g < st.guesses.length; g++) {
+      sc = score(st.guesses[g], st.answer);
+      for (n = 0; n < 5; n++) {
+        ch = st.guesses[g][n];
+        if (!best[ch] || rank[sc[n]] > rank[best[ch]]) best[ch] = sc[n];
+      }
+    }
+    var keys = app.querySelectorAll(".key");
+    for (n = 0; n < keys.length; n++) {
+      btn = keys[n];
+      ch = btn.getAttribute("data-k");
+      if (ch && best[ch]) btn.setAttribute("data-s", best[ch]);
+    }
+  }
+  function bindTeclado(st) {
+    paintKeys(st);
+    app.querySelectorAll(".key").forEach(function (b) {
+      b.addEventListener("click", function () { onKey(st, b.getAttribute("data-k")); });
+    });
+  }
+  function onKey(st, k) {
+    if (st.status !== "play") return;
+    if (k === "back") {
+      st.cur = st.cur.slice(0, -1);
+      persist(st);
+      render();
+      return;
+    }
+    if (k === "enter") { submit(st); return; }
+    if (st.cur.length >= 5) return;
+    if (!/^[a-zñ]$/.test(k)) return;
+    st.cur += k;
+    persist(st);
+    render();
+  }
+  function submit(st) {
+    var msg = document.getElementById("msg");
+    if (st.cur.length < 5) { flash("Faltan letras."); return; }
+    var g = norm(st.cur);
+    if (!DICT[g]) { flash("Esa palabra no está en la lista."); shake(); return; }
+    if (st.hard) {
+      var why = hardOk(g, st.guesses, st.answer);
+      if (why) { flash(why); return; }
+    }
+    st.guesses.push(g);
+    st.cur = "";
+    if (g === st.answer) {
+      st.status = "win";
+      record(st, true);
+      say("Resuelta.");
+    } else if (st.guesses.length >= st.rows) {
+      st.status = "lose";
+      record(st, false);
+      say("Partida cerrada.");
+    } else persist(st);
+    render();
+  }
+  function flash(t) {
+    var msg = document.getElementById("msg");
+    if (msg) msg.textContent = t;
+    say(t);
+  }
+  function shake() {
+    var tiles = app.querySelectorAll(".tile.now");
+    for (var n = 0; n < tiles.length; n++) {
+      tiles[n].classList.remove("shake");
+      void tiles[n].offsetWidth;
+      tiles[n].classList.add("shake");
+    }
+  }
+  function copyResult(st, info) {
+    var lines = ["Tanteo " + (st.status === "win" ? st.guesses.length : "no") + "/" + st.rows];
+    if (st.modo === "dia") lines[0] += " · " + st.fecha;
+    var g, sc, n, row;
+    for (g = 0; g < st.guesses.length; g++) {
+      sc = score(st.guesses[g], st.answer);
+      row = "";
+      for (n = 0; n < 5; n++) row += sc[n] === "correct" ? "C" : sc[n] === "present" ? "P" : ".";
+      lines.push(row);
+    }
+    var text = lines.join("\n");
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(function () { flash("Copiado."); }, function () { fallbackCopy(text); });
+    } else fallbackCopy(text);
+  }
+  function fallbackCopy(text) {
+    var ta = document.createElement("textarea");
+    ta.value = text;
+    document.body.appendChild(ta);
+    ta.select();
+    try { document.execCommand("copy"); flash("Copiado."); }
+    catch (e) { flash("No se ha podido copiar."); }
+    ta.remove();
+  }
+  var listening = false;
+  function render() {
+    var r = parse();
+    if (r.name === "como") renderComo();
+    else if (r.name === "stats") renderStats();
+    else if (r.name === "temas") renderTemas();
+    else if (r.name === "juego") renderJuego(r.modo, r.tema);
+    else renderHome();
+    window.scrollTo(0, 0);
+  }
+  document.addEventListener("keydown", function (ev) {
+    var r = parse();
+    if (r.name !== "juego") return;
+    if (ev.metaKey || ev.ctrlKey || ev.altKey) return;
+    var k = ev.key;
+    if (k === "Enter") { ev.preventDefault(); onKey(partida(r.modo, r.tema), "enter"); }
+    else if (k === "Backspace") { ev.preventDefault(); onKey(partida(r.modo, r.tema), "back"); }
+    else if (/^[a-zA-ZáéíóúüñÑ]$/.test(k) && !ev.repeat) {
+      ev.preventDefault();
+      onKey(partida(r.modo, r.tema), norm(k));
+    }
+  });
+  window.addEventListener("hashchange", render);
+  render();
+})();
+
+</script>
+</body>
+</html>
