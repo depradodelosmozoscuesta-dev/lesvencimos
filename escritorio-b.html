@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="referrer" content="strict-origin-when-cross-origin">
   <meta http-equiv="Content-Security-Policy" content="default-src 'self' blob: data:; base-uri 'self'; object-src 'none'; img-src 'self' data: blob:; media-src 'self' blob:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; font-src 'self' data:; connect-src 'self'; form-action 'self'; frame-src 'self' blob:">
-  <meta name="description" content="Escritorio versión B (piloto) - Les vencimos. Lápiz azul arriba, dock debajo, columnas con scroll vertical, carpeta Música, ajustes Completo.">
+  <meta name="description" content="Escritorio versión B (piloto) - Les vencimos. Lápiz azul a la izquierda, cabeceras fijas de columna, baldas con scroll, carpeta Música, ajustes.">
   <meta name="theme-color" content="#0E0E0C">
   <title>Escritorio B · piloto - Les vencimos</title>
   <style>
@@ -26,7 +26,8 @@
       --col-min: clamp(64px, 14vw, 88px);
       --tile: clamp(52px, 12vw, 72px);
       --master: clamp(88px, 20vw, 120px);
-      --dock-tile: clamp(48px, 11vw, 64px);
+      --dock-tile: clamp(58px, 13vw, 80px);
+      --head-tile: clamp(64px, 14.5vw, 88px);
       --touch: 44px;
       --font-display: "Iowan Old Style", Palatino, "Palatino Linotype", Georgia, serif;
       --font-body: "Segoe UI", system-ui, -apple-system, sans-serif;
@@ -100,21 +101,24 @@
     }
     body.type-s {
       --tile: clamp(44px, 10vw, 64px);
-      --dock-tile: clamp(42px, 9.5vw, 56px);
+      --dock-tile: clamp(50px, 11vw, 68px);
+      --head-tile: clamp(56px, 12.5vw, 76px);
       --master: clamp(76px, 17vw, 104px);
       --lab-size: 0.58rem;
       --col-min: clamp(58px, 12.5vw, 78px);
     }
     body.type-m {
       --tile: clamp(52px, 12vw, 72px);
-      --dock-tile: clamp(48px, 11vw, 64px);
+      --dock-tile: clamp(58px, 13vw, 80px);
+      --head-tile: clamp(64px, 14.5vw, 88px);
       --master: clamp(88px, 20vw, 120px);
       --lab-size: 0.62rem;
       --col-min: clamp(64px, 14vw, 88px);
     }
     body.type-l {
       --tile: clamp(58px, 13.5vw, 84px);
-      --dock-tile: clamp(54px, 12vw, 72px);
+      --dock-tile: clamp(64px, 14.5vw, 88px);
+      --head-tile: clamp(72px, 16vw, 96px);
       --master: clamp(96px, 22vw, 132px);
       --lab-size: 0.72rem;
       --col-min: clamp(72px, 15vw, 96px);
@@ -125,7 +129,7 @@
     body.desk-font-serif .mod-list li .mtitle { font-family: var(--font-display); }
     body.desk-font-sans { font-family: var(--font-body); }
 
-    /* Desk: chrome (master + dock) on top, columns below */
+    /* Desk: chrome (lápiz izq) + cabeceras fijas + baldas scroll */
     .desk {
       display: flex;
       flex-direction: column;
@@ -141,10 +145,16 @@
       flex: 0 0 auto;
       display: flex;
       flex-direction: column;
-      align-items: center;
-      gap: 0.55rem;
-      padding: 0.55rem 0.65rem 0.45rem;
+      align-items: flex-start;
+      gap: 0.35rem;
+      padding: 0.55rem 0.75rem 0.35rem;
       z-index: 20;
+    }
+    .chrome-master-wrap {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 0.28rem;
     }
     .master {
       width: var(--master);
@@ -173,42 +183,12 @@
       letter-spacing: 0.06em;
       text-transform: uppercase;
       color: var(--suave);
-      text-align: center;
+      text-align: left;
       line-height: 1.25;
-    }
-    .dock-row {
-      display: flex;
-      flex-wrap: nowrap;
-      justify-content: center;
-      align-items: flex-start;
-      gap: clamp(0.35rem, 1.8vw, 0.85rem);
-      width: 100%;
-      max-width: 100%;
-      overflow-x: auto;
-      -webkit-overflow-scrolling: touch;
-      padding: 0.15rem 0.25rem 0.35rem;
-      scrollbar-width: none;
-    }
-    .dock-row::-webkit-scrollbar { display: none; }
-    .dock-row .tile {
-      width: auto;
-      min-width: calc(var(--dock-tile) + 4px);
-      max-width: 5.2rem;
-      flex: 0 0 auto;
-    }
-    .dock-row .tile .ico {
-      width: var(--dock-tile); height: var(--dock-tile);
-    }
-    .dock-row .tile.shape-billboard .ico {
-      width: calc(var(--dock-tile) * 1.28);
-      height: var(--dock-tile);
-    }
-    .dock-row .tile.shape-wide .ico {
-      width: calc(var(--dock-tile) * 1.2);
-      height: var(--dock-tile);
+      max-width: 11rem;
     }
 
-    /* Horizontal swipe across columns */
+    /* Horizontal swipe across columns (headers + baldas move together) */
     .cols-viewport {
       flex: 1 1 auto;
       min-height: 0;
@@ -219,7 +199,7 @@
       scroll-behavior: smooth;
       overscroll-behavior-x: contain;
       touch-action: pan-x;
-      padding: 0.25rem 0.75rem 0.5rem;
+      padding: 0.15rem 0.75rem 0.5rem;
     }
     .cols-track {
       display: grid;
@@ -230,9 +210,74 @@
       width: max-content;
       min-width: 100%;
       padding-right: 0.75rem;
+      align-items: stretch;
+    }
+    /* Column unit: FIXED larger header + scrollable baldas below */
+    .col-unit {
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      min-height: 0;
+      align-items: center;
+    }
+    .col-head {
+      flex: 0 0 auto;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width: 100%;
+      padding: 0.15rem 0 0.45rem;
+      z-index: 2;
+      position: relative;
+    }
+    .col-head::after {
+      content: "";
+      display: block;
+      width: calc(var(--head-tile) + 10px);
+      height: 2px;
+      margin-top: 0.35rem;
+      border-radius: 1px;
+      background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--ambar) 45%, transparent), transparent);
+    }
+    .col-head .tile {
+      width: 100%;
+    }
+    .col-head .tile .ico {
+      width: var(--head-tile);
+      height: var(--head-tile);
+      box-shadow: 0 5px 16px rgba(0,0,0,.45), 0 0 0 1px color-mix(in srgb, var(--ambar) 28%, transparent);
+    }
+    .col-head .tile.shape-billboard .ico {
+      width: calc(var(--head-tile) * 1.28);
+      height: var(--head-tile);
+    }
+    .col-head .tile.shape-wide .ico {
+      width: calc(var(--head-tile) * 1.2);
+      height: var(--head-tile);
+    }
+    .col-head .tile .lab {
+      font-size: calc(var(--lab-size) + 0.05rem);
+      color: var(--tinta);
+      font-weight: 600;
+    }
+    .col-head .tile .ledge {
+      width: calc(var(--head-tile) + 10px);
+      height: 7px;
+    }
+    .col-head .tile .hide-x {
+      right: calc(50% - var(--head-tile) / 2 - 6px);
+    }
+    .col-head-empty {
+      width: var(--head-tile);
+      height: calc(var(--head-tile) + 1.6rem);
+      opacity: 0.25;
+      border: 1px dashed color-mix(in srgb, var(--suave) 50%, transparent);
+      border-radius: 22%;
     }
     .col {
-      height: 100%;
+      flex: 1 1 auto;
+      min-height: 0;
+      width: 100%;
       overflow-x: hidden;
       overflow-y: auto;
       -webkit-overflow-scrolling: touch;
@@ -243,7 +288,7 @@
       flex-direction: column;
       align-items: center;
       gap: 0.55rem;
-      padding: 0 0.1rem 1.25rem;
+      padding: 0.15rem 0.1rem 1.25rem;
       scrollbar-width: thin;
     }
     @media (prefers-reduced-motion: reduce) {
@@ -295,9 +340,42 @@
       box-shadow: 0 3px 8px rgba(0,0,0,.35);
       opacity: 1;
     }
+    /* Carpeta vs archivo/módulo */
     .tile.folder-tile .ico {
-      border: 1px solid color-mix(in srgb, #9B59D0 55%, transparent);
-      box-shadow: 0 3px 10px rgba(0,0,0,.35), 0 0 0 1px color-mix(in srgb, #9B59D0 25%, transparent);
+      border-radius: 18% 18% 14% 14%;
+      border: 1.5px solid color-mix(in srgb, #9B59D0 65%, transparent);
+      background:
+        linear-gradient(180deg, color-mix(in srgb, #9B59D0 22%, var(--panel)) 0%, var(--panel) 42%);
+      box-shadow: 0 3px 10px rgba(0,0,0,.35), 0 0 0 1px color-mix(in srgb, #9B59D0 28%, transparent);
+      position: relative;
+    }
+    .tile.folder-tile .ico::before {
+      content: "";
+      position: absolute;
+      top: -5px; left: 10%;
+      width: 38%; height: 7px;
+      border-radius: 3px 3px 0 0;
+      background: color-mix(in srgb, #9B59D0 55%, var(--panel));
+      box-shadow: 0 0 0 1px color-mix(in srgb, #9B59D0 40%, transparent);
+    }
+    .tile.folder-tile .fold-badge {
+      position: absolute;
+      top: calc(var(--tile) - 12px);
+      right: calc(50% - var(--tile) / 2 - 4px);
+      min-width: 16px; height: 14px; padding: 0 3px;
+      border-radius: 2px;
+      background: color-mix(in srgb, #9B59D0 78%, #2a1a38);
+      color: #f3e9ff;
+      font-size: 0.52rem;
+      line-height: 14px;
+      text-align: center;
+      pointer-events: none;
+      box-shadow: 0 1px 3px rgba(0,0,0,.4);
+      z-index: 2;
+      letter-spacing: 0;
+    }
+    .tile.mod-tile .ico {
+      border: 1px solid color-mix(in srgb, var(--ambar) 18%, transparent);
     }
 
     body.editing .tile .hide-x { display: grid; }
@@ -309,10 +387,6 @@
       place-items: center; font-size: 0.85rem; line-height: 1;
       z-index: 3; box-shadow: 0 2px 6px rgba(0,0,0,.4);
     }
-    .dock-row .tile .hide-x {
-      right: calc(50% - var(--dock-tile) / 2 - 6px);
-    }
-
     .backdrop {
       display: none; position: fixed; inset: 0;
       background: rgba(0,0,0,.55); z-index: 40;
@@ -483,19 +557,20 @@
 </head>
 <body class="theme-ambar type-m desk-font-sans">
   <div class="desk" id="desk">
-    <header class="chrome" aria-label="Lápiz maestro y dock">
-      <button type="button" class="master" id="btn-master" aria-label="Menú, hora, módulos y ajustes" aria-expanded="false" aria-controls="master-panel">
-        <span class="pulse-ring" aria-hidden="true"></span>
-      </button>
-      <p class="chrome-hint">Toca el lápiz · ajustes</p>
-      <div class="dock-row" id="dock-row" aria-label="Dock · 7 accesos"></div>
+    <header class="chrome" aria-label="Lápiz maestro">
+      <div class="chrome-master-wrap">
+        <button type="button" class="master" id="btn-master" aria-label="Menú, hora, módulos y ajustes" aria-expanded="false" aria-controls="master-panel">
+          <span class="pulse-ring" aria-hidden="true"></span>
+        </button>
+        <p class="chrome-hint">Toca el lápiz · Ajustes</p>
+      </div>
     </header>
-    <div class="cols-viewport" id="cols-viewport" tabindex="0" aria-label="Columnas · desliza horizontal · cada columna vertical">
+    <div class="cols-viewport" id="cols-viewport" tabindex="0" aria-label="Columnas · cabeceras fijas · baldas con scroll vertical y desliz horizontal">
       <div class="cols-track" id="cols-track"></div>
     </div>
   </div>
 
-  <footer class="b-foot">lesvencimos.com · Escritorio B piloto · <span id="est-build">v20260927d-piloto</span></footer>
+  <footer class="b-foot">lesvencimos.com · Escritorio B piloto · <span id="est-build">v20260927e-piloto</span></footer>
 
   <div class="backdrop" id="backdrop" hidden></div>
   <div class="master-panel" id="master-panel" role="dialog" aria-modal="true" aria-labelledby="mp-title" hidden>
@@ -516,7 +591,7 @@
 
     <p class="section-title" id="mods-section-title">Módulos en la mesa</p>
     <ul class="mod-list" id="mod-list" aria-label="Lista de módulos"></ul>
-    <p class="note">Piloto experimental. Lápiz azul arriba · dock debajo · 7 columnas con scroll vertical · desliz horizontal · snap-back ~7 s · carpeta Música · ajustes (contraste, fondo, tamaño, fuente). Sin enlace a Completo A.</p>
+    <p class="note">Piloto experimental. Lápiz azul a la izquierda · cabeceras fijas (Navegador…Gym) · baldas con scroll vertical por columna y desliz horizontal · snap-back ~7 s · carpeta Música (distinta de archivo) · ajustes (contraste, fondo, tamaño, fuente). Sin enlace a Completo A.</p>
   </div>
 
   <div class="folder-panel" id="folder-panel" role="dialog" aria-modal="true" aria-labelledby="folder-title" hidden>
@@ -539,7 +614,7 @@
   <script>
 (function () {
   'use strict';
-  var EST_BUILD = 'v20260927d-piloto';
+  var EST_BUILD = 'v20260927e-piloto';
   var SNAP_MS = 7000;
   var LS_KEY = 'lv-escritorio-b-v2';
   var COLS = 7;
@@ -948,7 +1023,6 @@
         state.typeSize = sz;
         applyTypeSize(); saveState(state);
         showToast('Tamaño · ' + sz.toUpperCase());
-        renderDock();
         renderColumns();
       }, state.typeSize === sz));
     });
@@ -1057,7 +1131,6 @@
     var reset = document.getElementById('mp-reset-mods');
     if (reset) reset.hidden = !on;
     renderModList();
-    renderDock();
     renderColumns();
   }
 
@@ -1145,15 +1218,18 @@
   function makeTile(m) {
     var btn = document.createElement('button');
     btn.type = 'button';
+    var isFolder = m.kind === 'folder' || !!m.folderId;
     var cls = 'tile';
     if (m._dock) cls += ' dock-tile';
-    if (m.kind === 'folder' || m.folderId) cls += ' folder-tile';
+    if (isFolder) cls += ' folder-tile';
+    else if (!m._dock) cls += ' mod-tile';
     if (m.shape) cls += ' shape-' + m.shape;
     btn.className = cls;
     btn.dataset.id = m.id;
-    btn.setAttribute('aria-label', m.titulo);
+    btn.setAttribute('aria-label', isFolder ? ('Carpeta · ' + m.titulo) : m.titulo);
     btn.innerHTML = icoHtml(m.icon, m.color) +
       '<span class="lab">' + m.titulo + '</span>' +
+      (isFolder ? '<span class="fold-badge" aria-hidden="true" title="Carpeta">carp</span>' : '') +
       (m._dock ? '<span class="ledge" aria-hidden="true"></span>' : '') +
       '<span class="hide-x" aria-label="Quitar">×</span>';
     btn.addEventListener('click', function (ev) {
@@ -1161,7 +1237,6 @@
         ev.preventDefault();
         ev.stopPropagation();
         setHidden(m.id, true);
-        renderDock();
         renderColumns();
         renderModList();
         if (document.getElementById('folder-panel').classList.contains('open')) {
@@ -1179,17 +1254,13 @@
   }
 
   function renderDock() {
-    var row = document.getElementById('dock-row');
-    if (!row) return;
-    row.innerHTML = '';
-    DOCK.forEach(function (m, idx) {
-      if (isHidden(m.id)) return;
-      row.appendChild(makeTile(Object.assign({}, m, { _dock: true, _col: idx })));
-    });
+    /* Cabeceras viven dentro de renderColumns (fila fija por columna). */
+    renderColumns();
   }
 
   function renderColumns() {
     var track = document.getElementById('cols-track');
+    if (!track) return;
     var scrollLeft = colsViewport ? colsViewport.scrollLeft : 0;
     var scrollTops = [];
     var existing = track.querySelectorAll('.col');
@@ -1208,13 +1279,32 @@
     });
 
     buckets.forEach(function (items, idx) {
+      var unit = document.createElement('div');
+      unit.className = 'col-unit';
+      unit.dataset.col = String(idx);
+
+      var head = document.createElement('div');
+      head.className = 'col-head';
+      head.setAttribute('aria-label', 'Cabecera columna ' + (idx + 1));
+      var dockMod = DOCK[idx];
+      if (dockMod && !isHidden(dockMod.id)) {
+        head.appendChild(makeTile(Object.assign({}, dockMod, { _dock: true, _col: idx })));
+      } else {
+        var empty = document.createElement('div');
+        empty.className = 'col-head-empty';
+        empty.setAttribute('aria-hidden', 'true');
+        head.appendChild(empty);
+      }
+
       var col = document.createElement('div');
       col.className = 'col';
-      col.dataset.col = String(idx);
-      col.setAttribute('aria-label', 'Columna ' + (idx + 1));
+      col.setAttribute('aria-label', 'Balda columna ' + (idx + 1));
       items.forEach(function (m) { col.appendChild(makeTile(m)); });
       col.addEventListener('scroll', resetIdle, { passive: true });
-      track.appendChild(col);
+
+      unit.appendChild(head);
+      unit.appendChild(col);
+      track.appendChild(unit);
       if (scrollTops[idx]) col.scrollTop = scrollTops[idx];
     });
     if (colsViewport) colsViewport.scrollLeft = scrollLeft;
@@ -1233,7 +1323,7 @@
       if (hidden) li.className = 'hidden-mod';
       if (m._child) li.className = (li.className ? li.className + ' ' : '') + 'child-mod';
       var tag = '';
-      if (m._dock) tag = ' <span class="mtag">dock</span>';
+      if (m._dock) tag = ' <span class="mtag">cabecera</span>';
       else if (m.kind === 'folder' || m.folderId) tag = ' <span class="mtag">carpeta</span>';
       else if (m._child) tag = ' <span class="mtag">Música</span>';
       li.innerHTML = icoHtml(m.icon, m.color, 'mico') +
@@ -1244,7 +1334,6 @@
       tog.textContent = hidden ? 'Añadir' : 'Quitar';
       tog.addEventListener('click', function () {
         setHidden(m.id, !hidden);
-        renderDock();
         renderColumns();
         renderModList();
         showToast((!hidden ? 'Quitado · ' : 'Añadido · ') + m.titulo);
@@ -1285,7 +1374,6 @@
     colsViewport = document.getElementById('cols-viewport');
     applyAllPrefs();
     injectMasterIcon();
-    renderDock();
     renderColumns();
     setOfflineLabel();
     tickClock();
@@ -1321,7 +1409,6 @@
     document.getElementById('mp-reset-mods').addEventListener('click', function () {
       state.hidden = [];
       saveState(state);
-      renderDock();
       renderColumns();
       renderModList();
       showToast('Todos los módulos visibles');
