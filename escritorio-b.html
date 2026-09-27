@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="referrer" content="strict-origin-when-cross-origin">
   <meta http-equiv="Content-Security-Policy" content="default-src 'self' blob: data:; base-uri 'self'; object-src 'none'; img-src 'self' data: blob:; media-src 'self' blob:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; font-src 'self' data:; connect-src 'self'; form-action 'self'; frame-src 'self' blob:">
-  <meta name="description" content="Escritorio versión B (piloto) - Les vencimos. Icono maestro, dock fijo de 7, desliz vertical, snap-back.">
+  <meta name="description" content="Escritorio versión B (piloto) - Les vencimos. Icono maestro, 7 columnas con scroll vertical independiente, snap-back, editar módulos.">
   <meta name="theme-color" content="#0E0E0C">
   <title>Escritorio B · piloto - Les vencimos</title>
   <style>
@@ -22,12 +22,14 @@
       --blue-pen: #4A9BE8;
       --ledge: #3A3428;
       --ledge-hi: #5A5040;
-      --gap-dock: clamp(10px, 2.2vw, 22px);
-      --dock-tile: clamp(52px, 11vw, 72px);
-      --master: clamp(88px, 22vw, 128px);
+      --gap-col: clamp(14px, 3.2vw, 28px);
+      --col-min: clamp(64px, 14vw, 88px);
+      --tile: clamp(52px, 12vw, 72px);
+      --master: clamp(88px, 20vw, 120px);
       --touch: 44px;
       --font-display: "Iowan Old Style", Palatino, "Palatino Linotype", Georgia, serif;
       --font-body: "Segoe UI", system-ui, -apple-system, sans-serif;
+      --rail-w: calc(var(--master) + 1.1rem);
     }
     *, *::before, *::after { box-sizing: border-box; }
     html, body {
@@ -37,19 +39,30 @@
       -webkit-tap-highlight-color: transparent;
       overscroll-behavior: none;
     }
-    body { display: flex; flex-direction: column; min-height: 100dvh; }
+    body { min-height: 100dvh; overflow: hidden; }
     button { font: inherit; color: inherit; background: none; border: 0; cursor: pointer; }
     a { color: var(--ambar); }
 
-    /* -- Header / master -- */
-    .chrome-top {
-      flex: 0 0 auto;
+    /* Desk: master rail + columns viewport */
+    .desk {
       display: flex;
-      align-items: flex-start;
-      gap: 1rem;
-      padding: 0.75rem 1rem 0.5rem;
-      padding-top: max(0.75rem, env(safe-area-inset-top));
-      background: linear-gradient(180deg, #12110E 0%, var(--fondo) 100%);
+      align-items: stretch;
+      height: 100dvh;
+      height: 100svh;
+      padding-top: env(safe-area-inset-top);
+      padding-bottom: env(safe-area-inset-bottom);
+      padding-left: env(safe-area-inset-left);
+      background: linear-gradient(180deg, #12110E 0%, var(--fondo) 28%);
+    }
+
+    /* Left rail: only the blue master (clock lives in its panel) */
+    .master-rail {
+      flex: 0 0 var(--rail-w);
+      width: var(--rail-w);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 0.65rem 0.4rem 0.5rem;
       z-index: 20;
     }
     .master {
@@ -63,7 +76,7 @@
       place-items: center;
       flex-shrink: 0;
       box-shadow: 0 8px 24px rgba(0,0,0,.45), inset 0 1px 0 rgba(255,255,255,.08);
-      transition: transform .12s ease, box-shadow .12s ease;
+      transition: transform .12s ease;
       position: relative;
     }
     .master:active { transform: scale(0.96); }
@@ -73,142 +86,125 @@
       border: 1px solid color-mix(in srgb, var(--blue-pen) 40%, transparent);
       pointer-events: none; opacity: .6;
     }
-    .master-meta {
-      flex: 1; min-width: 0;
-      display: flex; flex-direction: column; justify-content: center;
-      gap: 0.2rem; padding-top: 0.35rem;
-    }
-    .master-meta .clock {
-      font-family: var(--font-display);
-      font-size: clamp(1.6rem, 5vw, 2.2rem);
-      font-weight: 600; letter-spacing: -0.02em; line-height: 1.05;
-      color: var(--tinta);
-    }
-    .master-meta .date {
-      font-size: 0.85rem; color: var(--suave);
-      text-transform: lowercase; letter-spacing: 0.02em;
-    }
-    .master-meta .pilot-tag {
-      display: inline-block; margin-top: 0.35rem;
-      font-size: 0.68rem; letter-spacing: 0.08em; text-transform: uppercase;
-      color: var(--ambar); border: 1px solid color-mix(in srgb, var(--ambar) 45%, transparent);
-      padding: 0.18rem 0.45rem; border-radius: 2px; width: fit-content;
-    }
-    .hint-master {
-      font-size: 0.72rem; color: var(--suave); margin: 0;
+    .rail-hint {
+      margin-top: 0.55rem;
+      font-size: 0.62rem;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--suave);
+      text-align: center;
+      line-height: 1.25;
+      max-width: 6.5rem;
     }
 
-    /* -- Fixed dock -- */
-    .dock-wrap {
+    /* Horizontal swipe across columns */
+    .cols-viewport {
+      flex: 1 1 auto;
+      min-width: 0;
+      overflow-x: auto;
+      overflow-y: hidden;
+      -webkit-overflow-scrolling: touch;
+      scroll-behavior: smooth;
+      overscroll-behavior-x: contain;
+      touch-action: pan-x;
+      padding: 0.65rem 0.75rem 0.5rem 0.15rem;
+    }
+    .cols-track {
+      display: grid;
+      grid-auto-flow: column;
+      grid-auto-columns: var(--col-min);
+      gap: var(--gap-col);
+      height: 100%;
+      width: max-content;
+      min-width: 100%;
+      padding-right: 0.75rem;
+    }
+    /* Each column scrolls vertically on its own */
+    .col {
+      height: 100%;
+      overflow-x: hidden;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+      overscroll-behavior-y: contain;
+      touch-action: pan-y;
+      scroll-behavior: smooth;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.55rem;
+      padding: 0 0.1rem 1.25rem;
+      scrollbar-width: thin;
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .cols-viewport, .col { scroll-behavior: auto; }
+      .master { transition: none; }
+    }
+
+    .tile {
+      display: flex; flex-direction: column; align-items: center; gap: 0.28rem;
+      min-width: 0; width: 100%; padding: 0;
       flex: 0 0 auto;
-      padding: 0.55rem 0.75rem 0.35rem;
-      background: var(--superficie);
-      border-top: 1px solid rgba(255,255,255,0.06);
-      border-bottom: 1px solid rgba(255,255,255,0.06);
-      z-index: 15;
+      touch-action: manipulation;
       position: relative;
     }
-    .dock-wrap::after {
-      content: "";
-      display: block; height: 10px; margin-top: 0.35rem;
-      border-radius: 2px;
-      background: linear-gradient(180deg, var(--ledge-hi), var(--ledge));
-      box-shadow: 0 4px 10px rgba(0,0,0,.4);
-    }
-    .dock {
-      display: grid;
-      grid-template-columns: repeat(7, minmax(0, 1fr));
-      gap: var(--gap-dock);
-      align-items: end;
-      max-width: 720px;
-      margin: 0 auto;
-    }
-    .dock-tile {
-      display: flex; flex-direction: column; align-items: center; gap: 0.28rem;
-      min-width: 0; padding: 0; touch-action: manipulation;
-    }
-    .dock-tile .ico {
-      width: var(--dock-tile); height: var(--dock-tile);
+    .tile .ico {
+      width: var(--tile); height: var(--tile);
       border-radius: 22%;
       display: grid; place-items: center;
       background: var(--panel);
       box-shadow: 0 3px 10px rgba(0,0,0,.35);
     }
-    .dock-tile.shape-billboard .ico {
-      width: calc(var(--dock-tile) * 1.35);
-      height: var(--dock-tile);
+    .tile.shape-billboard .ico {
+      width: calc(var(--tile) * 1.28);
+      height: var(--tile);
       border-radius: 14%;
     }
-    .dock-tile.shape-round .ico { border-radius: 50%; }
-    .dock-tile.shape-poster .ico { border-radius: 16%; }
-    .dock-tile .ico svg { width: 54%; height: 54%; display: block; }
-    .dock-tile.shape-billboard .ico svg { width: 48%; height: 48%; }
-    .dock-tile .lab {
+    .tile.shape-round .ico { border-radius: 50%; }
+    .tile.shape-poster .ico { border-radius: 16%; }
+    .tile.shape-wide .ico {
+      width: calc(var(--tile) * 1.2);
+      height: var(--tile);
+      border-radius: 18%;
+    }
+    .tile .ico svg { width: 54%; height: 54%; display: block; }
+    .tile.shape-billboard .ico svg { width: 48%; height: 48%; }
+    .tile .lab {
       font-size: 0.62rem; color: var(--suave); text-align: center;
       line-height: 1.15; max-width: 100%;
       overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
     }
-    .dock-tile:active .ico { transform: scale(0.94); }
-
-    /* -- Scrollable shelf area (vertical) -- */
-    .scroll-area {
-      flex: 1 1 auto;
-      overflow-y: auto;
-      overflow-x: hidden;
-      -webkit-overflow-scrolling: touch;
-      scroll-behavior: smooth;
-      overscroll-behavior-y: contain;
-      padding: 0.75rem 0.85rem 1.5rem;
-      padding-bottom: max(1.5rem, env(safe-area-inset-bottom));
+    .tile:active .ico { transform: scale(0.94); }
+    .tile.dock-tile .ico {
+      box-shadow: 0 4px 14px rgba(0,0,0,.45), 0 0 0 1px color-mix(in srgb, var(--ambar) 22%, transparent);
     }
-    @media (prefers-reduced-motion: reduce) {
-      .scroll-area { scroll-behavior: auto; }
-      .master { transition: none; }
+    .tile.dock-tile {
+      position: sticky; top: 0; z-index: 2;
+      background: linear-gradient(180deg, #12110E 70%, transparent);
+      padding-bottom: 0.15rem;
     }
-    .shelf-block { margin-bottom: 1.15rem; }
-    .shelf-label {
-      font-size: 0.72rem; letter-spacing: 0.12em; text-transform: uppercase;
-      color: var(--suave); margin: 0 0 0.45rem 0.15rem;
-    }
-    .shelf-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(72px, 1fr));
-      gap: 0.85rem 0.65rem;
-      background: color-mix(in srgb, var(--panel) 70%, transparent);
-      border-radius: 4px;
-      padding: 0.75rem 0.55rem 1rem;
-      position: relative;
-    }
-    .shelf-grid::after {
-      content: "";
-      position: absolute; left: 0.4rem; right: 0.4rem; bottom: 0.35rem;
-      height: 7px; border-radius: 1px;
+    .tile .ledge {
+      display: block; width: calc(var(--tile) + 8px); height: 6px; margin-top: -0.1rem;
+      border-radius: 1px;
       background: linear-gradient(180deg, var(--ledge-hi), var(--ledge));
-      opacity: 0.85; pointer-events: none;
+      box-shadow: 0 3px 8px rgba(0,0,0,.35);
+      opacity: 0.9;
     }
-    .mod-tile {
-      display: flex; flex-direction: column; align-items: center; gap: 0.28rem;
-      padding: 0; min-height: var(--touch); touch-action: manipulation;
+    .tile.dock-tile .ledge { opacity: 1; }
+
+    /* Edit mode: hide control on each tile */
+    body.editing .tile .hide-x {
+      display: grid;
     }
-    .mod-tile .ico {
-      width: 56px; height: 56px; border-radius: 22%;
-      display: grid; place-items: center;
-      background: var(--panel);
-      box-shadow: 0 2px 8px rgba(0,0,0,.3);
-    }
-    .mod-tile .ico svg { width: 54%; height: 54%; display: block; }
-    .mod-tile .lab {
-      font-size: 0.68rem; color: var(--suave); text-align: center;
-      line-height: 1.15; max-width: 4.8rem;
-    }
-    .mod-tile:active .ico { transform: scale(0.94); }
-    .mod-tile.missing { opacity: 0.45; }
-    .scroll-hint {
-      text-align: center; font-size: 0.72rem; color: var(--suave);
-      margin: 0.25rem 0 0.85rem; letter-spacing: 0.04em;
+    .tile .hide-x {
+      display: none;
+      position: absolute; top: -4px; right: calc(50% - var(--tile) / 2 - 6px);
+      width: 22px; height: 22px; border-radius: 50%;
+      background: var(--peligro); color: #fff;
+      place-items: center; font-size: 0.85rem; line-height: 1;
+      z-index: 3; box-shadow: 0 2px 6px rgba(0,0,0,.4);
     }
 
-    /* -- Master panel (menu / settings / time) -- */
+    /* Master panel — sole chrome for clock / settings / modules */
     .backdrop {
       display: none; position: fixed; inset: 0;
       background: rgba(0,0,0,.55); z-index: 40;
@@ -217,7 +213,8 @@
     .master-panel {
       display: none; position: fixed;
       left: 0.75rem; right: 0.75rem; top: max(0.75rem, env(safe-area-inset-top));
-      max-width: 420px; z-index: 50;
+      max-width: 420px; max-height: calc(100dvh - 1.5rem);
+      overflow-y: auto; z-index: 50;
       background: var(--panel); border: 1px solid rgba(255,255,255,0.08);
       border-radius: 4px; padding: 1rem 1.1rem 1.15rem;
       box-shadow: 0 16px 40px rgba(0,0,0,.55);
@@ -225,15 +222,15 @@
     .master-panel.open { display: block; }
     .master-panel h2 {
       font-family: var(--font-display); font-size: 1.25rem; font-weight: 600;
-      margin: 0 0 0.35rem; color: var(--tinta);
+      margin: 0 0 0.35rem; color: var(--tinta); padding-right: 2rem;
     }
     .master-panel .big-clock {
       font-family: var(--font-display); font-size: 2.4rem; font-weight: 600;
       letter-spacing: -0.03em; margin: 0.4rem 0 0.1rem;
     }
-    .master-panel .big-date { color: var(--suave); font-size: 0.95rem; margin-bottom: 0.9rem; }
+    .master-panel .big-date { color: var(--suave); font-size: 0.95rem; margin-bottom: 0.75rem; }
     .master-panel .row {
-      display: flex; flex-wrap: wrap; gap: 0.45rem; margin-top: 0.65rem;
+      display: flex; flex-wrap: wrap; gap: 0.45rem; margin-top: 0.55rem;
     }
     .master-panel .chip {
       border: 1px solid color-mix(in srgb, var(--ambar) 40%, transparent);
@@ -243,24 +240,62 @@
     .master-panel .chip.primary {
       background: var(--ambar); color: var(--ambar-ink); border-color: var(--ambar);
     }
+    .master-panel .chip.danger {
+      border-color: color-mix(in srgb, var(--peligro) 50%, transparent);
+      color: var(--peligro);
+    }
     .master-panel .note {
-      margin-top: 0.85rem; font-size: 0.78rem; color: var(--suave); line-height: 1.45;
+      margin-top: 0.75rem; font-size: 0.78rem; color: var(--suave); line-height: 1.45;
     }
     .master-panel .close-x {
       position: absolute; top: 0.55rem; right: 0.55rem;
       width: 40px; height: 40px; display: grid; place-items: center;
       color: var(--suave); font-size: 1.2rem;
     }
+    .master-panel .section-title {
+      margin: 1rem 0 0.4rem;
+      font-size: 0.72rem; letter-spacing: 0.1em; text-transform: uppercase;
+      color: var(--suave);
+    }
+    .mod-list {
+      list-style: none; margin: 0; padding: 0;
+      display: flex; flex-direction: column; gap: 0.35rem;
+      max-height: 40vh; overflow-y: auto;
+    }
+    .mod-list li {
+      display: flex; align-items: center; gap: 0.55rem;
+      padding: 0.35rem 0.45rem; border-radius: 2px;
+      background: color-mix(in srgb, var(--superficie) 80%, transparent);
+      border: 1px solid rgba(255,255,255,0.05);
+    }
+    .mod-list li .mico {
+      width: 32px; height: 32px; border-radius: 22%;
+      display: grid; place-items: center; background: var(--panel); flex-shrink: 0;
+    }
+    .mod-list li .mico svg { width: 54%; height: 54%; }
+    .mod-list li .mtitle { flex: 1; font-size: 0.88rem; min-width: 0; }
+    .mod-list li .mtag {
+      font-size: 0.65rem; color: var(--suave); text-transform: uppercase; letter-spacing: 0.04em;
+    }
+    .mod-list li button.toggle {
+      min-height: 36px; padding: 0 0.55rem;
+      border: 1px solid color-mix(in srgb, var(--ambar) 40%, transparent);
+      color: var(--ambar); border-radius: 2px; font-size: 0.78rem; white-space: nowrap;
+    }
+    .mod-list li.hidden-mod button.toggle {
+      background: var(--ambar); color: var(--ambar-ink); border-color: var(--ambar);
+    }
+    .mod-list li.hidden-mod { opacity: 0.72; }
+    .mod-list .empty {
+      font-size: 0.8rem; color: var(--suave); padding: 0.4rem;
+    }
 
-    /* -- Module viewer -- */
     #mod-viewer {
       display: none; position: fixed; inset: 0; z-index: 60;
       flex-direction: column; background: var(--fondo);
     }
     body.mod-open #mod-viewer { display: flex; }
-    body.mod-open .chrome-top,
-    body.mod-open .dock-wrap,
-    body.mod-open .scroll-area { visibility: hidden; }
+    body.mod-open .desk { visibility: hidden; }
     #mod-viewer .bar {
       flex: 0 0 auto; display: flex; align-items: center; gap: 0.5rem;
       padding: 0.55rem 0.75rem; padding-top: max(0.55rem, env(safe-area-inset-top));
@@ -275,11 +310,7 @@
       flex: 1; margin: 0; font-size: 1rem; font-weight: 600;
       font-family: var(--font-display); overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
     }
-    #mod-frame {
-      flex: 1; width: 100%; border: 0; background: #fff;
-    }
-
-    /* camera capture hidden input */
+    #mod-frame { flex: 1; width: 100%; border: 0; background: #fff; }
     #cam-input { position: absolute; width: 1px; height: 1px; opacity: 0; pointer-events: none; }
 
     .toast {
@@ -292,35 +323,28 @@
     .toast.show { opacity: 1; }
 
     footer.b-foot {
-      flex: 0 0 auto; text-align: center; font-size: 0.68rem; color: var(--suave);
-      padding: 0.35rem 0.5rem 0.55rem;
+      position: fixed; left: 0; right: 0; bottom: 0;
+      pointer-events: none;
+      text-align: center; font-size: 0.62rem; color: var(--suave);
+      padding: 0.2rem 0.5rem max(0.35rem, env(safe-area-inset-bottom));
+      opacity: 0.7; z-index: 5;
     }
   </style>
 </head>
 <body>
-  <header class="chrome-top">
-    <button type="button" class="master" id="btn-master" aria-label="Menú, hora y ajustes" aria-expanded="false" aria-controls="master-panel">
-      <span class="pulse-ring" aria-hidden="true"></span>
-      <!-- pen icon injected -->
-    </button>
-    <div class="master-meta">
-      <div class="clock" id="clock-top" aria-live="polite">--:--</div>
-      <div class="date" id="date-top">-</div>
-      <span class="pilot-tag">Piloto · versión B</span>
-      <p class="hint-master">Toca el lápiz azul para menú · hora · ajustes</p>
+  <div class="desk" id="desk">
+    <aside class="master-rail">
+      <button type="button" class="master" id="btn-master" aria-label="Menú, hora, módulos y ajustes" aria-expanded="false" aria-controls="master-panel">
+        <span class="pulse-ring" aria-hidden="true"></span>
+      </button>
+      <p class="rail-hint">Toca el lápiz</p>
+    </aside>
+    <div class="cols-viewport" id="cols-viewport" tabindex="0" aria-label="Columnas · desliza horizontal · cada columna vertical">
+      <div class="cols-track" id="cols-track"></div>
     </div>
-  </header>
-
-  <div class="dock-wrap" aria-label="Atajos fijos">
-    <div class="dock" id="dock"></div>
   </div>
 
-  <main class="scroll-area" id="scroll-area" tabindex="0" aria-label="Resto de la estantería · desliza arriba y abajo">
-    <p class="scroll-hint">Desliza ↑↓ · vuelve solo tras unos segundos sin tocar</p>
-    <div id="shelves"></div>
-  </main>
-
-  <footer class="b-foot">lesvencimos.com · Escritorio B piloto · <span id="est-build">v20260927b-piloto</span></footer>
+  <footer class="b-foot">lesvencimos.com · Escritorio B piloto · <span id="est-build">v20260927c-piloto</span></footer>
 
   <div class="backdrop" id="backdrop" hidden></div>
   <div class="master-panel" id="master-panel" role="dialog" aria-modal="true" aria-labelledby="mp-title" hidden>
@@ -330,12 +354,14 @@
     <div class="big-date" id="mp-date">-</div>
     <p class="note" id="offline-mode-label">Vista web</p>
     <div class="row">
-      <button type="button" class="chip primary" id="mp-home">Volver al inicio del scroll</button>
+      <button type="button" class="chip primary" id="mp-home">Volver al inicio</button>
       <button type="button" class="chip" id="mp-snap">Snap-back: 7 s</button>
-      <a class="chip" href="/estanteria.html" id="mp-completo">Abrir Completo A (oficial)</a>
-      <a class="chip" href="/" id="mp-site">lesvencimos.com</a>
+      <button type="button" class="chip" id="mp-edit">Añadir / quitar módulos</button>
+      <button type="button" class="chip danger" id="mp-reset-mods" hidden>Mostrar todos</button>
     </div>
-    <p class="note">Piloto experimental. No sustituye al Escritorio Completo (baldas horizontales). Dock fijo de 7 · icono maestro · scroll vertical · retorno automático.</p>
+    <p class="section-title" id="mods-section-title">Módulos en la mesa</p>
+    <ul class="mod-list" id="mod-list" aria-label="Lista de módulos"></ul>
+    <p class="note">Piloto experimental. 7 columnas con scroll vertical independiente · desliz horizontal · retorno automático tras ~7 s. Reloj, ajustes y módulos solo desde el lápiz azul.</p>
   </div>
 
   <div id="mod-viewer" role="dialog" aria-modal="true" aria-labelledby="mod-viewer-title" hidden>
@@ -352,9 +378,10 @@
   <script>
 (function () {
   'use strict';
-  var EST_BUILD = 'v20260927b-piloto';
-  var SNAP_MS = 7000; /* 5-10 s idle → home */
+  var EST_BUILD = 'v20260927c-piloto';
+  var SNAP_MS = 7000;
   var LS_KEY = 'lv-escritorio-b-v1';
+  var COLS = 7;
 
   var ICONS = {
       "escritura": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M4 20h4l9.2-9.2a2 2 0 0 0-2.8-2.8L5.2 17.2V20z\" fill=\"currentColor\" fill-opacity=\"0.12\"/><path d=\"M4 20h4l9.2-9.2a2 2 0 0 0-2.8-2.8L5.2 17.2V20z\"/><path d=\"M13.2 7.2l2.8 2.8\"/><path d=\"M16.5 4.5l2.2 2.2\"/></svg>",
@@ -708,6 +735,7 @@
   ]
 ];
 
+
   var isFile = (function () {
     try { return location.protocol === 'file:'; } catch (e) { return false; }
   })();
@@ -721,12 +749,56 @@
     return '/modulos/' + file;
   }
 
-  function icoHtml(name, color) {
+  function icoHtml(name, color, cls) {
     var svg = ICONS[name] || ICONS.escritura || '';
-    return '<span class="ico" style="color:' + (color || 'var(--ambar)') + '">' + svg + '</span>';
+    return '<span class="' + (cls || 'ico') + '" style="color:' + (color || 'var(--ambar)') + '">' + svg + '</span>';
   }
 
-  /* -- Clock -- */
+  /* -- Persist show/hide -- */
+  function loadState() {
+    try {
+      var raw = localStorage.getItem(LS_KEY);
+      if (!raw) return { hidden: [] };
+      var o = JSON.parse(raw);
+      if (!o || typeof o !== 'object') return { hidden: [] };
+      if (!Array.isArray(o.hidden)) o.hidden = [];
+      return o;
+    } catch (e) { return { hidden: [] }; }
+  }
+  function saveState(state) {
+    try { localStorage.setItem(LS_KEY, JSON.stringify(state)); } catch (e) {}
+  }
+  var state = loadState();
+  function isHidden(id) { return state.hidden.indexOf(id) !== -1; }
+  function setHidden(id, hide) {
+    var i = state.hidden.indexOf(id);
+    if (hide && i === -1) state.hidden.push(id);
+    if (!hide && i !== -1) state.hidden.splice(i, 1);
+    saveState(state);
+  }
+
+  /* Flat catalog: dock first (col order), then shelf modules */
+  function allModules() {
+    var list = [];
+    DOCK.forEach(function (m, idx) {
+      list.push(Object.assign({}, m, { _dock: true, _col: idx, _order: idx }));
+    });
+    var n = 0;
+    SHELVES.forEach(function (pair) {
+      pair[1].forEach(function (m) {
+        list.push(Object.assign({}, m, {
+          _dock: false,
+          _col: n % COLS,
+          _order: COLS + n,
+          kind: m.kind || 'mod'
+        }));
+        n++;
+      });
+    });
+    return list;
+  }
+
+  /* -- Clock (panel only) -- */
   var days = ['domingo','lunes','martes','miércoles','jueves','viernes','sábado'];
   var months = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
   function pad(n) { return n < 10 ? '0' + n : '' + n; }
@@ -735,15 +807,25 @@
     var t = pad(d.getHours()) + ':' + pad(d.getMinutes());
     var dateStr = days[d.getDay()] + ' · ' + d.getDate() + ' ' + months[d.getMonth()];
     var el;
-    el = document.getElementById('clock-top'); if (el) el.textContent = t;
-    el = document.getElementById('date-top'); if (el) el.textContent = dateStr;
     el = document.getElementById('mp-clock'); if (el) el.textContent = t;
     el = document.getElementById('mp-date'); if (el) el.textContent = dateStr + ' · ' + d.getFullYear();
   }
 
-  /* -- Idle snap-back -- */
+  /* -- Idle snap-back: all columns + horizontal home -- */
   var idleTimer = null;
-  var scrollEl = null;
+  var colsViewport = null;
+  function goHome(smooth) {
+    var behavior = smooth === false ? 'auto' : 'smooth';
+    if (colsViewport) {
+      try { colsViewport.scrollTo({ left: 0, behavior: behavior }); }
+      catch (e) { colsViewport.scrollLeft = 0; }
+    }
+    var cols = document.querySelectorAll('.col');
+    for (var i = 0; i < cols.length; i++) {
+      try { cols[i].scrollTo({ top: 0, behavior: behavior }); }
+      catch (e2) { cols[i].scrollTop = 0; }
+    }
+  }
   function resetIdle() {
     if (idleTimer) clearTimeout(idleTimer);
     idleTimer = setTimeout(function () {
@@ -751,20 +833,20 @@
       if (document.getElementById('master-panel').classList.contains('open')) {
         closeMaster();
       }
-      if (scrollEl) {
-        try { scrollEl.scrollTo({ top: 0, behavior: 'smooth' }); }
-        catch (e) { scrollEl.scrollTop = 0; }
+      if (document.body.classList.contains('editing')) {
+        setEditing(false);
       }
+      goHome(true);
       showToast('Inicio · snap-back');
     }, SNAP_MS);
   }
   function armIdleWatch() {
-    scrollEl = document.getElementById('scroll-area');
+    colsViewport = document.getElementById('cols-viewport');
     var events = ['pointerdown', 'pointermove', 'touchstart', 'touchmove', 'wheel', 'keydown', 'scroll'];
     events.forEach(function (ev) {
       document.addEventListener(ev, resetIdle, { passive: true, capture: true });
     });
-    if (scrollEl) scrollEl.addEventListener('scroll', resetIdle, { passive: true });
+    if (colsViewport) colsViewport.addEventListener('scroll', resetIdle, { passive: true });
     resetIdle();
   }
 
@@ -787,6 +869,7 @@
     p.classList.add('open'); b.classList.add('open');
     document.getElementById('btn-master').setAttribute('aria-expanded', 'true');
     tickClock();
+    renderModList();
     resetIdle();
   }
   function closeMaster() {
@@ -795,6 +878,15 @@
     p.classList.remove('open'); b.classList.remove('open');
     p.hidden = true; b.hidden = true;
     document.getElementById('btn-master').setAttribute('aria-expanded', 'false');
+  }
+
+  function setEditing(on) {
+    document.body.classList.toggle('editing', !!on);
+    var btn = document.getElementById('mp-edit');
+    if (btn) btn.textContent = on ? 'Listo · dejar de editar' : 'Añadir / quitar módulos';
+    var reset = document.getElementById('mp-reset-mods');
+    if (reset) reset.hidden = !on;
+    renderModList();
   }
 
   /* -- Module open -- */
@@ -818,13 +910,11 @@
     document.body.classList.remove('mod-open');
     resetIdle();
   }
-
   function openNative(href) {
     if (!href) return;
     try { window.open(href, '_blank', 'noopener'); }
     catch (e) { location.href = href; }
   }
-
   function openCamera() {
     var inp = document.getElementById('cam-input');
     if (!inp) { showToast('Cámara no disponible'); return; }
@@ -832,62 +922,115 @@
     inp.click();
   }
 
-  /* -- Render -- */
-  function renderDock() {
-    var root = document.getElementById('dock');
-    root.innerHTML = '';
-    DOCK.forEach(function (m) {
-      var btn = document.createElement('button');
-      btn.type = 'button';
-      btn.className = 'dock-tile' + (m.shape ? ' shape-' + m.shape : '');
-      btn.setAttribute('aria-label', m.titulo);
-      btn.innerHTML = icoHtml(m.icon, m.color) + '<span class="lab">' + m.titulo + '</span>';
-      btn.addEventListener('click', function () {
-        resetIdle();
-        if (m.kind === 'native') openNative(m.href);
-        else if (m.kind === 'camera') openCamera();
-        else openModule(m.titulo, m.file);
-      });
-      root.appendChild(btn);
-    });
+  function activateModule(m) {
+    resetIdle();
+    if (document.body.classList.contains('editing')) return;
+    if (m.kind === 'native') openNative(m.href);
+    else if (m.kind === 'camera') openCamera();
+    else openModule(m.titulo, m.file);
   }
 
-  function renderShelves() {
-    var root = document.getElementById('shelves');
-    root.innerHTML = '';
-    SHELVES.forEach(function (pair) {
-      var label = pair[0], items = pair[1];
-      var block = document.createElement('section');
-      block.className = 'shelf-block';
-      block.setAttribute('aria-label', label);
-      var h = document.createElement('h2');
-      h.className = 'shelf-label';
-      h.textContent = label;
-      block.appendChild(h);
-      var grid = document.createElement('div');
-      grid.className = 'shelf-grid';
-      items.forEach(function (m) {
-        var btn = document.createElement('button');
-        btn.type = 'button';
-        btn.className = 'mod-tile';
-        btn.setAttribute('aria-label', m.titulo);
-        btn.innerHTML = icoHtml(m.icon, m.color) + '<span class="lab">' + m.titulo + '</span>';
-        btn.addEventListener('click', function () {
-          resetIdle();
-          openModule(m.titulo, m.file);
-        });
-        grid.appendChild(btn);
-      });
-      block.appendChild(grid);
-      root.appendChild(block);
+  function makeTile(m) {
+    var btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'tile' + (m._dock ? ' dock-tile' : '') + (m.shape ? ' shape-' + m.shape : '');
+    btn.dataset.id = m.id;
+    btn.setAttribute('aria-label', m.titulo);
+    btn.innerHTML = icoHtml(m.icon, m.color) +
+      '<span class="lab">' + m.titulo + '</span>' +
+      (m._dock ? '<span class="ledge" aria-hidden="true"></span>' : '') +
+      '<span class="hide-x" aria-label="Quitar">×</span>';
+    btn.addEventListener('click', function (ev) {
+      if (ev.target && ev.target.classList && ev.target.classList.contains('hide-x')) {
+        ev.preventDefault();
+        ev.stopPropagation();
+        setHidden(m.id, true);
+        renderColumns();
+        renderModList();
+        showToast('Quitado · ' + m.titulo);
+        resetIdle();
+        return;
+      }
+      activateModule(m);
     });
+    return btn;
+  }
+
+  function renderColumns() {
+    var track = document.getElementById('cols-track');
+    var scrollLeft = colsViewport ? colsViewport.scrollLeft : 0;
+    var scrollTops = [];
+    var existing = track.querySelectorAll('.col');
+    for (var i = 0; i < existing.length; i++) scrollTops[i] = existing[i].scrollTop;
+
+    track.innerHTML = '';
+    var catalog = allModules();
+    var buckets = [];
+    for (var c = 0; c < COLS; c++) buckets.push([]);
+
+    catalog.forEach(function (m) {
+      if (isHidden(m.id)) return;
+      var col = typeof m._col === 'number' ? m._col : 0;
+      if (col < 0 || col >= COLS) col = 0;
+      buckets[col].push(m);
+    });
+
+    buckets.forEach(function (items, idx) {
+      var col = document.createElement('div');
+      col.className = 'col';
+      col.dataset.col = String(idx);
+      col.setAttribute('aria-label', 'Columna ' + (idx + 1));
+      items.forEach(function (m) { col.appendChild(makeTile(m)); });
+      col.addEventListener('scroll', resetIdle, { passive: true });
+      track.appendChild(col);
+      if (scrollTops[idx]) col.scrollTop = scrollTops[idx];
+    });
+    if (colsViewport) colsViewport.scrollLeft = scrollLeft;
+  }
+
+  function renderModList() {
+    var ul = document.getElementById('mod-list');
+    if (!ul) return;
+    ul.innerHTML = '';
+    var catalog = allModules();
+    var hiddenCount = 0;
+    catalog.forEach(function (m) {
+      var hidden = isHidden(m.id);
+      if (hidden) hiddenCount++;
+      var li = document.createElement('li');
+      if (hidden) li.className = 'hidden-mod';
+      li.innerHTML = icoHtml(m.icon, m.color, 'mico') +
+        '<span class="mtitle">' + m.titulo +
+        (m._dock ? ' <span class="mtag">dock</span>' : '') + '</span>';
+      var tog = document.createElement('button');
+      tog.type = 'button';
+      tog.className = 'toggle';
+      tog.textContent = hidden ? 'Añadir' : 'Quitar';
+      tog.addEventListener('click', function () {
+        setHidden(m.id, !hidden);
+        renderColumns();
+        renderModList();
+        showToast((!hidden ? 'Quitado · ' : 'Añadido · ') + m.titulo);
+        resetIdle();
+      });
+      li.appendChild(tog);
+      ul.appendChild(li);
+    });
+    if (!catalog.length) {
+      ul.innerHTML = '<li class="empty">Sin módulos</li>';
+    }
+    var title = document.getElementById('mods-section-title');
+    if (title) {
+      title.textContent = hiddenCount
+        ? ('Módulos (' + hiddenCount + ' ocultos)')
+        : 'Módulos en la mesa';
+    }
   }
 
   function injectMasterIcon() {
     var btn = document.getElementById('btn-master');
     var ring = btn.querySelector('.pulse-ring');
     btn.insertAdjacentHTML('beforeend', ICONS.escritura || '');
-    /* keep ring first */
     if (ring) btn.appendChild(ring);
   }
 
@@ -896,22 +1039,15 @@
     if (!lab) return;
     if (isFile) lab.textContent = 'Offline · file:// · módulos en carpeta modulos/';
     else if (isContent) lab.textContent = 'Offline · content://';
-    else lab.textContent = 'Vista web · los datos se quedan en este navegador';
-    /* adjust Completo link for file:// */
-    var a = document.getElementById('mp-completo');
-    var s = document.getElementById('mp-site');
-    if (isFile || isContent) {
-      if (a) { a.href = 'https://lesvencimos.com/estanteria.html'; a.textContent = 'Completo A en la web'; }
-      if (s) s.href = 'https://lesvencimos.com/';
-    }
+    else lab.textContent = 'Vista web · preferencias en este navegador (localStorage)';
   }
 
   function init() {
     var ver = document.getElementById('est-build');
     if (ver) ver.textContent = EST_BUILD;
+    colsViewport = document.getElementById('cols-viewport');
     injectMasterIcon();
-    renderDock();
-    renderShelves();
+    renderColumns();
     setOfflineLabel();
     tickClock();
     setInterval(tickClock, 15000);
@@ -926,14 +1062,25 @@
     document.getElementById('btn-back').addEventListener('click', closeModule);
     document.getElementById('mp-home').addEventListener('click', function () {
       closeMaster();
-      if (scrollEl) {
-        try { scrollEl.scrollTo({ top: 0, behavior: 'smooth' }); }
-        catch (e) { scrollEl.scrollTop = 0; }
-      }
+      goHome(true);
       resetIdle();
     });
     document.getElementById('mp-snap').addEventListener('click', function () {
       showToast('Snap-back cada ' + (SNAP_MS / 1000) + ' s sin tocar');
+      resetIdle();
+    });
+    document.getElementById('mp-edit').addEventListener('click', function () {
+      var on = !document.body.classList.contains('editing');
+      setEditing(on);
+      if (on) showToast('Editar mesa · quita o añade módulos');
+      resetIdle();
+    });
+    document.getElementById('mp-reset-mods').addEventListener('click', function () {
+      state.hidden = [];
+      saveState(state);
+      renderColumns();
+      renderModList();
+      showToast('Todos los módulos visibles');
       resetIdle();
     });
     document.getElementById('cam-input').addEventListener('change', function (ev) {
@@ -946,6 +1093,7 @@
       if (ev.key === 'Escape') {
         if (document.body.classList.contains('mod-open')) closeModule();
         else if (document.getElementById('master-panel').classList.contains('open')) closeMaster();
+        else if (document.body.classList.contains('editing')) setEditing(false);
       }
     });
   }
