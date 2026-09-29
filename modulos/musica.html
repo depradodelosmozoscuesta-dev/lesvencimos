@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="dark">
+<title>Música — Les vencimos</title>
+<style>
+:root{
+  --fondo:#0E0E0C; --fondo-2:#161512; --fondo-3:#1C1A16;
+  --tinta:#E6E1D6; --suave:#9A9488; --acento:#C4A15A; --acento-texto:#1A160E;
+  --linea:rgba(230,225,214,.14); --peligro:#C46A4A; --ok:#8F9A72;
+  --serif:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;
+  --sans:"Segoe UI",system-ui,-apple-system,sans-serif; --radio:2px;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;min-height:100%;background:var(--fondo);color:var(--tinta);font-family:var(--sans);line-height:1.5}
+html{color-scheme:dark}
+.wrap{max-width:56rem;margin:0 auto;padding:1.3rem 1rem 4rem}
+header.top{display:flex;align-items:baseline;justify-content:space-between;gap:1rem;flex-wrap:wrap;padding-bottom:1rem;border-bottom:1px solid var(--linea);margin-bottom:1rem}
+header.top h1{margin:0;font-family:var(--serif);font-weight:600;font-size:1.85rem}
+header.top p{margin:0;color:var(--suave);font-size:.76rem;letter-spacing:.12em;text-transform:uppercase}
+.lead{color:var(--suave);margin:0 0 1.1rem;max-width:40rem}
+.tabs{display:flex;flex-wrap:wrap;gap:.35rem;margin:0 0 1rem}
+.tabs button{min-height:44px;padding:.45rem .85rem;border:1px solid var(--linea);background:var(--fondo-2);color:var(--tinta);border-radius:var(--radio);font:600 .88rem var(--sans);cursor:pointer}
+.tabs button.on{background:var(--acento);color:var(--acento-texto);border-color:var(--acento)}
+.panel{display:none}
+.panel.on{display:block}
+.card{background:var(--fondo-2);border:1px solid var(--linea);border-radius:var(--radio);padding:1rem 1rem 1.05rem;margin:0 0 .8rem}
+.card h2{margin:0 0 .35rem;font-family:var(--serif);font-size:1.2rem;font-weight:600}
+.card h3{margin:.8rem 0 .3rem;font-family:var(--serif);font-size:1.02rem;font-weight:600}
+.card p,.card li{color:var(--tinta)}
+.muted{color:var(--suave)}
+.row{display:flex;flex-wrap:wrap;gap:.45rem;align-items:center}
+button.act,a.act{min-height:44px;padding:.5rem .9rem;border:1px solid var(--linea);background:var(--fondo-3);color:var(--tinta);border-radius:var(--radio);font:600 .88rem var(--sans);cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;justify-content:center}
+button.act.pri,a.act.pri{background:var(--acento);color:var(--acento-texto);border-color:var(--acento)}
+button.act.on{background:var(--acento);color:var(--acento-texto);border-color:var(--acento)}
+input[type=range]{width:min(100%,18rem)}
+label.lab{font-size:.78rem;color:var(--suave);letter-spacing:.06em;text-transform:uppercase}
+.muro{display:grid;grid-template-columns:repeat(auto-fill,minmax(9.6rem,1fr));gap:.55rem}
+a.sala{display:flex;flex-direction:column;justify-content:flex-end;min-height:8.4rem;padding:.7rem .75rem .65rem;background:var(--fondo-2);border:1px solid var(--linea);border-radius:var(--radio);color:var(--tinta);text-decoration:none;position:relative;overflow:hidden}
+a.sala:hover,a.sala:focus{border-color:var(--acento);outline:none}
+a.sala strong{font-family:var(--serif);font-size:1.05rem;font-weight:600;position:relative}
+a.sala span{display:block;color:var(--suave);font-size:.74rem;margin-top:.15rem;position:relative}
+a.sala svg.ico{position:absolute;top:.55rem;right:.55rem;opacity:.55}
+.beats{display:flex;gap:.35rem;margin:.6rem 0 .2rem;flex-wrap:wrap}
+.beat{width:2.4rem;height:2.4rem;border-radius:50%;border:1px solid var(--linea);background:var(--fondo-3);display:flex;align-items:center;justify-content:center;font:600 .85rem var(--sans);color:var(--suave)}
+.beat.acc{border-color:var(--acento);color:var(--acento)}
+.beat.now{background:var(--acento);color:var(--acento-texto);border-color:var(--acento)}
+.bpmn{font-family:var(--serif);font-size:3.2rem;line-height:1;margin:.2rem 0}
+.fork{width:100%;max-width:16rem;height:6.2rem}
+.notegrid{display:grid;grid-template-columns:repeat(6,1fr);gap:.35rem}
+.notegrid button{min-height:48px}
+.colofon{margin-top:2.2rem;padding-top:1rem;border-top:1px solid var(--linea);color:var(--suave);font-size:.82rem}
+.colofon a{color:var(--acento)}
+.warn{color:var(--peligro);font-size:.86rem}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header class="top">
+  <h1>Música</h1>
+  <p>Les vencimos · offline</p>
+</header>
+<p class="lead">Toca una sala. El sonido sale de este aparato. Sin nube, sin canciones con derechos: hay formas, pulso, oído y mantenimiento.</p>
+
+<nav class="tabs" id="tabs"></nav>
+
+<section class="panel on" id="p-muro">
+  <p class="muted" style="margin-top:0">Muro de salas. Cada baldosa abre un HTML suelto en esta carpeta.</p>
+  <div class="muro" id="muro"></div>
+  <div class="card" style="margin-top:1rem">
+    <h2>Cómo se usa lejos de la red</h2>
+    <p>Copia la carpeta <strong>musica/</strong> entera. Abre <strong>musica.html</strong> desde Archivos (<code>file://</code>). Si una baldosa no abre, falta ese archivo al lado de este.</p>
+    <p class="muted">Los módulos ya publicados en lesvencimos.com/modulos/ (piano, armónica, saxofón, canto, historia) se enlazan si los copias aquí con el mismo nombre.</p>
+  </div>
+</section>
+
+<section class="panel" id="p-pulso">
+  <div class="card">
+    <h2>Metrónomo</h2>
+    <p class="muted">El acento cae en el 1. Sirve para rasgueo, walking, kit y clásica.</p>
+    <div class="bpmn" id="bpmn">96</div>
+    <div class="row">
+      <label class="lab" for="bpm">BPM</label>
+      <input id="bpm" type="range" min="40" max="240" value="96">
+    </div>
+    <div class="row" style="margin:.6rem 0">
+      <button class="act" data-bpm="60">60</button>
+      <button class="act" data-bpm="80">80</button>
+      <button class="act" data-bpm="96">96</button>
+      <button class="act" data-bpm="120">120</button>
+      <button class="act" data-bpm="140">140</button>
+      <button class="act" data-bpm="174">174</button>
+    </div>
+    <div class="row" id="sigs" style="margin:.4rem 0 0.7rem"></div>
+    <div class="beats" id="beats"></div>
+    <div class="row" style="margin-top:.8rem">
+      <button class="act pri" id="go">Play</button>
+      <button class="act" id="stop">Silencio</button>
+      <button class="act" id="sub">Negra</button>
+    </div>
+    <p class="muted" id="pulsoHint">4/4 · negra = pulso · 96 BPM</p>
+  </div>
+  <div class="card">
+    <h2>Compás como fracción</h2>
+    <p>El número de arriba cuenta pulsos. El de abajo dice qué figura es el pulso. 4/4 = cuatro negras. 6/8 = seis corcheas, se siente en dos grupos de tres.</p>
+    <p>Periodo de una negra: <strong id="periodo">0,625 s</strong>. En un minuto caben <strong id="negras">96</strong> negras.</p>
+  </div>
+</section>
+
+<section class="panel" id="p-acc">
+  <div class="card">
+    <h2>Diapasón · La 440</h2>
+    <p class="muted">A4 = 440 Hz. Referencia de este taller. En file:// no hace falta micrófono.</p>
+    <svg class="fork" viewBox="0 0 200 80" aria-hidden="true">
+      <rect x="92" y="48" width="16" height="26" fill="#C4A15A"/>
+      <rect x="70" y="12" width="10" height="44" rx="4" fill="#E6E1D6"/>
+      <rect x="120" y="12" width="10" height="44" rx="4" fill="#E6E1D6"/>
+      <rect x="70" y="48" width="60" height="10" fill="#E6E1D6"/>
+    </svg>
+    <div class="row">
+      <button class="act pri" id="a440">Tocar La 440</button>
+      <button class="act" id="a432">La 432</button>
+      <button class="act" id="sil">Silencio</button>
+    </div>
+    <p class="muted">432 Hz no es «más natural»: es otro convenio. Este módulo enseña los dos para que oigas la diferencia (~32 cents).</p>
+  </div>
+  <div class="card">
+    <h2>Notas de referencia</h2>
+    <div class="notegrid" id="notes"></div>
+  </div>
+  <div class="card">
+    <h2>Accesorios de sala</h2>
+    <ul>
+      <li><strong>Metrónomo</strong> — pestaña Pulso. Empieza más lento que la canción.</li>
+      <li><strong>Diapasón / A440</strong> — esta pestaña. Luego el oído, no la app.</li>
+      <li><strong>Cejilla, púas, recambio de cuerdas</strong> — en Cuidado de instrumentos.</li>
+      <li><strong>Baquetas, escobillas, pedal</strong> — en el muro de Batería.</li>
+      <li><strong>Auriculares</strong> — el aparato ya es el amplificador.</li>
+    </ul>
+  </div>
+</section>
+
+<section class="panel" id="p-guia">
+  <div class="card">
+    <h2>Qué hay en esta carpeta</h2>
+    <p>Un taller, no un streaming. Cada sala es un HTML. Si tocas y no abre, copia ese archivo al lado de <code>musica.html</code>.</p>
+    <ul>
+      <li><strong>Grupo</strong> — nombre, logo local, miembros, letras y setlist.</li>
+      <li><strong>Guitarra · Bajo</strong> — diapasón, acordes, grooves, mantenimiento, juegos.</li>
+      <li><strong>Batería</strong> — muro del kit: toca parches, grooves, rudimentos.</li>
+      <li><strong>DJ · Electrónica</strong> — mesa y synth con sonido sintético, sin discos ajenos.</li>
+      <li><strong>Clásica</strong> — formas, periodos, motivos de dominio público tocados aquí.</li>
+      <li><strong>Teoría y mates</strong> — 12-TET, Pitágoras, cents, serie armónica, tres juegos.</li>
+      <li><strong>Cuidado</strong> — cuerdas, parches, madera, llaves, limpia y no rompas.</li>
+    </ul>
+  </div>
+  <div class="card">
+    <h2>Regla de la casa</h2>
+    <p>No sustituye a un profesor. Las orejas mandan. No hay tablaturas de discos con derechos. El teléfono no es el enemigo; usarlo como dueño, sí.</p>
+  </div>
+</section>
+
+<footer class="colofon">
+  lesvencimos.com · música · v20260929a
+  · <button class="act" id="wipe" style="margin-left:.4rem">Borrar datos de este módulo</button>
+  <p>Sin cookies, sin cuenta, sin red. localStorage <code>lv-musica-v1</code>.</p>
+</footer>
+</div>
+<script>
+(function(){
+  var KEY='lv-musica-v1';
+  var st={tab:'muro',bpm:96,sig:'4/4',sub:'negra'};
+  try{var s=JSON.parse(localStorage.getItem(KEY)||'');if(s&&typeof s==='object'){for(var k in s)st[k]=s[k];}}catch(e){}
+  function save(){try{localStorage.setItem(KEY,JSON.stringify(st));}catch(e){}}
+
+  var TABS=[
+    ['muro','Muro'],
+    ['pulso','Pulso'],
+    ['acc','Accesorios'],
+    ['guia','Guía']
+  ];
+  var SALAS=[
+    {h:'grupo.html',t:'Grupo',d:'Miembros, logo, letras'},
+    {h:'guitarra.html',t:'Guitarra',d:'Diapasón, acordes, cuidado'},
+    {h:'bajo.html',t:'Bajo',d:'Grados, walking, groove'},
+    {h:'bateria.html',t:'Batería',d:'Muro del kit'},
+    {h:'dj.html',t:'DJ',d:'Mesa, pads, cruce'},
+    {h:'electronica.html',t:'Electrónica',d:'Oscilador y sequencer'},
+    {h:'clasica.html',t:'Clásica',d:'Formas y motivos PD'},
+    {h:'teoria-musical.html',t:'Teoría + mates',d:'12-TET, Pitágoras, juegos'},
+    {h:'cuidado-instrumentos.html',t:'Cuidado',d:'Cuerdas, parches, madera'},
+    {h:'piano.html',t:'Piano',d:'Teclado y lectura'},
+    {h:'armonica.html',t:'Armónica',d:'Aire y posiciones'},
+    {h:'saxofon.html',t:'Saxofón',d:'Embocadura y llaves'},
+    {h:'canto-solfeo.html',t:'Canto',d:'Voz y lectura'},
+    {h:'historia-musica.html',t:'Historia',d:'Épocas y formas'}
+  ];
+
+  var ICO='<svg class="ico" width="36" height="36" viewBox="0 0 36 36" fill="none" stroke="#C4A15A" stroke-width="1.4"><circle cx="18" cy="18" r="12"/><path d="M18 8v10l7 4"/></svg>';
+
+  var tabsEl=document.getElementById('tabs');
+  TABS.forEach(function(t){
+    var b=document.createElement('button');
+    b.textContent=t[1];b.dataset.tab=t[0];
+    b.onclick=function(){st.tab=t[0];save();show();};
+    tabsEl.appendChild(b);
+  });
+  function show(){
+    TABS.forEach(function(t){
+      document.getElementById('p-'+t[0]).className='panel'+(st.tab===t[0]?' on':'');
+    });
+    [].forEach.call(tabsEl.querySelectorAll('button'),function(b){
+      b.className=b.dataset.tab===st.tab?'on':'';
+    });
+  }
+
+  var muro=document.getElementById('muro');
+  SALAS.forEach(function(s){
+    var a=document.createElement('a');
+    a.className='sala';a.href=s.h;
+    a.innerHTML=ICO+'<strong>'+s.t+'</strong><span>'+s.d+'</span>';
+    muro.appendChild(a);
+  });
+
+  var SIGS={'2/4':2,'3/4':3,'4/4':4,'5/4':5,'6/8':6,'7/8':7};
+  var sigs=document.getElementById('sigs');
+  Object.keys(SIGS).forEach(function(k){
+    var b=document.createElement('button');
+    b.className='act';b.textContent=k;
+    b.onclick=function(){st.sig=k;save();drawBeats();hint();};
+    sigs.appendChild(b);
+  });
+
+  var ctx=null,timer=null,step=0,drone=null;
+  function ac(){
+    if(!ctx){ctx=new (window.AudioContext||window.webkitAudioContext)();}
+    if(ctx.state==='suspended')ctx.resume();
+    return ctx;
+  }
+  function click(acc){
+    var c=ac();
+    var o=c.createOscillator();
+    var g=c.createGain();
+    o.type='square';
+    o.frequency.value=acc?1320:880;
+    g.gain.setValueAtTime(0.0001,c.currentTime);
+    g.gain.exponentialRampToValueAtTime(acc?0.12:0.06,c.currentTime+0.005);
+    g.gain.exponentialRampToValueAtTime(0.0001,c.currentTime+0.07);
+    o.connect(g);g.connect(c.destination);
+    o.start();o.stop(c.currentTime+0.08);
+  }
+  function beep(freq,dur){
+    var c=ac();
+    var o=c.createOscillator();
+    var g=c.createGain();
+    o.type='sine';o.frequency.value=freq;
+    g.gain.setValueAtTime(0.0001,c.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.09,c.currentTime+0.02);
+    g.gain.exponentialRampToValueAtTime(0.0001,c.currentTime+dur);
+    o.connect(g);g.connect(c.destination);
+    o.start();o.stop(c.currentTime+dur+0.02);
+    return {o:o,g:g};
+  }
+  function stopDrone(){
+    if(drone){try{drone.g.gain.exponentialRampToValueAtTime(0.0001,ac().currentTime+0.05);drone.o.stop(ac().currentTime+0.08);}catch(e){}drone=null;}
+  }
+
+  function nBeats(){return SIGS[st.sig]||4;}
+  function drawBeats(){
+    var el=document.getElementById('beats');el.innerHTML='';
+    var n=nBeats();
+    for(var i=0;i<n;i++){
+      var d=document.createElement('div');
+      d.className='beat'+(i===0?' acc':'');
+      d.id='b'+i;d.textContent=i+1;
+      el.appendChild(d);
+    }
+    [].forEach.call(sigs.querySelectorAll('button'),function(b){
+      b.className='act'+(b.textContent===st.sig?' on':'');
+    });
+  }
+  function mark(i){
+    var n=nBeats();
+    for(var k=0;k<n;k++){
+      var el=document.getElementById('b'+k);
+      if(!el)continue;
+      el.className='beat'+(k===0?' acc':'')+(k===i?' now':'');
+    }
+  }
+  function intervalMs(){
+    var beat=60000/st.bpm;
+    if(st.sub==='corchea')return beat/2;
+    if(st.sub==='tresillo')return beat/3;
+    return beat;
+  }
+  function tick(){
+    var n=nBeats();
+    var acc=(step%n)===0;
+    click(acc);mark(step%n);step++;
+  }
+  function play(){
+    stopMet();ac();step=0;tick();
+    timer=setInterval(tick,intervalMs());
+    document.getElementById('go').textContent='Sigue';
+  }
+  function stopMet(){
+    if(timer){clearInterval(timer);timer=null;}
+    document.getElementById('go').textContent='Play';
+    drawBeats();
+  }
+  function hint(){
+    document.getElementById('bpmn').textContent=st.bpm;
+    document.getElementById('bpm').value=st.bpm;
+    var per=60/st.bpm;
+    document.getElementById('periodo').textContent=per.toFixed(3).replace('.',',')+' s';
+    document.getElementById('negras').textContent=String(st.bpm);
+    document.getElementById('pulsoHint').textContent=st.sig+' · '+st.sub+' · '+st.bpm+' BPM';
+    document.getElementById('sub').textContent=st.sub==='negra'?'Negra':st.sub==='corchea'?'Corchea':'Tresillo';
+  }
+
+  document.getElementById('bpm').oninput=function(){
+    st.bpm=+this.value;save();hint();
+    if(timer){play();}
+  };
+  [].forEach.call(document.querySelectorAll('[data-bpm]'),function(b){
+    b.onclick=function(){st.bpm=+b.getAttribute('data-bpm');save();hint();if(timer)play();};
+  });
+  document.getElementById('go').onclick=play;
+  document.getElementById('stop').onclick=function(){stopMet();stopDrone();};
+  document.getElementById('sub').onclick=function(){
+    st.sub=st.sub==='negra'?'corchea':st.sub==='corchea'?'tresillo':'negra';
+    save();hint();if(timer)play();
+  };
+
+  var NOTES=[
+    ['Do3',130.81],['Mi3',164.81],['Sol3',196.00],['Do4',261.63],
+    ['Mi4',329.63],['Sol4',392.00],['La4',440.00],['Do5',523.25],
+    ['Mi5',659.26],['Sol5',783.99],['La5',880.00],['Do6',1046.50]
+  ];
+  var ng=document.getElementById('notes');
+  NOTES.forEach(function(n){
+    var b=document.createElement('button');
+    b.className='act';b.textContent=n[0];
+    b.onclick=function(){stopDrone();beep(n[1],0.7);};
+    ng.appendChild(b);
+  });
+  document.getElementById('a440').onclick=function(){
+    stopDrone();var r=beep(440,8);drone=r;
+  };
+  document.getElementById('a432').onclick=function(){
+    stopDrone();var r=beep(432,8);drone=r;
+  };
+  document.getElementById('sil').onclick=function(){stopDrone();stopMet();};
+
+  document.getElementById('wipe').onclick=function(){
+    try{localStorage.removeItem(KEY);}catch(e){}
+    st={tab:'muro',bpm:96,sig:'4/4',sub:'negra'};
+    stopMet();stopDrone();show();drawBeats();hint();
+  };
+
+  show();drawBeats();hint();
+})();
+</script>
+</body>
+</html>

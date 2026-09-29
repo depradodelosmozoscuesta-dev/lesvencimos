@@ -44,15 +44,21 @@ th{color:var(--suave);font-size:.72rem;letter-spacing:.08em;text-transform:upper
 .staff{width:100%;max-width:28rem;height:90px}
 .foot{margin-top:2rem;padding-top:.8rem;border-top:1px solid var(--linea);color:var(--suave);font-size:.8rem}
 .aviso{border-left:3px solid var(--acento);padding:.2rem 0 .2rem .7rem;color:var(--suave);margin:.5rem 0}
-input[type=range]{width:100%}
 
+.muro{display:grid;grid-template-columns:repeat(auto-fit,minmax(9rem,1fr));gap:.45rem;margin:.55rem 0}
+.muro .tile{min-height:88px;background:var(--fondo-3);border:1px solid var(--linea);border-radius:var(--radio);padding:.7rem}
+.muro .tile b{display:block;font-family:var(--serif);font-size:1.05rem;margin-top:.2rem}
+.muro .tile span{color:var(--suave);font-size:.82rem}
+.sib{display:flex;flex-wrap:wrap;gap:.45rem;margin-top:1.4rem;padding-top:.7rem;border-top:1px solid var(--linea)}
+.sib a{color:var(--acento);text-decoration:none;font-weight:600;font-size:.86rem;min-height:44px;display:inline-flex;align-items:center}
+
+input[type=range]{width:100%}
 .dual-box{background:var(--fondo-2,#161512);border:1px solid var(--linea,rgba(230,225,214,.14));border-radius:var(--radio,2px);padding:1rem;margin:1rem 0}
 .dual-box h2{margin:0 0 .55rem;font-size:.7rem;letter-spacing:.16em;text-transform:uppercase;color:var(--suave,#9A9488);font-weight:600}
 .dual-box .row{display:flex;flex-wrap:wrap;gap:.4rem;align-items:center;margin-top:.55rem}
 .dual-box a{color:var(--tinta,#E6E1D6);font-weight:700;font-size:.9rem}
-button.dual-rec{appearance:none;min-height:44px;padding:.55rem 1rem;border-radius:var(--radio,2px);cursor:pointer;font:700 .9rem var(--sans,system-ui,sans-serif);border:1px solid var(--peligro,#C46A4A);background:var(--peligro,#C46A4A);color:var(--tinta,#E6E1D6)}
-button.dual-rec.on{border-color:var(--acento,#C4A15A);background:var(--acento,#C4A15A);color:var(--acento-texto,#1A160E)}
-
+.dual-rec{appearance:none;min-height:44px;padding:.55rem 1rem;border-radius:var(--radio,2px);cursor:pointer;font:700 .9rem var(--sans,system-ui,sans-serif);border:1px solid var(--peligro,#C46A4A);background:var(--peligro,#C46A4A);color:var(--tinta,#E6E1D6)}
+.dual-rec.on{border-color:var(--acento,#C4A15A);background:var(--acento,#C4A15A);color:var(--acento-texto,#1A160E)}
 </style>
 </head>
 <body>
@@ -67,6 +73,16 @@ button.dual-rec.on{border-color:var(--acento,#C4A15A);background:var(--acento,#C
 <div class="tabs" id="tabs"></div>
 <main id="view"></main>
 
+<nav class="sib">
+  <a href="musica.html">Música</a>
+  <a href="guitarra.html">Guitarra</a>
+  <a href="bateria.html">Batería</a>
+  <a href="teoria-musical.html">Teoría</a>
+  <a href="cuidado-instrumentos.html">Cuidado</a>
+</nav>
+<p class="foot">Les vencimos · file:// · la voz del aparato sale de Web Audio<br>
+<button type="button" id="wipe">Borrar datos de este módulo</button></p>
+</div>
   <div class="dual-box" id="dual-box">
     <h2>Grabación · dos pistas</h2>
     <p class="hint" style="color:var(--suave,#9A9488);font-size:.84rem;margin:0">Dentro = lo que suena esta página. Fuera = micrófono. Spotify u otras apps no entran en Dentro; con altavoz el micro las oye en Fuera.</p>
@@ -82,18 +98,8 @@ button.dual-rec.on{border-color:var(--acento,#C4A15A);background:var(--acento,#C
     </div>
   </div>
 
-<p class="foot">Les vencimos · file:// · la voz del aparato sale de Web Audio · v20260927j<br>
-<button type="button" id="wipe">Borrar datos de este módulo</button></p>
-</div>
 <script>
 (function(){
-
-  var lvMaster=null;
-  function lvEnsureMaster(ac){
-    if(!ac) return null;
-    if(!lvMaster){ lvMaster=ac.createGain(); lvMaster.gain.value=1; lvMaster.connect(ac.destination); }
-    return lvMaster;
-  }
   var KEY='lv-bajo-v1';
   var st={tipo:'precision', tun:'std', tab:'camino', bpm:80, compas:'4/4'};
   try{ var s=JSON.parse(localStorage.getItem(KEY)||'{}'); Object.assign(st,s);}catch(e){}
@@ -111,8 +117,8 @@ button.dual-rec.on{border-color:var(--acento,#C4A15A);background:var(--acento,#C
     fifth:{n:'Cinco cuerdas B E A D G', midi:[23,28,33,38,43], names:['Si','Mi','La','Re','Sol']}
   };
   var TABS=[
-    ['camino','Camino'],['afinar','Afinador'],['ritmo','Pulso'],
-    ['grados','Grados'],['escalas','Escalas'],['solfeo','Solfeo'],['estilo','Estilo']
+    ['muro','Muro'],['camino','Camino'],['afinar','Afinador'],['ritmo','Pulso'],
+    ['grados','Grados'],['escalas','Escalas'],['solfeo','Solfeo'],['mates','Mates'],['cuidado','Cuidado'],['juegos','Juegos'],['estilo','Estilo']
   ];
   var CAMINO=[
     'Semana 1 — Nombra las cuatro cuerdas al aire (Mi La Re Sol, grave a agudo) y afina cada día con la referencia.',
@@ -133,14 +139,24 @@ button.dual-rec.on{border-color:var(--acento,#C4A15A);background:var(--acento,#C
   function midiToFreq(m){ return 440*Math.pow(2,(m-69)/12); }
 
   var ctx=null;
-  function ensure(){ if(!ctx){ ctx=new (window.AudioContext||window.webkitAudioContext)(); lvEnsureMaster(ctx);} if(ctx.state==='suspended') ctx.resume(); return ctx; }
+  var lvMaster=null;
+  function lvEnsureMaster(ac){
+    if(!ac) return null;
+    if(!lvMaster){ lvMaster=ac.createGain(); lvMaster.gain.value=1; lvMaster.connect(ac.destination); }
+    return lvMaster;
+  }
+  function ensure(){
+    if(!ctx){ ctx = new (window.AudioContext||window.webkitAudioContext)(); lvEnsureMaster(ctx); }
+    if(ctx.state==='suspended') ctx.resume();
+    return ctx;
+  }
   function beep(freq, dur, type){
     var c=ensure(); var o=c.createOscillator(); var g=c.createGain();
     o.type=type||'sine'; o.frequency.value=freq;
     g.gain.setValueAtTime(0.0001,c.currentTime);
     g.gain.exponentialRampToValueAtTime(0.12,c.currentTime+0.02);
     g.gain.exponentialRampToValueAtTime(0.0001,c.currentTime+(dur||0.4));
-    o.connect(g); g.connect(lvEnsureMaster(c)); o.start(); o.stop(c.currentTime+(dur||0.45));
+    o.connect(g); g.connect(c.destination); o.start(); o.stop(c.currentTime+(dur||0.45));
   }
   function pluck(midi){ beep(midiToFreq(midi), 0.55, 'triangle'); }
 
@@ -157,14 +173,62 @@ button.dual-rec.on{border-color:var(--acento,#C4A15A);background:var(--acento,#C
   function paint(){
     renderTabs();
     var v=document.getElementById('view');
-    if(st.tab==='camino') v.innerHTML=viewCamino();
+    if(st.tab==='muro') v.innerHTML=viewMuro();
+    else if(st.tab==='camino') v.innerHTML=viewCamino();
     else if(st.tab==='afinar') v.innerHTML=viewAfinar();
     else if(st.tab==='ritmo') v.innerHTML=viewRitmo();
     else if(st.tab==='grados') v.innerHTML=viewGrados();
     else if(st.tab==='escalas') v.innerHTML=viewEscalas();
     else if(st.tab==='solfeo') v.innerHTML=viewSolfeo();
+    else if(st.tab==='mates') v.innerHTML=viewMates();
+    else if(st.tab==='cuidado') v.innerHTML=viewCuidado();
+    else if(st.tab==='juegos') v.innerHTML=viewJuegos();
     else v.innerHTML=viewEstilo();
     bind();
+  }
+
+
+  function viewMuro(){
+    return '<div class="box"><h2>Muro · el bajo se ve</h2>'+
+      '<div class="muro">'+
+      '<div class="tile"><span>Precision / Jazz</span><b>4 cuerdas</b></div>'+
+      '<div class="tile"><span>Grave extra</span><b>5 cuerdas</b></div>'+
+      '<div class="tile"><span>Sin trastes</span><b>Fretless</b></div>'+
+      '<div class="tile"><span>Caja que habla</span><b>Acústico</b></div>'+
+      '</div><p class="meta">El bajo señala tónica y quinta. No rellena. Si suena a guitarra grave, estás tocando de más.</p></div>'+
+      '<div class="box"><h2>Accesorios</h2><div class="muro">'+
+      '<div class="tile"><span>Solo si es activo</span><b>Pila 9 V</b></div>'+
+      '<div class="tile"><span>Hombro, no cuello</span><b>Correa ancha</b></div>'+
+      '<div class="tile"><span>Calibre que ya usas</span><b>Cuerdas</b></div>'+
+      '<div class="tile"><span>Este HTML vale</span><b>Metrónomo</b></div>'+
+      '</div></div>';
+  }
+  function viewMates(){
+    return '<div class="box"><h2>El bajo es una octava abajo</h2>'+
+      '<p>Cuerdas al aire (4): Mi1 41,2 Hz · La1 55 · Re2 73,4 · Sol2 98. La 5.ª cuerda extra suele ser Si0 ≈ 30,87 Hz.</p>'+
+      '<p class="meta">Octava = 2:1. Quinta = 3:2 (justa) o 2<sup>7/12</sup> (traste 7). El walking vive en 1–3–5–6–8.</p>'+
+      '<div class="chips"><button type="button" id="b-oct">Aire y octava</button><button type="button" id="b-15">1–5–8</button><button type="button" id="b-walk">Walking Do</button></div>'+
+      '<p class="meta">f = 440 × 2<sup>(midi−69)/12</sup>. Cuenta larga en <a href="teoria-musical.html" style="color:var(--acento)">Teoría</a>.</p></div>';
+  }
+  function viewCuidado(){
+    return '<div class="box"><h2>Calendario</h2><ul>'+
+      '<li>Cada uso: paño en cuerdas. Si es activo, apagar el preamp.</li>'+
+      '<li>Pila 9 V: si el ataque se apaga, cámbiala. Sácala si no tocas semanas.</li>'+
+      '<li>Cuerdas oxidadas = groove muerto. Duran más que las de guitarra, no eternas.</li>'+
+      '<li>Fretless: no uses cuerdas rotas. El diapasón se marca.</li>'+
+      '</ul><p class="aviso">No colgarlo de un solo clavijero. No lija de obra en los trastes.</p>'+
+      '<p><a href="cuidado-instrumentos.html" style="color:var(--acento)">Muro de cuidado</a></p></div>';
+  }
+  var _bq=2;
+  function viewJuegos(){
+    return '<div class="box"><h2>Qué cuerda</h2><p class="meta">Suena un aire. Di cuál.</p>'+
+      '<div class="chips" id="bj-str"><button type="button" data-s="0">Mi</button><button type="button" data-s="1">La</button><button type="button" data-s="2">Re</button><button type="button" data-s="3">Sol</button></div>'+
+      '<p class="meta" id="bj-out">Dale a Otra.</p>'+
+      '<button type="button" id="bj-go">Otra</button></div>'+
+      '<div class="box"><h2>Grado</h2><p class="meta">Tónica y luego 3.ª, 5.ª u 8.ª. ¿Cuál?</p>'+
+      '<div class="chips" id="bj-g"><button type="button" data-g="3">3.ª</button><button type="button" data-g="5">5.ª</button><button type="button" data-g="8">8.ª</button></div>'+
+      '<p class="meta" id="bj-gout">Dale a Otra.</p>'+
+      '<button type="button" id="bj-gogo">Otra</button></div>';
   }
 
   function viewCamino(){
@@ -316,6 +380,38 @@ button.dual-rec.on{border-color:var(--acento,#C4A15A);background:var(--acento,#C
     var i3=document.getElementById('int3'); if(i3) i3.onclick=function(){ pluck(33); setTimeout(function(){pluck(36);},400); };
     var i5=document.getElementById('int5'); if(i5) i5.onclick=function(){ pluck(33); setTimeout(function(){pluck(40);},400); };
     var i8=document.getElementById('int8'); if(i8) i8.onclick=function(){ pluck(33); setTimeout(function(){pluck(45);},400); };
+    var bo=document.getElementById('b-oct');
+    if(bo) bo.onclick=function(){ pluck(28); setTimeout(function(){ pluck(40); }, 450); };
+    var b15=document.getElementById('b-15');
+    if(b15) b15.onclick=function(){ [28,35,40].forEach(function(m,i){ setTimeout(function(){ pluck(m); }, i*280); }); };
+    var bw=document.getElementById('b-walk');
+    if(bw) bw.onclick=function(){ [36,40,43,45,43,40].forEach(function(m,i){ setTimeout(function(){ pluck(m); }, i*240); }); };
+    var go=document.getElementById('bj-go');
+    if(go) go.onclick=function(){
+      st._qs=Math.floor(Math.random()*4);
+      var mid=[28,33,38,43][st._qs];
+      pluck(mid);
+      document.getElementById('bj-out').textContent='Escucha.';
+    };
+    var gs=document.getElementById('bj-str');
+    if(gs) gs.onclick=function(e){
+      var x=e.target.closest('button[data-s]'); if(!x) return;
+      var ok=+x.dataset.s===(st._qs||0);
+      document.getElementById('bj-out').textContent=ok?'Esa.':'Era '+['Mi','La','Re','Sol'][st._qs||0]+'.';
+    };
+    var gg=document.getElementById('bj-gogo');
+    if(gg) gg.onclick=function(){
+      st._qg=[3,5,8][Math.floor(Math.random()*3)];
+      pluck(36);
+      setTimeout(function(){ pluck(36+(st._qg===3?4:st._qg===5?7:12)); }, 420);
+      document.getElementById('bj-gout').textContent='Tónica y la otra.';
+    };
+    var gd=document.getElementById('bj-g');
+    if(gd) gd.onclick=function(e){
+      var x=e.target.closest('button[data-g]'); if(!x) return;
+      var ok=+x.dataset.g===(st._qg||5);
+      document.getElementById('bj-gout').textContent=ok?'Esa.':'Era la '+ (st._qg||5) + '.ª.';
+    };
   }
 
   document.getElementById('wipe').onclick=function(){
@@ -324,6 +420,7 @@ button.dual-rec.on{border-color:var(--acento,#C4A15A);background:var(--acento,#C
     paint();
   };
   paint();
+})();
 
   /* —— Grabar las dos: Dentro=Web Audio de la página, Fuera=mic —— */
   var lvDual=false, lvRecIn=null, lvRecOut=null;
@@ -419,6 +516,7 @@ button.dual-rec.on{border-color:var(--acento,#C4A15A);background:var(--acento,#C
   })();
 
 })();
+
 </script>
 </body>
 </html>

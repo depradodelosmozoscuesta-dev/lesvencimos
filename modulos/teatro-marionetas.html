@@ -92,6 +92,7 @@ button.on{background:var(--acento);color:var(--acento-texto);border-color:var(--
   background:var(--fondo-3);color:var(--tinta);font:600 .85rem var(--sans);cursor:pointer;
 }
 .chip.on{background:var(--acento);color:var(--acento-texto);border-color:var(--acento)}
+.chip.pair{background:#3a4a38;color:#e6e1d6;border-color:#8a9a60}
 .field{display:block;margin:0 0 .7rem}
 .field span{display:block;font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;color:var(--suave);margin-bottom:.3rem}
 input,textarea,select{
@@ -122,6 +123,57 @@ body.escena .stage-wrap{max-width:56rem}
 #btnEscenaTab{display:none;position:fixed;bottom:0;left:0;right:0;z-index:8;min-height:40px;border-radius:0;background:#161512;color:var(--suave);font-size:.72rem;letter-spacing:.14em;text-transform:uppercase}
 .chip.rec{background:#7A2430;border-color:#7A2430;color:#fff}
 
+/* ——— pad + taller ——— */
+.pad-dock{
+  margin-top:.65rem;background:var(--fondo-2);border:1px solid var(--linea);
+  border-radius:var(--radio);padding:.7rem .8rem .85rem;
+}
+.pad-dock .ttl{font-size:.7rem;letter-spacing:.12em;text-transform:uppercase;color:var(--suave);margin:0 0 .45rem}
+.pad-row{display:flex;gap:.8rem;align-items:center;flex-wrap:wrap}
+.pad-board{
+  position:relative;width:168px;height:168px;flex:0 0 168px;
+  background:radial-gradient(circle at 50% 42%, #2a2620 0%, #161410 70%);
+  border:2px solid var(--madera-clara);border-radius:50%;
+  box-shadow:inset 0 0 0 6px var(--madera), 0 4px 14px rgba(0,0,0,.35);
+  touch-action:none;cursor:pointer;user-select:none;
+}
+.pad-board .cross{
+  position:absolute;inset:18px;border-radius:50%;pointer-events:none;
+  background:
+    linear-gradient(var(--linea),var(--linea)) center/2px 70% no-repeat,
+    linear-gradient(var(--linea),var(--linea)) center/70% 2px no-repeat;
+  opacity:.55;
+}
+.pad-knob{
+  position:absolute;width:54px;height:54px;margin:-27px 0 0 -27px;left:50%;top:50%;
+  border-radius:50%;background:radial-gradient(circle at 35% 30%, #e6d2a4, var(--acento) 55%, #8a7038);
+  border:2px solid #3a2810;box-shadow:0 3px 8px rgba(0,0,0,.4);pointer-events:none;
+}
+.pad-knob.latched{box-shadow:0 0 0 3px rgba(196,161,90,.45), 0 3px 8px rgba(0,0,0,.4)}
+.pad-side{flex:1;min-width:12rem}
+.pad-dirs{display:grid;grid-template-columns:repeat(3,56px);gap:.35rem;justify-content:center;margin:.2rem 0 .5rem}
+.pad-dirs button{min-width:56px;min-height:48px;padding:0;font-size:1.05rem}
+.swatches{display:flex;flex-wrap:wrap;gap:.35rem}
+.swatch{
+  width:36px;height:36px;border-radius:50%;border:2px solid var(--linea);
+  cursor:pointer;padding:0;min-width:36px;min-height:36px;
+}
+.swatch.on{border-color:var(--acento);box-shadow:0 0 0 2px var(--acento)}
+.preview-box{
+  background:#1a1510;border:8px solid var(--madera);border-radius:4px;
+  height:220px;display:flex;align-items:center;justify-content:center;
+}
+.preview-box canvas{display:block;width:180px;height:200px}
+.taller-grid{display:grid;grid-template-columns:1fr;gap:.8rem}
+@media(min-width:640px){.taller-grid{grid-template-columns:200px 1fr}}
+.saved-list{display:flex;flex-direction:column;gap:.4rem}
+.saved-row{
+  display:flex;align-items:center;gap:.5rem;flex-wrap:wrap;
+  background:var(--fondo-3);border:1px solid var(--linea);padding:.45rem .6rem;border-radius:var(--radio);
+}
+.saved-row .nm{flex:1;font-family:var(--serif);font-weight:600}
+body.escena .pad-dock{display:none}
+
 </style>
 </head>
 <body>
@@ -131,7 +183,7 @@ body.escena .stage-wrap{max-width:56rem}
 </header>
 
 <section id="lobby" class="screen on" aria-label="Vestíbulo">
-  <p class="blurb">Elige un cuento o inventa tu función. Las marionetas se miran, hablan y se inclinan. En el panel Titiritero puedes arrastrarlas, grabar el gesto y reproducirlo. «Modo escenario» esconde los botones para el público. Sin internet.</p>
+  <p class="blurb">Elige un cuento, inventa tu función o entra al taller para vestir a un muñeco. En Titiritero el pad mueve la figura sin taparla con el dedo: pincha una dirección y anda sola. A veces se ven las manos que la manejan. Sin internet.</p>
   <div class="grid" id="showGrid"></div>
   <p class="foot">Archivo local · motor compartido con el gimnasio · 4–8 años</p>
 </section>
@@ -174,19 +226,94 @@ body.escena .stage-wrap{max-width:56rem}
       <button type="button" id="btnEscena">Modo escenario</button>
     </div>
     <div class="op-body">
-      <p class="op-hint">Arrastra una marioneta en el escenario. Graba el movimiento y reprodúcelo con el telón abierto. En «Modo escenario» se ocultan los botones: el público solo ve la función. Un toque abajo los devuelve.</p>
-      <p class="op-sel" id="opSel">Nadie elegido. Toca una figura.</p>
+      <p class="op-hint">Toca un muñeco y luego otro: salen acciones de los dos (bailar, lucha de patio, abrazo, beso). El pad mueve al primero. «Director» enseña al titiritero. «Modo escenario» oculta los botones.</p>
+      <p class="op-sel" id="opSel">Nadie elegido. Toca una figura o una ficha.</p>
+      <div class="chips" id="opCast"></div>
+      <p class="op-hint" style="margin:.35rem 0 .2rem">Decorado</p>
+      <div class="chips" id="opSets"></div>
+      <p class="op-hint" style="margin:.35rem 0 .2rem">Clima</p>
+      <div class="chips" id="opWeather"></div>
+      <p class="op-hint" style="margin:.35rem 0 .2rem">En la mano</p>
+      <div class="chips" id="opItems"></div>
+      <p class="op-hint" style="margin:.35rem 0 .2rem">Atrezzo</p>
+      <div class="chips" id="opProps"></div>
+      <p class="op-hint" style="margin:.35rem 0 .2rem">Los dos</p>
+      <div class="chips" id="opPair"></div>
       <div class="chips" id="opActions"></div>
       <div class="btn-row">
         <button type="button" id="btnRec">Grabar</button>
         <button type="button" id="btnRecPlay" disabled>Reproducir gesto</button>
         <button type="button" id="btnRecClear" disabled>Borrar gesto</button>
         <button type="button" id="btnTilt">Inclinar: no</button>
+        <button type="button" id="btnHands">Manos: no</button>
+        <button type="button" id="btnDirector" class="on">Director: sí</button>
+        <button type="button" id="btnSound" class="on">Sonido: sí</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="pad-dock" id="padDock">
+    <p class="ttl">Pad del titiritero</p>
+    <div class="pad-row">
+      <div class="pad-board" id="padBoard" role="application" aria-label="Pad para mover la marioneta">
+        <div class="cross" aria-hidden="true"></div>
+        <div class="pad-knob" id="padKnob" aria-hidden="true"></div>
+      </div>
+      <div class="pad-side">
+        <p class="op-hint" id="padHint">Elige un muñeco y pincha el pad. Suelta: sigue andando. Centro o «Parar»: se queda.</p>
+        <div class="pad-dirs">
+          <span></span>
+          <button type="button" id="padUp" title="Arriba">↑</button>
+          <span></span>
+          <button type="button" id="padLeft" title="Izquierda">←</button>
+          <button type="button" id="padStop" title="Parar">●</button>
+          <button type="button" id="padRight" title="Derecha">→</button>
+          <span></span>
+          <button type="button" id="padDown" title="Abajo">↓</button>
+          <span></span>
+        </div>
+        <div class="btn-row">
+          <button type="button" id="btnPadMode" class="on">Pinchar</button>
+          <button type="button" id="btnPadHold">Sostener</button>
+        </div>
       </div>
     </div>
   </div>
 <button type="button" id="btnEscenaTab">Titiritero</button>
 
+</section>
+
+<section id="tallerScreen" class="screen" aria-label="Taller">
+  <div class="btn-row">
+    <button type="button" class="ghost" id="btnBackTaller">← Vestíbulo</button>
+  </div>
+  <h2 class="stage-title">Taller de marionetas</h2>
+  <p class="hint">Elige un cuerpo, ponle nombre y cámbiale la ropa. Se guarda en este aparato, no en la nube.</p>
+  <div class="taller-grid">
+    <div>
+      <div class="preview-box"><canvas id="tallerCanvas" width="180" height="200" aria-label="Vista previa"></canvas></div>
+      <div class="btn-row">
+        <button type="button" class="primary" id="btnTallerSave">Guardar en el elenco</button>
+      </div>
+    </div>
+    <div>
+      <label class="field"><span>Nombre</span><input id="tallerName" maxlength="24" placeholder="Cómo se llama"></label>
+      <h2 class="sec">Cuerpo</h2>
+      <div class="chips" id="tallerBases"></div>
+      <h2 class="sec">Peinado</h2>
+      <div class="chips" id="tallerHair"></div>
+      <h2 class="sec">Piel</h2>
+      <div class="swatches" id="tallerSkin"></div>
+      <h2 class="sec">Pelo</h2>
+      <div class="swatches" id="tallerHairCol"></div>
+      <h2 class="sec">Ropa</h2>
+      <div class="swatches" id="tallerCloth"></div>
+      <h2 class="sec">Zapatos</h2>
+      <div class="swatches" id="tallerShoe"></div>
+    </div>
+  </div>
+  <h2 class="sec">Elenco guardado</h2>
+  <div class="saved-list" id="tallerSaved"></div>
 </section>
 
 <section id="createScreen" class="screen" aria-label="Crear función">
@@ -195,6 +322,8 @@ body.escena .stage-wrap{max-width:56rem}
   </div>
   <h2 class="stage-title">Crear función</h2>
   <p class="hint">Elige 2 o 3 marionetas y escribe 4 a 6 frases.</p>
+  <h2 class="sec">Decorado</h2>
+  <div class="chips" id="createSets"></div>
   <h2 class="sec">Marionetas (2–3)</h2>
   <div class="chips" id="puppetChips"></div>
   <h2 class="sec">Diálogo</h2>
@@ -237,7 +366,20 @@ body.escena .stage-wrap{max-width:56rem}
     dragon:   { skin:'#5b9b8a', skinD:'#3a7a6a', ink:'#1a3a30', hair:'#3a7a6a', hairD:'#2a5a4a', top:'#4a8a78', topD:'#2a6a58', cloth:'#4a8a78', clothD:'#2a6a58', short:'#3a7a6a', shoe:'#3a7a6a', sole:'#7bc4a8', blush:'#7bc4a8', lip:'#2a5a4a', eye:'#1a2a20', accent:'#e07040' },
     holmes:   { skin:'#e4b892', skinD:'#c4946e', ink:'#4a3428', hair:'#3a2a20', hairD:'#1c1612', top:'#3a4a5a', topD:'#243038', cloth:'#2a3540', clothD:'#1a2228', short:'#2a3040', shoe:'#1a1a1a', sole:'#c8c0b4', blush:'#d09078', lip:'#8a5a4a', eye:'#2a2018', accent:'#8a6a3a' },
     watson:   { skin:'#e8bc96', skinD:'#c89870', ink:'#4a3428', hair:'#5a3a28', hairD:'#3a2418', top:'#6a3030', topD:'#4a2020', cloth:'#4a3a30', clothD:'#2e241c', short:'#3a3028', shoe:'#1a1a1a', sole:'#d0c8bc', blush:'#d09078', lip:'#8a5a4a', eye:'#2a2018', accent:'#c4a15a' },
-    inspector:{ skin:'#dcb090', skinD:'#c09070', ink:'#4a3428', hair:'#2a2018', hairD:'#16120e', top:'#3a4a38', topD:'#2a3228', cloth:'#3a4a38', clothD:'#2a3228', short:'#2a3228', shoe:'#1a1a1a', sole:'#c8c0b4', blush:'#c88870', lip:'#8a5a4a', eye:'#241910', accent:'#8b6840' }
+    inspector:{ skin:'#dcb090', skinD:'#c09070', ink:'#4a3428', hair:'#2a2018', hairD:'#16120e', top:'#3a4a38', topD:'#2a3228', cloth:'#3a4a38', clothD:'#2a3228', short:'#2a3228', shoe:'#1a1a1a', sole:'#c8c0b4', blush:'#c88870', lip:'#8a5a4a', eye:'#241910', accent:'#8b6840' },
+    abuelo:   { skin:'#e8c8a8', skinD:'#d0a888', ink:'#5a3d2c', hair:'#d8d0c4', hairD:'#b8b0a4', top:'#4a5a68', topD:'#2e3a44', cloth:'#5a6a78', clothD:'#3a4a58', short:'#3a4a58', shoe:'#3a2b22', sole:'#f3eadc', blush:'#d09078', lip:'#a06050', eye:'#3a2418', accent:'#c4a15a' },
+    rey:      { skin:'#e8b890', skinD:'#c9946a', ink:'#5a3d2c', hair:'#4a3020', hairD:'#2a1c12', top:'#8a3030', topD:'#5a1818', cloth:'#c4a15a', clothD:'#8a7038', short:'#5a1818', shoe:'#3a2a18', sole:'#f3eadc', blush:'#d09078', lip:'#a06050', eye:'#2a2018', accent:'#e8b84a' },
+    reina:    { skin:'#f0c8a8', skinD:'#d9a888', ink:'#6a4a34', hair:'#2a2018', hairD:'#16120e', top:'#6a2040', topD:'#4a1028', cloth:'#8a3058', clothD:'#5a1838', short:'#4a1028', shoe:'#4a1028', sole:'#f3eadc', blush:'#f09b88', lip:'#c45e4c', eye:'#3a2418', accent:'#e8b84a' },
+    caballero:{ skin:'#e0b090', skinD:'#c09070', ink:'#5a3d2c', hair:'#3e2a18', hairD:'#24180c', top:'#6a6e74', topD:'#4a4e54', cloth:'#8a8e94', clothD:'#5a5e64', short:'#4a4e54', shoe:'#2a2014', sole:'#c4a078', blush:'#d08070', lip:'#a06050', eye:'#241910', accent:'#c4a15a' },
+    hada:     { skin:'#f0d0b8', skinD:'#d9b498', ink:'#6a4a34', hair:'#c8e8c0', hairD:'#8ab888', top:'#7ec8c4', topD:'#4a9894', cloth:'#b8f0e8', clothD:'#70c0b4', short:'#4a9894', shoe:'#c4a15a', sole:'#f3eadc', blush:'#f09b88', lip:'#c45e4c', eye:'#3a4a38', accent:'#e8b84a' },
+    bruja:    { skin:'#e0b898', skinD:'#c49474', ink:'#4a3428', hair:'#2a2018', hairD:'#16120e', top:'#3a2a48', topD:'#241832', cloth:'#4a3a58', clothD:'#2e2438', short:'#241832', shoe:'#1a1210', sole:'#c4a15a', blush:'#d09078', lip:'#8a5a4a', eye:'#241910', accent:'#8b6840' },
+    pastor:   { skin:'#e8bc96', skinD:'#c89870', ink:'#5a3d2c', hair:'#6a4a28', hairD:'#3a2814', top:'#6a7a48', topD:'#4a5a30', cloth:'#8a9a60', clothD:'#5a6a38', short:'#5a4a30', shoe:'#3a2a18', sole:'#c4a078', blush:'#d09078', lip:'#a06050', eye:'#2a2018', accent:'#c4a15a' },
+    payaso:   { skin:'#f0c8a8', skinD:'#d9a888', ink:'#6a4a34', hair:'#e07040', hairD:'#a04020', top:'#c62828', topD:'#8e1c1c', cloth:'#3d7ab5', clothD:'#2a5a88', short:'#2a3a48', shoe:'#1c1c1c', sole:'#f3eadc', blush:'#f09b88', lip:'#c45e4c', eye:'#241910', accent:'#e8b84a' },
+    gato:     { skin:'#d8a060', skinD:'#b88040', ink:'#3a2418', hair:'#c49050', hairD:'#8a6030', top:'#e8c090', topD:'#c4a070', cloth:'#e8c090', clothD:'#c4a070', short:'#b88040', shoe:'#8a6030', sole:'#f3eadc', blush:'#e09080', lip:'#a06050', eye:'#1a1a1a', accent:'#c4a15a' },
+    raton:    { skin:'#c8b8b0', skinD:'#a89890', ink:'#4a3a34', hair:'#b8a8a0', hairD:'#8a7a74', top:'#d0c0b8', topD:'#b0a098', cloth:'#d0c0b8', clothD:'#b0a098', short:'#a89890', shoe:'#8a7a74', sole:'#f3eadc', blush:'#d09078', lip:'#8a5a4a', eye:'#1a1a1a', accent:'#c4a15a' },
+    oso:      { skin:'#8a5a30', skinD:'#6a3e1c', ink:'#2a1a10', hair:'#7a4a24', hairD:'#5a3014', top:'#a07040', topD:'#7a4e28', cloth:'#a07040', clothD:'#7a4e28', short:'#6a3e1c', shoe:'#4a2810', sole:'#c4a078', blush:'#c08060', lip:'#4a2818', eye:'#1a120c', accent:'#c4a15a' },
+    conejo:   { skin:'#f0d8c8', skinD:'#d8b8a8', ink:'#6a4a34', hair:'#e8d0c0', hairD:'#c8b0a0', top:'#f0d8c8', topD:'#d8b8a8', cloth:'#e8c8d8', clothD:'#c8a8b8', short:'#d8b8a8', shoe:'#c8a8b8', sole:'#f3eadc', blush:'#f09b88', lip:'#c45e4c', eye:'#3a2418', accent:'#c4a15a' },
+    perro:    { skin:'#c4a070', skinD:'#8a6a40', ink:'#3a2418', hair:'#b89058', hairD:'#7a5830', top:'#d4b080', topD:'#a08050', cloth:'#d4b080', clothD:'#a08050', short:'#8a6a40', shoe:'#5a3a18', sole:'#f3eadc', blush:'#d09078', lip:'#6a3a28', eye:'#1a120c', accent:'#c4a15a' }
   };
 
   var KIND = {
@@ -255,21 +397,44 @@ body.escena .stage-wrap{max-width:56rem}
     cerdito2: { form:'cerdo',  sex:'chico', hair:'none',    cloth:'cola',   label:'Cerdito 2' },
     cerdito3: { form:'cerdo',  sex:'chico', hair:'none',    cloth:'cola',   label:'Cerdito 3' },
     ogro:     { form:'ogro',   sex:'chico', hair:'none',    cloth:'none',   label:'Ogro' },
-    dragon:   { form:'dragon', sex:'chico', hair:'none',    cloth:'alas',   label:'Dragón' }
+    dragon:   { form:'dragon', sex:'chico', hair:'none',    cloth:'alas',   label:'Dragón' },
+    abuelo:   { form:'humano', sex:'chico', hair:'corto',   cloth:'none',   label:'Abuelo' },
+    rey:      { form:'humano', sex:'chico', hair:'corto',   cloth:'capa',   label:'Rey' },
+    reina:    { form:'humano', sex:'chica', hair:'moño',    cloth:'vestido', label:'Reina' },
+    caballero:{ form:'humano', sex:'chico', hair:'corto',   cloth:'none',   label:'Caballero' },
+    hada:     { form:'humano', sex:'chica', hair:'largo',   cloth:'alas',   label:'Hada' },
+    bruja:    { form:'humano', sex:'chica', hair:'largo',   cloth:'capa',   label:'Bruja' },
+    pastor:   { form:'humano', sex:'chico', hair:'corto',   cloth:'none',   label:'Pastor' },
+    payaso:   { form:'humano', sex:'chico', hair:'corto',   cloth:'none',   label:'Payaso' },
+    gato:     { form:'gato',   sex:'chico', hair:'none',    cloth:'cola',   label:'Gato' },
+    raton:    { form:'raton',  sex:'chico', hair:'none',    cloth:'cola',   label:'Ratón' },
+    oso:      { form:'oso',    sex:'chico', hair:'none',    cloth:'none',   label:'Oso' },
+    conejo:   { form:'conejo', sex:'chico', hair:'none',    cloth:'cola',   label:'Conejo' },
+    perro:    { form:'perro',  sex:'chico', hair:'none',    cloth:'cola',   label:'Perro' }
   };
 
   /* ——— geometría de pose (unidades locales, cadera = 0) ——— */
   var G = {
     headR: 13.2,
-    neck: 7.5,
-    torso: 40,
-    shW: 15.5,
+    neck: 15,
+    torso: 42,
+    shW: 15.2,
     hipW: 9.5,
     thigh: 32,
     calf: 30,
     uArm: 24,
     fArm: 22
   };
+
+  function neckLen(meta) {
+    if (!meta) return G.neck;
+    if (meta.form === 'humano') return 15;
+    if (meta.form === 'ogro' || meta.form === 'oso' || meta.form === 'perro') return 13;
+    return 11;
+  }
+  function isMaleHuman(meta) {
+    return meta && meta.form === 'humano' && meta.sex === 'chico';
+  }
 
   function lerp(a, b, t) { return a + (b - a) * t; }
   function clamp(v, a, b) { return v < a ? a : v > b ? b : v; }
@@ -402,6 +567,62 @@ body.escena .stage-wrap{max-width:56rem}
         pose(22, 0.10, 0.04, 0.85, 1.35, -0.85, 1.35, 0.45, 0.70, -0.45, 0.70),
         pose(21, 0.08, 0.00, 0.85, 1.35, -0.85, 1.35, 0.40, 0.75, -0.40, 0.75),
         pose(22, 0.10, 0.04, 0.85, 1.35, -0.85, 1.35, 0.45, 0.70, -0.45, 0.70)
+      ]
+    },
+    dance: {
+      cycle: 1.1, view: 'front',
+      frames: [
+        pose(-2, 0.06, 0.08, 0.22, 0.18, -0.12, 0.10, -2.6, 0.25, 0.35, 0.55),
+        pose(2, -0.06, -0.04, 0.12, 0.10, -0.22, 0.18, 0.35, 0.55, -2.6, 0.25),
+        pose(-2, 0.06, 0.08, 0.22, 0.18, -0.12, 0.10, -2.6, 0.25, 0.35, 0.55)
+      ]
+    },
+    hug: {
+      cycle: 2.2, view: 'front',
+      frames: [
+        pose(1, 0.08, 0.10, 0.12, 0.10, -0.12, 0.10, -0.55, 0.85, 0.55, 0.85),
+        pose(2, 0.12, 0.16, 0.14, 0.12, -0.14, 0.12, -0.35, 1.05, 0.35, 1.05),
+        pose(1, 0.08, 0.10, 0.12, 0.10, -0.12, 0.10, -0.55, 0.85, 0.55, 0.85)
+      ]
+    },
+    kiss: {
+      cycle: 1.6, view: 'front',
+      frames: [
+        pose(0, 0.10, 0.18, 0.10, 0.08, -0.10, 0.08, -0.25, 0.70, 0.25, 0.70, { mouth: 0.15 }),
+        pose(1, 0.16, 0.28, 0.12, 0.10, -0.12, 0.10, -0.15, 0.90, 0.15, 0.90, { mouth: 0.35 }),
+        pose(0, 0.10, 0.18, 0.10, 0.08, -0.10, 0.08, -0.25, 0.70, 0.25, 0.70, { mouth: 0.15 })
+      ]
+    },
+    tussle: {
+      cycle: 0.7, view: 'front',
+      frames: [
+        pose(-3, 0.10, 0.06, 0.28, 0.22, -0.10, 0.12, -0.85, 0.35, 0.55, 0.40),
+        pose(3, -0.08, -0.06, 0.10, 0.12, -0.28, 0.22, 0.55, 0.40, -0.85, 0.35),
+        pose(-3, 0.10, 0.06, 0.28, 0.22, -0.10, 0.12, -0.85, 0.35, 0.55, 0.40)
+      ]
+    },
+    die: {
+      cycle: 3.6, view: 'front',
+      frames: [
+        pose(8, 0.25, 0.10, 0.35, 0.40, -0.20, 0.25, 0.40, 0.50, -0.30, 0.40),
+        pose(34, 1.05, 0.20, 0.90, 0.35, 0.10, 0.20, 0.90, 0.25, 0.20, 0.20),
+        pose(36, 1.12, 0.15, 0.95, 0.30, 0.12, 0.18, 0.95, 0.20, 0.22, 0.18)
+      ]
+    },
+    beg: {
+      cycle: 2.4, view: 'front',
+      frames: [
+        pose(14, 0.22, 0.16, 0.70, 1.15, -0.70, 1.15, -0.75, 0.55, 0.75, 0.55),
+        pose(15, 0.26, 0.22, 0.72, 1.18, -0.72, 1.18, -0.95, 0.35, 0.95, 0.35),
+        pose(14, 0.22, 0.16, 0.70, 1.15, -0.70, 1.15, -0.75, 0.55, 0.75, 0.55)
+      ]
+    },
+    pay: {
+      cycle: 2.0, view: 'front',
+      frames: [
+        pose(0, 0.04, 0.06, 0.10, 0.08, -0.10, 0.08, -0.55, 0.40, -0.18, 0.22),
+        pose(-1, 0.02, 0.08, 0.10, 0.08, -0.10, 0.08, -0.95, 0.12, -0.16, 0.20),
+        pose(0, 0.04, 0.06, 0.10, 0.08, -0.10, 0.08, -0.55, 0.40, -0.18, 0.22)
       ]
     }
   };
@@ -563,88 +784,130 @@ body.escena .stage-wrap{max-width:56rem}
   function drawFaceFront(ctx, pal, kindMeta, blink, mouth, tms, lookX) {
     var r = G.headR;
     lookX = lookX || 0;
-    /* piel */
-    disk(ctx, { x: 0, y: 2 }, r + 0.6, pal.ink);
-    disk(ctx, { x: 0, y: 2.2 }, r, pal.skin);
+    /* orejas detrás */
+    ctx.fillStyle = pal.skinD;
+    ctx.beginPath();
+    ctx.ellipse(-r + 0.6, 3.2, 3.1, 4.4, -0.2, 0, TWO_PI);
+    ctx.ellipse(r - 0.6, 3.2, 3.1, 4.4, 0.2, 0, TWO_PI);
+    ctx.fill();
+    ctx.fillStyle = pal.skin;
+    ctx.beginPath();
+    ctx.ellipse(-r + 0.8, 3.2, 2.1, 3.2, -0.2, 0, TWO_PI);
+    ctx.ellipse(r - 0.8, 3.2, 2.1, 3.2, 0.2, 0, TWO_PI);
+    ctx.fill();
+
+    /* cráneo óvalo, no círculo plano */
+    ctx.fillStyle = pal.ink;
+    ctx.beginPath(); ctx.ellipse(0, 1.2, r + 0.7, r + 0.2, 0, 0, TWO_PI); ctx.fill();
+    ctx.fillStyle = pal.skin;
+    ctx.beginPath(); ctx.ellipse(0, 1.35, r - 0.15, r - 0.55, 0, 0, TWO_PI); ctx.fill();
+    /* brillo de mejilla */
+    ctx.fillStyle = 'rgba(255,255,255,0.16)';
+    ctx.beginPath(); ctx.ellipse(-4.2, 1.2, 4.8, 3.2, -0.4, 0, TWO_PI); ctx.fill();
 
     /* cejas */
     ctx.strokeStyle = pal.ink;
-    ctx.lineWidth = 1.35;
+    ctx.lineWidth = 1.45;
     ctx.lineCap = 'round';
     ctx.beginPath();
-    ctx.moveTo(-6.6 + lookX, -2.2);
-    ctx.quadraticCurveTo(-4.2, -3.4, -2.0 + lookX, -2.0);
-    ctx.moveTo(2.0 + lookX, -2.0);
-    ctx.quadraticCurveTo(4.2, -3.4, 6.6 + lookX, -2.2);
+    ctx.moveTo(-6.8 + lookX, -2.4);
+    ctx.quadraticCurveTo(-4.2, -3.7, -1.8 + lookX, -2.1);
+    ctx.moveTo(1.8 + lookX, -2.1);
+    ctx.quadraticCurveTo(4.2, -3.7, 6.8 + lookX, -2.4);
     ctx.stroke();
 
     if (blink > 0.55) {
       ctx.strokeStyle = pal.ink;
-      ctx.lineWidth = 1.4;
+      ctx.lineWidth = 1.5;
       ctx.beginPath();
-      ctx.moveTo(-7.2, 1.0); ctx.lineTo(-1.6, 1.2);
-      ctx.moveTo(1.6, 1.2); ctx.lineTo(7.2, 1.0);
+      ctx.moveTo(-7.2, 1.15); ctx.quadraticCurveTo(-4.4, 2.1, -1.6, 1.2);
+      ctx.moveTo(1.6, 1.2); ctx.quadraticCurveTo(4.4, 2.1, 7.2, 1.15);
       ctx.stroke();
     } else {
-      /* blanco */
       ctx.fillStyle = '#f7f4ee';
       ctx.beginPath();
-      ctx.ellipse(-4.6 + lookX * 0.4, 1.15, 3.05, 2.45, -0.08, 0, TWO_PI);
-      ctx.ellipse(4.6 + lookX * 0.4, 1.15, 3.05, 2.45, 0.08, 0, TWO_PI);
+      ctx.ellipse(-4.6 + lookX * 0.4, 1.2, 3.15, 2.55, -0.08, 0, TWO_PI);
+      ctx.ellipse(4.6 + lookX * 0.4, 1.2, 3.15, 2.55, 0.08, 0, TWO_PI);
       ctx.fill();
       ctx.fillStyle = pal.eye;
       ctx.beginPath();
-      ctx.ellipse(-4.4 + lookX, 1.35, 1.55, 1.55, 0, 0, TWO_PI);
-      ctx.ellipse(4.4 + lookX, 1.35, 1.55, 1.55, 0, 0, TWO_PI);
+      ctx.ellipse(-4.35 + lookX, 1.4, 1.62, 1.62, 0, 0, TWO_PI);
+      ctx.ellipse(4.35 + lookX, 1.4, 1.62, 1.62, 0, 0, TWO_PI);
+      ctx.fill();
+      ctx.fillStyle = pal.ink;
+      ctx.beginPath();
+      ctx.arc(-4.35 + lookX, 1.55, 0.72, 0, TWO_PI);
+      ctx.arc(4.35 + lookX, 1.55, 0.72, 0, TWO_PI);
       ctx.fill();
       ctx.fillStyle = '#fff';
       ctx.beginPath();
-      ctx.arc(-3.7 + lookX, 0.7, 0.62, 0, TWO_PI);
-      ctx.arc(5.1 + lookX, 0.7, 0.62, 0, TWO_PI);
+      ctx.arc(-3.65 + lookX, 0.72, 0.68, 0, TWO_PI);
+      ctx.arc(5.05 + lookX, 0.72, 0.68, 0, TWO_PI);
       ctx.fill();
+      /* párpado suave */
+      ctx.fillStyle = pal.skin;
+      ctx.globalAlpha = 0.55;
+      ctx.beginPath();
+      ctx.ellipse(-4.6, 0.15, 3.0, 1.15, -0.08, 0, TWO_PI);
+      ctx.ellipse(4.6, 0.15, 3.0, 1.15, 0.08, 0, TWO_PI);
+      ctx.fill();
+      ctx.globalAlpha = 1;
     }
 
     /* rubor */
     ctx.fillStyle = pal.blush;
-    ctx.globalAlpha = kindMeta.sex === 'chica' ? 0.52 : 0.26;
+    ctx.globalAlpha = kindMeta.sex === 'chica' ? 0.48 : 0.24;
     ctx.beginPath();
-    ctx.ellipse(-7.6, 6.6, 3.2, 2.0, 0, 0, TWO_PI);
-    ctx.ellipse(7.6, 6.6, 3.2, 2.0, 0, 0, TWO_PI);
+    ctx.ellipse(-7.4, 6.8, 3.4, 2.1, 0, 0, TWO_PI);
+    ctx.ellipse(7.4, 6.8, 3.4, 2.1, 0, 0, TWO_PI);
     ctx.fill();
     ctx.globalAlpha = 1;
 
-    /* nariz */
+    /* nariz redonda */
     ctx.fillStyle = pal.skinD;
     ctx.beginPath();
-    ctx.moveTo(0, 3.2);
-    ctx.lineTo(-1.35, 6.4);
-    ctx.lineTo(1.35, 6.4);
-    ctx.closePath();
+    ctx.ellipse(0, 5.6, 1.55, 1.85, 0, 0, TWO_PI);
+    ctx.fill();
+    ctx.fillStyle = pal.skin;
+    ctx.beginPath();
+    ctx.ellipse(-0.4, 5.2, 0.7, 0.8, 0, 0, TWO_PI);
     ctx.fill();
 
     /* boca */
     ctx.strokeStyle = pal.lip;
-    ctx.lineWidth = 1.55;
+    ctx.lineWidth = 1.6;
     ctx.lineCap = 'round';
-    ctx.beginPath();
     if (mouth > 0.35) {
       ctx.fillStyle = '#6a3030';
       ctx.beginPath();
-      ctx.ellipse(0, 8.6, 3.1 + mouth, 1.4 + mouth * 2.2, 0, 0, TWO_PI);
+      ctx.ellipse(0, 8.7, 3.2 + mouth, 1.5 + mouth * 2.1, 0, 0, TWO_PI);
       ctx.fill();
       ctx.stroke();
+      ctx.fillStyle = 'rgba(240,180,180,0.45)';
+      ctx.beginPath();
+      ctx.ellipse(0, 8.1, 2.2, 0.6, 0, 0, TWO_PI);
+      ctx.fill();
     } else {
-      ctx.arc(0, 8.15, 3.5, 0.14 * Math.PI, 0.86 * Math.PI);
+      ctx.beginPath();
+      ctx.arc(0, 8.2, 3.55, 0.16 * Math.PI, 0.84 * Math.PI);
+      ctx.stroke();
+      ctx.strokeStyle = 'rgba(255,255,255,0.22)';
+      ctx.lineWidth = 0.8;
+      ctx.beginPath();
+      ctx.arc(0, 8.0, 3.2, 0.22 * Math.PI, 0.78 * Math.PI);
       ctx.stroke();
     }
   }
 
   function drawFaceSide(ctx, pal, kindMeta, blink, mouth) {
-    disk(ctx, { x: 0, y: 2 }, G.headR + 0.5, pal.ink);
+    ctx.fillStyle = pal.ink;
+    ctx.beginPath(); ctx.ellipse(2, 1.4, G.headR + 0.6, G.headR - 0.2, 0, 0, TWO_PI); ctx.fill();
     ctx.fillStyle = pal.skin;
     ctx.beginPath();
-    ctx.ellipse(6.5, 4.5, 10.5, 12, 0, 0, TWO_PI);
+    ctx.ellipse(3.2, 1.6, G.headR - 0.4, G.headR - 0.8, 0, 0, TWO_PI);
     ctx.fill();
+    ctx.fillStyle = pal.skinD;
+    ctx.beginPath(); ctx.ellipse(11.5, 4.2, 3.2, 3.6, 0.2, 0, TWO_PI); ctx.fill();
     disk(ctx, { x: -5.5, y: 2.5 }, 3.1, pal.skinD, pal.ink);
     if (blink > 0.55) {
       ctx.strokeStyle = pal.ink;
@@ -680,45 +943,70 @@ body.escena .stage-wrap{max-width:56rem}
   }
 
   function drawHairCap(ctx, pal, style, yaw) {
-    /* Casco de pelo DETRAS y ARRIBA. No cubre ojos ni frente. */
     var r = G.headR;
     ctx.fillStyle = pal.hairD;
     ctx.beginPath();
-    ctx.arc(0, -2.8, r + 3.2, Math.PI * 1.12, Math.PI * 1.88);
+    ctx.ellipse(0, -2.4, r + 3.6, r + 2.4, 0, Math.PI * 1.08, Math.PI * 1.92);
     ctx.fill();
     ctx.fillStyle = pal.hair;
     ctx.beginPath();
-    ctx.arc(0, -3.6, r + 2.0, Math.PI * 1.14, Math.PI * 1.86);
+    ctx.ellipse(0, -3.4, r + 2.2, r + 1.4, 0, Math.PI * 1.12, Math.PI * 1.88);
     ctx.fill();
-    /* patillas / laterales, lejos de la cara */
+    /* raya */
+    ctx.strokeStyle = pal.hairD;
+    ctx.lineWidth = 0.7;
+    ctx.beginPath();
+    ctx.moveTo(-1.2, -8.5);
+    ctx.quadraticCurveTo(-0.4, -3, 0.6, -1.6);
+    ctx.stroke();
     ctx.fillStyle = pal.hair;
     ctx.beginPath();
-    ctx.ellipse(-r + 1.5, 3.5, 3.4, 7.5, -0.15, 0, TWO_PI);
-    ctx.ellipse(r - 1.5, 3.5, 3.4, 7.5, 0.15, 0, TWO_PI);
+    if (style === 'largo' || style === 'coleta' || style === 'princesa') {
+      ctx.ellipse(-r + 1.2, 3.8, 3.6, 7.8, -0.18, 0, TWO_PI);
+      ctx.ellipse(r - 1.2, 3.8, 3.6, 7.8, 0.18, 0, TWO_PI);
+    } else {
+      ctx.ellipse(-r + 1.6, 1.0, 3.0, 4.2, -0.12, 0, TWO_PI);
+      ctx.ellipse(r - 1.6, 1.0, 3.0, 4.2, 0.12, 0, TWO_PI);
+    }
     ctx.fill();
     if (style === 'moño') {
-      disk(ctx, { x: 0, y: -r - 4.5 }, 5.6, pal.hairD);
-      disk(ctx, { x: 0, y: -r - 4.5 }, 4.5, pal.hair);
+      disk(ctx, { x: 0, y: -r - 4.8 }, 5.8, pal.hairD);
+      disk(ctx, { x: 0, y: -r - 4.8 }, 4.6, pal.hair);
+      ctx.strokeStyle = pal.hairD; ctx.lineWidth = 0.8;
+      ctx.beginPath(); ctx.arc(0, -r - 4.8, 3.2, 0.2, 2.6); ctx.stroke();
     }
     if (style === 'largo' || style === 'coleta' || style === 'princesa') {
-      /* mechón trasero, no frontal */
       ctx.fillStyle = pal.hairD;
       ctx.beginPath();
-      ctx.ellipse(-r + 2, 10, 3.2, 9, 0.2, 0, TWO_PI);
-      ctx.ellipse(r - 2, 10, 3.2, 9, -0.2, 0, TWO_PI);
+      ctx.ellipse(-r + 1.6, 11, 3.6, 10, 0.18, 0, TWO_PI);
+      ctx.ellipse(r - 1.6, 11, 3.6, 10, -0.18, 0, TWO_PI);
       ctx.fill();
+      ctx.strokeStyle = pal.hair;
+      ctx.lineWidth = 1.1;
+      ctx.beginPath();
+      ctx.moveTo(-r + 1, 4); ctx.quadraticCurveTo(-r - 2, 14, -r + 3, 20);
+      ctx.moveTo(r - 1, 4); ctx.quadraticCurveTo(r + 2, 14, r - 3, 20);
+      ctx.stroke();
     }
     if (style === 'corto') {
-      /* deja la frente y las sienes libres */
+      ctx.fillStyle = pal.hair;
+      ctx.beginPath();
+      ctx.moveTo(-8, -7);
+      ctx.quadraticCurveTo(-3, -5.2, 0, -6.4);
+      ctx.quadraticCurveTo(3, -5.2, 8, -7);
+      ctx.lineTo(7, -9);
+      ctx.quadraticCurveTo(0, -8, -7, -9);
+      ctx.closePath();
+      ctx.fill();
     }
-    /* flequillo fino ENCIMA de las cejas, no sobre los ojos */
     if (style === 'largo' || style === 'coleta' || style === 'moño' || style === 'princesa') {
       ctx.fillStyle = pal.hair;
       ctx.beginPath();
-      ctx.moveTo(-8, -6);
-      ctx.quadraticCurveTo(0, -2.2, 8, -6);
-      ctx.lineTo(7, -8.5);
-      ctx.quadraticCurveTo(0, -6.5, -7, -8.5);
+      ctx.moveTo(-8.2, -6.2);
+      ctx.quadraticCurveTo(-3, -3.6, 0, -5.4);
+      ctx.quadraticCurveTo(3, -3.6, 8.2, -6.2);
+      ctx.lineTo(7.2, -8.8);
+      ctx.quadraticCurveTo(0, -7.2, -7.2, -8.8);
       ctx.closePath();
       ctx.fill();
     }
@@ -726,12 +1014,15 @@ body.escena .stage-wrap{max-width:56rem}
 
   function drawTorsoFront(ctx, pal, kindMeta, hip, sh, breathe) {
     var sex = kindMeta.sex;
-    var hipW = sex === 'chica' ? 15.2 : 13.2;
-    var waist = sex === 'chica' ? 10.4 : 12.0;
-    var chest = sex === 'chica' ? 13.8 : 15.6;
-    var shW = sex === 'chica' ? 14.4 : 16.4;
-    var mid1 = { x: lerp(hip.x, sh.x, 0.38), y: lerp(hip.y, sh.y, 0.38) };
-    var mid2 = { x: lerp(hip.x, sh.x, 0.68), y: lerp(hip.y, sh.y, 0.68) };
+    var male = isMaleHuman(kindMeta);
+    var hipW = sex === 'chica' ? 15.2 : 12.4;
+    var waist = sex === 'chica' ? 10.4 : 11.2;
+    var chest = sex === 'chica' ? 13.8 : 14.2;
+    var shW = sex === 'chica' ? 14.4 : 15.0;
+    var topY = sh.y + 7;
+    var mid1 = { x: lerp(hip.x, sh.x, 0.38), y: lerp(hip.y, topY, 0.38) };
+    var mid2 = { x: lerp(hip.x, sh.x, 0.68), y: lerp(hip.y, topY, 0.68) };
+    var top = { x: sh.x, y: topY };
 
     function off(p, w, sign) { return { x: p.x + w * sign, y: p.y }; }
 
@@ -739,8 +1030,8 @@ body.escena .stage-wrap{max-width:56rem}
     ctx.moveTo(off(hip, hipW, 1).x, off(hip, hipW, 1).y);
     ctx.lineTo(off(mid1, waist, 1).x, off(mid1, waist, 1).y);
     ctx.lineTo(off(mid2, chest, 1).x, off(mid2, chest, 1).y);
-    ctx.lineTo(off(sh, shW, 1).x, off(sh, shW, 1).y);
-    ctx.lineTo(off(sh, shW, -1).x, off(sh, shW, -1).y);
+    ctx.lineTo(off(top, shW, 1).x, off(top, shW, 1).y);
+    ctx.lineTo(off(top, shW, -1).x, off(top, shW, -1).y);
     ctx.lineTo(off(mid2, chest, -1).x, off(mid2, chest, -1).y);
     ctx.lineTo(off(mid1, waist, -1).x, off(mid1, waist, -1).y);
     ctx.lineTo(off(hip, hipW, -1).x, off(hip, hipW, -1).y);
@@ -754,8 +1045,8 @@ body.escena .stage-wrap{max-width:56rem}
     /* ropa */
     ctx.beginPath();
     ctx.moveTo(off(mid1, waist + 1.2, 1).x, off(mid1, waist + 1.2, 1).y);
-    ctx.lineTo(off(sh, shW - 0.6, 1).x, off(sh, shW - 0.6, 1).y + 2);
-    ctx.lineTo(off(sh, shW - 0.6, -1).x, off(sh, shW - 0.6, -1).y + 2);
+    ctx.lineTo(off(top, shW - 0.8, 1).x, off(top, shW - 0.8, 1).y);
+    ctx.lineTo(off(top, shW - 0.8, -1).x, off(top, shW - 0.8, -1).y);
     ctx.lineTo(off(mid1, waist + 1.2, -1).x, off(mid1, waist + 1.2, -1).y);
     ctx.closePath();
     ctx.fillStyle = pal.top;
@@ -763,9 +1054,38 @@ body.escena .stage-wrap{max-width:56rem}
     ctx.strokeStyle = pal.topD;
     ctx.lineWidth = 1.05;
     ctx.stroke();
+    if (male) {
+      ctx.fillStyle = pal.top;
+      ctx.strokeStyle = pal.topD;
+      ctx.lineWidth = 1.05;
+      ctx.beginPath();
+      ctx.moveTo(top.x - 7.2, top.y);
+      ctx.lineTo(top.x - 1.2, top.y + 9);
+      ctx.lineTo(top.x - 6.4, top.y + 11);
+      ctx.closePath();
+      ctx.fill(); ctx.stroke();
+      ctx.beginPath();
+      ctx.moveTo(top.x + 7.2, top.y);
+      ctx.lineTo(top.x + 1.2, top.y + 9);
+      ctx.lineTo(top.x + 6.4, top.y + 11);
+      ctx.closePath();
+      ctx.fill(); ctx.stroke();
+      ctx.fillStyle = pal.accent || pal.topD;
+      ctx.beginPath();
+      ctx.arc(top.x, lerp(top.y, hip.y, 0.38), 1.25, 0, TWO_PI);
+      ctx.arc(top.x, lerp(top.y, hip.y, 0.55), 1.25, 0, TWO_PI);
+      ctx.fill();
+    } else {
+      ctx.fillStyle = pal.skin;
+      ctx.beginPath();
+      ctx.moveTo(top.x, top.y + 1);
+      ctx.lineTo(top.x - 3.6, top.y + 8);
+      ctx.lineTo(top.x + 3.6, top.y + 8);
+      ctx.closePath();
+      ctx.fill();
+    }
 
-    /* sin copas sueltas: el vestido/camiseta ya cubre el pecho */
-    var dress = kindMeta.cloth === 'capa' || kindMeta.cloth === 'falda' || kindMeta.hair === 'largo' || kindMeta.kind === 'princesa' || kindMeta.kind === 'nina' || kindMeta.kind === 'madre' || kindMeta.kind === 'abuela';
+    var dress = wearsGown(kindMeta);
     if (!dress) {
       ctx.fillStyle = pal.short;
       ctx.beginPath();
@@ -780,8 +1100,22 @@ body.escena .stage-wrap{max-width:56rem}
 
   function wearsGown(meta) {
     if (!meta) return false;
-    if (meta.kind === 'princesa' || meta.kind === 'nina' || meta.kind === 'madre' || meta.kind === 'abuela') return true;
-    return meta.cloth === 'capa' || meta.cloth === 'falda' || meta.cloth === 'chal';
+    if (isMaleHuman(meta)) return false;
+    if (meta.kind === 'princesa' || meta.kind === 'nina' || meta.kind === 'madre' || meta.kind === 'abuela' || meta.kind === 'reina' || meta.kind === 'bruja' || meta.kind === 'hada') return true;
+    return meta.cloth === 'falda' || meta.cloth === 'chal' || meta.cloth === 'vestido';
+  }
+
+  function drawNeckColumn(ctx, pal, meta, sh, head) {
+    var male = isMaleHuman(meta);
+    var collar = { x: sh.x, y: sh.y + 7 };
+    var chin = { x: head.x, y: head.y + 8.2 };
+    capsule(ctx, collar, chin, male ? 5.0 : 4.4, male ? 4.0 : 3.5, pal.skin, pal.ink);
+    if (male) {
+      ctx.fillStyle = pal.skinD;
+      ctx.beginPath();
+      ctx.ellipse((collar.x + chin.x) * 0.5, (collar.y + chin.y) * 0.58, 1.35, 1.7, 0, 0, TWO_PI);
+      ctx.fill();
+    }
   }
 
   function drawGown(ctx, pal, meta, hip, sh, skirtChain) {
@@ -812,6 +1146,13 @@ body.escena .stage-wrap{max-width:56rem}
     ctx.moveTo(hip.x, waistY + 2);
     ctx.quadraticCurveTo(hip.x + 4, hip.y + hem * 0.5, hip.x, hip.y + hem - 2);
     ctx.stroke();
+    /* ribete del bajo */
+    ctx.strokeStyle = pal.accent || pal.clothD;
+    ctx.lineWidth = 1.6;
+    ctx.beginPath();
+    ctx.moveTo(hip.x - 23, hip.y + hem - 2);
+    ctx.quadraticCurveTo(hip.x, hip.y + hem + 4, hip.x + 23, hip.y + hem - 2);
+    ctx.stroke();
     if (meta && meta.kind === 'princesa') {
       ctx.fillStyle = pal.accent;
       ctx.fillRect(hip.x - 7, waistY - 1, 14, 3);
@@ -841,7 +1182,74 @@ body.escena .stage-wrap{max-width:56rem}
   }
 
   function drawHand(ctx, p, pal) {
-    disk(ctx, p, 4.4, pal.skin, pal.ink);
+    ctx.save();
+    ctx.translate(p.x, p.y);
+    ctx.fillStyle = pal.skin;
+    ctx.strokeStyle = pal.ink;
+    ctx.lineWidth = 0.9;
+    ctx.beginPath();
+    ctx.ellipse(0, 0.4, 4.2, 3.6, 0, 0, TWO_PI);
+    ctx.fill(); ctx.stroke();
+    var i;
+    for (i = 0; i < 4; i++) {
+      var ang = -0.7 + i * 0.38;
+      ctx.beginPath();
+      ctx.ellipse(Math.sin(ang) * 3.4, -3.1 - Math.cos(ang) * 0.4, 1.15, 2.5, ang, 0, TWO_PI);
+      ctx.fill(); ctx.stroke();
+    }
+    ctx.beginPath();
+    ctx.ellipse(-4.2, 0.6, 1.35, 2.2, -0.8, 0, TWO_PI);
+    ctx.fill(); ctx.stroke();
+    ctx.restore();
+  }
+
+  function drawStaff(ctx, hand, groundY) {
+    var gx = hand.x + 6;
+    var gy = groundY != null ? groundY : 78;
+    ctx.save();
+    ctx.strokeStyle = '#6a4a28';
+    ctx.lineWidth = 3.2;
+    ctx.lineCap = 'round';
+    ctx.beginPath();
+    ctx.moveTo(hand.x + 1, hand.y - 2);
+    ctx.lineTo(gx, gy - 2);
+    ctx.stroke();
+    ctx.strokeStyle = '#8B6840';
+    ctx.lineWidth = 2.1;
+    ctx.beginPath();
+    ctx.moveTo(hand.x + 1, hand.y - 2);
+    ctx.lineTo(gx, gy - 2);
+    ctx.stroke();
+    ctx.fillStyle = '#c4a15a';
+    ctx.beginPath();
+    ctx.arc(hand.x + 1, hand.y - 3, 2.4, 0, TWO_PI);
+    ctx.fill();
+    ctx.restore();
+  }
+  function drawGuitar(ctx, hand, hip) {
+    var gx = hip.x + 10;
+    var gy = hip.y + 8;
+    ctx.save();
+    ctx.translate(gx, gy);
+    ctx.rotate(-0.55);
+    ctx.fillStyle = '#8B6840';
+    ctx.beginPath();
+    ctx.ellipse(0, 10, 9, 12, 0, 0, TWO_PI);
+    ctx.ellipse(0, 0, 7.2, 8.5, 0, 0, TWO_PI);
+    ctx.fill();
+    ctx.fillStyle = '#3a2414';
+    ctx.beginPath(); ctx.ellipse(0, 8, 3.2, 3.2, 0, 0, TWO_PI); ctx.fill();
+    ctx.fillStyle = '#c4a15a';
+    ctx.fillRect(-1.4, -22, 2.8, 22);
+    ctx.fillStyle = '#f3eadc';
+    ctx.fillRect(-3.2, -24, 6.4, 3.2);
+    ctx.strokeStyle = 'rgba(230,225,214,0.55)';
+    ctx.lineWidth = 0.6;
+    ctx.beginPath();
+    ctx.moveTo(-1, -20); ctx.lineTo(-1, 8);
+    ctx.moveTo(1, -20); ctx.lineTo(1, 8);
+    ctx.stroke();
+    ctx.restore();
   }
 
   /* extras de personaje */
@@ -1126,6 +1534,190 @@ body.escena .stage-wrap{max-width:56rem}
     ctx.stroke();
   }
 
+  function drawCatHead(ctx, pal, blink, mouth) {
+    ctx.fillStyle = pal.hairD;
+    ctx.beginPath(); ctx.ellipse(0, 1.2, 15.2, 13.4, 0, 0, TWO_PI); ctx.fill();
+    ctx.fillStyle = pal.hair;
+    ctx.beginPath(); ctx.ellipse(0, 1.6, 13.6, 12, 0, 0, TWO_PI); ctx.fill();
+    ctx.fillStyle = pal.hairD;
+    ctx.beginPath();
+    ctx.moveTo(-12, -6); ctx.lineTo(-16, -22); ctx.lineTo(-4, -8);
+    ctx.moveTo(12, -6); ctx.lineTo(16, -22); ctx.lineTo(4, -8);
+    ctx.fill();
+    ctx.fillStyle = pal.blush;
+    ctx.beginPath();
+    ctx.moveTo(-11, -7); ctx.lineTo(-14, -18); ctx.lineTo(-5, -8);
+    ctx.moveTo(11, -7); ctx.lineTo(14, -18); ctx.lineTo(5, -8);
+    ctx.fill();
+    ctx.fillStyle = pal.skin;
+    ctx.beginPath(); ctx.ellipse(0, 7.2, 5.2, 3.6, 0, 0, TWO_PI); ctx.fill();
+    ctx.fillStyle = pal.ink;
+    ctx.beginPath(); ctx.ellipse(0, 6.2, 1.1, 0.8, 0, 0, TWO_PI); ctx.fill();
+    ctx.strokeStyle = pal.ink; ctx.lineWidth = 0.7;
+    ctx.beginPath();
+    ctx.moveTo(-5, 7.4); ctx.lineTo(-16, 6); ctx.moveTo(-5, 8.2); ctx.lineTo(-16, 9);
+    ctx.moveTo(5, 7.4); ctx.lineTo(16, 6); ctx.moveTo(5, 8.2); ctx.lineTo(16, 9);
+    ctx.stroke();
+    if (blink > 0.55) {
+      ctx.strokeStyle = pal.ink; ctx.lineWidth = 1.3;
+      ctx.beginPath(); ctx.moveTo(-8, -0.4); ctx.lineTo(-3, 0); ctx.moveTo(3, 0); ctx.lineTo(8, -0.4); ctx.stroke();
+    } else {
+      ctx.fillStyle = pal.eye;
+      ctx.beginPath(); ctx.ellipse(-5.2, -0.4, 2.0, 2.3, 0, 0, TWO_PI); ctx.ellipse(5.2, -0.4, 2.0, 2.3, 0, 0, TWO_PI); ctx.fill();
+      ctx.fillStyle = pal.accent;
+      ctx.beginPath(); ctx.ellipse(-5.2, -0.4, 0.55, 1.8, 0, 0, TWO_PI); ctx.ellipse(5.2, -0.4, 0.55, 1.8, 0, 0, TWO_PI); ctx.fill();
+    }
+    ctx.strokeStyle = pal.lip; ctx.lineWidth = 1.2;
+    ctx.beginPath();
+    if (mouth > 0.35) ctx.ellipse(0, 10.2, 2.6, 1.4 + mouth, 0, 0, TWO_PI);
+    else ctx.arc(0, 9.6, 2.8, 0.15 * Math.PI, 0.85 * Math.PI);
+    ctx.stroke();
+  }
+  function drawMouseHead(ctx, pal, blink) {
+    ctx.fillStyle = pal.skinD;
+    ctx.beginPath(); ctx.ellipse(0, 2, 13.5, 12.2, 0, 0, TWO_PI); ctx.fill();
+    ctx.fillStyle = pal.skin;
+    ctx.beginPath(); ctx.ellipse(0, 2.3, 12.2, 11, 0, 0, TWO_PI); ctx.fill();
+    ctx.fillStyle = pal.skin;
+    ctx.beginPath(); ctx.ellipse(-13, -6, 6.2, 6.2, 0, 0, TWO_PI); ctx.ellipse(13, -6, 6.2, 6.2, 0, 0, TWO_PI); ctx.fill();
+    ctx.fillStyle = pal.blush;
+    ctx.beginPath(); ctx.ellipse(-13, -6, 3.4, 3.4, 0, 0, TWO_PI); ctx.ellipse(13, -6, 3.4, 3.4, 0, 0, TWO_PI); ctx.fill();
+    ctx.fillStyle = pal.skinD;
+    ctx.beginPath(); ctx.ellipse(0, 8.2, 4.4, 3.2, 0, 0, TWO_PI); ctx.fill();
+    ctx.fillStyle = pal.ink;
+    ctx.beginPath(); ctx.ellipse(-1.4, 7.6, 0.7, 0.7, 0, 0, TWO_PI); ctx.ellipse(1.4, 7.6, 0.7, 0.7, 0, 0, TWO_PI); ctx.fill();
+    if (blink > 0.55) {
+      ctx.strokeStyle = pal.ink; ctx.lineWidth = 1.2;
+      ctx.beginPath(); ctx.moveTo(-7, 0); ctx.lineTo(-2.5, 0.3); ctx.moveTo(2.5, 0.3); ctx.lineTo(7, 0); ctx.stroke();
+    } else {
+      ctx.fillStyle = pal.ink;
+      ctx.beginPath(); ctx.arc(-4.8, 0, 1.7, 0, TWO_PI); ctx.arc(4.8, 0, 1.7, 0, TWO_PI); ctx.fill();
+      ctx.fillStyle = '#fff';
+      ctx.beginPath(); ctx.arc(-4.2, -0.5, 0.5, 0, TWO_PI); ctx.arc(5.3, -0.5, 0.5, 0, TWO_PI); ctx.fill();
+    }
+  }
+  function drawBearHead(ctx, pal, blink, mouth) {
+    ctx.fillStyle = pal.hairD;
+    ctx.beginPath(); ctx.ellipse(0, 1.4, 16.4, 14.6, 0, 0, TWO_PI); ctx.fill();
+    ctx.fillStyle = pal.hair;
+    ctx.beginPath(); ctx.ellipse(0, 1.8, 14.8, 13.2, 0, 0, TWO_PI); ctx.fill();
+    ctx.fillStyle = pal.hairD;
+    ctx.beginPath(); ctx.ellipse(-12, -10, 4.8, 4.4, 0, 0, TWO_PI); ctx.ellipse(12, -10, 4.8, 4.4, 0, 0, TWO_PI); ctx.fill();
+    ctx.fillStyle = pal.hair;
+    ctx.beginPath(); ctx.ellipse(-12, -10, 3.0, 2.6, 0, 0, TWO_PI); ctx.ellipse(12, -10, 3.0, 2.6, 0, 0, TWO_PI); ctx.fill();
+    ctx.fillStyle = pal.blush;
+    ctx.beginPath(); ctx.ellipse(0, 7.6, 6.4, 4.4, 0, 0, TWO_PI); ctx.fill();
+    ctx.fillStyle = pal.ink;
+    ctx.beginPath(); ctx.ellipse(0, 6.4, 1.5, 1.1, 0, 0, TWO_PI); ctx.fill();
+    if (blink > 0.55) {
+      ctx.strokeStyle = pal.ink; ctx.lineWidth = 1.3;
+      ctx.beginPath(); ctx.moveTo(-8, -0.6); ctx.lineTo(-3, -0.2); ctx.moveTo(3, -0.2); ctx.lineTo(8, -0.6); ctx.stroke();
+    } else {
+      ctx.fillStyle = pal.ink;
+      ctx.beginPath(); ctx.ellipse(-5.4, -0.6, 2.1, 2.1, 0, 0, TWO_PI); ctx.ellipse(5.4, -0.6, 2.1, 2.1, 0, 0, TWO_PI); ctx.fill();
+      ctx.fillStyle = '#fff';
+      ctx.beginPath(); ctx.arc(-4.6, -1.2, 0.6, 0, TWO_PI); ctx.arc(6.2, -1.2, 0.6, 0, TWO_PI); ctx.fill();
+    }
+    ctx.strokeStyle = pal.lip; ctx.lineWidth = 1.3;
+    ctx.beginPath();
+    if (mouth > 0.35) ctx.ellipse(0, 10.8, 3.2, 1.6 + mouth, 0, 0, TWO_PI);
+    else ctx.arc(0, 10.2, 3.0, 0.15 * Math.PI, 0.85 * Math.PI);
+    ctx.stroke();
+  }
+  function drawRabbitHead(ctx, pal, blink) {
+    ctx.fillStyle = pal.hairD;
+    ctx.beginPath();
+    ctx.ellipse(-7, -16, 4.2, 12, -0.2, 0, TWO_PI);
+    ctx.ellipse(7, -16, 4.2, 12, 0.2, 0, TWO_PI);
+    ctx.fill();
+    ctx.fillStyle = pal.blush;
+    ctx.beginPath();
+    ctx.ellipse(-7, -16, 2.0, 8, -0.2, 0, TWO_PI);
+    ctx.ellipse(7, -16, 2.0, 8, 0.2, 0, TWO_PI);
+    ctx.fill();
+    ctx.fillStyle = pal.hairD;
+    ctx.beginPath(); ctx.ellipse(0, 1.6, 14.5, 13, 0, 0, TWO_PI); ctx.fill();
+    ctx.fillStyle = pal.hair;
+    ctx.beginPath(); ctx.ellipse(0, 2, 13.2, 11.8, 0, 0, TWO_PI); ctx.fill();
+    ctx.fillStyle = pal.skin;
+    ctx.beginPath(); ctx.ellipse(0, 7.6, 4.6, 3.4, 0, 0, TWO_PI); ctx.fill();
+    ctx.fillStyle = pal.ink;
+    ctx.beginPath(); ctx.ellipse(-1.2, 6.8, 0.7, 0.7, 0, 0, TWO_PI); ctx.ellipse(1.2, 6.8, 0.7, 0.7, 0, 0, TWO_PI); ctx.fill();
+    if (blink > 0.55) {
+      ctx.strokeStyle = pal.ink; ctx.lineWidth = 1.2;
+      ctx.beginPath(); ctx.moveTo(-7, 0); ctx.lineTo(-2.4, 0.3); ctx.moveTo(2.4, 0.3); ctx.lineTo(7, 0); ctx.stroke();
+    } else {
+      ctx.fillStyle = pal.ink;
+      ctx.beginPath(); ctx.ellipse(-4.8, 0, 1.8, 2.1, 0, 0, TWO_PI); ctx.ellipse(4.8, 0, 1.8, 2.1, 0, 0, TWO_PI); ctx.fill();
+      ctx.fillStyle = '#fff';
+      ctx.beginPath(); ctx.arc(-4.2, -0.6, 0.5, 0, TWO_PI); ctx.arc(5.3, -0.6, 0.5, 0, TWO_PI); ctx.fill();
+    }
+  }
+  function drawDogHead(ctx, pal, blink, mouth) {
+    ctx.fillStyle = pal.hairD;
+    ctx.beginPath(); ctx.ellipse(0, 2.2, 15.4, 13.6, 0, 0, TWO_PI); ctx.fill();
+    ctx.fillStyle = pal.hair;
+    ctx.beginPath(); ctx.ellipse(0, 2.6, 13.8, 12.2, 0, 0, TWO_PI); ctx.fill();
+    ctx.fillStyle = pal.hairD;
+    ctx.beginPath();
+    ctx.ellipse(-13.5, 4.5, 4.4, 7.2, -0.35, 0, TWO_PI);
+    ctx.ellipse(13.5, 4.5, 4.4, 7.2, 0.35, 0, TWO_PI);
+    ctx.fill();
+    ctx.fillStyle = pal.skin;
+    ctx.beginPath(); ctx.ellipse(0, 8.6, 6.2, 4.4, 0, 0, TWO_PI); ctx.fill();
+    ctx.fillStyle = pal.ink;
+    ctx.beginPath(); ctx.ellipse(0, 7.2, 2.1, 1.6, 0, 0, TWO_PI); ctx.fill();
+    ctx.fillStyle = pal.blush;
+    ctx.beginPath(); ctx.ellipse(-1.6, 9.4, 1.4, 1.1, 0, 0, TWO_PI); ctx.ellipse(1.6, 9.4, 1.4, 1.1, 0, 0, TWO_PI); ctx.fill();
+    if (blink > 0.55) {
+      ctx.strokeStyle = pal.ink; ctx.lineWidth = 1.3;
+      ctx.beginPath(); ctx.moveTo(-8, 0); ctx.lineTo(-3, 0.3); ctx.moveTo(3, 0.3); ctx.lineTo(8, 0); ctx.stroke();
+    } else {
+      ctx.fillStyle = pal.eye;
+      ctx.beginPath(); ctx.ellipse(-5.2, 0, 2.0, 2.2, 0, 0, TWO_PI); ctx.ellipse(5.2, 0, 2.0, 2.2, 0, 0, TWO_PI); ctx.fill();
+      ctx.fillStyle = '#fff';
+      ctx.beginPath(); ctx.arc(-4.6, -0.6, 0.55, 0, TWO_PI); ctx.arc(5.8, -0.6, 0.55, 0, TWO_PI); ctx.fill();
+    }
+    ctx.strokeStyle = pal.lip; ctx.lineWidth = 1.2;
+    ctx.beginPath();
+    if (mouth > 0.35) ctx.ellipse(0, 11.4, 3.0, 1.5 + mouth, 0, 0, TWO_PI);
+    else ctx.arc(0, 10.8, 2.8, 0.15 * Math.PI, 0.85 * Math.PI);
+    ctx.stroke();
+  }
+  function drawPointyHat(ctx, pal) {
+    ctx.fillStyle = pal.clothD || '#241832';
+    ctx.beginPath(); ctx.moveTo(-16, -4); ctx.lineTo(0, -28); ctx.lineTo(16, -4); ctx.closePath(); ctx.fill();
+    ctx.fillStyle = pal.cloth || '#3a2a48';
+    ctx.beginPath(); ctx.ellipse(0, -5, 17, 3.2, 0, 0, TWO_PI); ctx.fill();
+    ctx.fillStyle = pal.accent || '#c4a15a';
+    ctx.fillRect(-5, -14, 10, 2);
+  }
+  function drawHelmet(ctx) {
+    ctx.fillStyle = '#6a6e74';
+    ctx.beginPath(); ctx.ellipse(0, -4, 14, 11, 0, Math.PI, TWO_PI); ctx.fill();
+    ctx.fillStyle = '#4a4e54';
+    ctx.fillRect(-14, -5, 28, 4);
+    ctx.fillStyle = '#8a8e94';
+    ctx.fillRect(-2.2, -16, 4.4, 12);
+    ctx.strokeStyle = '#2a2e32'; ctx.lineWidth = 1.1;
+    ctx.beginPath(); ctx.moveTo(-10, 1); ctx.lineTo(-4, 4); ctx.moveTo(10, 1); ctx.lineTo(4, 4); ctx.stroke();
+  }
+  function drawBeard(ctx, pal) {
+    ctx.fillStyle = pal.hair;
+    ctx.beginPath();
+    ctx.moveTo(-8, 8);
+    ctx.quadraticCurveTo(-10, 16, 0, 20);
+    ctx.quadraticCurveTo(10, 16, 8, 8);
+    ctx.closePath();
+    ctx.fill();
+  }
+  function drawRedNose(ctx) {
+    ctx.fillStyle = '#c62828';
+    ctx.beginPath(); ctx.ellipse(0, 5.6, 2.6, 2.2, 0, 0, TWO_PI); ctx.fill();
+    ctx.fillStyle = 'rgba(255,255,255,0.35)';
+    ctx.beginPath(); ctx.arc(-0.7, 4.8, 0.7, 0, TWO_PI); ctx.fill();
+  }
+
   function drawStrings(ctx, head, shL, shR) {
     ctx.strokeStyle = 'rgba(230,225,214,0.28)';
     ctx.lineWidth = 0.7;
@@ -1147,15 +1739,22 @@ body.escena .stage-wrap{max-width:56rem}
     var p = fig.pose;
     var view = fig.view || 'front';
     var hipY = p.hipDelta;
-    var hip = { x: 0, y: hipY };
-    var sh = { x: G.shW * 0.15 * Math.sin(p.torso) + (p.yaw || 0) * 4, y: hipY - G.torso * Math.cos(p.torso) };
-    var headAng = p.torso + p.head;
-    var head = { x: sh.x + Math.sin(headAng) * G.neck, y: sh.y - Math.cos(headAng) * G.neck };
+    if (fig.item === "guitarra") {
+      p = Object.assign({}, p, { armF: { s: 0.42, e: 1.05 }, armB: { s: -0.35, e: 0.85 } });
+    } else if (fig.item === "palo") {
+      p = Object.assign({}, p, { armF: { s: 0.62, e: 0.12 } });
+    }
+    var yaw = (typeof fig.lookYaw === "number" ? fig.lookYaw : 0) * 0.7 + (p.yaw || 0) * 0.3;
+    var hip = { x: yaw * 7, y: hipY };
+    var sh = { x: G.shW * 0.15 * Math.sin(p.torso) + yaw * 22, y: hipY - G.torso * Math.cos(p.torso) };
+    var headAng = p.torso + p.head + yaw * 0.55;
+    var nLen = neckLen(meta);
+    var head = { x: sh.x + Math.sin(headAng) * nLen + yaw * 5, y: sh.y - Math.cos(headAng) * nLen };
 
     var legL = limb(-G.hipW, hip.y, G.thigh, G.calf, p.legB.t, p.legB.k);
     var legR = limb(G.hipW, hip.y, G.thigh, G.calf, p.legF.t, p.legF.k);
-    var armL = limb(sh.x - G.shW, sh.y + 2, G.uArm, G.fArm, p.armB.s, -p.armB.e);
-    var armR = limb(sh.x + G.shW, sh.y + 2, G.uArm, G.fArm, p.armF.s, -p.armF.e);
+    var armL = limb(sh.x - G.shW, sh.y + 6, G.uArm, G.fArm, p.armB.s, -p.armB.e);
+    var armR = limb(sh.x + G.shW, sh.y + 6, G.uArm, G.fArm, p.armF.s, -p.armF.e);
 
     if (view === 'side') {
       /* perfil tipo gym: un origen, pierna/brazo lejanos primero */
@@ -1164,15 +1763,30 @@ body.escena .stage-wrap{max-width:56rem}
       armL = limb(sh.x, sh.y + 2, G.uArm, G.fArm, p.armB.s, -p.armB.e);
       armR = limb(sh.x, sh.y + 2, G.uArm, G.fArm, p.armF.s, -p.armF.e);
     }
+    /* objeto en mano: el brazo acompaña, no queda en idle */
+    if (fig.item === 'guitarra') {
+      var gx = view === 'side' ? sh.x : sh.x + G.shW;
+      var lx = view === 'side' ? sh.x : sh.x - G.shW;
+      armR = limb(gx, sh.y + 6, G.uArm, G.fArm, 1.08, -1.32);
+      armL = limb(lx, sh.y + 6, G.uArm, G.fArm, 0.48, -1.02);
+    } else if (fig.item === 'palo') {
+      var sx = view === 'side' ? sh.x : sh.x + G.shW;
+      armR = limb(sx, sh.y + 6, G.uArm, G.fArm, 0.32, -0.10);
+    }
 
-    /* sombra */
+    /* sombra de contacto */
     var groundY = 78;
-    ctx.fillStyle = 'rgba(20,14,8,0.22)';
+    ctx.fillStyle = 'rgba(20,14,8,0.12)';
     ctx.beginPath();
-    ctx.ellipse(0, groundY, 26 + Math.abs(p.hipDelta) * 0.15, 6, 0, 0, TWO_PI);
+    ctx.ellipse(0, groundY + 1, 32 + Math.abs(p.hipDelta) * 0.15, 8, 0, 0, TWO_PI);
+    ctx.fill();
+    ctx.fillStyle = 'rgba(20,14,8,0.28)';
+    ctx.beginPath();
+    ctx.ellipse(0, groundY, 24 + Math.abs(p.hipDelta) * 0.15, 5.4, 0, 0, TWO_PI);
     ctx.fill();
 
     var blink = fig.blink;
+    if (fig.action === 'die') blink = 1;
     var mouth = fig.talking ? (0.25 + 0.55 * Math.abs(Math.sin(fig.time * 9.5))) : (p.mouth || 0);
 
     /* capa / alas DETRAS */
@@ -1215,10 +1829,21 @@ body.escena .stage-wrap{max-width:56rem}
     /* brazo delantero por encima del vestido */
     capsule(ctx, armR.root, armR.mid, 5.2, 4.3, pal.skin, pal.ink);
     capsule(ctx, armR.mid, armR.end, 4.1, 3.3, pal.skin, pal.ink);
+    if (fig.item === 'guitarra') drawGuitar(ctx, armR.end, hip);
     drawHand(ctx, armR.end, pal);
+    if (fig.item === 'palo') drawStaff(ctx, armR.end, 78);
+    if (fig.action === 'pay') {
+      ctx.fillStyle = '#c4a15a';
+      ctx.beginPath();
+      ctx.ellipse(armR.end.x + 6, armR.end.y - 2, 4.2, 4.2, 0, 0, TWO_PI);
+      ctx.fill();
+      ctx.strokeStyle = '#8a7038';
+      ctx.lineWidth = 0.8;
+      ctx.stroke();
+    }
 
-    /* cuello */
-    capsule(ctx, sh, head, meta.sex === 'chica' ? 5.0 : 5.8, 4.4, pal.skin, pal.ink);
+    /* cuello visible entre camisa y barbilla */
+    drawNeckColumn(ctx, pal, meta, sh, head);
 
     /* cola */
     if (fig.tail && fig.tail.length) {
@@ -1239,17 +1864,26 @@ body.escena .stage-wrap{max-width:56rem}
     else if (meta.form === 'cerdo') drawPigHead(ctx, pal, blink);
     else if (meta.form === 'ogro') drawOgreHead(ctx, pal, blink, mouth);
     else if (meta.form === 'dragon') drawDragonHead(ctx, pal, blink, mouth);
+    else if (meta.form === 'gato') drawCatHead(ctx, pal, blink, mouth);
+    else if (meta.form === 'raton') drawMouseHead(ctx, pal, blink);
+    else if (meta.form === 'oso') drawBearHead(ctx, pal, blink, mouth);
+    else if (meta.form === 'conejo') drawRabbitHead(ctx, pal, blink);
+    else if (meta.form === 'perro') drawDogHead(ctx, pal, blink, mouth);
     else {
       if (meta.kind === 'nina') drawCapeHood(ctx, pal);
       drawHairCap(ctx, pal, meta.hair, p.yaw || 0);
       if (view === 'side') drawFaceSide(ctx, pal, meta, blink, mouth);
       else drawFaceFront(ctx, pal, meta, blink, mouth, fig.time, look);
-      if (meta.kind === 'princesa') drawCrown(ctx, pal);
-      if (meta.kind === 'cazador') drawHat(ctx);
+      if (meta.kind === 'princesa' || meta.kind === 'rey' || meta.kind === 'reina' || meta.acc === 'corona') drawCrown(ctx, pal);
+      if (meta.kind === 'cazador' || meta.kind === 'pastor') drawHat(ctx);
       if (meta.kind === 'holmes') drawDeerstalker(ctx);
       if (meta.kind === 'watson') { drawBowler(ctx); drawMustache(ctx, pal); }
       if (meta.kind === 'inspector') drawHat(ctx);
-      if (meta.kind === 'abuela') drawGlasses(ctx);
+      if (meta.kind === 'abuela' || meta.acc === 'gafas') drawGlasses(ctx);
+      if (meta.kind === 'bruja') drawPointyHat(ctx, pal);
+      if (meta.kind === 'caballero') drawHelmet(ctx);
+      if (meta.kind === 'abuelo' || meta.kind === 'rey') drawBeard(ctx, pal);
+      if (meta.kind === 'payaso') drawRedNose(ctx);
     }
     ctx.restore();
 
@@ -1282,6 +1916,9 @@ body.escena .stage-wrap{max-width:56rem}
     if (/mira|all[ií]|ese|esa|camino|se[nñ]al/.test(s)) return 'point';
     if (/salto|salta|vuela/.test(s)) return 'jump';
     if (/cama|sent|duerm/.test(s)) return 'sit';
+    if (/muer|tumb|desmay|finjo|caigo|cae al/.test(s)) return 'die';
+    if (/pido|limos|por favor|una moneda|limosna/.test(s)) return 'beg';
+    if (/pago|paga|toma|aqu[ií] tiene|te pago/.test(s)) return 'pay';
     if (/corro|corre|camino|voy|lleg/.test(s)) return 'walk';
     return 'talk';
   }
@@ -1290,10 +1927,12 @@ body.escena .stage-wrap{max-width:56rem}
     opts = opts || {};
     kind = KIND[kind] ? kind : 'nina';
     var meta = Object.assign({ kind: kind }, KIND[kind]);
+    if (opts.meta) Object.assign(meta, opts.meta);
+    if (opts.label) meta.label = opts.label;
     var fig = {
       kind: kind,
       meta: meta,
-      pal: Object.assign({}, PAL[kind] || PAL.nina),
+      pal: Object.assign({}, PAL[kind] || PAL.nina, opts.pal || {}),
       view: opts.view || 'front',
       action: 'idle',
       nextAction: null,
@@ -1304,6 +1943,7 @@ body.escena .stage-wrap{max-width:56rem}
       talking: false,
       blink: 0,
       blinkT: 2 + Math.random() * 3,
+      item: opts.item || 'none',
       strings: opts.strings !== false,
       hair: null,
       cape: null,
@@ -1320,10 +1960,10 @@ body.escena .stage-wrap{max-width:56rem}
       fig.capeR = makeChain(6, 8, -38, 9);
     }
     if (meta.sex === 'chica') fig.skirt = makeChain(4, 0, 6, 8);
-    if (meta.cloth === 'cola' || meta.form === 'lobo' || meta.form === 'cerdo' || meta.form === 'dragon') {
+    if (meta.cloth === 'cola' || meta.form === 'lobo' || meta.form === 'cerdo' || meta.form === 'dragon' || meta.form === 'gato' || meta.form === 'raton' || meta.form === 'conejo' || meta.form === 'perro') {
       fig.tail = makeChain(6, 0, 8, 7);
     }
-    if (meta.cloth === 'alas' || meta.form === 'dragon') {
+    if (meta.cloth === 'alas' || meta.form === 'dragon' || meta.kind === 'hada') {
       fig.wingL = makeChain(5, -12, -36, 8);
       fig.wingR = makeChain(5, 12, -36, 8);
     }
@@ -1372,6 +2012,8 @@ body.escena .stage-wrap{max-width:56rem}
     } else {
       fig.pose = poseA;
     }
+    var targetYaw = fig.lookYaw || 0;
+    fig.pose.yaw = (fig.pose.yaw || 0) * 0.45 + targetYaw * 0.55;
 
     /* parpadeo */
     fig.blinkT -= dt;
@@ -1384,9 +2026,11 @@ body.escena .stage-wrap{max-width:56rem}
     var p = fig.pose;
     var hipY = p.hipDelta;
     var shY = hipY - G.torso * Math.cos(p.torso);
-    var headAng = p.torso + p.head;
-    var headX = Math.sin(headAng) * G.neck + (p.yaw || 0) * 4;
-    var headY = shY - Math.cos(headAng) * G.neck;
+    var yaw = fig.pose.yaw || 0;
+    var headAng = p.torso + p.head + yaw * 0.55;
+    var nLen = neckLen(fig.meta);
+    var headX = Math.sin(headAng) * nLen + yaw * 12;
+    var headY = shY - Math.cos(headAng) * nLen;
 
     var hairRootX = headX - 2;
     var hairRootY = headY - 10;
@@ -1466,31 +2110,135 @@ body.escena .stage-wrap{max-width:56rem}
   if(!F){ console.warn("LVFigura no cargó"); }
 
   var audioCtx = null;
-  function beep(freq, dur, type, vol){
+  var audioOn = true;
+  var rainOut = null;
+  var windOut = null;
+  function unlockAudio(){
     try{
       if(!audioCtx) audioCtx = new (window.AudioContext||window.webkitAudioContext)();
-      var o = audioCtx.createOscillator();
-      var g = audioCtx.createGain();
+      if(audioCtx.state === "suspended") audioCtx.resume();
+    }catch(e){}
+    return audioCtx;
+  }
+  function beep(freq, dur, type, vol){
+    if(!audioOn) return;
+    try{
+      var ac = unlockAudio();
+      if(!ac) return;
+      var o = ac.createOscillator();
+      var g = ac.createGain();
       o.type = type || "sine";
       o.frequency.value = freq;
-      g.gain.value = vol == null ? 0.04 : vol;
-      o.connect(g); g.connect(audioCtx.destination);
-      var t = audioCtx.currentTime;
-      g.gain.setValueAtTime(g.gain.value, t);
-      g.gain.exponentialRampToValueAtTime(0.001, t + (dur||0.12));
-      o.start(t); o.stop(t + (dur||0.12) + 0.02);
+      var v = vol == null ? 0.16 : vol;
+      o.connect(g); g.connect(ac.destination);
+      var t = ac.currentTime;
+      g.gain.setValueAtTime(v, t);
+      g.gain.exponentialRampToValueAtTime(0.001, t + (dur||0.16));
+      o.start(t); o.stop(t + (dur||0.16) + 0.03);
     }catch(e){}
   }
-  function sndCurtain(){ beep(220, 0.18, "triangle", 0.05); setTimeout(function(){ beep(330, 0.14, "triangle", 0.04); }, 90); }
-  function sndStep(){ beep(480, 0.06, "square", 0.025); }
+  function burstNoise(dur, vol, hp, lp){
+    if(!audioOn) return;
+    try{
+      var ac = unlockAudio();
+      if(!ac) return;
+      var n = ac.sampleRate, len = Math.max(1, Math.floor(n * (dur||0.18)));
+      var buf = ac.createBuffer(1, len, n);
+      var data = buf.getChannelData(0);
+      var i, last = 0;
+      for(i=0;i<len;i++){
+        last = last * 0.96 + (Math.random()*2-1) * 0.04;
+        data[i] = last;
+      }
+      var src = ac.createBufferSource();
+      src.buffer = buf;
+      var filter = ac.createBiquadFilter();
+      filter.type = lp ? "lowpass" : "highpass";
+      filter.frequency.value = hp || 900;
+      var g = ac.createGain();
+      var t = ac.currentTime;
+      g.gain.setValueAtTime(vol || 0.12, t);
+      g.gain.exponentialRampToValueAtTime(0.001, t + (dur||0.18));
+      src.connect(filter); filter.connect(g); g.connect(ac.destination);
+      src.start(t); src.stop(t + (dur||0.18) + 0.02);
+    }catch(e){}
+  }
+  function startLoopNoise(kind){
+    if(!audioOn) return;
+    try{
+      var ac = unlockAudio();
+      if(!ac) return;
+      stopLoopNoise(kind);
+      var n = ac.sampleRate, len = n * 2;
+      var buf = ac.createBuffer(1, len, n);
+      var data = buf.getChannelData(0);
+      var i, last = 0;
+      for(i=0;i<len;i++){
+        last = last * 0.97 + (Math.random()*2-1) * 0.03;
+        data[i] = last;
+      }
+      var src = ac.createBufferSource();
+      src.buffer = buf; src.loop = true;
+      var filter = ac.createBiquadFilter();
+      var g = ac.createGain();
+      if(kind === "rain"){
+        filter.type = "highpass"; filter.frequency.value = 1800;
+        g.gain.value = 0.07;
+      } else {
+        filter.type = "lowpass"; filter.frequency.value = 420;
+        g.gain.value = 0.05;
+      }
+      src.connect(filter); filter.connect(g); g.connect(ac.destination);
+      src.start();
+      if(kind === "rain") rainOut = {src:src, g:g};
+      else windOut = {src:src, g:g};
+    }catch(e){}
+  }
+  function stopLoopNoise(kind){
+    try{
+      var node = kind === "rain" ? rainOut : windOut;
+      if(node && node.src){ node.src.stop(); }
+    }catch(e){}
+    if(kind === "rain") rainOut = null; else windOut = null;
+  }
+  function applyWeatherAudio(w){
+    if(!audioOn || w === "sereno"){
+      stopLoopNoise("rain"); stopLoopNoise("wind");
+      return;
+    }
+    if(w === "lluvia" || w === "tormenta") startLoopNoise("rain"); else stopLoopNoise("rain");
+    if(w === "viento" || w === "tormenta") startLoopNoise("wind"); else stopLoopNoise("wind");
+  }
+  function sndCurtain(){
+    burstNoise(0.22, 0.16, 280, true);
+    beep(196, 0.22, "triangle", 0.18);
+    setTimeout(function(){ beep(294, 0.18, "triangle", 0.14); }, 110);
+  }
+  function sndStep(){ burstNoise(0.07, 0.10, 700, true); beep(420, 0.07, "square", 0.08); }
+  function sndWhoosh(){ burstNoise(0.55, 0.12, 220, true); beep(140, 0.4, "sawtooth", 0.06); }
+  function sndApplause(){
+    burstNoise(0.45, 0.14, 1600, false);
+    setTimeout(function(){ burstNoise(0.35, 0.12, 1400, false); }, 90);
+    beep(520, 0.12, "triangle", 0.08);
+  }
 
   var PUPPET_META = {
     nina:{label:"Niña"}, lobo:{label:"Lobo"}, abuela:{label:"Abuela"},
     madre:{label:"Mamá"}, cazador:{label:"Guardabosques"},
     cerdito:{label:"Cerdito 1"}, cerdito2:{label:"Cerdito 2"}, cerdito3:{label:"Cerdito 3"},
     ogro:{label:"Bruno"}, princesa:{label:"Luna"}, dragon:{label:"Dragón"},
-    nino:{label:"Niño"}, narr:{label:"Narrador"},
-    holmes:{label:"Holmes"}, watson:{label:"Watson"}, inspector:{label:"Inspector"}
+    nino:{label:"Niño"}, narr:{label:"Narrador"}, perro:{label:"Perro"},
+    holmes:{label:"Holmes"}, watson:{label:"Watson"}, inspector:{label:"Inspector"},
+    abuelo:{label:"Abuelo"}, rey:{label:"Rey"}, reina:{label:"Reina"},
+    caballero:{label:"Caballero"}, hada:{label:"Hada"}, bruja:{label:"Bruja"},
+    pastor:{label:"Pastor"}, payaso:{label:"Payaso"},
+    gato:{label:"Gato"}, raton:{label:"Ratón"}, oso:{label:"Oso"}, conejo:{label:"Conejo"},
+    francisco:{label:"Francisco"}, bernardo:{label:"Bernardo"},
+    horacio:{label:"Horacio"}, marcelo:{label:"Marcelo"},
+    fantasma:{label:"El rey muerto"},
+    quijote:{label:"Quijote"}, sancho:{label:"Sancho"},
+    mendigo:{label:"Mendigo"}, mesonero:{label:"Mesonero"},
+    huesped:{label:"Huésped"}, anfitriona:{label:"Anfitriona"}
   };
 
   var SHOWS = [
@@ -1501,19 +2249,19 @@ body.escena .stage-wrap{max-width:56rem}
       mark:"I",
       bg:"bosque",
       scenes:[
-        {who:"narr", text:"Había una vez una niña con una capa roja. Todos la llamaban Caperucita.", puppets:["nina"], bg:"casa"},
-        {who:"madre", text:"Hija, lleva esta cesta a la abuela. Ve por el camino y no hables con extraños.", puppets:["madre","nina"], bg:"casa"},
+        {who:"narr", text:"Había una vez una niña con una capa roja. Todos la llamaban Caperucita.", puppets:["nina"], bg:"habitacion"},
+        {who:"madre", text:"Hija, lleva esta cesta a la abuela. Ve por el camino y no hables con extraños.", puppets:["madre","nina"], bg:"habitacion"},
         {who:"nina", text:"Sí, mamá. Iré directa a casa de la abuela.", puppets:["nina"], bg:"bosque"},
         {who:"narr", text:"En el bosque apareció un lobo con una sonrisa demasiado grande.", puppets:["nina","lobo"], bg:"bosque"},
         {who:"lobo", text:"Hola, niña. ¿Adónde vas con esa cesta tan rica?", puppets:["nina","lobo"], bg:"bosque", look:"nina", action:"wave"},
         {who:"nina", text:"Voy a ver a mi abuela. Está enferma y le llevo pan y miel.", puppets:["nina","lobo"], bg:"bosque", look:"lobo", action:"talk"},
         {who:"lobo", text:"(Piensa en secreto) Si llego antes… podré engañarla.", puppets:["lobo"], bg:"bosque"},
-        {who:"narr", text:"El lobo corrió a la casita. La abuela se escondió bajo la cama, muy lista.", puppets:["lobo","abuela"], bg:"casa"},
-        {who:"lobo", text:"(Con voz falsa) Pasa, querida. Estoy en la cama…", puppets:["lobo"], bg:"casa"},
-        {who:"nina", text:"Abuela, qué ojos tan grandes tienes.", puppets:["nina","lobo"], bg:"casa", look:"lobo", action:"scare"},
-        {who:"lobo", text:"Son para verte mejor. Bueno, la verdad: soy el lobo.", puppets:["lobo"], bg:"casa", look:"nina", action:"talk"},
-        {who:"cazador", text:"Alto. Yo cuido este bosque. Lobo, fuera de aquí y no vuelvas a engañar.", puppets:["cazador","lobo","nina"], bg:"casa"},
-        {who:"abuela", text:"Gracias. Caperucita, la próxima vez no hables con desconocidos.", puppets:["abuela","nina"], bg:"casa"},
+        {who:"narr", text:"El lobo corrió a la casita. La abuela se escondió bajo la cama, muy lista.", puppets:["lobo","abuela"], bg:"habitacion"},
+        {who:"lobo", text:"(Con voz falsa) Pasa, querida. Estoy en la cama…", puppets:["lobo"], bg:"habitacion"},
+        {who:"nina", text:"Abuela, qué ojos tan grandes tienes.", puppets:["nina","lobo"], bg:"habitacion", look:"lobo", action:"scare"},
+        {who:"lobo", text:"Son para verte mejor. Bueno, la verdad: soy el lobo.", puppets:["lobo"], bg:"habitacion", look:"nina", action:"talk"},
+        {who:"cazador", text:"Alto. Yo cuido este bosque. Lobo, fuera de aquí y no vuelvas a engañar.", puppets:["cazador","lobo","nina"], bg:"habitacion"},
+        {who:"abuela", text:"Gracias. Caperucita, la próxima vez no hables con desconocidos.", puppets:["abuela","nina"], bg:"habitacion"},
         {who:"nina", text:"Lo prometo. El camino seguro es el mejor camino.", puppets:["nina"], bg:"bosque"}
       ]
     },
@@ -1522,22 +2270,22 @@ body.escena .stage-wrap{max-width:56rem}
       titulo:"Los tres cerditos",
       blurb:"Tres casitas, un lobo soplón y una lección: lo bien hecho resiste.",
       mark:"II",
-      bg:"cielo",
+      bg:"campo",
       scenes:[
-        {who:"narr", text:"Tres cerditos hermanos decidieron hacerse cada uno su casita.", puppets:["cerdito","cerdito2","cerdito3"], bg:"cielo"},
-        {who:"cerdito", text:"Yo haré la mía de paja. Será rapidito y podré jugar.", puppets:["cerdito"], bg:"cielo"},
-        {who:"cerdito2", text:"Yo usaré madera. Un poco más fuerte… y aún tendré tiempo.", puppets:["cerdito2"], bg:"cielo"},
-        {who:"cerdito3", text:"Yo construiré con ladrillos. Me costará, pero dormiré tranquilo.", puppets:["cerdito3"], bg:"cielo"},
-        {who:"narr", text:"Llegó un lobo hambriento, olisqueando por el campo.", puppets:["lobo"], bg:"cielo"},
-        {who:"lobo", text:"Soplaré y soplaré y tu casa derribaré.", puppets:["lobo","cerdito"], bg:"cielo"},
-        {who:"cerdito", text:"Ay. La paja vuela… Corro a la casa de madera.", puppets:["cerdito","cerdito2"], bg:"cielo"},
-        {who:"lobo", text:"También soplo la de madera. Fuera, cerditos.", puppets:["lobo","cerdito","cerdito2"], bg:"cielo"},
-        {who:"cerdito2", text:"A la casa de ladrillo. Nuestro hermano sí trabajó bien.", puppets:["cerdito","cerdito2","cerdito3"], bg:"cielo"},
-        {who:"lobo", text:"Soplo… soplo… ¿Eh? ¿No se cae?", puppets:["lobo","cerdito3"], bg:"cielo"},
-        {who:"cerdito3", text:"Los ladrillos no se asustan con el viento. Aquí estamos seguros.", puppets:["cerdito3"], bg:"cielo"},
-        {who:"lobo", text:"Buf. Me voy. La próxima vez buscaré manzanas, no casas.", puppets:["lobo"], bg:"cielo"},
-        {who:"cerdito", text:"Gracias, hermano. Aprenderé a hacer las cosas con calma.", puppets:["cerdito","cerdito2","cerdito3"], bg:"cielo"},
-        {who:"narr", text:"Y los tres cerditos vivieron seguros. Lo bien hecho dura más.", puppets:["cerdito","cerdito2","cerdito3"], bg:"cielo"}
+        {who:"narr", text:"Tres cerditos hermanos decidieron hacerse cada uno su casita.", puppets:["cerdito","cerdito2","cerdito3"], bg:"campo"},
+        {who:"cerdito", text:"Yo haré la mía de paja. Será rapidito y podré jugar.", puppets:["cerdito"], bg:"campo"},
+        {who:"cerdito2", text:"Yo usaré madera. Un poco más fuerte… y aún tendré tiempo.", puppets:["cerdito2"], bg:"campo"},
+        {who:"cerdito3", text:"Yo construiré con ladrillos. Me costará, pero dormiré tranquilo.", puppets:["cerdito3"], bg:"campo"},
+        {who:"narr", text:"Llegó un lobo hambriento, olisqueando por el campo.", puppets:["lobo"], bg:"campo"},
+        {who:"lobo", text:"Soplaré y soplaré y tu casa derribaré.", puppets:["lobo","cerdito"], bg:"campo"},
+        {who:"cerdito", text:"Ay. La paja vuela… Corro a la casa de madera.", puppets:["cerdito","cerdito2"], bg:"campo"},
+        {who:"lobo", text:"También soplo la de madera. Fuera, cerditos.", puppets:["lobo","cerdito","cerdito2"], bg:"campo"},
+        {who:"cerdito2", text:"A la casa de ladrillo. Nuestro hermano sí trabajó bien.", puppets:["cerdito","cerdito2","cerdito3"], bg:"campo"},
+        {who:"lobo", text:"Soplo… soplo… ¿Eh? ¿No se cae?", puppets:["lobo","cerdito3"], bg:"campo"},
+        {who:"cerdito3", text:"Los ladrillos no se asustan con el viento. Aquí estamos seguros.", puppets:["cerdito3"], bg:"campo"},
+        {who:"lobo", text:"Buf. Me voy. La próxima vez buscaré manzanas, no casas.", puppets:["lobo"], bg:"campo"},
+        {who:"cerdito", text:"Gracias, hermano. Aprenderé a hacer las cosas con calma.", puppets:["cerdito","cerdito2","cerdito3"], bg:"campo"},
+        {who:"narr", text:"Y los tres cerditos vivieron seguros. Lo bien hecho dura más.", puppets:["cerdito","cerdito2","cerdito3"], bg:"campo"}
       ]
     },
     {
@@ -1553,12 +2301,12 @@ body.escena .stage-wrap{max-width:56rem}
         {who:"princesa", text:"¿Hola? Busco el pueblo. Tú… vives aquí, ¿verdad?", puppets:["princesa","ogro"], bg:"pantano", look:"ogro", action:"wave"},
         {who:"ogro", text:"Sí. No muerdo. Si quieres, te enseño el camino seco.", puppets:["ogro","princesa"], bg:"pantano", look:"princesa", action:"talk"},
         {who:"princesa", text:"Nadie me había hablado con tanta calma. Gracias.", puppets:["princesa"], bg:"pantano", look:"ogro", action:"bow"},
-        {who:"narr", text:"Entonces llegó un dragón joven que quería parecer terrible. Luna lo miró. Bruno también.", puppets:["dragon"], bg:"cielo", look:"dragon"},
+        {who:"narr", text:"Entonces llegó un dragón joven que quería parecer terrible. Luna lo miró. Bruno también.", puppets:["dragon"], bg:"campo", look:"dragon"},
         {who:"dragon", text:"¡Roar! Soy feroz… bueno, un poco. ¿Me teméis?", puppets:["dragon","ogro","princesa"], bg:"pantano", look:"ogro", action:"scare"},
         {who:"ogro", text:"No hace falta asustar para que te vean. ¿Quieres pan de hierbas?", puppets:["ogro","dragon"], bg:"pantano", look:"dragon", action:"talk"},
         {who:"dragon", text:"¿Pan? Yo solo sé hacer humito. Pero el pan suena bien.", puppets:["dragon"], bg:"pantano", look:"ogro", action:"talk"},
         {who:"princesa", text:"Tres amigos raros. Y bonitos. Mirad cómo queda el pantano, de pronto alegre.", puppets:["princesa","ogro","dragon"], bg:"pantano", look:"dragon", action:"wave"},
-        {who:"dragon", text:"Si alguien se pierde, soplaré humito suave para marcar el camino. Sin fuego.", puppets:["dragon"], bg:"cielo", look:"princesa", action:"blow"},
+        {who:"dragon", text:"Si alguien se pierde, soplaré humito suave para marcar el camino. Sin fuego.", puppets:["dragon"], bg:"campo", look:"princesa", action:"blow"},
         {who:"ogro", text:"Aquí siempre habrá sitio para quien sea bueno de verdad.", puppets:["ogro"], bg:"pantano", look:"princesa", action:"bow"},
         {who:"narr", text:"Y el pantano se llenó de risas. Ser amable es una magia que no se agota.", puppets:["ogro","princesa","dragon"], bg:"pantano"}
       ]
@@ -1568,22 +2316,22 @@ body.escena .stage-wrap{max-width:56rem}
       titulo:"Holmes y la corona pequeña",
       blurb:"En Baker Street falta una corona de juguete. Holmes mira. Watson pregunta. El inspector duda. Un misterio clásico, suave.",
       mark:"IV",
-      bg:"casa",
+      bg:"habitacion",
       scenes:[
-        {who:"narr", text:"En Baker Street, una mañana quieta. Faltaba la corona pequeña de la estantería.", puppets:["holmes"], bg:"casa"},
-        {who:"holmes", text:"Watson. No busques aún. Mira primero: el polvo, la ventana, la silla.", puppets:["holmes","watson"], bg:"casa", look:"watson", action:"point"},
-        {who:"watson", text:"La ventana está abierta un dedo. ¿Un ladrón diminuto?", puppets:["watson","holmes"], bg:"casa", look:"holmes", action:"talk"},
-        {who:"holmes", text:"O un aire. Los ladrones no dejan la taza en su sitio. Esta taza no se ha movido.", puppets:["holmes"], bg:"casa", look:"watson", action:"talk"},
-        {who:"narr", text:"Llegó el inspector, muy serio, y miró debajo del sofá sin mirar otra cosa.", puppets:["inspector"], bg:"casa", action:"scare"},
-        {who:"inspector", text:"Si falta una corona, habrá un culpable. Registraré el piso entero.", puppets:["inspector","holmes"], bg:"casa", look:"holmes", action:"talk"},
-        {who:"holmes", text:"Antes, mire la percha. El abrigo tiene una pluma. No es de aquí.", puppets:["holmes","inspector"], bg:"casa", look:"inspector", action:"point"},
-        {who:"watson", text:"Una pluma gris. Como las de la oca del mercado.", puppets:["watson"], bg:"casa", look:"holmes", action:"talk"},
-        {who:"narr", text:"Los tres miraron la cesta junto a la chimenea. Dentro, una oca fría y un brillo.", puppets:["holmes","watson","inspector"], bg:"casa"},
-        {who:"holmes", text:"La corona no huyó. Se fue de visita: la señora de abajo la usó para el disfraz del niño.", puppets:["holmes"], bg:"casa", look:"watson", action:"talk"},
-        {who:"inspector", text:"¿Y la pluma?", puppets:["inspector"], bg:"casa", look:"holmes", action:"talk"},
-        {who:"holmes", text:"La oca viajó en el mismo cesto. A veces el misterio es solo un recado mal contado.", puppets:["holmes","watson"], bg:"casa", look:"inspector", action:"bow"},
-        {who:"watson", text:"Entonces… ¿no hay ladrón?", puppets:["watson"], bg:"casa", look:"holmes", action:"talk"},
-        {who:"narr", text:"No había ladrón. Había una vecina, una oca y unos ojos que supieron mirar.", puppets:["holmes","watson","inspector"], bg:"casa"}
+        {who:"narr", text:"En Baker Street, una mañana quieta. Faltaba la corona pequeña de la estantería.", puppets:["holmes"], bg:"habitacion"},
+        {who:"holmes", text:"Watson. No busques aún. Mira primero: el polvo, la ventana, la silla.", puppets:["holmes","watson"], bg:"habitacion", look:"watson", action:"point"},
+        {who:"watson", text:"La ventana está abierta un dedo. ¿Un ladrón diminuto?", puppets:["watson","holmes"], bg:"habitacion", look:"holmes", action:"talk"},
+        {who:"holmes", text:"O un aire. Los ladrones no dejan la taza en su sitio. Esta taza no se ha movido.", puppets:["holmes"], bg:"habitacion", look:"watson", action:"talk"},
+        {who:"narr", text:"Llegó el inspector, muy serio, y miró debajo del sofá sin mirar otra cosa.", puppets:["inspector"], bg:"habitacion", action:"scare"},
+        {who:"inspector", text:"Si falta una corona, habrá un culpable. Registraré el piso entero.", puppets:["inspector","holmes"], bg:"habitacion", look:"holmes", action:"talk"},
+        {who:"holmes", text:"Antes, mire la percha. El abrigo tiene una pluma. No es de aquí.", puppets:["holmes","inspector"], bg:"habitacion", look:"inspector", action:"point"},
+        {who:"watson", text:"Una pluma gris. Como las de la oca del mercado.", puppets:["watson"], bg:"habitacion", look:"holmes", action:"talk"},
+        {who:"narr", text:"Los tres miraron la cesta junto a la chimenea. Dentro, una oca fría y un brillo.", puppets:["holmes","watson","inspector"], bg:"habitacion"},
+        {who:"holmes", text:"La corona no huyó. Se fue de visita: la señora de abajo la usó para el disfraz del niño.", puppets:["holmes"], bg:"habitacion", look:"watson", action:"talk"},
+        {who:"inspector", text:"¿Y la pluma?", puppets:["inspector"], bg:"habitacion", look:"holmes", action:"talk"},
+        {who:"holmes", text:"La oca viajó en el mismo cesto. A veces el misterio es solo un recado mal contado.", puppets:["holmes","watson"], bg:"habitacion", look:"inspector", action:"bow"},
+        {who:"watson", text:"Entonces… ¿no hay ladrón?", puppets:["watson"], bg:"habitacion", look:"holmes", action:"talk"},
+        {who:"narr", text:"No había ladrón. Había una vecina, una oca y unos ojos que supieron mirar.", puppets:["holmes","watson","inspector"], bg:"habitacion"}
       ]
     },
     {
@@ -1591,19 +2339,99 @@ body.escena .stage-wrap{max-width:56rem}
       titulo:"El reloj parado",
       blurb:"Una niña, un detective y un reloj que no da las doce. El misterio está en lo que se mira y lo que no.",
       mark:"V",
-      bg:"casa",
+      bg:"habitacion",
       scenes:[
-        {who:"narr", text:"En la casa de la niña el reloj grande se había parado. Las manecillas no querían las doce.", puppets:["nina"], bg:"casa"},
-        {who:"nina", text:"Watson, mira el reloj. Anoche daba las horas. Hoy no suena.", puppets:["nina","watson"], bg:"casa", look:"watson", action:"point"},
-        {who:"watson", text:"La caja está cerrada. La llave no está en la cerradura.", puppets:["watson"], bg:"casa", look:"nina", action:"talk"},
-        {who:"narr", text:"Los dos miraron la ventana. El viento movía la cortina. Nadie en el alféizar.", puppets:["nina","watson"], bg:"casa"},
-        {who:"nina", text:"Hay una sombra detrás del reloj. ¿La ves?", puppets:["nina"], bg:"casa", look:"watson", action:"scare"},
-        {who:"watson", text:"Es el abrigo de tu madre, colgado. Las sombras también engañan.", puppets:["watson","nina"], bg:"casa", look:"nina", action:"talk"},
-        {who:"nina", text:"Entonces… ¿quién se llevó la llave?", puppets:["nina"], bg:"casa", look:"watson", action:"talk"},
-        {who:"watson", text:"Nadie. Mira el suelo, junto a la pata izquierda. Brilla.", puppets:["watson"], bg:"casa", look:"nina", action:"point"},
-        {who:"nina", text:"La llave. Se cayó. El reloj no estaba embrujado: estaba sin cuerda.", puppets:["nina"], bg:"casa", look:"watson", action:"wave"},
-        {who:"watson", text:"Dale cuerda despacio. Si mira uno de verdad, casi todo vuelve a su sitio.", puppets:["watson"], bg:"casa", look:"nina", action:"bow"},
-        {who:"narr", text:"El reloj volvió a marcar. La niña y Watson se miraron, y la casa sonó otra vez.", puppets:["nina","watson"], bg:"casa"}
+        {who:"narr", text:"En la casa de la niña el reloj grande se había parado. Las manecillas no querían las doce.", puppets:["nina"], bg:"habitacion"},
+        {who:"nina", text:"Watson, mira el reloj. Anoche daba las horas. Hoy no suena.", puppets:["nina","watson"], bg:"habitacion", look:"watson", action:"point"},
+        {who:"watson", text:"La caja está cerrada. La llave no está en la cerradura.", puppets:["watson"], bg:"habitacion", look:"nina", action:"talk"},
+        {who:"narr", text:"Los dos miraron la ventana. El viento movía la cortina. Nadie en el alféizar.", puppets:["nina","watson"], bg:"habitacion"},
+        {who:"nina", text:"Hay una sombra detrás del reloj. ¿La ves?", puppets:["nina"], bg:"habitacion", look:"watson", action:"scare"},
+        {who:"watson", text:"Es el abrigo de tu madre, colgado. Las sombras también engañan.", puppets:["watson","nina"], bg:"habitacion", look:"nina", action:"talk"},
+        {who:"nina", text:"Entonces… ¿quién se llevó la llave?", puppets:["nina"], bg:"habitacion", look:"watson", action:"talk"},
+        {who:"watson", text:"Nadie. Mira el suelo, junto a la pata izquierda. Brilla.", puppets:["watson"], bg:"habitacion", look:"nina", action:"point"},
+        {who:"nina", text:"La llave. Se cayó. El reloj no estaba embrujado: estaba sin cuerda.", puppets:["nina"], bg:"habitacion", look:"watson", action:"wave"},
+        {who:"watson", text:"Dale cuerda despacio. Si mira uno de verdad, casi todo vuelve a su sitio.", puppets:["watson"], bg:"habitacion", look:"nina", action:"bow"},
+        {who:"narr", text:"El reloj volvió a marcar. La niña y Watson se miraron, y la casa sonó otra vez.", puppets:["nina","watson"], bg:"habitacion"}
+      ]
+    },
+    {
+      id:"hamlet1",
+      titulo:"Hamlet · muralla de Elsinor",
+      blurb:"La primera escena. Noche en la muralla. ¿Quién va? Un centinela, un amigo y una sombra que parece el rey.",
+      mark:"VI",
+      bg:"castillo",
+      scenes:[
+        {who:"narr", text:"Noche en la muralla de Elsinor. Hace frío. Francisco hace guardia.", puppets:["francisco"], bg:"castillo"},
+        {who:"bernardo", text:"¿Quién va?", puppets:["bernardo","francisco"], bg:"castillo", look:"francisco", action:"point"},
+        {who:"francisco", text:"No, respondéd vos. Deteneos y daos a conocer.", puppets:["francisco","bernardo"], bg:"castillo", look:"bernardo", action:"talk"},
+        {who:"bernardo", text:"¡Viva el rey! Soy Bernardo. Te relevo. Vete a dormir.", puppets:["bernardo","francisco"], bg:"castillo", look:"francisco", action:"wave"},
+        {who:"francisco", text:"Gracias. Esta noche el frío muerde. Y… ¿ha vuelto a verse?", puppets:["francisco"], bg:"castillo", look:"bernardo", action:"talk"},
+        {who:"bernardo", text:"No aún. Horacio y Marcelo vienen. Horacio no cree en la sombra.", puppets:["bernardo"], bg:"castillo", action:"talk"},
+        {who:"horacio", text:"Buenas. Si esa cosa vuelve, yo le hablo. Los muertos no pasean.", puppets:["horacio","bernardo","marcelo"], bg:"castillo", look:"bernardo", action:"talk"},
+        {who:"narr", text:"El viento giró. Una figura con armadura de rey cruzó las almenas, sin pisar.", puppets:["fantasma","horacio","bernardo"], bg:"castillo"},
+        {who:"marcelo", text:"Míralo. Es el rey. El que fue.", puppets:["marcelo","fantasma"], bg:"castillo", look:"fantasma", action:"scare"},
+        {who:"horacio", text:"Habla, sombra. ¿Qué pides a Dinamarca?", puppets:["horacio","fantasma"], bg:"castillo", look:"fantasma", action:"point"},
+        {who:"narr", text:"El fantasma alzó una mano y se fue hacia el norte, sin respuesta.", puppets:["fantasma"], bg:"castillo", action:"walk"},
+        {who:"bernardo", text:"¿Lo ves ahora, Horacio?", puppets:["bernardo","horacio"], bg:"castillo", look:"horacio", action:"talk"},
+        {who:"horacio", text:"Lo veo. Y temo que esto anuncie algo en el reino. Hay que decírselo al príncipe.", puppets:["horacio","marcelo"], bg:"castillo", look:"marcelo", action:"bow"}
+      ]
+    },
+    {
+      id:"nieve",
+      titulo:"Huéspedes en la nieve",
+      blurb:"Homenaje a las posadas de misterio. Texto original. Una casa, nieve, un inspector y una moneda que no cuadra.",
+      mark:"VII",
+      bg:"habitacion",
+      scenes:[
+        {who:"narr", text:"Nevaba tanto que el camino se había cerrado. En la casa de campo aún había lumbre.", puppets:["anfitriona"], bg:"habitacion"},
+        {who:"anfitriona", text:"Pasad, pasad. La habitación de arriba está tendida. Dejad los zapatos en el felpudo.", puppets:["anfitriona","huesped"], bg:"habitacion", look:"huesped", action:"wave"},
+        {who:"huesped", text:"Gracias. El autobús no llegó. Pagué el billete y me dejaron en el cruce.", puppets:["huesped"], bg:"habitacion", look:"anfitriona", action:"talk"},
+        {who:"mesonero", text:"La radio dice que no salga nadie. Mañana, si escampa, veremos.", puppets:["mesonero","huesped"], bg:"habitacion", look:"huesped", action:"talk"},
+        {who:"narr", text:"Al rato llamaron otra vez. No era un huésped: era un inspector con la gabardina mojada.", puppets:["inspector"], bg:"habitacion", action:"walk"},
+        {who:"inspector", text:"Buenas. Pregunto por quien pagó anoche con una moneda de otro año. ¿Está aquí?", puppets:["inspector","anfitriona"], bg:"habitacion", look:"anfitriona", action:"point"},
+        {who:"anfitriona", text:"Aquí solo está esta señora. Y nosotros. Nadie más firmó el libro.", puppets:["anfitriona","inspector"], bg:"habitacion", look:"inspector", action:"talk"},
+        {who:"huesped", text:"Yo pagué con un billete. Lo puedo enseñar. Está un poco húmedo.", puppets:["huesped","inspector"], bg:"habitacion", look:"inspector", action:"pay"},
+        {who:"inspector", text:"Bien. Entonces la moneda es de otro. La nieve guarda las huellas hasta el mediodía.", puppets:["inspector"], bg:"habitacion", look:"huesped", action:"talk"},
+        {who:"mesonero", text:"Si hay un cuarto vacío, no es el de arriba. El de arriba cruje cuando nadie lo pisa.", puppets:["mesonero"], bg:"habitacion", look:"inspector", action:"scare"},
+        {who:"anfitriona", text:"Esta noche nadie sube solo. El misterio espera a que deje de nevar.", puppets:["anfitriona","huesped","inspector"], bg:"habitacion", action:"bow"},
+        {who:"narr", text:"Y la casa oyó la nieve. A veces el enigma no es quién entra: es quién ya estaba.", puppets:["anfitriona","mesonero","inspector"], bg:"habitacion"}
+      ]
+    },
+    {
+      id:"quijote",
+      titulo:"Quijote y los molinos",
+      blurb:"El caballero ve gigantes. Sancho ve aspas. El viento decide.",
+      mark:"VIII",
+      bg:"campo",
+      scenes:[
+        {who:"narr", text:"Por un campo de La Mancha iban un caballero flaco y su escudero.", puppets:["quijote","sancho"], bg:"campo"},
+        {who:"quijote", text:"Sancho, mira aquellos gigantes. Treinta, o más. Voy a deshacer el agravio.", puppets:["quijote","sancho"], bg:"campo", look:"sancho", action:"point"},
+        {who:"sancho", text:"Señor, son molinos. Aspas. Si el viento sopla, os van a zurrar.", puppets:["sancho"], bg:"campo", look:"quijote", action:"talk"},
+        {who:"quijote", text:"Cobardía es esa. El valor no pregunta el nombre de las aspas.", puppets:["quijote"], bg:"campo", look:"sancho", action:"scare"},
+        {who:"narr", text:"Picó espuelas. El viento giró de verdad, y una aspa lo sentó en el polvo.", puppets:["quijote"], bg:"campo", action:"die"},
+        {who:"sancho", text:"¿Veis? Os lo dije. ¿Os habéis muerto, señor, o solo descansáis?", puppets:["sancho","quijote"], bg:"campo", look:"quijote", action:"beg"},
+        {who:"quijote", text:"No estoy muerto. El mago Frestón convirtió a los gigantes en molinos. ¡Ah, villano!", puppets:["quijote"], bg:"campo", look:"sancho", action:"talk"},
+        {who:"sancho", text:"Si el mago paga el médico, mejor. Levantáos. Hay venta a un cuarto de legua.", puppets:["sancho"], bg:"campo", look:"quijote", action:"pay"},
+        {who:"quijote", text:"Bien. Pero apuntadlo, Sancho: hoy luchamos contra el aire, y el aire ganó.", puppets:["quijote","sancho"], bg:"campo", look:"sancho", action:"bow"},
+        {who:"narr", text:"Y siguieron. Unos ven gigantes. Otros, harina. Los dos tienen hambre.", puppets:["quijote","sancho"], bg:"campo"}
+      ]
+    },
+    {
+      id:"moneda",
+      titulo:"El rey y el mendigo",
+      blurb:"Uno pide. Otro paga. La corte aprende a mirar las manos.",
+      mark:"IX",
+      bg:"castillo",
+      scenes:[
+        {who:"narr", text:"A la puerta del castillo un muchacho pedía sin alzar la voz.", puppets:["mendigo"], bg:"castillo", action:"beg"},
+        {who:"mendigo", text:"Una moneda, si podéis. No para juego: para pan.", puppets:["mendigo"], bg:"castillo", action:"beg"},
+        {who:"rey", text:"¿Quién pide en mi umbral? Acércate. Las manos se ven mejor de cerca.", puppets:["rey","mendigo"], bg:"castillo", look:"mendigo", action:"point"},
+        {who:"mendigo", text:"No os asustéis, majestad. Soy de la villa. El horno cerró ayer.", puppets:["mendigo","rey"], bg:"castillo", look:"rey", action:"talk"},
+        {who:"payaso", text:"¡Yo pagaría con una flor! Pero las flores no se comen. Qué lástima.", puppets:["payaso","mendigo"], bg:"castillo", look:"mendigo", action:"wave"},
+        {who:"rey", text:"Toma. No es limosna: es cuenta. El reino te debía el pan de ayer.", puppets:["rey","mendigo"], bg:"castillo", look:"mendigo", action:"pay"},
+        {who:"mendigo", text:"Gracias. Si algún día hay horno otra vez, os guardo la primera hogaza.", puppets:["mendigo"], bg:"castillo", look:"rey", action:"bow"},
+        {who:"payaso", text:"El rey paga y el hambre calla. Apuntadlo, que no pasa todos los días.", puppets:["payaso","rey"], bg:"castillo", look:"rey", action:"clap"},
+        {who:"narr", text:"Y la moneda sonó en la mano. Pedir no es vergüenza. Pagar a tiempo, tampoco.", puppets:["rey","mendigo","payaso"], bg:"castillo"}
       ]
     }
   ];
@@ -1620,14 +2448,22 @@ body.escena .stage-wrap{max-width:56rem}
     actors: [], /* {id, fig, xNorm} */
     spotlightId: null,
     wind: 0,
+    weather: "sereno",
     t0: performance.now(),
     running: false,
     raf: 0,
     last: 0,
-    dust: []
+    dust: [],
+    rain: [],
+    props: { fuego: false, gallinas: false, perro: false },
+    pair: null,
+    pairFx: []
   };
   for(var di=0; di<18; di++){
     stage.dust.push({x:Math.random()*W, y:Math.random()*H*0.7, r:0.6+Math.random()*1.4, s:0.15+Math.random()*0.4});
+  }
+  for(var ri=0; ri<70; ri++){
+    stage.rain.push({x:Math.random()*W, y:Math.random()*H, l:8+Math.random()*14, v:7+Math.random()*9, w:Math.random()});
   }
 
   function resizeCanvas(){
@@ -1639,28 +2475,45 @@ body.escena .stage-wrap{max-width:56rem}
     ctx.setTransform(canvas.width / W, 0, 0, canvas.height / H, 0, 0);
   }
 
+
   function tree(c, x, y, h, col){
-    c.fillStyle = col;
+    var canopy = col || "#1a3a28";
+    c.fillStyle = "#3a2414";
+    c.fillRect(x - h*0.05, y - h*0.18, h*0.10, h*0.28);
+    c.fillStyle = "#2a1810";
+    c.fillRect(x - h*0.02, y - h*0.18, h*0.03, h*0.28);
+    c.fillStyle = canopy;
     c.beginPath();
-    c.moveTo(x, y - h);
-    c.lineTo(x + h * 0.38, y);
-    c.lineTo(x - h * 0.38, y);
-    c.closePath();
+    c.ellipse(x, y - h*0.52, h*0.36, h*0.40, 0, 0, 7);
     c.fill();
-    c.fillStyle = "rgba(40,24,12,0.7)";
-    c.fillRect(x - 4, y - 4, 8, 14);
+    c.fillStyle = "rgba(0,0,0,0.18)";
+    c.beginPath();
+    c.ellipse(x + h*0.08, y - h*0.46, h*0.22, h*0.26, 0.2, 0, 7);
+    c.fill();
+    c.fillStyle = "rgba(255,255,255,0.08)";
+    c.beginPath();
+    c.ellipse(x - h*0.12, y - h*0.66, h*0.16, h*0.14, -0.4, 0, 7);
+    c.fill();
   }
   function cloud(c, x, y, s){
-    c.fillStyle = "rgba(230,225,214,0.16)";
+    c.fillStyle = "rgba(236,230,218,0.55)";
     c.beginPath();
     c.arc(x, y, 16*s, 0, 7);
     c.arc(x+18*s, y+2, 22*s, 0, 7);
     c.arc(x+36*s, y, 14*s, 0, 7);
     c.fill();
+    c.fillStyle = "rgba(255,255,255,0.18)";
+    c.beginPath();
+    c.arc(x+10*s, y-4*s, 10*s, 0, 7);
+    c.fill();
   }
   function cottage(c, x, y, w, h){
+    c.fillStyle = "rgba(20,12,8,0.22)";
+    c.beginPath(); c.ellipse(x+w*0.5, y+h+4, w*0.55, 6, 0, 0, 7); c.fill();
     c.fillStyle = "#5a4030";
     c.fillRect(x, y, w, h);
+    c.fillStyle = "#4a3020";
+    c.fillRect(x+w-8, y-h*0.2, 10, h*0.35);
     c.fillStyle = "#7a2430";
     c.beginPath();
     c.moveTo(x-8, y);
@@ -1672,26 +2525,351 @@ body.escena .stage-wrap{max-width:56rem}
     c.fillRect(x+w*0.42, y+h*0.4, w*0.18, h*0.6);
     c.fillStyle = "#8ab4d0";
     c.fillRect(x+w*0.12, y+h*0.22, w*0.22, h*0.22);
+    c.strokeStyle = "rgba(40,24,12,0.35)";
+    c.lineWidth = 1;
+    c.strokeRect(x+w*0.12, y+h*0.22, w*0.22, h*0.22);
+  }
+  function floorBoards(c, y0){
+    c.fillStyle = "#4a3420";
+    c.fillRect(0, y0, W, H-y0);
+    c.strokeStyle = "rgba(20,12,6,0.28)";
+    c.lineWidth = 1.2;
+    var i;
+    for(i=0;i<14;i++){
+      c.beginPath();
+      c.moveTo(0, y0 + 8 + i*12);
+      c.lineTo(W, y0 + 18 + i*12);
+      c.stroke();
+    }
+  }
+  function winMullion(c, x, y, w, h){
+    c.fillStyle = "#7aa8c4";
+    c.fillRect(x, y, w, h);
+    c.fillStyle = "rgba(255,245,210,0.16)";
+    c.fillRect(x+3, y+3, w*0.42, h*0.38);
+    c.strokeStyle = "#5a4030";
+    c.lineWidth = 3;
+    c.strokeRect(x, y, w, h);
+    c.beginPath();
+    c.moveTo(x+w/2, y); c.lineTo(x+w/2, y+h);
+    c.moveTo(x, y+h/2); c.lineTo(x+w, y+h/2);
+    c.stroke();
+  }
+  function drawDiningTable(c){
+    var topY = H * 0.64;
+    var thick = 18;
+    var legH = H * 0.12;
+    var x0 = 168, x1 = W - 168;
+    /* sillas DETRAS del tablero */
+    c.fillStyle = "#4a3424";
+    c.fillRect(250, topY - 52, 44, 58);
+    c.fillRect(666, topY - 52, 44, 58);
+    c.fillStyle = "#5a4030";
+    c.fillRect(244, topY - 62, 56, 16);
+    c.fillRect(660, topY - 62, 56, 16);
+    c.fillStyle = "#3a2818";
+    c.fillRect(258, topY - 108, 8, 50);
+    c.fillRect(674, topY - 108, 8, 50);
+    /* aparador al fondo */
+    c.fillStyle = "#3a2818";
+    c.fillRect(380, 210, 200, 70);
+    c.fillStyle = "#c4a15a";
+    c.fillRect(392, 222, 80, 36);
+    c.fillRect(488, 222, 80, 36);
+    /* patas */
+    c.fillStyle = "#4a3018";
+    c.fillRect(x0 + 18, topY + thick - 2, 16, legH);
+    c.fillRect(x1 - 34, topY + thick - 2, 16, legH);
+    c.fillRect(x0 + 90, topY + thick - 2, 14, legH - 6);
+    c.fillRect(x1 - 104, topY + thick - 2, 14, legH - 6);
+    /* canto y tablero */
+    c.fillStyle = "#5a3a1c";
+    c.beginPath();
+    c.moveTo(x0 - 10, topY);
+    c.lineTo(x1 + 10, topY);
+    c.lineTo(x1 + 28, topY + thick);
+    c.lineTo(x0 - 28, topY + thick);
+    c.closePath();
+    c.fill();
+    /* mantel */
+    c.fillStyle = "#f3eadc";
+    c.beginPath();
+    c.moveTo(x0 + 8, topY + 2);
+    c.lineTo(x1 - 8, topY + 2);
+    c.lineTo(x1 + 10, topY + thick - 3);
+    c.lineTo(x0 - 10, topY + thick - 3);
+    c.closePath();
+    c.fill();
+    c.fillStyle = "#e8d8c8";
+    c.fillRect(x0 + 40, topY + thick - 2, 36, 22);
+    c.fillRect(x1 - 76, topY + thick - 2, 36, 22);
+    /* platos, pan, jarra, vela */
+    c.fillStyle = "#e6e1d6";
+    c.beginPath(); c.ellipse(300, topY + 8, 28, 9, 0, 0, 7); c.fill();
+    c.beginPath(); c.ellipse(660, topY + 8, 28, 9, 0, 0, 7); c.fill();
+    c.fillStyle = "#d0c4b0";
+    c.beginPath(); c.ellipse(300, topY + 8, 16, 5, 0, 0, 7); c.fill();
+    c.beginPath(); c.ellipse(660, topY + 8, 16, 5, 0, 0, 7); c.fill();
+    c.fillStyle = "#c4a15a";
+    c.beginPath(); c.ellipse(480, topY + 7, 22, 7, 0, 0, 7); c.fill();
+    c.fillStyle = "#8a3030";
+    c.fillRect(430, topY - 22, 16, 28);
+    c.fillStyle = "#c4a15a";
+    c.beginPath(); c.ellipse(438, topY - 22, 10, 4, 0, 0, 7); c.fill();
+    c.fillStyle = "#3a2414";
+    c.fillRect(548, topY - 18, 6, 24);
+    c.fillStyle = "#e8c878";
+    c.beginPath(); c.ellipse(551, topY - 26, 5, 8, 0, 0, 7); c.fill();
+    c.fillStyle = "rgba(255,220,140,0.18)";
+    c.beginPath(); c.arc(551, topY - 28, 16, 0, 7); c.fill();
+  }
+  function paintRoomShell(c, wall){
+    var g = c.createLinearGradient(0,0,0,H);
+    g.addColorStop(0, wall || "#6a4e3a");
+    g.addColorStop(0.55, "#4a3428");
+    g.addColorStop(1, "#2a1c14");
+    c.fillStyle = g; c.fillRect(0,0,W,H);
+    c.fillStyle = "#3a2a1c";
+    c.fillRect(0, H*0.72, W, 14);
+    floorBoards(c, H*0.73);
+    /* zocalo */
+    c.fillStyle = "#2a1c12";
+    c.fillRect(0, H*0.72, W, 10);
+    /* techo sombra */
+    c.fillStyle = "rgba(20,12,8,0.28)";
+    c.fillRect(0,0,W,36);
+  }
+
+  var SETS = [
+    {id:"habitacion", label:"Habitación"},
+    {id:"mesa", label:"Mesa"},
+    {id:"castillo", label:"Castillo"},
+    {id:"campo", label:"Campo"},
+    {id:"aula", label:"Aula"},
+    {id:"bosque", label:"Bosque"},
+    {id:"casa", label:"Casa"},
+    {id:"pantano", label:"Pantano"},
+    {id:"cielo", label:"Cielo"}
+  ];
+  var createBg = "habitacion";
+  function renderSetChips(boxId, current, onPick){
+    var box = document.getElementById(boxId);
+    if(!box) return;
+    box.innerHTML = "";
+    SETS.forEach(function(s){
+      var b = document.createElement("button");
+      b.type = "button";
+      b.className = "chip" + (current === s.id ? " on" : "");
+      b.textContent = s.label || s.n;
+      b.addEventListener("click", function(){ onPick(s.id); });
+      box.appendChild(b);
+    });
+  }
+  function setStageBg(id){
+    stage.bg = id;
+    if(currentShow){
+      currentShow.bg = id;
+      (currentShow.scenes || []).forEach(function(s){ s.bg = id; });
+    }
+    renderSetChips("opSets", stage.bg, setStageBg);
+    suggestProps(id);
   }
 
   function paintBg(c, name, t){
-    var g;
-    if(name === "casa"){
+    var g, i, x, y;
+    name = name === "clase" ? "aula" : name;
+    if(name === "habitacion" || name === "mesa"){
+      paintRoomShell(c, name === "mesa" ? "#5a4032" : "#6a4e3a");
+      winMullion(c, 70, 70, 150, 120);
+      /* cortinas */
+      c.fillStyle = "#8a3038";
+      c.beginPath(); c.moveTo(60,60); c.quadraticCurveTo(90,160,70,200); c.lineTo(55,200); c.closePath(); c.fill();
+      c.beginPath(); c.moveTo(230,60); c.quadraticCurveTo(200,160,220,200); c.lineTo(235,200); c.closePath(); c.fill();
+      /* marco */
+      c.fillStyle = "#c4a15a";
+      c.fillRect(430, 80, 90, 70);
+      c.fillStyle = "#3a5a48";
+      c.fillRect(438, 88, 74, 54);
+      /* puerta */
+      c.fillStyle = "#4a3020";
+      c.fillRect(780, 180, 90, H*0.72-180);
+      c.fillStyle = "#c4a15a";
+      c.beginPath(); c.arc(856, 360, 5, 0, 7); c.fill();
+      /* lampara */
+      c.strokeStyle = "#c4a15a"; c.lineWidth = 2;
+      c.beginPath(); c.moveTo(W*0.5, 0); c.lineTo(W*0.5, 48); c.stroke();
+      c.fillStyle = "#e8c878";
+      c.beginPath(); c.moveTo(W*0.5-22, 48); c.lineTo(W*0.5+22, 48); c.lineTo(W*0.5+12, 78); c.lineTo(W*0.5-12, 78); c.closePath(); c.fill();
+      c.fillStyle = "rgba(255,220,140,0.10)";
+      c.beginPath(); c.moveTo(W*0.5-12, 78); c.lineTo(W*0.5+12, 78); c.lineTo(W*0.5+90, H*0.58); c.lineTo(W*0.5-90, H*0.58); c.closePath(); c.fill();
+      if(name === "mesa"){
+        drawDiningTable(c);
+      } else {
+        /* cama apoyada en el suelo del fondo */
+        c.fillStyle = "#3a2418";
+        c.fillRect(268, H*0.62, 16, 72);
+        c.fillRect(508, H*0.62, 16, 72);
+        c.fillStyle = "#5a3040";
+        c.fillRect(280, H*0.64, 232, 46);
+        c.fillStyle = "#8a4058";
+        c.fillRect(286, H*0.66, 220, 28);
+        c.fillStyle = "#e8d8c8";
+        c.fillRect(292, H*0.625, 86, 22);
+        /* silla */
+        c.fillStyle = "#3a2818";
+        c.fillRect(620, H*0.62, 50, 70);
+        c.fillRect(614, H*0.60, 62, 18);
+        c.fillRect(628, H*0.52, 8, 56);
+      }
+    } else if(name === "castillo"){
       g = c.createLinearGradient(0,0,0,H);
-      g.addColorStop(0,"#3a2a40"); g.addColorStop(0.42,"#2a2030"); g.addColorStop(1,"#4a3824");
+      g.addColorStop(0,"#2a2038"); g.addColorStop(0.4,"#4a3048"); g.addColorStop(1,"#2a2018");
       c.fillStyle = g; c.fillRect(0,0,W,H);
-      c.fillStyle = "#5a4830";
-      c.fillRect(0, H*0.62, W, H*0.38);
-      c.fillStyle = "rgba(196,161,90,0.12)";
-      for(var i=0;i<8;i++) c.fillRect(40+i*115, 30, 70, H*0.55);
-      c.fillStyle = "#8ab4d0";
-      c.fillRect(70, 70, 120, 90);
-      c.fillStyle = "rgba(255,240,200,0.12)";
-      c.beginPath(); c.ellipse(130, 115, 70, 50, 0, 0, 7); c.fill();
+      /* luna */
+      c.fillStyle = "#e8d8b0";
+      c.beginPath(); c.arc(820, 70, 28, 0, 7); c.fill();
+      c.fillStyle = "#3a2844";
+      c.beginPath(); c.arc(832, 64, 22, 0, 7); c.fill();
+      /* muro */
+      c.fillStyle = "#6a6460";
+      c.fillRect(0, 220, W, H-220);
+      c.fillStyle = "#5a544e";
+      for(i=0;i<16;i++){
+        c.fillRect(20+i*60, 220, 28, 16);
+      }
+      /* torres */
+      c.fillStyle = "#7a7470";
+      c.fillRect(40, 110, 90, 280);
+      c.fillRect(830, 90, 100, 300);
+      c.fillStyle = "#8a3030";
+      c.beginPath(); c.moveTo(30,110); c.lineTo(85,50); c.lineTo(140,110); c.closePath(); c.fill();
+      c.beginPath(); c.moveTo(820,90); c.lineTo(880,24); c.lineTo(940,90); c.closePath(); c.fill();
+      /* merlones */
+      c.fillStyle = "#5a544e";
+      for(i=0;i<4;i++){ c.fillRect(44+i*22, 98, 14, 16); c.fillRect(836+i*24, 78, 14, 16); }
+      /* arco */
+      c.fillStyle = "#2a2018";
+      c.beginPath();
+      c.moveTo(400, H*0.62); c.lineTo(400, 280);
+      c.quadraticCurveTo(480, 180, 560, 280);
+      c.lineTo(560, H*0.62); c.closePath(); c.fill();
+      /* estandarte */
+      c.strokeStyle = "#c4a15a"; c.lineWidth = 3;
+      c.beginPath(); c.moveTo(240, 160); c.lineTo(240, 280); c.stroke();
+      c.fillStyle = "#8a3030";
+      var flap = Math.sin(t*0.004)*6;
+      c.beginPath(); c.moveTo(240,160); c.lineTo(300+flap,175); c.lineTo(240,210); c.closePath(); c.fill();
+      /* antorcha */
+      c.fillStyle = "#3a2414";
+      c.fillRect(640, 250, 8, 50);
+      c.fillStyle = "#e8a030";
+      c.beginPath(); c.arc(644, 244, 10+Math.sin(t*0.02)*2, 0, 7); c.fill();
+      c.fillStyle = "#f0d070";
+      c.beginPath(); c.arc(644, 240, 5, 0, 7); c.fill();
+      floorBoards(c, H*0.62);
+    } else if(name === "campo"){
+      g = c.createLinearGradient(0,0,0,H);
+      g.addColorStop(0,"#7aa0c4"); g.addColorStop(0.38,"#c4b07a"); g.addColorStop(1,"#5a7a38");
+      c.fillStyle = g; c.fillRect(0,0,W,H);
+      c.fillStyle = "#e8c878";
+      c.beginPath(); c.arc(120, 80, 36, 0, 7); c.fill();
+      c.fillStyle = "rgba(255,240,180,0.18)";
+      c.beginPath(); c.arc(120, 80, 70, 0, 7); c.fill();
+      cloud(c, 300, 70, 1.1); cloud(c, 640, 50, 1.4);
+      c.fillStyle = "#6a8a40";
+      c.beginPath(); c.moveTo(0,H*0.48); c.quadraticCurveTo(240,H*0.38,480,H*0.50); c.quadraticCurveTo(760,H*0.58,W,H*0.46); c.lineTo(W,H); c.lineTo(0,H); c.fill();
+      c.fillStyle = "#5a7a30";
+      c.beginPath(); c.moveTo(0,H*0.62); c.quadraticCurveTo(W*0.5,H*0.54,W,H*0.64); c.lineTo(W,H); c.lineTo(0,H); c.fill();
+      /* camino */
+      c.fillStyle = "#c4a06a";
+      c.beginPath(); c.moveTo(W*0.42, H*0.56); c.lineTo(W*0.58, H*0.56); c.lineTo(W*0.72, H); c.lineTo(W*0.28, H); c.closePath(); c.fill();
+      /* trigo */
+      c.strokeStyle = "rgba(196,161,90,0.45)";
+      c.lineWidth = 1.4;
+      for(i=0;i<40;i++){
+        x = 20 + i*24; y = H*0.70 + (i%3)*8;
+        c.beginPath(); c.moveTo(x, y+28); c.quadraticCurveTo(x+Math.sin(t*0.003+i)*4, y+10, x, y); c.stroke();
+      }
+      /* valla */
+      c.strokeStyle = "#5a4030"; c.lineWidth = 3;
+      c.beginPath(); c.moveTo(40, H*0.66); c.lineTo(400, H*0.66); c.moveTo(40, H*0.70); c.lineTo(400, H*0.70); c.stroke();
+      for(i=0;i<8;i++){ c.fillStyle="#4a3020"; c.fillRect(50+i*44, H*0.64, 6, 46); }
+      tree(c, 160, H*0.56, 140, "#2a5a30");
+      tree(c, 820, H*0.54, 170, "#1a4a28");
+      cottage(c, 520, H*0.44, 64, 48);
+    } else if(name === "aula"){
+      g = c.createLinearGradient(0,0,0,H);
+      g.addColorStop(0,"#3a4a48"); g.addColorStop(0.4,"#2a3834"); g.addColorStop(1,"#2a2418");
+      c.fillStyle = g; c.fillRect(0,0,W,H);
+      floorBoards(c, H*0.72);
+      /* pizarra */
       c.fillStyle = "#3a2a18";
-      c.fillRect(700, 280, 160, 90);
-      c.fillStyle = "#6a4a28";
-      c.fillRect(80, 420, 200, 18);
+      c.fillRect(180, 50, 600, 210);
+      c.fillStyle = "#2f5a3a";
+      c.fillRect(190, 60, 580, 190);
+      c.fillStyle = "#e8e0c8";
+      c.font = "28px Georgia, serif";
+      c.fillText("2 + 3 = 5", 250, 140);
+      c.strokeStyle = "#e8e0c8"; c.lineWidth = 2;
+      c.beginPath(); c.moveTo(520, 170); c.lineTo(620, 170); c.lineTo(570, 90); c.closePath(); c.stroke();
+      c.font = "16px Georgia, serif";
+      c.fillText("A", 540, 188); c.fillText("B", 610, 188); c.fillText("C", 568, 86);
+      /* tiza y borrador */
+      c.fillStyle = "#f3eadc"; c.fillRect(200, 236, 28, 6);
+      c.fillStyle = "#4a4034"; c.fillRect(240, 234, 36, 10);
+      /* abecedario */
+      c.fillStyle = "#f3eadc";
+      c.fillRect(0, 268, W, 28);
+      c.fillStyle = "#3a2a18";
+      c.font = "15px Georgia, serif";
+      c.fillText("A B C D E F G H I J K L M N Ñ O P Q R S T U V W X Y Z", 24, 288);
+      /* reloj */
+      c.fillStyle = "#f3eadc";
+      c.beginPath(); c.arc(860, 90, 28, 0, 7); c.fill();
+      c.strokeStyle = "#3a2a18"; c.lineWidth = 2;
+      c.beginPath(); c.arc(860, 90, 28, 0, 7); c.stroke();
+      c.beginPath(); c.moveTo(860,90); c.lineTo(860,72); c.moveTo(860,90); c.lineTo(874,96); c.stroke();
+      /* ventana */
+      winMullion(c, 40, 70, 100, 130);
+      /* pupitres al fondo */
+      for(i=0;i<3;i++){
+        x = 180 + i*220;
+        c.fillStyle = "#3a2818";
+        c.fillRect(x+34, H*0.64, 40, 22);
+        c.fillStyle = "#6a4a2a";
+        c.fillRect(x, H*0.68, 120, 12);
+        c.fillStyle = "#4a3020";
+        c.fillRect(x+10, H*0.70, 8, 28);
+        c.fillRect(x+102, H*0.70, 8, 28);
+      }
+    } else if(name === "casa"){
+      paintRoomShell(c, "#4a3040");
+      winMullion(c, 70, 70, 130, 100);
+      /* chimenea */
+      c.fillStyle = "#5a4034";
+      c.fillRect(700, 140, 160, H*0.72-140);
+      c.fillStyle = "#2a1c14";
+      c.fillRect(730, H*0.52, 100, H*0.20);
+      c.fillStyle = "#e07030";
+      c.fillRect(748, H*0.58, 18, 28);
+      c.fillRect(776, H*0.56, 14, 40);
+      c.fillStyle = "#f0c060";
+      c.fillRect(760, H*0.60, 12, 16);
+      /* cama */
+      c.fillStyle = "#3a2418";
+      c.fillRect(220, H*0.62, 14, 70);
+      c.fillRect(470, H*0.62, 14, 70);
+      c.fillStyle = "#6a3040";
+      c.fillRect(228, H*0.64, 250, 46);
+      c.fillStyle = "#e8d8c8";
+      c.fillRect(238, H*0.625, 86, 20);
+      /* mesita */
+      c.fillStyle = "#3a2414";
+      c.fillRect(520, H*0.66, 100, 14);
+      c.fillRect(528, H*0.68, 12, 36);
+      c.fillRect(600, H*0.68, 12, 36);
+      c.fillStyle = "#c4a15a";
+      c.beginPath(); c.arc(570, H*0.655, 7, 0, 7); c.fill();
     } else if(name === "pantano"){
       g = c.createLinearGradient(0,0,0,H);
       g.addColorStop(0,"#2a3a38"); g.addColorStop(0.4,"#1e2e28"); g.addColorStop(1,"#1a241c");
@@ -1707,19 +2885,51 @@ body.escena .stage-wrap{max-width:56rem}
         c.quadraticCurveTo(rx+18, H*0.58-rh-10, rx+8, H*0.58-rh+16);
         c.strokeStyle = "#3a6a50"; c.lineWidth = 2; c.stroke();
       }
-      c.fillStyle = "rgba(160,200,170,0.08)";
-      c.fillRect(0, H*0.62, W, 40);
+      /* agua */
+      c.fillStyle = "rgba(30,60,55,0.45)";
+      c.fillRect(0, H*0.70, W, H*0.30);
+      c.strokeStyle = "rgba(160,200,170,0.18)";
+      c.lineWidth = 1.2;
+      for(i=0;i<6;i++){
+        c.beginPath();
+        c.ellipse(180+i*130, H*0.78 + Math.sin(t*0.003+i)*3, 70, 8, 0, 0, 7);
+        c.stroke();
+      }
+      /* tronco */
+      c.fillStyle = "#4a3424";
+      c.beginPath();
+      c.moveTo(80, H*0.72); c.lineTo(260, H*0.74); c.lineTo(258, H*0.78); c.lineTo(76, H*0.76);
+      c.closePath(); c.fill();
+      /* nenufares */
+      c.fillStyle = "#3a6a40";
+      c.beginPath(); c.ellipse(200, H*0.76, 36, 10, 0, 0, 7); c.fill();
+      c.beginPath(); c.ellipse(420, H*0.80, 28, 8, 0, 0, 7); c.fill();
+      c.beginPath(); c.ellipse(620, H*0.78, 44, 12, 0, 0, 7); c.fill();
+      c.fillStyle = "#c4a15a";
+      c.beginPath(); c.arc(200, H*0.76, 5, 0, 7); c.fill();
+      c.beginPath(); c.arc(620, H*0.78, 5, 0, 7); c.fill();
+      c.fillStyle = "rgba(160,200,170,0.10)";
+      c.fillRect(0, H*0.68, W, 28);
     } else if(name === "cielo"){
       g = c.createLinearGradient(0,0,0,H);
-      g.addColorStop(0,"#5a7a9a"); g.addColorStop(0.42,"#3a5a78"); g.addColorStop(1,"#4a6a40");
+      g.addColorStop(0,"#6a90b8"); g.addColorStop(0.42,"#8ab0c8"); g.addColorStop(1,"#5a7a40");
       c.fillStyle = g; c.fillRect(0,0,W,H);
-      cloud(c, 140, 80, 1.2); cloud(c, 520, 60, 1.6); cloud(c, 800, 100, 1);
+      c.fillStyle = "#e8c878";
+      c.beginPath(); c.arc(120, 78, 34, 0, 7); c.fill();
+      c.fillStyle = "rgba(255,240,180,0.20)";
+      c.beginPath(); c.arc(120, 78, 70, 0, 7); c.fill();
+      cloud(c, 220, 90, 1.3); cloud(c, 520, 58, 1.7); cloud(c, 800, 96, 1.15);
       c.fillStyle = "#6a8a50";
       c.beginPath(); c.moveTo(0,H*0.58); c.quadraticCurveTo(240,H*0.46,480,H*0.58); c.quadraticCurveTo(720,H*0.68,W,H*0.52); c.lineTo(W,H); c.lineTo(0,H); c.fill();
-      cottage(c, 120, 340, 70, 54);
-      cottage(c, 430, 330, 78, 60);
-      cottage(c, 740, 336, 86, 66);
+      c.fillStyle = "#c4a06a";
+      c.beginPath(); c.moveTo(W*0.44, H*0.62); c.lineTo(W*0.56, H*0.62); c.lineTo(W*0.70, H); c.lineTo(W*0.30, H); c.closePath(); c.fill();
+      cottage(c, 90, H*0.50, 70, 54);
+      cottage(c, 400, H*0.48, 78, 60);
+      cottage(c, 720, H*0.46, 86, 66);
+      tree(c, 280, H*0.56, 90, "#2a4a28");
+      tree(c, 640, H*0.58, 80, "#1a3a20");
     } else {
+      /* bosque */
       g = c.createLinearGradient(0,0,0,H);
       g.addColorStop(0,"#1c2e28"); g.addColorStop(0.4,"#163028"); g.addColorStop(1,"#2a2014");
       c.fillStyle = g; c.fillRect(0,0,W,H);
@@ -1731,8 +2941,21 @@ body.escena .stage-wrap{max-width:56rem}
       tree(c, 620, 410, 130, "#1a402c");
       c.fillStyle = "#3a2e1c";
       c.beginPath(); c.moveTo(0,H*0.68); c.quadraticCurveTo(W*0.5,H*0.62,W,H*0.7); c.lineTo(W,H); c.lineTo(0,H); c.fill();
+      c.fillStyle = "#c4a06a";
+      c.beginPath(); c.moveTo(W*0.44, H*0.66); c.lineTo(W*0.56, H*0.66); c.lineTo(W*0.68, H); c.lineTo(W*0.32, H); c.closePath(); c.fill();
       c.fillStyle = "rgba(90,70,40,0.35)";
       c.beginPath(); c.moveTo(80,H*0.72); c.quadraticCurveTo(W*0.5,H*0.66,W-80,H*0.74); c.lineTo(W-120,H*0.78); c.quadraticCurveTo(W*0.5,H*0.72,120,H*0.78); c.closePath(); c.fill();
+      /* hongos */
+      c.fillStyle = "#8a3030";
+      c.beginPath(); c.ellipse(140, H*0.78, 10, 6, 0, 0, 7); c.fill();
+      c.beginPath(); c.ellipse(190, H*0.80, 8, 5, 0, 0, 7); c.fill();
+      c.beginPath(); c.ellipse(780, H*0.79, 11, 6, 0, 0, 7); c.fill();
+      c.fillStyle = "#f3eadc";
+      c.fillRect(136, H*0.78, 8, 12);
+      c.fillRect(187, H*0.80, 6, 10);
+      c.fillRect(776, H*0.79, 8, 12);
+      c.fillStyle = "rgba(196,161,90,0.06)";
+      c.beginPath(); c.moveTo(200, 0); c.lineTo(280, H); c.lineTo(360, H); c.lineTo(260, 0); c.fill();
     }
     /* floor board hint */
     c.fillStyle = "rgba(0,0,0,0.18)";
@@ -1746,17 +2969,227 @@ body.escena .stage-wrap{max-width:56rem}
       if(px<0) px += W;
       c.beginPath(); c.arc(px, p.y, p.r, 0, 7); c.fill();
     }
-    /* footlights */
+    /* candilejas */
     var lg = c.createLinearGradient(0, H*0.7, 0, H);
     lg.addColorStop(0,"rgba(196,161,90,0)");
-    lg.addColorStop(1,"rgba(196,161,90,0.10)");
+    lg.addColorStop(1,"rgba(196,161,90,0.16)");
     c.fillStyle = lg; c.fillRect(0, H*0.7, W, H*0.3);
+    for(var fl=0; fl<5; fl++){
+      var fx = 80 + fl * ((W-160)/4);
+      c.fillStyle = "rgba(232,200,120,0.22)";
+      c.beginPath(); c.ellipse(fx, H-8, 28, 10, 0, 0, 7); c.fill();
+      c.fillStyle = "#c4a15a";
+      c.beginPath(); c.arc(fx, H-6, 5, 0, 7); c.fill();
+    }
+    /* viñeta de escenario */
+    var vg = c.createRadialGradient(W*0.5, H*0.55, H*0.2, W*0.5, H*0.55, H*0.75);
+    vg.addColorStop(0,"rgba(0,0,0,0)");
+    vg.addColorStop(1,"rgba(0,0,0,0.28)");
+    c.fillStyle = vg; c.fillRect(0,0,W,H);
   }
 
-  var KIND_ALIAS = { holmes:"cazador", watson:"nino", inspector:"cazador", baker:"nino", senora:"abuela", corona:"princesa" };
-  function resolveKind(id){ return (F && F.kinds && F.kinds.indexOf(id)>=0) ? id : (KIND_ALIAS[id] || id); }
+  function setWeather(w){
+    stage.weather = w || "sereno";
+    if(stage.weather === "viento" || stage.weather === "tormenta") stage.wind = Math.max(stage.wind, 2.2);
+    else if(stage.weather === "sereno") stage.wind = 0;
+    applyWeatherAudio(stage.weather);
+    renderWeatherChips();
+  }
+  var WEATHER_SETS = [
+    {id:"sereno", label:"Calma"},
+    {id:"viento", label:"Viento"},
+    {id:"lluvia", label:"Lluvia"}
+  ];
+  function renderWeatherChips(){
+    var box = document.getElementById("opWeather");
+    if(!box) return;
+    box.innerHTML = "";
+    WEATHER_SETS.forEach(function(s){
+      var b = document.createElement("button");
+      b.type = "button";
+      b.className = "chip" + (stage.weather === s.id ? " on" : "");
+      b.textContent = s.label;
+      b.addEventListener("click", function(){
+        unlockAudio();
+        if(s.id === "viento") sndWhoosh();
+        setWeather(s.id);
+      });
+      box.appendChild(b);
+    });
+  }
+  function paintWeather(c, t){
+    var w = stage.weather || "sereno";
+    if(w === "sereno") return;
+    var i, p, wx = (stage.wind || 0);
+    if(w === "viento" || w === "tormenta"){
+      c.fillStyle = "rgba(230,225,214,0.16)";
+      for(i=0;i<stage.dust.length;i++){
+        p = stage.dust[i];
+        var px = (p.x + t * 0.08 * (1.4+p.s) + wx * 18) % W;
+        if(px<0) px += W;
+        c.beginPath(); c.ellipse(px, p.y, 3+p.r*2, 1.1, -0.4, 0, 7); c.fill();
+      }
+    }
+    if((w === "lluvia" || w === "tormenta") && !reduced){
+      c.strokeStyle = "rgba(210,220,230,0.45)";
+      c.lineWidth = 1.15;
+      c.beginPath();
+      for(i=0;i<stage.rain.length;i++){
+        p = stage.rain[i];
+        p.y += p.v;
+        p.x += wx * 1.8 + 0.6;
+        if(p.y > H){ p.y = -12; p.x = Math.random()*W; }
+        if(p.x > W) p.x -= W;
+        c.moveTo(p.x, p.y);
+        c.lineTo(p.x + 3 + wx, p.y + p.l);
+      }
+      c.stroke();
+      c.fillStyle = "rgba(180,200,210,0.10)";
+      c.fillRect(0, H*0.82, W, H*0.18);
+    }
+    if(w === "tormenta"){
+      var flash = (Math.sin(t*0.008)+1) < 0.06 ? 0.18 : 0;
+      if(flash){
+        c.fillStyle = "rgba(230,225,214,"+flash+")";
+        c.fillRect(0,0,W,H);
+      }
+    }
+  }
+
+  function paintAtrezzo(c, t){
+    var p = stage.props || {};
+    var floor = H * 0.78;
+    if(p.fuego){
+      var indoor = /habitacion|casa|mesa|aula/.test(stage.bg);
+      if(indoor) drawHearth(c, 86, H*0.58, t);
+      else drawCampfire(c, 110, floor, t);
+    }
+    if(p.gallinas){
+      drawHen(c, 160, floor + 6, t, 0);
+      drawHen(c, 210, floor + 10, t, 1);
+      drawHen(c, W - 170, floor + 4, t, 2);
+    }
+    if(p.perro){
+      drawDogSit(c, W - 110, floor - 4, t);
+    }
+  }
+  function drawHearth(c, x, y, t){
+    c.fillStyle = "#4a4038";
+    c.fillRect(x - 36, y - 70, 72, 78);
+    c.fillStyle = "#2a2018";
+    c.fillRect(x - 24, y - 48, 48, 48);
+    c.fillStyle = "#6a6058";
+    c.fillRect(x - 40, y - 8, 80, 12);
+    drawFlames(c, x, y - 18, t, 1);
+  }
+  function drawCampfire(c, x, y, t){
+    c.fillStyle = "#3a2818";
+    c.beginPath();
+    c.moveTo(x - 18, y); c.lineTo(x - 6, y - 16); c.lineTo(x + 4, y); c.fill();
+    c.moveTo(x + 16, y); c.lineTo(x + 4, y - 14); c.lineTo(x - 4, y); c.fill();
+    drawFlames(c, x, y - 8, t, 0.85);
+  }
+  function drawFlames(c, x, y, t, s){
+    s = s || 1;
+    var flicker = Math.sin(t * 0.018) * 3;
+    c.fillStyle = "#e07030";
+    c.beginPath();
+    c.moveTo(x - 12*s, y);
+    c.quadraticCurveTo(x - 6*s, y - 22*s - flicker, x, y - 8*s);
+    c.quadraticCurveTo(x + 4*s, y - 28*s + flicker, x + 12*s, y);
+    c.closePath(); c.fill();
+    c.fillStyle = "#f0d070";
+    c.beginPath();
+    c.moveTo(x - 6*s, y);
+    c.quadraticCurveTo(x, y - 16*s - flicker, x + 6*s, y);
+    c.closePath(); c.fill();
+  }
+  function drawHen(c, x, y, t, i){
+    var peck = Math.sin(t * 0.01 + i * 1.7) > 0.35 ? 8 : 0;
+    c.save();
+    c.translate(x, y);
+    c.fillStyle = "#e8d8c0";
+    c.beginPath(); c.ellipse(0, -6 - peck*0.15, 11, 8, 0, 0, 7); c.fill();
+    c.fillStyle = "#c4a15a";
+    c.beginPath(); c.ellipse(10, -8 - peck, 5, 3.4, 0, 0, 7); c.fill();
+    c.fillStyle = "#c04030";
+    c.beginPath(); c.moveTo(12, -8 - peck); c.lineTo(18, -6 - peck); c.lineTo(12, -4 - peck); c.closePath(); c.fill();
+    c.beginPath(); c.moveTo(-2, -14); c.lineTo(0, -20); c.lineTo(3, -14); c.closePath(); c.fill();
+    c.fillStyle = "#3a2418";
+    c.beginPath(); c.arc(8, -10 - peck, 1.1, 0, 7); c.fill();
+    c.strokeStyle = "#c4a15a"; c.lineWidth = 1.6;
+    c.beginPath(); c.moveTo(-3, 2); c.lineTo(-3, 10); c.moveTo(3, 2); c.lineTo(3, 10); c.stroke();
+    c.restore();
+  }
+  function drawDogSit(c, x, y, t){
+    var wag = Math.sin(t * 0.01) * 10;
+    c.save();
+    c.translate(x, y);
+    c.fillStyle = "#b89058";
+    c.beginPath(); c.ellipse(0, -10, 16, 12, 0, 0, 7); c.fill();
+    c.beginPath(); c.ellipse(-2, -26, 11, 10, 0, 0, 7); c.fill();
+    c.fillStyle = "#8a6a40";
+    c.beginPath(); c.ellipse(-12, -24, 4, 8, -0.4, 0, 7); c.ellipse(8, -24, 4, 8, 0.4, 0, 7); c.fill();
+    c.fillStyle = "#d4b080";
+    c.beginPath(); c.ellipse(-1, -22, 6, 4.5, 0, 0, 7); c.fill();
+    c.fillStyle = "#2a1c12";
+    c.beginPath(); c.ellipse(-1, -20, 2.2, 1.6, 0, 0, 7); c.fill();
+    c.beginPath(); c.arc(-5, -28, 1.3, 0, 7); c.arc(3, -28, 1.3, 0, 7); c.fill();
+    c.fillStyle = "#b89058";
+    c.beginPath(); c.ellipse(-10, 2, 4, 8, 0.2, 0, 7); c.ellipse(8, 2, 4, 8, -0.15, 0, 7); c.fill();
+    c.save();
+    c.translate(14, -6);
+    c.rotate(wag * 0.04);
+    c.fillStyle = "#8a6a40";
+    c.beginPath(); c.ellipse(10, 0, 10, 3.2, 0.2, 0, 7); c.fill();
+    c.restore();
+    c.restore();
+  }
+
+  var KIND_ALIAS = { holmes:"cazador", watson:"nino", inspector:"cazador", baker:"nino", senora:"abuela", corona:"princesa", ratón:"raton", francisco:"cazador", bernardo:"caballero", horacio:"watson", marcelo:"pastor", fantasma:"rey", quijote:"caballero", sancho:"nino", mendigo:"nino", mesonero:"abuelo", huesped:"princesa", anfitriona:"madre" };
+  var TALLER_KEY = "lv-marionetas-taller-v1";
+  function tallerLoad(){
+    try{
+      var raw = localStorage.getItem(TALLER_KEY);
+      var list = raw ? JSON.parse(raw) : [];
+      return Array.isArray(list) ? list : [];
+    }catch(e){ return []; }
+  }
+  function tallerSaveAll(list){
+    try{ localStorage.setItem(TALLER_KEY, JSON.stringify(list)); }catch(e){}
+  }
+  function tallerById(id){
+    var list = tallerLoad();
+    for(var i=0;i<list.length;i++) if(list[i].id===id) return list[i];
+    return null;
+  }
+  function resolveKind(id){
+    var custom = tallerById(id);
+    if(custom) return custom.base || custom.kind || "nina";
+    return (F && F.kinds && F.kinds.indexOf(id)>=0) ? id : (KIND_ALIAS[id] || id);
+  }
+  function makeFigFor(id){
+    var custom = tallerById(id);
+    if(custom && F){
+      return F.create(custom.base || "nina", {
+        view:"front", strings:true,
+        pal: custom.pal || {},
+        meta: { hair: custom.hair, acc: custom.acc },
+        label: custom.name
+      });
+    }
+    return F.create(resolveKind(id), {view:"front", strings:true});
+  }
+  function knownId(id){
+    if(id === "narr") return false;
+    if(!F) return false;
+    if(tallerById(id)) return true;
+    if(F.kinds && F.kinds.indexOf(id)>=0) return true;
+    if(KIND_ALIAS[id]) return true;
+    return false;
+  }
   function layoutActors(ids){
-    var list = (ids||[]).filter(function(id){ return id !== "narr" && F && resolveKind(id) && (F.kinds.indexOf(id)>=0 || KIND_ALIAS[id]); });
+    var list = (ids||[]).filter(knownId);
     var n = list.length;
     var existing = {};
     stage.actors.forEach(function(a){ existing[a.id] = a; });
@@ -1765,7 +3198,7 @@ body.escena .stage-wrap{max-width:56rem}
       var xNorm = n === 1 ? 0.5 : n === 2 ? (0.34 + i * 0.32) : (0.26 + i * 0.24);
       var a = existing[id];
       if(!a){
-        a = { id:id, fig: F.create(resolveKind(id), {view:"front", strings:true}), xNorm:xNorm, yOff:0, userX:null };
+        a = { id:id, fig: makeFigFor(id), xNorm:xNorm, yOff:0, userX:null };
       } else if(a.userX == null){
         a.xNorm = xNorm;
       } else {
@@ -1774,14 +3207,30 @@ body.escena .stage-wrap{max-width:56rem}
       next.push(a);
     });
     stage.actors = next;
+    if(next.length >= 2){
+      if(!LVOp.selected || !actorById(LVOp.selected)) LVOp.selected = next[0].id;
+      if(!LVOp.partner || LVOp.partner === LVOp.selected || !actorById(LVOp.partner)){
+        LVOp.partner = next[0].id === LVOp.selected ? next[1].id : next[0].id;
+      }
+    } else if(next.length === 1){
+      LVOp.selected = next[0].id;
+      LVOp.partner = null;
+    }
+    stage.actors.forEach(function(a){ a.selected = a.id === LVOp.selected || a.id === LVOp.partner; });
+    opSelLabel();
+    renderOpCast();
+    renderPairChips();
   }
 
   function applySceneActions(sc){
     if(!F) return;
     var speaker = sc.who;
     stage.spotlightId = speaker === "narr" ? null : speaker;
-    var windBoost = /sopl/i.test(sc.text||"") ? 2.4 : 0;
-    stage.wind = windBoost;
+    var txt = sc.text || "";
+    var windBoost = /sopl|viento|derrib/i.test(txt) ? 2.4 : 0;
+    if(/lluv|tormenta|chaparr/i.test(txt)) setWeather("lluvia");
+    else if(windBoost) setWeather("viento");
+    if(windBoost) stage.wind = windBoost;
     stage.actors.forEach(function(a){
       var talking = a.id === speaker;
       F.setTalking(a.fig, talking);
@@ -1791,7 +3240,7 @@ body.escena .stage-wrap{max-width:56rem}
         stage.actors.forEach(function(x){ if(x.id===lookId) lookAt=x; });
       }
       if(lookAt){
-        a.fig.lookYaw = lookAt.xNorm > a.xNorm ? 0.28 : -0.28;
+        a.fig.lookYaw = lookAt.xNorm > a.xNorm ? 0.42 : -0.42;
       } else if(talking){
         a.fig.lookYaw = 0;
       }
@@ -1809,7 +3258,8 @@ body.escena .stage-wrap{max-width:56rem}
   function drawActors(t){
     if(!F) return;
     var floorY = H * 0.86;
-    stage.actors.forEach(function(a){
+    var list = stage.actors.slice().sort(function(p,q){ return p.xNorm - q.xNorm; });
+    list.forEach(function(a){
       var x = a.xNorm * W;
       var scale = 1.78 * (a.fig.active || a.selected ? 1.07 : 1);
       var yLift = (a.yOff || 0);
@@ -1829,8 +3279,192 @@ body.escena .stage-wrap{max-width:56rem}
         ctx.beginPath(); ctx.ellipse(x, floorY - 8 + yLift, 36, 8, 0, 0, 7); ctx.stroke();
         ctx.restore();
       }
+      if(a.id === "fantasma") ctx.globalAlpha = 0.62;
       F.draw(ctx, a.fig, x, floorY - 78 * scale + yLift, scale);
+      ctx.globalAlpha = 1;
+      if(a.selected || a.id === (window.LVOp && LVOp.selected) || stage.spotlightId === a.id){
+        var nm = whoLabel(a.id);
+        ctx.save();
+        ctx.font = "600 13px Georgia, serif";
+        ctx.textAlign = "center";
+        ctx.fillStyle = "rgba(20,14,8,0.45)";
+        ctx.fillText(nm, x + 1, floorY + 16 + yLift);
+        ctx.fillStyle = "#e6e1d6";
+        ctx.fillText(nm, x, floorY + 15 + yLift);
+        ctx.restore();
+      }
     });
+    if(window.LVOp && (LVOp.director || LVOp.hands)){
+      var shown = false;
+      stage.actors.forEach(function(a){
+        if(shown) return;
+        if(a.selected || a.id === LVOp.selected || (LVOp.drag && LVOp.drag.id === a.id)){
+          if(LVOp.director) drawDirector(ctx, a, t);
+          else drawOperatorHands(ctx, a, t);
+          shown = true;
+        }
+      });
+      if(!shown && LVOp.director && stage.actors[0]){
+        drawDirector(ctx, stage.actors[0], t);
+      }
+    }
+  }
+
+  function drawOperatorHands(c, actor, t){
+    var x = actor.xNorm * W;
+    var floorY = H * 0.86;
+    var scale = 1.78 * (actor.fig.active || actor.selected ? 1.07 : 1);
+    var yLift = actor.yOff || 0;
+    var hipY = floorY - 78 * scale + yLift;
+    var headY = hipY - 48 * scale;
+    var shY = hipY - 36 * scale;
+    var pad = (window.LVOp && LVOp.pad) || {x:0,y:0};
+    var sway = reduced ? 0 : Math.sin((t || 0) / 420) * 2;
+    var ox = (pad.x || 0) * 26 + sway;
+    var oy = (pad.y || 0) * -10;
+    var barY = Math.max(16, headY - 100 + oy);
+    var barX = x + ox;
+    c.save();
+    c.globalAlpha = 0.72;
+    c.strokeStyle = "rgba(230,225,214,0.38)";
+    c.lineWidth = 1.05;
+    c.beginPath();
+    c.moveTo(barX - 4, barY + 6); c.lineTo(x - 6, headY);
+    c.moveTo(barX + 4, barY + 6); c.lineTo(x + 6, headY);
+    c.moveTo(barX - 28, barY + 4); c.lineTo(x - 22 * scale, shY);
+    c.moveTo(barX + 28, barY + 4); c.lineTo(x + 22 * scale, shY);
+    c.stroke();
+    c.fillStyle = "#8B6840";
+    c.strokeStyle = "#4a3018";
+    c.lineWidth = 1.2;
+    if(c.roundRect){ c.beginPath(); c.roundRect(barX - 46, barY - 5, 92, 10, 3); c.fill(); c.stroke(); }
+    else { c.fillRect(barX - 46, barY - 5, 92, 10); }
+    c.fillStyle = "#6B4E2E";
+    c.fillRect(barX - 4, barY - 18, 8, 28);
+    drawHandTop(c, barX - 38, barY + 2, -0.2);
+    drawHandTop(c, barX + 38, barY + 2, 0.2);
+    c.restore();
+  }
+  function drawHandTop(c, hx, hy, flip){
+    c.save();
+    c.translate(hx, hy);
+    c.rotate(flip);
+    c.fillStyle = "#e8b890";
+    c.strokeStyle = "#6a4a34";
+    c.lineWidth = 1.05;
+    c.beginPath();
+    c.ellipse(0, 10, 13, 16, 0, 0, 7);
+    c.fill(); c.stroke();
+    var i, ang, fx, fy;
+    for(i=0;i<4;i++){
+      ang = -0.55 + i * 0.36;
+      fx = Math.sin(ang) * 11;
+      fy = -8 - Math.cos(ang) * 4;
+      c.beginPath();
+      c.ellipse(fx, fy, 3.1, 7.2, ang, 0, 7);
+      c.fill(); c.stroke();
+    }
+    c.beginPath();
+    c.ellipse(-14, 6, 3.4, 6.2, -0.9, 0, 7);
+    c.fill(); c.stroke();
+    c.fillStyle = "#6a8ab8";
+    c.beginPath();
+    c.ellipse(0, 22, 11, 6, 0, 0, 7);
+    c.fill();
+    c.restore();
+  }
+
+  function drawDirector(c, actor, t){
+    var x = actor.xNorm * W;
+    var floorY = H * 0.86;
+    var scale = 1.78;
+    var yLift = actor.yOff || 0;
+    var hipY = floorY - 78 * scale + yLift;
+    var headY = hipY - 48 * scale;
+    var shY = hipY - 36 * scale;
+    var pad = (window.LVOp && LVOp.pad) || {x:0,y:0};
+    var sway = reduced ? 0 : Math.sin((t || 0) / 380) * 3;
+    var ox = (pad.x || 0) * 30 + sway;
+    var oy = (pad.y || 0) * -12;
+    var barY = Math.max(22, headY - 108 + oy);
+    var barX = x + ox;
+    var lean = (pad.x || 0) * 0.18;
+    var dirX = barX;
+    var dirY = Math.max(38, barY - 52);
+    c.save();
+    /* hilos */
+    c.strokeStyle = "rgba(230,225,214,0.42)";
+    c.lineWidth = 1.1;
+    c.beginPath();
+    c.moveTo(barX - 6, barY + 6); c.lineTo(x - 7, headY);
+    c.moveTo(barX + 6, barY + 6); c.lineTo(x + 7, headY);
+    c.moveTo(barX - 30, barY + 4); c.lineTo(x - 22 * scale, shY);
+    c.moveTo(barX + 30, barY + 4); c.lineTo(x + 22 * scale, shY);
+    c.stroke();
+    /* cruceta */
+    c.fillStyle = "#8B6840";
+    c.strokeStyle = "#4a3018";
+    c.lineWidth = 1.2;
+    if(c.roundRect){ c.beginPath(); c.roundRect(barX - 48, barY - 5, 96, 10, 3); c.fill(); c.stroke(); }
+    else c.fillRect(barX - 48, barY - 5, 96, 10);
+    c.fillStyle = "#6B4E2E";
+    c.fillRect(barX - 4, barY - 16, 8, 24);
+    /* brazos del director */
+    c.strokeStyle = "#5a2030";
+    c.lineWidth = 6;
+    c.lineCap = "round";
+    c.beginPath();
+    c.moveTo(dirX - 16, dirY + 14);
+    c.quadraticCurveTo(dirX - 34, dirY + 28, barX - 38, barY);
+    c.moveTo(dirX + 16, dirY + 14);
+    c.quadraticCurveTo(dirX + 34, dirY + 28, barX + 38, barY);
+    c.stroke();
+    c.strokeStyle = "#e8b890";
+    c.lineWidth = 5;
+    c.beginPath();
+    c.moveTo(barX - 38, barY); c.lineTo(barX - 38, barY + 2);
+    c.moveTo(barX + 38, barY); c.lineTo(barX + 38, barY + 2);
+    c.stroke();
+    /* torso */
+    c.save();
+    c.translate(dirX, dirY);
+    c.rotate(lean);
+    c.fillStyle = "#7a2430";
+    c.beginPath();
+    c.moveTo(-20, 8); c.lineTo(20, 8); c.lineTo(16, 34); c.lineTo(-16, 34); c.closePath();
+    c.fill();
+    c.fillStyle = "#1a1210";
+    c.fillRect(-4, 8, 8, 16);
+    c.fillStyle = "#c4a15a";
+    c.beginPath(); c.moveTo(0, 10); c.lineTo(-5, 18); c.lineTo(5, 18); c.closePath(); c.fill();
+    /* cabeza */
+    c.fillStyle = "#e8b890";
+    c.beginPath(); c.ellipse(0, -6, 13, 14, 0, 0, 7); c.fill();
+    c.fillStyle = "#2a1c12";
+    c.beginPath(); c.ellipse(-4.5, -8, 1.5, 1.7, 0, 0, 7); c.ellipse(4.5, -8, 1.5, 1.7, 0, 0, 7); c.fill();
+    c.strokeStyle = "#2a1c12";
+    c.lineWidth = 1.2;
+    c.beginPath(); c.arc(0, -2, 5.5, 0.2*Math.PI, 0.8*Math.PI); c.stroke();
+    c.fillStyle = "#3a2418";
+    c.beginPath(); c.ellipse(0, 1, 5, 1.4, 0, 0, 7); c.fill();
+    /* boina */
+    c.fillStyle = "#1a1210";
+    c.beginPath(); c.ellipse(2, -18, 15, 6.5, -0.15, 0, 7); c.fill();
+    c.fillStyle = "#c4a15a";
+    c.beginPath(); c.arc(12, -20, 2.2, 0, 7); c.fill();
+    /* batuta */
+    c.strokeStyle = "#c4a15a";
+    c.lineWidth = 2;
+    c.beginPath();
+    c.moveTo(18, 8);
+    c.lineTo(18 + 10 + (pad.y||0)*-8, -22 + (pad.x||0)*6);
+    c.stroke();
+    c.fillStyle = "#e6e1d6";
+    c.beginPath(); c.arc(18 + 10 + (pad.y||0)*-8, -22 + (pad.x||0)*6, 2.4, 0, 7); c.fill();
+    c.restore();
+    drawHandTop(c, barX - 38, barY + 2, -0.2);
+    drawHandTop(c, barX + 38, barY + 2, 0.2);
+    c.restore();
   }
 
   function frame(now){
@@ -1840,12 +3474,15 @@ body.escena .stage-wrap{max-width:56rem}
     resizeCanvas();
     var t = now - stage.t0;
     paintBg(ctx, stage.bg, t);
+    paintAtrezzo(ctx, t);
     var env = { windX: (stage.wind || 0) + Math.sin(t/900)*0.25, reduced: reduced };
     if(window.LVOp && LVOp.step) LVOp.step(dt, now);
     if(F){
-      stage.actors.forEach(function(a){ F.tick(a.fig, dt, env); if(a.fig.lookYaw) a.fig.pose.yaw = (a.fig.pose.yaw||0)*0.6 + a.fig.lookYaw*0.4; });
+      stage.actors.forEach(function(a){ F.tick(a.fig, dt, env); });
     }
     drawActors(t);
+    paintPairFx(ctx, performance.now());
+    paintWeather(ctx, t);
     stage.raf = requestAnimationFrame(frame);
   }
   function startLoop(){
@@ -1872,6 +3509,7 @@ body.escena .stage-wrap{max-width:56rem}
   var lobby = document.getElementById("lobby");
   var stageScreen = document.getElementById("stageScreen");
   var createScreen = document.getElementById("createScreen");
+  var tallerScreen = document.getElementById("tallerScreen");
   var stageFrame = document.getElementById("stageFrame");
   var bubble = document.getElementById("bubble");
   var bubbleWho = document.getElementById("bubbleWho");
@@ -1887,14 +3525,17 @@ body.escena .stage-wrap{max-width:56rem}
   var btnPlay = document.getElementById("btnPlay");
 
   function showScreen(id){
-    [lobby, stageScreen, createScreen].forEach(function(s){ s.classList.remove("on"); });
+    [lobby, stageScreen, createScreen, tallerScreen].forEach(function(s){ if(s) s.classList.remove("on"); });
     document.getElementById(id).classList.add("on");
     window.scrollTo(0,0);
     if(id === "stageScreen"){ resizeCanvas(); startLoop(); }
-    else stopLoop();
+    else if(id === "tallerScreen"){ stopLoop(); stopLoopNoise("rain"); stopLoopNoise("wind"); tallerPreview(); }
+    else { stopLoop(); stopLoopNoise("rain"); stopLoopNoise("wind"); }
   }
   function whoLabel(w){
     if(w === "narr") return "Narrador";
+    var custom = tallerById(w);
+    if(custom && custom.name) return custom.name;
     return (PUPPET_META[w] && PUPPET_META[w].label) || w;
   }
 
@@ -1915,6 +3556,12 @@ body.escena .stage-wrap{max-width:56rem}
     c.innerHTML = "<span class='mark'>Nueva</span><span class='t'>Crear función</span><span class='m'>Elige marionetas y escribe tus frases. Tú eres el director.</span>";
     c.addEventListener("click", openCreate);
     g.appendChild(c);
+    var tw = document.createElement("button");
+    tw.type = "button";
+    tw.className = "show-card create";
+    tw.innerHTML = "<span class='mark'>Taller</span><span class='t'>Vestir marionetas</span><span class='m'>Nombre, piel, pelo y ropa. Quedan en este aparato para tus funciones.</span>";
+    tw.addEventListener("click", openTaller);
+    g.appendChild(tw);
   }
 
   function openShow(show){
@@ -1934,6 +3581,7 @@ body.escena .stage-wrap{max-width:56rem}
     subText.textContent = "Toca «Abrir telón» para empezar.";
     bubble.hidden = true;
     stage.bg = show.bg || "bosque";
+    renderSetChips("opSets", stage.bg, setStageBg);
     stage.actors = [];
     stage.spotlightId = null;
     progBar.style.width = "0%";
@@ -1946,6 +3594,11 @@ body.escena .stage-wrap{max-width:56rem}
     var sc = currentShow.scenes[sceneIdx];
     if(!sc) return;
     stage.bg = sc.bg || currentShow.bg || "bosque";
+    renderSetChips("opSets", stage.bg, setStageBg);
+    renderWeatherChips();
+    suggestProps(stage.bg);
+    renderItemChips();
+    renderPairChips();
     layoutActors(sc.puppets || []);
     applySceneActions(sc);
     var label = whoLabel(sc.who);
@@ -1973,6 +3626,7 @@ body.escena .stage-wrap{max-width:56rem}
     if(curtainsOpen) return;
     curtainsOpen = true;
     stageFrame.classList.add("open");
+    unlockAudio();
     sndCurtain();
     btnCurtain.textContent = "Cerrar telón";
     btnPrev.disabled = false;
@@ -2001,6 +3655,7 @@ body.escena .stage-wrap{max-width:56rem}
       bubbleWho.textContent = "Fin";
       bubbleText.textContent = "Bravo.";
       stage.actors.forEach(function(a){ if(F) F.setAction(a.fig, "bow"); });
+      sndApplause();
       btnNext.disabled = true;
       return;
     }
@@ -2021,6 +3676,7 @@ body.escena .stage-wrap{max-width:56rem}
   }
   function togglePlay(){
     if(!curtainsOpen) return;
+    unlockAudio();
     if(playing){ stopPlay(); return; }
     playing = true;
     btnPlay.textContent = "Pausa";
@@ -2071,7 +3727,15 @@ body.escena .stage-wrap{max-width:56rem}
     playIdx: 0,
     drag: null,
     tilt: false,
-    tiltPerm: false
+    tiltPerm: false,
+    hands: false,
+    director: true,
+    padMode: "pinchar",
+    pad: { x: 0, y: 0 },
+    padHold: false,
+    padLatch: false,
+    padT0: 0,
+    partner: null
   };
   window.LVOp = LVOp;
 
@@ -2081,14 +3745,46 @@ body.escena .stage-wrap{max-width:56rem}
   function opSelLabel(){
     var el = document.getElementById("opSel");
     if(!el) return;
-    if(!LVOp.selected){ el.textContent = "Nadie elegido. Toca una figura."; return; }
+    if(!LVOp.selected){ el.textContent = "Nadie elegido. Toca una ficha o una figura."; return; }
     var lab = whoLabel(LVOp.selected);
-    el.textContent = "En la mano: " + lab + (LVOp.recording ? " · grabando" : "");
+    if(LVOp.partner){
+      el.textContent = "Los dos: " + lab + " y " + whoLabel(LVOp.partner) + ". Elige Bailar, Lucha, Abrazo o Beso.";
+    } else {
+      el.textContent = "En la mano: " + lab + ". Toca otro muñeco para una acción de los dos." + (LVOp.recording ? " · grabando" : "");
+    }
   }
   function opMarkSelected(id){
-    LVOp.selected = id;
-    stage.actors.forEach(function(a){ a.selected = a.id === id; });
+    if(!id) return;
+    if(LVOp.selected === id){
+      LVOp.selected = LVOp.partner || null;
+      LVOp.partner = null;
+    } else if(!LVOp.selected){
+      LVOp.selected = id;
+    } else if(LVOp.partner === id){
+      var sw = LVOp.selected;
+      LVOp.selected = id;
+      LVOp.partner = sw;
+    } else {
+      LVOp.partner = id;
+    }
+    stage.actors.forEach(function(a){ a.selected = a.id === LVOp.selected || a.id === LVOp.partner; });
     opSelLabel();
+    renderOpCast();
+    renderItemChips();
+    renderPairChips();
+  }
+  function renderOpCast(){
+    var box = document.getElementById("opCast");
+    if(!box) return;
+    box.innerHTML = "";
+    stage.actors.forEach(function(a){
+      var b = document.createElement("button");
+      b.type = "button";
+      b.className = "chip" + (LVOp.selected === a.id ? " on" : (LVOp.partner === a.id ? " pair" : ""));
+      b.textContent = whoLabel(a.id);
+      b.addEventListener("click", function(){ opMarkSelected(a.id); });
+      box.appendChild(b);
+    });
   }
   function canvasPos(ev){
     var rec = canvas.getBoundingClientRect();
@@ -2118,7 +3814,41 @@ body.escena .stage-wrap{max-width:56rem}
       })
     });
   }
+  function applyPadMotion(dt){
+    if(stage.pair) return;
+    if(!LVOp.selected) return;
+    var moving = LVOp.padHold || (LVOp.padMode === "pinchar" && LVOp.padLatch);
+    if(!moving) return;
+    var a = null;
+    stage.actors.forEach(function(x){ if(x.id===LVOp.selected) a=x; });
+    if(!a) return;
+    var vx = LVOp.pad.x || 0;
+    var vy = LVOp.pad.y || 0;
+    if(Math.abs(vx) < 0.12 && Math.abs(vy) < 0.12) return;
+    a.xNorm = Math.max(0.12, Math.min(0.88, a.xNorm + vx * dt * 0.38));
+    a.userX = a.xNorm;
+    a.yOff = Math.max(-40, Math.min(20, (a.yOff||0) - vy * dt * 70));
+    a.fig.lookYaw = vx * 0.45;
+    if(F){
+      if(vy > 0.62) F.setAction(a.fig, "jump");
+      else if(vy < -0.62) F.setAction(a.fig, "sit");
+      else if(Math.abs(vx) > 0.18 && a.fig.action !== "walk" && a.fig.action !== "jump") F.setAction(a.fig, "walk");
+    }
+    stage.actors.forEach(function(o){
+      if(o.id===a.id) return;
+      o.fig.lookYaw = a.xNorm > o.xNorm ? 0.28 : -0.28;
+    });
+    if(a.xNorm <= 0.12 && vx < 0){ LVOp.pad.x = 0; stopPadWalk(a); }
+    if(a.xNorm >= 0.88 && vx > 0){ LVOp.pad.x = 0; stopPadWalk(a); }
+  }
+  function stopPadWalk(a){
+    LVOp.padLatch = false;
+    if(a && F && a.fig.action === "walk") F.setAction(a.fig, a.fig.talking ? "talk" : "idle");
+    setPadKnob(0, 0);
+  }
   LVOp.step = function(dt, now){
+    stepPair(dt, now);
+    applyPadMotion(dt);
     if(LVOp.recording) recSample();
     if(LVOp.playing && LVOp.rec.length){
       var t = now - LVOp.playT0;
@@ -2191,10 +3921,161 @@ body.escena .stage-wrap{max-width:56rem}
   canvas.addEventListener("touchmove", onPtrMove, {passive:false});
   window.addEventListener("touchend", onPtrUp);
 
+  var PAIR_CHIPS = [
+    {id:"dance", n:"Bailar"}, {id:"tussle", n:"Lucha"},
+    {id:"hug", n:"Abrazo"}, {id:"kiss", n:"Beso"}, {id:"free", n:"Soltar"}
+  ];
+  function actorById(id){
+    var found = null;
+    stage.actors.forEach(function(a){ if(a.id===id) found=a; });
+    return found;
+  }
+  function startPair(kind){
+    if(kind === "free"){
+      stage.pair = null;
+      stage.pairFx = [];
+      if(F){
+        stage.actors.forEach(function(a){
+          if(a.id===LVOp.selected || a.id===LVOp.partner) F.setAction(a.fig, a.fig.talking ? "talk" : "idle");
+        });
+      }
+      renderPairChips();
+      return;
+    }
+    if(!LVOp.selected || !LVOp.partner){
+      var el = document.getElementById("opSel");
+      if(el) el.textContent = "Toca dos muñecos del elenco y luego la acción.";
+      return;
+    }
+    var a = actorById(LVOp.selected);
+    var b = actorById(LVOp.partner);
+    if(!a || !b || a.id === b.id){
+      var el = document.getElementById("opSel");
+      if(el) el.textContent = "Toca dos muñecos distintos y luego la acción.";
+      return;
+    }
+    var left = a.xNorm <= b.xNorm ? a : b;
+    var right = left === a ? b : a;
+    stage.pair = {
+      kind: kind,
+      t0: performance.now(),
+      leftId: left.id,
+      rightId: right.id,
+      mid: (left.xNorm + right.xNorm) / 2
+    };
+    stage.pairFx = [];
+    if(F){
+      F.setAction(a.fig, kind === "tussle" ? "tussle" : kind);
+      F.setAction(b.fig, kind === "tussle" ? "tussle" : kind);
+    }
+    a.fig.lookYaw = a.xNorm < b.xNorm ? 0.45 : -0.45;
+    b.fig.lookYaw = b.xNorm < a.xNorm ? 0.45 : -0.45;
+    unlockAudio();
+    if(kind === "kiss" || kind === "hug") sndStep();
+    else if(kind === "dance"){ beep(392, 0.12, "triangle", 0.10); setTimeout(function(){ beep(494, 0.12, "triangle", 0.08); }, 140); }
+    else sndWhoosh();
+    renderPairChips();
+  }
+  function pairGap(kind){
+    if(kind === "hug") return 0.055;
+    if(kind === "kiss") return 0.048;
+    if(kind === "tussle") return 0.09;
+    return 0.11;
+  }
+  function stepPair(dt, now){
+    var p = stage.pair;
+    if(!p) return true;
+    var left = actorById(p.leftId);
+    var right = actorById(p.rightId);
+    if(!left || !right){ stage.pair = null; return true; }
+    var gap = pairGap(p.kind);
+    var mid = Math.max(0.22, Math.min(0.78, p.mid));
+    var targetL = mid - gap / 2;
+    var targetR = mid + gap / 2;
+    left.xNorm += (targetL - left.xNorm) * Math.min(1, dt * 3.2);
+    right.xNorm += (targetR - right.xNorm) * Math.min(1, dt * 3.2);
+    left.userX = left.xNorm; right.userX = right.xNorm;
+    left.yOff = (left.yOff || 0) * 0.7;
+    right.yOff = (right.yOff || 0) * 0.7;
+    if(p.kind === "tussle"){
+      var j = Math.sin(now / 90) * 0.012;
+      left.xNorm = targetL - j;
+      right.xNorm = targetR + j;
+    }
+    if(p.kind === "dance"){
+      left.yOff = Math.sin(now / 140) * -8;
+      right.yOff = Math.sin(now / 140 + Math.PI) * -8;
+    }
+    left.fig.lookYaw = 0.48;
+    right.fig.lookYaw = -0.48;
+    if(p.kind === "kiss" && Math.random() < 0.08){
+      stage.pairFx.push({k:"heart", x:(left.xNorm+right.xNorm)/2, y:0.42, t:now, life:900});
+    }
+    if(p.kind === "dance" && Math.random() < 0.06){
+      stage.pairFx.push({k:"note", x:(left.xNorm+right.xNorm)/2 + (Math.random()-0.5)*0.08, y:0.38, t:now, life:800});
+    }
+    if(now - p.t0 > 3600){
+      stage.pair = null;
+      if(F){
+        F.setAction(left.fig, "idle");
+        F.setAction(right.fig, "idle");
+      }
+      renderPairChips();
+    }
+    return false;
+  }
+  function paintPairFx(c, now){
+    var list = stage.pairFx || [];
+    var next = [];
+    list.forEach(function(fx){
+      var age = now - fx.t;
+      if(age > fx.life) return;
+      var a = 1 - age / fx.life;
+      var x = fx.x * W;
+      var y = H * fx.y - age * 0.04;
+      c.save();
+      c.globalAlpha = a;
+      if(fx.k === "heart"){
+        c.fillStyle = "#c04050";
+        c.beginPath();
+        c.moveTo(x, y+4);
+        c.bezierCurveTo(x-10, y-6, x-4, y-12, x, y-4);
+        c.bezierCurveTo(x+4, y-12, x+10, y-6, x, y+4);
+        c.fill();
+      } else {
+        c.strokeStyle = "#c4a15a";
+        c.lineWidth = 2;
+        c.beginPath();
+        c.arc(x, y, 5, 0.2, 2.6);
+        c.moveTo(x+5, y); c.lineTo(x+5, y+10);
+        c.stroke();
+      }
+      c.restore();
+      next.push(fx);
+    });
+    stage.pairFx = next;
+  }
+  function renderPairChips(){
+    var box = document.getElementById("opPair");
+    if(!box) return;
+    box.innerHTML = "";
+    var ready = !!(LVOp.selected && LVOp.partner);
+    PAIR_CHIPS.forEach(function(c){
+      var b = document.createElement("button");
+      b.type = "button";
+      var on = stage.pair && ((c.id==="free" && !stage.pair) || (stage.pair && stage.pair.kind===c.id));
+      b.className = "chip" + (on ? " on" : "");
+      b.textContent = c.n;
+      b.disabled = !ready && c.id !== "free";
+      b.addEventListener("click", function(){ startPair(c.id); });
+      box.appendChild(b);
+    });
+  }
   var ACT_CHIPS = [
     {id:"idle", n:"Quieto"}, {id:"talk", n:"Hablar"}, {id:"wave", n:"Saludar"},
     {id:"walk", n:"Andar"}, {id:"jump", n:"Saltar"}, {id:"bow", n:"Inclinar"},
-    {id:"point", n:"Señalar"}, {id:"scare", n:"Susto"}, {id:"clap", n:"Aplauso"}
+    {id:"point", n:"Señalar"}, {id:"scare", n:"Susto"}, {id:"clap", n:"Aplauso"},
+    {id:"die", n:"Muerto"}, {id:"beg", n:"Pedir"}, {id:"pay", n:"Pagar"}
   ];
   (function buildOpActions(){
     var box = document.getElementById("opActions");
@@ -2211,6 +4092,52 @@ body.escena .stage-wrap{max-width:56rem}
       box.appendChild(b);
     });
   })();
+  var ITEM_CHIPS = [{id:"none", n:"Nada"}, {id:"palo", n:"Palo"}, {id:"guitarra", n:"Guitarra"}];
+  function renderItemChips(){
+    var box = document.getElementById("opItems");
+    if(!box) return;
+    var cur = "none";
+    stage.actors.forEach(function(a){ if(a.id===LVOp.selected && a.fig) cur = a.fig.item || "none"; });
+    box.innerHTML = "";
+    ITEM_CHIPS.forEach(function(c){
+      var b = document.createElement("button");
+      b.type="button"; b.className="chip"+(cur===c.id?" on":""); b.textContent=c.n;
+      b.addEventListener("click", function(){
+        if(!LVOp.selected && stage.actors[0]) opMarkSelected(stage.actors[0].id);
+        if(!LVOp.selected) return;
+        stage.actors.forEach(function(a){
+          if(a.id===LVOp.selected) a.fig.item = c.id;
+        });
+        renderItemChips();
+      });
+      box.appendChild(b);
+    });
+  }
+  var PROP_CHIPS = [{id:"fuego", n:"Fuego"}, {id:"gallinas", n:"Gallinas"}, {id:"perro", n:"Perro"}];
+  function renderPropChips(){
+    var box = document.getElementById("opProps");
+    if(!box) return;
+    box.innerHTML = "";
+    PROP_CHIPS.forEach(function(c){
+      var on = !!(stage.props && stage.props[c.id]);
+      var b = document.createElement("button");
+      b.type="button"; b.className="chip"+(on?" on":""); b.textContent=c.n;
+      b.addEventListener("click", function(){
+        stage.propsLocked = true;
+        stage.props[c.id] = !stage.props[c.id];
+        renderPropChips();
+      });
+      box.appendChild(b);
+    });
+  }
+  function suggestProps(bg){
+    if(stage.propsLocked) return;
+    bg = bg || stage.bg || "";
+    stage.props.fuego = /habitacion|casa|mesa/.test(bg);
+    stage.props.gallinas = /campo|bosque/.test(bg);
+    stage.props.perro = /bosque|habitacion|campo/.test(bg);
+    renderPropChips();
+  }
 
   document.getElementById("btnOpToggle").addEventListener("click", function(){
     LVOp.open = !LVOp.open;
@@ -2272,9 +4199,136 @@ body.escena .stage-wrap{max-width:56rem}
     });
   });
 
+  document.getElementById("btnHands").addEventListener("click", function(){
+    LVOp.hands = !LVOp.hands;
+    this.textContent = LVOp.hands ? "Manos: sí" : "Manos: no";
+    this.classList.toggle("on", LVOp.hands);
+  });
+  document.getElementById("btnDirector").addEventListener("click", function(){
+    LVOp.director = !LVOp.director;
+    this.textContent = LVOp.director ? "Director: sí" : "Director: no";
+    this.classList.toggle("on", LVOp.director);
+    if(LVOp.director){ LVOp.hands = false; var bh=document.getElementById("btnHands"); if(bh){ bh.textContent="Manos: no"; bh.classList.remove("on"); } }
+  });
+  document.getElementById("btnSound").addEventListener("click", function(){
+    audioOn = !audioOn;
+    this.textContent = audioOn ? "Sonido: sí" : "Sonido: no";
+    this.classList.toggle("on", audioOn);
+    if(audioOn){ unlockAudio(); sndStep(); applyWeatherAudio(stage.weather); }
+    else { stopLoopNoise("rain"); stopLoopNoise("wind"); }
+  });
 
+  function setPadKnob(nx, ny){
+    LVOp.pad.x = Math.max(-1, Math.min(1, nx));
+    LVOp.pad.y = Math.max(-1, Math.min(1, ny));
+    var knob = document.getElementById("padKnob");
+    if(!knob) return;
+    var r = 48;
+    knob.style.left = (50 + LVOp.pad.x * r) + "%";
+    knob.style.top = (50 - LVOp.pad.y * r) + "%";
+    knob.classList.toggle("latched", !!LVOp.padLatch);
+  }
+  function padFromEvent(ev){
+    var board = document.getElementById("padBoard");
+    var rec = board.getBoundingClientRect();
+    var t = (ev.touches && ev.touches[0]) || ev;
+    var cx = rec.left + rec.width / 2;
+    var cy = rec.top + rec.height / 2;
+    var nx = (t.clientX - cx) / (rec.width * 0.38);
+    var ny = (cy - t.clientY) / (rec.height * 0.38);
+    var mag = Math.hypot(nx, ny);
+    if(mag > 1){ nx /= mag; ny /= mag; }
+    return { x: nx, y: ny };
+  }
+  function padDown(ev){
+    if(!curtainsOpen) return;
+    ev.preventDefault();
+    unlockAudio();
+    if(!LVOp.selected && stage.actors[0]) opMarkSelected(stage.actors[0].id);
+    LVOp.padHold = true;
+    LVOp.padLatch = false;
+    LVOp.padT0 = performance.now();
+    var v = padFromEvent(ev);
+    setPadKnob(v.x, v.y);
+    if(!LVOp.director){
+      LVOp.hands = true;
+      var bh = document.getElementById("btnHands");
+      if(bh){ bh.textContent = "Manos: sí"; bh.classList.add("on"); }
+    }
+  }
+  function padMove(ev){
+    if(!LVOp.padHold) return;
+    ev.preventDefault();
+    var v = padFromEvent(ev);
+    setPadKnob(v.x, v.y);
+  }
+  function padUp(ev){
+    if(!LVOp.padHold) return;
+    LVOp.padHold = false;
+    var held = performance.now() - LVOp.padT0;
+    var a = null;
+    stage.actors.forEach(function(x){ if(x.id===LVOp.selected) a=x; });
+    if(LVOp.padMode === "pinchar"){
+      if(held < 320 || Math.hypot(LVOp.pad.x, LVOp.pad.y) > 0.35){
+        LVOp.padLatch = Math.hypot(LVOp.pad.x, LVOp.pad.y) > 0.22;
+        if(!LVOp.padLatch) stopPadWalk(a);
+        else setPadKnob(LVOp.pad.x, LVOp.pad.y);
+      } else {
+        stopPadWalk(a);
+      }
+    } else {
+      stopPadWalk(a);
+    }
+  }
+  (function bindPad(){
+    var board = document.getElementById("padBoard");
+    if(!board) return;
+    board.addEventListener("pointerdown", padDown);
+    window.addEventListener("pointermove", padMove);
+    window.addEventListener("pointerup", padUp);
+    board.addEventListener("touchstart", padDown, {passive:false});
+    window.addEventListener("touchmove", padMove, {passive:false});
+    window.addEventListener("touchend", padUp);
+  })();
+  function tapDir(x, y){
+    if(!curtainsOpen) return;
+    unlockAudio();
+    if(!LVOp.selected && stage.actors[0]) opMarkSelected(stage.actors[0].id);
+    LVOp.padMode = LVOp.padMode || "pinchar";
+    LVOp.padLatch = true;
+    LVOp.padHold = false;
+    setPadKnob(x, y);
+    if(!LVOp.director){
+      LVOp.hands = true;
+      var bh = document.getElementById("btnHands");
+      if(bh){ bh.textContent = "Manos: sí"; bh.classList.add("on"); }
+    }
+  }
+  document.getElementById("padUp").addEventListener("click", function(){ tapDir(0, 1); });
+  document.getElementById("padDown").addEventListener("click", function(){ tapDir(0, -1); });
+  document.getElementById("padLeft").addEventListener("click", function(){ tapDir(-1, 0); });
+  document.getElementById("padRight").addEventListener("click", function(){ tapDir(1, 0); });
+  document.getElementById("padStop").addEventListener("click", function(){
+    var a = null;
+    stage.actors.forEach(function(x){ if(x.id===LVOp.selected) a=x; });
+    LVOp.pad.x = 0; LVOp.pad.y = 0;
+    stopPadWalk(a);
+  });
+  document.getElementById("btnPadMode").addEventListener("click", function(){
+    LVOp.padMode = "pinchar";
+    this.classList.add("on");
+    document.getElementById("btnPadHold").classList.remove("on");
+    document.getElementById("padHint").textContent = "Pincha una dirección: el muñeco sigue andando sin el dedo. Centro o «Parar» lo deja.";
+  });
+  document.getElementById("btnPadHold").addEventListener("click", function(){
+    LVOp.padMode = "sostener";
+    LVOp.padLatch = false;
+    this.classList.add("on");
+    document.getElementById("btnPadMode").classList.remove("on");
+    document.getElementById("padHint").textContent = "Mantén el dedo en el pad. Al soltar, el muñeco se para. El escenario queda libre.";
+  });
 
-  var CREATE_POOL = ["nina","nino","lobo","ogro","princesa","dragon","abuela","cerdito","holmes","watson"];
+  var CREATE_POOL = ["nina","nino","abuelo","lobo","ogro","princesa","rey","reina","hada","bruja","caballero","pastor","payaso","dragon","gato","raton","oso","conejo","perro","abuela","cerdito","holmes","watson"];
   var EXAMPLE_LINES = [
     {who:"nina", text:"Hola. ¿Quieres jugar conmigo?"},
     {who:"nino", text:"Claro. Yo traigo la pelota."},
@@ -2286,6 +4340,183 @@ body.escena .stage-wrap{max-width:56rem}
     {who:"cerdito", text:"Mi casita es pequeña, pero acogedora."},
     {who:"narr", text:"Y fueron felices porque se trataron bien."}
   ];
+
+  var TALLER_BASES = ["nina","nino","abuelo","abuela","madre","princesa","rey","reina","hada","bruja","caballero","pastor","payaso","cazador","lobo","ogro","dragon","gato","raton","oso","conejo","perro","cerdito"];
+  var TALLER_HAIR = [
+    {id:"corto", n:"Corto"}, {id:"coleta", n:"Coleta"}, {id:"moño", n:"Moño"},
+    {id:"largo", n:"Largo"}, {id:"princesa", n:"Melena"}, {id:"none", n:"Sin pelo"}
+  ];
+  var SW_SKIN = ["#f0d0b8","#f0c4a0","#e8b890","#d4a074","#c48a58","#a06a40","#7a4a28","#f0d0b0"];
+  var SW_HAIR = ["#2a2018","#3e2a18","#7a3a18","#5d4037","#c4a15a","#f5d76e","#e8e4dc","#c8e8c0","#e07040","#6a4a28"];
+  var SW_CLOTH = ["#c62828","#e53935","#3d7ab5","#5b8c5a","#7b5ea7","#c4a15a","#6a2040","#3a2a48","#7ec8c4","#4a5a68","#6a7a48","#8a3030"];
+  var SW_SHOE = ["#1c1c1c","#3a2a18","#4a2a18","#5a4830","#c4a15a","#8a6030"];
+  var tallerDraft = { base:"nina", name:"", hair:"coleta", acc:"", pal:{} };
+  var tallerFig = null;
+  var tallerRaf = 0;
+
+  function shade(hex, amt){
+    hex = (hex || "#888888").replace("#","");
+    if(hex.length===3) hex = hex[0]+hex[0]+hex[1]+hex[1]+hex[2]+hex[2];
+    var n = parseInt(hex, 16);
+    if(isNaN(n)) return "#6a4a34";
+    var r = Math.max(0, Math.min(255, ((n>>16)&255) + amt));
+    var g = Math.max(0, Math.min(255, ((n>>8)&255) + amt));
+    var b = Math.max(0, Math.min(255, (n&255) + amt));
+    return "#" + (0x1000000 + (r<<16) + (g<<8) + b).toString(16).slice(1);
+  }
+  function tallerApplyPal(){
+    var p = tallerDraft.pal || {};
+    var out = {};
+    if(p.skin){ out.skin = p.skin; out.skinD = shade(p.skin, -28); }
+    if(p.hair){ out.hair = p.hair; out.hairD = shade(p.hair, -32); }
+    if(p.cloth){
+      out.top = p.cloth; out.topD = shade(p.cloth, -28);
+      out.cloth = p.cloth; out.clothD = shade(p.cloth, -28);
+    }
+    if(p.shoe) out.shoe = p.shoe;
+    return out;
+  }
+  function tallerRebuildFig(){
+    if(!F) return;
+    tallerFig = F.create(tallerDraft.base || "nina", {
+      view:"front", strings:true,
+      pal: tallerApplyPal(),
+      meta: { hair: tallerDraft.hair, acc: tallerDraft.acc },
+      label: tallerDraft.name,
+      item: tallerDraft.item || "none"
+    });
+  }
+  function tallerPreview(){
+    if(tallerRaf) cancelAnimationFrame(tallerRaf);
+    if(!document.getElementById("tallerScreen").classList.contains("on")) return;
+    if(!tallerFig) tallerRebuildFig();
+    var cv = document.getElementById("tallerCanvas");
+    if(!cv || !F) return;
+    var c = cv.getContext("2d");
+    var last = performance.now();
+    function loop(now){
+      if(!document.getElementById("tallerScreen").classList.contains("on")){ tallerRaf = 0; return; }
+      var dt = Math.min(0.04, (now-last)/1000); last = now;
+      c.fillStyle = "#1a1510"; c.fillRect(0,0,cv.width,cv.height);
+      F.tick(tallerFig, dt, { reduced: reduced });
+      F.draw(c, tallerFig, 90, 168, 1.35);
+      tallerRaf = requestAnimationFrame(loop);
+    }
+    tallerRaf = requestAnimationFrame(loop);
+  }
+  function paintSwatches(boxId, colors, key){
+    var box = document.getElementById(boxId);
+    if(!box) return;
+    box.innerHTML = "";
+    colors.forEach(function(col){
+      var b = document.createElement("button");
+      b.type = "button"; b.className = "swatch" + (tallerDraft.pal[key]===col ? " on" : "");
+      b.style.background = col; b.title = col;
+      b.addEventListener("click", function(){
+        if(tallerDraft.pal[key]===col) delete tallerDraft.pal[key];
+        else tallerDraft.pal[key] = col;
+        tallerRebuildFig();
+        paintTallerForm();
+      });
+      box.appendChild(b);
+    });
+  }
+  function paintTallerForm(){
+    var bases = document.getElementById("tallerBases");
+    bases.innerHTML = "";
+    TALLER_BASES.forEach(function(id){
+      var b = document.createElement("button");
+      b.type="button"; b.className="chip"+(tallerDraft.base===id?" on":"");
+      b.textContent = (F && F.KIND && F.KIND[id] && F.KIND[id].label) || whoLabel(id);
+      b.addEventListener("click", function(){
+        tallerDraft.base = id;
+        var k = F && F.KIND && F.KIND[id];
+        if(k && k.hair) tallerDraft.hair = k.hair;
+        tallerRebuildFig(); paintTallerForm();
+      });
+      bases.appendChild(b);
+    });
+    var hairs = document.getElementById("tallerHair");
+    hairs.innerHTML = "";
+    TALLER_HAIR.forEach(function(h){
+      var b = document.createElement("button");
+      b.type="button"; b.className="chip"+(tallerDraft.hair===h.id?" on":"");
+      b.textContent = h.n;
+      b.addEventListener("click", function(){
+        tallerDraft.hair = h.id; tallerRebuildFig(); paintTallerForm();
+      });
+      hairs.appendChild(b);
+    });
+    paintSwatches("tallerSkin", SW_SKIN, "skin");
+    paintSwatches("tallerHairCol", SW_HAIR, "hair");
+    paintSwatches("tallerCloth", SW_CLOTH, "cloth");
+    paintSwatches("tallerShoe", SW_SHOE, "shoe");
+    renderTallerSaved();
+  }
+  function renderTallerSaved(){
+    var box = document.getElementById("tallerSaved");
+    if(!box) return;
+    var list = tallerLoad();
+    box.innerHTML = "";
+    if(!list.length){
+      box.innerHTML = "<p class='hint'>Aún no hay nadie guardado.</p>";
+      return;
+    }
+    list.forEach(function(item){
+      var row = document.createElement("div");
+      row.className = "saved-row";
+      var nm = document.createElement("span");
+      nm.className = "nm";
+      nm.textContent = item.name + " · " + whoLabel(item.base);
+      var use = document.createElement("button");
+      use.type="button"; use.textContent="Usar en función";
+      use.addEventListener("click", function(){
+        createSelected = [item.id, createSelected[0] || "ogro"].filter(function(x,i,arr){ return arr.indexOf(x)===i; }).slice(0,3);
+        if(createSelected.length < 2) createSelected.push("ogro");
+        openCreate();
+        if(createSelected.indexOf(item.id) < 0){
+          if(createSelected.length >= 3) createSelected.shift();
+          createSelected.push(item.id);
+        }
+        renderCreate();
+      });
+      var rm = document.createElement("button");
+      rm.type="button"; rm.textContent="Borrar";
+      rm.addEventListener("click", function(){
+        tallerSaveAll(tallerLoad().filter(function(x){ return x.id !== item.id; }));
+        renderTallerSaved();
+      });
+      row.appendChild(nm); row.appendChild(use); row.appendChild(rm);
+      box.appendChild(row);
+    });
+  }
+  function openTaller(){
+    tallerDraft = { base:"nina", name:"", hair:"coleta", acc:"", pal:{} };
+    var inp = document.getElementById("tallerName");
+    if(inp) inp.value = "";
+    tallerRebuildFig();
+    paintTallerForm();
+    showScreen("tallerScreen");
+  }
+  document.getElementById("btnBackTaller").addEventListener("click", function(){ showScreen("lobby"); });
+  document.getElementById("tallerName").addEventListener("input", function(){ tallerDraft.name = this.value.slice(0,24); });
+  document.getElementById("btnTallerSave").addEventListener("click", function(){
+    var name = (document.getElementById("tallerName").value || "").trim() || whoLabel(tallerDraft.base);
+    var list = tallerLoad();
+    list.push({
+      id: "mio-" + Date.now().toString(36),
+      base: tallerDraft.base,
+      name: name,
+      hair: tallerDraft.hair,
+      acc: tallerDraft.acc || "",
+      pal: Object.assign({}, tallerDraft.pal)
+    });
+    tallerSaveAll(list);
+    renderTallerSaved();
+    this.textContent = "Guardado";
+    var btn = this;
+    setTimeout(function(){ btn.textContent = "Guardar en el elenco"; }, 1200);
+  });
 
   function openCreate(){
     createSelected = ["nina","ogro"];
@@ -2299,13 +4530,16 @@ body.escena .stage-wrap{max-width:56rem}
     showScreen("createScreen");
   }
   function renderCreate(){
+    renderSetChips("createSets", createBg, function(id){ createBg = id; renderCreate(); });
     var chips = document.getElementById("puppetChips");
     chips.innerHTML = "";
-    CREATE_POOL.forEach(function(id){
+    var pool = CREATE_POOL.slice();
+    tallerLoad().forEach(function(c){ if(pool.indexOf(c.id) < 0) pool.push(c.id); });
+    pool.forEach(function(id){
       var b = document.createElement("button");
       b.type = "button";
       b.className = "chip" + (createSelected.indexOf(id) >= 0 ? " on" : "");
-      b.textContent = PUPPET_META[id].label;
+      b.textContent = whoLabel(id);
       b.addEventListener("click", function(){
         var i = createSelected.indexOf(id);
         if(i >= 0){
@@ -2380,9 +4614,9 @@ body.escena .stage-wrap{max-width:56rem}
     if(createSelected.length < 2){ alert("Elige al menos 2 marionetas."); return; }
     if(lines.length < 4){ alert("Escribe al menos 4 frases."); return; }
     var scenes = lines.map(function(l){
-      return { who: l.who, text: l.text.trim(), puppets: createSelected.slice(), bg: "pantano" };
+      return { who: l.who, text: l.text.trim(), puppets: createSelected.slice(), bg: createBg || "habitacion" };
     });
-    openShow({ titulo:"Mi función", blurb:"", mark:"Nueva", bg:"pantano", scenes:scenes });
+    openShow({ titulo:"Mi función", blurb:"", mark:"Nueva", bg: createBg || "habitacion", scenes:scenes });
   });
 
   renderLobby();

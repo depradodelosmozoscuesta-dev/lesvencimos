@@ -40,14 +40,12 @@ th{color:var(--suave);font-size:.72rem;letter-spacing:.08em;text-transform:upper
 .foot{margin-top:2rem;padding-top:.8rem;border-top:1px solid var(--linea);color:var(--suave);font-size:.8rem}
 input[type=range]{width:100%}
 textarea{width:100%;min-height:7rem;background:var(--fondo-3);color:var(--tinta);border:1px solid var(--linea);border-radius:var(--radio);padding:.6rem;font:inherit}
-
 .dual-box{background:var(--fondo-2,#161512);border:1px solid var(--linea,rgba(230,225,214,.14));border-radius:var(--radio,2px);padding:1rem;margin:1rem 0}
 .dual-box h2{margin:0 0 .55rem;font-size:.7rem;letter-spacing:.16em;text-transform:uppercase;color:var(--suave,#9A9488);font-weight:600}
 .dual-box .row{display:flex;flex-wrap:wrap;gap:.4rem;align-items:center;margin-top:.55rem}
 .dual-box a{color:var(--tinta,#E6E1D6);font-weight:700;font-size:.9rem}
-button.dual-rec{appearance:none;min-height:44px;padding:.55rem 1rem;border-radius:var(--radio,2px);cursor:pointer;font:700 .9rem var(--sans,system-ui,sans-serif);border:1px solid var(--peligro,#C46A4A);background:var(--peligro,#C46A4A);color:var(--tinta,#E6E1D6)}
-button.dual-rec.on{border-color:var(--acento,#C4A15A);background:var(--acento,#C4A15A);color:var(--acento-texto,#1A160E)}
-
+.dual-rec{appearance:none;min-height:44px;padding:.55rem 1rem;border-radius:var(--radio,2px);cursor:pointer;font:700 .9rem var(--sans,system-ui,sans-serif);border:1px solid var(--peligro,#C46A4A);background:var(--peligro,#C46A4A);color:var(--tinta,#E6E1D6)}
+.dual-rec.on{border-color:var(--acento,#C4A15A);background:var(--acento,#C4A15A);color:var(--acento-texto,#1A160E)}
 </style>
 </head>
 <body>
@@ -61,7 +59,9 @@ button.dual-rec.on{border-color:var(--acento,#C4A15A);background:var(--acento,#C
 <p class="lead">Teoría y voz en un archivo. Sin nube. Diapasón, intervalos, respiración, solfeo. No hay partituras de discos. No sustituye a un profesor ni a un otorrino.</p>
 <div class="tabs" id="tabs"></div>
 <main id="view"></main>
-
+<p class="foot">Les vencimos · file:// · Web Audio<br>
+<button type="button" id="wipe">Borrar datos de este módulo</button></p>
+</div>
   <div class="dual-box" id="dual-box">
     <h2>Grabación · dos pistas</h2>
     <p class="hint" style="color:var(--suave,#9A9488);font-size:.84rem;margin:0">Dentro = lo que suena esta página. Fuera = micrófono. Spotify u otras apps no entran en Dentro; con altavoz el micro las oye en Fuera.</p>
@@ -77,18 +77,8 @@ button.dual-rec.on{border-color:var(--acento,#C4A15A);background:var(--acento,#C
     </div>
   </div>
 
-<p class="foot">Les vencimos · file:// · Web Audio · v20260927j<br>
-<button type="button" id="wipe">Borrar datos de este módulo</button></p>
-</div>
 <script>
 (function(){
-
-  var lvMaster=null;
-  function lvEnsureMaster(ac){
-    if(!ac) return null;
-    if(!lvMaster){ lvMaster=ac.createGain(); lvMaster.gain.value=1; lvMaster.connect(ac.destination); }
-    return lvMaster;
-  }
   var KEY='lv-canto-v1';
   var st={tab:'camino', tipo:'mixto', bpm:70, ref:60};
   try{ Object.assign(st, JSON.parse(localStorage.getItem(KEY)||'{}')); }catch(e){}
@@ -113,14 +103,24 @@ button.dual-rec.on{border-color:var(--acento,#C4A15A);background:var(--acento,#C
   function midiToFreq(m){ return 440*Math.pow(2,(m-69)/12); }
   function pcName(m){ return PC[((m%12)+12)%12]; }
   var ctx=null;
-  function ensure(){ if(!ctx){ ctx=new (window.AudioContext||window.webkitAudioContext)(); lvEnsureMaster(ctx);} if(ctx.state==='suspended') ctx.resume(); return ctx; }
+  var lvMaster=null;
+  function lvEnsureMaster(ac){
+    if(!ac) return null;
+    if(!lvMaster){ lvMaster=ac.createGain(); lvMaster.gain.value=1; lvMaster.connect(ac.destination); }
+    return lvMaster;
+  }
+  function ensure(){
+    if(!ctx){ ctx = new (window.AudioContext||window.webkitAudioContext)(); lvEnsureMaster(ctx); }
+    if(ctx.state==='suspended') ctx.resume();
+    return ctx;
+  }
   function beep(freq,dur,type){
     var c=ensure(); var o=c.createOscillator(); var g=c.createGain();
     o.type=type||'sine'; o.frequency.value=freq;
     g.gain.setValueAtTime(0.0001,c.currentTime);
     g.gain.exponentialRampToValueAtTime(0.1,c.currentTime+0.03);
     g.gain.exponentialRampToValueAtTime(0.0001,c.currentTime+(dur||0.6));
-    o.connect(g); g.connect(lvEnsureMaster(c)); o.start(); o.stop(c.currentTime+(dur||0.65));
+    o.connect(g); g.connect(c.destination); o.start(); o.stop(c.currentTime+(dur||0.65));
   }
   function note(m){ beep(midiToFreq(m), 0.7, 'sine'); }
 
@@ -237,6 +237,7 @@ button.dual-rec.on{border-color:var(--acento,#C4A15A);background:var(--acento,#C
     st={tab:'camino', tipo:'mixto', bpm:70}; paint();
   };
   paint();
+})();
 
   /* —— Grabar las dos: Dentro=Web Audio de la página, Fuera=mic —— */
   var lvDual=false, lvRecIn=null, lvRecOut=null;
@@ -332,6 +333,7 @@ button.dual-rec.on{border-color:var(--acento,#C4A15A);background:var(--acento,#C
   })();
 
 })();
+
 </script>
 </body>
 </html>

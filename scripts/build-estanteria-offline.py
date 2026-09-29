@@ -37,6 +37,17 @@ EMBED_SOURCES = {
     "canto-solfeo": ROOT / "modulos" / "canto-solfeo.html",
     "historia-musica": ROOT / "modulos" / "historia-musica.html",
     "grabadora": ROOT / "modulos" / "grabadora.html",
+    "alto-rendimiento": ROOT / "modulos" / "alto-rendimiento.html",
+    "cocina-maestro": ROOT / "modulos" / "cocina-maestro.html",
+    "musica": ROOT / "modulos" / "musica.html",
+    "bateria": ROOT / "modulos" / "bateria.html",
+    "clasica": ROOT / "modulos" / "clasica.html",
+    "dj": ROOT / "modulos" / "dj.html",
+    "electronica": ROOT / "modulos" / "electronica.html",
+    "grupo": ROOT / "modulos" / "grupo.html",
+    "teoria-musical": ROOT / "modulos" / "teoria-musical.html",
+    "cuidado-instrumentos": ROOT / "modulos" / "cuidado-instrumentos.html",
+
     "medica": ROOT / "modulos" / "medicacion.html",
     "medita": ROOT / "modulos" / "meditacion.html",
     "auxilios": ROOT / "modulos" / "primeros-auxilios.html",
@@ -116,7 +127,7 @@ def inject_embedded(shell: str, embedded: dict[str, str]) -> str:
 def write_leeme() -> str:
     return """═══════════════════════════════════════
   ESCRITORIO / ESTANTERÍA — Les vencimos
-  Build v20260927j
+  Build v20260929a
   UN SOLO HTML (módulos dentro)
 ═══════════════════════════════════════
 
@@ -225,7 +236,7 @@ def main() -> None:
         raise SystemExit("shell missing EMBEDDED placeholder (need estanteria.shell.html)")
 
     embedded = build_embedded()
-    for need in ("hogar", "salud", "qr", "electro", "brico", "fontaneria", "jardin", "economia", "clima", "moda", "legal", "mascotas", "campo", "supervive", "caja", "gym", "guitarra", "piano", "armonica", "saxofon", "bajo", "canto-solfeo", "historia-musica", "grabadora", "calc", "medica", "medita", "auxilios", "escritura", "dibujo", "info", "guias", "mapas", "biblio", "teatro", "tanteo", "higiene", "arte", "protocolo", "ideas", "tabaco", "comunicacion", "gas"):
+    for need in ("hogar", "salud", "qr", "electro", "brico", "fontaneria", "jardin", "economia", "clima", "moda", "legal", "mascotas", "campo", "supervive", "caja", "gym", "guitarra", "piano", "armonica", "saxofon", "bajo", "canto-solfeo", "historia-musica", "grabadora", "calc", "medica", "medita", "auxilios", "escritura", "dibujo", "info", "guias", "mapas", "biblio", "teatro", "tanteo", "higiene", "arte", "protocolo", "ideas", "tabaco", "comunicacion", "gas", "alto-rendimiento", "cocina-maestro", "musica", "bateria", "clasica", "dj", "electronica", "grupo", "teoria-musical", "cuidado-instrumentos"):
         if need not in embedded:
             raise SystemExit(f"missing embed {need}")
 
@@ -270,7 +281,7 @@ def main() -> None:
     shutil.rmtree(STAGING)
 
     # Also keep last lettered snapshot name pointing at same bytes (bookmarks).
-    snapshot = ROOT / "downloads" / "estanteria-offline-v20260927j.zip"
+    snapshot = ROOT / "downloads" / "estanteria-offline-v20260929a.zip"
     shutil.copy2(OUT, snapshot)
     print(f"Wrote {OUT} ({OUT.stat().st_size} bytes)")
     print(f"Snapshot {snapshot}")

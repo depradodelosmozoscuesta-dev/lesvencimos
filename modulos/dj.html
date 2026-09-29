@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0E0E0C">
+<meta name="description" content="Muro DJ Les vencimos — dos decks, crossfader, pads. Sonido sintético. Offline.">
+<title>DJ — Les vencimos</title>
+<style>
+:root{
+  --fondo:#0E0E0C;--fondo-2:#161512;--fondo-3:#1C1A16;
+  --tinta:#E6E1D6;--suave:#9A9488;--acento:#C4A15A;--acento-texto:#1A160E;
+  --linea:rgba(230,225,214,.14);--peligro:#C46A4A;--ok:#8F9A72;
+  --serif:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;
+  --sans:"Segoe UI",system-ui,-apple-system,sans-serif;--radio:2px;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;min-height:100%;background:var(--fondo);color:var(--tinta);font-family:var(--sans);line-height:1.5}
+html{color-scheme:dark}
+.wrap{max-width:56rem;margin:0 auto;padding:1.3rem 1rem 4.5rem}
+header.top{display:flex;align-items:baseline;justify-content:space-between;gap:1rem;flex-wrap:wrap;padding-bottom:.9rem;border-bottom:1px solid var(--linea);margin-bottom:1rem}
+.brand{color:var(--tinta);text-decoration:none;font-family:var(--serif);font-weight:600}
+.status{font-size:.68rem;letter-spacing:.14em;text-transform:uppercase;color:var(--suave);font-weight:600}
+h1{margin:0 0 .35rem;font-family:var(--serif);font-size:clamp(1.7rem,4.5vw,2.4rem);font-weight:600}
+.lead{margin:0 0 1rem;color:var(--suave)}.lead strong{color:var(--tinta)}
+.tabs{display:flex;flex-wrap:wrap;gap:.3rem;margin:0 0 1rem}
+.tabs button{min-height:44px;padding:.4rem .8rem;border:1px solid var(--linea);background:var(--fondo-2);color:var(--tinta);border-radius:var(--radio);font:600 .82rem var(--sans);letter-spacing:.04em;text-transform:uppercase;cursor:pointer}
+.tabs button.on{background:var(--acento);color:var(--acento-texto);border-color:var(--acento)}
+.panel{display:none}.panel.on{display:block}
+.box{background:var(--fondo-2);border:1px solid var(--linea);border-radius:var(--radio);padding:.95rem 1rem;margin:0 0 .85rem}
+.box h2{margin:0 0 .55rem;font-size:.7rem;letter-spacing:.16em;text-transform:uppercase;color:var(--suave);font-weight:600}
+.box h3{font-family:var(--serif);font-size:1.12rem;margin:.15rem 0 .4rem}
+.row{display:flex;flex-wrap:wrap;gap:.4rem;align-items:center}
+button.act{min-height:44px;padding:.45rem .85rem;border:1px solid var(--linea);background:var(--fondo-3);color:var(--tinta);border-radius:var(--radio);font:600 .88rem var(--sans);cursor:pointer}
+button.pri{background:var(--acento);color:var(--acento-texto);border-color:var(--acento)}
+button.on{border-color:var(--acento);color:var(--acento)}
+.hint{color:var(--suave);font-size:.86rem}
+.decks{display:grid;grid-template-columns:1fr;gap:.7rem}
+@media(min-width:640px){.decks{grid-template-columns:1fr 1fr}}
+.deck{background:var(--fondo-3);border:1px solid var(--linea);padding:.85rem;border-radius:var(--radio)}
+.vinyl{width:8.2rem;height:8.2rem;border-radius:50%;margin:.3rem auto .6rem;background:conic-gradient(#1C1A16 0 12deg,#0E0E0C 12deg 24deg);border:8px solid #161512;position:relative;box-shadow:inset 0 0 0 22px #0E0E0C}
+.vinyl::after{content:"";position:absolute;inset:38%;border-radius:50%;background:var(--acento)}
+.vinyl.spin{animation:spin 2.4s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+@media (prefers-reduced-motion:reduce){.vinyl.spin{animation:none}}
+.bpmn{font-family:var(--serif);font-size:2.1rem;line-height:1}
+input[type=range]{width:100%;accent-color:var(--acento)}
+.xf{margin:1rem 0}
+.pads{display:grid;grid-template-columns:repeat(4,1fr);gap:.35rem}
+.pads button{min-height:56px}
+.sib{display:flex;flex-wrap:wrap;gap:.55rem;margin-top:1.6rem;padding-top:.8rem;border-top:1px solid var(--linea)}
+.sib a{color:var(--acento);text-decoration:none;font-weight:600;min-height:44px;display:inline-flex;align-items:center}
+.foot{margin-top:1.2rem;color:var(--suave);font-size:.75rem;letter-spacing:.08em;text-transform:uppercase}
+.ok{color:var(--ok)}.err{color:var(--peligro)}
+table{width:100%;border-collapse:collapse;font-size:.92rem}
+th,td{border-bottom:1px solid var(--linea);text-align:left;padding:.4rem .3rem;vertical-align:top}
+th{color:var(--suave);font-size:.7rem;letter-spacing:.08em;text-transform:uppercase}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header class="top">
+  <a class="brand" href="musica.html">Les vencimos</a>
+  <span class="status">Offline</span>
+</header>
+<h1>DJ</h1>
+<p class="lead">Muro de mesa. Dos decks, un cruce, pads. <strong>No hay discos ajenos</strong>: cada pista es un loop sintético de este aparato. El oficio es el oído, no la marca del controlador.</p>
+<nav class="tabs" id="tabs"></nav>
+
+<section class="panel on" id="p-muro">
+  <div class="box">
+    <h2>01 · Mesa</h2>
+    <div class="row" style="margin-bottom:.6rem">
+      <span class="hint">BPM maestro</span>
+      <div class="bpmn" id="mbpm">120</div>
+    </div>
+    <input id="bpm" type="range" min="70" max="174" value="120">
+    <div class="decks" style="margin-top:.8rem">
+      <div class="deck" id="deckA">
+        <h3>Deck A</h3>
+        <div class="vinyl" id="va" aria-hidden="true"></div>
+        <p class="hint" id="na">Kick house</p>
+        <div class="row">
+          <button class="act pri" data-d="A" data-act="play">Play</button>
+          <button class="act" data-d="A" data-act="cue">Cue</button>
+        </div>
+        <label class="hint">Pista</label>
+        <div class="row" id="loopsA"></div>
+        <label class="hint">Pitch ±8 %</label>
+        <input id="pitchA" type="range" min="-8" max="8" value="0">
+      </div>
+      <div class="deck" id="deckB">
+        <h3>Deck B</h3>
+        <div class="vinyl" id="vb" aria-hidden="true"></div>
+        <p class="hint" id="nb">Hats offbeat</p>
+        <div class="row">
+          <button class="act pri" data-d="B" data-act="play">Play</button>
+          <button class="act" data-d="B" data-act="cue">Cue</button>
+        </div>
+        <label class="hint">Pista</label>
+        <div class="row" id="loopsB"></div>
+        <label class="hint">Pitch ±8 %</label>
+        <input id="pitchB" type="range" min="-8" max="8" value="0">
+      </div>
+    </div>
+    <div class="xf">
+      <h2>Crossfader</h2>
+      <input id="xf" type="range" min="0" max="100" value="50">
+      <p class="hint" id="xfLab">A 50 · B 50</p>
+    </div>
+    <div class="row">
+      <button class="act" id="sync">Sync B → A</button>
+      <button class="act" id="allstop">Silencio</button>
+    </div>
+  </div>
+  <div class="box">
+    <h2>02 · Pads</h2>
+    <div class="pads" id="pads"></div>
+    <p class="hint">One-shots. No sustituyen al kit: son acentos.</p>
+  </div>
+</section>
+
+<section class="panel" id="p-oficio">
+  <div class="box">
+    <h2>03 · Oficio</h2>
+    <table>
+      <tr><th>Gesto</th><th>Qué es</th></tr>
+      <tr><td>Cue</td><td>Punto de entrada. Lo marcas en el 1. Vuelves ahí sin adivinar.</td></tr>
+      <tr><td>Pitch</td><td>Velocidad. ±8 % basta para casar dos pulsos de oído.</td></tr>
+      <tr><td>Sync</td><td>Atajo. Primero aprende a casarlos sin él.</td></tr>
+      <tr><td>Cruce</td><td>Un fader. Izquierda A, derecha B. El centro suma.</td></tr>
+      <tr><td>Frase</td><td>La música pop/house vive de 8 y 16 compases. Cambia en el 1, no a mitad.</td></tr>
+    </table>
+    <p class="hint">Este muro no reproduce temas con derechos. Si quieres un disco concreto, tráelo tú y tócalo en tu mesa. Aquí se entrena el gesto.</p>
+  </div>
+  <div class="box">
+    <h2>Juego · casar el pulso</h2>
+    <p class="hint">A suena a 120. B nace desfasado. Mueve el pitch de B hasta que los clicks coincidan. Luego Sync para comprobar.</p>
+    <div class="row">
+      <button class="act pri" id="game">Desfasar B</button>
+      <span class="hint" id="gmsg">Aún no.</span>
+    </div>
+  </div>
+</section>
+
+<section class="panel" id="p-cuidado">
+  <div class="box">
+    <h2>04 · Cuidado de mesa</h2>
+    <ul>
+      <li>Polvo en el fader = crujido. Funda cuando no se usa.</li>
+      <li>Auriculares: no dormir con 0 dB. El oído no tiene recambio.</li>
+      <li>Cables: no enrollar a tensión en el jack.</li>
+      <li>Portátil sobre la mesa: calor y condensación. Dejar aire.</li>
+    </ul>
+    <p class="hint"><a href="cuidado-instrumentos.html" style="color:var(--acento)">Cuidado de instrumentos</a> · ficha Mesa / DJ.</p>
+  </div>
+</section>
+
+<nav class="sib">
+  <a href="musica.html">Música</a>
+  <a href="bateria.html">Batería</a>
+  <a href="electronica.html">Electrónica</a>
+  <a href="teoria-musical.html">Teoría</a>
+  <a href="cuidado-instrumentos.html">Cuidado</a>
+</nav>
+<p class="foot">lesvencimos.com · dj · v20260929a · lv-dj-v1<br>
+<button class="act" id="wipe" type="button">Borrar datos de este módulo</button></p>
+</div>
+<script>
+(function(){
+  var KEY='lv-dj-v1';
+  var st={tab:'muro',bpm:120,loopA:0,loopB:1,pitchA:0,pitchB:0,xf:50};
+  try{var s=JSON.parse(localStorage.getItem(KEY)||'{}');Object.assign(st,s);}catch(e){}
+  function save(){try{localStorage.setItem(KEY,JSON.stringify(st));}catch(e){}}
+
+  var TABS=[['muro','Muro'],['oficio','Oficio'],['cuidado','Cuidado']];
+  var tabs=document.getElementById('tabs');
+  TABS.forEach(function(t){
+    var b=document.createElement('button');b.textContent=t[1];
+    b.onclick=function(){st.tab=t[0];save();show();};
+    tabs.appendChild(b);
+  });
+  function show(){
+    TABS.forEach(function(t){document.getElementById('p-'+t[0]).className='panel'+(st.tab===t[0]?' on':'');});
+    [].forEach.call(tabs.querySelectorAll('button'),function(b,i){b.className=TABS[i][0]===st.tab?'on':'';});
+  }
+
+  var LOOPS=[
+    {n:'Kick house', kind:'kick'},
+    {n:'Hats offbeat', kind:'hat'},
+    {n:'Clave 3-2', kind:'clave'},
+    {n:'Tom pulse', kind:'tom'},
+    {n:'Noise wash', kind:'wash'}
+  ];
+  function fillLoops(id, side){
+    var el=document.getElementById(id);el.innerHTML='';
+    LOOPS.forEach(function(L,i){
+      var b=document.createElement('button');b.className='act';b.textContent=L.n;
+      b.onclick=function(){
+        st['loop'+side]=i;save();
+        document.getElementById('n'+side.toLowerCase()).textContent=L.n;
+        [].forEach.call(el.querySelectorAll('button'),function(x,j){x.className='act'+(j===i?' on':'');});
+        if(decks[side].on) restart(side);
+      };
+      if(i===st['loop'+side])b.className='act on';
+      el.appendChild(b);
+    });
+  }
+  fillLoops('loopsA','A');fillLoops('loopsB','B');
+  document.getElementById('na').textContent=LOOPS[st.loopA].n;
+  document.getElementById('nb').textContent=LOOPS[st.loopB].n;
+
+  var ctx=null,decks={A:{on:false,timer:null,step:0},B:{on:false,timer:null,step:0}};
+  function ac(){if(!ctx)ctx=new (window.AudioContext||window.webkitAudioContext)();if(ctx.state==='suspended')ctx.resume();return ctx;}
+  function env(g,p,a,d){var t=ac().currentTime;g.gain.setValueAtTime(0.0001,t);g.gain.exponentialRampToValueAtTime(p,t+a);g.gain.exponentialRampToValueAtTime(0.0001,t+a+d);}
+  function noise(dur){
+    var c=ac(),b=c.createBuffer(1,Math.floor(c.sampleRate*dur),c.sampleRate),d=b.getChannelData(0);
+    for(var i=0;i<d.length;i++)d[i]=Math.random()*2-1;
+    var s=c.createBufferSource();s.buffer=b;return s;
+  }
+  function gainSide(side){
+    var x=st.xf/100;
+    return side==='A'?(1-x):x;
+  }
+  function voice(kind,step,side){
+    var c=ac(),t=c.currentTime,mul=gainSide(side)*0.9;
+    if(kind==='kick' && step%4===0){
+      var o=c.createOscillator(),g=c.createGain();
+      o.type='sine';o.frequency.setValueAtTime(130,t);o.frequency.exponentialRampToValueAtTime(45,t+0.1);
+      env(g,0.7*mul,0.004,0.22);o.connect(g);g.connect(c.destination);o.start();o.stop(t+0.26);
+    } else if(kind==='hat' && step%2===1){
+      var n=noise(0.05),f=c.createBiquadFilter(),g=c.createGain();
+      f.type='highpass';f.frequency.value=7000;n.connect(f);f.connect(g);env(g,0.16*mul,0.001,0.04);g.connect(c.destination);n.start();
+    } else if(kind==='clave'){
+      var pat=[1,0,0,1,0,0,1,0,0,0,1,0,1,0,0,0];
+      if(pat[step]){
+        var o=c.createOscillator(),g=c.createGain();
+        o.type='triangle';o.frequency.value=880;env(g,0.2*mul,0.002,0.08);o.connect(g);g.connect(c.destination);o.start();o.stop(t+0.1);
+      }
+    } else if(kind==='tom' && (step===0||step===8)){
+      var o=c.createOscillator(),g=c.createGain();
+      o.type='sine';o.frequency.setValueAtTime(140,t);o.frequency.exponentialRampToValueAtTime(90,t+0.16);
+      env(g,0.4*mul,0.003,0.2);o.connect(g);g.connect(c.destination);o.start();o.stop(t+0.24);
+    } else if(kind==='wash' && step===0){
+      var n=noise(0.6),f=c.createBiquadFilter(),g=c.createGain();
+      f.type='bandpass';f.frequency.value=1800;n.connect(f);f.connect(g);env(g,0.12*mul,0.02,0.45);g.connect(c.destination);n.start();
+    }
+  }
+  function padHit(name){
+    var c=ac(),t=c.currentTime;
+    if(name==='Kick'){
+      var o=c.createOscillator(),g=c.createGain();
+      o.type='sine';o.frequency.setValueAtTime(150,t);o.frequency.exponentialRampToValueAtTime(40,t+0.12);
+      env(g,0.8,0.003,0.28);o.connect(g);g.connect(c.destination);o.start();o.stop(t+0.32);
+    } else if(name==='Clap'){
+      var n=noise(0.18),f=c.createBiquadFilter(),g=c.createGain();
+      f.type='bandpass';f.frequency.value=1600;n.connect(f);f.connect(g);env(g,0.35,0.002,0.14);g.connect(c.destination);n.start();
+    } else if(name==='Hat'){
+      var n=noise(0.06),f=c.createBiquadFilter(),g=c.createGain();
+      f.type='highpass';f.frequency.value=8000;n.connect(f);f.connect(g);env(g,0.2,0.001,0.04);g.connect(c.destination);n.start();
+    } else {
+      var o=c.createOscillator(),g=c.createGain();
+      o.type='square';o.frequency.value=220;env(g,0.12,0.002,0.18);o.connect(g);g.connect(c.destination);o.start();o.stop(t+0.2);
+    }
+  }
+  function ms(side){
+    var p=st['pitch'+side]/100;
+    return (60000/st.bpm)/4*(1-p);
+  }
+  function tick(side){
+    var d=decks[side];
+    var kind=LOOPS[st['loop'+side]].kind;
+    voice(kind,d.step,side);
+    d.step=(d.step+1)%16;
+  }
+  function restart(side){
+    var d=decks[side];
+    if(d.timer){clearInterval(d.timer);d.timer=null;}
+    if(!d.on)return;
+    d.step=0;ac();tick(side);
+    d.timer=setInterval(function(){tick(side);},ms(side));
+    document.getElementById('v'+side.toLowerCase()).className='vinyl spin';
+  }
+  function play(side){
+    decks[side].on=!decks[side].on;
+    if(decks[side].on)restart(side);
+    else{
+      if(decks[side].timer){clearInterval(decks[side].timer);decks[side].timer=null;}
+      document.getElementById('v'+side.toLowerCase()).className='vinyl';
+    }
+  }
+  function cue(side){
+    decks[side].step=0;
+    if(decks[side].on)restart(side);
+  }
+  [].forEach.call(document.querySelectorAll('[data-act]'),function(b){
+    b.onclick=function(){
+      var side=b.getAttribute('data-d'),act=b.getAttribute('data-act');
+      if(act==='play')play(side);else cue(side);
+    };
+  });
+  document.getElementById('bpm').value=st.bpm;
+  document.getElementById('mbpm').textContent=st.bpm;
+  document.getElementById('bpm').oninput=function(){
+    st.bpm=+this.value;document.getElementById('mbpm').textContent=st.bpm;save();
+    if(decks.A.on)restart('A');if(decks.B.on)restart('B');
+  };
+  document.getElementById('pitchA').value=st.pitchA;
+  document.getElementById('pitchB').value=st.pitchB;
+  document.getElementById('pitchA').oninput=function(){st.pitchA=+this.value;save();if(decks.A.on)restart('A');};
+  document.getElementById('pitchB').oninput=function(){st.pitchB=+this.value;save();if(decks.B.on)restart('B');};
+  document.getElementById('xf').value=st.xf;
+  function xfLab(){document.getElementById('xfLab').textContent='A '+(100-st.xf)+' · B '+st.xf;}
+  document.getElementById('xf').oninput=function(){st.xf=+this.value;save();xfLab();};
+  xfLab();
+  document.getElementById('sync').onclick=function(){st.pitchB=st.pitchA;document.getElementById('pitchB').value=st.pitchB;save();if(decks.B.on){decks.B.step=decks.A.step;restart('B');}};
+  document.getElementById('allstop').onclick=function(){
+    ['A','B'].forEach(function(s){decks[s].on=false;if(decks[s].timer){clearInterval(decks[s].timer);decks[s].timer=null;}document.getElementById('v'+s.toLowerCase()).className='vinyl';});
+  };
+
+  var PADS=['Kick','Clap','Hat','Perc'];
+  var pads=document.getElementById('pads');
+  PADS.forEach(function(n){
+    var b=document.createElement('button');b.className='act';b.textContent=n;
+    b.onclick=function(){padHit(n);};pads.appendChild(b);
+  });
+
+  document.getElementById('game').onclick=function(){
+    st.pitchB=6;document.getElementById('pitchB').value=6;save();
+    decks.A.on=true;decks.B.on=true;restart('A');restart('B');
+    document.getElementById('gmsg').textContent='B va un 6 % más rápido. Bájalo de oído.';
+  };
+
+  document.getElementById('wipe').onclick=function(){try{localStorage.removeItem(KEY);}catch(e){}location.reload();};
+  show();
+})();
+</script>
+</body>
+</html>

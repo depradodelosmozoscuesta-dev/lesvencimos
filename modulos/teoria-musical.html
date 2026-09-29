@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="dark">
+<title>Teoría musical y matemáticas — Les vencimos</title>
+<style>
+:root{
+  --fondo:#0E0E0C; --fondo-2:#161512; --fondo-3:#1C1A16;
+  --tinta:#E6E1D6; --suave:#9A9488; --acento:#C4A15A; --acento-texto:#1A160E;
+  --linea:rgba(230,225,214,.14); --peligro:#C46A4A; --ok:#8F9A72;
+  --serif:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;
+  --sans:"Segoe UI",system-ui,-apple-system,sans-serif; --radio:2px;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;min-height:100%;background:var(--fondo);color:var(--tinta);font-family:var(--sans);line-height:1.5}
+html{color-scheme:dark}
+.wrap{max-width:56rem;margin:0 auto;padding:1.3rem 1rem 4rem}
+header.top{display:flex;align-items:baseline;justify-content:space-between;gap:1rem;flex-wrap:wrap;padding-bottom:1rem;border-bottom:1px solid var(--linea);margin-bottom:1rem}
+header.top h1{margin:0;font-family:var(--serif);font-weight:600;font-size:1.7rem}
+header.top p{margin:0;color:var(--suave);font-size:.76rem;letter-spacing:.12em;text-transform:uppercase}
+.lead{color:var(--suave);margin:0 0 1.1rem;max-width:42rem}
+.tabs{display:flex;flex-wrap:wrap;gap:.35rem;margin:0 0 1rem}
+.tabs button{min-height:44px;padding:.45rem .8rem;border:1px solid var(--linea);background:var(--fondo-2);color:var(--tinta);border-radius:var(--radio);font:600 .86rem var(--sans);cursor:pointer}
+.tabs button.on{background:var(--acento);color:var(--acento-texto);border-color:var(--acento)}
+.panel{display:none}
+.panel.on{display:block}
+.card{background:var(--fondo-2);border:1px solid var(--linea);border-radius:var(--radio);padding:1rem;margin:0 0 .8rem}
+.card h2{margin:0 0 .4rem;font-family:var(--serif);font-size:1.18rem;font-weight:600}
+.card h3{margin:.85rem 0 .3rem;font-family:var(--serif);font-size:1.02rem}
+.muted{color:var(--suave)}
+.row{display:flex;flex-wrap:wrap;gap:.4rem;align-items:center}
+button.act{min-height:44px;padding:.45rem .85rem;border:1px solid var(--linea);background:var(--fondo-3);color:var(--tinta);border-radius:var(--radio);font:600 .86rem var(--sans);cursor:pointer}
+button.act.pri,button.act.on{background:var(--acento);color:var(--acento-texto);border-color:var(--acento)}
+a.act{min-height:44px;padding:.45rem .85rem;border:1px solid var(--linea);background:var(--fondo-3);color:var(--tinta);border-radius:var(--radio);font:600 .86rem var(--sans);text-decoration:none;display:inline-flex;align-items:center}
+.big{font-family:var(--serif);font-size:2.4rem;line-height:1.05;margin:.2rem 0}
+.eq{font-family:var(--serif);font-size:1.15rem;background:var(--fondo-3);border:1px solid var(--linea);padding:.7rem .8rem;margin:.5rem 0}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:.5rem}
+@media(max-width:640px){.grid2{grid-template-columns:1fr}}
+table.t{width:100%;border-collapse:collapse;font-size:.9rem}
+table.t th,table.t td{border-bottom:1px solid var(--linea);padding:.35rem .3rem;text-align:left}
+table.t th{color:var(--suave);font-weight:600}
+.circ{width:100%;max-width:22rem;height:auto;display:block;margin:.4rem auto}
+.circ text{font-family:var(--sans);font-size:11px;fill:var(--tinta)}
+.barwrap{display:flex;gap:3px;align-items:flex-end;height:120px;margin:.6rem 0;padding:.3rem;background:var(--fondo-3);border:1px solid var(--linea)}
+.hbar{flex:1;background:var(--acento);min-height:4px;opacity:.85}
+.opt{min-height:48px;flex:1 1 40%}
+.score{font-family:var(--serif);font-size:1.4rem}
+.ok{color:var(--ok)}
+.ko{color:var(--peligro)}
+input[type=range]{width:min(100%,20rem)}
+.colofon{margin-top:2rem;padding-top:1rem;border-top:1px solid var(--linea);color:var(--suave);font-size:.82rem}
+.colofon a{color:var(--acento)}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header class="top">
+  <h1>Teoría y matemáticas</h1>
+  <p>Les vencimos · offline</p>
+</header>
+<p class="lead">La música es número que se oye. Aquí no hay streaming: hay razones, potencias de dos, fracciones de compás y tres juegos para el oído.</p>
+<p><a class="act" href="musica.html">← Muro de música</a></p>
+<nav class="tabs" id="tabs"></nav>
+
+<section class="panel on" id="p-oir">
+  <div class="card">
+    <h2>Oír un número</h2>
+    <p class="muted">A4 = 440 Hz. Cada semitono multiplica por la raíz doceava de 2.</p>
+    <div class="eq">f = 440 × 2<sup>n/12</sup> &nbsp;·&nbsp; n = semitonos desde La4</div>
+    <div class="big" id="hz">440 Hz</div>
+    <p id="nom">La4 · MIDI 69 · n = 0 · 0 cents</p>
+    <div class="row">
+      <label class="muted" for="semi">Semitonos desde La4</label>
+      <input id="semi" type="range" min="-24" max="24" value="0">
+    </div>
+    <div class="row" style="margin-top:.6rem">
+      <button class="act pri" id="playN">Tocar</button>
+      <button class="act" id="dn">−1</button>
+      <button class="act" id="up">+1</button>
+      <button class="act" id="octd">−8ª</button>
+      <button class="act" id="octu">+8ª</button>
+    </div>
+  </div>
+  <div class="card">
+    <h2>Cents</h2>
+    <div class="eq">cents = 1200 × log<sub>2</sub>(f<sub>2</sub> / f<sub>1</sub>)</div>
+    <p>Un semitono temperado = 100 cents. Una octava = 1200. El oído fino nota ~5–10 cents; el afinador de guitarra trabaja en este mapa.</p>
+    <p>La4 440 Hz frente a 432 Hz: <strong id="c432"></strong> cents (432 es más grave).</p>
+  </div>
+</section>
+
+<section class="panel" id="p-tet">
+  <div class="card">
+    <h2>12-TET · el compromiso</h2>
+    <p>Doce semitonos iguales dentro de la octava. Cada uno vale 2<sup>1/12</sup> ≈ <strong>1,05946</strong>. Así puedes modular a cualquier tonalidad sin retocar el instrumento.</p>
+    <p>Ganas portabilidad. Pierdes las razones «puras» de Pitágoras (3:2 no cae exactamente en 7 semitonos).</p>
+    <div class="eq">2<sup>7/12</sup> ≈ 1,4983 &nbsp; vs &nbsp; 3/2 = 1,5000 &nbsp; · &nbsp; ~2 cents de diferencia</div>
+    <table class="t" id="tetTab"></table>
+  </div>
+  <div class="card">
+    <h2>Cuerda y traste</h2>
+    <p>En una cuerda de longitud L, el traste n deja sonar la longitud:</p>
+    <div class="eq">L<sub>n</sub> = L × 2<sup>−n/12</sup></div>
+    <p>Traste 12 = mitad de cuerda = octava. Traste 7 ≈ un tercio (quinta). Por eso el armónico del 12 y del 7 «están donde tienen que estar». Más en Guitarra.</p>
+    <p><a class="act" href="guitarra.html">Abrir guitarra</a></p>
+  </div>
+</section>
+
+<section class="panel" id="p-pita">
+  <div class="card">
+    <h2>Pitágoras · razones</h2>
+    <p>Una cuerda a la mitad suena la octava (2:1). A dos tercios, la quinta (3:2). A tres cuartos, la cuarta (4:3). El número es la longitud; el oído es la razón.</p>
+    <table class="t">
+      <thead><tr><th>Intervalo</th><th>Razón</th><th>Decimal</th><th>12-TET</th><th>Cents de error</th></tr></thead>
+      <tbody id="pitaBody"></tbody>
+    </table>
+    <div class="row" style="margin-top:.7rem">
+      <button class="act pri" id="playPita">Oír fila (pura + temperada)</button>
+    </div>
+    <p class="muted" id="pitaHint">Toca una fila de la tabla y luego el botón.</p>
+  </div>
+  <div class="card">
+    <h2>Por qué 12</h2>
+    <p>Siete quintas (3:2) casi cierran la octava: (3/2)<sup>7</sup> ≈ 17,085 frente a 2<sup>4</sup> = 16. La diferencia es la <em>coma pitagórica</em> (~23,5 cents). El temperamento igual reparte ese error entre los doce semitonos para que ninguna tonalidad quede coja.</p>
+  </div>
+</section>
+
+<section class="panel" id="p-serie">
+  <div class="card">
+    <h2>Serie armónica</h2>
+    <p>Un tubo o una cuerda no suena un solo Hz. Suena f, 2f, 3f, 4f, 5f… La mezcla de esos parciales es el timbre.</p>
+    <div class="eq">f<sub>k</sub> = k × f<sub>1</sub> &nbsp; · &nbsp; elige fundamental</div>
+    <div class="row">
+      <button class="act on" data-f1="110">La2 110</button>
+      <button class="act" data-f1="130.81">Do3</button>
+      <button class="act" data-f1="220">La3 220</button>
+      <button class="act" data-f1="261.63">Do4</button>
+    </div>
+    <div class="barwrap" id="bars"></div>
+    <div class="row">
+      <button class="act pri" id="playSer">Tocar serie (8 parciales)</button>
+      <button class="act" id="playTim">Acorde de timbre</button>
+    </div>
+    <table class="t" id="serTab"></table>
+    <p class="muted">Parcial 2 = octava. 3 = quinta + octava. 4 = dos octavas. 5 ≈ tercera mayor. Por eso un Do «ya contiene» Sol y Mi.</p>
+  </div>
+</section>
+
+<section class="panel" id="p-circ">
+  <div class="card">
+    <h2>Círculo de quintas</h2>
+    <p>Cada paso = +7 semitonos (quinta justa temperada). Doce pasos = 84 semitonos = 7 octavas. Vuelves al mismo nombre.</p>
+    <svg class="circ" id="circ" viewBox="0 0 320 320" role="img" aria-label="Círculo de quintas"></svg>
+    <p class="big" id="circNom">Do</p>
+    <p id="circDet"></p>
+    <div class="row">
+      <button class="act pri" id="playC">Tocar tónica + quinta + relativa</button>
+      <button class="act" id="cw">Quinta →</button>
+      <button class="act" id="ccw">← Cuarta</button>
+    </div>
+  </div>
+  <div class="card">
+    <h2>Relativa menor</h2>
+    <p>La relativa menor está tres semitonos abajo (o una sexta mayor arriba). Do mayor ↔ La menor. Misma armadura, otro centro.</p>
+  </div>
+</section>
+
+<section class="panel" id="p-compas">
+  <div class="card">
+    <h2>El compás es una fracción</h2>
+    <p>Arriba: cuántos pulsos. Abajo: qué figura vale un pulso. 4/4 no es «el único real»: es el más habitual en canción popular.</p>
+    <table class="t">
+      <thead><tr><th>Compás</th><th>Fracción</th><th>Se siente</th><th>Ejemplo de uso</th></tr></thead>
+      <tbody>
+        <tr><td>2/4</td><td>2 × 1/4</td><td>binario corto</td><td>marcha, polka</td></tr>
+        <tr><td>3/4</td><td>3 × 1/4</td><td>ternario</td><td>vals, minué</td></tr>
+        <tr><td>4/4</td><td>4 × 1/4</td><td>cuadrado</td><td>rock, pop, himno</td></tr>
+        <tr><td>6/8</td><td>6 × 1/8</td><td>dos grupos de 3</td><td>balada, giga</td></tr>
+        <tr><td>5/4</td><td>5 × 1/4</td><td>3+2 o 2+3</td><td>aires irregulares</td></tr>
+        <tr><td>7/8</td><td>7 × 1/8</td><td>2+2+3</td><td>danzas de los Balcanes</td></tr>
+      </tbody>
+    </table>
+    <div class="eq">periodo de una negra = 60 / BPM &nbsp; segundos</div>
+    <div class="row">
+      <button class="act" data-sig="2/4">2/4</button>
+      <button class="act" data-sig="3/4">3/4</button>
+      <button class="act pri" data-sig="4/4">4/4</button>
+      <button class="act" data-sig="6/8">6/8</button>
+      <button class="act" data-sig="5/4">5/4</button>
+      <button class="act" data-sig="7/8">7/8</button>
+    </div>
+    <div class="row" style="margin-top:.5rem">
+      <button class="act pri" id="playSig">Play 8 compases</button>
+      <button class="act" id="stopSig">Silencio</button>
+      <span class="muted" id="sigHint">4/4 · 96 BPM</span>
+    </div>
+  </div>
+</section>
+
+<section class="panel" id="p-juegos">
+  <div class="card">
+    <h2>Tres juegos</h2>
+    <p class="muted">Oído, pulso y mapa. Sin ranking en la nube: el marcador vive en este aparato.</p>
+    <div class="row">
+      <button class="act pri" data-game="int">1 · Intervalo</button>
+      <button class="act" data-game="pul">2 · Pulso</button>
+      <button class="act" data-game="cir">3 · Círculo</button>
+    </div>
+  </div>
+  <div class="card" id="gameBox">
+    <h2 id="gTitle">Intervalo</h2>
+    <p id="gLead" class="muted">Oyes dos notas. Elige la distancia.</p>
+    <p class="score">Aciertos <span id="okN">0</span> · Fallos <span id="koN">0</span></p>
+    <div class="row" style="margin:.5rem 0">
+      <button class="act pri" id="gPlay">Oír otra vez</button>
+      <button class="act" id="gNext">Siguiente</button>
+    </div>
+    <div class="row" id="gOpts"></div>
+    <p id="gFb"></p>
+  </div>
+</section>
+
+<footer class="colofon">
+  <a href="musica.html">Muro de música</a> · lesvencimos.com · teoría · v20260929a
+  · <button class="act" id="wipe">Borrar datos</button>
+  <p>Sin cookies. localStorage <code>lv-teoria-v1</code>. No sustituye a un conservatorio. Las orejas mandan.</p>
+</footer>
+</div>
+<script>
+(function(){
+  var KEY='lv-teoria-v1';
+  var PC=['Do','Do♯','Re','Re♯','Mi','Fa','Fa♯','Sol','Sol♯','La','La♯','Si'];
+  var st={tab:'oir',n:0,f1:110,circ:0,sig:'4/4',pita:3,game:'int',ok:0,ko:0};
+  try{var s=JSON.parse(localStorage.getItem(KEY)||'');if(s&&typeof s==='object'){for(var k in s)st[k]=s[k];}}catch(e){}
+  function save(){try{localStorage.setItem(KEY,JSON.stringify({tab:st.tab,n:st.n,f1:st.f1,circ:st.circ,sig:st.sig,ok:st.ok,ko:st.ko,game:st.game}));}catch(e){}}
+
+  var TABS=[
+    ['oir','Oír números'],['tet','12-TET'],['pita','Pitágoras'],
+    ['serie','Serie'],['circ','Círculo'],['compas','Compás'],['juegos','Juegos']
+  ];
+  var tabs=document.getElementById('tabs');
+  TABS.forEach(function(t){
+    var b=document.createElement('button');b.textContent=t[1];b.dataset.tab=t[0];
+    b.onclick=function(){st.tab=t[0];save();show();};
+    tabs.appendChild(b);
+  });
+  function show(){
+    TABS.forEach(function(t){document.getElementById('p-'+t[0]).className='panel'+(st.tab===t[0]?' on':'');});
+    [].forEach.call(tabs.querySelectorAll('button'),function(b){b.className=b.dataset.tab===st.tab?'on':'';});
+  }
+
+  var ctx=null,timer=null;
+  function ac(){if(!ctx)ctx=new (window.AudioContext||window.webkitAudioContext)();if(ctx.state==='suspended')ctx.resume();return ctx;}
+  function beep(freq,dur,type,gain){
+    var c=ac();var o=c.createOscillator();var g=c.createGain();
+    o.type=type||'sine';o.frequency.value=freq;
+    var a=gain==null?0.08:gain;
+    g.gain.setValueAtTime(0.0001,c.currentTime);
+    g.gain.exponentialRampToValueAtTime(a,c.currentTime+0.02);
+    g.gain.exponentialRampToValueAtTime(0.0001,c.currentTime+dur);
+    o.connect(g);g.connect(c.destination);o.start();o.stop(c.currentTime+dur+0.03);
+  }
+  function click(acc){
+    beep(acc?1320:880,0.06,'square',acc?0.08:0.04);
+  }
+
+  function freqN(n){return 440*Math.pow(2,n/12);}
+  function cents(a,b){return 1200*Math.log(b/a)/Math.log(2);}
+  function midiN(n){return 69+n;}
+  function nameN(n){
+    var m=midiN(n);var pc=((m%12)+12)%12;
+    var oct=Math.floor(m/12)-1;
+    return PC[pc]+oct;
+  }
+
+  function renderHz(){
+    var f=freqN(st.n);
+    document.getElementById('hz').textContent=f.toFixed(2).replace('.',',')+' Hz';
+    document.getElementById('nom').textContent=nameN(st.n)+' · MIDI '+midiN(st.n)+' · n = '+st.n+' · '+(st.n*100)+' cents';
+    document.getElementById('semi').value=st.n;
+  }
+  document.getElementById('c432').textContent=cents(440,432).toFixed(1).replace('.',',');
+  document.getElementById('semi').oninput=function(){st.n=+this.value;save();renderHz();};
+  document.getElementById('playN').onclick=function(){beep(freqN(st.n),0.9);};
+  document.getElementById('dn').onclick=function(){st.n=Math.max(-24,st.n-1);save();renderHz();beep(freqN(st.n),0.35);};
+  document.getElementById('up').onclick=function(){st.n=Math.min(24,st.n+1);save();renderHz();beep(freqN(st.n),0.35);};
+  document.getElementById('octd').onclick=function(){st.n=Math.max(-24,st.n-12);save();renderHz();beep(freqN(st.n),0.45);};
+  document.getElementById('octu').onclick=function(){st.n=Math.min(24,st.n+12);save();renderHz();beep(freqN(st.n),0.45);};
+
+  var INTV=[
+    [0,'Unísono','1:1',1],
+    [1,'2ª menor','16:15',16/15],
+    [2,'2ª mayor','9:8',9/8],
+    [3,'3ª menor','6:5',6/5],
+    [4,'3ª mayor','5:4',5/4],
+    [5,'4ª justa','4:3',4/3],
+    [7,'5ª justa','3:2',3/2],
+    [9,'6ª mayor','5:3',5/3],
+    [12,'Octava','2:1',2]
+  ];
+  var tb=document.getElementById('tetTab');
+  tb.innerHTML='<thead><tr><th>n</th><th>Nombre</th><th>Hz desde La4</th><th>Factor 2<sup>n/12</sup></th></tr></thead><tbody></tbody>';
+  var body=tb.tBodies[0];
+  [0,1,2,3,4,5,7,12].forEach(function(n){
+    var tr=document.createElement('tr');
+    var nom={0:'unísono',1:'2ª menor',2:'2ª mayor',3:'3ª menor',4:'3ª mayor',5:'4ª',7:'5ª',12:'octava'}[n];
+    tr.innerHTML='<td>'+n+'</td><td>'+nom+'</td><td>'+freqN(n).toFixed(2).replace('.',',')+'</td><td>'+Math.pow(2,n/12).toFixed(5).replace('.',',')+'</td>';
+    body.appendChild(tr);
+  });
+
+  var pitaBody=document.getElementById('pitaBody');
+  INTV.forEach(function(row,i){
+    var tet=Math.pow(2,row[0]/12);
+    var err=cents(tet,row[3]);
+    var tr=document.createElement('tr');
+    tr.style.cursor='pointer';
+    tr.innerHTML='<td>'+row[1]+'</td><td>'+row[2]+'</td><td>'+row[3].toFixed(4).replace('.',',')+'</td><td>'+tet.toFixed(4).replace('.',',')+'</td><td>'+(err>=0?'+':'')+err.toFixed(1).replace('.',',')+'</td>';
+    tr.onclick=function(){st.pita=i;document.getElementById('pitaHint').textContent='Elegida: '+row[1]+' · '+row[2];};
+    pitaBody.appendChild(tr);
+  });
+  document.getElementById('playPita').onclick=function(){
+    var row=INTV[st.pita]||INTV[3];
+    var f0=220;
+    beep(f0,0.55);setTimeout(function(){beep(f0*row[3],0.7);},380);
+    setTimeout(function(){beep(f0,0.4);beep(f0*Math.pow(2,row[0]/12),0.4);},1100);
+  };
+
+  function partialName(k){
+    var map={1:'fundamental',2:'octava',3:'5ª + 8ª',4:'2 octavas',5:'3ªM + 2×8ª',6:'5ª + 2×8ª',7:'7ª natural',8:'3 octavas'};
+    return map[k]||('×'+k);
+  }
+  function renderSer(){
+    var el=document.getElementById('bars');el.innerHTML='';
+    var tab=document.getElementById('serTab');
+    tab.innerHTML='<thead><tr><th>k</th><th>Hz</th><th>Qué es</th></tr></thead><tbody></tbody>';
+    var b=tab.tBodies[0];
+    for(var k=1;k<=8;k++){
+      var d=document.createElement('div');d.className='hbar';
+      d.style.height=Math.max(8,120*(1/k))+'px';
+      el.appendChild(d);
+      var tr=document.createElement('tr');
+      tr.innerHTML='<td>'+k+'</td><td>'+(st.f1*k).toFixed(1).replace('.',',')+'</td><td>'+partialName(k)+'</td>';
+      b.appendChild(tr);
+    }
+    [].forEach.call(document.querySelectorAll('[data-f1]'),function(btn){
+      btn.className='act'+(Math.abs(+btn.getAttribute('data-f1')-st.f1)<0.01?' on':'');
+    });
+  }
+  [].forEach.call(document.querySelectorAll('[data-f1]'),function(btn){
+    btn.onclick=function(){st.f1=+btn.getAttribute('data-f1');save();renderSer();beep(st.f1,0.4);};
+  });
+  document.getElementById('playSer').onclick=function(){
+    for(var k=1;k<=8;k++){(function(k){setTimeout(function(){beep(st.f1*k,0.35);},(k-1)*220);})(k);}
+  };
+  document.getElementById('playTim').onclick=function(){
+    [1,2,3,4,5].forEach(function(k){beep(st.f1*k,1.1,'sine',0.03);});
+  };
+
+  var CIRC=['Do','Sol','Re','La','Mi','Si','Fa♯','Re♭','La♭','Mi♭','Si♭','Fa'];
+  var REL=['Lam','Mim','Sim','Fa♯m','Do♯m','Sol♯m','Re♯m','Sim♭','Fam','Dom','Solm','Rem'];
+  function midiPc(name){
+    var map={Do:0,'Do♯':1,Re:2,'Re♯':3,Mi:4,Fa:5,'Fa♯':6,Sol:7,'Sol♯':8,La:9,'La♯':10,Si:11,'Re♭':1,'Mi♭':3,'Sol♭':6,'La♭':8,'Si♭':10};
+    return map[name];
+  }
+  function drawCirc(){
+    var svg=document.getElementById('circ');
+    var ns='http://www.w3.org/2000/svg';
+    while(svg.firstChild)svg.removeChild(svg.firstChild);
+    var c=document.createElementNS(ns,'circle');
+    c.setAttribute('cx','160');c.setAttribute('cy','160');c.setAttribute('r','118');
+    c.setAttribute('fill','none');c.setAttribute('stroke','rgba(230,225,214,.14)');
+    svg.appendChild(c);
+    for(var i=0;i<12;i++){
+      var ang=(i*30-90)*Math.PI/180;
+      var x=160+100*Math.cos(ang);
+      var y=160+100*Math.sin(ang);
+      var g=document.createElementNS(ns,'g');
+      var ci=document.createElementNS(ns,'circle');
+      ci.setAttribute('cx',x);ci.setAttribute('cy',y);ci.setAttribute('r',i===st.circ?16:12);
+      ci.setAttribute('fill',i===st.circ?'#C4A15A':'#1C1A16');
+      ci.setAttribute('stroke','#C4A15A');
+      var tx=document.createElementNS(ns,'text');
+      tx.setAttribute('x',x);tx.setAttribute('y',y+4);
+      tx.setAttribute('text-anchor','middle');
+      tx.setAttribute('fill',i===st.circ?'#1A160E':'#E6E1D6');
+      tx.textContent=CIRC[i];
+      g.appendChild(ci);g.appendChild(tx);
+      (function(i){g.style.cursor='pointer';g.addEventListener('click',function(){st.circ=i;save();drawCirc();});})(i);
+      svg.appendChild(g);
+    }
+    document.getElementById('circNom').textContent=CIRC[st.circ]+' mayor';
+    document.getElementById('circDet').textContent='Quinta: '+CIRC[(st.circ+1)%12]+' · Cuarta: '+CIRC[(st.circ+11)%12]+' · Relativa menor: '+REL[st.circ];
+  }
+  function playCirc(){
+    var root=220*Math.pow(2,midiPc(CIRC[st.circ])/12);
+    beep(root,0.45);setTimeout(function(){beep(root*Math.pow(2,7/12),0.45);},320);
+    setTimeout(function(){beep(root*Math.pow(2,-3/12),0.7);},700);
+  }
+  document.getElementById('playC').onclick=playCirc;
+  document.getElementById('cw').onclick=function(){st.circ=(st.circ+1)%12;save();drawCirc();playCirc();};
+  document.getElementById('ccw').onclick=function(){st.circ=(st.circ+11)%12;save();drawCirc();playCirc();};
+
+  var SIGS={'2/4':[2,1],'3/4':[3,1],'4/4':[4,1],'6/8':[6,0.5],'5/4':[5,1],'7/8':[7,0.5]};
+  var sigTimer=null,sigStep=0;
+  function stopSig(){if(sigTimer){clearInterval(sigTimer);sigTimer=null;}}
+  function playSig(){
+    stopSig();
+    var spec=SIGS[st.sig]||[4,1];
+    var bpm=96;var unit=60000/bpm*spec[1];
+    sigStep=0;
+    function t(){
+      var acc=(sigStep%spec[0])===0;click(acc);sigStep++;
+      if(sigStep>=spec[0]*8)stopSig();
+    }
+    t();sigTimer=setInterval(t,unit);
+    document.getElementById('sigHint').textContent=st.sig+' · 96 BPM · 8 compases';
+  }
+  [].forEach.call(document.querySelectorAll('[data-sig]'),function(b){
+    b.onclick=function(){
+      st.sig=b.getAttribute('data-sig');save();
+      [].forEach.call(document.querySelectorAll('[data-sig]'),function(x){x.className='act'+(x===b?' pri':'');});
+      document.getElementById('sigHint').textContent=st.sig+' · 96 BPM';
+    };
+  });
+  document.getElementById('playSig').onclick=playSig;
+  document.getElementById('stopSig').onclick=stopSig;
+
+  var GINT=[
+    [0,'Unísono'],[2,'2ª mayor'],[3,'3ª menor'],[4,'3ª mayor'],
+    [5,'4ª justa'],[7,'5ª justa'],[9,'6ª mayor'],[12,'Octava']
+  ];
+  var gCur=null,gLocked=false;
+  function setScore(){
+    document.getElementById('okN').textContent=st.ok;
+    document.getElementById('koN').textContent=st.ko;
+  }
+  function playPair(semi){
+    var f=220;
+    beep(f,0.45);setTimeout(function(){beep(f*Math.pow(2,semi/12),0.7);},400);
+  }
+  function renderGame(){
+    var boxTitle={int:'Intervalo',pul:'Pulso',cir:'Círculo de quintas'};
+    var boxLead={
+      int:'Oyes dos notas. Elige la distancia.',
+      pul:'Suena un pulso. Toca «Ahora» en el 5. Mide tu error.',
+      cir:'¿Cuál es la quinta justa de la tónica?'
+    };
+    document.getElementById('gTitle').textContent=boxTitle[st.game];
+    document.getElementById('gLead').textContent=boxLead[st.game];
+    document.getElementById('gFb').textContent='';
+    document.getElementById('gFb').className='';
+    setScore();
+    [].forEach.call(document.querySelectorAll('[data-game]'),function(b){
+      b.className='act'+(b.getAttribute('data-game')===st.game?' pri':'');
+    });
+    if(st.game==='int')nextInt();
+    else if(st.game==='pul')nextPul();
+    else nextCir();
+  }
+  function nextInt(){
+    gLocked=false;
+    gCur=GINT[Math.floor(Math.random()*GINT.length)];
+    var opts=document.getElementById('gOpts');opts.innerHTML='';
+    GINT.forEach(function(it){
+      var b=document.createElement('button');b.className='act opt';b.textContent=it[1];
+      b.onclick=function(){guessInt(it[0]);};
+      opts.appendChild(b);
+    });
+    playPair(gCur[0]);
+    document.getElementById('gPlay').onclick=function(){playPair(gCur[0]);};
+    document.getElementById('gNext').onclick=nextInt;
+  }
+  function guessInt(n){
+    if(gLocked)return;gLocked=true;
+    var fb=document.getElementById('gFb');
+    if(n===gCur[0]){st.ok++;fb.textContent='Sí: '+gCur[1]+'.';fb.className='ok';}
+    else{st.ko++;fb.textContent='Era '+gCur[1]+'.';fb.className='ko';}
+    save();setScore();
+  }
+  var pulT0=0,pulId=null;
+  function nextPul(){
+    var opts=document.getElementById('gOpts');opts.innerHTML='';
+    var b=document.createElement('button');b.className='act pri opt';b.textContent='Ahora';
+    var msg=document.createElement('p');msg.className='muted';msg.id='pulMsg';msg.textContent='Espera el 1, 2, 3, 4… y toca en el 5.';
+    opts.appendChild(b);opts.appendChild(msg);
+    var bpm=80;var iv=60000/bpm;
+    var n=0;if(pulId)clearInterval(pulId);
+    pulT0=0;
+    function tick(){
+      n++;click(n===1||n===5);
+      if(n===5){pulT0=performance.now();clearInterval(pulId);pulId=null;}
+      if(n>5){clearInterval(pulId);pulId=null;}
+    }
+    tick();pulId=setInterval(tick,iv);
+    b.onclick=function(){
+      if(!pulT0){document.getElementById('gFb').textContent='Todavía no iba el 5.';document.getElementById('gFb').className='ko';return;}
+      var err=Math.abs(performance.now()-pulT0);
+      var fb=document.getElementById('gFb');
+      if(err<120){st.ok++;fb.textContent='Bien: '+Math.round(err)+' ms.';fb.className='ok';}
+      else{st.ko++;fb.textContent='Ibas a '+Math.round(err)+' ms del 5.';fb.className='ko';}
+      save();setScore();pulT0=0;
+    };
+    document.getElementById('gPlay').onclick=nextPul;
+    document.getElementById('gNext').onclick=nextPul;
+  }
+  function nextCir(){
+    gLocked=false;
+    var i=Math.floor(Math.random()*12);
+    gCur=[i,CIRC[(i+1)%12]];
+    document.getElementById('gLead').textContent='Quinta justa de '+CIRC[i]+':';
+    var opts=document.getElementById('gOpts');opts.innerHTML='';
+    var pool=[gCur[1]];
+    while(pool.length<4){
+      var x=CIRC[Math.floor(Math.random()*12)];
+      if(pool.indexOf(x)<0)pool.push(x);
+    }
+    pool.sort(function(){return Math.random()-0.5;});
+    pool.forEach(function(name){
+      var b=document.createElement('button');b.className='act opt';b.textContent=name;
+      b.onclick=function(){
+        if(gLocked)return;gLocked=true;
+        var fb=document.getElementById('gFb');
+        if(name===gCur[1]){st.ok++;fb.textContent='Sí. '+CIRC[i]+' → '+gCur[1]+'.';fb.className='ok';}
+        else{st.ko++;fb.textContent='Era '+gCur[1]+'.';fb.className='ko';}
+        save();setScore();
+      };
+      opts.appendChild(b);
+    });
+    var root=220*Math.pow(2,midiPc(CIRC[i])/12);
+    document.getElementById('gPlay').onclick=function(){beep(root,0.5);};
+    document.getElementById('gNext').onclick=nextCir;
+    beep(root,0.5);
+  }
+  [].forEach.call(document.querySelectorAll('[data-game]'),function(b){
+    b.onclick=function(){st.game=b.getAttribute('data-game');save();renderGame();};
+  });
+
+  document.getElementById('wipe').onclick=function(){
+    try{localStorage.removeItem(KEY);}catch(e){}
+    st={tab:'oir',n:0,f1:110,circ:0,sig:'4/4',pita:3,game:'int',ok:0,ko:0};
+    stopSig();show();renderHz();renderSer();drawCirc();renderGame();
+  };
+
+  show();renderHz();renderSer();drawCirc();renderGame();
+})();
+</script>
+</body>
+</html>

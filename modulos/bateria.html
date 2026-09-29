@@ -1,0 +1,644 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0E0E0C">
+<title>Batería — Les vencimos</title>
+<style>
+
+:root {
+  --fondo: #0E0E0C; --fondo-2: #161512; --fondo-3: #1C1A16;
+  --tinta: #E6E1D6; --suave: #9A9488; --acento: #C4A15A; --acento-texto: #1A160E;
+  --linea: rgba(230,225,214,.14); --peligro: #C46A4A; --ok: #8F9A72;
+  --serif: "Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;
+  --sans: "Segoe UI",system-ui,-apple-system,sans-serif;
+  --radio: 2px;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; min-height: 100%; }
+html { color-scheme: dark; }
+body {
+  color: var(--tinta); background: var(--fondo);
+  font-family: var(--sans); font-size: 1.02rem; line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+.wrap { max-width: 54rem; margin: 0 auto; padding: 1.4rem 1.1rem 4rem; }
+header.top {
+  display: flex; align-items: baseline; justify-content: space-between;
+  gap: 1rem; flex-wrap: wrap; padding-bottom: 1rem;
+  border-bottom: 1px solid var(--linea); margin-bottom: 1.25rem;
+}
+.brand { color: var(--tinta); text-decoration: none; font-family: var(--serif); font-weight: 600; }
+.status { font-size: .7rem; letter-spacing: .14em; text-transform: uppercase; color: var(--suave); font-weight: 600; }
+h1 { margin: 0 0 .4rem; font-family: var(--serif); font-size: clamp(1.7rem,4.5vw,2.4rem); font-weight: 600; line-height: 1.12; }
+.lead { margin: 0 0 1.1rem; color: var(--suave); }
+.lead strong { color: var(--tinta); }
+.row { display: flex; flex-wrap: wrap; gap: .4rem; align-items: center; }
+label { display: block; font-size: .78rem; color: var(--suave); font-weight: 600; letter-spacing: .04em; text-transform: uppercase; margin: 0 0 .3rem; }
+input[type=range] { width: 100%; background: var(--fondo-3); accent-color: var(--acento); }
+.tabs { display: flex; flex-wrap: wrap; gap: .3rem; margin: 0 0 1rem; }
+.tab {
+  appearance: none; min-height: 44px; padding: .4rem .7rem;
+  border: 1px solid var(--linea); background: var(--fondo-2); color: var(--tinta);
+  font: 600 .8rem var(--sans); letter-spacing: .04em; text-transform: uppercase;
+  cursor: pointer; border-radius: var(--radio);
+}
+.tab.on { border-color: var(--acento); background: rgba(196,161,90,.12); color: var(--acento); }
+.panel { display: none; }
+.panel.on { display: block; }
+.box {
+  background: var(--fondo-2); border: 1px solid var(--linea); border-radius: var(--radio);
+  padding: 1rem 1rem 1.1rem; margin: 0 0 1rem;
+}
+.box h2 {
+  margin: 0 0 .65rem; font-size: .7rem; letter-spacing: .16em;
+  text-transform: uppercase; color: var(--suave); font-weight: 600;
+}
+.box h3 { margin: 1rem 0 .4rem; font-family: var(--serif); font-size: 1.05rem; font-weight: 600; }
+button.primary, button.ghost, button.pad {
+  appearance: none; min-height: 44px; padding: .55rem 1rem; border-radius: var(--radio);
+  cursor: pointer; font: 700 .9rem var(--sans);
+}
+button.primary { border: 1px solid var(--acento); background: var(--acento); color: var(--acento-texto); }
+button.ghost { border: 1px solid var(--linea); background: transparent; color: var(--tinta); }
+button.ghost.on { border-color: var(--acento); color: var(--acento); background: rgba(196,161,90,.1); }
+.hint { color: var(--suave); font-size: .84rem; margin: .4rem 0 0; }
+.ok { color: var(--ok); }
+.err { color: var(--peligro); }
+.math {
+  font-family: var(--serif); background: var(--fondo-3); border: 1px solid var(--linea);
+  padding: .7rem .85rem; margin: .6rem 0; overflow-x: auto;
+}
+.math b { color: var(--acento); }
+.links { display: flex; flex-wrap: wrap; gap: .5rem; margin: 1rem 0 0; }
+.links a { color: var(--acento); text-decoration: none; border-bottom: 1px solid rgba(196,161,90,.35); font-size: .9rem; }
+footer.colofon { margin-top: 2rem; padding-top: 1rem; border-top: 1px solid var(--linea); color: var(--suave); font-size: .78rem; }
+
+.kit{position:relative;height:min(78vw,440px);background:#12110f;border:1px solid var(--linea);border-radius:var(--radio);margin:0 0 .8rem;touch-action:manipulation}
+.piece{position:absolute;border:2px solid rgba(230,225,214,.28);background:#1C1A16;color:var(--tinta);font:700 .72rem var(--sans);letter-spacing:.04em;text-transform:uppercase;cursor:pointer;display:flex;align-items:center;justify-content:center;text-align:center;user-select:none;-webkit-user-select:none;-webkit-tap-highlight-color:transparent;padding:.2rem}
+.piece.round{border-radius:50%}
+.piece.cyl{border-radius:50% / 18%}
+.piece.hat{border-radius:50%;border-style:dashed}
+.piece:active,.piece.hit{background:var(--acento);color:var(--acento-texto);border-color:var(--acento)}
+.kick{left:32%;top:58%;width:36%;height:36%}
+.snare{left:14%;top:42%;width:22%;height:22%}
+.tom1{left:30%;top:22%;width:16%;height:18%}
+.tom2{left:48%;top:20%;width:18%;height:20%}
+.floor{left:68%;top:42%;width:24%;height:26%}
+.hihat{left:4%;top:22%;width:16%;height:16%}
+.crash{left:22%;top:4%;width:18%;height:16%}
+.ride{left:62%;top:6%;width:20%;height:18%}
+.now{font-family:var(--serif);font-size:1.4rem;min-height:1.6em}
+.wall{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:.5rem 0 1rem}
+.wall button{aspect-ratio:1;min-height:64px;border:1px solid var(--linea);background:var(--fondo-3);color:var(--tinta);font:700 .75rem var(--sans);text-transform:uppercase;letter-spacing:.04em;border-radius:var(--radio);cursor:pointer}
+.wall button.hit{background:var(--acento);color:var(--acento-texto)}
+.grid{display:grid;grid-template-columns:3.4rem repeat(16,1fr);gap:3px;margin:.4rem 0}
+.grid b{font-size:.68rem;color:var(--suave);align-self:center}
+.step{height:28px;border:1px solid var(--linea);background:var(--fondo-3);cursor:pointer;border-radius:1px}
+.step.on{background:var(--acento);border-color:var(--acento)}
+.step.play{outline:1px solid var(--tinta)}
+.beat-lamp{width:18px;height:18px;border-radius:50%;background:var(--fondo-3);border:1px solid var(--linea);display:inline-block;margin-right:6px}
+.beat-lamp.on{background:var(--acento)}
+.score{font-family:var(--serif);font-size:2rem}
+ul.lista{margin:.3rem 0 .6rem;padding-left:1.1rem}
+ul.lista li{margin:.25rem 0}
+
+</style>
+</head>
+<body>
+<div class="wrap">
+<header class="top">
+  <a class="brand" href="musica.html">Les vencimos</a>
+  <span class="status">file:// · offline · Web Audio</span>
+</header>
+<h1>Batería</h1>
+<p class="lead"><strong>Toca el kit.</strong> Muro de pads, grooves, rudimentos, metrónomo y el cuidado del parche. El sonido sale de este aparato. No hay pistas de discos.</p>
+<nav class="tabs" id="tabs"></nav>
+
+<section class="panel on" id="p-muro">
+  <div class="box">
+    <h2>Muro · kit acústico</h2>
+    <p class="hint">Toca cada pieza. El bombo también con barra espaciadora.</p>
+    <div class="kit" id="kit">
+      <button type="button" class="piece hat crash" data-v="crash">Crash</button>
+      <button type="button" class="piece hat ride" data-v="ride">Ride</button>
+      <button type="button" class="piece round tom1" data-v="tom1">Tom 1</button>
+      <button type="button" class="piece round tom2" data-v="tom2">Tom 2</button>
+      <button type="button" class="piece round floor" data-v="floor">Floor</button>
+      <button type="button" class="piece hat hihat" data-v="hat">Hi-hat</button>
+      <button type="button" class="piece cyl snare" data-v="snare">Caja</button>
+      <button type="button" class="piece round kick" data-v="kick">Bombo</button>
+    </div>
+    <p class="now" id="now">—</p>
+  </div>
+  <div class="box">
+    <h2>Muro de pads</h2>
+    <p class="hint">Dieciséis pads. El mismo motor. Sirve de batería electrónica de ensayo.</p>
+    <div class="wall" id="wall"></div>
+  </div>
+</section>
+<section class="panel" id="p-groove">
+  <div class="box">
+    <h2>Groove · 16 pasos</h2>
+    <p class="hint">Toca un paso para activarlo. Play hace girar el compás.</p>
+    <label>Negra = <span id="bpmv">100</span> BPM</label>
+    <input type="range" id="bpm" min="60" max="180" value="100">
+    <div class="row" style="margin:.5rem 0">
+      <button type="button" class="primary" id="btn-play">Play</button>
+      <button type="button" class="ghost" id="btn-stop">Parar</button>
+      <button type="button" class="ghost" id="btn-clear">Vaciar</button>
+    </div>
+    <div class="row" style="margin:.3rem 0 .7rem">
+      <button type="button" class="ghost on" data-sig="4/4">4/4</button>
+      <button type="button" class="ghost" data-sig="3/4">3/4</button>
+      <button type="button" class="ghost" data-sig="6/8">6/8</button>
+    </div>
+    <div id="grids"></div>
+    <h3>Presets</h3>
+    <div class="row" id="presets"></div>
+  </div>
+</section>
+<section class="panel" id="p-rudi">
+  <div class="box">
+    <h2>Rudimentos</h2>
+    <p>Manos R (derecha) y L (izquierda). Empieza lento. La matemática es el grupo: 2, 3 o 4 golpes por negra.</p>
+    <div class="row" id="rudis"></div>
+    <p class="now" id="rudi-now">Elige un rudimento</p>
+    <p class="hint" id="rudi-pat"></p>
+    <div class="row">
+      <button type="button" class="primary" id="rudi-play">Tocar 4 compases</button>
+      <button type="button" class="ghost" id="rudi-stop">Parar</button>
+    </div>
+  </div>
+</section>
+<section class="panel" id="p-metro">
+  <div class="box">
+    <h2>Metrónomo</h2>
+    <p><span class="beat-lamp" id="lamp"></span><span id="metro-count">1</span> · <span id="metro-bpm">100</span> BPM · <span id="metro-sig">4/4</span></p>
+    <label>Tempo</label>
+    <input type="range" id="mbpm" min="40" max="220" value="100">
+    <div class="row" style="margin:.5rem 0">
+      <button type="button" class="ghost on" data-msig="4/4">4/4</button>
+      <button type="button" class="ghost" data-msig="3/4">3/4</button>
+      <button type="button" class="ghost" data-msig="6/8">6/8</button>
+      <button type="button" class="ghost" data-msig="5/4">5/4</button>
+    </div>
+    <div class="row">
+      <button type="button" class="ghost on" data-sub="1">Negra</button>
+      <button type="button" class="ghost" data-sub="2">Corchea</button>
+      <button type="button" class="ghost" data-sub="3">Tresillo</button>
+      <button type="button" class="ghost" data-sub="4">Semicorchea</button>
+    </div>
+    <div class="row" style="margin-top:.6rem">
+      <button type="button" class="primary" id="metro-go">Arrancar</button>
+      <button type="button" class="ghost" id="metro-stop">Parar</button>
+    </div>
+    <div class="math">Duración de una negra: <b>t = 60 / BPM</b> segundos. A 100 BPM, t = 0,60 s. Una corchea = t/2. Un tresillo de corcheas = t/3.</div>
+  </div>
+</section>
+<section class="panel" id="p-estilo">
+  <div class="box">
+    <h2>Estilos · el patrón, no el disco</h2>
+    <p class="hint">Nombres de canciones solo como brújula de oído. Aquí no suena el disco: suena el esqueleto.</p>
+    <div id="estilos"></div>
+  </div>
+</section>
+<section class="panel" id="p-teoria">
+  <div class="box">
+    <h2>Teoría con matemática</h2>
+    <h3>El compás es una fracción</h3>
+    <p>El número de arriba dice cuántos pulsos caben. El de abajo dice qué figura es el pulso. 4/4 = cuatro negras. 3/4 = tres negras. 6/8 = seis corcheas (dos grupos de tres).</p>
+    <div class="math">4/4 → 4 × (1/4) = 1 compás<br>6/8 → 6 × (1/8) = 3/4 de redonda, sentido de dos grupos.</div>
+    <h3>Tempo</h3>
+    <p>BPM = negras por minuto. Frecuencia del pulso <b>f = BPM / 60</b> hercios. A 120 BPM, f = 2 Hz: dos golpes cada segundo.</p>
+    <h3>Subdivisión</h3>
+    <p>Binaria: divide en 2 (corcheas). Ternaria: en 3 (tresillos). El swing no es un número fijo; se acerca a una corchea larga + una corta cuya suma sigue siendo la negra.</p>
+    <h3>Por qué el bombo «pesa»</h3>
+    <p>El oído lee el ataque (el clic de milisegundos) y el cuerpo lee el grave (40–80 Hz). Un bombo sintético baja de ~150 Hz a ~40 Hz en 120 ms: es un barrido, no una nota sostenida.</p>
+    <h3>Figuras</h3>
+    <p>Redonda = 1. Blanca = 1/2. Negra = 1/4. Corchea = 1/8. Semicorchea = 1/16. Cada una dura la mitad de la anterior: sucesión geométrica de razón 1/2.</p>
+  </div>
+</section>
+<section class="panel" id="p-cuidado">
+  <div class="box">
+    <h2>Cuidado del instrumento</h2>
+    <h3>Parches</h3>
+    <ul class="lista">
+      <li>Un parche muerto (opaco, sin tono) se cambia. No se «apaña» con cinta en el centro salvo para un ensayo.</li>
+      <li>Afina en cruz: tensor 1, el de enfrente, el de al lado. Vuelve a dar la vuelta. El oído busca el mismo tono en cada tensor.</li>
+      <li>La caja suele ir más tensa que los toms. El bombo, más flojo, con un poco de apagado si suena eterno.</li>
+    </ul>
+    <h3>Platos</h3>
+    <ul class="lista">
+      <li>Nunca se apoyan planos sobre una mesa dura. Borde contra tela.</li>
+      <li>Fieltro arriba y abajo de la campana. El ala no debe golpear el hierro del pie.</li>
+      <li>Un plato fisurado no se suelda en casa. Se retira.</li>
+    </ul>
+    <h3>Hardware y baquetas</h3>
+    <ul class="lista">
+      <li>Revisa tornillos del hi-hat y del boom antes de tocar alto.</li>
+      <li>Baquetas agrietadas se tiran: una punta que salta es un accidente.</li>
+      <li>La silla (trono) a la altura donde el muslo queda casi plano.</li>
+    </ul>
+    <h3>Oídos</h3>
+    <p>La batería cerca es un riesgo. Tapones cuando el local es pequeño. El pitido que sigue al ensayo es una señal, no un trofeo.</p>
+    <p class="hint">Ficha larga: <a href="cuidado-instrumentos.html" style="color:var(--acento)">cuidado-instrumentos.html</a></p>
+  </div>
+</section>
+<section class="panel" id="p-juego">
+  <div class="box">
+    <h2>Juego · copia el golpe</h2>
+    <p>El aparato toca 4 golpes. Tú los repites en el mismo orden tocando el kit o los pads. Tres aciertos seguidos suben de ronda.</p>
+    <p class="score" id="js">0</p>
+    <p class="hint" id="jh">Pulsa Empezar. Escucha. Luego toca.</p>
+    <div class="row">
+      <button type="button" class="primary" id="jg">Empezar</button>
+      <button type="button" class="ghost" id="jr">Otra ronda</button>
+    </div>
+  </div>
+</section>
+<p class="links">
+  <a href="musica.html">Hub música</a>
+  <a href="dj.html">Muro DJ</a>
+  <a href="electronica.html">Electrónica</a>
+  <a href="teoria-musical.html">Teoría + mates</a>
+  <a href="cuidado-instrumentos.html">Mantenimiento</a>
+  <a href="bajo.html">Bajo</a>
+  <a href="guitarra.html">Guitarra</a>
+</p>
+<p><button type="button" class="ghost" id="btn-wipe">Borrar datos de este módulo</button></p>
+<footer class="colofon">Les vencimos · batería · v20260929 · un HTML · sin nube · sin cookies · el oído manda. No sustituye a un profesor.</footer>
+</div>
+
+<script>
+(function(){
+var LS = "lv-bateria-v1";
+var AC = null, playing = false, timer = null, stepI = 0, sig = "4/4", sub = 1;
+var bpm = 100, mOn = false, mBeat = 0, mTimer = null, mSig = "4/4";
+var voices = ["kick","snare","hat","tom1","floor","clap"];
+var grid = {};
+voices.forEach(function(v){ grid[v] = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]; });
+var game = {seq:[], expect:0, score:0, listen:false, round:1};
+
+function ctx(){
+  if(!AC) AC = new (window.AudioContext || window.webkitAudioContext)();
+  if(AC.state === "suspended") AC.resume();
+  return AC;
+}
+function noise(c, t, dur){
+  var n = c.createBufferSource();
+  var len = Math.max(1, Math.floor(c.sampleRate * dur));
+  var b = c.createBuffer(1, len, c.sampleRate);
+  var d = b.getChannelData(0);
+  for(var i=0;i<d.length;i++) d[i] = Math.random()*2-1;
+  n.buffer = b; n.start(t); n.stop(t+dur); return n;
+}
+function hit(v, when){
+  var c = ctx(), t = (when != null) ? when : c.currentTime;
+  if(v === "kick"){
+    var o = c.createOscillator(), g = c.createGain();
+    o.frequency.setValueAtTime(140, t); o.frequency.exponentialRampToValueAtTime(38, t+0.14);
+    g.gain.setValueAtTime(0.95, t); g.gain.exponentialRampToValueAtTime(0.0001, t+0.28);
+    o.connect(g); g.connect(c.destination); o.start(t); o.stop(t+0.3);
+  } else if(v === "snare"){
+    var o = c.createOscillator(), g = c.createGain();
+    o.frequency.value = 180;
+    g.gain.setValueAtTime(0.35, t); g.gain.exponentialRampToValueAtTime(0.0001, t+0.16);
+    o.connect(g); g.connect(c.destination); o.start(t); o.stop(t+0.18);
+    var n = noise(c, t, 0.18), f = c.createBiquadFilter(), ng = c.createGain();
+    f.type = "highpass"; f.frequency.value = 900;
+    ng.gain.setValueAtTime(0.45, t); ng.gain.exponentialRampToValueAtTime(0.0001, t+0.16);
+    n.connect(f); f.connect(ng); ng.connect(c.destination);
+  } else if(v === "hat" || v === "ohat"){
+    var n = noise(c, t, v === "ohat" ? 0.28 : 0.06), f = c.createBiquadFilter(), g = c.createGain();
+    f.type = "highpass"; f.frequency.value = 7000;
+    g.gain.setValueAtTime(0.28, t); g.gain.exponentialRampToValueAtTime(0.0001, t + (v === "ohat" ? 0.28 : 0.07));
+    n.connect(f); f.connect(g); g.connect(c.destination);
+  } else if(v === "crash" || v === "ride"){
+    var n = noise(c, t, v === "crash" ? 1.1 : 0.5), f = c.createBiquadFilter(), g = c.createGain();
+    f.type = "bandpass"; f.frequency.value = (v === "crash" ? 3500 : 4500); f.Q.value = 0.7;
+    g.gain.setValueAtTime(0.3, t); g.gain.exponentialRampToValueAtTime(0.0001, t + (v === "crash" ? 1.1 : 0.45));
+    n.connect(f); f.connect(g); g.connect(c.destination);
+  } else if(v === "tom1" || v === "tom2" || v === "floor"){
+    var f0 = (v === "tom1") ? 220 : (v === "tom2") ? 160 : 95;
+    var o = c.createOscillator(), g = c.createGain();
+    o.frequency.setValueAtTime(f0, t); o.frequency.exponentialRampToValueAtTime(f0*0.55, t+0.2);
+    g.gain.setValueAtTime(0.7, t); g.gain.exponentialRampToValueAtTime(0.0001, t+0.32);
+    o.connect(g); g.connect(c.destination); o.start(t); o.stop(t+0.34);
+  } else if(v === "clap"){
+    [0, 0.012, 0.028].forEach(function(off){
+      var n = noise(c, t+off, 0.12), f = c.createBiquadFilter(), g = c.createGain();
+      f.type = "bandpass"; f.frequency.value = 1400;
+      g.gain.setValueAtTime(0.35, t+off); g.gain.exponentialRampToValueAtTime(0.0001, t+off+0.1);
+      n.connect(f); f.connect(g); g.connect(c.destination);
+    });
+  } else if(v === "perc"){
+    var o = c.createOscillator(), g = c.createGain();
+    o.type = "triangle"; o.frequency.setValueAtTime(520, t); o.frequency.exponentialRampToValueAtTime(180, t+0.08);
+    g.gain.setValueAtTime(0.3, t); g.gain.exponentialRampToValueAtTime(0.0001, t+0.1);
+    o.connect(g); g.connect(c.destination); o.start(t); o.stop(t+0.12);
+  } else if(v === "click"){
+    var o = c.createOscillator(), g = c.createGain();
+    o.frequency.value = 1200;
+    g.gain.setValueAtTime(0.15, t); g.gain.exponentialRampToValueAtTime(0.0001, t+0.03);
+    o.connect(g); g.connect(c.destination); o.start(t); o.stop(t+0.04);
+  }
+  flash(v);
+  var el = document.getElementById("now");
+  if(el) el.textContent = nombre(v);
+  if(game.listen === false && game.seq.length) tapGame(v);
+}
+function nombre(v){
+  var map = {kick:"Bombo",snare:"Caja",hat:"Hi-hat",ohat:"Hat abierto",tom1:"Tom agudo",tom2:"Tom medio",floor:"Floor",crash:"Crash",ride:"Ride",clap:"Clap",perc:"Perc",click:"Clic"};
+  return map[v] || v;
+}
+function flash(v){
+  document.querySelectorAll('[data-v="'+v+'"]').forEach(function(el){
+    el.classList.add("hit");
+    setTimeout(function(){ el.classList.remove("hit"); }, 90);
+  });
+}
+function save(){
+  try { localStorage.setItem(LS, JSON.stringify({bpm:bpm, sig:sig, grid:grid})); } catch(e) {}
+}
+function load(){
+  try {
+    var s = JSON.parse(localStorage.getItem(LS) || "null");
+    if(!s) return;
+    if(s.bpm) bpm = +s.bpm;
+    if(s.sig) sig = s.sig;
+    if(s.grid) grid = s.grid;
+  } catch(e) {}
+}
+
+var TABS = [["muro","Muro"],["groove","Groove"],["rudi","Rudimentos"],["metro","Metrónomo"],["estilo","Estilos"],["teoria","Teoría"],["cuidado","Cuidado"],["juego","Juego"]];
+function renderTabs(){
+  var n = document.getElementById("tabs"); n.innerHTML = "";
+  TABS.forEach(function(t, i){
+    var b = document.createElement("button");
+    b.type = "button";
+    b.className = "tab" + (i===0 ? " on" : "");
+    b.textContent = t[1];
+    b.onclick = function(){
+      document.querySelectorAll(".tab").forEach(function(x){ x.classList.remove("on"); });
+      document.querySelectorAll(".panel").forEach(function(x){ x.classList.remove("on"); });
+      b.classList.add("on");
+      document.getElementById("p-"+t[0]).classList.add("on");
+    };
+    n.appendChild(b);
+  });
+}
+
+var WALL = ["kick","snare","hat","ohat","tom1","tom2","floor","clap","crash","ride","perc","click","kick","snare","hat","clap"];
+function renderWall(){
+  var w = document.getElementById("wall"); w.innerHTML = "";
+  WALL.forEach(function(v){
+    var b = document.createElement("button");
+    b.type = "button"; b.dataset.v = v; b.textContent = nombre(v);
+    b.onpointerdown = function(e){ e.preventDefault(); hit(v); };
+    w.appendChild(b);
+  });
+}
+
+var PRESETS = {
+  "Rock": {kick:[1,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0], snare:[0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,0], hat:[1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0]},
+  "Funk": {kick:[1,0,0,1,0,0,1,0,0,0,0,1,0,0,0,0], snare:[0,0,0,0,1,0,0,1,0,0,0,0,1,0,0,0], hat:[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]},
+  "Reggae": {kick:[0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0], snare:[0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,0], hat:[0,0,1,0,0,0,1,0,0,0,1,0,0,0,1,0]},
+  "Bossa": {kick:[1,0,0,0,0,0,1,0,0,0,1,0,0,0,0,0], snare:[0,0,0,1,0,0,0,0,0,1,0,0,0,0,1,0], hat:[1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0]},
+  "Metal": {kick:[1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0], snare:[0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,0], hat:[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]},
+  "Jazz": {kick:[1,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0], snare:[0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,0], hat:[0,0,1,0,0,0,1,0,0,0,1,0,0,0,1,0]},
+  "Hip-hop": {kick:[1,0,0,0,0,0,1,0,0,0,0,0,0,1,0,0], snare:[0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,0], hat:[1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0]}
+};
+function applyPreset(name){
+  voices.forEach(function(v){ grid[v] = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]; });
+  var p = PRESETS[name];
+  if(!p) return;
+  Object.keys(p).forEach(function(v){ grid[v] = p[v].slice(); });
+  renderGrids(); save();
+}
+function renderPresets(){
+  var el = document.getElementById("presets"); el.innerHTML = "";
+  Object.keys(PRESETS).forEach(function(n){
+    var b = document.createElement("button"); b.type="button"; b.className="ghost"; b.textContent=n;
+    b.onclick = function(){ applyPreset(n); };
+    el.appendChild(b);
+  });
+}
+function renderGrids(){
+  var host = document.getElementById("grids"); host.innerHTML = "";
+  voices.forEach(function(v){
+    var row = document.createElement("div"); row.className = "grid";
+    var lab = document.createElement("b"); lab.textContent = nombre(v); row.appendChild(lab);
+    for(var i=0;i<16;i++){
+      var s = document.createElement("div");
+      s.className = "step" + (grid[v][i] ? " on" : "");
+      s.dataset.v = v; s.dataset.i = String(i);
+      s.onclick = function(){
+        var vv = this.dataset.v, ii = +this.dataset.i;
+        grid[vv][ii] = grid[vv][ii] ? 0 : 1;
+        this.classList.toggle("on");
+        save();
+      };
+      row.appendChild(s);
+    }
+    host.appendChild(row);
+  });
+}
+function stepDur(){ return 60 / bpm / 4; }
+function tick(){
+  if(!playing) return;
+  var c = ctx(), t = c.currentTime;
+  voices.forEach(function(v){ if(grid[v] && grid[v][stepI]) hit(v, t); });
+  document.querySelectorAll(".step").forEach(function(el){
+    el.classList.toggle("play", +el.dataset.i === stepI);
+  });
+  stepI = (stepI + 1) % 16;
+  timer = setTimeout(tick, stepDur() * 1000);
+}
+function play(){
+  if(playing) return;
+  ctx(); playing = true; stepI = 0; tick();
+  document.getElementById("btn-play").textContent = "Play · va";
+}
+function stopPlay(){
+  playing = false; clearTimeout(timer);
+  document.getElementById("btn-play").textContent = "Play";
+  document.querySelectorAll(".step").forEach(function(el){ el.classList.remove("play"); });
+}
+
+var RUDIS = {
+  "Single stroke": "R L R L R L R L",
+  "Double stroke": "R R L L R R L L",
+  "Paradiddle": "R L R R L R L L",
+  "Flam": "R L L R",
+  "Tresillo": "R L R L"
+};
+var rudiTimer = null, rudiOn = false;
+function playRudi(name){
+  stopRudi();
+  var pat = RUDIS[name].split(" ");
+  document.getElementById("rudi-now").textContent = name;
+  document.getElementById("rudi-pat").textContent = RUDIS[name] + "  — R caja, L floor";
+  var i = 0, bars = 0;
+  rudiOn = true;
+  function step(){
+    if(!rudiOn) return;
+    var h = pat[i % pat.length];
+    if(h === "R") hit("snare");
+    else if(h === "L") hit("floor");
+    i++;
+    if(i % pat.length === 0) bars++;
+    if(bars >= 8){ stopRudi(); return; }
+    rudiTimer = setTimeout(step, (60/bpm)*1000 / 2);
+  }
+  step();
+}
+function stopRudi(){ rudiOn = false; clearTimeout(rudiTimer); }
+
+function metroTick(){
+  if(!mOn) return;
+  var beats = (mSig === "3/4") ? 3 : (mSig === "5/4") ? 5 : (mSig === "6/8") ? 6 : 4;
+  var isDown = (mBeat % beats) === 0;
+  hit(isDown ? "kick" : "click");
+  document.getElementById("lamp").classList.add("on");
+  setTimeout(function(){ document.getElementById("lamp").classList.remove("on"); }, 80);
+  document.getElementById("metro-count").textContent = String((mBeat % beats) + 1);
+  mBeat++;
+  var unit = (mSig === "6/8") ? (60/bpm)/2 : (60/bpm)/sub;
+  mTimer = setTimeout(metroTick, unit * 1000);
+}
+
+var ESTILOS = [
+  {n:"Rock", q:"Bombo en 1 y 3. Caja en 2 y 4. Hi-hat a corcheas.", ej:"El esqueleto de casi todo el rock de radio. Escucha el 2 y el 4."},
+  {n:"Funk", q:"Bombo sincopado. Caja seca en 2 y 4. Hat casi a semicorcheas.", ej:"El silencio entre bombos es parte del groove. No llenes."},
+  {n:"Reggae", q:"Énfasis en el 3 (one drop). Caja y bombo juntos a mitad."},
+  {n:"Bossa", q:"Caja con brocha en clave suave. Bombo que no marca el 1 siempre."},
+  {n:"Jazz", q:"Ride cantando corcheas con swing. Caja y bombo comentan, no clavan."},
+  {n:"Metal", q:"Bombo a corcheas o semicorcheas. Caja a negra. Hat o ride cerrado."},
+  {n:"Hip-hop", q:"Bombo irregular. Caja en 2 y 4 o retrasada. Espacio."}
+];
+function renderEstilos(){
+  var h = document.getElementById("estilos"); h.innerHTML = "";
+  ESTILOS.forEach(function(e){
+    var d = document.createElement("div");
+    var h3 = document.createElement("h3"); h3.textContent = e.n; d.appendChild(h3);
+    var p = document.createElement("p"); p.textContent = e.q; d.appendChild(p);
+    if(e.ej){ var hnt = document.createElement("p"); hnt.className="hint"; hnt.textContent=e.ej; d.appendChild(hnt); }
+    var b = document.createElement("button"); b.type="button"; b.className="ghost"; b.textContent="Cargar groove";
+    b.onclick = function(){ if(PRESETS[e.n]) applyPreset(e.n); document.querySelectorAll(".tab")[1].click(); };
+    d.appendChild(b); h.appendChild(d);
+  });
+}
+
+var GPOOL = ["kick","snare","hat","tom1","floor","clap"];
+function startGame(){
+  game.score = 0; game.round = 1; game.expect = 0; nextRound();
+}
+function nextRound(){
+  game.seq = [];
+  var n = 3 + Math.min(game.round, 5);
+  for(var i=0;i<n;i++) game.seq.push(GPOOL[Math.floor(Math.random()*GPOOL.length)]);
+  game.expect = 0; game.listen = true;
+  document.getElementById("jh").textContent = "Escucha…";
+  document.getElementById("js").textContent = String(game.score);
+  var i = 0;
+  function playOne(){
+    if(i >= game.seq.length){
+      game.listen = false;
+      document.getElementById("jh").textContent = "Tu turno. Toca " + game.seq.length + " golpes.";
+      return;
+    }
+    hit(game.seq[i]); i++; setTimeout(playOne, 420);
+  }
+  setTimeout(playOne, 350);
+}
+function tapGame(v){
+  if(game.listen || !game.seq.length) return;
+  if(v === game.seq[game.expect]){
+    game.expect++;
+    if(game.expect >= game.seq.length){
+      game.score += game.round; game.round++;
+      document.getElementById("js").textContent = String(game.score);
+      document.getElementById("jh").textContent = "Bien. Ronda " + game.round + "…";
+      setTimeout(nextRound, 700);
+    }
+  } else {
+    document.getElementById("jh").textContent = "No. Era " + nombre(game.seq[game.expect]) + ". Otra ronda.";
+    game.seq = [];
+  }
+}
+
+document.getElementById("kit").addEventListener("pointerdown", function(e){
+  var p = e.target.closest("[data-v]"); if(!p) return;
+  e.preventDefault(); hit(p.dataset.v);
+});
+document.addEventListener("keydown", function(e){
+  if(e.code === "Space" && e.target === document.body){ e.preventDefault(); hit("kick"); }
+});
+document.getElementById("bpm").oninput = function(){
+  bpm = +this.value;
+  document.getElementById("bpmv").textContent = String(bpm);
+  document.getElementById("metro-bpm").textContent = String(bpm);
+  document.getElementById("mbpm").value = String(bpm);
+  save();
+};
+document.getElementById("mbpm").oninput = function(){
+  bpm = +this.value;
+  document.getElementById("metro-bpm").textContent = String(bpm);
+  document.getElementById("bpm").value = String(bpm);
+  document.getElementById("bpmv").textContent = String(bpm);
+};
+document.getElementById("btn-play").onclick = play;
+document.getElementById("btn-stop").onclick = stopPlay;
+document.getElementById("btn-clear").onclick = function(){
+  voices.forEach(function(v){ grid[v] = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]; });
+  renderGrids(); save();
+};
+document.querySelectorAll("[data-sig]").forEach(function(b){
+  b.onclick = function(){
+    document.querySelectorAll("[data-sig]").forEach(function(x){ x.classList.remove("on"); });
+    b.classList.add("on"); sig = b.getAttribute("data-sig"); save();
+  };
+});
+document.querySelectorAll("[data-msig]").forEach(function(b){
+  b.onclick = function(){
+    document.querySelectorAll("[data-msig]").forEach(function(x){ x.classList.remove("on"); });
+    b.classList.add("on"); mSig = b.getAttribute("data-msig");
+    document.getElementById("metro-sig").textContent = mSig;
+  };
+});
+document.querySelectorAll("[data-sub]").forEach(function(b){
+  b.onclick = function(){
+    document.querySelectorAll("[data-sub]").forEach(function(x){ x.classList.remove("on"); });
+    b.classList.add("on"); sub = +b.getAttribute("data-sub");
+  };
+});
+document.getElementById("metro-go").onclick = function(){ if(mOn) return; ctx(); mOn = true; mBeat = 0; metroTick(); };
+document.getElementById("metro-stop").onclick = function(){ mOn = false; clearTimeout(mTimer); };
+var rudHost = document.getElementById("rudis"); rudHost.innerHTML = "";
+Object.keys(RUDIS).forEach(function(n){
+  var b = document.createElement("button"); b.type="button"; b.className="ghost"; b.textContent=n;
+  b.onclick = function(){ playRudi(n); };
+  rudHost.appendChild(b);
+});
+document.getElementById("rudi-play").onclick = function(){ playRudi("Single stroke"); };
+document.getElementById("rudi-stop").onclick = stopRudi;
+document.getElementById("jg").onclick = startGame;
+document.getElementById("jr").onclick = nextRound;
+document.getElementById("btn-wipe").onclick = function(){
+  try { localStorage.removeItem(LS); } catch(e) {}
+  location.reload();
+};
+
+load();
+document.getElementById("bpm").value = String(bpm);
+document.getElementById("bpmv").textContent = String(bpm);
+document.getElementById("mbpm").value = String(bpm);
+document.getElementById("metro-bpm").textContent = String(bpm);
+renderTabs(); renderWall(); renderPresets(); renderGrids(); renderEstilos();
+if(!grid.kick || grid.kick.every(function(x){ return !x; })) applyPreset("Rock");
+})();
+</script>
+</body>
+</html>
