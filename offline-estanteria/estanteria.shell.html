@@ -1768,7 +1768,7 @@
       </div>
     </div>
 
-    <footer class="site-foot">lesvencimos.com · escritorio / estantería offline · <span id="est-build">v20260927i</span></footer>
+    <footer class="site-foot">lesvencimos.com · escritorio / estantería offline · <span id="est-build">v20260927j</span></footer>
   </div>
 
   <div id="mod-viewer" role="dialog" aria-modal="true" aria-labelledby="mod-viewer-title" hidden>
@@ -1938,7 +1938,7 @@
     var OFICIO_FOLDER_ID = 'f-oficio';
     var OFICIO_IDS = ['electricidad', 'bricolaje', 'fontaneria', 'gas'];
     var MUSICA_FOLDER_ID = 'f-musica';
-    var MUSICA_IDS = ['guitarra', 'piano', 'armonica', 'saxofon', 'bajo', 'canto-solfeo', 'historia-musica'];
+    var MUSICA_IDS = ['guitarra', 'piano', 'armonica', 'saxofon', 'bajo', 'canto-solfeo', 'historia-musica', 'grabadora'];
 
     function isSchoolId(id) {
       return SCHOOL_IDS.indexOf(id) >= 0;
@@ -2008,6 +2008,7 @@
       { id: 'bajo', titulo: 'Bajo', icon: 'guitarra', embed: 'bajo', blurb: 'Ritmo · notas · líneas de bajo', shelf: 'ocio', shape: 'wide', color: '#3E9B8A' },
       { id: 'canto-solfeo', titulo: 'Canto', icon: 'guitarra', embed: 'canto-solfeo', blurb: 'Voz · oído · lectura musical', shelf: 'ocio', shape: 'soft', color: '#D85E87' },
       { id: 'historia-musica', titulo: 'Historia', icon: 'guitarra', embed: 'historia-musica', blurb: 'Épocas · estilos · escucha', shelf: 'ocio', shape: 'poster', color: '#A26B4F' },
+      { id: 'grabadora', titulo: 'Grabadora', icon: 'guitarra', embed: 'grabadora', blurb: 'Dos pistas · dentro y fuera', shelf: 'ocio', shape: 'soft', color: '#C4A15A' },
       { id: 'meditacion', titulo: 'Medita', icon: 'meditacion', embed: 'medita', blurb: 'Sentarse y viaje', shelf: 'ocio', shape: 'star', pulse: true, color: '#3DB8A8' },
       { id: 'biblioteca', titulo: 'Libros', icon: 'biblioteca', embed: 'biblio', blurb: 'Libros · voz · ambientes', shelf: 'ocio', shape: 'billboard', color: '#E8B84A' },
       { id: 'tanteo', titulo: 'Tanteo', icon: 'ideas', embed: 'tanteo', blurb: 'Juego de palabras · offline', shelf: 'ocio', shape: 'soft', color: '#C4A15A' },
@@ -2693,7 +2694,7 @@
         if (!Array.isArray(f.ids)) f.ids = [];
         f.parent = null;
       }
-      /* Música es una carpeta del sistema: los siete módulos viven dentro. */
+      /* Música es una carpeta del sistema: los módulos de Música viven dentro. */
       state.folders.forEach(function (other) {
         if (other !== f && Array.isArray(other.ids)) {
           other.ids = other.ids.filter(function (id) { return MUSICA_IDS.indexOf(id) < 0; });
@@ -5538,7 +5539,7 @@
       });
     }
 
-    var EST_BUILD = 'v20260927i';
+    var EST_BUILD = 'v20260927j';
 
     function layoutPanelSheet() {
       var tb = document.getElementById('desk-toolbar');
@@ -5910,7 +5911,7 @@
       var needCanonicalIds = !needSeed && state.layoutRev < 20;
       var needEducacionHub = !needSeed && state.layoutRev < 21;
       var needCamaraFotos = !needSeed && state.layoutRev < 22;
-      var needMusica = !needSeed && state.layoutRev < 27;
+      var needMusica = !needSeed && state.layoutRev < 28;
       if (needSeed) {
         seedFullDesktop();
         ensureCasaModules();
@@ -5922,7 +5923,7 @@
         ensureFotosFolder();
         ensureOficioFolder();
         ensureMusicaFolder();
-        state.layoutRev = 27;
+        state.layoutRev = 28;
         state.version = 5;
         saveState();
       } else if (needRearrange || needEdu || needVariosEdu || needRapido || needLeads || needCamaraQr || needMapasLead || needAppShortcuts || needCasaModules || needCasaDeep || needFolders || needCompletoPurity || needCanonicalIds || needEducacionHub || needCamaraFotos || needMusica) {
@@ -6273,6 +6274,22 @@
           });
           ensureMusicaFolder();
           state.layoutRev = 27;
+          saveState();
+        }
+        /* layoutRev 28: Grabadora en carpeta Música. */
+        if (typeof state.layoutRev !== 'number' || state.layoutRev < 28) {
+          MUSICA_IDS.forEach(function (id) {
+            var mm28 = catalogById(id);
+            if (!mm28 || !isOfflineEmbed(mm28) || hasModule(mm28.id)) return;
+            state.items.push({
+              id: mm28.id, type: 'module', kind: 'catalog', titulo: mm28.titulo, icon: mm28.icon || '',
+              href: mm28.href || '', embed: mm28.embed || null, external: mm28.external || null,
+              openNative: mm28.openNative || null, color: mm28.color || '', blurb: mm28.blurb || '',
+              shelf: 'ocio', view: 'icon', z: ++Z, addedAt: new Date().toISOString()
+            });
+          });
+          ensureMusicaFolder();
+          state.layoutRev = 28;
           saveState();
         }
         ensureOficioFolder();

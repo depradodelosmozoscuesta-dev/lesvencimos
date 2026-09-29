@@ -36,6 +36,7 @@ EMBED_SOURCES = {
     "bajo": ROOT / "modulos" / "bajo.html",
     "canto-solfeo": ROOT / "modulos" / "canto-solfeo.html",
     "historia-musica": ROOT / "modulos" / "historia-musica.html",
+    "grabadora": ROOT / "modulos" / "grabadora.html",
     "medica": ROOT / "modulos" / "medicacion.html",
     "medita": ROOT / "modulos" / "meditacion.html",
     "auxilios": ROOT / "modulos" / "primeros-auxilios.html",
@@ -115,7 +116,7 @@ def inject_embedded(shell: str, embedded: dict[str, str]) -> str:
 def write_leeme() -> str:
     return """═══════════════════════════════════════
   ESCRITORIO / ESTANTERÍA — Les vencimos
-  Build v20260927i
+  Build v20260927j
   UN SOLO HTML (módulos dentro)
 ═══════════════════════════════════════
 
@@ -152,7 +153,7 @@ Al abrir ya viene llena. Sin Radio (necesita internet; pack aparte) ni Alarma Cu
 
 Los módulos (Hogar [Hoy+buscador], Salud, Higiene, QR,
 Oficio [Luz · Taller · Fontanería · Gas], Jardín, Economía, Clima, Moda, Legal, Mascotas, Campo, Casa preparada, Calculadora,
-Gimnasio, Guitarra, Piano, Armónica, Saxofón, Bajo, Canto y solfeo, Historia de la música, Caja fuerte, Medicación, Meditación,
+Gimnasio, Guitarra, Piano, Armónica, Saxofón, Bajo, Canto y solfeo, Historia de la música, Grabadora, Caja fuerte, Medicación, Meditación,
 Auxilios, Escritura, Dibujo, Informática, Guías [piloto CyL], Mapas, Biblioteca, Teatro de marionetas, Tanteo, Arte, Ideas, Protocolo, Tabaco, Sin internet, Gas (límites)…)
 van EMBEBIDOS dentro del HTML.
 Carpeta Oficio (balda Casa): agrupa Electricidad, Bricolaje, Fontanería y Gas (límites)
@@ -224,7 +225,7 @@ def main() -> None:
         raise SystemExit("shell missing EMBEDDED placeholder (need estanteria.shell.html)")
 
     embedded = build_embedded()
-    for need in ("hogar", "salud", "qr", "electro", "brico", "fontaneria", "jardin", "economia", "clima", "moda", "legal", "mascotas", "campo", "supervive", "caja", "gym", "guitarra", "piano", "armonica", "saxofon", "bajo", "canto-solfeo", "historia-musica", "calc", "medica", "medita", "auxilios", "escritura", "dibujo", "info", "guias", "mapas", "biblio", "teatro", "tanteo", "higiene", "arte", "protocolo", "ideas", "tabaco", "comunicacion", "gas"):
+    for need in ("hogar", "salud", "qr", "electro", "brico", "fontaneria", "jardin", "economia", "clima", "moda", "legal", "mascotas", "campo", "supervive", "caja", "gym", "guitarra", "piano", "armonica", "saxofon", "bajo", "canto-solfeo", "historia-musica", "grabadora", "calc", "medica", "medita", "auxilios", "escritura", "dibujo", "info", "guias", "mapas", "biblio", "teatro", "tanteo", "higiene", "arte", "protocolo", "ideas", "tabaco", "comunicacion", "gas"):
         if need not in embedded:
             raise SystemExit(f"missing embed {need}")
 
@@ -269,7 +270,7 @@ def main() -> None:
     shutil.rmtree(STAGING)
 
     # Also keep last lettered snapshot name pointing at same bytes (bookmarks).
-    snapshot = ROOT / "downloads" / "estanteria-offline-v20260927i.zip"
+    snapshot = ROOT / "downloads" / "estanteria-offline-v20260927j.zip"
     shutil.copy2(OUT, snapshot)
     print(f"Wrote {OUT} ({OUT.stat().st_size} bytes)")
     print(f"Snapshot {snapshot}")

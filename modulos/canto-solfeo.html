@@ -40,6 +40,14 @@ th{color:var(--suave);font-size:.72rem;letter-spacing:.08em;text-transform:upper
 .foot{margin-top:2rem;padding-top:.8rem;border-top:1px solid var(--linea);color:var(--suave);font-size:.8rem}
 input[type=range]{width:100%}
 textarea{width:100%;min-height:7rem;background:var(--fondo-3);color:var(--tinta);border:1px solid var(--linea);border-radius:var(--radio);padding:.6rem;font:inherit}
+
+.dual-box{background:var(--fondo-2,#161512);border:1px solid var(--linea,rgba(230,225,214,.14));border-radius:var(--radio,2px);padding:1rem;margin:1rem 0}
+.dual-box h2{margin:0 0 .55rem;font-size:.7rem;letter-spacing:.16em;text-transform:uppercase;color:var(--suave,#9A9488);font-weight:600}
+.dual-box .row{display:flex;flex-wrap:wrap;gap:.4rem;align-items:center;margin-top:.55rem}
+.dual-box a{color:var(--tinta,#E6E1D6);font-weight:700;font-size:.9rem}
+button.dual-rec{appearance:none;min-height:44px;padding:.55rem 1rem;border-radius:var(--radio,2px);cursor:pointer;font:700 .9rem var(--sans,system-ui,sans-serif);border:1px solid var(--peligro,#C46A4A);background:var(--peligro,#C46A4A);color:var(--tinta,#E6E1D6)}
+button.dual-rec.on{border-color:var(--acento,#C4A15A);background:var(--acento,#C4A15A);color:var(--acento-texto,#1A160E)}
+
 </style>
 </head>
 <body>
@@ -53,11 +61,34 @@ textarea{width:100%;min-height:7rem;background:var(--fondo-3);color:var(--tinta)
 <p class="lead">Teoría y voz en un archivo. Sin nube. Diapasón, intervalos, respiración, solfeo. No hay partituras de discos. No sustituye a un profesor ni a un otorrino.</p>
 <div class="tabs" id="tabs"></div>
 <main id="view"></main>
-<p class="foot">Les vencimos · file:// · Web Audio<br>
+
+  <div class="dual-box" id="dual-box">
+    <h2>Grabación · dos pistas</h2>
+    <p class="hint" style="color:var(--suave,#9A9488);font-size:.84rem;margin:0">Dentro = lo que suena esta página. Fuera = micrófono. Spotify u otras apps no entran en Dentro; con altavoz el micro las oye en Fuera.</p>
+    <div class="row">
+      <button class="dual-rec" type="button" id="btn-dual-rec">Grabar las dos</button>
+    </div>
+    <p class="hint" id="dual-status" style="color:var(--suave,#9A9488);font-size:.84rem;margin:.4rem 0 0"></p>
+    <p class="hint" id="dual-err" style="color:var(--peligro,#C46A4A);font-size:.84rem;margin:.3rem 0 0" role="alert"></p>
+    <div id="dual-takes" hidden style="margin-top:.7rem">
+      <a id="dual-dl-in" download="dentro.webm">Bajar dentro</a>
+      · <a id="dual-dl-out" download="fuera.webm">Bajar fuera</a>
+      · <a href="grabadora.html">Mezclar en Grabadora</a>
+    </div>
+  </div>
+
+<p class="foot">Les vencimos · file:// · Web Audio · v20260927j<br>
 <button type="button" id="wipe">Borrar datos de este módulo</button></p>
 </div>
 <script>
 (function(){
+
+  var lvMaster=null;
+  function lvEnsureMaster(ac){
+    if(!ac) return null;
+    if(!lvMaster){ lvMaster=ac.createGain(); lvMaster.gain.value=1; lvMaster.connect(ac.destination); }
+    return lvMaster;
+  }
   var KEY='lv-canto-v1';
   var st={tab:'camino', tipo:'mixto', bpm:70, ref:60};
   try{ Object.assign(st, JSON.parse(localStorage.getItem(KEY)||'{}')); }catch(e){}
@@ -82,14 +113,14 @@ textarea{width:100%;min-height:7rem;background:var(--fondo-3);color:var(--tinta)
   function midiToFreq(m){ return 440*Math.pow(2,(m-69)/12); }
   function pcName(m){ return PC[((m%12)+12)%12]; }
   var ctx=null;
-  function ensure(){ if(!ctx) ctx=new (window.AudioContext||window.webkitAudioContext)(); return ctx; }
+  function ensure(){ if(!ctx){ ctx=new (window.AudioContext||window.webkitAudioContext)(); lvEnsureMaster(ctx);} if(ctx.state==='suspended') ctx.resume(); return ctx; }
   function beep(freq,dur,type){
     var c=ensure(); var o=c.createOscillator(); var g=c.createGain();
     o.type=type||'sine'; o.frequency.value=freq;
     g.gain.setValueAtTime(0.0001,c.currentTime);
     g.gain.exponentialRampToValueAtTime(0.1,c.currentTime+0.03);
     g.gain.exponentialRampToValueAtTime(0.0001,c.currentTime+(dur||0.6));
-    o.connect(g); g.connect(c.destination); o.start(); o.stop(c.currentTime+(dur||0.65));
+    o.connect(g); g.connect(lvEnsureMaster(c)); o.start(); o.stop(c.currentTime+(dur||0.65));
   }
   function note(m){ beep(midiToFreq(m), 0.7, 'sine'); }
 
@@ -206,6 +237,100 @@ textarea{width:100%;min-height:7rem;background:var(--fondo-3);color:var(--tinta)
     st={tab:'camino', tipo:'mixto', bpm:70}; paint();
   };
   paint();
+
+  /* —— Grabar las dos: Dentro=Web Audio de la página, Fuera=mic —— */
+  var lvDual=false, lvRecIn=null, lvRecOut=null;
+  var lvChunksIn=[], lvChunksOut=[], lvMic=null, lvInDest=null, lvUrls=[];
+  function lvMime(){
+    if(!window.MediaRecorder) return '';
+    var list=['audio/webm;codecs=opus','audio/webm','audio/mp4'];
+    for(var i=0;i<list.length;i++) if(MediaRecorder.isTypeSupported(list[i])) return list[i];
+    return '';
+  }
+  function lvExt(m){
+    if((m||'').indexOf('mp4')>=0||(m||'').indexOf('aac')>=0) return 'm4a';
+    return 'webm';
+  }
+  function lvDualStop(){
+    lvDual=false;
+    var btn=document.getElementById('btn-dual-rec');
+    if(btn){ btn.textContent='Grabar las dos'; btn.classList.remove('on'); }
+    if(lvRecIn && lvRecIn.state!=='inactive') try{ lvRecIn.stop(); }catch(e){}
+    if(lvRecOut && lvRecOut.state!=='inactive') try{ lvRecOut.stop(); }catch(e){}
+    if(lvMic) lvMic.getTracks().forEach(function(t){ t.stop(); });
+    lvMic=null;
+    if(lvMaster && lvInDest){ try{ lvMaster.disconnect(lvInDest); }catch(e){} }
+    lvInDest=null;
+  }
+  function lvArm(rec, chunks, kind, done){
+    rec.ondataavailable=function(e){ if(e.data&&e.data.size) chunks.push(e.data); };
+    rec.addEventListener('stop', function(){ done(kind, new Blob(chunks,{type:rec.mimeType||'audio/webm'})); });
+  }
+  function lvShowTakes(bin, bout){
+    lvUrls.forEach(function(u){ try{ URL.revokeObjectURL(u); }catch(e){} });
+    lvUrls=[];
+    var u1=URL.createObjectURL(bin), u2=URL.createObjectURL(bout);
+    lvUrls=[u1,u2];
+    var a1=document.getElementById('dual-dl-in'), a2=document.getElementById('dual-dl-out');
+    a1.href=u1; a1.download='dentro.'+lvExt(bin.type);
+    a2.href=u2; a2.download='fuera.'+lvExt(bout.type);
+    document.getElementById('dual-takes').hidden=false;
+    document.getElementById('dual-status').textContent='Dos pistas listas. Mezcla en Grabadora si quieres.';
+    /* auto-offer downloads */
+    try{ a1.click(); }catch(e){}
+    setTimeout(function(){ try{ a2.click(); }catch(e){} }, 400);
+  }
+  function lvDualBegin(stream){
+    var ac = (typeof ensureCtx==='function'?ensureCtx(): (typeof ensure==='function'?ensure(): null));
+    if(!ac && typeof ctx!=='undefined' && ctx) ac=ctx;
+    if(!ac){ document.getElementById('dual-err').textContent='Sin AudioContext.'; return; }
+    if(ac.state==='suspended') ac.resume();
+    lvEnsureMaster(ac);
+    lvMic=stream;
+    var src=ac.createMediaStreamSource(stream);
+    var micDest=ac.createMediaStreamDestination();
+    src.connect(micDest);
+    if(lvInDest){ try{ lvMaster.disconnect(lvInDest); }catch(e){} }
+    lvInDest=ac.createMediaStreamDestination();
+    lvMaster.connect(lvInDest);
+    var mt=lvMime();
+    lvChunksIn=[]; lvChunksOut=[];
+    var blobIn=null, blobOut=null;
+    lvRecIn=mt? new MediaRecorder(lvInDest.stream,{mimeType:mt}) : new MediaRecorder(lvInDest.stream);
+    lvRecOut=mt? new MediaRecorder(micDest.stream,{mimeType:mt}) : new MediaRecorder(micDest.stream);
+    function got(kind, blob){
+      if(kind==='in') blobIn=blob; else blobOut=blob;
+      if(blobIn && blobOut) lvShowTakes(blobIn, blobOut);
+    }
+    lvArm(lvRecIn, lvChunksIn, 'in', got);
+    lvArm(lvRecOut, lvChunksOut, 'out', got);
+    lvRecIn.start(250); lvRecOut.start(250);
+    lvDual=true;
+    var btn=document.getElementById('btn-dual-rec');
+    if(btn){ btn.textContent='Parar'; btn.classList.add('on'); }
+    document.getElementById('dual-status').textContent='Grabando. Dentro y fuera, a la vez.';
+    document.getElementById('dual-err').textContent='';
+  }
+  (function bindDual(){
+    var btn=document.getElementById('btn-dual-rec');
+    if(!btn) return;
+    btn.onclick=function(){
+      document.getElementById('dual-err').textContent='';
+      if(lvDual){ lvDualStop(); return; }
+      if(!navigator.mediaDevices||!window.MediaRecorder){
+        document.getElementById('dual-err').textContent='Este navegador no graba (normal en file:// sin permiso).';
+        return;
+      }
+      var ac = (typeof ensureCtx==='function'?ensureCtx(): (typeof ensure==='function'?ensure(): null));
+      if(ac) lvEnsureMaster(ac);
+      navigator.mediaDevices.getUserMedia({audio:{echoCancellation:false,noiseSuppression:false,autoGainControl:false}})
+        .then(lvDualBegin)
+        .catch(function(){
+          document.getElementById('dual-err').textContent='Sin permiso de micrófono (normal en file://).';
+        });
+    };
+  })();
+
 })();
 </script>
 </body>

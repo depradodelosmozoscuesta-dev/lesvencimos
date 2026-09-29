@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0E0E0C">
+<title>Grabadora — Les vencimos</title>
+<style>
+:root {
+  --fondo: #0E0E0C; --fondo-2: #161512; --fondo-3: #1C1A16;
+  --tinta: #E6E1D6; --suave: #9A9488; --acento: #C4A15A; --acento-texto: #1A160E;
+  --linea: rgba(230,225,214,.14); --peligro: #C46A4A; --ok: #8F9A72;
+  --serif: "Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;
+  --sans: "Segoe UI",system-ui,-apple-system,sans-serif;
+  --radio: 2px;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; min-height: 100%; }
+html { color-scheme: dark; }
+body {
+  color: var(--tinta); background: var(--fondo);
+  font-family: var(--sans); font-size: 1.02rem; line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+.wrap { max-width: 40rem; margin: 0 auto; padding: 1.4rem 1.1rem 4rem; }
+header.top {
+  display: flex; align-items: baseline; justify-content: space-between;
+  gap: 1rem; padding-bottom: 1rem; border-bottom: 1px solid var(--linea); margin-bottom: 1.25rem;
+}
+.brand { color: var(--tinta); text-decoration: none; font-family: var(--serif); font-weight: 600; }
+.status { font-size: .7rem; letter-spacing: .14em; text-transform: uppercase; color: var(--suave); font-weight: 600; }
+h1 { margin: 0 0 .4rem; font-family: var(--serif); font-size: clamp(1.7rem,4.5vw,2.4rem); font-weight: 600; line-height: 1.12; }
+.lead { margin: 0 0 1.1rem; color: var(--suave); }
+.lead strong { color: var(--tinta); }
+.box {
+  background: var(--fondo-2); border: 1px solid var(--linea); border-radius: var(--radio);
+  padding: 1rem 1rem 1.1rem; margin: 0 0 1rem;
+}
+.box h2 {
+  margin: 0 0 .65rem; font-size: .7rem; letter-spacing: .16em;
+  text-transform: uppercase; color: var(--suave); font-weight: 600;
+}
+.row { display: flex; flex-wrap: wrap; gap: .4rem; align-items: center; }
+button.primary, button.ghost, label.file {
+  appearance: none; min-height: 44px; padding: .55rem 1rem; border-radius: var(--radio);
+  cursor: pointer; font: 700 .9rem var(--sans); display: inline-flex; align-items: center;
+}
+button.primary { border: 1px solid var(--acento); background: var(--acento); color: var(--acento-texto); }
+button.ghost { border: 1px solid var(--linea); background: transparent; color: var(--tinta); }
+button.rec { border: 1px solid var(--peligro); background: var(--peligro); color: var(--tinta); }
+button:disabled { opacity: .4; cursor: default; }
+label.file { border: 1px solid var(--linea); background: transparent; color: var(--tinta); }
+input[type=file] { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+select, input[type=range] {
+  background: var(--fondo-3); color: var(--tinta); border: 1px solid var(--linea);
+  border-radius: var(--radio); font: inherit;
+}
+select { min-height: 44px; padding: .45rem .6rem; width: 100%; margin-top: .35rem; }
+.field { display: block; margin: .7rem 0 0; font-size: .78rem; color: var(--suave); font-weight: 600; letter-spacing: .04em; text-transform: uppercase; }
+.hint { color: var(--suave); font-size: .84rem; margin: .4rem 0 0; }
+.err { color: var(--peligro); }
+.meter { display: flex; gap: 3px; height: 22px; margin-top: .7rem; }
+.meter i { flex: 1; background: var(--fondo-3); border-radius: 1px; }
+.meter i.on { background: var(--tinta); }
+.meter i.hot { background: var(--peligro); }
+.take { margin-top: .8rem; }
+.take audio { width: 100%; height: 40px; margin: .35rem 0; }
+a.dl { color: var(--tinta); font-weight: 700; font-size: .9rem; }
+footer {
+  margin-top: 2rem; padding-top: 1rem; border-top: 1px solid var(--linea);
+  color: var(--suave); font-size: .75rem; letter-spacing: .08em; text-transform: uppercase;
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <a class="brand" href="../index.html">Les vencimos</a>
+    <span class="status">Offline</span>
+  </header>
+  <h1>Grabadora</h1>
+  <p class="lead">Dos pistas a la vez. <strong>Dentro</strong> es lo que suena esta página. <strong>Fuera</strong> es el micrófono: el ambiente y lo que tocas. No se copian entre sí.</p>
+
+  <div class="box">
+    <h2>Dentro · lo que suena el móvil aquí</h2>
+    <p class="hint">Un archivo de fondo, o el clic. Guitarra, piano, armónica, saxo, bajo y canto tienen el mismo botón. Lo que suene en otra app no entra en esta pista: el móvil no lo suelta. El micro, sí.</p>
+    <div class="row" style="margin-top:.7rem">
+      <label class="file">Cargar fondo<input id="file" type="file" accept="audio/*,.mp3,.m4a,.wav,.ogg"></label>
+      <button class="ghost" type="button" id="play" disabled>Reproducir</button>
+      <button class="ghost" type="button" id="click">Clic</button>
+    </div>
+    <p class="hint" id="file-name">Sin fondo. Puedes grabar solo el ambiente.</p>
+    <label class="field">Nivel dentro
+      <input id="gain-in" type="range" min="0" max="100" value="80">
+    </label>
+  </div>
+
+  <div class="box">
+    <h2>Fuera · ambiente</h2>
+    <p class="hint">Con cascos, esta pista es casi solo lo que tocas. Con el altavoz, el micro oye la música y a ti juntos. La pista de dentro sigue limpia.</p>
+    <div class="row" style="margin-top:.7rem">
+      <button class="ghost" type="button" id="scan">Buscar micros</button>
+    </div>
+    <label class="field">Micro
+      <select id="mic"></select>
+    </label>
+    <label class="field">Nivel fuera
+      <input id="gain-out" type="range" min="0" max="100" value="100">
+    </label>
+    <div class="meter" id="meter" aria-hidden="true"></div>
+    <div class="row" style="margin-top:.8rem">
+      <button class="rec" type="button" id="rec">Grabar las dos</button>
+    </div>
+    <p class="hint" id="status"></p>
+    <p class="err" id="err" role="alert"></p>
+  </div>
+
+  <div class="box" id="takes" hidden>
+    <h2>Pistas</h2>
+    <div class="take">
+      <div>Dentro</div>
+      <audio id="hear-in" controls></audio>
+      <a class="dl" id="dl-in" download="dentro.webm">Bajar dentro</a>
+    </div>
+    <div class="take">
+      <div>Fuera</div>
+      <audio id="hear-out" controls></audio>
+      <a class="dl" id="dl-out" download="fuera.webm">Bajar fuera</a>
+    </div>
+    <label class="field">Mezcla · dentro
+      <input id="mix-in" type="range" min="0" max="150" value="80">
+    </label>
+    <label class="field">Mezcla · fuera
+      <input id="mix-out" type="range" min="0" max="150" value="100">
+    </label>
+    <div class="row" style="margin-top:.7rem">
+      <button class="primary" type="button" id="mix-play">Oír mezcla</button>
+      <button class="ghost" type="button" id="mix-dl">Bajar mezcla</button>
+    </div>
+    <p class="hint" id="mix-msg"></p>
+  </div>
+
+  <footer>lesvencimos.com · grabadora · v20260927j</footer>
+</div>
+<script>
+(function(){
+  var ctx, master, clickTimer=null, clicking=false;
+  var audioEl=null, fileUrl=null;
+  var recording=false, recIn=null, recOut=null, chunksIn=[], chunksOut=[];
+  var micStream=null, micGain=null, micDest=null, insideDest=null;
+  var blobIn=null, blobOut=null, urls=[];
+  var meterAnalyser=null, meterTimer=0;
+  var mics=[];
+
+  function $(id){ return document.getElementById(id); }
+  function mime(){
+    if(!window.MediaRecorder) return "";
+    var list=["audio/webm;codecs=opus","audio/webm","audio/mp4"];
+    for(var i=0;i<list.length;i++) if(MediaRecorder.isTypeSupported(list[i])) return list[i];
+    return "";
+  }
+  function ext(m){
+    if(m.indexOf("mp4")>=0||m.indexOf("aac")>=0) return "m4a";
+    if(m.indexOf("wav")>=0) return "wav";
+    return "webm";
+  }
+  function ensure(){
+    if(!ctx){
+      ctx=new (window.AudioContext||window.webkitAudioContext)();
+      master=ctx.createGain();
+      master.connect(ctx.destination);
+    }
+    master.gain.value=+$("gain-in").value/100;
+    if(ctx.state==="suspended") ctx.resume();
+    return ctx;
+  }
+  function say(t){ $("status").textContent=t||""; }
+  function fail(t){ $("err").textContent=t||""; }
+
+  $("gain-in").oninput=function(){ if(master) master.gain.value=this.value/100; };
+  $("gain-out").oninput=function(){ if(micGain) micGain.gain.value=this.value/100; };
+
+  function paintMeter(){
+    var box=$("meter");
+    if(!box.childElementCount){
+      for(var i=0;i<16;i++) box.appendChild(document.createElement("i"));
+    }
+    var segs=box.children;
+    if(!meterAnalyser){
+      for(i=0;i<segs.length;i++) segs[i].className="";
+      return;
+    }
+    var bins=new Uint8Array(meterAnalyser.fftSize);
+    meterAnalyser.getByteTimeDomainData(bins);
+    var sum=0;
+    for(i=0;i<bins.length;i++){ var v=(bins[i]-128)/128; sum+=v*v; }
+    var lit=Math.round(Math.min(1, Math.sqrt(sum/bins.length)*3.2)*segs.length);
+    for(i=0;i<segs.length;i++) segs[i].className=i<lit?(i>=segs.length-3?"on hot":"on"):"";
+  }
+
+  $("file").onchange=function(){
+    var f=this.files&&this.files[0];
+    this.value="";
+    if(!f) return;
+    ensure();
+    if(audioEl){ audioEl.pause(); }
+    if(fileUrl) URL.revokeObjectURL(fileUrl);
+    fileUrl=URL.createObjectURL(f);
+    audioEl=new Audio();
+    audioEl.preload="auto";
+    audioEl.src=fileUrl;
+    audioEl.setAttribute("playsinline","");
+    var src=ctx.createMediaElementSource(audioEl);
+    src.connect(master);
+    audioEl.onplay=syncPlay;
+    audioEl.onpause=syncPlay;
+    $("file-name").textContent=f.name;
+    $("play").disabled=false;
+  };
+
+  function syncPlay(){
+    if(!audioEl) return;
+    $("play").textContent=audioEl.paused?"Reproducir":"Pausa";
+  }
+  $("play").onclick=function(){
+    if(!audioEl) return;
+    ensure();
+    if(audioEl.paused) audioEl.play().catch(function(){ fail("No salió el sonido. Toca otra vez."); });
+    else audioEl.pause();
+  };
+
+  function clickOnce(){
+    var ac=ensure();
+    var o=ac.createOscillator(), g=ac.createGain();
+    o.frequency.value=1000; o.type="square";
+    g.gain.setValueAtTime(0.0001, ac.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.08, ac.currentTime+0.005);
+    g.gain.exponentialRampToValueAtTime(0.0001, ac.currentTime+0.04);
+    o.connect(g); g.connect(master);
+    o.start(); o.stop(ac.currentTime+0.05);
+  }
+  $("click").onclick=function(){
+    if(clicking){
+      clicking=false; clearInterval(clickTimer); clickTimer=null;
+      this.textContent="Clic";
+      return;
+    }
+    ensure(); clicking=true; this.textContent="Parar clic";
+    clickOnce();
+    clickTimer=setInterval(clickOnce, 500);
+  };
+
+  function fillMics(){
+    var sel=$("mic");
+    sel.innerHTML="";
+    mics.forEach(function(d,i){
+      var o=document.createElement("option");
+      o.value=d.deviceId;
+      o.textContent=d.label||("Micro "+(i+1));
+      sel.appendChild(o);
+    });
+    if(!mics.length){
+      var o=document.createElement("option");
+      o.value=""; o.textContent="Micro del aparato";
+      sel.appendChild(o);
+    }
+  }
+  $("scan").onclick=function(){
+    fail("");
+    if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia){
+      fail("Este navegador no abre el micrófono.");
+      return;
+    }
+    navigator.mediaDevices.getUserMedia({audio:true}).then(function(s){
+      s.getTracks().forEach(function(t){ t.stop(); });
+      return navigator.mediaDevices.enumerateDevices();
+    }).then(function(all){
+      mics=all.filter(function(d){ return d.kind==="audioinput"; });
+      fillMics();
+      say(mics.length? mics.length+" micros." : "Un micro, sin nombre.");
+    }).catch(function(){
+      fail("Sin permiso no aparece el micro USB ni el Bluetooth.");
+    });
+  };
+  fillMics();
+
+  function stopRec(){
+    recording=false;
+    $("rec").textContent="Grabar las dos";
+    if(recIn && recIn.state!=="inactive") recIn.stop();
+    if(recOut && recOut.state!=="inactive") recOut.stop();
+    if(micStream) micStream.getTracks().forEach(function(t){ t.stop(); });
+    micStream=null; micGain=null; micDest=null; meterAnalyser=null;
+    if(master && insideDest){ try{ master.disconnect(insideDest); }catch(e){} }
+    insideDest=null;
+    cancelAnimationFrame(meterTimer);
+    paintMeter();
+  }
+
+  function begin(stream){
+    var ac=ensure();
+    micStream=stream;
+    var src=ac.createMediaStreamSource(stream);
+    micGain=ac.createGain();
+    micGain.gain.value=+$("gain-out").value/100;
+    micDest=ac.createMediaStreamDestination();
+    var an=ac.createAnalyser(); an.fftSize=2048;
+    src.connect(micGain); micGain.connect(micDest); micGain.connect(an);
+    meterAnalyser=an;
+    if(insideDest){ try{ master.disconnect(insideDest); }catch(e){} }
+    insideDest=ac.createMediaStreamDestination();
+    master.connect(insideDest);
+    var mt=mime();
+    chunksIn=[]; chunksOut=[]; blobIn=null; blobOut=null;
+    recIn=mt? new MediaRecorder(insideDest.stream,{mimeType:mt}) : new MediaRecorder(insideDest.stream);
+    recOut=mt? new MediaRecorder(micDest.stream,{mimeType:mt}) : new MediaRecorder(micDest.stream);
+    arm(recIn, chunksIn, "in");
+    arm(recOut, chunksOut, "out");
+    recIn.start(250); recOut.start(250);
+    recording=true;
+    $("rec").textContent="Parar";
+    say("Grabando. Dentro y fuera, a la vez.");
+    (function loop(){ if(!recording) return; paintMeter(); meterTimer=requestAnimationFrame(loop); })();
+    if(audioEl && audioEl.paused) audioEl.play().catch(function(){});
+  }
+
+  $("rec").onclick=function(){
+    fail("");
+    if(recording){ stopRec(); return; }
+    if(!navigator.mediaDevices||!window.MediaRecorder){
+      fail("Este navegador no graba.");
+      return;
+    }
+    ensure();
+    var audio={ echoCancellation:false, noiseSuppression:false, autoGainControl:false };
+    var id=$("mic").value;
+    if(id) audio.deviceId={ exact:id };
+    navigator.mediaDevices.getUserMedia({audio:audio}).then(begin).catch(function(){
+      if(!id){ fail("No se abrió el micro."); return; }
+      navigator.mediaDevices.getUserMedia({
+        audio:{ echoCancellation:false, noiseSuppression:false, autoGainControl:false }
+      }).then(begin).catch(function(){ fail("No se abrió el micro."); });
+    });
+  };
+
+  function arm(rec, chunks, kind){
+    rec.ondataavailable=function(e){ if(e.data&&e.data.size) chunks.push(e.data); };
+    rec.addEventListener("stop", function(){
+      var m=rec.mimeType||"audio/webm";
+      var blob=new Blob(chunks, {type:m});
+      if(kind==="in") blobIn=blob; else blobOut=blob;
+      if(blobIn && blobOut) showTakes();
+    });
+  }
+
+  function showTakes(){
+    urls.forEach(function(u){ URL.revokeObjectURL(u); });
+    urls=[];
+    var u1=URL.createObjectURL(blobIn), u2=URL.createObjectURL(blobOut);
+    urls=[u1,u2];
+    $("hear-in").src=u1; $("hear-out").src=u2;
+    var e1=ext(blobIn.type), e2=ext(blobOut.type);
+    $("dl-in").href=u1; $("dl-in").download="dentro."+e1;
+    $("dl-out").href=u2; $("dl-out").download="fuera."+e2;
+    $("takes").hidden=false;
+    say("Dos pistas. Dentro es la página. Fuera es el micro.");
+  }
+
+  $("mix-play").onclick=function(){
+    var a=$("hear-in"), b=$("hear-out");
+    a.volume=Math.min(1, $("mix-in").value/100);
+    b.volume=Math.min(1, $("mix-out").value/100);
+    a.currentTime=0; b.currentTime=0;
+    a.play(); b.play();
+  };
+
+  function wavFrom(buffer){
+    var ch=buffer.numberOfChannels, len=buffer.length, sr=buffer.sampleRate;
+    var data=new Int16Array(len*ch);
+    for(var c=0;c<ch;c++){
+      var src=buffer.getChannelData(c);
+      for(var i=0;i<len;i++){
+        var s=Math.max(-1, Math.min(1, src[i]||0));
+        data[i*ch+c]=s<0?s*0x8000:s*0x7fff;
+      }
+    }
+    var out=new ArrayBuffer(44+data.length*2);
+    var v=new DataView(out);
+    function str(o,s){ for(var i=0;i<s.length;i++) v.setUint8(o+i, s.charCodeAt(i)); }
+    str(0,"RIFF"); v.setUint32(4, 36+data.length*2, true); str(8,"WAVE");
+    str(12,"fmt "); v.setUint32(16,16,true); v.setUint16(20,1,true);
+    v.setUint16(22,ch,true); v.setUint32(24,sr,true);
+    v.setUint32(28, sr*ch*2, true); v.setUint16(32, ch*2, true); v.setUint16(34,16,true);
+    str(36,"data"); v.setUint32(40, data.length*2, true);
+    var off=44;
+    for(i=0;i<data.length;i++){ v.setInt16(off, data[i], true); off+=2; }
+    return new Blob([out], {type:"audio/wav"});
+  }
+
+  $("mix-dl").onclick=function(){
+    $("mix-msg").textContent="Mezclando…";
+    if(!blobIn||!blobOut) return;
+    var ac=new (window.AudioContext||window.webkitAudioContext)();
+    Promise.all([blobIn.arrayBuffer(), blobOut.arrayBuffer()]).then(function(bufs){
+      return Promise.all([
+        ac.decodeAudioData(bufs[0].slice(0)),
+        ac.decodeAudioData(bufs[1].slice(0))
+      ]);
+    }).then(function(pair){
+      var len=Math.max(pair[0].length, pair[1].length);
+      var off=new OfflineAudioContext(2, len, pair[0].sampleRate);
+      function add(buf, gain){
+        var s=off.createBufferSource(); s.buffer=buf;
+        var g=off.createGain(); g.gain.value=gain;
+        s.connect(g); g.connect(off.destination); s.start();
+      }
+      add(pair[0], $("mix-in").value/100);
+      add(pair[1], $("mix-out").value/100);
+      return off.startRendering();
+    }).then(function(rendered){
+      var wav=wavFrom(rendered);
+      var u=URL.createObjectURL(wav);
+      var a=document.createElement("a");
+      a.href=u; a.download="mezcla.wav"; a.click();
+      $("mix-msg").textContent="Mezcla en WAV.";
+    }).catch(function(){
+      $("mix-msg").textContent="Este navegador no junta el formato. Baja las dos pistas.";
+    });
+  };
+})();
+</script>
+</body>
+</html>
