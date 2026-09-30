@@ -130,14 +130,15 @@ def inject_embedded(shell: str, embedded: dict[str, str]) -> str:
 def write_leeme() -> str:
     return """═══════════════════════════════════════
   ESCRITORIO / ESTANTERÍA — Les vencimos
-  Build v20261001a
+  Build v20261001d
   UN SOLO HTML (módulos dentro)
 ═══════════════════════════════════════
 
-Este ZIP lleva esencialmente UN archivo:
+Este ZIP lleva:
   ABRE-AQUI.html  (= estanteria.html)
   estanteria.html
   LEEME.txt
+  brand/splash/entrada.mp4 + entrada-sonido.m4a  (intro; si falta, stub)
 
 Baldas deslizables por tema, con etiqueta tipográfica
 (Escritura · Ocio · Casa · Salud · Varios). Desliza
@@ -189,7 +190,7 @@ Al tocar un icono se abren en la misma página
 
 Profesor / ESO son grandes: descarga aparte en
 lesvencimos.com/descargas.html y ábrelos con
-«Archivo local» arriba, uno cada vez.
+«Añadir» arriba (HTML o ZIP bajado de lesvencimos.com).
 
 ─── Android — pasos ───
 
@@ -289,15 +290,27 @@ def main() -> None:
 
     if OUT.exists():
         OUT.unlink()
+    splash_dir_src = ROOT / "brand" / "splash"
+    splash_dir = STAGING / "brand" / "splash"
+    for splash_name in ("entrada.mp4", "entrada-sonido.m4a"):
+        splash_src = splash_dir_src / splash_name
+        if splash_src.exists():
+            splash_dir.mkdir(parents=True, exist_ok=True)
+            shutil.copy2(splash_src, splash_dir / splash_name)
+
     with zipfile.ZipFile(OUT, "w", compression=zipfile.ZIP_DEFLATED) as z:
         for name in ("LEEME.txt", "ABRE-AQUI.html", "estanteria.html"):
             z.write(STAGING / name, arcname=name)
+        for splash_name in ("entrada.mp4", "entrada-sonido.m4a"):
+            splash_staged = splash_dir / splash_name
+            if splash_staged.exists():
+                z.write(splash_staged, arcname=f"brand/splash/{splash_name}")
 
     shutil.copy2(STAGING / "LEEME.txt", ROOT / "downloads" / "LEEME-estanteria.txt")
     shutil.rmtree(STAGING)
 
     # Also keep last lettered snapshot name pointing at same bytes (bookmarks).
-    snapshot = ROOT / "downloads" / "estanteria-offline-v20261001a.zip"
+    snapshot = ROOT / "downloads" / "estanteria-offline-v20261001d.zip"
     shutil.copy2(OUT, snapshot)
     print(f"Wrote {OUT} ({OUT.stat().st_size} bytes)")
     print(f"Snapshot {snapshot}")

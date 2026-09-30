@@ -445,6 +445,14 @@
     padding-left: 0.55rem;
     padding-right: 0.55rem;
   }
+  .ajustes-backup-hint {
+    flex: 0 1 auto;
+    max-width: 16rem;
+    font: 500 0.68rem/1.25 var(--sans);
+    color: var(--suave);
+    padding: 0.15rem 0.35rem;
+    white-space: normal;
+  }
   #desktop.ajustes-hidden #desk-ajustes-bar { display: none; }
   #btn-show-ajustes {
     display: none;
@@ -585,20 +593,20 @@
   }
   #lv-entry-splash.fallback .lv-splash-stub { display: block; }
   #lv-entry-splash.fallback video { display: none; }
-  /* Hide residual mango/U below ground; lema sits in that zone */
+  /* Hide only the U-hook below the platform; never mask the figures' legs. */
   #lv-entry-splash .lv-splash-handle-mask {
     position: absolute; z-index: 1; pointer-events: none;
-    left: 50%; bottom: 0; transform: translateX(-50%);
-    width: min(52vw, 15rem); height: 26%;
+    left: 50%; top: 77%; transform: translateX(-50%);
+    width: min(34vw, 9rem); height: 12.5%;
     background: #000;
   }
   #lv-entry-splash .lv-splash-brand {
     position: absolute; inset: 0; z-index: 2;
     pointer-events: none; text-align: center; padding: 0;
   }
-  /* Title sits ON canopy fabric (upper/center), not over the figures */
+  /* Title sits ON the light canopy fabric, clear of the figures. */
   #lv-entry-splash .lv-splash-word {
-    position: absolute; left: 50%; top: 26%;
+    position: absolute; left: 50%; top: 35%;
     transform: translate(-50%, -50%);
     width: min(92vw, 22rem); margin: 0;
     font-family: var(--serif); font-weight: 700;
@@ -609,13 +617,13 @@
       0 1px 0 rgba(230,225,214,.55),
       0 0 22px rgba(196,161,90,.4);
   }
-  /* Lema large in former handle / below-ground zone */
+  /* Lema medio — layout b, zona bajo toldo / sin mango */
   #lv-entry-splash .lv-splash-lema {
     position: absolute; left: 50%; bottom: 9%;
     transform: translateX(-50%);
     width: min(94vw, 26rem); margin: 0;
     color: var(--acento);
-    font-size: clamp(1.25rem, 5vw, 1.85rem);
+    font-size: clamp(1.35rem, 5.2vw, 2rem);
     letter-spacing: .06em; font-weight: 600;
     text-shadow: 0 2px 18px rgba(0,0,0,.9), 0 0 2px #000;
   }
@@ -2469,11 +2477,11 @@
   </style>
 </head>
 <body class="theme-ambar">
-    <div id="lv-entry-splash" hidden>
+  <div id="lv-entry-splash" hidden>
     <video id="lv-splash-vid" playsinline muted autoplay preload="auto">
-      <source src="/brand/splash/entrada.mp4?v=20261001a" type="video/mp4">
+      <source src="brand/splash/entrada.mp4?v=20261001d" type="video/mp4">
     </video>
-    <audio id="lv-splash-audio" preload="auto" src="/brand/splash/entrada-sonido.m4a?v=20261001a"></audio>
+    <audio id="lv-splash-audio" preload="auto" src="brand/splash/entrada-sonido.m4a?v=20261001d"></audio>
     <div class="lv-splash-stub" aria-hidden="true"></div>
     <div class="lv-splash-handle-mask" aria-hidden="true"></div>
     <div class="lv-splash-brand">
@@ -2514,8 +2522,8 @@
         <div class="desk-toolbar" id="desk-toolbar" role="toolbar" aria-label="Herramientas del escritorio">
           <button type="button" id="btn-modulos" aria-expanded="false">Módulos</button>
           <button type="button" id="btn-widgets" aria-expanded="false">Widgets</button>
-          <label class="file-btn" for="local-file">Archivo local</label>
-          <input id="local-file" type="file" accept=".html,.htm,text/html">
+          <label class="file-btn" for="local-file" title="HTML o ZIP bajado de lesvencimos.com" aria-label="Añadir módulo HTML o ZIP bajado de lesvencimos.com">Añadir</label>
+          <input id="local-file" type="file" accept=".html,.htm,text/html,.zip,application/zip,application/x-zip-compressed">
           <select id="theme-sel" class="theme-sel" aria-label="Fondo del escritorio" title="Fondo del escritorio" hidden>
             <option value="ambar">Ámbar</option>
             <option value="azul">Mesa oscura</option>
@@ -2560,7 +2568,7 @@
             <button type="button" class="panel-close" data-close-panel="m" aria-label="Cerrar">✕</button>
           </div>
           <div id="mod-chips" class="chip-list"></div>
-          <p class="hint">Para <strong>restaurar</strong> un módulo quitado. Van dentro de este HTML. Profesor es descarga aparte. También «Archivo local».</p>
+          <p class="hint">Para <strong>restaurar</strong> un módulo quitado. Van dentro de este HTML. Profesor es descarga aparte. También «Añadir».</p>
         </div>
         <div id="panel-widgets" class="add-panel" role="region" aria-labelledby="panel-widgets-title" aria-hidden="true">
           <div class="panel-head">
@@ -2599,7 +2607,7 @@
       </div>
     </div>
 
-    <footer class="site-foot"><span class="wordmark">Les vencimos</span> · escritorio / estantería offline · <span id="est-build">v20260930n</span></footer>
+    <footer class="site-foot"><span class="wordmark">Les vencimos</span> · escritorio / estantería offline · <span id="est-build">v20261001d</span></footer>
   </div>
 
   <div id="mod-viewer" role="dialog" aria-modal="true" aria-labelledby="mod-viewer-title" hidden>
@@ -3057,6 +3065,309 @@
           tx.oncomplete = function () { resolve(); };
           tx.onerror = function () { reject(tx.error); };
         });
+      });
+    }
+
+    /* —— Copia de seguridad local (sin red) —— */
+    var BACKUP_FORMAT = 'lesvencimos-estanteria-backup';
+    var BACKUP_VERSION = 1;
+    var BACKUP_FILENAME = 'les-vencimos-estanteria-backup.json';
+    var BACKUP_LS_KEYS = [LS_KEY, 'lv-notas-v1', 'lv-notas-ui-v1', 'lv-medicacion-v1'];
+
+    function idbGetAll() {
+      return openDb().then(function (db) {
+        return new Promise(function (resolve, reject) {
+          var tx = db.transaction(IDB_STORE, 'readonly');
+          var store = tx.objectStore(IDB_STORE);
+          if (typeof store.getAll === 'function') {
+            var req = store.getAll();
+            req.onsuccess = function () { resolve(req.result || []); };
+            req.onerror = function () { reject(req.error); };
+            return;
+          }
+          var out = [];
+          var cursorReq = store.openCursor();
+          cursorReq.onsuccess = function () {
+            var cur = cursorReq.result;
+            if (cur) { out.push(cur.value); cur.continue(); }
+            else resolve(out);
+          };
+          cursorReq.onerror = function () { reject(cursorReq.error); };
+        });
+      });
+    }
+
+    function idbClearStore() {
+      return openDb().then(function (db) {
+        return new Promise(function (resolve, reject) {
+          var tx = db.transaction(IDB_STORE, 'readwrite');
+          tx.objectStore(IDB_STORE).clear();
+          tx.oncomplete = function () { resolve(); };
+          tx.onerror = function () { reject(tx.error); };
+        });
+      });
+    }
+
+    function bytesToBase64(u8) {
+      var CHUNK = 0x8000;
+      var parts = [];
+      for (var i = 0; i < u8.length; i += CHUNK) {
+        parts.push(String.fromCharCode.apply(null, u8.subarray(i, i + CHUNK)));
+      }
+      return btoa(parts.join(''));
+    }
+
+    function base64ToBytes(b64) {
+      var bin = atob(b64 || '');
+      var u8 = new Uint8Array(bin.length);
+      for (var i = 0; i < bin.length; i++) u8[i] = bin.charCodeAt(i);
+      return u8;
+    }
+
+    function readBlobAsArrayBuffer(blob) {
+      if (blob && typeof blob.arrayBuffer === 'function') {
+        return blob.arrayBuffer();
+      }
+      return new Promise(function (resolve, reject) {
+        var fr = new FileReader();
+        fr.onload = function () { resolve(fr.result); };
+        fr.onerror = function () { reject(fr.error || new Error('FileReader')); };
+        fr.readAsArrayBuffer(blob);
+      });
+    }
+
+    function serializeIdbBlob(blob) {
+      return new Promise(function (resolve, reject) {
+        if (blob == null) {
+          resolve({ encoding: 'text', data: '' });
+          return;
+        }
+        if (typeof blob === 'string') {
+          resolve({ encoding: 'text', data: blob });
+          return;
+        }
+        if (typeof Blob !== 'undefined' && blob instanceof Blob) {
+          readBlobAsArrayBuffer(blob).then(function (buf) {
+            resolve({ encoding: 'base64', data: bytesToBase64(new Uint8Array(buf)) });
+          }).catch(reject);
+          return;
+        }
+        if (typeof ArrayBuffer !== 'undefined' && blob instanceof ArrayBuffer) {
+          resolve({ encoding: 'base64', data: bytesToBase64(new Uint8Array(blob)) });
+          return;
+        }
+        if (ArrayBuffer.isView && ArrayBuffer.isView(blob)) {
+          resolve({ encoding: 'base64', data: bytesToBase64(new Uint8Array(blob.buffer, blob.byteOffset, blob.byteLength)) });
+          return;
+        }
+        try {
+          resolve({ encoding: 'text', data: String(blob) });
+        } catch (e) {
+          reject(e);
+        }
+      });
+    }
+
+    function deserializeIdbBlob(rec) {
+      var enc = rec.encoding || (rec.blobBase64 ? 'base64' : 'text');
+      var data = rec.data != null ? rec.data : (rec.blobBase64 || rec.blob || '');
+      var mime = rec.mime || 'application/octet-stream';
+      if (enc === 'base64') {
+        var u8 = base64ToBytes(data);
+        return new Blob([u8], { type: mime });
+      }
+      return data;
+    }
+
+    function collectBackupLocalStorage() {
+      var out = {};
+      BACKUP_LS_KEYS.forEach(function (k) {
+        try {
+          var v = localStorage.getItem(k);
+          if (v != null) out[k] = v;
+        } catch (e) {}
+      });
+      return out;
+    }
+
+    function buildBackupPayload() {
+      return idbGetAll().then(function (rows) {
+        var chain = Promise.resolve();
+        var records = [];
+        (rows || []).forEach(function (row) {
+          chain = chain.then(function () {
+            return serializeIdbBlob(row && row.blob).then(function (ser) {
+              records.push({
+                id: row.id,
+                name: row.name || '',
+                mime: row.mime || '',
+                encoding: ser.encoding,
+                data: ser.data
+              });
+            });
+          });
+        });
+        return chain.then(function () {
+          return {
+            format: BACKUP_FORMAT,
+            version: BACKUP_VERSION,
+            exportedAt: new Date().toISOString(),
+            localStorage: collectBackupLocalStorage(),
+            indexedDB: {
+              name: IDB_NAME,
+              store: IDB_STORE,
+              records: records
+            }
+          };
+        });
+      });
+    }
+
+    function triggerLocalDownload(blob, filename) {
+      var name = filename || BACKUP_FILENAME;
+      if (window.showSaveFilePicker) {
+        return window.showSaveFilePicker({
+          suggestedName: name,
+          types: [{ description: 'Copia Estantería', accept: { 'application/json': ['.json', '.lvbackup.json'] } }]
+        }).then(function (handle) {
+          return handle.createWritable().then(function (w) {
+            return w.write(blob).then(function () { return w.close(); });
+          });
+        }).catch(function (err) {
+          if (err && (err.name === 'AbortError' || err.name === 'NotAllowedError')) return;
+          fallbackAnchorDownload(blob, name);
+        });
+      }
+      fallbackAnchorDownload(blob, name);
+      return Promise.resolve();
+    }
+
+    function fallbackAnchorDownload(blob, filename) {
+      var url = URL.createObjectURL(blob);
+      var a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      a.rel = 'noopener';
+      a.style.display = 'none';
+      document.body.appendChild(a);
+      a.click();
+      setTimeout(function () {
+        try { URL.revokeObjectURL(url); } catch (e) {}
+        try { a.remove(); } catch (e2) {}
+      }, 2500);
+    }
+
+    function exportEstanteriaBackup() {
+      showToast('Preparando copia…');
+      return buildBackupPayload().then(function (payload) {
+        var json = JSON.stringify(payload, null, 2);
+        var blob = new Blob([json], { type: 'application/json;charset=utf-8' });
+        return triggerLocalDownload(blob, BACKUP_FILENAME).then(function () {
+          showToast('Copia lista · ' + BACKUP_FILENAME);
+        });
+      }).catch(function () {
+        showToast('No se pudo exportar');
+      });
+    }
+
+    function validateBackupPayload(data) {
+      if (!data || typeof data !== 'object') return 'Archivo no válido.';
+      if (data.format !== BACKUP_FORMAT) {
+        return 'No es una copia de Estantería (formato desconocido).';
+      }
+      var ver = Number(data.version);
+      if (!ver || ver > BACKUP_VERSION) {
+        return 'Versión de copia no compatible (v' + (data.version || '?') + ').';
+      }
+      if (!data.localStorage || typeof data.localStorage !== 'object') {
+        return 'Copia incompleta (falta localStorage).';
+      }
+      return null;
+    }
+
+    function applyBackupPayload(data) {
+      var err = validateBackupPayload(data);
+      if (err) return Promise.reject(new Error(err));
+
+      var ls = data.localStorage || {};
+      BACKUP_LS_KEYS.forEach(function (k) {
+        try {
+          if (Object.prototype.hasOwnProperty.call(ls, k) && ls[k] != null) {
+            var val = ls[k];
+            localStorage.setItem(k, typeof val === 'string' ? val : JSON.stringify(val));
+          }
+        } catch (eLs) {}
+      });
+      /* Main shelf key must exist after restore when present in file */
+      try {
+        if (ls[LS_KEY] != null) {
+          var main = ls[LS_KEY];
+          localStorage.setItem(LS_KEY, typeof main === 'string' ? main : JSON.stringify(main));
+        }
+      } catch (eMain) {}
+
+      var idbBlock = data.indexedDB || {};
+      var records = idbBlock.records || idbBlock.files || [];
+      if (!Array.isArray(records)) records = [];
+
+      return idbClearStore().then(function () {
+        var chain = Promise.resolve();
+        records.forEach(function (rec) {
+          if (!rec || rec.id == null) return;
+          chain = chain.then(function () {
+            var blobVal = deserializeIdbBlob(rec);
+            return idbPut({
+              id: rec.id,
+              name: rec.name || '',
+              mime: rec.mime || '',
+              blob: blobVal
+            });
+          });
+        });
+        return chain;
+      });
+    }
+
+    function importEstanteriaBackupFile(file) {
+      if (!file) return Promise.resolve();
+      return new Promise(function (resolve, reject) {
+        var reader = new FileReader();
+        reader.onload = function () {
+          var text = String(reader.result || '');
+          var data;
+          try {
+            data = JSON.parse(text);
+          } catch (eParse) {
+            reject(new Error('El archivo no es JSON válido.'));
+            return;
+          }
+          var verr = validateBackupPayload(data);
+          if (verr) {
+            reject(new Error(verr));
+            return;
+          }
+          var ok = window.confirm(
+            'Esto sustituye los datos de Estantería en este aparato (baldas, notas, módulos añadidos).\n\n¿Restaurar esta copia?'
+          );
+          if (!ok) {
+            resolve({ cancelled: true });
+            return;
+          }
+          applyBackupPayload(data).then(function () {
+            resolve({ ok: true });
+          }).catch(reject);
+        };
+        reader.onerror = function () { reject(new Error('No se pudo leer el archivo.')); };
+        reader.readAsText(file);
+      }).then(function (res) {
+        if (res && res.cancelled) {
+          showToast('Restauración cancelada');
+          return;
+        }
+        showToast('Datos restaurados · recargando…');
+        setTimeout(function () { location.reload(); }, 450);
+      }).catch(function (err) {
+        showToast((err && err.message) || 'No se pudo restaurar');
       });
     }
 
@@ -6331,7 +6642,7 @@
         var tip = '<h2>' + escapeHtml(title) + '</h2>' +
           '<p>Este módulo es grande y va en un ZIP aparte (no cabe cómodo en el HTML único).</p>' +
           '<p>Descárgalo desde <strong>lesvencimos.com/descargas.html</strong> → Profesor / Educación según corresponda, ' +
-          'descomprime y ábrelos desde «Archivo local» arriba, uno cada vez.</p>' +
+          'ábrelos con «Añadir» arriba (HTML o ZIP bajado de lesvencimos.com).</p>' +
           '<p>Los demás módulos (Gimnasio, Guitarra, Caja fuerte, Calculadora…) ya están <strong>dentro de este mismo archivo</strong>.</p>';
         if (location.protocol === 'content:') {
           tip += '<p><strong>Tip:</strong> aunque estés en content://, los módulos embebidos sí abren aquí. ' +
@@ -6824,6 +7135,37 @@
         renderDesktop();
       }, state.deskFont === 'serif'));
 
+      icons.appendChild(mkBtn('Exportar datos', 'Copia de seguridad en un archivo (solo este aparato)', function () {
+        exportEstanteriaBackup();
+      }));
+
+      var restoreWrap = document.createElement('label');
+      restoreWrap.className = 'ajustes-chip';
+      restoreWrap.title = 'Restaurar desde un archivo de copia';
+      restoreWrap.setAttribute('aria-label', 'Restaurar datos');
+      restoreWrap.style.cursor = 'pointer';
+      restoreWrap.style.position = 'relative';
+      var restoreTxt = document.createElement('span');
+      restoreTxt.textContent = 'Restaurar datos';
+      restoreWrap.appendChild(restoreTxt);
+      var restoreInput = document.createElement('input');
+      restoreInput.type = 'file';
+      restoreInput.accept = '.json,.lvbackup.json,application/json,text/json';
+      restoreInput.style.cssText = 'position:absolute;inset:0;opacity:0;width:100%;height:100%;cursor:pointer;';
+      restoreInput.setAttribute('aria-hidden', 'true');
+      restoreInput.tabIndex = -1;
+      restoreInput.addEventListener('change', function () {
+        var f = restoreInput.files && restoreInput.files[0];
+        restoreInput.value = '';
+        if (f) importEstanteriaBackupFile(f);
+      });
+      restoreWrap.appendChild(restoreInput);
+      icons.appendChild(restoreWrap);
+
+      var hint = document.createElement('span');
+      hint.className = 'ajustes-backup-hint';
+      hint.textContent = 'Solo en este aparato. El archivo lo puedes copiar a un pincho o por Bluetooth. Nada se envía a internet.';
+      icons.appendChild(hint);
 
       bar.appendChild(icons);
       return bar;
@@ -7488,7 +7830,7 @@
       idbGet(id).then(function (rec) {
         if (!rec || !rec.blob) { alert('No está el archivo en este navegador.'); return; }
         var it = findItem(id);
-        var title = (it && it.titulo) || (rec.name) || 'Archivo local';
+        var title = (it && it.titulo) || (rec.name) || 'Añadir';
         var reader = new FileReader();
         reader.onload = function () {
           showModuleViewer(title, String(reader.result || ''), null);
@@ -7565,9 +7907,180 @@
 
     function titleFromName(name) {
       var base = String(name || 'modulo').replace(/\.(html?|HTML?)$/, '');
+      base = base.replace(/^.*[\\\/]/, ''); /* basename if path */
       base = base.replace(/[-_]+/g, ' ').trim();
       if (!base) return 'Módulo local';
       return base.charAt(0).toUpperCase() + base.slice(1);
+    }
+
+    function zipReadU16(u8, o) { return u8[o] | (u8[o + 1] << 8); }
+    function zipReadU32(u8, o) {
+      return (u8[o] | (u8[o + 1] << 8) | (u8[o + 2] << 16) | (u8[o + 3] << 24)) >>> 0;
+    }
+
+    function zipDecodeName(bytes, generalFlag) {
+      var utf8 = (generalFlag & 0x800) !== 0;
+      try {
+        return new TextDecoder(utf8 ? 'utf-8' : 'iso-8859-1').decode(bytes);
+      } catch (e) {
+        var s = '';
+        for (var i = 0; i < bytes.length; i++) s += String.fromCharCode(bytes[i]);
+        return s;
+      }
+    }
+
+    function zipInflateRaw(u8) {
+      if (typeof DecompressionStream === 'undefined') {
+        return Promise.reject(new Error('Este navegador no puede abrir ZIP offline'));
+      }
+      var stream = new Blob([u8]).stream().pipeThrough(new DecompressionStream('deflate-raw'));
+      return new Response(stream).arrayBuffer().then(function (buf) {
+        return new Uint8Array(buf);
+      });
+    }
+
+    /** Parse ZIP (store + deflate) in-browser. No network, no JSZip. */
+    function unzipArrayBuffer(buf) {
+      var u8 = new Uint8Array(buf);
+      var eocd = -1;
+      var minScan = Math.max(0, u8.length - 65557);
+      for (var i = u8.length - 22; i >= minScan; i--) {
+        if (zipReadU32(u8, i) === 0x06054b50) { eocd = i; break; }
+      }
+      if (eocd < 0) return Promise.reject(new Error('ZIP no válido'));
+      var cdOffset = zipReadU32(u8, eocd + 16);
+      var cdEntries = zipReadU16(u8, eocd + 10);
+      var list = [];
+      var o = cdOffset;
+      for (var n = 0; n < cdEntries; n++) {
+        if (o + 46 > u8.length || zipReadU32(u8, o) !== 0x02014b50) {
+          return Promise.reject(new Error('ZIP dañado'));
+        }
+        var method = zipReadU16(u8, o + 10);
+        var general = zipReadU16(u8, o + 8);
+        var compSize = zipReadU32(u8, o + 20);
+        var uncompSize = zipReadU32(u8, o + 24);
+        var nameLen = zipReadU16(u8, o + 28);
+        var extraLen = zipReadU16(u8, o + 30);
+        var commentLen = zipReadU16(u8, o + 32);
+        var localOff = zipReadU32(u8, o + 42);
+        var name = zipDecodeName(u8.subarray(o + 46, o + 46 + nameLen), general);
+        list.push({ name: name, method: method, compSize: compSize, uncompSize: uncompSize, localOff: localOff });
+        o += 46 + nameLen + extraLen + commentLen;
+      }
+      return Promise.all(list.map(function (ent) {
+        if (/\/$/.test(ent.name)) {
+          return Promise.resolve({ name: ent.name, bytes: null, dir: true });
+        }
+        var lo = ent.localOff;
+        if (lo + 30 > u8.length || zipReadU32(u8, lo) !== 0x04034b50) {
+          return Promise.reject(new Error('ZIP: cabecera local'));
+        }
+        var lNameLen = zipReadU16(u8, lo + 26);
+        var lExtraLen = zipReadU16(u8, lo + 28);
+        var dataStart = lo + 30 + lNameLen + lExtraLen;
+        var data = u8.subarray(dataStart, dataStart + ent.compSize);
+        if (ent.method === 0) {
+          return Promise.resolve({ name: ent.name, bytes: data.slice(0), dir: false });
+        }
+        if (ent.method === 8) {
+          return zipInflateRaw(data).then(function (raw) {
+            return { name: ent.name, bytes: raw, dir: false };
+          });
+        }
+        return Promise.reject(new Error('ZIP: compresión no soportada (' + ent.method + ')'));
+      }));
+    }
+
+    function zipBasename(path) {
+      var p = String(path || '').replace(/\\/g, '/');
+      var parts = p.split('/');
+      return parts[parts.length - 1] || '';
+    }
+
+    function zipIsJunkPath(path) {
+      var p = String(path || '').replace(/\\/g, '/');
+      if (!p || /\/$/.test(p)) return true;
+      var low = p.toLowerCase();
+      if (low.indexOf('__macosx/') === 0 || low.indexOf('__macosx/') >= 0) return true;
+      var base = zipBasename(p);
+      if (!base || base.charAt(0) === '.') return true;
+      if (/^leeme/i.test(base)) return true;
+      return false;
+    }
+
+    function zipIsHtmlPath(path) {
+      return /\.html?$/i.test(String(path || ''));
+    }
+
+    /** Completo / pack grande: no importar como módulos sueltos. */
+    function zipLooksLikeCompleto(htmlEntries) {
+      var i, e, base, size;
+      for (i = 0; i < htmlEntries.length; i++) {
+        e = htmlEntries[i];
+        base = zipBasename(e.name).toLowerCase();
+        size = (e.bytes && e.bytes.length) || 0;
+        if ((base === 'estanteria.html' || base === 'abre-aqui.html') && size >= 400000) {
+          return true;
+        }
+        if (base === 'estanteria.html' && size >= 100000) return true;
+      }
+      if (htmlEntries.length > 40) return true;
+      return false;
+    }
+
+    function zipPickHtmlModules(entries) {
+      var htmlAll = [];
+      var html = [];
+      var i, e, base, depth;
+      for (i = 0; i < entries.length; i++) {
+        e = entries[i];
+        if (!e || e.dir || !e.bytes) continue;
+        if (zipIsJunkPath(e.name) || !zipIsHtmlPath(e.name)) continue;
+        htmlAll.push(e);
+        base = zipBasename(e.name).toLowerCase();
+        if (base === 'estanteria.html') continue;
+        html.push(e);
+      }
+      if (zipLooksLikeCompleto(htmlAll)) {
+        var err = new Error('COMPLETO');
+        err.code = 'COMPLETO';
+        throw err;
+      }
+      if (!html.length) return html;
+      var root = [];
+      var nested = [];
+      for (i = 0; i < html.length; i++) {
+        e = html[i];
+        depth = String(e.name).replace(/\\/g, '/').split('/').filter(Boolean).length;
+        if (depth <= 1) root.push(e);
+        else nested.push(e);
+      }
+      if (nested.length && root.length) {
+        var onlyHubs = root.every(function (r) {
+          var b = zipBasename(r.name).toLowerCase().replace(/\.html?$/, '');
+          return b === 'abre-aqui' || b === 'index';
+        });
+        if (onlyHubs) return nested;
+      }
+      return html;
+    }
+
+    function importLocalHtmlFile(fileOrBlob, displayName) {
+      var name = displayName || (fileOrBlob && fileOrBlob.name) || 'modulo.html';
+      var id = 'local:' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 8);
+      var titulo = titleFromName(name);
+      var mime = (fileOrBlob && fileOrBlob.type) || 'text/html';
+      var blob = fileOrBlob;
+      return idbPut({ id: id, name: name, blob: blob, mime: mime || 'text/html' }).then(function () {
+        state.items.push({
+          id: id, type: 'module', kind: 'local', titulo: titulo, href: '',
+          icon: 'local', blurb: 'Añadir', shelf: 'varios',
+          view: 'icon', z: ++Z,
+          addedAt: new Date().toISOString()
+        });
+        return titulo;
+      });
     }
 
     function onFile(e) {
@@ -7577,25 +8090,80 @@
       e.target.value = '';
       if (!f) return;
       var low = (f.name || '').toLowerCase();
-      if (!/\.html?$/.test(low) && f.type !== 'text/html') {
-        if (err) err.textContent = 'Solo archivos .html / .htm';
+      var isZip = /\.zip$/.test(low) ||
+        f.type === 'application/zip' ||
+        f.type === 'application/x-zip-compressed';
+      var isHtml = /\.html?$/.test(low) || f.type === 'text/html';
+      if (!isZip && !isHtml) {
+        if (err) err.textContent = 'Solo archivos .html / .htm / .zip';
         return;
       }
-      var id = 'local:' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 8);
-      var titulo = titleFromName(f.name);
-      idbPut({ id: id, name: f.name, blob: f, mime: f.type || 'text/html' })
-        .then(function () {
-          state.items.push({
-            id: id, type: 'module', kind: 'local', titulo: titulo, href: '',
-            icon: 'local', blurb: 'Archivo local', shelf: 'varios',
-            view: 'icon', z: ++Z,
-            addedAt: new Date().toISOString()
+      if (isHtml) {
+        importLocalHtmlFile(f, f.name)
+          .then(function (titulo) {
+            saveState();
+            renderDesktop();
+            showToast('Añadido · ' + titulo);
+          })
+          .catch(function () {
+            if (err) err.textContent = 'No se pudo guardar en IndexedDB.';
           });
+        return;
+      }
+      /* ZIP de novedades / módulos — unzip en el navegador */
+      showToast('Leyendo ZIP…');
+      var readBuf = (typeof f.arrayBuffer === 'function')
+        ? f.arrayBuffer()
+        : new Promise(function (resolve, reject) {
+            var fr = new FileReader();
+            fr.onload = function () { resolve(fr.result); };
+            fr.onerror = function () { reject(fr.error || new Error('lectura')); };
+            fr.readAsArrayBuffer(f);
+          });
+      readBuf
+        .then(function (buf) { return unzipArrayBuffer(buf); })
+        .then(function (entries) {
+          var mods;
+          try {
+            mods = zipPickHtmlModules(entries);
+          } catch (ex) {
+            if (ex && ex.code === 'COMPLETO') {
+              var msg = 'Ese ZIP es la app Completa; descomprímelo y ábrelo aparte. Añadir es para módulos sueltos.';
+              if (err) err.textContent = msg;
+              showToast(msg);
+              return null;
+            }
+            throw ex;
+          }
+          if (!mods || !mods.length) {
+            if (err) err.textContent = 'No hay HTML de módulo en ese ZIP.';
+            showToast('ZIP sin módulos HTML');
+            return null;
+          }
+          var chain = Promise.resolve();
+          var titles = [];
+          mods.forEach(function (m) {
+            chain = chain.then(function () {
+              var base = zipBasename(m.name) || 'modulo.html';
+              var blob = new Blob([m.bytes], { type: 'text/html' });
+              return importLocalHtmlFile(blob, base).then(function (t) {
+                titles.push(t);
+              });
+            });
+          });
+          return chain.then(function () { return titles; });
+        })
+        .then(function (titles) {
+          if (!titles) return;
           saveState();
           renderDesktop();
+          if (titles.length === 1) showToast('Añadido · ' + titles[0]);
+          else showToast('Añadidos · ' + titles.length + ' módulos');
         })
-        .catch(function () {
-          if (err) err.textContent = 'No se pudo guardar en IndexedDB.';
+        .catch(function (ex) {
+          var m = (ex && ex.message) || 'No se pudo abrir el ZIP.';
+          if (err) err.textContent = m;
+          showToast(m);
         });
     }
 
@@ -7786,7 +8354,7 @@
       });
     }
 
-    var EST_BUILD = 'v20260930n';
+    var EST_BUILD = 'v20261001d';
 
     function layoutPanelSheet() {
       var tb = document.getElementById('desk-toolbar');
@@ -7987,7 +8555,7 @@
       { id: 'profesor', label: 'Profesor', blurb: 'Hub educación' },
       { id: 'tinta-escritura', label: 'Escritura', blurb: 'Tinta escritura' }
     ];
-    var STARTER_DEFAULT = ['hogar', 'salud', 'medicacion', 'notas', 'biblioteca', 'mate-1eso'];
+    var STARTER_DEFAULT = ['hogar', 'salud', 'medicacion', 'notas', 'biblioteca', 'tinta-escritura'];
 
     function pushCatalogModule(id) {
       var mod = catalogById(id);
@@ -8098,7 +8666,7 @@
       function finish() {
         if (done) return;
         done = true;
-        try { sessionStorage.setItem('lv-splash-v4', '1'); } catch (e) {}
+        try { sessionStorage.setItem('lv-splash-v7', '1'); } catch (e) {}
         try { if (aud) { aud.pause(); aud.currentTime = 0; } } catch (eA) {}
         try { if (vid) { vid.pause(); } } catch (eV) {}
         if (splash) {
@@ -8114,7 +8682,7 @@
       }
 
       var skipSplash = false;
-      try { skipSplash = sessionStorage.getItem('lv-splash-v4') === '1'; } catch (e2) {}
+      try { skipSplash = sessionStorage.getItem('lv-splash-v7') === '1'; } catch (e2) {}
       if (skipSplash || !splash) {
         if (splash) splash.hidden = true;
         if (typeof thenFn === 'function') thenFn();
@@ -8969,7 +9537,7 @@
         }
 
         /* layoutRev 40: splash + primer uso (5–6 starters) · v20260930m */
-        /* layoutRev 41: splash canopy title + lema bottom · sin mango · v20260930n */
+        /* layoutRev 43: layout b restaurado · lema medio · vídeo+sonido Jorge · sin nubes · v20261001d */
         /* layoutRev 39: curiosidad cards (nombre grande · tap amplía · módulo) · Notas/Vaciar · v20260930m */
         if (typeof state.layoutRev !== 'number' || state.layoutRev < 39) {
           dockCuriosityExpanded = false;
