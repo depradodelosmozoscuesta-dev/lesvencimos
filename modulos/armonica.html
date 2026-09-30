@@ -95,12 +95,14 @@ footer {
   color: var(--suave); font-size: .75rem; letter-spacing: .08em; text-transform: uppercase;
 }
 @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
+
 .dual-box{background:var(--fondo-2,#161512);border:1px solid var(--linea,rgba(230,225,214,.14));border-radius:var(--radio,2px);padding:1rem;margin:1rem 0}
 .dual-box h2{margin:0 0 .55rem;font-size:.7rem;letter-spacing:.16em;text-transform:uppercase;color:var(--suave,#9A9488);font-weight:600}
 .dual-box .row{display:flex;flex-wrap:wrap;gap:.4rem;align-items:center;margin-top:.55rem}
 .dual-box a{color:var(--tinta,#E6E1D6);font-weight:700;font-size:.9rem}
-.dual-rec{appearance:none;min-height:44px;padding:.55rem 1rem;border-radius:var(--radio,2px);cursor:pointer;font:700 .9rem var(--sans,system-ui,sans-serif);border:1px solid var(--peligro,#C46A4A);background:var(--peligro,#C46A4A);color:var(--tinta,#E6E1D6)}
-.dual-rec.on{border-color:var(--acento,#C4A15A);background:var(--acento,#C4A15A);color:var(--acento-texto,#1A160E)}
+button.dual-rec{appearance:none;min-height:44px;padding:.55rem 1rem;border-radius:var(--radio,2px);cursor:pointer;font:700 .9rem var(--sans,system-ui,sans-serif);border:1px solid var(--peligro,#C46A4A);background:var(--peligro,#C46A4A);color:var(--tinta,#E6E1D6)}
+button.dual-rec.on{border-color:var(--acento,#C4A15A);background:var(--acento,#C4A15A);color:var(--acento-texto,#1A160E)}
+
 </style>
 </head>
 <body>
@@ -232,7 +234,8 @@ footer {
 
   <p class="hint">No hay tablaturas de canciones con derechos. No sustituye a un profesor. Limpia la armónica según el fabricante; no la hiervas «por si acaso».</p>
   <div class="row"><button class="ghost" type="button" id="btn-wipe">Borrar datos de este módulo</button></div>
-    <div class="dual-box" id="dual-box">
+  
+  <div class="dual-box" id="dual-box">
     <h2>Grabación · dos pistas</h2>
     <p class="hint" style="color:var(--suave,#9A9488);font-size:.84rem;margin:0">Dentro = lo que suena esta página. Fuera = micrófono. Spotify u otras apps no entran en Dentro; con altavoz el micro las oye en Fuera.</p>
     <div class="row">
@@ -246,17 +249,18 @@ footer {
       · <a href="grabadora.html">Mezclar en Grabadora</a>
     </div>
   </div>
-<footer>lesvencimos.com · armónica</footer>
+
+  <footer>lesvencimos.com · armónica · v20260930b</footer>
 </div>
 <script>
 (function(){
+
   var lvMaster=null;
   function lvEnsureMaster(ac){
     if(!ac) return null;
     if(!lvMaster){ lvMaster=ac.createGain(); lvMaster.gain.value=1; lvMaster.connect(ac.destination); }
     return lvMaster;
   }
-
   var NOTES=['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
   var ES=['Do','Do#','Re','Re#','Mi','Fa','Fa#','Sol','Sol#','La','La#','Si'];
   /* MIDI de Richter C: blow 1-10, draw 1-10 */
@@ -270,11 +274,7 @@ footer {
   };
   var st={tipo:localStorage.getItem('lv-h-tipo')||'diaC', tab:localStorage.getItem('lv-h-tab')||'camino', bpm:84, sig:'4/4', hole:3, way:'blow'};
   var ctx, timer=null, osc=null, playing=false;
-  function ensure(){
-    if(!ctx){ ctx = new (window.AudioContext||window.webkitAudioContext)(); lvEnsureMaster(ctx); }
-    if(ctx.state==='suspended') ctx.resume();
-    return ctx;
-  }
+  function ensure(){if(!ctx){ ctx=new (window.AudioContext||window.webkitAudioContext)(); lvEnsureMaster(ctx);} if(ctx.state==='suspended') ctx.resume(); return ctx;}
   function midiToFreq(m){return 440*Math.pow(2,(m-69)/12);}
   function beep(freq,dur,type,gain){
     var ac=ensure(); var o=ac.createOscillator(); var g=ac.createGain();
@@ -368,7 +368,6 @@ footer {
     localStorage.removeItem('lv-h-tipo'); localStorage.removeItem('lv-h-tab'); location.reload();
   };
   tiposUI(); tabs(); renderHoles();
-})();
 
   /* —— Grabar las dos: Dentro=Web Audio de la página, Fuera=mic —— */
   var lvDual=false, lvRecIn=null, lvRecOut=null;
@@ -464,7 +463,6 @@ footer {
   })();
 
 })();
-
 </script>
 </body>
 </html>
