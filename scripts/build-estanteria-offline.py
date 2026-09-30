@@ -19,6 +19,7 @@ EMBED_SOURCES = {
     "brico": ROOT / "modulos" / "bricolaje.html",
     "fontaneria": ROOT / "modulos" / "fontaneria.html",
     "jardin": ROOT / "modulos" / "jardin.html",
+    "conservacion": ROOT / "modulos" / "conservacion.html",
     "economia": ROOT / "modulos" / "economia.html",
     "clima": ROOT / "modulos" / "clima.html",
     "moda": ROOT / "modulos" / "moda.html",
@@ -129,7 +130,7 @@ def inject_embedded(shell: str, embedded: dict[str, str]) -> str:
 def write_leeme() -> str:
     return """═══════════════════════════════════════
   ESCRITORIO / ESTANTERÍA — Les vencimos
-  Build v20260930f
+  Build v20260930g
   UN SOLO HTML (módulos dentro)
 ═══════════════════════════════════════
 
@@ -175,9 +176,10 @@ Carpeta Mantenimiento de casa (balda Casa):
   · Internet — Sin red (comms offline)
 Carpeta Biblioteca (Escritura): Libros. Maridajes (Ocio): Tabaco.
 Ideas y Notas viven en Escritura. Notas no abre otra página:
-se escribe en el panel de abajo (lista, nota en blanco, se guarda
-en este aparato). Una carpeta u otra app reemplaza ese panel;
-Notas vuelve a abrirlo. Marca «Les vencimos» en el cromo.
+se escribe en el panel de abajo (+ Nueva nota, color, tipo,
+enlace, foto, QR; teclado arriba del panel). Si hay notas queda
+anclado. Conservación (botes · huerta) en Casa junto a Jardín.
+Marca «Les vencimos» en el cromo.
 Climatización = módulo clima. Higiene en Salud.
 Al tocar un icono se abren en la misma página
 (← Escritorio para volver).
@@ -246,7 +248,7 @@ def main() -> None:
         raise SystemExit("shell missing EMBEDDED placeholder (need estanteria.shell.html)")
 
     embedded = build_embedded()
-    for need in ("hogar", "salud", "qr", "electro", "brico", "fontaneria", "jardin", "economia", "clima", "moda", "legal", "mascotas", "campo", "supervive", "caja", "gym", "guitarra", "piano", "armonica", "saxofon", "bajo", "canto-solfeo", "historia-musica", "grabadora", "calc", "medica", "medita", "auxilios", "escritura", "dibujo", "info", "guias", "mapas", "biblio", "teatro", "tanteo", "higiene", "arte", "protocolo", "ideas", "tabaco", "comunicacion", "gas", "alto-rendimiento", "cocina-maestro", "musica", "bateria", "clasica", "dj", "electronica", "grupo", "teoria-musical", "cuidado-instrumentos", "reproductor"):
+    for need in ("hogar", "salud", "qr", "electro", "brico", "fontaneria", "jardin", "conservacion", "economia", "clima", "moda", "legal", "mascotas", "campo", "supervive", "caja", "gym", "guitarra", "piano", "armonica", "saxofon", "bajo", "canto-solfeo", "historia-musica", "grabadora", "calc", "medica", "medita", "auxilios", "escritura", "dibujo", "info", "guias", "mapas", "biblio", "teatro", "tanteo", "higiene", "arte", "protocolo", "ideas", "tabaco", "comunicacion", "gas", "alto-rendimiento", "cocina-maestro", "musica", "bateria", "clasica", "dj", "electronica", "grupo", "teoria-musical", "cuidado-instrumentos", "reproductor"):
         if need not in embedded:
             raise SystemExit(f"missing embed {need}")
 
@@ -291,7 +293,7 @@ def main() -> None:
     shutil.rmtree(STAGING)
 
     # Also keep last lettered snapshot name pointing at same bytes (bookmarks).
-    snapshot = ROOT / "downloads" / "estanteria-offline-v20260930f.zip"
+    snapshot = ROOT / "downloads" / "estanteria-offline-v20260930g.zip"
     shutil.copy2(OUT, snapshot)
     print(f"Wrote {OUT} ({OUT.stat().st_size} bytes)")
     print(f"Snapshot {snapshot}")

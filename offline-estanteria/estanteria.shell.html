@@ -1079,17 +1079,45 @@
     border-color: #C4A15A;
     background: #141414;
     color: #F2EFE6;
-    overflow: auto;
+    overflow: hidden;
     /* same reserved height as idle / folder-open — never shrink on keyboard */
     height: var(--folder-dock-h);
     min-height: var(--folder-dock-h);
     max-height: var(--folder-dock-h);
   }
-  body.notes-editing .folder-magic-pane {
-    /* keep dock stable while mobile keyboard / visualViewport resizes */
+  body.notes-editing .folder-magic-pane.is-notes {
     height: var(--folder-dock-h) !important;
     min-height: var(--folder-dock-h) !important;
     max-height: var(--folder-dock-h) !important;
+  }
+  /* Keyboard open: pin Notas inside the visualViewport so caret stays above keyboard */
+  body.notes-kb-open #folder-magic-pane.is-notes {
+    position: fixed !important;
+    left: 0.35rem !important;
+    right: 0.35rem !important;
+    width: auto !important;
+    top: var(--notes-kb-top, auto) !important;
+    bottom: auto !important;
+    height: var(--notes-kb-h, 42vh) !important;
+    min-height: 9rem !important;
+    max-height: var(--notes-kb-h, 42vh) !important;
+    margin: 0 !important;
+    z-index: 280 !important;
+    box-shadow: 0 8px 28px rgba(0,0,0,0.55);
+    flex: none !important;
+  }
+  body.notes-kb-open .shelf-row,
+  body.notes-kb-open #desk-ajustes-bar {
+    opacity: 0.18;
+    pointer-events: none;
+    filter: grayscale(0.35);
+  }
+  body.notes-kb-open #desktop.launcher {
+    overflow: hidden !important;
+  }
+  body.notes-kb-open #desk-status {
+    opacity: 0.35;
+    pointer-events: none;
   }
   @media (orientation: landscape) and (max-height: 480px) {
     .folder-magic-pane {
@@ -1117,7 +1145,9 @@
     justify-content: flex-end;
   }
   .notes-head-actions button,
-  .notes-editor .notes-del {
+  .notes-editor .notes-del,
+  .notes-meta button,
+  .notes-attach-row button {
     min-height: 36px;
     padding: 0.28rem 0.6rem;
     border-radius: 999px;
@@ -1127,10 +1157,40 @@
     font: 600 0.75rem var(--sans);
     cursor: pointer;
   }
-  .notes-head-actions button.primary {
+  .notes-head-actions button.primary,
+  .notes-empty-cta {
     border-color: #C4A15A;
     color: #C4A15A;
     background: color-mix(in srgb, #C4A15A 14%, #1c1c1c);
+  }
+  .notes-head-actions button.notes-new {
+    font-size: 0.82rem;
+    font-weight: 700;
+    padding: 0.32rem 0.75rem;
+    letter-spacing: 0.01em;
+  }
+  .notes-empty {
+    flex: 1 1 auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.55rem;
+    padding: 0.4rem;
+    text-align: center;
+  }
+  .notes-empty p {
+    margin: 0;
+    color: #bdb6a8;
+    font-size: 0.85rem;
+  }
+  .notes-empty-cta {
+    min-height: 44px;
+    padding: 0.45rem 1.1rem;
+    border-radius: 999px;
+    border: 1px solid #C4A15A;
+    font: 700 0.95rem var(--sans);
+    cursor: pointer;
   }
   .notes-row {
     display: flex;
@@ -1146,7 +1206,7 @@
     display: flex;
     flex-direction: column;
     gap: 0.25rem;
-    max-height: 12rem;
+    max-height: 100%;
     overflow: auto;
   }
   .notes-item {
@@ -1160,8 +1220,29 @@
     font: 600 0.75rem/1.2 var(--sans);
     cursor: pointer;
     overflow: hidden;
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+  }
+  .notes-item .notes-dot {
+    flex: 0 0 auto;
+    width: 0.55rem;
+    height: 0.55rem;
+    border-radius: 50%;
+    background: #C4A15A;
+  }
+  .notes-item .notes-item-label {
+    min-width: 0;
+    overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+  }
+  .notes-item .notes-type-badge {
+    flex: 0 0 auto;
+    font-size: 0.62rem;
+    opacity: 0.85;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
   }
   .notes-item.on {
     border-color: #C4A15A;
@@ -1175,12 +1256,94 @@
     display: flex;
     flex-direction: column;
     gap: 0.28rem;
-    overflow: hidden;
+    overflow: auto;
+  }
+  .notes-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.28rem;
+    align-items: center;
+    flex-shrink: 0;
+  }
+  .notes-colors {
+    display: inline-flex;
+    gap: 0.22rem;
+    align-items: center;
+  }
+  .notes-color-chip {
+    width: 1.15rem;
+    height: 1.15rem;
+    border-radius: 50%;
+    border: 2px solid #3a3428;
+    padding: 0;
+    cursor: pointer;
+    min-height: 0;
+    background: var(--chip, #C4A15A);
+  }
+  .notes-color-chip.on {
+    border-color: #F2EFE6;
+    box-shadow: 0 0 0 1px #C4A15A;
+  }
+  .notes-types {
+    display: inline-flex;
+    flex-wrap: wrap;
+    gap: 0.2rem;
+  }
+  .notes-type-btn {
+    min-height: 30px !important;
+    padding: 0.18rem 0.45rem !important;
+    font-size: 0.68rem !important;
+    opacity: 0.75;
+  }
+  .notes-type-btn.on {
+    opacity: 1;
+    border-color: #C4A15A;
+    color: #C4A15A;
+  }
+  .notes-type-btn[data-type="aviso"].on { border-color: #E6B422; color: #E6B422; }
+  .notes-type-btn[data-type="hacer"].on { border-color: #5BA3D9; color: #5BA3D9; }
+  .notes-type-btn[data-type="emergencia"].on { border-color: #E85D4C; color: #E85D4C; }
+  .notes-attach-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.28rem;
+    align-items: center;
+    flex-shrink: 0;
+  }
+  .notes-attach-row input[type="url"],
+  .notes-attach-row input[type="text"] {
+    flex: 1 1 8rem;
+    min-width: 6rem;
+    min-height: 34px;
+    padding: 0.25rem 0.5rem;
+    border-radius: 8px;
+    border: 1px solid #3a3428;
+    background: #101010;
+    color: #F2EFE6;
+    font: 0.78rem var(--sans);
+  }
+  .notes-photo-thumb {
+    max-height: 3.2rem;
+    max-width: 5rem;
+    border-radius: 6px;
+    border: 1px solid #3a3428;
+    object-fit: cover;
+  }
+  .notes-link-out {
+    font-size: 0.72rem;
+    color: #C4A15A;
+    text-decoration: underline;
+    word-break: break-all;
+  }
+  .notes-qr-text {
+    font-size: 0.7rem;
+    color: #bdb6a8;
+    word-break: break-all;
   }
   .notes-editor textarea {
     width: 100%;
     flex: 1 1 auto;
-    min-height: 5.5rem;
+    min-height: 4.2rem;
     max-height: none;
     height: 100%;
     resize: none;
@@ -1219,7 +1382,9 @@
       overflow-y: hidden;
     }
     .notes-item { flex: 0 0 auto; max-width: 11rem; }
+    body.notes-kb-open .notes-list { display: none; }
   }
+
   .folder-magic-icons {
     display: flex;
     flex-direction: row;
@@ -1909,7 +2074,7 @@
           <div class="howto-body">
             <p>Baldas deslizables por tema. Desliza en horizontal; el primer icono de cada balda queda fijo.</p>
             <p>Arriba, barra de <strong>Ajustes</strong> (no es una balda): contraste, fondo, tamaño, fuente; Renombrar vive ahí. <strong>Ocultar</strong> está en la barra de herramientas. El engranaje vuelve a mostrar Ajustes.</p>
-            <p>Packs escolares viven en la carpeta <strong>Educación</strong> (balda Varios). <strong>Música</strong> agrupa los instrumentos en Ocio. <strong>Biblioteca</strong> (libros), <strong>Ideas</strong> y <strong>Notas</strong> viven en Escritura. Notas se abre en el panel de abajo (no ocupa toda la página). <strong>Mantenimiento de casa</strong> (Manitas · Apagones · Internet) en Casa. <strong>Maridajes</strong> (Tabaco) en Ocio. <strong>Cámara</strong> es offline (Varios): fotos en <strong>Fotos</strong>. Atajos de red (Tel, WA, IAs…) en balda <strong>Red</strong> — fuera de Completo.</p>
+            <p>Packs escolares viven en la carpeta <strong>Educación</strong> (balda Varios). <strong>Música</strong> agrupa los instrumentos en Ocio. <strong>Biblioteca</strong> (libros), <strong>Ideas</strong> y <strong>Notas</strong> viven en Escritura. Notas se abre en el panel de abajo (no ocupa toda la página); si hay notas queda anclado ahí. Color, tipo, enlace, foto y QR se guardan solo en este aparato. <strong>Conservación</strong> (botes · huerta) junto a Jardín en Casa. <strong>Mantenimiento de casa</strong> (Manitas · Apagones · Internet) en Casa. <strong>Maridajes</strong> (Tabaco) en Ocio. <strong>Cámara</strong> es offline (Varios): fotos en <strong>Fotos</strong>. Atajos de red (Tel, WA, IAs…) en balda <strong>Red</strong> — fuera de Completo.</p>
             <p><strong>Disposición</strong>: Completo (embebidos + Cámara/Fotos + carpetas Educación y Música), Casa, Estudio, Educación, Mínimo. Papelera: toca app · otra vez confirma.</p>
             <p>Sin Radio ni Alarma Cuba en el ZIP. Mantén pulsado el escritorio (menú oculto) para recuperar el menú.</p>
           </div>
@@ -1962,7 +2127,7 @@
       </div>
     </div>
 
-    <footer class="site-foot"><span class="wordmark">Les vencimos</span> · escritorio / estantería offline · <span id="est-build">v20260930f</span></footer>
+    <footer class="site-foot"><span class="wordmark">Les vencimos</span> · escritorio / estantería offline · <span id="est-build">v20260930g</span></footer>
   </div>
 
   <div id="mod-viewer" role="dialog" aria-modal="true" aria-labelledby="mod-viewer-title" hidden>
@@ -1997,6 +2162,7 @@
       'clima': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="12" cy="10" r="3.2" fill-opacity="0.95"/><path d="M12 3.5v1.6M12 15v1.6M5.8 6.2l1.1 1.1M17.1 16.7l1.1 1.1M3.5 12h1.6M18.9 12h1.6M5.8 17.8l1.1-1.1M17.1 7.3l1.1-1.1" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" fill="none"/><path d="M6.5 19.2h11" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" fill="none" opacity="0.7"/></svg>',
       'moda': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 5l-3 3v11h14V8l-3-3"/><path d="M8 5c0 2 1.5 3 4 3s4-1 4-3"/><path d="M12 8v11" fill="currentColor" fill-opacity="0.08"/></svg>',
       'legal': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20h16"/><path d="M7 20V10l5-5 5 5v10"/><path d="M10 20v-4h4v4" fill="currentColor" fill-opacity="0.12"/></svg>',
+      'conservacion': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 4.5h8v2.2H8z" fill="currentColor" fill-opacity="0.14"/><path d="M8 4.5h8v2.2H8z"/><path d="M9 6.7h6v12.3a1.5 1.5 0 0 1-1.5 1.5h-3A1.5 1.5 0 0 1 9 19V6.7z" fill="currentColor" fill-opacity="0.12"/><path d="M9 6.7h6v12.3a1.5 1.5 0 0 1-1.5 1.5h-3A1.5 1.5 0 0 1 9 19V6.7z"/><path d="M10.2 10.2h3.6M10.2 13.2h3.6M10.2 16.2h2.4"/></svg>',
       'jardin': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><ellipse cx="12" cy="8.2" rx="5.2" ry="4.6" fill-opacity="0.95"/><ellipse cx="7.2" cy="10" rx="3.4" ry="3.1" fill-opacity="0.75"/><ellipse cx="16.8" cy="10" rx="3.4" ry="3.1" fill-opacity="0.75"/><rect x="11.1" y="11.5" width="1.8" height="5.2" rx="0.6"/><path d="M7.5 20.2c.6-2.4 2.4-3.6 4.5-3.6s3.9 1.2 4.5 3.6z"/><path d="M8.2 20.2h7.6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" fill="none"/></svg>',
       'bricolaje': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M38 10l10 10-6.5 2.2-5.7-5.7z" fill="currentColor" fill-opacity="0.14"/><path d="M38 10l10 10-6.5 2.2-5.7-5.7z"/><path d="M36.5 16.5L18 35l-3 11 11-3 18.5-18.5"/><path d="M14 50l8-2.2"/><circle cx="22" cy="46" r="2.2" fill="currentColor" fill-opacity="0.2"/><circle cx="22" cy="46" r="2.2"/><path d="M44 34c4.2 1.2 7.6 4.6 8.8 8.8"/><path d="M48.5 38.5l7.5 7.5-3.2 3.2-7.5-7.5"/></svg>',
       'electricidad': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M13 2L4.8 13.2h6.2L9.8 22 19.2 10.8H13z" fill="currentColor" fill-opacity="0.14"/><path d="M13 2L4.8 13.2h6.2L9.8 22 19.2 10.8H13z"/></svg>',
@@ -2107,7 +2273,7 @@
     var SHELF_PRIORITY_AFTER_LEAD = {
       escritura: ['ideas', 'notas', 'tinta-estudio'],
       ocio: ['meditacion'],
-      casa: ['cocina-maestro', 'jardin', 'economia', 'clima', 'mascotas'],
+      casa: ['cocina-maestro', 'jardin', 'conservacion', 'economia', 'clima', 'mascotas'],
       salud: ['medicacion', 'gimnasio', 'alto-rendimiento', 'primeros-auxilios', 'higiene'],
       varios: ['calculadora', 'qr', 'mapas', 'camara'],
       red: ['telefono', 'whatsapp', 'navegador']
@@ -2117,7 +2283,7 @@
 
     var PRESETS = {
       completo: null, /* fillDesktop: solo embebidos offline */
-      casa: ['hogar', 'cocina-maestro', 'jardin', 'economia', 'clima', 'mascotas', 'bricolaje', 'electricidad', 'fontaneria', 'gas', 'campo', 'supervivencia', 'comunicacion', 'salud', 'medicacion', 'primeros-auxilios', 'higiene'],
+      casa: ['hogar', 'cocina-maestro', 'jardin', 'conservacion', 'economia', 'clima', 'mascotas', 'bricolaje', 'electricidad', 'fontaneria', 'gas', 'campo', 'supervivencia', 'comunicacion', 'salud', 'medicacion', 'primeros-auxilios', 'higiene'],
       estudio: ['tinta-escritura', 'ideas', 'tinta-estudio', 'profesor', 'mate-1eso', 'lengua-1eso', 'calculadora', 'informatica', 'biblioteca', 'qr'],
       educacion: ['profesor', 'mate-1eso', 'byg-1eso', 'geo-1eso', 'lengua-1eso', 'plastica-1eso', 'linux-essentials', 'calculadora', 'tinta-escritura', 'tinta-estudio'],
       minimo: ['tinta-escritura', 'hogar', 'salud', 'calculadora', 'caja-fuerte']
@@ -2247,6 +2413,7 @@
       { id: 'cocina-maestro', titulo: 'Cocina', icon: 'hogar', embed: 'cocina-maestro', blurb: 'Modo maestro · despensa', shelf: 'casa', shape: 'wide', color: '#E8A040' },
       { id: 'higiene', titulo: 'Higiene', icon: 'hogar', embed: 'higiene', blurb: 'Hábitos · cuerpo · manos, boca y piel · No sustituye al médico, al dentista ni a la farmacia', shelf: 'salud', shape: 'soft', color: '#C4A15A' },
       { id: 'jardin', titulo: 'Jardín', icon: 'jardin', embed: 'jardin', blurb: 'Diccionario · riego', shelf: 'casa', shape: 'tall', color: '#2FBF4A' },
+      { id: 'conservacion', titulo: 'Conservación', icon: 'conservacion', embed: 'conservacion', blurb: 'Botes · huerta · botulismo', shelf: 'casa', shape: 'wide', color: '#8F9A72' },
       { id: 'economia', titulo: 'Economía', icon: 'economia', embed: 'economia', blurb: 'Presupuesto · ahorro', shelf: 'casa', shape: 'wide', color: '#3D9B6E' },
       { id: 'clima', titulo: 'Climatización', icon: 'clima', embed: 'clima', blurb: 'Confort · ventilación · AC', shelf: 'casa', shape: 'soft', color: '#5B9FCF' },
       { id: 'moda', titulo: 'Moda', icon: 'moda', embed: 'moda', blurb: 'Estilos · cuidado ropa', shelf: 'varios', shape: 'poster', color: '#D45A8A' },
@@ -3385,7 +3552,39 @@
 
 
     var NOTES_KEY = 'lv-notas-v1';
+    var NOTES_UI_KEY = 'lv-notas-ui-v1';
+    var NOTES_PHOTO_MAX = 280000; /* ~280KB dataURL budget per note */
+    var NOTES_COLORS = ['#C4A15A', '#E85D4C', '#E6B422', '#5BA3D9', '#6BBF8A', '#B07CC6', '#F2EFE6'];
+    var NOTES_TYPES = [
+      { id: 'normal', label: 'Normal' },
+      { id: 'aviso', label: 'Aviso' },
+      { id: 'hacer', label: 'Qué hacer' },
+      { id: 'emergencia', label: 'Emergencia' }
+    ];
     var notesActiveId = null;
+    var notesKbBound = false;
+
+    function loadNotesUi() {
+      try {
+        var raw = localStorage.getItem(NOTES_UI_KEY);
+        var o = raw ? JSON.parse(raw) : {};
+        if (!o || typeof o !== 'object') o = {};
+        return {
+          activeId: o.activeId ? String(o.activeId) : null,
+          dismissed: !!o.dismissed
+        };
+      } catch (e) { return { activeId: null, dismissed: false }; }
+    }
+
+    function saveNotesUi(patch) {
+      var ui = loadNotesUi();
+      if (patch) {
+        if ('activeId' in patch) ui.activeId = patch.activeId;
+        if ('dismissed' in patch) ui.dismissed = !!patch.dismissed;
+      }
+      try { localStorage.setItem(NOTES_UI_KEY, JSON.stringify(ui)); } catch (e) {}
+      return ui;
+    }
 
     function notesEditingActive() {
       if (state.bottomApp !== 'notas') return false;
@@ -3397,6 +3596,72 @@
         }
       } catch (eAe) {}
       return document.body.classList.contains('notes-editing');
+    }
+
+    function clearNotesKeyboardPin() {
+      document.body.classList.remove('notes-kb-open');
+      try {
+        document.documentElement.style.removeProperty('--notes-kb-top');
+        document.documentElement.style.removeProperty('--notes-kb-h');
+      } catch (eClr) {}
+    }
+
+    function layoutNotesAboveKeyboard() {
+      var pane = document.getElementById('folder-magic-pane');
+      if (!pane || !pane.classList.contains('is-notes') || state.bottomApp !== 'notas') {
+        clearNotesKeyboardPin();
+        return;
+      }
+      if (!document.body.classList.contains('notes-editing') && !notesEditingActive()) {
+        clearNotesKeyboardPin();
+        return;
+      }
+      var vv = window.visualViewport;
+      var layoutH = window.innerHeight || document.documentElement.clientHeight || 0;
+      if (!vv || !layoutH) {
+        clearNotesKeyboardPin();
+        return;
+      }
+      var vvBottom = vv.offsetTop + vv.height;
+      var covered = Math.max(0, layoutH - vvBottom);
+      var kbOpen = covered > 72 || vv.height < layoutH * 0.78;
+      if (!kbOpen) {
+        clearNotesKeyboardPin();
+        return;
+      }
+      /* Pin editor into the visible visualViewport — above the keyboard */
+      var avail = Math.max(150, Math.min(Math.floor(vv.height * 0.72), Math.floor(vv.height - 10)));
+      var top = Math.max(4, Math.floor(vv.offsetTop + vv.height - avail - 8));
+      document.documentElement.style.setProperty('--notes-kb-h', avail + 'px');
+      document.documentElement.style.setProperty('--notes-kb-top', top + 'px');
+      document.body.classList.add('notes-kb-open');
+      try {
+        var ta = pane.querySelector('textarea');
+        if (ta) {
+          /* Keep caret in view inside the pinned panel, not the page */
+          var caretApprox = ta.selectionStart || 0;
+          var lines = String(ta.value || '').slice(0, caretApprox).split('\n').length;
+          var lineH = parseFloat(window.getComputedStyle(ta).lineHeight) || 22;
+          var target = Math.max(0, (lines - 2) * lineH);
+          if (Math.abs(ta.scrollTop - target) > lineH * 2) ta.scrollTop = target;
+        }
+      } catch (eScroll) {}
+    }
+
+    function bindNotesKeyboardGuards() {
+      if (notesKbBound) return;
+      notesKbBound = true;
+      var onVv = function () { layoutNotesAboveKeyboard(); };
+      window.addEventListener('resize', onVv);
+      try {
+        if (window.visualViewport) {
+          window.visualViewport.addEventListener('resize', onVv);
+          window.visualViewport.addEventListener('scroll', onVv);
+        }
+      } catch (eB) {}
+      window.addEventListener('orientationchange', function () {
+        setTimeout(onVv, 180);
+      });
     }
 
     function focusNotesTextarea(opts) {
@@ -3415,7 +3680,31 @@
             ta.setSelectionRange(len, len);
           } catch (eSel) {}
         }
+        layoutNotesAboveKeyboard();
+        setTimeout(layoutNotesAboveKeyboard, 120);
+        setTimeout(layoutNotesAboveKeyboard, 320);
       });
+    }
+
+    function normalizeNote(n) {
+      if (!n || !n.id) return null;
+      var typ = String(n.type || 'normal');
+      if (['normal', 'aviso', 'hacer', 'emergencia'].indexOf(typ) < 0) typ = 'normal';
+      var col = String(n.color || '#C4A15A');
+      if (NOTES_COLORS.indexOf(col) < 0) col = '#C4A15A';
+      var photo = n.photo ? String(n.photo) : '';
+      if (photo && photo.length > NOTES_PHOTO_MAX * 1.15) photo = '';
+      return {
+        id: String(n.id),
+        title: n.title ? String(n.title) : 'Nota en blanco',
+        body: n.body ? String(n.body) : '',
+        updated: n.updated || 0,
+        color: col,
+        type: typ,
+        link: n.link ? String(n.link).slice(0, 2000) : '',
+        photo: photo,
+        qr: n.qr ? String(n.qr).slice(0, 2000) : ''
+      };
     }
 
     function loadNotes() {
@@ -3423,19 +3712,24 @@
         var raw = localStorage.getItem(NOTES_KEY);
         var arr = raw ? JSON.parse(raw) : [];
         if (!Array.isArray(arr)) return [];
-        return arr.filter(function (n) { return n && n.id; }).map(function (n) {
-          return {
-            id: String(n.id),
-            title: n.title ? String(n.title) : 'Nota en blanco',
-            body: n.body ? String(n.body) : '',
-            updated: n.updated || 0
-          };
-        });
+        return arr.map(normalizeNote).filter(Boolean);
       } catch (e) { return []; }
     }
 
     function saveNotes(list) {
-      try { localStorage.setItem(NOTES_KEY, JSON.stringify(list || [])); } catch (e) {}
+      try {
+        localStorage.setItem(NOTES_KEY, JSON.stringify(list || []));
+      } catch (e) {
+        /* quota — drop heaviest photos and retry once */
+        try {
+          var slim = (list || []).map(function (n) {
+            var c = Object.assign({}, n);
+            if (c.photo && c.photo.length > 80000) c.photo = '';
+            return c;
+          });
+          localStorage.setItem(NOTES_KEY, JSON.stringify(slim));
+        } catch (e2) {}
+      }
     }
 
     function noteTitle(n) {
@@ -3444,20 +3738,50 @@
       return (n && n.title) || 'Nota en blanco';
     }
 
+    function noteTypeShort(typ) {
+      if (typ === 'aviso') return 'aviso';
+      if (typ === 'hacer') return 'hacer';
+      if (typ === 'emergencia') return 'urg.';
+      return '';
+    }
+
+    function notesShouldShow() {
+      if (state.bottomApp === 'notas') return true;
+      var notes = loadNotes();
+      if (!notes.length) return false;
+      var ui = loadNotesUi();
+      if (ui.dismissed) return false;
+      return true;
+    }
+
+    function ensureNotesPinnedDefault() {
+      if (state.openFolderId || state.selectMode) return;
+      if (notesShouldShow() && state.bottomApp !== 'notas') {
+        state.bottomApp = 'notas';
+      }
+    }
+
     function createBlankNote() {
       var notes = loadNotes();
       var n = {
         id: 'n-' + Date.now().toString(36) + '-' + Math.floor(Math.random() * 1e4).toString(36),
         title: 'Nota en blanco',
         body: '',
-        updated: Date.now()
+        updated: Date.now(),
+        color: '#C4A15A',
+        type: 'normal',
+        link: '',
+        photo: '',
+        qr: ''
       };
       notes.unshift(n);
       saveNotes(notes);
       notesActiveId = n.id;
+      saveNotesUi({ activeId: n.id, dismissed: false });
       state.bottomApp = 'notas';
       state.openFolderId = null;
       document.body.classList.remove('notes-editing');
+      clearNotesKeyboardPin();
       saveState();
       renderDesktop();
       focusNotesTextarea({ cursorEnd: true });
@@ -3468,14 +3792,108 @@
       var notes = loadNotes().filter(function (n) { return n.id !== notesActiveId; });
       saveNotes(notes);
       notesActiveId = notes.length ? notes[0].id : null;
+      saveNotesUi({ activeId: notesActiveId, dismissed: notes.length ? false : true });
       document.body.classList.remove('notes-editing');
+      clearNotesKeyboardPin();
+      if (!notes.length) {
+        state.bottomApp = null;
+        saveState();
+      }
       renderDesktop();
     }
 
+    function compressPhotoFile(file, done) {
+      if (!file) { done(null, 'Sin archivo'); return; }
+      if (!/^image\//.test(file.type || '')) { done(null, 'Solo imagen'); return; }
+      if (file.size > 6 * 1024 * 1024) { done(null, 'Imagen demasiado grande'); return; }
+      var url = URL.createObjectURL(file);
+      var img = new Image();
+      img.onload = function () {
+        try {
+          var maxSide = 960;
+          var w = img.naturalWidth || img.width;
+          var h = img.naturalHeight || img.height;
+          var scale = Math.min(1, maxSide / Math.max(w, h));
+          var cw = Math.max(1, Math.round(w * scale));
+          var ch = Math.max(1, Math.round(h * scale));
+          var canvas = document.createElement('canvas');
+          canvas.width = cw;
+          canvas.height = ch;
+          var ctx = canvas.getContext('2d');
+          ctx.drawImage(img, 0, 0, cw, ch);
+          var q = 0.72;
+          var data = canvas.toDataURL('image/jpeg', q);
+          while (data.length > NOTES_PHOTO_MAX && q > 0.4) {
+            q -= 0.1;
+            data = canvas.toDataURL('image/jpeg', q);
+          }
+          if (data.length > NOTES_PHOTO_MAX) {
+            /* shrink further */
+            canvas.width = Math.round(cw * 0.7);
+            canvas.height = Math.round(ch * 0.7);
+            ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+            data = canvas.toDataURL('image/jpeg', 0.55);
+          }
+          URL.revokeObjectURL(url);
+          if (data.length > NOTES_PHOTO_MAX) {
+            done(null, 'Foto demasiado pesada para guardar offline');
+            return;
+          }
+          done(data, null);
+        } catch (eC) {
+          try { URL.revokeObjectURL(url); } catch (eR) {}
+          done(null, 'No se pudo comprimir');
+        }
+      };
+      img.onerror = function () {
+        try { URL.revokeObjectURL(url); } catch (eR2) {}
+        done(null, 'Imagen no válida');
+      };
+      img.src = url;
+    }
+
+    function detectQrFromFile(file, done) {
+      if (!file) { done(null, 'Sin archivo'); return; }
+      if (!('BarcodeDetector' in window)) {
+        done(null, 'sin-detector');
+        return;
+      }
+      var url = URL.createObjectURL(file);
+      var img = new Image();
+      img.onload = function () {
+        var detector;
+        try {
+          detector = new window.BarcodeDetector({ formats: ['qr_code'] });
+        } catch (eD) {
+          try { URL.revokeObjectURL(url); } catch (eR) {}
+          done(null, 'sin-detector');
+          return;
+        }
+        detector.detect(img).then(function (codes) {
+          try { URL.revokeObjectURL(url); } catch (eR2) {}
+          if (codes && codes.length && codes[0].rawValue) done(String(codes[0].rawValue), null);
+          else done(null, 'Sin QR en la imagen');
+        }).catch(function () {
+          try { URL.revokeObjectURL(url); } catch (eR3) {}
+          done(null, 'No se pudo leer el QR');
+        });
+      };
+      img.onerror = function () {
+        try { URL.revokeObjectURL(url); } catch (eR4) {}
+        done(null, 'Imagen no válida');
+      };
+      img.src = url;
+    }
+
     function renderNotesPane(pane) {
+      bindNotesKeyboardGuards();
       var notes = loadNotes();
+      var ui = loadNotesUi();
+      if (!notesActiveId && ui.activeId) notesActiveId = ui.activeId;
       if (notesActiveId && !notes.some(function (n) { return n.id === notesActiveId; })) notesActiveId = null;
       if (!notesActiveId && notes.length) notesActiveId = notes[0].id;
+      if (notesActiveId) saveNotesUi({ activeId: notesActiveId, dismissed: false });
       var current = null;
       notes.forEach(function (n) { if (n.id === notesActiveId) current = n; });
       pane.classList.add('is-notes');
@@ -3508,16 +3926,28 @@
       head.appendChild(left);
       var actions = document.createElement('span');
       actions.className = 'notes-head-actions';
-      actions.appendChild(mk('+', 'primary', createBlankNote));
-      actions.appendChild(mk('Nota en blanco', 'primary', createBlankNote));
+      actions.appendChild(mk('+ Nueva nota', 'primary notes-new', createBlankNote));
       actions.appendChild(mk('Cerrar', '', function () {
         document.body.classList.remove('notes-editing');
+        clearNotesKeyboardPin();
         state.bottomApp = null;
+        saveNotesUi({ dismissed: true, activeId: notesActiveId });
         saveState();
         renderDesktop();
       }));
       head.appendChild(actions);
       pane.appendChild(head);
+
+      if (!notes.length) {
+        var empty = document.createElement('div');
+        empty.className = 'notes-empty';
+        var ep = document.createElement('p');
+        ep.textContent = 'Aún no hay notas en este aparato.';
+        empty.appendChild(ep);
+        empty.appendChild(mk('+ Nueva nota', 'notes-empty-cta', createBlankNote));
+        pane.appendChild(empty);
+        return;
+      }
 
       var row = document.createElement('div');
       row.className = 'notes-row';
@@ -3525,23 +3955,33 @@
       list.className = 'notes-list';
       list.setAttribute('role', 'listbox');
       list.setAttribute('aria-label', 'Lista de notas');
-      if (!notes.length) {
-        var empty = document.createElement('div');
-        empty.className = 'folder-magic-hint';
-        empty.textContent = 'Sin notas';
-        list.appendChild(empty);
-      }
       notes.forEach(function (n) {
         var b = document.createElement('button');
         b.type = 'button';
         b.className = 'notes-item' + (n.id === notesActiveId ? ' on' : '');
         b.setAttribute('role', 'option');
-        b.textContent = noteTitle(n);
+        var dot = document.createElement('span');
+        dot.className = 'notes-dot';
+        dot.style.background = n.color || '#C4A15A';
+        var lab = document.createElement('span');
+        lab.className = 'notes-item-label';
+        lab.textContent = noteTitle(n);
+        b.appendChild(dot);
+        b.appendChild(lab);
+        var ts = noteTypeShort(n.type);
+        if (ts) {
+          var badge = document.createElement('span');
+          badge.className = 'notes-type-badge';
+          badge.textContent = ts;
+          b.appendChild(badge);
+        }
         b.addEventListener('click', function (e) {
           e.preventDefault();
           e.stopPropagation();
           notesActiveId = n.id;
+          saveNotesUi({ activeId: n.id, dismissed: false });
           document.body.classList.remove('notes-editing');
+          clearNotesKeyboardPin();
           renderDesktop();
           focusNotesTextarea({ cursorEnd: true });
         });
@@ -3550,6 +3990,223 @@
 
       var editor = document.createElement('div');
       editor.className = 'notes-editor';
+
+      var meta = document.createElement('div');
+      meta.className = 'notes-meta';
+      var colors = document.createElement('div');
+      colors.className = 'notes-colors';
+      colors.setAttribute('aria-label', 'Color');
+      NOTES_COLORS.forEach(function (c) {
+        var chip = document.createElement('button');
+        chip.type = 'button';
+        chip.className = 'notes-color-chip' + ((current && current.color === c) ? ' on' : '');
+        chip.style.setProperty('--chip', c);
+        chip.title = 'Color';
+        chip.setAttribute('aria-label', 'Color ' + c);
+        chip.addEventListener('click', function (e) {
+          e.preventDefault();
+          e.stopPropagation();
+          if (!current) return;
+          current.color = c;
+          colors.querySelectorAll('.notes-color-chip').forEach(function (x) {
+            x.classList.toggle('on', x === chip);
+          });
+          var onBtn = list.querySelector('.notes-item.on .notes-dot');
+          if (onBtn) onBtn.style.background = c;
+          flush();
+        });
+        colors.appendChild(chip);
+      });
+      meta.appendChild(colors);
+      var types = document.createElement('div');
+      types.className = 'notes-types';
+      types.setAttribute('role', 'group');
+      types.setAttribute('aria-label', 'Tipo de nota');
+      NOTES_TYPES.forEach(function (t) {
+        var tb = document.createElement('button');
+        tb.type = 'button';
+        tb.className = 'notes-type-btn' + ((current && current.type === t.id) ? ' on' : '');
+        tb.dataset.type = t.id;
+        tb.textContent = t.label;
+        tb.addEventListener('click', function (e) {
+          e.preventDefault();
+          e.stopPropagation();
+          if (!current) return;
+          current.type = t.id;
+          types.querySelectorAll('.notes-type-btn').forEach(function (x) {
+            x.classList.toggle('on', x.dataset.type === t.id);
+          });
+          var badge = list.querySelector('.notes-item.on .notes-type-badge');
+          var short = noteTypeShort(t.id);
+          if (short) {
+            if (!badge) {
+              badge = document.createElement('span');
+              badge.className = 'notes-type-badge';
+              var onItem = list.querySelector('.notes-item.on');
+              if (onItem) onItem.appendChild(badge);
+            }
+            if (badge) badge.textContent = short;
+          } else if (badge) {
+            badge.remove();
+          }
+          flush();
+        });
+        types.appendChild(tb);
+      });
+      meta.appendChild(types);
+      editor.appendChild(meta);
+
+      var attach = document.createElement('div');
+      attach.className = 'notes-attach-row';
+      var linkIn = document.createElement('input');
+      linkIn.type = 'url';
+      linkIn.placeholder = 'Enlace URL…';
+      linkIn.setAttribute('aria-label', 'Enlace URL');
+      linkIn.value = current && current.link ? current.link : '';
+      linkIn.addEventListener('pointerdown', function (e) { e.stopPropagation(); });
+      linkIn.addEventListener('focus', function () {
+        document.body.classList.add('notes-editing');
+        layoutNotesAboveKeyboard();
+      });
+      linkIn.addEventListener('change', function () {
+        if (!current) return;
+        current.link = String(linkIn.value || '').trim();
+        flush();
+        refreshAttachExtras();
+      });
+      linkIn.addEventListener('blur', function () {
+        if (!current) return;
+        current.link = String(linkIn.value || '').trim();
+        flush();
+        refreshAttachExtras();
+        setTimeout(function () {
+          var ae = document.activeElement;
+          if (!(ae && ae.closest && ae.closest('#folder-magic-pane') &&
+                (ae.tagName === 'TEXTAREA' || ae.tagName === 'INPUT'))) {
+            document.body.classList.remove('notes-editing');
+            clearNotesKeyboardPin();
+          }
+        }, 120);
+      });
+      attach.appendChild(linkIn);
+
+      var photoInp = document.createElement('input');
+      photoInp.type = 'file';
+      photoInp.accept = 'image/*';
+      photoInp.hidden = true;
+      photoInp.setAttribute('aria-hidden', 'true');
+      var photoBtn = mk('Foto', '', function () { photoInp.click(); });
+      photoInp.addEventListener('change', function () {
+        var f = photoInp.files && photoInp.files[0];
+        photoInp.value = '';
+        if (!f || !current) return;
+        status.textContent = 'Comprimiendo foto…';
+        compressPhotoFile(f, function (data, err) {
+          if (err || !data) {
+            status.textContent = err || 'No se pudo guardar la foto';
+            return;
+          }
+          current.photo = data;
+          flush();
+          refreshAttachExtras();
+          status.textContent = 'Foto guardada en este aparato';
+        });
+      });
+      attach.appendChild(photoBtn);
+      attach.appendChild(photoInp);
+
+      var qrInp = document.createElement('input');
+      qrInp.type = 'file';
+      qrInp.accept = 'image/*';
+      qrInp.hidden = true;
+      var qrBtn = mk('QR', '', function () {
+        if ('BarcodeDetector' in window) {
+          qrInp.click();
+        } else {
+          var pasted = window.prompt('Pega el texto del QR (este navegador no lee QR de foto):', current && current.qr ? current.qr : '');
+          if (pasted == null || !current) return;
+          current.qr = String(pasted).trim().slice(0, 2000);
+          flush();
+          refreshAttachExtras();
+        }
+      });
+      qrInp.addEventListener('change', function () {
+        var f = qrInp.files && qrInp.files[0];
+        qrInp.value = '';
+        if (!f || !current) return;
+        status.textContent = 'Leyendo QR…';
+        detectQrFromFile(f, function (val, err) {
+          if (err === 'sin-detector') {
+            var pasted = window.prompt('Pega el texto del QR:', current.qr || '');
+            if (pasted == null) { status.textContent = 'Guardado en este aparato'; return; }
+            current.qr = String(pasted).trim().slice(0, 2000);
+            flush();
+            refreshAttachExtras();
+            status.textContent = 'QR guardado';
+            return;
+          }
+          if (err || !val) {
+            status.textContent = err || 'Sin QR';
+            return;
+          }
+          current.qr = val;
+          flush();
+          refreshAttachExtras();
+          status.textContent = 'QR guardado';
+        });
+      });
+      attach.appendChild(qrBtn);
+      attach.appendChild(qrInp);
+      editor.appendChild(attach);
+
+      var extras = document.createElement('div');
+      extras.className = 'notes-attach-row';
+      editor.appendChild(extras);
+
+      function refreshAttachExtras() {
+        extras.innerHTML = '';
+        if (!current) return;
+        if (current.link) {
+          var a = document.createElement('a');
+          a.className = 'notes-link-out';
+          a.href = current.link;
+          a.target = '_blank';
+          a.rel = 'noopener noreferrer';
+          a.textContent = current.link;
+          extras.appendChild(a);
+          extras.appendChild(mk('Quitar enlace', '', function () {
+            current.link = '';
+            linkIn.value = '';
+            flush();
+            refreshAttachExtras();
+          }));
+        }
+        if (current.photo) {
+          var img = document.createElement('img');
+          img.className = 'notes-photo-thumb';
+          img.alt = 'Foto adjunta';
+          img.src = current.photo;
+          extras.appendChild(img);
+          extras.appendChild(mk('Quitar foto', '', function () {
+            current.photo = '';
+            flush();
+            refreshAttachExtras();
+          }));
+        }
+        if (current.qr) {
+          var q = document.createElement('div');
+          q.className = 'notes-qr-text';
+          q.textContent = 'QR: ' + current.qr;
+          extras.appendChild(q);
+          extras.appendChild(mk('Quitar QR', '', function () {
+            current.qr = '';
+            flush();
+            refreshAttachExtras();
+          }));
+        }
+      }
+      refreshAttachExtras();
+
       var ta = document.createElement('textarea');
       ta.setAttribute('aria-label', 'Texto de la nota');
       ta.setAttribute('enterkeyhint', 'enter');
@@ -3560,7 +4217,6 @@
       ta.placeholder = 'Escribe la nota…';
       ta.value = current ? (current.body || '') : '';
       ta.disabled = !current;
-      /* Keep focus: stop desk long-press / scroll handlers from stealing it */
       function stopSteal(e) { e.stopPropagation(); }
       ta.addEventListener('pointerdown', stopSteal);
       ta.addEventListener('touchstart', stopSteal, { passive: true });
@@ -3568,10 +4224,13 @@
       ta.addEventListener('click', stopSteal);
       ta.addEventListener('focus', function () {
         document.body.classList.add('notes-editing');
+        layoutNotesAboveKeyboard();
+        setTimeout(layoutNotesAboveKeyboard, 80);
+        setTimeout(layoutNotesAboveKeyboard, 280);
       });
       var status = document.createElement('div');
       status.className = 'notes-status';
-      status.textContent = current ? 'Guardado en este aparato' : 'Nota en blanco para empezar';
+      status.textContent = current ? 'Guardado en este aparato' : 'Pulsa + Nueva nota';
       var saveTimer = null;
       function flush() {
         if (!current) return;
@@ -3582,6 +4241,11 @@
             n.body = current.body;
             n.title = noteTitle({ body: current.body, title: 'Nota en blanco' });
             n.updated = Date.now();
+            n.color = current.color || '#C4A15A';
+            n.type = current.type || 'normal';
+            n.link = current.link || '';
+            n.photo = current.photo || '';
+            n.qr = current.qr || '';
             found = true;
           }
         });
@@ -3590,27 +4254,27 @@
           all.unshift(current);
         }
         saveNotes(all);
-        /* Update list label in place — never remount / never renderDesktop */
         status.textContent = 'Guardado en este aparato';
-        var onBtn = list.querySelector('.notes-item.on');
-        if (onBtn) onBtn.textContent = noteTitle(current);
+        var onLab = list.querySelector('.notes-item.on .notes-item-label');
+        if (onLab) onLab.textContent = noteTitle(current);
       }
       ta.addEventListener('input', function () {
         if (!current) return;
         current.body = ta.value;
-        var onBtn = list.querySelector('.notes-item.on');
-        if (onBtn) onBtn.textContent = noteTitle(current);
+        var onLab = list.querySelector('.notes-item.on .notes-item-label');
+        if (onLab) onLab.textContent = noteTitle(current);
         status.textContent = 'Guardando…';
         if (saveTimer) clearTimeout(saveTimer);
         saveTimer = setTimeout(flush, 280);
+        layoutNotesAboveKeyboard();
       });
       ta.addEventListener('blur', function () {
-        /* Delay clear so brief focus churn (keyboard / viewport) does not drop editing flag */
         setTimeout(function () {
           var ae = document.activeElement;
           if (!(ae && ae.closest && ae.closest('#folder-magic-pane') &&
                 (ae.tagName === 'TEXTAREA' || ae.tagName === 'INPUT'))) {
             document.body.classList.remove('notes-editing');
+            clearNotesKeyboardPin();
           }
         }, 120);
         if (saveTimer) { clearTimeout(saveTimer); saveTimer = null; }
@@ -3630,11 +4294,12 @@
       state.selectedIds = [];
       document.body.classList.remove('desk-select-mode');
       state.bottomApp = 'notas';
+      saveNotesUi({ dismissed: false, activeId: notesActiveId || loadNotesUi().activeId });
       document.body.classList.remove('notes-editing');
+      clearNotesKeyboardPin();
       try { closePanels(); } catch (eClose) {}
       saveState();
       renderDesktop();
-      /* Do not scrollIntoView — it fights the mobile keyboard and steals focus */
       focusNotesTextarea({ cursorEnd: true });
     }
 
@@ -3751,6 +4416,7 @@
         return;
       }
 
+      ensureNotesPinnedDefault();
       if (state.bottomApp === 'notas') {
         renderNotesPane(pane);
         pinDeskBrand(pane);
@@ -6229,7 +6895,7 @@
       });
     }
 
-    var EST_BUILD = 'v20260930f';
+    var EST_BUILD = 'v20260930g';
 
     function layoutPanelSheet() {
       var tb = document.getElementById('desk-toolbar');
@@ -7100,6 +7766,40 @@
           saveState();
         }
 
+        /* layoutRev 33: Notas teclado visualViewport · pin si hay notas · rich local · v20260930g */
+        if (typeof state.layoutRev !== 'number' || state.layoutRev < 33) {
+          var ui33 = loadNotesUi();
+          if (ui33.activeId) notesActiveId = ui33.activeId;
+          if (loadNotes().length && !ui33.dismissed) {
+            state.bottomApp = 'notas';
+          }
+          state.layoutRev = 33;
+          saveState();
+        }
+
+        /* layoutRev 34: Conservación (Casa · junto a Jardín/huerta) · v20260930g */
+        if (typeof state.layoutRev !== 'number' || state.layoutRev < 34) {
+          var cm34 = catalogById('conservacion');
+          if (cm34 && !hasModule('conservacion')) {
+            state.items.push({
+              id: 'conservacion', type: 'module', kind: 'catalog', titulo: 'Conservación',
+              icon: 'conservacion', href: '', embed: 'conservacion', external: null, openNative: null,
+              color: '#8F9A72', blurb: cm34.blurb || 'Botes · huerta · botulismo',
+              shelf: 'casa', view: 'icon', z: ++Z, addedAt: new Date().toISOString()
+            });
+          }
+          state.items.forEach(function (it) {
+            if (!it || it.id !== 'conservacion') return;
+            it.titulo = 'Conservación';
+            it.icon = 'conservacion';
+            it.shelf = 'casa';
+            it.color = '#8F9A72';
+            it.embed = 'conservacion';
+          });
+          state.layoutRev = 34;
+          saveState();
+        }
+
         ensureOficioFolder();
         ensureMusicaFolder();
         ensurePreparadosFolder();
@@ -7109,6 +7809,15 @@
           arrangeToShelves();
         }
       })();
+      /* Reopen Notas on load if last note active / notes exist and not dismissed */
+      try {
+        var uiLoad = loadNotesUi();
+        if (uiLoad.activeId) notesActiveId = uiLoad.activeId;
+        if (!state.openFolderId && !state.selectMode && loadNotes().length && !uiLoad.dismissed) {
+          state.bottomApp = 'notas';
+        }
+      } catch (eNotesLoad) {}
+      bindNotesKeyboardGuards();
       bindStatusDrag();
       applyStatusPos();
       if (clockTimer) clearInterval(clockTimer);
@@ -7118,11 +7827,16 @@
           state.statusPos = clampStatusPos(state.statusPos.x, state.statusPos.y);
           saveState();
         }
-        /* Mobile keyboard / visualViewport fires resize — never remount Notas while typing */
+        /* Mobile keyboard / visualViewport — pin Notas above keyboard; never remount while typing */
         if (notesEditingActive() || state.bottomApp === 'notas') {
-          try { applyStatusPos(); updateShelfOverflow(); } catch (eVp) {}
+          try {
+            applyStatusPos();
+            updateShelfOverflow();
+            layoutNotesAboveKeyboard();
+          } catch (eVp) {}
           return;
         }
+        clearNotesKeyboardPin();
         renderDesktop({ skipIfNotesEditing: true });
       }
       window.addEventListener('resize', onViewportChromeChange);
@@ -7130,7 +7844,10 @@
         if (window.visualViewport) {
           window.visualViewport.addEventListener('resize', onViewportChromeChange);
           window.visualViewport.addEventListener('scroll', function () {
-            if (notesEditingActive()) return;
+            if (notesEditingActive() || document.body.classList.contains('notes-editing')) {
+              layoutNotesAboveKeyboard();
+              return;
+            }
           });
         }
       } catch (eVv) {}
