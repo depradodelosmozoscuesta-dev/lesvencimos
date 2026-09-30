@@ -78,7 +78,15 @@
     }
     body.modulo .barra { display: flex; }
     .barra button { background: none; border: 0; color: var(--acento); font-weight: 700; min-height: 44px; }
-    input[type=file] { display: none; }
+    /* No display:none: Android Chrome often ignores .click() on hidden file inputs */
+    input#fichero {
+      position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+      overflow: hidden; clip: rect(0, 0, 0, 0); border: 0; opacity: 0;
+    }
+    label.btn {
+      display: inline-flex; align-items: center; justify-content: center;
+      cursor: pointer;
+    }
     .vacio { color: var(--suave); border: 1px dashed var(--linea); padding: 1rem; border-radius: 6px; }
     .lado { display: flex; flex-wrap: wrap; gap: .45rem .8rem; align-items: center; }
   </style>
@@ -106,13 +114,14 @@
       <h1 id="titulo-estante">Estantería</h1>
       <p class="lead" id="sub-estante"></p>
       <div class="acciones">
-        <button class="btn" type="button" id="btn-catalogo">Catálogo</button>
-        <button class="btn sec" type="button" id="btn-archivo">Añadir del teléfono</button>
+        <button class="btn" type="button" id="btn-catalogo">Buscar en el catálogo</button>
+        <label class="btn sec" for="fichero" id="lab-archivo">Añadir del teléfono</label>
         <button class="btn sec" type="button" id="btn-preset">Cambiar público</button>
       </div>
-      <input id="fichero" type="file" accept=".html,.htm,.zip,text/html,application/zip">
-      <p class="aviso" id="aviso-red" hidden>Vas a usar lesvencimos.com solo como tubería de ZIP. Cero cuenta. Cero cookies. Si no hay red, sigue lo ya instalado.</p>
-      <p class="aviso" id="aviso-file" hidden>Estás en <code>file://</code>: sirve para un HTML suelto. Los packs de enseñanza (medio mega o más) se instalan con <code>python3 cascaron-servidor.py</code> o con el APK + carpeta. Aquí el ZIP no se descomprime.</p>
+      <input id="fichero" type="file" accept=".html,.htm,.zip,text/html,application/zip" aria-label="Elegir HTML o ZIP del teléfono">
+      <p class="aviso" id="aviso-red" hidden>Vas a pedir <code>catalogo.json</code> a lesvencimos.com. Cero cuenta. Cero cookies. Si no hay red, no pasa nada: sigue lo instalado.</p>
+      <p class="aviso" id="aviso-file" hidden>Estás en <code>file://</code>. En el Samsung, Chrome a menudo no descarga ni abre el selector de archivos desde un HTML local. Abre <a href="https://lesvencimos.com/app/" style="color:var(--acento)">https://lesvencimos.com/app/</a> en Chrome. «Bajar ZIP» guarda el pack en Descargas. Aquí solo se puede añadir un HTML suelto; un ZIP no se descomprime sin el servidor Python.</p>
+      <p class="aviso" id="aviso-bajada" hidden></p>
       <div id="catalogo-caja" hidden></div>
       <h2>Instalados en este aparato</h2>
       <ul class="lista" id="lista"></ul>
@@ -132,7 +141,7 @@
     { id: "casa", nombre: "Casa / apagón", desc: "Hogar, auxilios, gimnasio, supervivencia." },
     { id: "vacia", nombre: "Vacía", desc: "Tú eliges cada módulo." }
   ];
-  const estado = { preset: null, lan: false, catalogo: null, abierto: null };
+  const estado = { preset: null, http: false, api: false, catalogo: null, abierto: null };
 
   const $ = (id) => document.getElementById(id);
   function leerShell() {
@@ -143,13 +152,50 @@
 
   function origen() {
     const u = location.protocol;
-    estado.lan = u === "http:" || u === "https:";
+    estado.http = u === "http:" || u === "https:";
     const el = $("origen");
-    if (u === "file:") { el.textContent = "Emergencia · file://"; el.classList.add("red"); }
+    if (u === "file:") { el.textContent = "OFFLINE · FILE://"; el.classList.add("red"); }
     else if (location.hostname === "localhost" || location.hostname === "127.0.0.1") {
       el.textContent = "Disco · localhost"; el.classList.remove("red");
     } else { el.textContent = location.host; el.classList.remove("red"); }
-    $("aviso-file").hidden = estado.lan;
+    $("aviso-file").hidden = estado.http;
+  }
+
+  /* GitHub Pages es https pero NO tiene /api/*. Solo el python cascaron-servidor.py. */
+  async function detectarAPI() {
+    if (!estado.http) { estado.api = false; return false; }
+    try {
+      const r = await fetch("/api/modulos", { cache: "no-store" });
+      if (!r.ok) { estado.api = false; return false; }
+      const j = await r.json();
+      estado.api = !!(j && Array.isArray(j.modulos));
+    } catch (_) { estado.api = false; }
+    if (estado.api && (location.hostname === "localhost" || location.hostname === "127.0.0.1")) {
+      $("origen").textContent = "Disco · localhost";
+    } else if (estado.api) {
+      $("origen").textContent = (location.host || "servidor") + " · API";
+    }
+    return estado.api;
+  }
+
+  function bajarZipManual(url, id) {
+    const nombre = (url.split("/").pop() || ((id || "pack") + ".zip")).split("?")[0];
+    const a = document.createElement("a");
+    a.href = url;
+    a.target = "_blank";
+    a.rel = "noopener noreferrer";
+    a.download = nombre;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    const tip = $("aviso-bajada");
+    if (!tip) return;
+    tip.hidden = false;
+    if (location.protocol === "file:") {
+      tip.innerHTML = "Si no aparece nada en Descargas: abre <a href=\"https://lesvencimos.com/app/\" style=\"color:var(--acento)\">https://lesvencimos.com/app/</a> en Chrome y pulsa «Bajar ZIP» allí. Desde file:// Android suele bloquear la descarga.";
+    } else {
+      tip.innerHTML = "El ZIP va a <strong>Descargas</strong>. Un HTML suelto se puede meter con «Añadir del teléfono». Un pack ZIP completo se instala con <code>python3 cascaron-servidor.py</code> en el PC (o en la wifi de casa).";
+    }
   }
 
   function peso(n) {
@@ -217,7 +263,7 @@
   }
 
   async function snapshotDatos(id) {
-    if (!estado.lan || !id) return;
+    if (!estado.api || !id) return;
     try {
       const win = $("vista").contentWindow;
       if (!win) return;
@@ -236,7 +282,7 @@
   }
 
   async function restaurarDatos(id) {
-    if (!estado.lan || !id) return;
+    if (!estado.api || !id) return;
     try {
       const r = await fetch("/api/datos?id=" + encodeURIComponent(id), { cache: "no-store" });
       if (!r.ok) return;
@@ -254,7 +300,7 @@
   async function pintarLista() {
     const ul = $("lista");
     ul.innerHTML = "";
-    let mods = estado.lan ? await listaLAN() : await todosIDB();
+    let mods = estado.api ? await listaLAN() : await todosIDB();
     $("vacio").hidden = mods.length > 0;
     mods.forEach((m) => {
       const li = document.createElement("li");
@@ -283,7 +329,7 @@
   async function quitar(m) {
     if (!confirm("¿Quitar «" + (m.nombre || m.id) + "» de este aparato?")) return;
     let borrarDatos = false;
-    if (estado.lan) {
+    if (estado.api) {
       borrarDatos = confirm("¿Borrar también los datos (progreso, pastillas, notas)?\n\nCancelar = se quita el pack y los datos se quedan por si lo vuelves a instalar.");
       await fetch("/api/borrar", {
         method: "POST",
@@ -347,7 +393,7 @@
         const s = leerShell();
         s.preset = p.id;
         escribirShell(s);
-        if (estado.lan) {
+        if (estado.api) {
           fetch("/api/datos?id=_shell", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -364,13 +410,12 @@
     $("pantalla-estante").hidden = true;
     $("pantalla-preset").hidden = false;
   });
-  $("btn-archivo").addEventListener("click", () => $("fichero").click());
   $("fichero").addEventListener("change", async (ev) => {
     const f = ev.target.files && ev.target.files[0];
     ev.target.value = "";
     if (!f) return;
     const id = slug(f.name);
-    if (estado.lan) {
+    if (estado.api) {
       const buf = await f.arrayBuffer();
       const r = await fetch("/api/importar", {
         method: "POST",
@@ -380,17 +425,25 @@
       if (!r.ok) { alert("No se pudo importar."); return; }
     } else {
       if (/\.zip$/i.test(f.name)) {
-        alert("En file:// el ZIP no se descomprime. Arranca python3 cascaron-servidor.py y abre http://127.0.0.1:8787");
+        alert("Sin el servidor Python este cascarón no descomprime ZIP.\n\n" +
+          "1) En el PC: python3 cascaron-servidor.py → http://127.0.0.1:8787\n" +
+          "2) O abre un HTML suelto (no el ZIP) con «Añadir del teléfono».\n" +
+          "3) Si estás en file://, mejor usa https://lesvencimos.com/app/");
         return;
       }
-      const htmlTxt = await f.text();
-      await ponerIDB({ id, nombre: f.name.replace(/\.[^.]+$/, ""), html: htmlTxt, bytes: f.size, added: Date.now() });
+      try {
+        const htmlTxt = await f.text();
+        await ponerIDB({ id, nombre: f.name.replace(/\.[^.]+$/, ""), html: htmlTxt, bytes: f.size, added: Date.now() });
+      } catch (err) {
+        alert("No se pudo leer el archivo. Prueba desde https://lesvencimos.com/app/ en Chrome.");
+        return;
+      }
     }
     pintarLista();
   });
 
   async function cargarCatalogo() {
-    const urls = estado.lan
+    const urls = estado.api
       ? ["/api/catalogo", "./catalogo.json", "https://lesvencimos.com/catalogo.json"]
       : ["./catalogo.json", "../catalogo.json", "https://lesvencimos.com/catalogo.json"];
     for (const u of urls) {
@@ -406,9 +459,9 @@
   }
 
   async function descargarInstalar(m, boton) {
-    if (!estado.lan) {
-      if (m.url) location.href = m.url;
-      else alert("Sin URL de descarga.");
+    if (!estado.api) {
+      if (!m.url) { alert("Sin URL de descarga."); return; }
+      bajarZipManual(m.url, m.id);
       return;
     }
     boton.disabled = true;
@@ -425,6 +478,7 @@
           ? "No hubo red. Baja el ZIP a mano y pulsa «Añadir del teléfono»."
           : (j.error || "No se pudo instalar");
         alert(motivo);
+        if (m.url) bajarZipManual(m.url, m.id);
         return;
       }
     } finally {
@@ -445,7 +499,7 @@
     }
     estado.catalogo = data;
     const instalados = {};
-    (estado.lan ? await listaLAN() : await todosIDB()).forEach((x) => { instalados[x.id] = true; });
+    (estado.api ? await listaLAN() : await todosIDB()).forEach((x) => { instalados[x.id] = true; });
     caja.innerHTML = "";
     const ul = document.createElement("ul");
     ul.className = "lista";
@@ -474,7 +528,7 @@
         const b = document.createElement("button");
         b.className = "link";
         b.type = "button";
-        b.textContent = estado.lan ? "Descargar e instalar" : "Bajar ZIP";
+        b.textContent = estado.api ? "Descargar e instalar" : "Bajar ZIP";
         b.addEventListener("click", () => descargarInstalar(m, b));
         lado.appendChild(b);
       }
@@ -484,9 +538,11 @@
     caja.appendChild(ul);
     const p = document.createElement("p");
     p.className = "aviso";
-    p.textContent = estado.lan
-      ? "Descargar e instalar deja el pack en app/modules/<id>/. Quitar borra esa carpeta. Los datos van a app/data/."
-      : "Sin servidor no se puede descomprimir un pack. Abre python3 cascaron-servidor.py.";
+    p.innerHTML = estado.api
+      ? "Descargar e instalar deja el pack en app/modules/&lt;id&gt;/. Quitar borra esa carpeta. Los datos van a app/data/."
+      : (location.protocol === "file:"
+        ? "Sin servidor no se descomprime un pack. Mejor abre <a href=\"https://lesvencimos.com/app/\" style=\"color:var(--acento)\">lesvencimos.com/app</a> y pulsa «Bajar ZIP»."
+        : "«Bajar ZIP» guarda el archivo en Descargas. Para instalar el pack en disco: <code>python3 cascaron-servidor.py</code>. Un HTML suelto: «Añadir del teléfono».");
     caja.appendChild(p);
   }
 
@@ -503,11 +559,14 @@
   }
   origen();
   pintarPresets();
-  const s = leerShell();
-  if (s.preset) {
-    estado.preset = s.preset;
-    mostrarEstante();
-  }
+  (async function arranque() {
+    await detectarAPI();
+    const s = leerShell();
+    if (s.preset) {
+      estado.preset = s.preset;
+      mostrarEstante();
+    }
+  })();
 })();
 </script>
 </body>
