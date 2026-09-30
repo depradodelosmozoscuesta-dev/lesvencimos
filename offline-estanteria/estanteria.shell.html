@@ -1462,20 +1462,47 @@
     color: #C4A15A;
     margin-bottom: 0.15rem;
   }
-  .notes-editor-actions {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.35rem;
-    align-items: center;
+  /* Guardar: impossible to miss — sticky top bar (above keyboard) + footer when kb closed */
+  .folder-magic-pane.is-notes .folder-magic-head {
+    position: sticky;
+    top: 0;
+    z-index: 6;
     flex-shrink: 0;
+    background: #141414;
+    padding-bottom: 0.35rem;
+    margin-bottom: 0.1rem;
+    border-bottom: 1px solid rgba(196,161,90,0.28);
   }
+  .notes-head-actions .notes-save,
   .notes-editor-actions .notes-save {
     border-color: #C4A15A !important;
     background: #C4A15A !important;
     color: #1A160E !important;
     font-weight: 800 !important;
-    min-width: 6.5rem;
+    font-size: 1.05rem !important;
+    min-height: 48px !important;
+    min-width: 7.5rem;
+    padding: 0.55rem 1.35rem !important;
+    border-radius: 999px;
+    letter-spacing: 0.02em;
+    box-shadow: 0 2px 0 rgba(0,0,0,0.35), 0 0 0 1px rgba(196,161,90,0.35);
   }
+  .notes-editor-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.45rem;
+    align-items: center;
+    flex-shrink: 0;
+    position: sticky;
+    bottom: 0;
+    z-index: 5;
+    margin-top: auto;
+    padding: 0.45rem 0.15rem calc(0.45rem + env(safe-area-inset-bottom, 0px));
+    background: linear-gradient(180deg, transparent, #141414 28%);
+    border-top: 1px solid rgba(196,161,90,0.22);
+  }
+  /* Keyboard open: head Guardar stays pinned above kb; hide footer to avoid double */
+  body.notes-kb-open .notes-editor-actions { display: none; }
   body.notes-kb-open .notes-stickies,
   body.notes-kb-open .dock-rotate { display: none; }
   @media (max-width: 560px) {
@@ -2234,7 +2261,7 @@
       </div>
     </div>
 
-    <footer class="site-foot"><span class="wordmark">Les vencimos</span> · escritorio / estantería offline · <span id="est-build">v20260930h</span></footer>
+    <footer class="site-foot"><span class="wordmark">Les vencimos</span> · escritorio / estantería offline · <span id="est-build">v20260930i</span></footer>
   </div>
 
   <div id="mod-viewer" role="dialog" aria-modal="true" aria-labelledby="mod-viewer-title" hidden>
@@ -3669,6 +3696,7 @@
       { id: 'emergencia', label: 'Emergencia' }
     ];
     var notesActiveId = null;
+    var notesDockSoloId = null; /* after Guardar: dock shows only this sticky */
     var notesEditorOpen = false;
     var notesKbBound = false;
     var notesKbHandlers = null;
@@ -3910,6 +3938,7 @@
       document.body.classList.remove('notes-editing');
       clearNotesKeyboardPin();
       notesEditorOpen = false;
+      if (opts.soloId) notesDockSoloId = String(opts.soloId);
       saveNotesUi({ editing: false, activeId: notesActiveId, dismissed: false });
       state.bottomApp = null;
       if (opts.toast) {
@@ -3922,6 +3951,7 @@
     function openNoteEditor(id, opts) {
       opts = opts || {};
       notesActiveId = id || notesActiveId;
+      notesDockSoloId = null;
       notesEditorOpen = true;
       state.bottomApp = 'notas';
       state.openFolderId = null;
@@ -3962,6 +3992,7 @@
       document.body.classList.remove('notes-editing');
       clearNotesKeyboardPin();
       notesEditorOpen = false;
+      notesDockSoloId = null;
       state.bottomApp = null;
       saveState();
       renderDesktop();
@@ -4106,9 +4137,15 @@
       var home = document.createElement('div');
       home.className = 'dock-home';
       if (notes.length) {
-        renderNotesStickies(home, notes);
+        var show = notes;
+        if (notesDockSoloId) {
+          show = notes.filter(function (n) { return n.id === notesDockSoloId; });
+          if (!show.length) { notesDockSoloId = null; show = notes; }
+        }
+        renderNotesStickies(home, show);
       }
-      renderDockRotate(home);
+      /* After Guardar (solo sticky): skip rotating tips / create-UI noise */
+      if (!notesDockSoloId) renderDockRotate(home);
       pane.appendChild(home);
     }
 
@@ -4203,21 +4240,19 @@
 
       var bar = document.createElement('div');
       bar.className = 'notes-editor-actions';
+      bar.setAttribute('role', 'toolbar');
+      bar.setAttribute('aria-label', 'Acciones de la nota');
       function doSave() {
         if (saveTimer) { clearTimeout(saveTimer); saveTimer = null; }
         persistCurrentNote(current, ta.value);
-        leaveNotesEditor({ toast: 'Nota guardada' });
+        /* Guardar = save + exit editor + that note as sticky in bottom dock */
+        leaveNotesEditor({ toast: 'Nota guardada', soloId: current.id });
       }
-      function doClose() {
-        if (saveTimer) { clearTimeout(saveTimer); saveTimer = null; }
-        persistCurrentNote(current, ta.value);
-        leaveNotesEditor();
-      }
-      bar.appendChild(mkNotesBtn('Guardar', 'primary notes-save', doSave));
-      bar.appendChild(mkNotesBtn('Cerrar', '', doClose));
-      bar.appendChild(mkNotesBtn('Borrar', 'notes-del', deleteActiveNote));
+      /* Top of editor bar (stays above keyboard when pinned) — primary ámbar Guardar */
       actions.appendChild(mkNotesBtn('Guardar', 'primary notes-save', doSave));
-      actions.appendChild(mkNotesBtn('Cerrar', '', doClose));
+      /* Sticky footer Guardar when keyboard closed (hidden via CSS while kb open) */
+      bar.appendChild(mkNotesBtn('Guardar', 'primary notes-save', doSave));
+      bar.appendChild(mkNotesBtn('Borrar', 'notes-del', deleteActiveNote));
 
       editor.appendChild(ta);
       editor.appendChild(status);
@@ -6842,7 +6877,7 @@
       });
     }
 
-    var EST_BUILD = 'v20260930h';
+    var EST_BUILD = 'v20260930i';
 
     function layoutPanelSheet() {
       var tb = document.getElementById('desk-toolbar');
@@ -7748,6 +7783,7 @@
         }
 
         /* layoutRev 35: Notas Guardar + stickies dock + tips · teclado VV fiable · v20260930h */
+        /* layoutRev 36: Guardar único ámbar sticky (arriba teclado + footer) · solo sticky · v20260930i */
         if (typeof state.layoutRev !== 'number' || state.layoutRev < 35) {
           notesEditorOpen = false;
           try {
@@ -7757,6 +7793,18 @@
           } catch (e35) {}
           state.bottomApp = null;
           state.layoutRev = 35;
+          saveState();
+        }
+        if (typeof state.layoutRev !== 'number' || state.layoutRev < 36) {
+          notesEditorOpen = false;
+          notesDockSoloId = null;
+          try {
+            var ui36 = loadNotesUi();
+            if (ui36.activeId) notesActiveId = ui36.activeId;
+            saveNotesUi({ editing: false, activeId: notesActiveId, dismissed: false });
+          } catch (e36) {}
+          state.bottomApp = null;
+          state.layoutRev = 36;
           saveState();
         }
 
