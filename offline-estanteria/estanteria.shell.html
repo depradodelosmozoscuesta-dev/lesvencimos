@@ -574,27 +574,55 @@
   #lv-entry-splash[hidden] { display: none !important; }
   #lv-entry-splash video, #lv-entry-splash .lv-splash-stub {
     position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover;
+    object-position: center 42%;
   }
   #lv-entry-splash .lv-splash-stub {
     display: none;
     background:
-      radial-gradient(ellipse at 50% 35%, rgba(196,161,90,.22), transparent 55%),
+      radial-gradient(ellipse at 50% 28%, rgba(196,161,90,.28), transparent 52%),
+      radial-gradient(ellipse at 50% 48%, rgba(196,161,90,.10), transparent 45%),
       linear-gradient(180deg, #12100c 0%, #0E0E0C 55%, #080806 100%);
   }
   #lv-entry-splash.fallback .lv-splash-stub { display: block; }
   #lv-entry-splash.fallback video { display: none; }
+  /* Hide residual mango / clear bottom for lema */
+  #lv-entry-splash .lv-splash-handle-mask {
+    position: absolute; z-index: 1; pointer-events: none;
+    left: 50%; bottom: 0; transform: translateX(-50%);
+    width: min(46vw, 13rem); height: 24%;
+    background: #000;
+  }
   #lv-entry-splash .lv-splash-brand {
-    position: relative; z-index: 2; text-align: center; padding: 1.5rem;
-    pointer-events: none;
-    text-shadow: 0 2px 24px rgba(0,0,0,.85), 0 0 2px #000;
+    position: absolute; inset: 0; z-index: 2;
+    pointer-events: none; text-align: center; padding: 0;
   }
+  /* Title sits ON canopy fabric (upper/center), not over the figures */
   #lv-entry-splash .lv-splash-word {
-    font-family: var(--serif); font-weight: 600;
-    font-size: clamp(1.8rem, 6vw, 2.6rem); letter-spacing: .04em; margin: 0;
+    position: absolute; left: 50%; top: 26%;
+    transform: translate(-50%, -50%);
+    width: min(92vw, 22rem); margin: 0;
+    font-family: var(--serif); font-weight: 700;
+    font-size: clamp(2.15rem, 8vw, 3.25rem); letter-spacing: .05em;
+    color: #1A160E;
+    text-shadow:
+      0 0 1px rgba(230,225,214,.95),
+      0 1px 0 rgba(230,225,214,.55),
+      0 0 22px rgba(196,161,90,.4);
   }
+  /* Lema large in former handle zone */
   #lv-entry-splash .lv-splash-lema {
-    margin: .55rem 0 0; color: var(--acento);
-    font-size: clamp(.95rem, 2.8vw, 1.15rem); letter-spacing: .08em; font-weight: 500;
+    position: absolute; left: 50%; bottom: 10%;
+    transform: translateX(-50%);
+    width: min(94vw, 26rem); margin: 0;
+    color: var(--acento);
+    font-size: clamp(1.2rem, 4.6vw, 1.7rem);
+    letter-spacing: .06em; font-weight: 600;
+    text-shadow: 0 2px 18px rgba(0,0,0,.9), 0 0 2px #000;
+  }
+  #lv-entry-splash.fallback .lv-splash-word {
+    top: 36%;
+    color: var(--tinta);
+    text-shadow: 0 2px 24px rgba(0,0,0,.85), 0 0 2px #000;
   }
   #lv-entry-splash .lv-splash-skip {
     position: absolute; z-index: 3; right: 1rem; bottom: 1.25rem;
@@ -2430,12 +2458,13 @@
 <body class="theme-ambar">
   <div id="lv-entry-splash" hidden>
     <video id="lv-splash-vid" playsinline muted autoplay preload="auto">
-      <source src="/brand/splash/entrada.mp4" type="video/mp4">
+      <source src="/brand/splash/entrada.mp4?v=20260930n" type="video/mp4">
     </video>
     <div class="lv-splash-stub" aria-hidden="true"></div>
+    <div class="lv-splash-handle-mask" aria-hidden="true"></div>
     <div class="lv-splash-brand">
       <p class="lv-splash-word">LES VENCIMOS</p>
-      <p class="lv-splash-lema">Entre todos, vencemos</p>
+      <p class="lv-splash-lema">«Entre todos, vencemos»</p>
     </div>
     <button type="button" class="lv-splash-skip" id="lv-splash-skip">Saltar</button>
   </div>
@@ -2555,7 +2584,7 @@
       </div>
     </div>
 
-    <footer class="site-foot"><span class="wordmark">Les vencimos</span> · escritorio / estantería offline · <span id="est-build">v20260930m</span></footer>
+    <footer class="site-foot"><span class="wordmark">Les vencimos</span> · escritorio / estantería offline · <span id="est-build">v20260930n</span></footer>
   </div>
 
   <div id="mod-viewer" role="dialog" aria-modal="true" aria-labelledby="mod-viewer-title" hidden>
@@ -7742,7 +7771,7 @@
       });
     }
 
-    var EST_BUILD = 'v20260930m';
+    var EST_BUILD = 'v20260930n';
 
     function layoutPanelSheet() {
       var tb = document.getElementById('desk-toolbar');
@@ -8050,7 +8079,7 @@
       function finish() {
         if (done) return;
         done = true;
-        try { sessionStorage.setItem('lv-splash-v1', '1'); } catch (e) {}
+        try { sessionStorage.setItem('lv-splash-v2', '1'); } catch (e) {}
         if (splash) {
           splash.classList.add('fade-out');
           setTimeout(function () {
@@ -8062,7 +8091,7 @@
         }
       }
       var skipSplash = false;
-      try { skipSplash = sessionStorage.getItem('lv-splash-v1') === '1'; } catch (e2) {}
+      try { skipSplash = sessionStorage.getItem('lv-splash-v2') === '1'; } catch (e2) {}
       if (skipSplash || !splash) {
         if (splash) splash.hidden = true;
         if (typeof thenFn === 'function') thenFn();
@@ -8073,10 +8102,10 @@
       var reduced = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
       if (reduced || !vid) {
         splash.classList.add('fallback');
-        setTimeout(finish, 1800);
+        setTimeout(finish, 2200);
         return;
       }
-      var safety = setTimeout(finish, 4200);
+      var safety = setTimeout(finish, 4500);
       vid.addEventListener('ended', function () { clearTimeout(safety); finish(); });
       vid.addEventListener('error', function () {
         clearTimeout(safety);
@@ -8086,7 +8115,7 @@
       var p = vid.play();
       if (p && typeof p.then === 'function') {
         p.then(function () {
-          setTimeout(function () { if (!done) { clearTimeout(safety); finish(); } }, 3000);
+          setTimeout(function () { if (!done) { clearTimeout(safety); finish(); } }, 3400);
         }).catch(function () {
           clearTimeout(safety);
           splash.classList.add('fallback');
@@ -8858,6 +8887,7 @@
         }
 
         /* layoutRev 40: splash + primer uso (5–6 starters) · v20260930m */
+        /* layoutRev 41: splash canopy title + lema bottom · sin mango · v20260930n */
         /* layoutRev 39: curiosidad cards (nombre grande · tap amplía · módulo) · Notas/Vaciar · v20260930m */
         if (typeof state.layoutRev !== 'number' || state.layoutRev < 39) {
           dockCuriosityExpanded = false;
