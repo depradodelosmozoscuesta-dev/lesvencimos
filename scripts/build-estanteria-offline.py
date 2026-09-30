@@ -33,6 +33,7 @@ EMBED_SOURCES = {
     "piano": ROOT / "modulos" / "piano.html",
     "armonica": ROOT / "modulos" / "armonica.html",
     "saxofon": ROOT / "modulos" / "saxofon.html",
+    "instrumentos-aire": ROOT / "modulos" / "instrumentos-aire.html",
     "bajo": ROOT / "modulos" / "bajo.html",
     "canto-solfeo": ROOT / "modulos" / "canto-solfeo.html",
     "historia-musica": ROOT / "modulos" / "historia-musica.html",
@@ -127,7 +128,7 @@ def inject_embedded(shell: str, embedded: dict[str, str]) -> str:
 def write_leeme() -> str:
     return """═══════════════════════════════════════
   ESCRITORIO / ESTANTERÍA — Les vencimos
-  Build v20260929a
+  Build v20260930a
   UN SOLO HTML (módulos dentro)
 ═══════════════════════════════════════
 
@@ -281,7 +282,7 @@ def main() -> None:
     shutil.rmtree(STAGING)
 
     # Also keep last lettered snapshot name pointing at same bytes (bookmarks).
-    snapshot = ROOT / "downloads" / "estanteria-offline-v20260929a.zip"
+    snapshot = ROOT / "downloads" / "estanteria-offline-v20260930a.zip"
     shutil.copy2(OUT, snapshot)
     print(f"Wrote {OUT} ({OUT.stat().st_size} bytes)")
     print(f"Snapshot {snapshot}")

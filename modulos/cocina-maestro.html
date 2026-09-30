@@ -3,6 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="lv-stamp" content="v20260930a">
 <meta name="theme-color" content="#0E0E0C">
 <meta name="description" content="Cocina con el maestro — Les vencimos. Recetas paso a paso, voz, animación y reloj. Offline.">
 <title>Cocina · modo maestro — Les vencimos</title>
@@ -309,6 +310,12 @@ button:disabled{opacity:.42;cursor:default}
 
 .mute-on{opacity:.7}
 #ringFg{transition:stroke-dashoffset .4s linear}
+
+.lamina-list{margin:.8rem 0 1rem;padding:0;list-style:none}
+.lamina-list .lamina-card{background:var(--fondo-2,#161512);border:1px solid var(--linea,rgba(230,225,214,.14));border-radius:8px;padding:.75rem .9rem;margin:0 0 .45rem}
+.lamina-list .lamina-card b{color:var(--acento,#C4A15A);margin-right:.35rem}
+.lamina-list .lamina-num{display:inline-flex;align-items:center;justify-content:center;min-width:1.6rem;height:1.6rem;border-radius:50%;background:rgba(196,161,90,.18);color:var(--acento,#C4A15A);font-weight:700;font-size:.8rem;margin-right:.5rem}
+
 </style>
 </head>
 <body>
@@ -1039,6 +1046,7 @@ button:disabled{opacity:.42;cursor:default}
   </div>
   <p class="food-legend" id="food-legend"></p>
   <p class="paso-texto" id="m-texto">Pulsa Empezar. El maestro habla y pone el reloj del primer paso.</p>
+  <div id="m-lamina" class="lamina-list" hidden></div>
   <p class="paso-voz" id="m-voz" aria-live="polite"></p>
   <div class="row" id="m-botones">
     <button type="button" class="primary" id="btn-start">Empezar</button>
@@ -1934,7 +1942,9 @@ button:disabled{opacity:.42;cursor:default}
     }
     state.idx = i;
     state.running = true;
+    state.phase = "cocinar";
     state.gen += 1;
+    var lam = $("m-lamina"); if(lam){ lam.hidden = true; lam.innerHTML = ""; }
     var p = r.p[i];
     $("m-kicker").textContent = "Paso "+(i+1)+" / "+r.p.length+" · "+r.n;
     $("m-texto").textContent = p.t;
@@ -1971,34 +1981,80 @@ button:disabled{opacity:.42;cursor:default}
     speak("Listo. "+state.rec.n+". Prueba y sienta a la mesa.");
   }
 
-  function startMaestro(){
-    if(!state.rec) return;
-    show("scr-maestro");
+  function showLaminaIngredientes(){
+    var r = state.rec;
+    state.phase = "ingredientes";
     state.idx = -1;
     state.running = false;
     state.done = false;
     $("m-fin").hidden = true;
-    $("m-kicker").textContent = "Modo maestro · "+state.rec.n;
-    $("m-texto").textContent = "Mira los ingredientes. Cuando los tengas, pulsa Empezar. El maestro habla y pone el reloj de cada paso.";
+    $("m-kicker").textContent = "Lámina 1 · Ingredientes · "+r.n;
+    $("m-texto").textContent = "Reúne todo antes de encender fuego. Cuando lo tengas en la encimera, pulsa Siguiente lámina.";
+    var lam = $("m-lamina");
+    if(lam){
+      var ings = (r.g && r.g.length) ? r.g : ["Revisa la ficha: sin lista de ingredientes en datos."];
+      lam.hidden = false;
+      lam.innerHTML = ings.map(function(g){
+        return '<div class="lamina-card">'+esc(g)+'</div>';
+      }).join("");
+    }
     $("m-voz").textContent = "";
     $("m-clock").textContent = "--:--";
     setRing(1,1);
-    setAct("preparar", inferAlimentos({t: (state.rec&&state.rec.n)||""}, state.rec), state.rec);
-    $("btn-start").textContent = "Empezar";
+    setAct("preparar", inferAlimentos({t: r.n||""}, r), r);
+    $("btn-start").textContent = "Siguiente · pasos";
     $("btn-prev").disabled = true;
     $("btn-next").disabled = true;
     $("btn-rep").disabled = true;
     $("btn-done").disabled = true;
     $("btn-stop").disabled = true;
-    var intro = "Maestro de cocina. "+state.rec.n+". "+fmtMin(state.rec.m)+". "+state.rec.p.length+" pasos. Cuando tengas lo de la lista, pulsa Empezar.";
-    speak(intro);
+    speak("Lámina de ingredientes. "+r.n+". "+((r.g&&r.g.length)?(r.g.length+" cosas. "):"")+"Míralos y prepáralos. Luego, lámina de pasos.");
+  }
+
+  function showLaminaPasos(){
+    var r = state.rec;
+    state.phase = "pasos";
+    $("m-kicker").textContent = "Lámina 2 · Pasos · "+r.n;
+    $("m-texto").textContent = "Así va el recorrido. Pulsa Empezar para el primer paso con voz y reloj.";
+    var lam = $("m-lamina");
+    if(lam){
+      lam.hidden = false;
+      lam.innerHTML = (r.p||[]).map(function(p,i){
+        var t = (p.t||"").replace(/\s+/g," ");
+        if(t.length>110) t = t.slice(0,108)+"…";
+        return '<div class="lamina-card"><span class="lamina-num">'+(i+1)+'</span>'+esc(t)+'</div>';
+      }).join("");
+    }
+    setAct("preparar", inferAlimentos({t: r.n||""}, r), r);
+    $("btn-start").textContent = "Empezar a cocinar";
+    $("btn-prev").disabled = false;
+    speak("Lámina de pasos. "+r.p.length+" pasos. Cuando quieras, Empezar a cocinar.");
+  }
+
+  function startMaestro(){
+    if(!state.rec) return;
+    show("scr-maestro");
+    showLaminaIngredientes();
   }
 
   $("btn-maestro").onclick = startMaestro;
   $("btn-back-lista").onclick = function(){ stopTimer(); stopSpeak(); show("scr-lista"); };
   $("btn-back-ficha").onclick = function(){ stopTimer(); stopSpeak(); state.running=false; show("scr-ficha"); };
-  $("btn-start").onclick = function(){ goPaso(0, true); };
-  $("btn-prev").onclick = function(){ if(state.idx>0) goPaso(state.idx-1); };
+  $("btn-start").onclick = function(){
+    if(state.phase === "ingredientes"){ showLaminaPasos(); return; }
+    if(state.phase === "pasos" || state.idx < 0){
+      var lam = $("m-lamina"); if(lam){ lam.hidden = true; lam.innerHTML = ""; }
+      state.phase = "cocinar";
+      goPaso(0, true);
+      return;
+    }
+    /* reiniciar en mitad de receta */
+    showLaminaIngredientes();
+  };
+  $("btn-prev").onclick = function(){
+    if(state.phase === "pasos"){ showLaminaIngredientes(); return; }
+    if(state.phase === "cocinar" && state.idx>0) goPaso(state.idx-1);
+  };;
   $("btn-next").onclick = function(){ goPaso(state.idx<0?0:state.idx+1); };
   $("btn-rep").onclick = function(){ if(state.idx>=0) goPaso(state.idx); };
   $("btn-done").onclick = function(){ goPaso(state.idx+1); };
