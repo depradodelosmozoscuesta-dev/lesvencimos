@@ -97,7 +97,7 @@
     <header class="top">
       <div class="marca">Les vencimos</div>
       <div style="display:flex;gap:.8rem;align-items:baseline;flex-wrap:wrap">
-        <a href="./instalar.html" style="color:var(--acento);font-size:.8rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;text-decoration:none">Instalar</a>
+        <a href="./instalar.html" style="color:var(--acento);font-size:.8rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;text-decoration:none" title="Añadir a pantalla de inicio (no hay APK aún)">Instalar</a>
         <div class="estado" id="origen">Offline</div>
       </div>
     </header>
@@ -119,13 +119,13 @@
         <button class="btn sec" type="button" id="btn-preset">Cambiar público</button>
       </div>
       <input id="fichero" type="file" accept=".html,.htm,.zip,text/html,application/zip" aria-label="Elegir HTML o ZIP del teléfono">
-      <p class="aviso" id="aviso-red" hidden>Vas a pedir <code>catalogo.json</code> a lesvencimos.com. Cero cuenta. Cero cookies. Si no hay red, no pasa nada: sigue lo instalado.</p>
+      <p class="aviso" id="aviso-red" hidden>Vas a pedir <code>catalogo.json</code> a lesvencimos.com (tubería de ZIP). Cero cuenta. Cero cookies. «Bajar ZIP» guarda en Descargas; no instala modules/ desde la web. Si no hay red, sigue lo ya metido.</p>
       <p class="aviso" id="aviso-file" hidden>Estás en <code>file://</code>. En el Samsung, Chrome a menudo no descarga ni abre el selector de archivos desde un HTML local. Abre <a href="https://lesvencimos.com/app/" style="color:var(--acento)">https://lesvencimos.com/app/</a> en Chrome. «Bajar ZIP» guarda el pack en Descargas. Aquí solo se puede añadir un HTML suelto; un ZIP no se descomprime sin el servidor Python.</p>
       <p class="aviso" id="aviso-bajada" hidden></p>
       <div id="catalogo-caja" hidden></div>
       <h2>Instalados en este aparato</h2>
       <ul class="lista" id="lista"></ul>
-      <p class="vacio" id="vacio" hidden>Aún no hay módulos en disco. Abre el catálogo y pulsa Descargar e instalar.</p>
+      <p class="vacio" id="vacio" hidden>Aún no hay módulos aquí. Abre el catálogo y pulsa «Bajar ZIP» (en la web) o «Descargar e instalar» (solo con el servidor Python).</p>
     </section>
   </div>
   <iframe id="vista" title="Módulo" sandbox="allow-scripts allow-same-origin allow-forms allow-modals allow-downloads"></iframe>
@@ -162,11 +162,19 @@
   }
 
   /* GitHub Pages es https pero NO tiene /api/*. Solo el python cascaron-servidor.py. */
+  function hostEstatico() {
+    const h = (location.hostname || "").toLowerCase();
+    return h === "lesvencimos.com" || h === "www.lesvencimos.com" || h.endsWith(".github.io");
+  }
   async function detectarAPI() {
     if (!estado.http) { estado.api = false; return false; }
+    /* Defensa: el dominio público es solo tubería de ZIP. */
+    if (hostEstatico()) { estado.api = false; return false; }
     try {
       const r = await fetch("/api/modulos", { cache: "no-store" });
       if (!r.ok) { estado.api = false; return false; }
+      const ct = (r.headers.get("content-type") || "").toLowerCase();
+      if (ct.indexOf("json") < 0) { estado.api = false; return false; }
       const j = await r.json();
       estado.api = !!(j && Array.isArray(j.modulos));
     } catch (_) { estado.api = false; }
@@ -174,6 +182,8 @@
       $("origen").textContent = "Disco · localhost";
     } else if (estado.api) {
       $("origen").textContent = (location.host || "servidor") + " · API";
+    } else if (!hostEstatico()) {
+      $("origen").textContent = (location.host || "web") + " · solo ZIP";
     }
     return estado.api;
   }
@@ -194,7 +204,7 @@
     if (location.protocol === "file:") {
       tip.innerHTML = "Si no aparece nada en Descargas: abre <a href=\"https://lesvencimos.com/app/\" style=\"color:var(--acento)\">https://lesvencimos.com/app/</a> en Chrome y pulsa «Bajar ZIP» allí. Desde file:// Android suele bloquear la descarga.";
     } else {
-      tip.innerHTML = "El ZIP va a <strong>Descargas</strong>. Un HTML suelto se puede meter con «Añadir del teléfono». Un pack ZIP completo se instala con <code>python3 cascaron-servidor.py</code> en el PC (o en la wifi de casa).";
+      tip.innerHTML = "ZIP en <strong>Descargas</strong>. En lesvencimos.com el cascarón <em>no</em> descomprime packs: «Añadir del teléfono» solo acepta un HTML suelto. Para instalar el ZIP en modules/ hace falta <code>python3 cascaron-servidor.py</code> en el PC.";
     }
   }
 
@@ -416,26 +426,44 @@
     if (!f) return;
     const id = slug(f.name);
     if (estado.api) {
-      const buf = await f.arrayBuffer();
-      const r = await fetch("/api/importar", {
-        method: "POST",
-        headers: { "X-Nombre": f.name, "X-Id": id },
-        body: buf
-      });
-      if (!r.ok) { alert("No se pudo importar."); return; }
+      try {
+        const buf = await f.arrayBuffer();
+        const r = await fetch("/api/importar", {
+          method: "POST",
+          headers: { "X-Nombre": f.name, "X-Id": id },
+          body: buf
+        });
+        if (!r.ok) {
+          let detalle = "";
+          try { const j = await r.json(); detalle = j.error || j.detalle || ""; } catch (_) {}
+          alert("No se pudo importar («" + f.name + "»).\n\n" +
+            (detalle ? ("Servidor: " + detalle + "\n\n") : "") +
+            "Código HTTP " + r.status + ". ¿Es un ZIP o HTML válido? ¿Queda espacio en disco?");
+          return;
+        }
+      } catch (err) {
+        alert("No se pudo importar («" + f.name + "»).\n\n" +
+          "Falló la red o el servidor local (cascaron-servidor.py).\n" +
+          "Si estás en https://lesvencimos.com no hay /api/importar: usa «Bajar ZIP» o un HTML suelto.");
+        return;
+      }
     } else {
       if (/\.zip$/i.test(f.name)) {
-        alert("Sin el servidor Python este cascarón no descomprime ZIP.\n\n" +
-          "1) En el PC: python3 cascaron-servidor.py → http://127.0.0.1:8787\n" +
-          "2) O abre un HTML suelto (no el ZIP) con «Añadir del teléfono».\n" +
-          "3) Si estás en file://, mejor usa https://lesvencimos.com/app/");
+        alert("En la web (y en file://) este cascarón no descomprime ZIP.\n\n" +
+          "1) El ZIP ya puede estar en Descargas: úsalo en el PC con\n" +
+          "   python3 cascaron-servidor.py → http://127.0.0.1:8787\n" +
+          "2) O elige un HTML suelto (no el ZIP) con «Añadir del teléfono».\n" +
+          "3) GitHub Pages no tiene /api/importar.");
         return;
       }
       try {
         const htmlTxt = await f.text();
         await ponerIDB({ id, nombre: f.name.replace(/\.[^.]+$/, ""), html: htmlTxt, bytes: f.size, added: Date.now() });
       } catch (err) {
-        alert("No se pudo leer el archivo. Prueba desde https://lesvencimos.com/app/ en Chrome.");
+        const msg = (err && err.name === "QuotaExceededError")
+          ? "No cabe en el almacenamiento del navegador (cuota llena). Borra datos del sitio o libera espacio."
+          : "No se pudo leer el archivo (" + ((err && err.message) || "error") + ").";
+        alert(msg + "\n\nPrueba desde https://lesvencimos.com/app/ en Chrome.");
         return;
       }
     }
@@ -458,9 +486,31 @@
     return null;
   }
 
+  function mensajeErrorBajar(r, j, m) {
+    if (!r) {
+      return "No se pudo instalar «" + (m.nombre || m.id) + "».\n\nSin respuesta del servidor. ¿Está parado cascaron-servidor.py?";
+    }
+    if (j && j.error === "red") {
+      return "No hubo red al bajar «" + (m.nombre || m.id) + "».\n\nSe intentará guardar el ZIP en Descargas. Luego, con el servidor: Catálogo otra vez, o «Añadir del teléfono».";
+    }
+    if (r.status === 404 || (j && j.error === "no-encontrado")) {
+      return "El servidor no conoce el módulo «" + (m.id || "") + "» (HTTP " + r.status + ").\n\nRevisa catalogo.json o baja el ZIP a mano.";
+    }
+    if (r.status >= 500) {
+      return "Error del servidor al instalar («" + (m.nombre || m.id) + "», HTTP " + r.status + ").\n\n" +
+        ((j && (j.error || j.detalle)) ? String(j.error || j.detalle) : "¿ZIP corrupto o disco lleno?");
+    }
+    const det = (j && (j.error || j.detalle)) ? String(j.error || j.detalle) : "";
+    return "No se pudo instalar «" + (m.nombre || m.id) + "» (HTTP " + r.status + ").\n\n" +
+      (det ? ("Detalle: " + det + "\n\n") : "") +
+      "Si estás en lesvencimos.com: no hay /api/bajar. Usa «Bajar ZIP» (el botón correcto en la web).";
+  }
   async function descargarInstalar(m, boton) {
     if (!estado.api) {
-      if (!m.url) { alert("Sin URL de descarga."); return; }
+      if (!m.url) {
+        alert("Sin URL de descarga para «" + (m.nombre || m.id) + "».\n\nEl catálogo no trae enlace. Prueba más tarde o copia el ZIP desde otro aparato.");
+        return;
+      }
       bajarZipManual(m.url, m.id);
       return;
     }
@@ -474,13 +524,14 @@
       });
       const j = await r.json().catch(function () { return {}; });
       if (!r.ok) {
-        const motivo = j.error === "red"
-          ? "No hubo red. Baja el ZIP a mano y pulsa «Añadir del teléfono»."
-          : (j.error || "No se pudo instalar");
-        alert(motivo);
+        alert(mensajeErrorBajar(r, j, m));
         if (m.url) bajarZipManual(m.url, m.id);
         return;
       }
+    } catch (err) {
+      alert(mensajeErrorBajar(null, { error: (err && err.message) || "red" }, m));
+      if (m.url) bajarZipManual(m.url, m.id);
+      return;
     } finally {
       boton.disabled = false;
       boton.textContent = "Descargar e instalar";
@@ -539,10 +590,10 @@
     const p = document.createElement("p");
     p.className = "aviso";
     p.innerHTML = estado.api
-      ? "Descargar e instalar deja el pack en app/modules/&lt;id&gt;/. Quitar borra esa carpeta. Los datos van a app/data/."
+      ? "«Descargar e instalar» deja el pack en <code>app/modules/&lt;id&gt;/</code>. Quitar borra esa carpeta. Los datos van a <code>app/data/</code>."
       : (location.protocol === "file:"
         ? "Sin servidor no se descomprime un pack. Mejor abre <a href=\"https://lesvencimos.com/app/\" style=\"color:var(--acento)\">lesvencimos.com/app</a> y pulsa «Bajar ZIP»."
-        : "«Bajar ZIP» guarda el archivo en Descargas. Para instalar el pack en disco: <code>python3 cascaron-servidor.py</code>. Un HTML suelto: «Añadir del teléfono».");
+        : "En la web «Bajar ZIP» <strong>solo descarga</strong> (Chrome → Descargas). No instala en modules/. Eso requiere <code>python3 cascaron-servidor.py</code>. Un HTML suelto: «Añadir del teléfono». No hay APK todavía: usa Instalar → Añadir a pantalla de inicio.");
     caja.appendChild(p);
   }
 
@@ -555,7 +606,15 @@
   });
 
   if ("serviceWorker" in navigator && location.protocol !== "file:") {
-    navigator.serviceWorker.register("./sw.js").catch(function () {});
+    var _lvSwReload = false;
+    navigator.serviceWorker.addEventListener("controllerchange", function () {
+      if (_lvSwReload) return;
+      _lvSwReload = true;
+      location.reload();
+    });
+    navigator.serviceWorker.register("./sw.js", { updateViaCache: "none" }).then(function (reg) {
+      try { reg.update(); } catch (_) {}
+    }).catch(function () {});
   }
   origen();
   pintarPresets();

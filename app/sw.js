@@ -1,7 +1,9 @@
 /* Cascarón Les vencimos — service worker.
    Solo cachea el cascarón. No cachea internet ajeno.
-   No intercepta /api/ ni /data/. No hay telemetría. */
-const CACHE = "lv-cascaron-v20260929seg";
+   No intercepta /api/ ni /data/. No hay telemetría.
+   v20260930jorge: network-first en HTML (antes cache-first dejaba
+   al Samsung con el cascarón viejo que POSTeaba /api/bajar en Pages). */
+const CACHE = "lv-cascaron-v20260930jorge";
 const PRECACHE = [
   "./ABRE-AQUI.html",
   "./index.html",
@@ -26,6 +28,13 @@ self.addEventListener("activate", (event) => {
   );
 });
 
+function esDocumento(req, url) {
+  if (req.mode === "navigate") return true;
+  const accept = req.headers.get("accept") || "";
+  if (accept.includes("text/html")) return true;
+  return /\.html?$/i.test(url.pathname);
+}
+
 self.addEventListener("fetch", (event) => {
   const req = event.request;
   if (req.method !== "GET") return;
@@ -33,10 +42,38 @@ self.addEventListener("fetch", (event) => {
   if (url.origin !== self.location.origin) return;
   const path = url.pathname;
   if (path.includes("/api/") || path.includes("/data/")) return;
+  /* Nunca cachear el propio SW ni JSON vivos del catálogo. */
+  if (path.endsWith("/sw.js") || path.endsWith("catalogo.json")) return;
+
+  if (esDocumento(req, url)) {
+    event.respondWith(
+      fetch(req)
+        .then((res) => {
+          if (res && res.ok) {
+            const copia = res.clone();
+            caches.open(CACHE).then((c) => c.put(req, copia)).catch(function () {});
+          }
+          return res;
+        })
+        .catch(() =>
+          caches.match(req).then((hit) => hit || caches.match("./ABRE-AQUI.html"))
+        )
+    );
+    return;
+  }
+
   event.respondWith(
     caches.match(req).then((hit) => {
       if (hit) return hit;
-      return fetch(req).catch(() => caches.match("./ABRE-AQUI.html"));
+      return fetch(req)
+        .then((res) => {
+          if (res && res.ok) {
+            const copia = res.clone();
+            caches.open(CACHE).then((c) => c.put(req, copia)).catch(function () {});
+          }
+          return res;
+        })
+        .catch(() => caches.match("./ABRE-AQUI.html"));
     })
   );
 });
