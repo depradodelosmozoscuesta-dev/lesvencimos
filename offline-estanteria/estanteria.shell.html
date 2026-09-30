@@ -1021,11 +1021,16 @@
     text-shadow: 0 1px 2px rgba(40,20,5,0.55);
   }
 
-  /* Folder magic pane (bottom free zone) + selection */
+  /* Folder magic pane — ALWAYS reserved at folder-open / Notas height (never collapses) */
   .folder-magic-pane {
+    --folder-dock-h: clamp(12.5rem, 38vh, 22rem);
+    flex: 0 0 var(--folder-dock-h);
     flex-shrink: 0;
+    box-sizing: border-box;
     margin: 0.35rem 0.15rem 0.2rem;
-    min-height: 4.6rem;
+    height: var(--folder-dock-h);
+    min-height: var(--folder-dock-h);
+    max-height: var(--folder-dock-h);
     padding: 0.45rem 0.55rem 0.55rem;
     border-radius: 14px;
     border: 1px dashed color-mix(in srgb, var(--linea) 70%, transparent);
@@ -1033,6 +1038,7 @@
     display: flex;
     flex-direction: column;
     gap: 0.35rem;
+    overflow: hidden;
   }
   .folder-magic-pane.is-open {
     border-style: solid;
@@ -1049,6 +1055,7 @@
     justify-content: space-between;
     gap: 0.5rem;
     min-height: 1.4rem;
+    flex-shrink: 0;
   }
   .folder-magic-head strong {
     font-family: var(--serif);
@@ -1061,14 +1068,33 @@
     text-align: center;
     padding: 0.55rem 0.35rem;
     pointer-events: none;
+    margin: auto 0;
+    flex: 1 1 auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
   .folder-magic-pane.is-notes {
     border-style: solid;
     border-color: #C4A15A;
     background: #141414;
     color: #F2EFE6;
-    max-height: min(48vh, 26rem);
     overflow: auto;
+    /* same reserved height as idle / folder-open — never shrink on keyboard */
+    height: var(--folder-dock-h);
+    min-height: var(--folder-dock-h);
+    max-height: var(--folder-dock-h);
+  }
+  body.notes-editing .folder-magic-pane {
+    /* keep dock stable while mobile keyboard / visualViewport resizes */
+    height: var(--folder-dock-h) !important;
+    min-height: var(--folder-dock-h) !important;
+    max-height: var(--folder-dock-h) !important;
+  }
+  @media (orientation: landscape) and (max-height: 480px) {
+    .folder-magic-pane {
+      --folder-dock-h: clamp(9.5rem, 46vh, 16rem);
+    }
   }
   .notes-head-title {
     display: inline-flex;
@@ -1111,6 +1137,8 @@
     gap: 0.45rem;
     align-items: stretch;
     min-height: 0;
+    flex: 1 1 auto;
+    overflow: hidden;
   }
   .notes-list {
     flex: 0 0 38%;
@@ -1143,15 +1171,19 @@
   .notes-editor {
     flex: 1 1 auto;
     min-width: 0;
+    min-height: 0;
     display: flex;
     flex-direction: column;
     gap: 0.28rem;
+    overflow: hidden;
   }
   .notes-editor textarea {
     width: 100%;
-    min-height: 7.2rem;
-    max-height: 14rem;
-    resize: vertical;
+    flex: 1 1 auto;
+    min-height: 5.5rem;
+    max-height: none;
+    height: 100%;
+    resize: none;
     box-sizing: border-box;
     padding: 0.55rem 0.65rem;
     border-radius: 10px;
@@ -1198,6 +1230,9 @@
     -webkit-overflow-scrolling: touch;
     scrollbar-width: thin;
     padding: 0.15rem 0.1rem 0.35rem;
+    flex: 1 1 auto;
+    min-height: 0;
+    align-items: center;
   }
   .folder-action-strip {
     display: flex;
@@ -1927,7 +1962,7 @@
       </div>
     </div>
 
-    <footer class="site-foot"><span class="wordmark">Les vencimos</span> · escritorio / estantería offline · <span id="est-build">v20260930e</span></footer>
+    <footer class="site-foot"><span class="wordmark">Les vencimos</span> · escritorio / estantería offline · <span id="est-build">v20260930f</span></footer>
   </div>
 
   <div id="mod-viewer" role="dialog" aria-modal="true" aria-labelledby="mod-viewer-title" hidden>
@@ -3352,6 +3387,37 @@
     var NOTES_KEY = 'lv-notas-v1';
     var notesActiveId = null;
 
+    function notesEditingActive() {
+      if (state.bottomApp !== 'notas') return false;
+      try {
+        var ae = document.activeElement;
+        if (ae && ae.closest && ae.closest('#folder-magic-pane') &&
+            (ae.tagName === 'TEXTAREA' || ae.tagName === 'INPUT')) {
+          return true;
+        }
+      } catch (eAe) {}
+      return document.body.classList.contains('notes-editing');
+    }
+
+    function focusNotesTextarea(opts) {
+      opts = opts || {};
+      requestAnimationFrame(function () {
+        var ta = document.querySelector('#folder-magic-pane textarea');
+        if (!ta || ta.disabled) return;
+        try {
+          ta.focus({ preventScroll: true });
+        } catch (eF) {
+          try { ta.focus(); } catch (eF2) {}
+        }
+        if (opts.cursorEnd) {
+          try {
+            var len = ta.value ? ta.value.length : 0;
+            ta.setSelectionRange(len, len);
+          } catch (eSel) {}
+        }
+      });
+    }
+
     function loadNotes() {
       try {
         var raw = localStorage.getItem(NOTES_KEY);
@@ -3391,12 +3457,10 @@
       notesActiveId = n.id;
       state.bottomApp = 'notas';
       state.openFolderId = null;
+      document.body.classList.remove('notes-editing');
       saveState();
       renderDesktop();
-      requestAnimationFrame(function () {
-        var ta = document.querySelector('#folder-magic-pane textarea');
-        if (ta) { ta.focus(); }
-      });
+      focusNotesTextarea({ cursorEnd: true });
     }
 
     function deleteActiveNote() {
@@ -3404,6 +3468,7 @@
       var notes = loadNotes().filter(function (n) { return n.id !== notesActiveId; });
       saveNotes(notes);
       notesActiveId = notes.length ? notes[0].id : null;
+      document.body.classList.remove('notes-editing');
       renderDesktop();
     }
 
@@ -3446,6 +3511,7 @@
       actions.appendChild(mk('+', 'primary', createBlankNote));
       actions.appendChild(mk('Nota en blanco', 'primary', createBlankNote));
       actions.appendChild(mk('Cerrar', '', function () {
+        document.body.classList.remove('notes-editing');
         state.bottomApp = null;
         saveState();
         renderDesktop();
@@ -3475,11 +3541,9 @@
           e.preventDefault();
           e.stopPropagation();
           notesActiveId = n.id;
+          document.body.classList.remove('notes-editing');
           renderDesktop();
-          requestAnimationFrame(function () {
-            var ta = document.querySelector('#folder-magic-pane textarea');
-            if (ta) ta.focus();
-          });
+          focusNotesTextarea({ cursorEnd: true });
         });
         list.appendChild(b);
       });
@@ -3488,10 +3552,23 @@
       editor.className = 'notes-editor';
       var ta = document.createElement('textarea');
       ta.setAttribute('aria-label', 'Texto de la nota');
+      ta.setAttribute('enterkeyhint', 'enter');
+      ta.setAttribute('autocapitalize', 'sentences');
+      ta.setAttribute('autocomplete', 'off');
+      ta.setAttribute('autocorrect', 'on');
+      ta.setAttribute('spellcheck', 'true');
       ta.placeholder = 'Escribe la nota…';
       ta.value = current ? (current.body || '') : '';
       ta.disabled = !current;
-      ta.addEventListener('pointerdown', function (e) { e.stopPropagation(); });
+      /* Keep focus: stop desk long-press / scroll handlers from stealing it */
+      function stopSteal(e) { e.stopPropagation(); }
+      ta.addEventListener('pointerdown', stopSteal);
+      ta.addEventListener('touchstart', stopSteal, { passive: true });
+      ta.addEventListener('mousedown', stopSteal);
+      ta.addEventListener('click', stopSteal);
+      ta.addEventListener('focus', function () {
+        document.body.classList.add('notes-editing');
+      });
       var status = document.createElement('div');
       status.className = 'notes-status';
       status.textContent = current ? 'Guardado en este aparato' : 'Nota en blanco para empezar';
@@ -3513,7 +3590,10 @@
           all.unshift(current);
         }
         saveNotes(all);
+        /* Update list label in place — never remount / never renderDesktop */
         status.textContent = 'Guardado en este aparato';
+        var onBtn = list.querySelector('.notes-item.on');
+        if (onBtn) onBtn.textContent = noteTitle(current);
       }
       ta.addEventListener('input', function () {
         if (!current) return;
@@ -3522,9 +3602,17 @@
         if (onBtn) onBtn.textContent = noteTitle(current);
         status.textContent = 'Guardando…';
         if (saveTimer) clearTimeout(saveTimer);
-        saveTimer = setTimeout(flush, 220);
+        saveTimer = setTimeout(flush, 280);
       });
       ta.addEventListener('blur', function () {
+        /* Delay clear so brief focus churn (keyboard / viewport) does not drop editing flag */
+        setTimeout(function () {
+          var ae = document.activeElement;
+          if (!(ae && ae.closest && ae.closest('#folder-magic-pane') &&
+                (ae.tagName === 'TEXTAREA' || ae.tagName === 'INPUT'))) {
+            document.body.classList.remove('notes-editing');
+          }
+        }, 120);
         if (saveTimer) { clearTimeout(saveTimer); saveTimer = null; }
         flush();
       });
@@ -3542,17 +3630,12 @@
       state.selectedIds = [];
       document.body.classList.remove('desk-select-mode');
       state.bottomApp = 'notas';
+      document.body.classList.remove('notes-editing');
       try { closePanels(); } catch (eClose) {}
       saveState();
       renderDesktop();
-      requestAnimationFrame(function () {
-        var pane = document.getElementById('folder-magic-pane');
-        if (pane && pane.scrollIntoView) {
-          try { pane.scrollIntoView({ block: 'nearest', behavior: 'smooth' }); } catch (eScroll) {}
-        }
-        var ta = pane && pane.querySelector('textarea');
-        if (ta && !ta.disabled) ta.focus();
-      });
+      /* Do not scrollIntoView — it fights the mobile keyboard and steals focus */
+      focusNotesTextarea({ cursorEnd: true });
     }
 
     function pinDeskBrand(pane) {
@@ -3771,6 +3854,7 @@
           icon: mod.icon || '',
           href: mod.href || '',
           embed: mod.embed || null,
+          deskPanel: mod.deskPanel || null,
           external: mod.external || null,
           openNative: mod.openNative || null,
           color: mod.color || '',
@@ -5188,7 +5272,13 @@
       return bar;
     }
 
-    function renderDesktop() {
+    function renderDesktop(opts) {
+      opts = opts || {};
+      /* Soft path used by viewport resize: never remount Notas while typing */
+      if (opts.skipIfNotesEditing && notesEditingActive()) {
+        try { applyStatusPos(); updateShelfOverflow(); } catch (eSoft) {}
+        return;
+      }
       var desk = document.getElementById('desktop');
       if (!desk) return;
       desk.classList.add('launcher');
@@ -6139,7 +6229,7 @@
       });
     }
 
-    var EST_BUILD = 'v20260930e';
+    var EST_BUILD = 'v20260930f';
 
     function layoutPanelSheet() {
       var tb = document.getElementById('desk-toolbar');
@@ -6978,6 +7068,38 @@
           saveState();
         }
 
+        /* layoutRev 32: dock altura fija · Notas foco estable · v20260930f */
+        if (typeof state.layoutRev !== 'number' || state.layoutRev < 32) {
+          var nm32 = catalogById('notas');
+          if (nm32 && !hasModule('notas')) {
+            state.items.push({
+              id: 'notas', type: 'module', kind: 'catalog', titulo: 'Notas', icon: 'notas',
+              href: '', embed: null, deskPanel: 'notas', external: null, openNative: null,
+              color: '#C4A15A', blurb: nm32.blurb || 'Notas en el panel de abajo',
+              shelf: 'escritura', view: 'icon', z: ++Z, addedAt: new Date().toISOString()
+            });
+          }
+          state.items.forEach(function (it) {
+            if (!it || it.id !== 'notas') return;
+            it.titulo = 'Notas';
+            it.icon = 'notas';
+            it.shelf = 'escritura';
+            it.color = '#C4A15A';
+            it.embed = null;
+            it.deskPanel = 'notas';
+            /* Make sure Notas is not trapped inside a folder */
+            var fid = itemFolderId(it.id);
+            if (fid) {
+              var ff = folderById(fid);
+              if (ff && Array.isArray(ff.ids)) {
+                ff.ids = ff.ids.filter(function (x) { return x !== 'notas'; });
+              }
+            }
+          });
+          state.layoutRev = 32;
+          saveState();
+        }
+
         ensureOficioFolder();
         ensureMusicaFolder();
         ensurePreparadosFolder();
@@ -6991,13 +7113,27 @@
       applyStatusPos();
       if (clockTimer) clearInterval(clockTimer);
       clockTimer = setInterval(tickClocks, 30000);
-      window.addEventListener('resize', function () {
+      function onViewportChromeChange() {
         if (state.statusPos) {
           state.statusPos = clampStatusPos(state.statusPos.x, state.statusPos.y);
           saveState();
         }
-        renderDesktop();
-      });
+        /* Mobile keyboard / visualViewport fires resize — never remount Notas while typing */
+        if (notesEditingActive() || state.bottomApp === 'notas') {
+          try { applyStatusPos(); updateShelfOverflow(); } catch (eVp) {}
+          return;
+        }
+        renderDesktop({ skipIfNotesEditing: true });
+      }
+      window.addEventListener('resize', onViewportChromeChange);
+      try {
+        if (window.visualViewport) {
+          window.visualViewport.addEventListener('resize', onViewportChromeChange);
+          window.visualViewport.addEventListener('scroll', function () {
+            if (notesEditingActive()) return;
+          });
+        }
+      } catch (eVv) {}
     }
 
     if (document.readyState === 'loading') {
