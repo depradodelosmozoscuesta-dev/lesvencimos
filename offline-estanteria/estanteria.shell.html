@@ -585,11 +585,11 @@
   }
   #lv-entry-splash.fallback .lv-splash-stub { display: block; }
   #lv-entry-splash.fallback video { display: none; }
-  /* Hide residual mango / clear bottom for lema */
+  /* Hide residual mango/U below ground; lema sits in that zone */
   #lv-entry-splash .lv-splash-handle-mask {
     position: absolute; z-index: 1; pointer-events: none;
     left: 50%; bottom: 0; transform: translateX(-50%);
-    width: min(46vw, 13rem); height: 24%;
+    width: min(52vw, 15rem); height: 26%;
     background: #000;
   }
   #lv-entry-splash .lv-splash-brand {
@@ -609,13 +609,13 @@
       0 1px 0 rgba(230,225,214,.55),
       0 0 22px rgba(196,161,90,.4);
   }
-  /* Lema large in former handle zone */
+  /* Lema large in former handle / below-ground zone */
   #lv-entry-splash .lv-splash-lema {
-    position: absolute; left: 50%; bottom: 10%;
+    position: absolute; left: 50%; bottom: 9%;
     transform: translateX(-50%);
     width: min(94vw, 26rem); margin: 0;
     color: var(--acento);
-    font-size: clamp(1.2rem, 4.6vw, 1.7rem);
+    font-size: clamp(1.25rem, 5vw, 1.85rem);
     letter-spacing: .06em; font-weight: 600;
     text-shadow: 0 2px 18px rgba(0,0,0,.9), 0 0 2px #000;
   }
@@ -623,6 +623,19 @@
     top: 36%;
     color: var(--tinta);
     text-shadow: 0 2px 24px rgba(0,0,0,.85), 0 0 2px #000;
+  }
+  #lv-entry-splash .lv-splash-tap {
+    position: absolute; z-index: 3; left: 50%; top: 58%;
+    transform: translate(-50%, -50%);
+    margin: 0; padding: .65rem 1.1rem;
+    background: rgba(14,14,12,.72); color: var(--acento);
+    border: 1px solid rgba(196,161,90,.45); border-radius: 999px;
+    font: inherit; font-weight: 600; font-size: .95rem;
+    letter-spacing: .04em; opacity: 0; pointer-events: none;
+    transition: opacity .25s ease;
+  }
+  #lv-entry-splash.need-gesture .lv-splash-tap {
+    opacity: 1; pointer-events: auto; cursor: pointer;
   }
   #lv-entry-splash .lv-splash-skip {
     position: absolute; z-index: 3; right: 1rem; bottom: 1.25rem;
@@ -2456,16 +2469,18 @@
   </style>
 </head>
 <body class="theme-ambar">
-  <div id="lv-entry-splash" hidden>
+    <div id="lv-entry-splash" hidden>
     <video id="lv-splash-vid" playsinline muted autoplay preload="auto">
-      <source src="/brand/splash/entrada.mp4?v=20260930n" type="video/mp4">
+      <source src="/brand/splash/entrada.mp4?v=20261001a" type="video/mp4">
     </video>
+    <audio id="lv-splash-audio" preload="auto" src="/brand/splash/entrada-sonido.m4a?v=20261001a"></audio>
     <div class="lv-splash-stub" aria-hidden="true"></div>
     <div class="lv-splash-handle-mask" aria-hidden="true"></div>
     <div class="lv-splash-brand">
       <p class="lv-splash-word">LES VENCIMOS</p>
-      <p class="lv-splash-lema">«Entre todos, vencemos»</p>
+      <p class="lv-splash-lema">Entre todos, vencemos</p>
     </div>
+    <p class="lv-splash-tap" id="lv-splash-tap" role="button" tabindex="0">Toca para el sonido</p>
     <button type="button" class="lv-splash-skip" id="lv-splash-skip">Saltar</button>
   </div>
   <div id="lv-first-run" hidden role="dialog" aria-labelledby="lv-fr-title">
@@ -8074,13 +8089,20 @@
     function runEntrySplash(thenFn) {
       var splash = document.getElementById('lv-entry-splash');
       var vid = document.getElementById('lv-splash-vid');
+      var aud = document.getElementById('lv-splash-audio');
       var skip = document.getElementById('lv-splash-skip');
+      var tap = document.getElementById('lv-splash-tap');
       var done = false;
+      var soundUnlocked = false;
+
       function finish() {
         if (done) return;
         done = true;
-        try { sessionStorage.setItem('lv-splash-v2', '1'); } catch (e) {}
+        try { sessionStorage.setItem('lv-splash-v4', '1'); } catch (e) {}
+        try { if (aud) { aud.pause(); aud.currentTime = 0; } } catch (eA) {}
+        try { if (vid) { vid.pause(); } } catch (eV) {}
         if (splash) {
+          splash.classList.remove('need-gesture');
           splash.classList.add('fade-out');
           setTimeout(function () {
             splash.hidden = true;
@@ -8090,37 +8112,97 @@
           thenFn();
         }
       }
+
       var skipSplash = false;
-      try { skipSplash = sessionStorage.getItem('lv-splash-v2') === '1'; } catch (e2) {}
+      try { skipSplash = sessionStorage.getItem('lv-splash-v4') === '1'; } catch (e2) {}
       if (skipSplash || !splash) {
         if (splash) splash.hidden = true;
         if (typeof thenFn === 'function') thenFn();
         return;
       }
+
       splash.hidden = false;
       if (skip) skip.onclick = finish;
+
       var reduced = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
       if (reduced || !vid) {
         splash.classList.add('fallback');
         setTimeout(finish, 2200);
         return;
       }
-      var safety = setTimeout(finish, 4500);
+
+      // Full ~12s clay video; safety just past end
+      var safety = setTimeout(finish, 14000);
       vid.addEventListener('ended', function () { clearTimeout(safety); finish(); });
       vid.addEventListener('error', function () {
         clearTimeout(safety);
         splash.classList.add('fallback');
         setTimeout(finish, 1600);
       });
+
+      function playSound() {
+        if (!aud || soundUnlocked) return;
+        soundUnlocked = true;
+        splash.classList.remove('need-gesture');
+        try {
+          aud.currentTime = 0;
+          var ap = aud.play();
+          if (ap && typeof ap.catch === 'function') ap.catch(function () {});
+        } catch (e3) {}
+      }
+
+      function unlockSound(ev) {
+        if (done) return;
+        if (ev) { try { ev.preventDefault(); } catch (e4) {} }
+        playSound();
+        try {
+          vid.muted = false;
+          var up = vid.play();
+          if (up && typeof up.catch === 'function') up.catch(function () {});
+        } catch (e5) {}
+      }
+
+      if (tap) {
+        tap.addEventListener('click', unlockSound);
+        tap.addEventListener('keydown', function (ev) {
+          if (ev.key === 'Enter' || ev.key === ' ') unlockSound(ev);
+        });
+      }
+      // One-shot gesture anywhere on splash (except Saltar, which finishes)
+      splash.addEventListener('pointerdown', function (ev) {
+        if (done || soundUnlocked) return;
+        if (ev.target && ev.target.id === 'lv-splash-skip') return;
+        unlockSound(ev);
+      }, { once: true });
+
+      // Video: muted autoplay for reliable picture
+      vid.muted = true;
       var p = vid.play();
       if (p && typeof p.then === 'function') {
         p.then(function () {
-          setTimeout(function () { if (!done) { clearTimeout(safety); finish(); } }, 3400);
+          // Try Jorge's m4a unmuted; if blocked, show tap once
+          if (!aud) return;
+          try {
+            aud.currentTime = 0;
+            var ap = aud.play();
+            if (ap && typeof ap.then === 'function') {
+              ap.then(function () {
+                soundUnlocked = true;
+                splash.classList.remove('need-gesture');
+              }).catch(function () {
+                splash.classList.add('need-gesture');
+              });
+            }
+          } catch (e6) {
+            splash.classList.add('need-gesture');
+          }
         }).catch(function () {
           clearTimeout(safety);
           splash.classList.add('fallback');
           setTimeout(finish, 1600);
         });
+      } else {
+        splash.classList.add('need-gesture');
       }
     }
 
