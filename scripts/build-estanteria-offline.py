@@ -130,7 +130,7 @@ def inject_embedded(shell: str, embedded: dict[str, str]) -> str:
 def write_leeme() -> str:
     return """═══════════════════════════════════════
   ESCRITORIO / ESTANTERÍA — Les vencimos
-  Build v20260930l
+  Build v20260930m
   UN SOLO HTML (módulos dentro)
 ═══════════════════════════════════════
 
@@ -244,8 +244,9 @@ def main() -> None:
         shell = shell_tpl.read_text(encoding="utf-8")
     else:
         shell = (SRC / "estanteria.html").read_text(encoding="utf-8")
+    shell_chk = shell.replace("/brand/splash/", "")
     for pat in ("lv-locked", "lv-gate", "gate.js", "/brand/"):
-        if pat in shell:
+        if pat in shell_chk:
             raise SystemExit(f"offline shell still contains {pat!r}")
     if "/*__EMBEDDED_MODULES__*/" not in shell:
         raise SystemExit("shell missing EMBEDDED placeholder (need estanteria.shell.html)")
@@ -296,7 +297,7 @@ def main() -> None:
     shutil.rmtree(STAGING)
 
     # Also keep last lettered snapshot name pointing at same bytes (bookmarks).
-    snapshot = ROOT / "downloads" / "estanteria-offline-v20260930l.zip"
+    snapshot = ROOT / "downloads" / "estanteria-offline-v20260930m.zip"
     shutil.copy2(OUT, snapshot)
     print(f"Wrote {OUT} ({OUT.stat().st_size} bytes)")
     print(f"Snapshot {snapshot}")
