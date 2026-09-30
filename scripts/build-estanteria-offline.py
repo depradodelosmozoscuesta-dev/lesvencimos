@@ -129,7 +129,7 @@ def inject_embedded(shell: str, embedded: dict[str, str]) -> str:
 def write_leeme() -> str:
     return """═══════════════════════════════════════
   ESCRITORIO / ESTANTERÍA — Les vencimos
-  Build v20260930d
+  Build v20260930e
   UN SOLO HTML (módulos dentro)
 ═══════════════════════════════════════
 
@@ -174,7 +174,11 @@ Carpeta Mantenimiento de casa (balda Casa):
   · Apagones — Luz · Gas (límites) · Casa preparada · Campo
   · Internet — Sin red (comms offline)
 Carpeta Biblioteca (Escritura): Libros. Maridajes (Ocio): Tabaco.
-Ideas vive en Escritura. Climatización = módulo clima. Higiene en Salud.
+Ideas y Notas viven en Escritura. Notas no abre otra página:
+se escribe en el panel de abajo (lista, nota en blanco, se guarda
+en este aparato). Una carpeta u otra app reemplaza ese panel;
+Notas vuelve a abrirlo. Marca «Les vencimos» en el cromo.
+Climatización = módulo clima. Higiene en Salud.
 Al tocar un icono se abren en la misma página
 (← Escritorio para volver).
 
@@ -287,7 +291,7 @@ def main() -> None:
     shutil.rmtree(STAGING)
 
     # Also keep last lettered snapshot name pointing at same bytes (bookmarks).
-    snapshot = ROOT / "downloads" / "estanteria-offline-v20260930d.zip"
+    snapshot = ROOT / "downloads" / "estanteria-offline-v20260930e.zip"
     shutil.copy2(OUT, snapshot)
     print(f"Wrote {OUT} ({OUT.stat().st_size} bytes)")
     print(f"Snapshot {snapshot}")
