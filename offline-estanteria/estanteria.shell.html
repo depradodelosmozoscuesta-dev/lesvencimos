@@ -1119,6 +1119,59 @@
     opacity: 0.35;
     pointer-events: none;
   }
+  /* Compact editor (default): sticky-sized dock; Expanded: large keyboard-pinned */
+  body.notes-editor-compact .folder-magic-pane.is-notes {
+    height: var(--folder-dock-h) !important;
+    min-height: var(--folder-dock-h) !important;
+    max-height: var(--folder-dock-h) !important;
+  }
+  body.notes-editor-compact.notes-kb-open #folder-magic-pane.is-notes {
+    height: var(--notes-kb-h, 9.5rem) !important;
+    min-height: 7.5rem !important;
+    max-height: var(--notes-kb-h, 9.5rem) !important;
+  }
+  body.notes-editor-compact .notes-editor {
+    gap: 0.18rem;
+  }
+  body.notes-editor-compact .notes-editor textarea {
+    min-height: 3.6rem;
+    flex: 1 1 auto;
+    font-size: 0.92rem;
+    padding: 0.4rem 0.5rem;
+    border-radius: 8px;
+    background: color-mix(in srgb, var(--notes-edit-sticky, #C4A15A) 22%, #101010);
+    border-color: color-mix(in srgb, var(--notes-edit-sticky, #C4A15A) 65%, #333);
+  }
+  body.notes-editor-compact .notes-meta {
+    gap: 0.18rem;
+  }
+  body.notes-editor-compact .notes-types,
+  body.notes-editor-compact .notes-attach-row,
+  body.notes-editor-compact .notes-status {
+    display: none;
+  }
+  body.notes-editor-compact .notes-editor-actions {
+    padding: 0.28rem 0.1rem calc(0.28rem + env(safe-area-inset-bottom, 0px));
+    gap: 0.3rem;
+  }
+  body.notes-editor-compact .notes-head-actions .notes-save,
+  body.notes-editor-compact .notes-editor-actions .notes-save {
+    min-height: 40px !important;
+    font-size: 0.92rem !important;
+    min-width: 5.5rem;
+    padding: 0.35rem 0.95rem !important;
+  }
+  .notes-head-actions .notes-expand,
+  .notes-editor-actions .notes-expand,
+  .notes-head-actions .notes-compact,
+  .notes-editor-actions .notes-compact {
+    border-color: #5BA3D9 !important;
+    color: #5BA3D9 !important;
+    font-weight: 700 !important;
+  }
+  body.notes-editor-expanded .notes-editor textarea {
+    min-height: 5.5rem;
+  }
   @media (orientation: landscape) and (max-height: 480px) {
     .folder-magic-pane {
       --folder-dock-h: clamp(9.5rem, 46vh, 16rem);
@@ -2304,7 +2357,7 @@
       </div>
     </div>
 
-    <footer class="site-foot"><span class="wordmark">Les vencimos</span> · escritorio / estantería offline · <span id="est-build">v20260930j</span></footer>
+    <footer class="site-foot"><span class="wordmark">Les vencimos</span> · escritorio / estantería offline · <span id="est-build">v20260930k</span></footer>
   </div>
 
   <div id="mod-viewer" role="dialog" aria-modal="true" aria-labelledby="mod-viewer-title" hidden>
@@ -3741,6 +3794,7 @@
     var notesActiveId = null;
     var notesDockSoloId = null; /* deprecated: always show ALL stickies */
     var notesEditorOpen = false;
+    var notesEditorExpanded = false; /* false = compact dock editor (default) */
     var notesKbBound = false;
     var notesKbHandlers = null;
     var dockRotateTimer = null;
@@ -3815,6 +3869,35 @@
       } catch (eClr) {}
     }
 
+    function syncNotesEditorModeClasses() {
+      var on = !!notesEditorOpen;
+      document.body.classList.toggle('notes-editor-compact', on && !notesEditorExpanded);
+      document.body.classList.toggle('notes-editor-expanded', on && notesEditorExpanded);
+      if (!on) {
+        document.body.classList.remove('notes-editor-compact');
+        document.body.classList.remove('notes-editor-expanded');
+      }
+    }
+
+    function setNotesEditorExpanded(on) {
+      notesEditorExpanded = !!on;
+      syncNotesEditorModeClasses();
+      try {
+        var pane = document.getElementById('folder-magic-pane');
+        var ta = pane && pane.querySelector('textarea');
+        if (ta && notesActiveId) {
+          var notes = loadNotes();
+          var cur = null;
+          notes.forEach(function (n) { if (n.id === notesActiveId) cur = n; });
+          if (cur) persistCurrentNote(cur, ta.value);
+        }
+      } catch (eFlush) {}
+      clearNotesKeyboardPin();
+      saveState();
+      renderDesktop();
+      focusNotesTextarea({ cursorEnd: false });
+    }
+
     function layoutNotesAboveKeyboard() {
       var pane = document.getElementById('folder-magic-pane');
       if (!pane || !pane.classList.contains('is-notes') || !notesEditorOpen) {
@@ -3837,7 +3920,19 @@
         /* Still editing: do NOT clear pin (fixes first-focus-only) */
         return;
       }
-      var avail = Math.max(150, Math.min(Math.floor(vv.height * 0.72), Math.floor(vv.height - 10)));
+      var avail;
+      if (notesEditorExpanded) {
+        avail = Math.max(150, Math.min(Math.floor(vv.height * 0.72), Math.floor(vv.height - 10)));
+      } else {
+        /* Compact: sticky-sized strip above keyboard (not huge) */
+        var dockPx = 0;
+        try {
+          var cs = getComputedStyle(pane);
+          dockPx = parseFloat(cs.height) || parseFloat(cs.minHeight) || 0;
+        } catch (eDock) {}
+        if (!dockPx || dockPx < 80) dockPx = Math.min(200, Math.floor(vv.height * 0.38));
+        avail = Math.max(118, Math.min(Math.floor(dockPx), Math.floor(vv.height * 0.42), 220));
+      }
       var top = Math.max(4, Math.floor(vv.offsetTop + vv.height - avail - 8));
       document.documentElement.style.setProperty('--notes-kb-h', avail + 'px');
       document.documentElement.style.setProperty('--notes-kb-top', top + 'px');
@@ -3998,6 +4093,8 @@
       document.body.classList.remove('notes-editing');
       clearNotesKeyboardPin();
       notesEditorOpen = false;
+      notesEditorExpanded = false;
+      syncNotesEditorModeClasses();
       notesDockSoloId = null; /* never hide other stickies */
       saveNotesUi({ editing: false, activeId: notesActiveId, dismissed: false });
       state.bottomApp = null;
@@ -4013,6 +4110,8 @@
       notesActiveId = id || notesActiveId;
       notesDockSoloId = null;
       notesEditorOpen = true;
+      notesEditorExpanded = false; /* default: compact dock editor */
+      syncNotesEditorModeClasses();
       state.bottomApp = 'notas';
       state.openFolderId = null;
       state.selectMode = false;
@@ -4052,6 +4151,8 @@
       document.body.classList.remove('notes-editing');
       clearNotesKeyboardPin();
       notesEditorOpen = false;
+      notesEditorExpanded = false;
+      syncNotesEditorModeClasses();
       notesDockSoloId = null;
       state.bottomApp = null;
       saveState();
@@ -4324,6 +4425,8 @@
       stopDockRotate();
       clearNotesKeyboardPin();
       document.body.classList.remove('notes-editing');
+      notesEditorExpanded = false;
+      syncNotesEditorModeClasses();
       notesDockSoloId = null; /* always show ALL stickies */
       pane.classList.add('is-notes');
       pane.setAttribute('aria-label', 'Panel inferior');
@@ -4371,15 +4474,19 @@
         return;
       }
       saveNotesUi({ activeId: notesActiveId, dismissed: false, editing: true });
+      syncNotesEditorModeClasses();
       pane.classList.add('is-notes');
-      pane.setAttribute('aria-label', 'Editar nota');
+      pane.setAttribute('aria-label', notesEditorExpanded ? 'Editar nota (ampliada)' : 'Editar nota (compacta)');
+      try {
+        pane.style.setProperty('--notes-edit-sticky', current.color || '#C4A15A');
+      } catch (eCol) {}
 
       var head = document.createElement('div');
       head.className = 'folder-magic-head';
       var left = document.createElement('span');
       left.className = 'notes-head-title';
       var title = document.createElement('strong');
-      title.textContent = 'Editar nota';
+      title.textContent = notesEditorExpanded ? 'Editar · amplio' : 'Editar';
       var brand = document.createElement('span');
       brand.className = 'notes-brand';
       brand.textContent = 'Les vencimos';
@@ -4417,6 +4524,7 @@
           colors.querySelectorAll('.notes-color-chip').forEach(function (x) {
             x.classList.toggle('on', x.getAttribute('title') === c);
           });
+          try { pane.style.setProperty('--notes-edit-sticky', c); } catch (eTint) {}
           persistCurrentNote(current, ta.value);
           status.textContent = 'Pulsa Guardar para salir';
         });
@@ -4445,7 +4553,7 @@
         });
         types.appendChild(tb);
       });
-      meta.appendChild(types);
+      if (notesEditorExpanded) meta.appendChild(types);
       editor.appendChild(meta);
 
       var attach = document.createElement('div');
@@ -4536,11 +4644,12 @@
       });
       attach.appendChild(qrBtn);
       attach.appendChild(qrInp);
-      editor.appendChild(attach);
-
       var extras = document.createElement('div');
       extras.className = 'notes-attach-row';
-      editor.appendChild(extras);
+      if (notesEditorExpanded) {
+        editor.appendChild(attach);
+        editor.appendChild(extras);
+      }
 
       function refreshAttachExtras() {
         extras.innerHTML = '';
@@ -4630,7 +4739,7 @@
         }, 120);
       });
 
-      refreshAttachExtras();
+      if (notesEditorExpanded) refreshAttachExtras();
 
       var bar = document.createElement('div');
       bar.className = 'notes-editor-actions';
@@ -4645,8 +4754,18 @@
       }
       /* Top sticky Guardar (above keyboard) — ámbar primario */
       actions.appendChild(mkNotesBtn('Guardar', 'primary notes-save', doSave));
+      if (notesEditorExpanded) {
+        actions.appendChild(mkNotesBtn('Compactar', 'notes-compact', function () { setNotesEditorExpanded(false); }));
+      } else {
+        actions.appendChild(mkNotesBtn('Ampliar', 'notes-expand', function () { setNotesEditorExpanded(true); }));
+      }
       /* Footer Guardar when keyboard closed */
       bar.appendChild(mkNotesBtn('Guardar', 'primary notes-save', doSave));
+      if (notesEditorExpanded) {
+        bar.appendChild(mkNotesBtn('Compactar', 'notes-compact', function () { setNotesEditorExpanded(false); }));
+      } else {
+        bar.appendChild(mkNotesBtn('Ampliar', 'notes-expand', function () { setNotesEditorExpanded(true); }));
+      }
       bar.appendChild(mkNotesBtn('Borrar', 'notes-del', deleteActiveNote));
 
       editor.appendChild(ta);
@@ -4667,6 +4786,8 @@
         return;
       }
       notesEditorOpen = false;
+      notesEditorExpanded = false;
+      syncNotesEditorModeClasses();
       state.openFolderId = null;
       state.selectMode = false;
       state.selectedIds = [];
@@ -7272,7 +7393,7 @@
       });
     }
 
-    var EST_BUILD = 'v20260930j';
+    var EST_BUILD = 'v20260930k';
 
     function layoutPanelSheet() {
       var tb = document.getElementById('desk-toolbar');
@@ -8178,7 +8299,7 @@
         }
 
         /* layoutRev 35: Notas Guardar + stickies dock + tips · teclado VV fiable · v20260930h */
-        /* layoutRev 36: Guardar único ámbar sticky (arriba teclado + footer) · solo sticky · v20260930j */
+        /* layoutRev 36: Guardar único ámbar sticky (arriba teclado + footer) · solo sticky · v20260930k */
         if (typeof state.layoutRev !== 'number' || state.layoutRev < 35) {
           notesEditorOpen = false;
           try {
@@ -8203,7 +8324,7 @@
           saveState();
         }
 
-        /* layoutRev 37: ALL stickies + rich editor + carousel 20s curiosidades · v20260930j */
+        /* layoutRev 37: ALL stickies + rich editor + carousel 20s curiosidades · v20260930k */
         if (typeof state.layoutRev !== 'number' || state.layoutRev < 37) {
           notesEditorOpen = false;
           notesDockSoloId = null;
@@ -8214,6 +8335,21 @@
           } catch (e37) {}
           state.bottomApp = null;
           state.layoutRev = 37;
+          saveState();
+        }
+
+        /* layoutRev 38: Notas editor compacto por defecto + Ampliar/Compactar · v20260930k */
+        if (typeof state.layoutRev !== 'number' || state.layoutRev < 38) {
+          notesEditorOpen = false;
+          notesEditorExpanded = false;
+          notesDockSoloId = null;
+          try {
+            var ui38 = loadNotesUi();
+            if (ui38.activeId) notesActiveId = ui38.activeId;
+            saveNotesUi({ editing: false, activeId: notesActiveId, dismissed: false });
+          } catch (e38) {}
+          state.bottomApp = null;
+          state.layoutRev = 38;
           saveState();
         }
 
@@ -8231,6 +8367,8 @@
         var uiLoad = loadNotesUi();
         if (uiLoad.activeId) notesActiveId = uiLoad.activeId;
         notesEditorOpen = false;
+        notesEditorExpanded = false;
+        syncNotesEditorModeClasses();
         state.bottomApp = null;
         saveNotesUi({ editing: false, activeId: notesActiveId, dismissed: false });
       } catch (eNotesLoad) {}

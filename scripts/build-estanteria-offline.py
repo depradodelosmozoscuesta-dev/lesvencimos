@@ -130,7 +130,7 @@ def inject_embedded(shell: str, embedded: dict[str, str]) -> str:
 def write_leeme() -> str:
     return """═══════════════════════════════════════
   ESCRITORIO / ESTANTERÍA — Les vencimos
-  Build v20260930j
+  Build v20260930k
   UN SOLO HTML (módulos dentro)
 ═══════════════════════════════════════
 
@@ -175,11 +175,12 @@ Carpeta Mantenimiento de casa (balda Casa):
   · Apagones — Luz · Gas (límites) · Casa preparada · Campo
   · Internet — Sin red (comms offline)
 Carpeta Biblioteca (Escritura): Libros. Maridajes (Ocio): Tabaco.
-Ideas y Notas viven en Escritura. Notas: editas en el panel
-(tipo aviso/urgente, foto, QR), pulsas Guardar (ámbar sticky) y
-TODAS las tarjetas quedan abajo (desliza). Carousel idle ~20 s:
-notas ↔ curiosidades Guías/Profesor/Casa (pausa si carpeta o
-edición). Teclado anclado al escribir. Conservación en Casa junto a Jardín.
+Ideas y Notas viven en Escritura. Notas: al tocar una sticky se abre
+el editor COMPACTO en el dock (tamaño tarjeta); Ampliar → panel grande
+con tipo/foto/QR; Compactar vuelve al chico. Guardar (ámbar) guarda y
+sale a TODAS las tarjetas. Carousel idle ~20 s: notas ↔ curiosidades
+Guías/Profesor/Casa (pausa si carpeta o edición). Conservación en Casa
+junto a Jardín.
 Marca «Les vencimos» en el cromo.
 Climatización = módulo clima. Higiene en Salud.
 Al tocar un icono se abren en la misma página
@@ -294,7 +295,7 @@ def main() -> None:
     shutil.rmtree(STAGING)
 
     # Also keep last lettered snapshot name pointing at same bytes (bookmarks).
-    snapshot = ROOT / "downloads" / "estanteria-offline-v20260930j.zip"
+    snapshot = ROOT / "downloads" / "estanteria-offline-v20260930k.zip"
     shutil.copy2(OUT, snapshot)
     print(f"Wrote {OUT} ({OUT.stat().st_size} bytes)")
     print(f"Snapshot {snapshot}")
