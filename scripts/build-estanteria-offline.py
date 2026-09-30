@@ -130,7 +130,7 @@ def inject_embedded(shell: str, embedded: dict[str, str]) -> str:
 def write_leeme() -> str:
     return """═══════════════════════════════════════
   ESCRITORIO / ESTANTERÍA — Les vencimos
-  Build v20260930k
+  Build v20260930l
   UN SOLO HTML (módulos dentro)
 ═══════════════════════════════════════
 
@@ -178,9 +178,10 @@ Carpeta Biblioteca (Escritura): Libros. Maridajes (Ocio): Tabaco.
 Ideas y Notas viven en Escritura. Notas: al tocar una sticky se abre
 el editor COMPACTO en el dock (tamaño tarjeta); Ampliar → panel grande
 con tipo/foto/QR; Compactar vuelve al chico. Guardar (ámbar) guarda y
-sale a TODAS las tarjetas. Carousel idle ~20 s: notas ↔ curiosidades
-Guías/Profesor/Casa (pausa si carpeta o edición). Conservación en Casa
-junto a Jardín.
+sale a TODAS las tarjetas. Curiosidades en el dock: etiqueta «curiosidad»,
+nombre grande (p. ej. Campo Grande), detalle pequeño; toca para ampliar
+y enlace opcional al módulo. Controles: Notas o Vaciar (panel en reposo).
+Conservación en Casa junto a Jardín.
 Marca «Les vencimos» en el cromo.
 Climatización = módulo clima. Higiene en Salud.
 Al tocar un icono se abren en la misma página
@@ -295,7 +296,7 @@ def main() -> None:
     shutil.rmtree(STAGING)
 
     # Also keep last lettered snapshot name pointing at same bytes (bookmarks).
-    snapshot = ROOT / "downloads" / "estanteria-offline-v20260930k.zip"
+    snapshot = ROOT / "downloads" / "estanteria-offline-v20260930l.zip"
     shutil.copy2(OUT, snapshot)
     print(f"Wrote {OUT} ({OUT.stat().st_size} bytes)")
     print(f"Snapshot {snapshot}")
