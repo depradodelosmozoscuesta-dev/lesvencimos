@@ -138,7 +138,7 @@ Este ZIP lleva:
   ABRE-AQUI.html  (= estanteria.html)
   estanteria.html
   LEEME.txt
-  brand/splash/entrada.mp4 + entrada-sonido.m4a  (intro; si falta, stub)
+  brand/splash/entrada.mp4 + entrada-sonido.m4a + cierre-succion.m4a  (intro; si falta, stub)
 
 Baldas deslizables por tema, con etiqueta tipográfica
 (Escritura · Ocio · Casa · Salud · Varios). Desliza
@@ -292,7 +292,8 @@ def main() -> None:
         OUT.unlink()
     splash_dir_src = ROOT / "brand" / "splash"
     splash_dir = STAGING / "brand" / "splash"
-    for splash_name in ("entrada.mp4", "entrada-sonido.m4a"):
+    splash_names = ("entrada.mp4", "entrada-sonido.m4a", "cierre-succion.m4a")
+    for splash_name in splash_names:
         splash_src = splash_dir_src / splash_name
         if splash_src.exists():
             splash_dir.mkdir(parents=True, exist_ok=True)
@@ -301,7 +302,7 @@ def main() -> None:
     with zipfile.ZipFile(OUT, "w", compression=zipfile.ZIP_DEFLATED) as z:
         for name in ("LEEME.txt", "ABRE-AQUI.html", "estanteria.html"):
             z.write(STAGING / name, arcname=name)
-        for splash_name in ("entrada.mp4", "entrada-sonido.m4a"):
+        for splash_name in splash_names:
             splash_staged = splash_dir / splash_name
             if splash_staged.exists():
                 z.write(splash_staged, arcname=f"brand/splash/{splash_name}")

@@ -2679,6 +2679,7 @@
       <source src="brand/splash/entrada.mp4?v=20261001e" type="video/mp4">
     </video>
     <audio id="lv-splash-audio" preload="auto" src="brand/splash/entrada-sonido.m4a?v=20261001e"></audio>
+    <audio id="lv-splash-cierre" preload="auto" src="brand/splash/cierre-succion.m4a?v=20261001e"></audio>
     <div class="lv-splash-stub" aria-hidden="true"></div>
     <div class="lv-splash-handle-mask" aria-hidden="true"></div>
     <div class="lv-splash-brand">
@@ -2817,7 +2818,7 @@
       </div>
     </div>
 
-    <footer class="site-foot"><span class="wordmark">Les vencimos</span> · escritorio / estantería offline · <span id="est-build">v20260930n</span></footer>
+    <footer class="site-foot"><span class="wordmark">Les vencimos</span> · escritorio / estantería offline · <span id="est-build">v20261001e</span></footer>
   </div>
 
   <div id="mod-viewer" role="dialog" aria-modal="true" aria-labelledby="mod-viewer-title" hidden>
@@ -8897,31 +8898,55 @@
       var splash = document.getElementById('lv-entry-splash');
       var vid = document.getElementById('lv-splash-vid');
       var aud = document.getElementById('lv-splash-audio');
+      var cierre = document.getElementById('lv-splash-cierre');
       var skip = document.getElementById('lv-splash-skip');
       var tap = document.getElementById('lv-splash-tap');
       var done = false;
       var soundUnlocked = false;
+      var cierrePlayed = false;
+      // End SFX fires near video end (~11.15s of ~12s) so the slam lands on the close.
+      var CIERRE_AT = 11.15;
+
+      function stopSplashAudio() {
+        try { if (aud) { aud.pause(); aud.currentTime = 0; } } catch (eA) {}
+        try { if (cierre) { cierre.pause(); cierre.currentTime = 0; } } catch (eC) {}
+      }
+
+      function playCierre() {
+        if (cierrePlayed || !cierre) return;
+        cierrePlayed = true;
+        try {
+          cierre.currentTime = 0;
+          var cp = cierre.play();
+          if (cp && typeof cp.catch === 'function') cp.catch(function () {});
+        } catch (eCierre) {}
+      }
 
       function finish() {
         if (done) return;
         done = true;
-        try { sessionStorage.setItem('lv-splash-v7', '1'); } catch (e) {}
-        try { if (aud) { aud.pause(); aud.currentTime = 0; } } catch (eA) {}
+        try { sessionStorage.setItem('lv-splash-v8', '1'); } catch (e) {}
+        // Only slam on a natural/near-end close — not on early «Saltar»
+        try {
+          if (vid && !isNaN(vid.currentTime) && vid.currentTime >= (CIERRE_AT - 0.35)) playCierre();
+        } catch (eNear) {}
+        try { if (aud) { aud.pause(); } } catch (eA) {}
         try { if (vid) { vid.pause(); } } catch (eV) {}
         if (splash) {
           splash.classList.remove('need-gesture');
           splash.classList.add('fade-out');
           setTimeout(function () {
+            stopSplashAudio();
             splash.hidden = true;
             if (typeof thenFn === 'function') thenFn();
-          }, 380);
+          }, 420);
         } else if (typeof thenFn === 'function') {
           thenFn();
         }
       }
 
       var skipSplash = false;
-      try { skipSplash = sessionStorage.getItem('lv-splash-v7') === '1'; } catch (e2) {}
+      try { skipSplash = sessionStorage.getItem('lv-splash-v8') === '1'; } catch (e2) {}
       if (skipSplash || !splash) {
         if (splash) splash.hidden = true;
         if (typeof thenFn === 'function') thenFn();
@@ -8946,16 +8971,45 @@
         splash.classList.add('fallback');
         setTimeout(finish, 1600);
       });
+      vid.addEventListener('timeupdate', function () {
+        if (done || cierrePlayed) return;
+        try {
+          if (vid.currentTime >= CIERRE_AT) playCierre();
+        } catch (eT) {}
+      });
+
+      function tryPlayMelody() {
+        if (!aud) return false;
+        try {
+          // Start from 0 only if not already playing (keeps early start on unlock)
+          if (aud.paused) {
+            try { aud.currentTime = 0; } catch (eCT) {}
+            var ap = aud.play();
+            if (ap && typeof ap.then === 'function') {
+              ap.then(function () {
+                soundUnlocked = true;
+                splash.classList.remove('need-gesture');
+              }).catch(function () {
+                splash.classList.add('need-gesture');
+              });
+              return true;
+            }
+            soundUnlocked = true;
+            splash.classList.remove('need-gesture');
+            return true;
+          }
+          soundUnlocked = true;
+          splash.classList.remove('need-gesture');
+          return true;
+        } catch (e3) {
+          splash.classList.add('need-gesture');
+          return false;
+        }
+      }
 
       function playSound() {
-        if (!aud || soundUnlocked) return;
-        soundUnlocked = true;
-        splash.classList.remove('need-gesture');
-        try {
-          aud.currentTime = 0;
-          var ap = aud.play();
-          if (ap && typeof ap.catch === 'function') ap.catch(function () {});
-        } catch (e3) {}
+        if (soundUnlocked && aud && !aud.paused) return;
+        tryPlayMelody();
       }
 
       function unlockSound(ev) {
@@ -8963,7 +9017,7 @@
         if (ev) { try { ev.preventDefault(); } catch (e4) {} }
         playSound();
         try {
-          vid.muted = false;
+          vid.muted = true; // keep Jorge m4a as sole audible track
           var up = vid.play();
           if (up && typeof up.catch === 'function') up.catch(function () {});
         } catch (e5) {}
@@ -8982,37 +9036,25 @@
         unlockSound(ev);
       }, { once: true });
 
-      // Video: muted autoplay for reliable picture
+      // Music ASAP — do NOT wait for video.play() promise (was late before).
+      tryPlayMelody();
+
+      // Video: muted autoplay for reliable picture (Jorge's m4a is the sound)
       vid.muted = true;
       var p = vid.play();
       if (p && typeof p.then === 'function') {
         p.then(function () {
-          // Try Jorge's m4a unmuted; if blocked, show tap once
-          if (!aud) return;
-          try {
-            aud.currentTime = 0;
-            var ap = aud.play();
-            if (ap && typeof ap.then === 'function') {
-              ap.then(function () {
-                soundUnlocked = true;
-                splash.classList.remove('need-gesture');
-              }).catch(function () {
-                splash.classList.add('need-gesture');
-              });
-            }
-          } catch (e6) {
-            splash.classList.add('need-gesture');
-          }
+          // Retry melody once picture is running (in case first play was blocked/racy)
+          if (!soundUnlocked) tryPlayMelody();
         }).catch(function () {
           clearTimeout(safety);
           splash.classList.add('fallback');
           setTimeout(finish, 1600);
         });
-      } else {
+      } else if (!soundUnlocked) {
         splash.classList.add('need-gesture');
       }
     }
-
     function init() {
       (function showProtocolHint() {
         var lab = document.getElementById('offline-mode-label');
@@ -9785,6 +9827,8 @@
         /* layoutRev 42: Añadir + starters offline-safe + splash relative · v20261001a */
         /* + layoutRev 43: sin dock Notas fijo · Balda −/+ · v20261001b */
         /* + v20261001c: cromo Editorial B · héroes diferenciados */
+        /* layoutRev 43d: layout b · lema medio · vídeo+sonido Jorge · sin nubes · v20261001d */
+        /* layoutRev 44: música antes · fin succión/absorción amorosa · v20261001e */
         /* layoutRev 39: curiosidad cards (nombre grande · tap amplía · módulo) · Notas/Vaciar · v20260930m */
         if (typeof state.layoutRev !== 'number' || state.layoutRev < 39) {
           dockCuriosityExpanded = false;
