@@ -1,6 +1,6 @@
 # Mapa de relaciones — síntesis
 
-Fecha: 26 sep 2026 · Europe/Madrid (UTC+2)
+Fecha: 30 sep 2026 · Europe/Madrid (UTC+2)
 
 ## Diagrama (Mermaid)
 
@@ -26,16 +26,14 @@ flowchart TB
     PA -.->|urgencia educativa| S
   end
 
-  subgraph resiliencia["Resiliencia / vida"]
-    A[Apagón]
-    El[Electricidad]
-    Sup[Supervivencia]
-    Cam[Campo]
-    Bri[Bricolaje]
-    A --> El
-    A --> Sup
-    El -.-> Bri
-    Cam -.-> Sup
+  subgraph mantenimiento["Mantenimiento de casa"]
+    Mant[Mantenimiento de casa]
+    Man[Manitas · taller/agua]
+    Apa[Apagones · luz/gas/casa preparada/campo]
+    Net[Internet · sin red]
+    Mant --> Man
+    Mant --> Apa
+    Mant --> Net
   end
 
   H -.->|mantén límites| El
@@ -68,10 +66,10 @@ flowchart TB
 
 | Clúster | Núcleo denso | Satélites finos |
 |---------|--------------|-----------------|
-| Casa | Hogar, Economía, Jardín | Clima, Moda, Legal, Bricolaje, Electricidad |
+| Casa | Hogar, Economía, Jardín, Climatización | Mantenimiento (Manitas/Apagones/Internet), Mascotas |
 | Salud | — | Salud, Medicación, PA, Gimnasio*, Meditación* |
-| Cultura | Biblioteca, Informática | Tintas, Guitarra, Guías, QR |
-| Resiliencia | — | Apagón, Supervivencia, Campo, Radio, Mapas |
+| Cultura | Biblioteca (Escritura), Informática | Tintas, Ideas, Guitarra, Guías, QR |
+| Mantenimiento | Manitas, Apagones, Internet | Campo, Casa preparada, Sin red, Luz, Gas |
 
 \*Gimnasio/Meditación son densos pero de bienestar, no solapan datos con Salud.
 

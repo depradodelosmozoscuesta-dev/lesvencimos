@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0E0E0C">
+<title>Reproductor — Les vencimos</title>
+<style>
+:root {
+  --fondo: #0E0E0C; --fondo-2: #161512; --fondo-3: #1C1A16;
+  --tinta: #E6E1D6; --suave: #9A9488; --acento: #C4A15A; --acento-texto: #1A160E;
+  --linea: rgba(230,225,214,.14); --peligro: #C46A4A; --ok: #8F9A72;
+  --serif: "Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;
+  --sans: "Segoe UI",system-ui,-apple-system,sans-serif;
+  --radio: 2px;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; min-height: 100%; }
+html { color-scheme: dark; }
+body {
+  color: var(--tinta); background: var(--fondo);
+  font-family: var(--sans); font-size: 1.02rem; line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+.wrap { max-width: 40rem; margin: 0 auto; padding: 1.4rem 1.1rem 4rem; }
+header.top {
+  display: flex; align-items: baseline; justify-content: space-between;
+  gap: 1rem; padding-bottom: 1rem; border-bottom: 1px solid var(--linea); margin-bottom: 1.25rem;
+}
+.brand { color: var(--tinta); text-decoration: none; font-family: var(--serif); font-weight: 600; }
+.status { font-size: .7rem; letter-spacing: .14em; text-transform: uppercase; color: var(--suave); font-weight: 600; }
+h1 { margin: 0 0 .4rem; font-family: var(--serif); font-size: clamp(1.7rem,4.5vw,2.4rem); font-weight: 600; line-height: 1.12; }
+.lead { margin: 0 0 1.1rem; color: var(--suave); }
+.lead strong { color: var(--tinta); }
+.box {
+  background: var(--fondo-2); border: 1px solid var(--linea); border-radius: var(--radio);
+  padding: 1rem 1rem 1.1rem; margin: 0 0 1rem;
+}
+.box h2 {
+  margin: 0 0 .65rem; font-size: .7rem; letter-spacing: .16em;
+  text-transform: uppercase; color: var(--suave); font-weight: 600;
+}
+.row { display: flex; flex-wrap: wrap; gap: .4rem; align-items: center; }
+button.primary, button.ghost, label.file {
+  appearance: none; min-height: 44px; padding: .55rem 1rem; border-radius: var(--radio);
+  cursor: pointer; font: 700 .9rem var(--sans); display: inline-flex; align-items: center;
+}
+button.primary { border: 1px solid var(--acento); background: var(--acento); color: var(--acento-texto); }
+button.ghost { border: 1px solid var(--linea); background: transparent; color: var(--tinta); }
+button:disabled { opacity: .4; cursor: default; }
+label.file { border: 1px solid var(--linea); background: transparent; color: var(--tinta); }
+input[type=file] { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+.hint { color: var(--suave); font-size: .84rem; margin: .4rem 0 0; }
+.err { color: var(--peligro); margin: .4rem 0 0; }
+.now {
+  margin: .85rem 0 0; padding: .75rem .85rem; background: var(--fondo-3);
+  border: 1px solid var(--linea); border-radius: var(--radio);
+}
+.now .name { font-family: var(--serif); font-weight: 600; font-size: 1.05rem; word-break: break-word; }
+.now .meta { color: var(--suave); font-size: .78rem; margin-top: .25rem; }
+audio { width: 100%; margin-top: .7rem; height: 40px; }
+.list { list-style: none; margin: 0; padding: 0; }
+.list li {
+  display: flex; align-items: center; gap: .55rem; flex-wrap: wrap;
+  padding: .65rem 0; border-bottom: 1px solid var(--linea);
+}
+.list li:last-child { border-bottom: 0; }
+.list .t { flex: 1 1 10rem; min-width: 0; }
+.list .t strong { display: block; font-size: .95rem; word-break: break-word; }
+.list .t span { color: var(--suave); font-size: .75rem; }
+.list button { min-height: 40px; padding: .4rem .75rem; font-size: .82rem; }
+.empty { color: var(--suave); font-size: .9rem; margin: 0; }
+footer {
+  margin-top: 2rem; padding-top: 1rem; border-top: 1px solid var(--linea);
+  color: var(--suave); font-size: .75rem; letter-spacing: .08em; text-transform: uppercase;
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <a class="brand" href="../index.html">Les vencimos</a>
+    <span class="status">Offline</span>
+  </header>
+  <h1>Reproductor</h1>
+  <p class="lead">Elige un audio de este aparato y suena aquí. <strong>Sin nube</strong>. Las grabaciones de la Grabadora son descargas: ábrelas de nuevo desde Archivos.</p>
+
+  <div class="box">
+    <h2>Abrir</h2>
+    <div class="row">
+      <label class="file">Elegir audio<input id="pick" type="file" accept="audio/*,.mp3,.m4a,.wav,.ogg,.aac,.flac,.webm" multiple></label>
+      <button class="ghost" type="button" id="clear-recent" disabled>Vaciar recientes</button>
+    </div>
+    <p class="hint">Funciona en file://. El navegador no lee carpetas a ciegas: tú eliges el archivo.</p>
+    <p class="err" id="err" role="alert"></p>
+  </div>
+
+  <div class="box">
+    <h2>Ahora</h2>
+    <div class="now" id="now">
+      <div class="name" id="now-name">Nada cargado</div>
+      <div class="meta" id="now-meta">Elige un archivo o un reciente.</div>
+      <audio id="player" controls preload="metadata"></audio>
+    </div>
+    <div class="row" style="margin-top:.75rem">
+      <button class="primary" type="button" id="play" disabled>Reproducir</button>
+      <button class="ghost" type="button" id="pause" disabled>Pausa</button>
+      <button class="ghost" type="button" id="stop" disabled>Parar</button>
+    </div>
+  </div>
+
+  <div class="box">
+    <h2>Recientes (esta sesión)</h2>
+    <p class="hint">Se guardan ObjectURL en memoria mientras esta página sigue abierta. Al cerrar o recargar, hay que elegir el archivo otra vez.</p>
+    <ul class="list" id="recent"></ul>
+    <p class="empty" id="recent-empty">Ninguno aún.</p>
+  </div>
+
+  <footer>lesvencimos.com · reproductor offline · v20260930d</footer>
+</div>
+<script>
+(function () {
+  var LS_META = 'lv-reproductor-recent-meta-v1';
+  var MAX = 12;
+  var pick = document.getElementById('pick');
+  var player = document.getElementById('player');
+  var err = document.getElementById('err');
+  var nowName = document.getElementById('now-name');
+  var nowMeta = document.getElementById('now-meta');
+  var btnPlay = document.getElementById('play');
+  var btnPause = document.getElementById('pause');
+  var btnStop = document.getElementById('stop');
+  var btnClear = document.getElementById('clear-recent');
+  var list = document.getElementById('recent');
+  var empty = document.getElementById('recent-empty');
+
+  /** @type {{id:string,name:string,type:string,size:number,url:string,added:number}[]} */
+  var recent = [];
+  var currentUrl = null;
+
+  function fmtSize(n) {
+    if (!n || n < 0) return '';
+    if (n < 1024) return n + ' B';
+    if (n < 1048576) return (n / 1024).toFixed(1) + ' KB';
+    return (n / 1048576).toFixed(1) + ' MB';
+  }
+
+  function setErr(msg) {
+    err.textContent = msg || '';
+  }
+
+  function saveMeta() {
+    try {
+      var slim = recent.map(function (r) {
+        return { id: r.id, name: r.name, type: r.type, size: r.size, added: r.added };
+      });
+      localStorage.setItem(LS_META, JSON.stringify(slim));
+    } catch (e) { /* ignore */ }
+  }
+
+  function revokeAll() {
+    recent.forEach(function (r) {
+      try { URL.revokeObjectURL(r.url); } catch (e) {}
+    });
+  }
+
+  function setCurrent(entry) {
+    if (!entry) return;
+    if (currentUrl && currentUrl !== entry.url) {
+      /* keep recent URLs alive; only swap src */
+    }
+    currentUrl = entry.url;
+    player.src = entry.url;
+    nowName.textContent = entry.name || 'Audio';
+    nowMeta.textContent = [entry.type || 'audio', fmtSize(entry.size)].filter(Boolean).join(' · ');
+    btnPlay.disabled = false;
+    btnPause.disabled = false;
+    btnStop.disabled = false;
+    setErr('');
+    try { player.play(); } catch (e) {}
+  }
+
+  function renderRecent() {
+    list.innerHTML = '';
+    empty.hidden = recent.length > 0;
+    btnClear.disabled = recent.length === 0;
+    recent.forEach(function (r) {
+      var li = document.createElement('li');
+      var t = document.createElement('div');
+      t.className = 't';
+      t.innerHTML = '<strong></strong><span></span>';
+      t.querySelector('strong').textContent = r.name;
+      t.querySelector('span').textContent = fmtSize(r.size) + (r.type ? ' · ' + r.type : '');
+      var play = document.createElement('button');
+      play.type = 'button';
+      play.className = 'primary';
+      play.textContent = 'Oír';
+      play.addEventListener('click', function () { setCurrent(r); });
+      var rm = document.createElement('button');
+      rm.type = 'button';
+      rm.className = 'ghost';
+      rm.textContent = 'Quitar';
+      rm.addEventListener('click', function () {
+        try { URL.revokeObjectURL(r.url); } catch (e) {}
+        recent = recent.filter(function (x) { return x.id !== r.id; });
+        if (currentUrl === r.url) {
+          player.removeAttribute('src');
+          player.load();
+          nowName.textContent = 'Nada cargado';
+          nowMeta.textContent = 'Elige un archivo o un reciente.';
+          btnPlay.disabled = true;
+          btnPause.disabled = true;
+          btnStop.disabled = true;
+          currentUrl = null;
+        }
+        saveMeta();
+        renderRecent();
+      });
+      li.appendChild(t);
+      li.appendChild(play);
+      li.appendChild(rm);
+      list.appendChild(li);
+    });
+  }
+
+  function addFiles(fileList) {
+    if (!fileList || !fileList.length) return;
+    var added = 0;
+    Array.prototype.forEach.call(fileList, function (file) {
+      if (!file) return;
+      var type = file.type || '';
+      var name = file.name || 'audio';
+      if (type && type.indexOf('audio') !== 0 && !/\.(mp3|m4a|wav|ogg|aac|flac|webm)$/i.test(name)) {
+        return;
+      }
+      var url;
+      try { url = URL.createObjectURL(file); } catch (e) {
+        setErr('No se pudo abrir el archivo en este navegador.');
+        return;
+      }
+      var entry = {
+        id: Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 8),
+        name: name,
+        type: type || 'audio',
+        size: file.size || 0,
+        url: url,
+        added: Date.now()
+      };
+      recent = recent.filter(function (r) { return r.name !== entry.name || r.size !== entry.size; });
+      recent.unshift(entry);
+      while (recent.length > MAX) {
+        var drop = recent.pop();
+        try { URL.revokeObjectURL(drop.url); } catch (e) {}
+      }
+      added++;
+      setCurrent(entry);
+    });
+    if (!added) setErr('Elige un archivo de audio (mp3, m4a, wav, ogg…).');
+    saveMeta();
+    renderRecent();
+  }
+
+  pick.addEventListener('change', function () {
+    addFiles(pick.files);
+    pick.value = '';
+  });
+
+  btnPlay.addEventListener('click', function () {
+    try { player.play(); } catch (e) { setErr('No se pudo reproducir.'); }
+  });
+  btnPause.addEventListener('click', function () { player.pause(); });
+  btnStop.addEventListener('click', function () {
+    player.pause();
+    try { player.currentTime = 0; } catch (e) {}
+  });
+  btnClear.addEventListener('click', function () {
+    revokeAll();
+    recent = [];
+    currentUrl = null;
+    player.removeAttribute('src');
+    player.load();
+    nowName.textContent = 'Nada cargado';
+    nowMeta.textContent = 'Elige un archivo o un reciente.';
+    btnPlay.disabled = true;
+    btnPause.disabled = true;
+    btnStop.disabled = true;
+    try { localStorage.removeItem(LS_META); } catch (e) {}
+    renderRecent();
+  });
+
+  player.addEventListener('error', function () {
+    setErr('Error al leer el audio. Prueba otro formato o vuelve a elegirlo desde Archivos.');
+  });
+
+  window.addEventListener('beforeunload', function () { revokeAll(); });
+
+  renderRecent();
+})();
+</script>
+</body>
+</html>

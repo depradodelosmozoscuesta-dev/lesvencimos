@@ -38,6 +38,7 @@ EMBED_SOURCES = {
     "canto-solfeo": ROOT / "modulos" / "canto-solfeo.html",
     "historia-musica": ROOT / "modulos" / "historia-musica.html",
     "grabadora": ROOT / "modulos" / "grabadora.html",
+    "reproductor": ROOT / "modulos" / "reproductor.html",
     "alto-rendimiento": ROOT / "modulos" / "alto-rendimiento.html",
     "cocina-maestro": ROOT / "modulos" / "cocina-maestro.html",
     "musica": ROOT / "modulos" / "musica.html",
@@ -128,7 +129,7 @@ def inject_embedded(shell: str, embedded: dict[str, str]) -> str:
 def write_leeme() -> str:
     return """═══════════════════════════════════════
   ESCRITORIO / ESTANTERÍA — Les vencimos
-  Build v20260930b
+  Build v20260930d
   UN SOLO HTML (módulos dentro)
 ═══════════════════════════════════════
 
@@ -164,12 +165,16 @@ Sin ficha libre ni redimensionar a mano.
 Al abrir ya viene llena. Sin Radio (necesita internet; pack aparte) ni Alarma Cuba.
 
 Los módulos (Hogar [Hoy+buscador], Salud, Higiene, QR,
-Oficio [Luz · Taller · Fontanería · Gas], Jardín, Economía, Clima, Moda, Legal, Mascotas, Campo, Casa preparada, Calculadora,
-Gimnasio, Guitarra, Piano, Armónica, Saxofón, Bajo, Canto y solfeo, Historia de la música, Grabadora, Caja fuerte, Medicación, Meditación,
+Mantenimiento [Manitas · Apagones · Internet], Jardín, Economía, Clima, Moda, Legal, Mascotas, Preparados, Calculadora,
+Gimnasio, Guitarra, Piano, Armónica, Saxofón, Bajo, Canto y solfeo, Historia de la música, Grabadora, Reproductor, Caja fuerte, Medicación, Meditación,
 Auxilios, Escritura, Dibujo, Informática, Guías [piloto CyL], Mapas, Biblioteca, Teatro de marionetas, Tanteo, Arte, Ideas, Protocolo, Tabaco, Sin internet, Gas (límites)…)
 van EMBEBIDOS dentro del HTML.
-Carpeta Oficio (balda Casa): agrupa Electricidad, Bricolaje, Fontanería y Gas (límites)
-(sin gas ni caldera). Higiene vive en Salud (cuerpo).
+Carpeta Mantenimiento de casa (balda Casa):
+  · Manitas — Taller (bricolaje) · Agua (fontanería)
+  · Apagones — Luz · Gas (límites) · Casa preparada · Campo
+  · Internet — Sin red (comms offline)
+Carpeta Biblioteca (Escritura): Libros. Maridajes (Ocio): Tabaco.
+Ideas vive en Escritura. Climatización = módulo clima. Higiene en Salud.
 Al tocar un icono se abren en la misma página
 (← Escritorio para volver).
 
@@ -237,7 +242,7 @@ def main() -> None:
         raise SystemExit("shell missing EMBEDDED placeholder (need estanteria.shell.html)")
 
     embedded = build_embedded()
-    for need in ("hogar", "salud", "qr", "electro", "brico", "fontaneria", "jardin", "economia", "clima", "moda", "legal", "mascotas", "campo", "supervive", "caja", "gym", "guitarra", "piano", "armonica", "saxofon", "bajo", "canto-solfeo", "historia-musica", "grabadora", "calc", "medica", "medita", "auxilios", "escritura", "dibujo", "info", "guias", "mapas", "biblio", "teatro", "tanteo", "higiene", "arte", "protocolo", "ideas", "tabaco", "comunicacion", "gas", "alto-rendimiento", "cocina-maestro", "musica", "bateria", "clasica", "dj", "electronica", "grupo", "teoria-musical", "cuidado-instrumentos"):
+    for need in ("hogar", "salud", "qr", "electro", "brico", "fontaneria", "jardin", "economia", "clima", "moda", "legal", "mascotas", "campo", "supervive", "caja", "gym", "guitarra", "piano", "armonica", "saxofon", "bajo", "canto-solfeo", "historia-musica", "grabadora", "calc", "medica", "medita", "auxilios", "escritura", "dibujo", "info", "guias", "mapas", "biblio", "teatro", "tanteo", "higiene", "arte", "protocolo", "ideas", "tabaco", "comunicacion", "gas", "alto-rendimiento", "cocina-maestro", "musica", "bateria", "clasica", "dj", "electronica", "grupo", "teoria-musical", "cuidado-instrumentos", "reproductor"):
         if need not in embedded:
             raise SystemExit(f"missing embed {need}")
 
@@ -282,7 +287,7 @@ def main() -> None:
     shutil.rmtree(STAGING)
 
     # Also keep last lettered snapshot name pointing at same bytes (bookmarks).
-    snapshot = ROOT / "downloads" / "estanteria-offline-v20260930b.zip"
+    snapshot = ROOT / "downloads" / "estanteria-offline-v20260930d.zip"
     shutil.copy2(OUT, snapshot)
     print(f"Wrote {OUT} ({OUT.stat().st_size} bytes)")
     print(f"Snapshot {snapshot}")
