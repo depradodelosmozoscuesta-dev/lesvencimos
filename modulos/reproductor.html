@@ -83,7 +83,7 @@ footer {
     <span class="status">Offline</span>
   </header>
   <h1>Reproductor</h1>
-  <p class="lead">Elige un audio de este aparato y suena aquí. <strong>Sin nube</strong>. Las grabaciones de la Grabadora son descargas: ábrelas de nuevo desde Archivos.</p>
+  <p class="lead">Elige un audio de este aparato y suena aquí. <strong>Sin nube</strong>. Las grabaciones de la Grabadora son descargas: ábrelas de nuevo desde Archivos. Media Session (si el navegador la tiene) ofrece pausa en la pantalla de bloqueo. Offline, sin CDN.</p>
 
   <div class="box">
     <h2>Abrir</h2>
@@ -116,11 +116,14 @@ footer {
     <p class="empty" id="recent-empty">Ninguno aún.</p>
   </div>
 
-  <footer>lesvencimos.com · reproductor offline · v20260930d</footer>
+
+  <footer>lesvencimos.com · reproductor offline · v20260930h</footer>
 </div>
 <script>
 (function () {
   var LS_META = 'lv-reproductor-recent-meta-v1';
+  var LS_NOW = 'lv-reproductor-now-v1';
+  var BC_NAME = 'lv-reproductor-v1';
   var MAX = 12;
   var pick = document.getElementById('pick');
   var player = document.getElementById('player');
@@ -137,6 +140,9 @@ footer {
   /** @type {{id:string,name:string,type:string,size:number,url:string,added:number}[]} */
   var recent = [];
   var currentUrl = null;
+  var currentName = '';
+  var bc = null;
+  try { bc = new BroadcastChannel(BC_NAME); } catch (eBc) { bc = null; }
 
   function fmtSize(n) {
     if (!n || n < 0) return '';
@@ -147,6 +153,63 @@ footer {
 
   function setErr(msg) {
     err.textContent = msg || '';
+  }
+
+  function publishState(extra) {
+    var playing = !!(player && !player.paused && !player.ended && player.src);
+    var payload = {
+      v: 1,
+      source: 'reproductor',
+      playing: playing,
+      paused: !!(player && player.paused && player.src),
+      stopped: !player || !player.src,
+      title: currentName || (nowName && nowName.textContent) || 'Audio',
+      t: Date.now()
+    };
+    if (extra) {
+      for (var k in extra) {
+        if (Object.prototype.hasOwnProperty.call(extra, k)) payload[k] = extra[k];
+      }
+    }
+    try { localStorage.setItem(LS_NOW, JSON.stringify(payload)); } catch (eLs) {}
+    try { if (bc) bc.postMessage(payload); } catch (eB) {}
+    try {
+      if (window.parent && window.parent !== window) {
+        window.parent.postMessage({ type: 'lv-reproductor', data: payload }, '*');
+      }
+    } catch (ePm) {}
+    updateMediaSession(payload);
+  }
+
+  function updateMediaSession(payload) {
+    if (!('mediaSession' in navigator)) return;
+    try {
+      navigator.mediaSession.metadata = new MediaMetadata({
+        title: (payload && payload.title) || 'Audio',
+        artist: 'Les vencimos · Reproductor',
+        album: 'Offline'
+      });
+      navigator.mediaSession.playbackState = (payload && payload.playing) ? 'playing' : 'paused';
+    } catch (eMs) {}
+  }
+
+  function bindMediaSessionActions() {
+    if (!('mediaSession' in navigator) || !navigator.mediaSession.setActionHandler) return;
+    try {
+      navigator.mediaSession.setActionHandler('play', function () {
+        try { player.play(); } catch (e) {}
+      });
+      navigator.mediaSession.setActionHandler('pause', function () {
+        try { player.pause(); } catch (e) {}
+      });
+      navigator.mediaSession.setActionHandler('stop', function () {
+        try {
+          player.pause();
+          player.currentTime = 0;
+        } catch (e) {}
+        publishState({ stopped: true, playing: false });
+      });
+    } catch (eBind) {}
   }
 
   function saveMeta() {
@@ -166,18 +229,17 @@ footer {
 
   function setCurrent(entry) {
     if (!entry) return;
-    if (currentUrl && currentUrl !== entry.url) {
-      /* keep recent URLs alive; only swap src */
-    }
     currentUrl = entry.url;
+    currentName = entry.name || 'Audio';
     player.src = entry.url;
-    nowName.textContent = entry.name || 'Audio';
+    nowName.textContent = currentName;
     nowMeta.textContent = [entry.type || 'audio', fmtSize(entry.size)].filter(Boolean).join(' · ');
     btnPlay.disabled = false;
     btnPause.disabled = false;
     btnStop.disabled = false;
     setErr('');
     try { player.play(); } catch (e) {}
+    publishState();
   }
 
   function renderRecent() {
@@ -212,6 +274,8 @@ footer {
           btnPause.disabled = true;
           btnStop.disabled = true;
           currentUrl = null;
+          currentName = '';
+          publishState({ stopped: true, playing: false });
         }
         saveMeta();
         renderRecent();
@@ -260,6 +324,30 @@ footer {
     renderRecent();
   }
 
+  function applyRemoteCommand(cmd) {
+    if (!cmd) return;
+    var action = cmd.action || cmd.cmd || '';
+    if (action === 'play') {
+      try { player.play(); } catch (e) { setErr('No se pudo reproducir.'); }
+    } else if (action === 'pause') {
+      try { player.pause(); } catch (e) {}
+    } else if (action === 'toggle') {
+      if (player.paused) {
+        try { player.play(); } catch (e) {}
+      } else {
+        try { player.pause(); } catch (e) {}
+      }
+    } else if (action === 'stop') {
+      try {
+        player.pause();
+        player.currentTime = 0;
+      } catch (e) {}
+      publishState({ stopped: true, playing: false });
+    } else if (action === 'ping') {
+      publishState();
+    }
+  }
+
   pick.addEventListener('change', function () {
     addFiles(pick.files);
     pick.value = '';
@@ -272,11 +360,13 @@ footer {
   btnStop.addEventListener('click', function () {
     player.pause();
     try { player.currentTime = 0; } catch (e) {}
+    publishState({ stopped: true, playing: false });
   });
   btnClear.addEventListener('click', function () {
     revokeAll();
     recent = [];
     currentUrl = null;
+    currentName = '';
     player.removeAttribute('src');
     player.load();
     nowName.textContent = 'Nada cargado';
@@ -285,16 +375,52 @@ footer {
     btnPause.disabled = true;
     btnStop.disabled = true;
     try { localStorage.removeItem(LS_META); } catch (e) {}
+    try { localStorage.removeItem(LS_NOW); } catch (e2) {}
+    publishState({ stopped: true, playing: false, title: '' });
     renderRecent();
   });
 
+  player.addEventListener('play', function () { publishState(); });
+  player.addEventListener('playing', function () { publishState(); });
+  player.addEventListener('pause', function () { publishState(); });
+  player.addEventListener('ended', function () { publishState({ playing: false }); });
   player.addEventListener('error', function () {
     setErr('Error al leer el audio. Prueba otro formato o vuelve a elegirlo desde Archivos.');
+    publishState({ playing: false, error: true });
   });
 
-  window.addEventListener('beforeunload', function () { revokeAll(); });
+  if (bc) {
+    bc.onmessage = function (ev) {
+      var d = ev && ev.data;
+      if (!d || d.source === 'reproductor') return;
+      if (d.action || d.cmd) applyRemoteCommand(d);
+    };
+  }
+  window.addEventListener('message', function (ev) {
+    var d = ev && ev.data;
+    if (!d || d.type !== 'lv-reproductor-cmd') return;
+    applyRemoteCommand(d.data || d);
+  });
+  window.addEventListener('storage', function (ev) {
+    if (!ev || ev.key !== 'lv-reproductor-cmd-v1' || !ev.newValue) return;
+    try {
+      var cmd = JSON.parse(ev.newValue);
+      applyRemoteCommand(cmd);
+    } catch (e) {}
+  });
+
+  bindMediaSessionActions();
+  window.addEventListener('beforeunload', function () {
+    revokeAll();
+    try {
+      localStorage.setItem(LS_NOW, JSON.stringify({
+        v: 1, source: 'reproductor', playing: false, stopped: true, title: '', t: Date.now()
+      }));
+    } catch (e) {}
+  });
 
   renderRecent();
+  publishState({ stopped: true, playing: false });
 })();
 </script>
 </body>
