@@ -401,19 +401,15 @@
     display: flex;
     flex-wrap: nowrap;
     align-items: center;
-    gap: 0.35rem 0.75rem;
-    margin: 0.05rem 0.2rem 0.75rem;
-    /* right pad clears #desk-status (clock/date/trash) so S/M/L stay tappable */
-    padding: 0.15rem 11.5rem 0.55rem 0.1rem;
-    border-radius: 0;
-    border: 0;
-    border-bottom: 1px dotted color-mix(in srgb, #C4A15A 40%, transparent);
-    background: transparent;
-    background-color: transparent;
-    opacity: 1;
-    box-shadow: none;
+    gap: 0.35rem;
+    margin: 2.85rem 0.35rem 0.65rem; /* bajo pastilla central */
+    padding: 0.45rem 0.55rem;
+    border-radius: 999px;
+    border: 1px solid color-mix(in srgb, #C4A15A 45%, var(--linea));
+    background: color-mix(in srgb, var(--fondo-2) 94%, #0E0E0C);
+    box-shadow: 0 2px 14px rgba(0,0,0,0.32);
     position: relative;
-    z-index: 50;
+    z-index: 55;
     min-height: 0;
     height: auto;
     overflow-x: auto;
@@ -421,28 +417,21 @@
     -webkit-overflow-scrolling: touch;
     clear: both;
     scrollbar-width: thin;
+    max-width: calc(100% - 0.7rem);
   }
-  #desk-ajustes-bar + .shelf-row { margin-top: 0.65rem; }
+  #desk-ajustes-bar + .shelf-row { margin-top: 0.55rem; }
   #desk-ajustes-bar::after { display: none !important; content: none; }
-  #desk-ajustes-bar .ajustes-bar-label {
-    flex: 0 0 auto;
-    font: italic 600 0.95rem/1.2 var(--serif);
-    letter-spacing: 0.02em;
-    text-transform: none;
-    color: #C4A15A;
-    margin-right: 0.2rem;
-  }
+  #desk-ajustes-bar .ajustes-bar-label { display: none !important; } /* pastilla = engranaje, no «Ajustes» suelto */
   #desk-ajustes-bar .ajustes-bar-controls {
     display: flex;
     flex-wrap: nowrap;
     align-items: center;
-    gap: 0.25rem 0.35rem;
-    flex: 1 1 auto;
-    min-width: 0;
-    overflow-x: auto;
-    overflow-y: hidden;
-    -webkit-overflow-scrolling: touch;
-    scrollbar-width: thin;
+    gap: 0.3rem 0.4rem;
+    flex: 0 0 auto; /* no encoger: scroll muestra TODA la línea */
+    min-width: max-content;
+    width: max-content;
+    overflow: visible;
+    padding: 0.05rem 0.15rem;
   }
   .ajustes-chip {
     flex: 0 0 auto;
@@ -499,10 +488,10 @@
   }
   #desktop.ajustes-hidden #desk-ajustes-bar { display: none; }
   #btn-show-ajustes {
-    display: none;
+    display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: 44px; height: 44px; min-width: 44px; min-height: 44px;
+    width: 40px; height: 40px; min-width: 40px; min-height: 40px;
     padding: 0;
     margin: 0;
     border: 1px solid var(--linea);
@@ -511,11 +500,17 @@
     color: var(--acento);
     cursor: pointer;
     -webkit-tap-highlight-color: transparent;
+    flex-shrink: 0;
   }
-  #btn-show-ajustes svg { width: 16px; height: 16px; display: block; }
+  #btn-show-ajustes svg { width: 17px; height: 17px; display: block; }
   #btn-show-ajustes:hover, #btn-show-ajustes:focus-visible {
     border-color: var(--acento);
     outline: none;
+  }
+  #btn-show-ajustes[aria-pressed="true"] {
+    border-color: #C4A15A;
+    background: color-mix(in srgb, #C4A15A 22%, var(--fondo-3));
+    color: #C4A15A;
   }
   #desktop.ajustes-hidden #btn-show-ajustes { display: inline-flex; }
 
@@ -1333,6 +1328,8 @@
   /* Folder pane — ONLY folder/select (Notas ya no usan este dock) */
   .folder-magic-pane {
     --folder-dock-h: clamp(12rem, 36vh, 22rem);
+    /* Carpeta abierta: más alta para diferenciar, iconos rellenan el área */
+    --folder-open-h: clamp(16rem, 48vh, 34rem);
     flex: 0 0 auto;
     flex-shrink: 0;
     box-sizing: border-box;
@@ -1369,7 +1366,34 @@
     margin: 0.35rem 0.15rem 0.2rem;
     padding: 0.45rem 0.55rem 0.55rem;
     border: 1px solid color-mix(in srgb, #C4A15A 55%, var(--linea));
-    background: color-mix(in srgb, var(--fondo-3) 82%, #C4A15A 8%);
+    background: #141210;
+  }
+  .folder-magic-pane.is-open {
+    flex: 0 0 var(--folder-open-h);
+    height: var(--folder-open-h);
+    min-height: var(--folder-open-h);
+    max-height: var(--folder-open-h);
+    padding: 0.55rem 0.65rem 0.65rem;
+    gap: 0.45rem;
+    position: relative;
+    z-index: 65;
+    /* opaco: no se ven baldas detrás */
+    background: #12100E;
+    background-image: linear-gradient(180deg, #1A1712 0%, #100E0C 100%);
+    border: 1px solid color-mix(in srgb, #C4A15A 65%, #333);
+    box-shadow:
+      0 8px 28px rgba(0,0,0,0.55),
+      0 0 0 9999px rgba(8, 7, 5, 0.62);
+    isolation: isolate;
+  }
+  body.folder-open .shelf-row {
+    opacity: 0.22;
+    filter: grayscale(0.35) brightness(0.55);
+    pointer-events: none;
+  }
+  body.folder-open #desk-ajustes-bar {
+    opacity: 0.35;
+    pointer-events: none;
   }
   .folder-magic-pane.is-selecting {
     border-color: color-mix(in srgb, var(--acento) 50%, var(--linea));
@@ -1379,25 +1403,30 @@
     align-items: center;
     justify-content: space-between;
     gap: 0.5rem;
-    min-height: 1.4rem;
+    min-height: 1.55rem;
     flex-shrink: 0;
   }
   .folder-magic-head strong {
     font-family: var(--serif);
-    font-size: 0.95rem;
+    font-size: 1.05rem;
     color: #C4A15A;
   }
   .folder-magic-hint {
-    font-size: 0.72rem;
+    font-size: 0.78rem;
     color: var(--suave);
     text-align: center;
-    padding: 0.55rem 0.35rem;
+    padding: 0.65rem 0.35rem;
     pointer-events: none;
-    margin: auto 0;
-    flex: 1 1 auto;
+    margin: 0;
+    flex: 0 0 auto;
     display: flex;
     align-items: center;
     justify-content: center;
+  }
+  .folder-magic-pane.is-open > #desk-brand {
+    flex-shrink: 0;
+    margin: 0 0 0.15rem;
+    opacity: 0.85;
   }
   .folder-magic-pane.is-notes {
     border-color: #C4A15A;
@@ -1495,6 +1524,7 @@
   @media (orientation: landscape) and (max-height: 480px) {
     .folder-magic-pane {
       --folder-dock-h: clamp(9.5rem, 46vh, 16rem);
+      --folder-open-h: clamp(14rem, 52vh, 28rem);
     }
   }
   .notes-head-title {
@@ -2035,6 +2065,57 @@
     min-height: 0;
     align-items: center;
   }
+  /* Carpeta abierta: grid que reparte iconos por el área útil (sin hueco muerto) */
+  .folder-magic-pane.is-open .folder-magic-icons {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(6.1rem, 1fr));
+    grid-auto-rows: minmax(6.4rem, 1fr);
+    align-content: space-evenly;
+    justify-items: center;
+    align-items: center;
+    gap: 0.75rem 0.7rem;
+    overflow-x: hidden;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    padding: 0.35rem 0.15rem 0.45rem;
+    width: 100%;
+    box-sizing: border-box;
+  }
+  /* Muchos tiles → scroll y empaquetar arriba (evita filas 1fr enormes) */
+  .folder-magic-pane.is-open .folder-magic-icons:has(.launch-tile:nth-child(13)) {
+    align-content: start;
+    grid-auto-rows: minmax(6.4rem, auto);
+    align-items: start;
+  }
+  .folder-magic-pane.is-open .folder-magic-icons .launch-tile {
+    width: clamp(4.8rem, 11vw, 6.4rem);
+    max-width: 100%;
+    padding-bottom: 0.2rem;
+  }
+  .folder-magic-pane.is-open .folder-magic-icons .launch-tile .mod-ico-wrap {
+    width: clamp(3.5rem, 9vw, 4.85rem);
+    height: clamp(3.5rem, 9vw, 4.85rem);
+  }
+  .folder-magic-pane.is-open .folder-magic-icons .launch-tile.tile-hero {
+    width: clamp(4.8rem, 11vw, 6.4rem);
+  }
+  .folder-magic-pane.is-open .folder-magic-icons .launch-tile.tile-hero .mod-ico-wrap {
+    width: clamp(3.7rem, 9.5vw, 5rem);
+    height: clamp(3.7rem, 9.5vw, 5rem);
+  }
+  .folder-magic-pane.is-open .folder-magic-icons .launch-tile .mod-ico-label {
+    font-size: clamp(0.72rem, 2vw, 0.9rem);
+    line-height: 1.2;
+    max-width: 100%;
+    text-align: center;
+  }
+  .folder-magic-pane.is-open .folder-magic-icons .launch-tile .mod-ico {
+    font-size: clamp(1.35rem, 3.2vw, 1.85rem);
+  }
+  .folder-magic-pane.is-open .folder-magic-icons .launch-tile .mod-ico-svg {
+    width: 58%;
+    height: 58%;
+  }
   .folder-action-strip {
     display: flex;
     flex-wrap: wrap;
@@ -2135,46 +2216,64 @@
     color: var(--acento);
     background: color-mix(in srgb, var(--acento) 16%, var(--fondo-3));
   }
-  /* Hora + fecha + papelera fijas (esquina superior derecha del escritorio) */
+  /* Pastilla ARRIBA CENTRAL: engranaje | hora+fecha | basura */
   #desk-status {
     position: absolute;
-    top: 0.4rem;
-    right: 0.4rem;
-    z-index: 60;
+    top: max(0.4rem, env(safe-area-inset-top, 0px));
+    left: 50%;
+    right: auto;
+    transform: translateX(-50%);
+    z-index: 70;
     display: flex;
     align-items: center;
-    gap: 0.4rem;
-    padding: 0.28rem 0.4rem 0.28rem 0.65rem;
-    background: color-mix(in srgb, var(--fondo-2) 90%, transparent);
-    border: 1px solid var(--linea);
+    gap: 0.45rem;
+    padding: 0.32rem 0.45rem 0.32rem 0.4rem;
+    background: color-mix(in srgb, var(--fondo-2) 94%, #0E0E0C);
+    border: 1px solid color-mix(in srgb, #C4A15A 50%, var(--linea));
     border-radius: 999px;
-    box-shadow: 0 2px 12px rgba(0,0,0,0.28);
-    backdrop-filter: blur(6px);
-    -webkit-backdrop-filter: blur(6px);
+    box-shadow: 0 3px 16px rgba(0,0,0,0.38);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
     pointer-events: auto;
     touch-action: none;
     cursor: grab;
     user-select: none;
     -webkit-user-select: none;
+    max-width: calc(100% - 1rem);
   }
   #desk-status.dragging { cursor: grabbing; }
   #desk-status.status-custom {
+    left: auto;
     right: auto;
+    transform: none;
   }
   body.desk-immersive #desk-status {
     position: fixed;
     top: max(0.45rem, env(safe-area-inset-top, 0px));
-    right: max(0.45rem, env(safe-area-inset-right, 0px));
+    left: 50%;
+    right: auto;
+    transform: translateX(-50%);
     z-index: 95;
   }
   body.desk-immersive #desk-status.status-custom {
+    left: auto;
     right: auto;
+    transform: none;
+  }
+  #desk-status .desk-status-mid {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.05rem;
+    min-width: 4.5rem;
+    padding: 0 0.15rem;
   }
   #desk-clock {
     font-family: var(--serif);
     font-weight: 600;
-    font-size: 1.32rem;
-    color: var(--acento);
+    font-size: 1.28rem;
+    color: #C4A15A;
     letter-spacing: 0.02em;
     font-variant-numeric: tabular-nums;
     line-height: 1;
@@ -2182,11 +2281,12 @@
   #desk-date {
     font-family: var(--serif);
     font-style: italic;
-    font-size: 0.85rem;
+    font-size: 0.78rem;
     color: var(--suave);
     white-space: nowrap;
-    line-height: 1.15;
-    max-width: 9rem;
+    line-height: 1.1;
+    max-width: 10rem;
+    text-align: center;
   }
   #btn-trash {
     display: inline-flex;
@@ -2794,14 +2894,16 @@
       </button>
 
       <div id="desktop" class="desktop launcher has-items" aria-label="Escritorio / Estantería">
-        <div id="desk-status" role="group" aria-label="Hora y borrar">
-          <button type="button" id="btn-show-ajustes" aria-label="Mostrar ajustes" title="Mostrar ajustes">
+        <div id="desk-status" role="group" aria-label="Ajustes, hora y borrar">
+          <button type="button" id="btn-show-ajustes" aria-label="Mostrar ajustes" title="Ajustes" aria-pressed="false">
             <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true" focusable="false">
               <path fill="currentColor" d="M19.14 12.94c.04-.31.06-.63.06-.94s-.02-.63-.06-.94l2.03-1.58a.5.5 0 0 0 .12-.64l-1.92-3.32a.5.5 0 0 0-.6-.22l-2.39.96a7.03 7.03 0 0 0-1.63-.94l-.36-2.54A.5.5 0 0 0 13.9 2h-3.8a.5.5 0 0 0-.49.42l-.36 2.54c-.59.24-1.13.55-1.63.94l-2.39-.96a.5.5 0 0 0-.6.22L2.71 8.48a.5.5 0 0 0 .12.64l2.03 1.58c-.04.31-.06.63-.06.94s.02.63.06.94L2.83 14.52a.5.5 0 0 0-.12.64l1.92 3.32c.14.24.43.34.68.24l2.39-.96c.5.39 1.04.7 1.63.94l.36 2.54c.05.24.25.42.49.42h3.8c.24 0 .44-.18.49-.42l.36-2.54c.59-.24 1.13-.55 1.63-.94l2.39.96c.25.1.54 0 .68-.24l1.92-3.32a.5.5 0 0 0-.12-.64l-2.03-1.58zM12 15.5A3.5 3.5 0 1 1 12 8.5a3.5 3.5 0 0 1 0 7z"/>
             </svg>
           </button>
-          <time id="desk-clock" datetime="" aria-live="polite">--:--</time>
-          <span id="desk-date" aria-live="polite">—</span>
+          <div class="desk-status-mid">
+            <time id="desk-clock" datetime="" aria-live="polite">--:--</time>
+            <span id="desk-date" aria-live="polite">—</span>
+          </div>
           <button type="button" id="btn-trash" aria-pressed="false" aria-label="Borrar del escritorio" title="Borrar del escritorio">
             <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" focusable="false">
               <path fill="currentColor" d="M9 3h6l1 2h4v2H4V5h4l1-2zm1 6h2v9h-2V9zm4 0h2v9h-2V9zM7 9h2v9H7V9zm-1 12h12a1 1 0 0 0 1-1V7H5v13a1 1 0 0 0 1 1z"/>
@@ -2830,7 +2932,7 @@
       </div>
     </div>
 
-    <footer class="site-foot"><span class="wordmark">Les vencimos</span> · escritorio / estantería offline · <span id="est-build">v20261001f</span></footer>
+    <footer class="site-foot"><span class="wordmark">Les vencimos</span> · escritorio / estantería offline · <span id="est-build">v20261001i</span></footer>
   </div>
 
   <div id="mod-viewer" role="dialog" aria-modal="true" aria-labelledby="mod-viewer-title" hidden>
@@ -5982,6 +6084,7 @@
       pane.classList.toggle('is-open', (!!open && !selecting));
       pane.classList.toggle('is-selecting', selecting);
       pane.classList.toggle('is-notes', false);
+      document.body.classList.toggle('folder-open', !!(open && !selecting));
 
       if (selecting) {
         var strip = document.createElement('div');
@@ -6061,13 +6164,22 @@
         } else {
           pane.appendChild(row);
         }
-        pinDeskBrand(pane);
+        /* Marca fuera del panel abierto: más área para iconos */
+        var brandOpen = document.getElementById('desk-brand');
+        if (brandOpen) {
+          brandOpen.hidden = false;
+          if (brandOpen.parentNode === pane) {
+            var deskEl = document.getElementById('desktop') || pane.parentNode;
+            if (deskEl) deskEl.appendChild(brandOpen);
+          }
+        }
         return;
       }
 
       /* Idle: collapse pane completely — more room for shelves (Notas = papel pantalla) */
       pane.hidden = true;
       pane.classList.remove('is-notes', 'is-open', 'is-selecting');
+      document.body.classList.remove('folder-open');
       pane.innerHTML = '';
       pane.setAttribute('aria-label', 'Panel de carpeta');
       var brandIdle = document.getElementById('desk-brand');
@@ -7449,8 +7561,11 @@
       var hidden = !!state.ajustesHidden;
       if (desk) desk.classList.toggle('ajustes-hidden', hidden);
       if (btn) {
-        btn.style.display = hidden ? 'inline-flex' : 'none';
-        btn.setAttribute('aria-hidden', hidden ? 'false' : 'true');
+        btn.style.display = 'inline-flex';
+        btn.setAttribute('aria-hidden', 'false');
+        btn.setAttribute('aria-pressed', hidden ? 'false' : 'true');
+        btn.setAttribute('aria-label', hidden ? 'Mostrar ajustes' : 'Ocultar ajustes');
+        btn.title = hidden ? 'Mostrar ajustes' : 'Ocultar ajustes';
       }
     }
 
@@ -7481,11 +7596,6 @@
       bar.setAttribute('role', 'toolbar');
       bar.setAttribute('aria-label', 'Ajustes del escritorio');
 
-      var lab = document.createElement('span');
-      lab.className = 'ajustes-bar-label';
-      lab.textContent = 'Ajustes';
-      bar.appendChild(lab);
-
       var icons = document.createElement('div');
       icons.className = 'ajustes-bar-controls';
 
@@ -7503,7 +7613,7 @@
         return b;
       }
 
-      icons.appendChild(mkBtn('Ocultar ajustes', 'Ocultar esta barra de ajustes', function () {
+      icons.appendChild(mkBtn('Cerrar', 'Cerrar barra de ajustes', function () {
         state.ajustesHidden = true;
         saveState();
         applyAjustesHidden();
@@ -8504,6 +8614,7 @@
         el.style.left = '';
         el.style.top = '';
         el.style.right = '';
+        el.style.transform = '';
         el.classList.remove('status-custom');
         return;
       }
@@ -8522,6 +8633,7 @@
       var THRESH = 49; /* ~7px squared */
       el.addEventListener('pointerdown', function (e) {
         if (e.button != null && e.button !== 0) return;
+        if (e.target && e.target.closest && e.target.closest('button')) return;
         var startX = e.clientX, startY = e.clientY;
         var moved = false;
         var pid = e.pointerId;
@@ -8606,7 +8718,7 @@
       });
     }
 
-    var EST_BUILD = 'v20261001f';
+    var EST_BUILD = 'v20261001i';
 
     function layoutPanelSheet() {
       var tb = document.getElementById('desk-toolbar');
@@ -9143,11 +9255,16 @@
         saveState();
       });
       var btnShowAjustes = document.getElementById('btn-show-ajustes');
-      if (btnShowAjustes) btnShowAjustes.addEventListener('click', function () {
-        state.ajustesHidden = false;
+      if (btnShowAjustes) btnShowAjustes.addEventListener('click', function (e) {
+        e.preventDefault();
+        e.stopPropagation();
+        state.ajustesHidden = !state.ajustesHidden;
         saveState();
         applyAjustesHidden();
         renderDesktop();
+        try {
+          showToast(state.ajustesHidden ? 'Ajustes ocultos' : 'Ajustes');
+        } catch (eT) {}
       });
       document.getElementById('btn-collapse-toolbar').addEventListener('click', function () {
         state.toolbarCollapsed = true;
@@ -9841,6 +9958,7 @@
         /* + v20261001c: cromo Editorial B · héroes diferenciados */
         /* layoutRev 43d: layout b · lema medio · vídeo+sonido Jorge · sin nubes · v20261001d */
         /* layoutRev 44: música antes · fin succión/absorción amorosa · v20261001e */
+        /* + v20261001i: maestro pacing lento + Teatro v20261001a sync */
         /* layoutRev 39: curiosidad cards (nombre grande · tap amplía · módulo) · Notas/Vaciar · v20260930m */
         if (typeof state.layoutRev !== 'number' || state.layoutRev < 39) {
           dockCuriosityExpanded = false;

@@ -2,6 +2,7 @@
  *  Carga maestro.json, habla con speechSynthesis, desplaza, enfoca y mueve el puntero.
  *  Voces por rol (narrador/chico/chica/mayor/perro/timbre) y diálogos multi-réplica.
  *  Atajo «Modo maestro» siempre (si body[data-maestro-json]); barra grande con ?maestro=1.
+ *  PACE v20261001i: voz más lenta + suelo por carácter (no volar si TTS falla).
  */
 (function (global) {
   'use strict';
@@ -10,13 +11,36 @@
   if (global[NS] && global[NS].__booted) return;
 
   /** Catálogo de roles: pitch/rate relativos + pista de género para pickVoice */
+  /**
+   * Ritmo maestro (1º ESO): más lento que conversación normal.
+   * Jorge 2026-10-01: iba roto o, si hablaba, demasiado rápido.
+   */
+  var PACE = {
+    /** Multiplicador global sobre rate de rol (1 = catálogo; <1 más despacio) */
+    rateScale: 0.82,
+    /** ms por carácter para estimar duración mínima de la voz (fallback / suelo) */
+    msPerChar: 78,
+    /** suelo mínimo por réplica (aunque el texto sea corto) */
+    minLineMs: 1600,
+    /** pausa entre réplicas de un mismo paso */
+    betweenLinesMs: 650,
+    /** pausa tras terminar un paso, antes del siguiente */
+    betweenStepsMs: 950,
+    /** espera antes de hablar si hay ancla/puntero */
+    esperaConAnclaMs: 700,
+    /** espera antes de hablar si no hay ancla */
+    esperaSinAnclaMs: 450,
+    /** tras iframeCmd */
+    afterIframeMs: 280
+  };
+
   var ROLES = {
-    narrador: { pitch: 1, rate: 1, gender: 'any', label: 'Narrador', chip: 'narrador' },
-    chico: { pitch: 0.88, rate: 1.02, gender: 'male', label: 'Chico', chip: 'chico' },
-    chica: { pitch: 1.22, rate: 1.05, gender: 'female', label: 'Chica', chip: 'chica' },
-    mayor: { pitch: 0.72, rate: 0.82, gender: 'male', label: 'Mayor', chip: 'mayor' },
-    perro: { pitch: 1.75, rate: 1.35, gender: 'any', label: 'Perro', chip: 'perro' },
-    timbre: { pitch: 1.4, rate: 1.15, gender: 'any', label: 'Timbre', chip: 'timbre' }
+    narrador: { pitch: 1, rate: 0.92, gender: 'any', label: 'Narrador', chip: 'narrador' },
+    chico: { pitch: 0.88, rate: 0.94, gender: 'male', label: 'Chico', chip: 'chico' },
+    chica: { pitch: 1.22, rate: 0.96, gender: 'female', label: 'Chica', chip: 'chica' },
+    mayor: { pitch: 0.72, rate: 0.78, gender: 'male', label: 'Mayor', chip: 'mayor' },
+    perro: { pitch: 1.75, rate: 1.12, gender: 'any', label: 'Perro', chip: 'perro' },
+    timbre: { pitch: 1.4, rate: 1.0, gender: 'any', label: 'Timbre', chip: 'timbre' }
   };
 
   /** Alias de guion → rol de voz (la etiqueta en barra usa el alias capitalizado) */
@@ -176,11 +200,15 @@
     var raw = String(vozKey || 'narrador').toLowerCase().trim();
     var roleId = VOZ_ALIAS[raw] || (ROLES[raw] ? raw : 'narrador');
     var role = ROLES[roleId] || ROLES.narrador;
+    var rate = role.rate * (PACE.rateScale || 1);
+    /* speechSynthesis rate suele ir ~0.1–2; clamp suave */
+    if (rate < 0.55) rate = 0.55;
+    if (rate > 1.35) rate = 1.35;
     return {
       id: roleId,
       alias: raw,
       pitch: role.pitch,
-      rate: role.rate,
+      rate: rate,
       gender: role.gender,
       label: capitalizeLabel(raw),
       chip: role.chip
@@ -268,6 +296,14 @@
    *   - cancel: si true (default), cancela voz previa; false = encadenar diálogo
    *   - gen: generación esperada; si state.speakGen cambió, no habla
    */
+  function estimateLineMs(text, rate) {
+    var chars = String(text || '').length;
+    var r = rate && rate > 0 ? rate : 0.9;
+    var ms = Math.round(chars * (PACE.msPerChar || 78) / r);
+    var floor = PACE.minLineMs != null ? PACE.minLineMs : 1600;
+    return Math.max(floor, ms);
+  }
+
   function speak(text, opts) {
     opts = opts || {};
     var doCancel = opts.cancel !== false;
@@ -275,18 +311,64 @@
 
     return new Promise(function (resolve) {
       var done = false;
-      function finish() {
+      var keepAlive = null;
+      var minTimer = null;
+      var ended = false;
+      var minDone = false;
+      var startedAt = Date.now();
+
+      function clearKeep() {
+        if (keepAlive) {
+          try { global.clearInterval(keepAlive); } catch (e) { /* ignore */ }
+          keepAlive = null;
+        }
+        if (minTimer) {
+          try { global.clearTimeout(minTimer); } catch (e) { /* ignore */ }
+          minTimer = null;
+        }
+      }
+
+      function tryFinish() {
         if (done) return;
+        if (!ended || !minDone) return;
+        if (expectedGen !== state.speakGen) {
+          done = true;
+          clearKeep();
+          state.speaking = false;
+          state.utter = null;
+          resolve();
+          return;
+        }
         done = true;
+        clearKeep();
         state.speaking = false;
         state.utter = null;
         resolve();
       }
 
-      if (expectedGen !== state.speakGen) { finish(); return; }
-      if (!text) { finish(); return; }
+      function finishEarly() {
+        if (done) return;
+        done = true;
+        clearKeep();
+        state.speaking = false;
+        state.utter = null;
+        resolve();
+      }
+
+      if (expectedGen !== state.speakGen) { finishEarly(); return; }
+      if (!text) { finishEarly(); return; }
+
+      var role = resolveRole(opts.voz);
+      var needMs = estimateLineMs(text, role.rate);
+
+      /* Sin TTS: no volar los pasos — respetar tiempo de lectura en voz alta */
       if (!global.speechSynthesis || typeof global.SpeechSynthesisUtterance !== 'function') {
-        finish();
+        state.speaking = true;
+        minTimer = global.setTimeout(function () {
+          ended = true;
+          minDone = true;
+          tryFinish();
+        }, needMs);
         return;
       }
 
@@ -297,9 +379,8 @@
         try { global.speechSynthesis.cancel(); } catch (e) { /* ignore */ }
       }
 
-      if (expectedGen !== state.speakGen) { finish(); return; }
+      if (expectedGen !== state.speakGen) { finishEarly(); return; }
 
-      var role = resolveRole(opts.voz);
       var u = new global.SpeechSynthesisUtterance(String(text));
       u.lang = 'es-ES';
       u.rate = role.rate;
@@ -307,16 +388,53 @@
       var voice = pickVoice(role.gender);
       if (voice) u.voice = voice;
       u.onend = function () {
-        if (expectedGen !== state.speakGen) { finish(); return; }
-        finish();
+        ended = true;
+        /* Si onend llega demasiado pronto (bug Chrome), espera al suelo */
+        var elapsed = Date.now() - startedAt;
+        if (elapsed + 80 < needMs * 0.55) {
+          /* onend prematuro: confiar en el temporizador mínimo */
+          tryFinish();
+          return;
+        }
+        tryFinish();
       };
-      u.onerror = finish;
+      u.onerror = function () {
+        ended = true;
+        tryFinish();
+      };
       state.utter = u;
       state.speaking = true;
+      startedAt = Date.now();
+      minTimer = global.setTimeout(function () {
+        minDone = true;
+        /* Suelo cumplido. Si la voz ya acabó (o se quedó muda), cerramos.
+           Si aún habla de verdad, onend cerrará al terminar. */
+        try {
+          if (!ended && global.speechSynthesis &&
+              !global.speechSynthesis.speaking && !global.speechSynthesis.pending) {
+            ended = true;
+          }
+        } catch (e) { /* ignore */ }
+        tryFinish();
+      }, needMs);
+      /* Chrome a veces pausa speechSynthesis a ~15s: keepalive */
+      keepAlive = global.setInterval(function () {
+        if (done || expectedGen !== state.speakGen) {
+          clearKeep();
+          return;
+        }
+        try {
+          if (global.speechSynthesis && global.speechSynthesis.speaking && global.speechSynthesis.paused) {
+            global.speechSynthesis.resume();
+          }
+        } catch (e) { /* ignore */ }
+      }, 5000);
       try {
         global.speechSynthesis.speak(u);
       } catch (e) {
-        finish();
+        ended = true;
+        minDone = true;
+        tryFinish();
       }
     });
   }
@@ -662,7 +780,7 @@
       if (gen !== state.speakGen || state.paused) return false;
       // Micro-pausa entre réplicas de diálogo (no entre única línea)
       if (i < lines.length - 1) {
-        await wait(180);
+        await wait(PACE.betweenLinesMs != null ? PACE.betweenLinesMs : 650);
       }
     }
     return gen === state.speakGen && !state.paused;
@@ -690,19 +808,19 @@
       scrollToEl(ancla);
       applyFocus(ancla);
       var tip = resolvePunteroTarget(paso, ancla);
-      await wait(paso.esperaMs != null ? paso.esperaMs : 350);
+      await wait(paso.esperaMs != null ? paso.esperaMs : (PACE.esperaConAnclaMs != null ? PACE.esperaConAnclaMs : 700));
       if (gen !== state.speakGen) return;
       movePointerTo(tip || ancla);
     } else {
       clearFocus();
       hidePointer();
-      await wait(paso.esperaMs != null ? paso.esperaMs : 200);
+      await wait(paso.esperaMs != null ? paso.esperaMs : (PACE.esperaSinAnclaMs != null ? PACE.esperaSinAnclaMs : 450));
       if (gen !== state.speakGen) return;
     }
 
     if (paso.iframeCmd) {
       postToIframes(paso.iframeCmd);
-      await wait(120);
+      await wait(PACE.afterIframeMs != null ? PACE.afterIframeMs : 280);
       if (gen !== state.speakGen) return;
     }
 
@@ -721,7 +839,7 @@
     // Autoavance al siguiente si seguimos en marcha y nadie pidió pausa
     if (state.running && !state.paused && state.idx === i && gen === state.speakGen) {
       setBarText(paso, 'listo');
-      await wait(280);
+      await wait(PACE.betweenStepsMs != null ? PACE.betweenStepsMs : 950);
       if (state.running && !state.paused && state.idx === i && gen === state.speakGen) {
         await runPaso(i + 1);
       }
