@@ -1,0 +1,95 @@
+Les vencimos — cascarón (v20260929a)
+=====================================
+
+Por qué existe esta aplicación
+------------------------------
+Los módulos de enseñanza pesan (0.2–1 MB cada pack; Mates ~1 MB).
+No caben embebidos dentro de un HTML de 20 MB. La Estantería gorda
+con la biblioteca dentro es el anti-patrón.
+
+La app:
+  1. Enseña el catálogo (peso a la vista).
+  2. DESCARGA un pack a este aparato (modules/<id>/).
+  3. Lo QUITA (borra esa carpeta; pregunta antes de borrar los datos).
+  4. GUARDA el progreso en disco (data/<id>.json), no en el
+     localStorage de un file:// suelto.
+  5. Luego funciona offline.
+
+Internet es tubería de ZIP. Cero cuenta. Cero cookies.
+La red solo se abre si pulsas «Descargar e instalar».
+
+Cómo abrirla
+------------
+A) Vía buena — disco (PC, portátil viejo, Raspberry)
+
+      python3 cascaron-servidor.py
+      python3 cascaron-servidor.py --puerto 8787
+      python3 cascaron-servidor.py --lan     # wifi de casa (Mi día)
+
+   Abre http://127.0.0.1:8787
+   Elige público → Catálogo → Descargar e instalar.
+   Los packs quedan en app/modules/<id>/
+   Los datos quedan en app/data/<id>.json
+   Escritura atómica: si se va la luz, el archivo anterior sigue.
+
+B) Vía de emergencia — file://
+
+   Abre ABRE-AQUI.html desde Archivos.
+   Sirve para un HTML suelto. Un ZIP de enseñanza NO se descomprime.
+   El almacenamiento es IndexedDB del navegador: se lo lleva
+   «borrar datos de navegación». Por eso no es la casa.
+
+C) APK (sideload, ~120 KB)
+
+   WebView del cascarón. El permiso INTERNET es para el catálogo
+   y los ZIP. Todavía no escribe modules/ en el almacenamiento
+   nativo de Android (falta el puente Capacitor Filesystem).
+   En el teléfono, hoy: bajar ZIP + servidor en la wifi de casa,
+   o esperar ese puente.
+
+Qué no es
+---------
+No es Flutter. No es Electron. No es la Estantería de 20 MB
+con disfraz. El cascarón no lleva la biblioteca dentro.
+No está en Play Store. Aún no está en lesvencimos.com
+(hace falta Contents: write en GitHub).
+
+Quitar
+------
+«Quitar» borra modules/<id>/.
+Pregunta si también borra data/<id>.json.
+En Mi día, lo sano es decir que no: el PIN y las pastillas
+no son el pack. En un pack ESO puedes decir que sí.
+
+Para borrar el cascarón entero: borra esta carpeta.
+Ver https://lesvencimos.com/borrar.html
+
+Archivos
+--------
+ABRE-AQUI.html          abre esto
+index.html              igual que ABRE-AQUI
+cascaron-servidor.py    disco + API
+catalogo.json           lista estática (hashes aún null)
+module.schema.json      forma de module.json
+modules/                packs instalados
+data/                   expediente por módulo
+lv-almacen.js           puente opcional para módulos nuevos
+
+API local (solo con el servidor)
+--------------------------------
+GET  /api/modulos
+GET  /api/catalogo
+POST /api/bajar          {id}     alias: /api/descargar
+POST /api/importar       cuerpo = bytes HTML o ZIP
+POST /api/borrar         {id, datos?: true}
+GET  /api/datos?id=
+POST /api/datos?id=      {datos: ...}   también PUT
+
+Privacidad
+----------
+Por defecto el servidor solo escucha en 127.0.0.1.
+--lan abre la wifi: cualquiera en esa red puede leer data/
+por la API. data/ ya no se sirve como fichero estático.
+Ver artifacts/privacidad.html
+
+29 septiembre 2026

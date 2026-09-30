@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="referrer" content="no-referrer">
+  <meta http-equiv="Permissions-Policy" content="geolocation=(), camera=(), microphone=(), payment=(), usb=()">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self' blob: data:; base-uri 'self'; object-src 'none'; img-src 'self' data: blob:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; font-src 'self' data:; connect-src 'self' https://lesvencimos.com; form-action 'none'; frame-src 'self' blob:; frame-ancestors 'none'">
+  <meta name="description" content="Cascarón Les vencimos. Descarga módulos a este aparato, quítalos, guarda en disco. Luego offline.">
+  <meta name="theme-color" content="#0E0E0C">
+  <link rel="manifest" href="./manifest.webmanifest">
+  <link rel="icon" href="./icon-192.png" sizes="192x192">
+  <link rel="apple-touch-icon" href="./icons/apple-touch-icon.png">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="Les vencimos">
+  <title>Les vencimos — cascarón</title>
+  <style>
+    :root {
+      --fondo: #0E0E0C; --fondo-2: #161512; --fondo-3: #1C1A16;
+      --tinta: #E6E1D6; --suave: #9A9488; --acento: #C4A15A;
+      --linea: rgba(230,225,214,.14); --peligro: #C46A4A; --ok: #8F9A72;
+      --serif: Georgia, "Iowan Old Style", Palatino, "Times New Roman", serif;
+      --sans: "Segoe UI", system-ui, -apple-system, sans-serif;
+    }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; min-height: 100%; background: var(--fondo); color: var(--tinta); font-family: var(--sans); }
+    html { color-scheme: dark; }
+    body { font-size: 1.05rem; line-height: 1.5; -webkit-font-smoothing: antialiased; }
+    button, input { font: inherit; }
+    button { cursor: pointer; }
+    .wrap { max-width: 44rem; margin: 0 auto; padding: 1.25rem 1.1rem 4rem; }
+    header.top { display: flex; justify-content: space-between; gap: 1rem; align-items: baseline; border-bottom: 1px solid var(--linea); padding-bottom: 1rem; margin-bottom: 1.4rem; flex-wrap: wrap; }
+    .marca { font-family: var(--serif); font-weight: 600; font-size: 1.15rem; }
+    .estado { font-size: .72rem; letter-spacing: .12em; text-transform: uppercase; color: var(--suave); font-weight: 700; }
+    .estado.red { color: var(--peligro); }
+    h1 { font-family: var(--serif); font-size: clamp(1.6rem, 4vw, 2.2rem); font-weight: 600; margin: 0 0 .5rem; line-height: 1.15; }
+    h2 { font-family: var(--serif); font-size: 1.15rem; margin: 1.4rem 0 .6rem; }
+    .lead { color: var(--suave); margin: 0 0 1.4rem; }
+    .lead strong { color: var(--tinta); font-weight: 600; }
+    .grid { display: grid; gap: .7rem; grid-template-columns: 1fr; }
+    @media (min-width: 640px) { .grid.presets { grid-template-columns: 1fr 1fr; } }
+    .card {
+      background: var(--fondo-2); border: 1px solid var(--linea); border-radius: 8px;
+      padding: 1rem 1.05rem; text-align: left; color: var(--tinta); min-height: 44px;
+    }
+    button.card:hover, button.card:focus { border-color: var(--acento); outline: none; }
+    .card small { display: block; color: var(--suave); margin-top: .25rem; font-size: .85rem; }
+    .acciones { display: flex; flex-wrap: wrap; gap: .5rem; margin: 1.2rem 0; }
+    .btn {
+      background: var(--acento); color: #1A160E; border: 0; border-radius: 4px;
+      padding: .7rem 1rem; font-weight: 700; letter-spacing: .04em; min-height: 44px;
+    }
+    .btn.sec { background: transparent; color: var(--tinta); border: 1px solid var(--linea); }
+    .btn.peligro { background: transparent; color: var(--peligro); border: 1px solid var(--peligro); }
+    .btn:disabled { opacity: .5; cursor: wait; }
+    .lista { display: grid; gap: .45rem; margin: 0; padding: 0; list-style: none; }
+    .lista li {
+      display: flex; align-items: center; justify-content: space-between; gap: .7rem;
+      background: var(--fondo-2); border: 1px solid var(--linea); border-radius: 6px; padding: .7rem .85rem;
+    }
+    .lista .meta { color: var(--suave); font-size: .8rem; }
+    .lista button.link, .lista a.link {
+      background: none; border: 0; color: var(--acento); padding: 0; min-height: 44px;
+      text-decoration: none; font-weight: 600; display: inline-flex; align-items: center;
+    }
+    .aviso { color: var(--suave); font-size: .9rem; }
+    .tag { font-size: .68rem; letter-spacing: .1em; text-transform: uppercase; color: var(--ok); font-weight: 700; }
+    .tag.red { color: var(--peligro); }
+    .tag.off { color: var(--suave); }
+    iframe#vista { display: none; border: 0; width: 100%; height: calc(100vh - 3.2rem); background: #fff; }
+    body.modulo { background: #111; }
+    body.modulo .wrap, body.modulo header.top { display: none; }
+    body.modulo iframe#vista { display: block; }
+    .barra {
+      display: none; position: sticky; top: 0; z-index: 2;
+      background: var(--fondo-2); border-bottom: 1px solid var(--linea);
+      padding: .45rem .8rem; min-height: 44px; align-items: center; gap: .8rem;
+    }
+    body.modulo .barra { display: flex; }
+    .barra button { background: none; border: 0; color: var(--acento); font-weight: 700; min-height: 44px; }
+    input[type=file] { display: none; }
+    .vacio { color: var(--suave); border: 1px dashed var(--linea); padding: 1rem; border-radius: 6px; }
+    .lado { display: flex; flex-wrap: wrap; gap: .45rem .8rem; align-items: center; }
+  </style>
+</head>
+<body>
+  <div class="barra"><button type="button" id="volver">← Estantería</button><span id="titulo-modulo"></span></div>
+  <div class="wrap">
+    <header class="top">
+      <div class="marca">Les vencimos</div>
+      <div style="display:flex;gap:.8rem;align-items:baseline;flex-wrap:wrap">
+        <a href="./instalar.html" style="color:var(--acento);font-size:.8rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;text-decoration:none">Instalar</a>
+        <div class="estado" id="origen">Offline</div>
+      </div>
+    </header>
+    <section id="pantalla-preset">
+      <h1>Qué estantería quieres</h1>
+      <p class="lead">
+        La app <strong>descarga</strong> módulos a este aparato, los <strong>quita</strong>
+        y guarda el progreso en disco. Los packs de enseñanza no caben dentro de un HTML gordo.
+        La red solo se enciende si pulsas Descargar.
+      </p>
+      <div class="grid presets" id="presets"></div>
+    </section>
+    <section id="pantalla-estante" hidden>
+      <h1 id="titulo-estante">Estantería</h1>
+      <p class="lead" id="sub-estante"></p>
+      <div class="acciones">
+        <button class="btn" type="button" id="btn-catalogo">Catálogo</button>
+        <button class="btn sec" type="button" id="btn-archivo">Añadir del teléfono</button>
+        <button class="btn sec" type="button" id="btn-preset">Cambiar público</button>
+      </div>
+      <input id="fichero" type="file" accept=".html,.htm,.zip,text/html,application/zip">
+      <p class="aviso" id="aviso-red" hidden>Vas a usar lesvencimos.com solo como tubería de ZIP. Cero cuenta. Cero cookies. Si no hay red, sigue lo ya instalado.</p>
+      <p class="aviso" id="aviso-file" hidden>Estás en <code>file://</code>: sirve para un HTML suelto. Los packs de enseñanza (medio mega o más) se instalan con <code>python3 cascaron-servidor.py</code> o con el APK + carpeta. Aquí el ZIP no se descomprime.</p>
+      <div id="catalogo-caja" hidden></div>
+      <h2>Instalados en este aparato</h2>
+      <ul class="lista" id="lista"></ul>
+      <p class="vacio" id="vacio" hidden>Aún no hay módulos en disco. Abre el catálogo y pulsa Descargar e instalar.</p>
+    </section>
+  </div>
+  <iframe id="vista" title="Módulo" sandbox="allow-scripts allow-same-origin allow-forms allow-modals allow-downloads"></iframe>
+<script>
+(function () {
+  const LS = "lv-cascaron-v1";
+  const DB = "lv-cascaron";
+  const STORE = "modulos";
+  const PRESETS = [
+    { id: "estudios", nombre: "Estudios", desc: "Packs 1.º ESO y escritura. Pesan: se bajan uno a uno." },
+    { id: "infantil", nombre: "Infantil", desc: "Marionetas, dibujo, tanteo, museos." },
+    { id: "midia", nombre: "Mi día", desc: "Rutina y pastillas. Datos en disco, no en un HTML suelto." },
+    { id: "casa", nombre: "Casa / apagón", desc: "Hogar, auxilios, gimnasio, supervivencia." },
+    { id: "vacia", nombre: "Vacía", desc: "Tú eliges cada módulo." }
+  ];
+  const estado = { preset: null, lan: false, catalogo: null, abierto: null };
+
+  const $ = (id) => document.getElementById(id);
+  function leerShell() {
+    try { return JSON.parse(localStorage.getItem(LS) || "null") || { preset: null }; }
+    catch { return { preset: null }; }
+  }
+  function escribirShell(s) { localStorage.setItem(LS, JSON.stringify(s)); }
+
+  function origen() {
+    const u = location.protocol;
+    estado.lan = u === "http:" || u === "https:";
+    const el = $("origen");
+    if (u === "file:") { el.textContent = "Emergencia · file://"; el.classList.add("red"); }
+    else if (location.hostname === "localhost" || location.hostname === "127.0.0.1") {
+      el.textContent = "Disco · localhost"; el.classList.remove("red");
+    } else { el.textContent = location.host; el.classList.remove("red"); }
+    $("aviso-file").hidden = estado.lan;
+  }
+
+  function peso(n) {
+    n = Number(n);
+    if (!n || n < 0) return "";
+    if (n < 1024) return n + " B";
+    if (n < 1024 * 1024) return (n / 1024).toFixed(0) + " KB";
+    return (n / (1024 * 1024)).toFixed(1) + " MB";
+  }
+
+  function abrirDB() {
+    return new Promise((resolve, reject) => {
+      const r = indexedDB.open(DB, 1);
+      r.onupgradeneeded = () => r.result.createObjectStore(STORE, { keyPath: "id" });
+      r.onsuccess = () => resolve(r.result);
+      r.onerror = () => reject(r.error);
+    });
+  }
+  async function todosIDB() {
+    const db = await abrirDB();
+    return new Promise((resolve, reject) => {
+      const q = db.transaction(STORE, "readonly").objectStore(STORE).getAll();
+      q.onsuccess = () => resolve(q.result || []);
+      q.onerror = () => reject(q.error);
+    });
+  }
+  async function ponerIDB(mod) {
+    const db = await abrirDB();
+    return new Promise((resolve, reject) => {
+      const q = db.transaction(STORE, "readwrite").objectStore(STORE).put(mod);
+      q.onsuccess = () => resolve();
+      q.onerror = () => reject(q.error);
+    });
+  }
+  async function quitarIDB(id) {
+    const db = await abrirDB();
+    return new Promise((resolve, reject) => {
+      const q = db.transaction(STORE, "readwrite").objectStore(STORE).delete(id);
+      q.onsuccess = () => resolve();
+      q.onerror = () => reject(q.error);
+    });
+  }
+
+  async function listaLAN() {
+    try {
+      const r = await fetch("/api/modulos", { cache: "no-store" });
+      if (!r.ok) return [];
+      const j = await r.json();
+      return (j.modulos || []).map((m) => ({
+        id: m.id,
+        nombre: m.nombre || m.id,
+        bytes: m.bytes,
+        version: m.version,
+        entrada: "modules/" + m.id + "/" + (m.entrada || "index.html")
+      }));
+    } catch (_) { return []; }
+  }
+
+  function slug(nombre) {
+    return String(nombre || "modulo").toLowerCase()
+      .replace(/\.[a-z0-9]+$/, "")
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-|-$/g, "")
+      .slice(0, 64) || "modulo";
+  }
+
+  async function snapshotDatos(id) {
+    if (!estado.lan || !id) return;
+    try {
+      const win = $("vista").contentWindow;
+      if (!win) return;
+      const dump = {};
+      const ls = win.localStorage;
+      for (let i = 0; i < ls.length; i++) {
+        const k = ls.key(i);
+        dump[k] = ls.getItem(k);
+      }
+      await fetch("/api/datos?id=" + encodeURIComponent(id), {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ datos: { localStorage: dump, saved: Date.now() } })
+      });
+    } catch (_) {}
+  }
+
+  async function restaurarDatos(id) {
+    if (!estado.lan || !id) return;
+    try {
+      const r = await fetch("/api/datos?id=" + encodeURIComponent(id), { cache: "no-store" });
+      if (!r.ok) return;
+      const j = await r.json();
+      const dump = j.datos && j.datos.localStorage;
+      if (!dump) return;
+      const win = $("vista").contentWindow;
+      if (!win) return;
+      Object.keys(dump).forEach((k) => {
+        try { win.localStorage.setItem(k, dump[k]); } catch (_) {}
+      });
+    } catch (_) {}
+  }
+
+  async function pintarLista() {
+    const ul = $("lista");
+    ul.innerHTML = "";
+    let mods = estado.lan ? await listaLAN() : await todosIDB();
+    $("vacio").hidden = mods.length > 0;
+    mods.forEach((m) => {
+      const li = document.createElement("li");
+      const left = document.createElement("div");
+      const a = document.createElement("button");
+      a.className = "link";
+      a.type = "button";
+      a.textContent = m.nombre || m.id;
+      a.addEventListener("click", () => abrir(m));
+      const meta = document.createElement("div");
+      meta.className = "meta";
+      meta.textContent = [peso(m.bytes), m.version].filter(Boolean).join(" · ");
+      left.append(a, meta);
+      const q = document.createElement("button");
+      q.className = "link";
+      q.type = "button";
+      q.style.color = "var(--peligro)";
+      q.textContent = "Quitar";
+      q.addEventListener("click", () => quitar(m));
+      li.append(left, q);
+      ul.appendChild(li);
+    });
+    return mods;
+  }
+
+  async function quitar(m) {
+    if (!confirm("¿Quitar «" + (m.nombre || m.id) + "» de este aparato?")) return;
+    let borrarDatos = false;
+    if (estado.lan) {
+      borrarDatos = confirm("¿Borrar también los datos (progreso, pastillas, notas)?\n\nCancelar = se quita el pack y los datos se quedan por si lo vuelves a instalar.");
+      await fetch("/api/borrar", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id: m.id, datos: borrarDatos })
+      });
+    } else {
+      await quitarIDB(m.id);
+    }
+    pintarLista();
+    pintarCatalogo();
+  }
+
+  function abrir(m) {
+    estado.abierto = m.id;
+    $("titulo-modulo").textContent = m.nombre || m.id;
+    document.body.classList.add("modulo");
+    const iframe = $("vista");
+    iframe.onload = function () {
+      restaurarDatos(m.id);
+    };
+    if (m.entrada) iframe.src = m.entrada;
+    else if (m.html) {
+      const blob = new Blob([m.html], { type: "text/html" });
+      iframe.src = URL.createObjectURL(blob);
+    }
+  }
+
+  async function cerrarModulo() {
+    if (estado.abierto) await snapshotDatos(estado.abierto);
+    estado.abierto = null;
+    document.body.classList.remove("modulo");
+    $("vista").src = "about:blank";
+  }
+  $("volver").addEventListener("click", cerrarModulo);
+  document.addEventListener("visibilitychange", function () {
+    if (document.hidden && estado.abierto) snapshotDatos(estado.abierto);
+  });
+
+  function mostrarEstante() {
+    $("pantalla-preset").hidden = true;
+    $("pantalla-estante").hidden = false;
+    const p = PRESETS.find((x) => x.id === estado.preset);
+    $("titulo-estante").textContent = p ? p.nombre : "Estantería";
+    $("sub-estante").textContent = p
+      ? p.desc + " Descarga lo que falte. Quita lo que no uses."
+      : "";
+    pintarLista();
+  }
+
+  function pintarPresets() {
+    const caja = $("presets");
+    caja.innerHTML = "";
+    PRESETS.forEach((p) => {
+      const b = document.createElement("button");
+      b.className = "card";
+      b.type = "button";
+      b.innerHTML = "<strong>" + p.nombre + "</strong><small>" + p.desc + "</small>";
+      b.addEventListener("click", () => {
+        estado.preset = p.id;
+        const s = leerShell();
+        s.preset = p.id;
+        escribirShell(s);
+        if (estado.lan) {
+          fetch("/api/datos?id=_shell", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ datos: { preset: p.id, saved: Date.now() } })
+          }).catch(function () {});
+        }
+        mostrarEstante();
+      });
+      caja.appendChild(b);
+    });
+  }
+
+  $("btn-preset").addEventListener("click", () => {
+    $("pantalla-estante").hidden = true;
+    $("pantalla-preset").hidden = false;
+  });
+  $("btn-archivo").addEventListener("click", () => $("fichero").click());
+  $("fichero").addEventListener("change", async (ev) => {
+    const f = ev.target.files && ev.target.files[0];
+    ev.target.value = "";
+    if (!f) return;
+    const id = slug(f.name);
+    if (estado.lan) {
+      const buf = await f.arrayBuffer();
+      const r = await fetch("/api/importar", {
+        method: "POST",
+        headers: { "X-Nombre": f.name, "X-Id": id },
+        body: buf
+      });
+      if (!r.ok) { alert("No se pudo importar."); return; }
+    } else {
+      if (/\.zip$/i.test(f.name)) {
+        alert("En file:// el ZIP no se descomprime. Arranca python3 cascaron-servidor.py y abre http://127.0.0.1:8787");
+        return;
+      }
+      const htmlTxt = await f.text();
+      await ponerIDB({ id, nombre: f.name.replace(/\.[^.]+$/, ""), html: htmlTxt, bytes: f.size, added: Date.now() });
+    }
+    pintarLista();
+  });
+
+  async function cargarCatalogo() {
+    const urls = estado.lan
+      ? ["/api/catalogo", "./catalogo.json", "https://lesvencimos.com/catalogo.json"]
+      : ["./catalogo.json", "../catalogo.json", "https://lesvencimos.com/catalogo.json"];
+    for (const u of urls) {
+      try {
+        const r = await fetch(u, { cache: "no-store" });
+        if (r.ok) {
+          const data = await r.json();
+          if (data && data.modulos) return data;
+        }
+      } catch (_) {}
+    }
+    return null;
+  }
+
+  async function descargarInstalar(m, boton) {
+    if (!estado.lan) {
+      if (m.url) location.href = m.url;
+      else alert("Sin URL de descarga.");
+      return;
+    }
+    boton.disabled = true;
+    boton.textContent = "Descargando…";
+    try {
+      const r = await fetch("/api/bajar", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id: m.id })
+      });
+      const j = await r.json().catch(function () { return {}; });
+      if (!r.ok) {
+        const motivo = j.error === "red"
+          ? "No hubo red. Baja el ZIP a mano y pulsa «Añadir del teléfono»."
+          : (j.error || "No se pudo instalar");
+        alert(motivo);
+        return;
+      }
+    } finally {
+      boton.disabled = false;
+      boton.textContent = "Descargar e instalar";
+    }
+    await pintarLista();
+    pintarCatalogo();
+  }
+
+  async function pintarCatalogo() {
+    const caja = $("catalogo-caja");
+    if (caja.hidden) return;
+    const data = estado.catalogo || await cargarCatalogo();
+    if (!data) {
+      caja.innerHTML = "<p class='aviso'>Sin catálogo. Usa «Añadir del teléfono» con un ZIP de descargas.</p>";
+      return;
+    }
+    estado.catalogo = data;
+    const instalados = {};
+    (estado.lan ? await listaLAN() : await todosIDB()).forEach((x) => { instalados[x.id] = true; });
+    caja.innerHTML = "";
+    const ul = document.createElement("ul");
+    ul.className = "lista";
+    const filtro = estado.preset && estado.preset !== "vacia" ? estado.preset : null;
+    data.modulos.forEach((m) => {
+      if (filtro && m.publico && m.publico !== filtro && !(filtro === "casa" && m.publico === "midia")) return;
+      const li = document.createElement("li");
+      const left = document.createElement("div");
+      const tag = document.createElement("div");
+      tag.className = instalados[m.id] ? "tag" : (m.red ? "tag red" : "tag off");
+      tag.textContent = instalados[m.id] ? "En disco" : (m.red ? "RED" : (m.publico || "módulo"));
+      const nom = document.createElement("div");
+      nom.textContent = m.nombre;
+      const meta = document.createElement("div");
+      meta.className = "meta";
+      meta.textContent = peso(m.bytes) || "";
+      left.append(tag, nom, meta);
+      const lado = document.createElement("div");
+      lado.className = "lado";
+      if (instalados[m.id]) {
+        const ok = document.createElement("span");
+        ok.className = "meta";
+        ok.textContent = "Ya está";
+        lado.appendChild(ok);
+      } else {
+        const b = document.createElement("button");
+        b.className = "link";
+        b.type = "button";
+        b.textContent = estado.lan ? "Descargar e instalar" : "Bajar ZIP";
+        b.addEventListener("click", () => descargarInstalar(m, b));
+        lado.appendChild(b);
+      }
+      li.append(left, lado);
+      ul.appendChild(li);
+    });
+    caja.appendChild(ul);
+    const p = document.createElement("p");
+    p.className = "aviso";
+    p.textContent = estado.lan
+      ? "Descargar e instalar deja el pack en app/modules/<id>/. Quitar borra esa carpeta. Los datos van a app/data/."
+      : "Sin servidor no se puede descomprimir un pack. Abre python3 cascaron-servidor.py.";
+    caja.appendChild(p);
+  }
+
+  $("btn-catalogo").addEventListener("click", async () => {
+    $("aviso-red").hidden = false;
+    $("catalogo-caja").hidden = false;
+    $("catalogo-caja").textContent = "Leyendo catálogo…";
+    estado.catalogo = await cargarCatalogo();
+    pintarCatalogo();
+  });
+
+  if ("serviceWorker" in navigator && location.protocol !== "file:") {
+    navigator.serviceWorker.register("./sw.js").catch(function () {});
+  }
+  origen();
+  pintarPresets();
+  const s = leerShell();
+  if (s.preset) {
+    estado.preset = s.preset;
+    mostrarEstante();
+  }
+})();
+</script>
+</body>
+</html>
