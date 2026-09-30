@@ -559,7 +559,7 @@ def main() -> None:
     # Splash vídeo + sonido (misma ruta relativa que la Estantería offline)
     splash_src = ROOT / "brand" / "splash"
     splash_dst = STAGING / "brand" / "splash"
-    for splash_name in ("entrada.mp4", "entrada-sonido.m4a"):
+    for splash_name in ("entrada.mp4", "entrada-sonido.m4a", "cierre-succion.m4a"):
         src = splash_src / splash_name
         if src.is_file():
             splash_dst.mkdir(parents=True, exist_ok=True)
