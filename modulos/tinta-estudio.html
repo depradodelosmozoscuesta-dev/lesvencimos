@@ -223,12 +223,6 @@ select, input[type="text"].campo {
   display: flex; gap: 6px; align-items: center; flex-shrink: 0;
 }
 .hist-bar .btn { min-width: var(--dedo); }
-.figura-preview {
-  width: 100%; max-height: 160px; object-fit: contain; background: #0c0b0a;
-  border: 1px solid var(--linea); border-radius: 8px; display: block; margin-top: 8px;
-}
-.stub-off { opacity: .55; }
-.stub-off input, .stub-off button { pointer-events: none; }
 </style>
 </head>
 <body>
@@ -260,7 +254,7 @@ select, input[type="text"].campo {
     <div class="galeria">
       <div class="hero">
         <h1>Tinta</h1>
-        <p>Estudio de ilustración — Les vencimos. Dibuja, pinta, abre una foto, cambia color de pelo y piel, moldea la figura (pecho/cadera), deshaz/rehaz trazos y aplica cómic, óleo o lápiz. Todo ocurre en este archivo: no llama a ninguna red.</p>
+        <p>Estudio de ilustración — Les vencimos. Dibuja, pinta, abre una foto, cambia color de pelo y piel, moldea la figura, deshaz/rehaz trazos y aplica cómic, óleo o lápiz. Todo ocurre en este archivo: no llama a ninguna red.</p>
         <div class="acciones">
           <button class="btn primario" id="btn-nueva-2" type="button">Nueva lámina</button>
           <button class="btn" id="btn-foto" type="button">Abrir foto</button>
@@ -483,14 +477,6 @@ select, input[type="text"].campo {
     tolerancia: 28,
     filtroCantidad: 0.55,
     zoom: 1,
-    figuraBust: 3,
-    figuraHips: 3,
-    figuraNipples: 0,
-    figuraVello: 0,
-    figuraSobaco: 0,
-    figuraCulo: 0,
-    figuraCuloLado: 0,
-    figuraVista: "front",
     panX: 0,
     panY: 0,
     proyecto: null,
@@ -672,27 +658,8 @@ select, input[type="text"].campo {
     html += '<button type="button" class="btn" data-figura="noforma">Menos en forma</button>';
     html += "</div></div>";
 
-    html += '<div class="grupo"><h3>Cuerpo (silueta + detalle)</h3>';
-    html += '<p class="aviso">Assets offline Mari (bust/hips + pezones/vello/sobaco/culo). Vista front/side/rear. «Colocar en capa» pinta la composición (tint piel).</p>';
-    html += '<div class="rejilla-btn" style="margin-bottom:8px">';
-    html += '<button type="button" class="btn' + (estado.figuraVista === "front" ? " primario" : "") + '" data-vista="front">Frente</button>';
-    html += '<button type="button" class="btn' + (estado.figuraVista === "side" ? " primario" : "") + '" data-vista="side">Lado</button>';
-    html += '<button type="button" class="btn' + (estado.figuraVista === "rear" ? " primario" : "") + '" data-vista="rear">Espalda</button>';
-    html += "</div>";
-    html += bloqueRango("Pecho", "figuraBust", estado.figuraBust, 1, 6, 1);
-    html += bloqueRango("Cadera", "figuraHips", estado.figuraHips, 1, 6, 1);
-    html += bloqueRango("Pezones", "figuraNipples", estado.figuraNipples, 0, 3, 1);
-    html += bloqueRango("Vello", "figuraVello", estado.figuraVello, 0, 3, 1);
-    html += bloqueRango("Sobaco", "figuraSobaco", estado.figuraSobaco, 0, 2, 1);
-    html += bloqueRango("Culo", "figuraCulo", estado.figuraCulo, 0, 3, 1);
-    html += bloqueRango("Culo (lado)", "figuraCuloLado", estado.figuraCuloLado, 0, 3, 1);
-    html += '<canvas class="figura-preview" id="figura-preview" width="256" height="384" aria-label="Vista previa silueta"></canvas>';
-    html += '<button type="button" class="btn primario" id="figura-aplicar" style="width:100%;margin-top:8px">Colocar en capa</button>';
-    html += "</div>";
-
     html += bloqueRango("Radio moldear", "tamano", estado.tamano, 8, 120, 1);
     cuerpoPanel.innerHTML = html;
-    try { pintarVistaFigura(); } catch (eFig) {}
   }
 
   function ajustarVista() {
@@ -762,14 +729,6 @@ select, input[type="text"].campo {
   }
 
 
-  var FIGURA_SHAPES = "tinta-assets/body-shapes/";
-  var FIGURA_DETAIL = "tinta-assets/body-detail/";
-  var FIGURA_LABELS = {
-    bust: ["", "plano", "suave", "medio", "lleno", "pleno", "muy-pleno"],
-    hips: ["", "fino", "delgado", "medio", "ancho", "ancho+", "muy-ancho"]
-  };
-  var figuraCache = {};
-  var FIGURA_TINT = "rgba(140,100,80,1)";
 
   function prefersReducedMotion() {
     try { return !!(window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches); }
@@ -788,131 +747,6 @@ select, input[type="text"].campo {
       var el = document.getElementById(pairs[i][0]);
       if (el) el.disabled = !pairs[i][1];
     }
-  }
-
-  function pad2(n) { return n < 10 ? "0" + n : String(n); }
-
-  function cargarImgSrc(src) {
-    if (figuraCache[src]) return Promise.resolve(figuraCache[src]);
-    return new Promise(function (resolve, reject) {
-      var img = new Image();
-      img.onload = function () { figuraCache[src] = img; resolve(img); };
-      img.onerror = function () { reject(new Error("Falta " + src)); };
-      img.src = src;
-    });
-  }
-
-  function cargarShape(eje, n) {
-    return cargarImgSrc(FIGURA_SHAPES + eje + "/" + eje + "-" + pad2(n) + ".png");
-  }
-
-  function cargarDetalle(rel) {
-    return cargarImgSrc(FIGURA_DETAIL + rel);
-  }
-
-  function dibujarTintado(ctx, img, dx, dy, dw, dh) {
-    /* Overlay muted taupe then multiply — reads as skin-shadow */
-    var off = document.createElement("canvas");
-    off.width = Math.max(1, Math.round(dw));
-    off.height = Math.max(1, Math.round(dh));
-    var o = off.getContext("2d");
-    o.drawImage(img, 0, 0, off.width, off.height);
-    o.globalCompositeOperation = "source-in";
-    o.fillStyle = FIGURA_TINT;
-    o.fillRect(0, 0, off.width, off.height);
-    ctx.save();
-    ctx.globalCompositeOperation = "multiply";
-    ctx.globalAlpha = 0.85;
-    ctx.drawImage(off, dx, dy, dw, dh);
-    ctx.restore();
-  }
-
-  function capasFiguraPromesas() {
-    var v = estado.figuraVista || "front";
-    var list = [];
-    if (v === "rear") {
-      list.push({ kind: "base", p: cargarDetalle("rear/silhouette-rear.png") });
-      list.push({ kind: "tint", p: cargarDetalle("rear/butt/butt-" + estado.figuraCulo + ".png") });
-      return Promise.all(list.map(function (x) { return x.p; })).then(function (imgs) {
-        return [{ img: imgs[0], tint: false }, { img: imgs[1], tint: true }];
-      });
-    }
-    if (v === "side") {
-      /* side: hips as soft stand-in body + buttSide tinted */
-      return Promise.all([
-        cargarShape("hips", estado.figuraHips),
-        cargarDetalle("side/butt-side-" + estado.figuraCuloLado + ".png")
-      ]).then(function (imgs) {
-        return [{ img: imgs[0], tint: false }, { img: imgs[1], tint: true }];
-      });
-    }
-    /* front: hips → bust → nipples → bodyHair → armpit */
-    return Promise.all([
-      cargarShape("hips", estado.figuraHips),
-      cargarShape("bust", estado.figuraBust),
-      cargarDetalle("front/nipples/nipples-" + estado.figuraNipples + ".png"),
-      cargarDetalle("front/body-hair/body-hair-" + estado.figuraVello + ".png"),
-      cargarDetalle("front/armpit/armpit-" + estado.figuraSobaco + ".png")
-    ]).then(function (imgs) {
-      return [
-        { img: imgs[0], tint: false },
-        { img: imgs[1], tint: false },
-        { img: imgs[2], tint: true },
-        { img: imgs[3], tint: true },
-        { img: imgs[4], tint: true }
-      ];
-    });
-  }
-
-  function pintarCapasFiguraEn(ctx, capas, dx, dy, dw, dh) {
-    var i;
-    for (i = 0; i < capas.length; i++) {
-      if (capas[i].tint) dibujarTintado(ctx, capas[i].img, dx, dy, dw, dh);
-      else ctx.drawImage(capas[i].img, dx, dy, dw, dh);
-    }
-  }
-
-  function pintarVistaFigura() {
-    var cv = document.getElementById("figura-preview");
-    if (!cv) return;
-    var g = cv.getContext("2d");
-    g.clearRect(0, 0, cv.width, cv.height);
-    g.fillStyle = "#0c0b0a";
-    g.fillRect(0, 0, cv.width, cv.height);
-    capasFiguraPromesas().then(function (capas) {
-      g.clearRect(0, 0, cv.width, cv.height);
-      g.fillStyle = "#f3eee4";
-      g.fillRect(0, 0, cv.width, cv.height);
-      pintarCapasFiguraEn(g, capas, 0, 0, cv.width, cv.height);
-    }).catch(function () {
-      g.fillStyle = "#b7ad9c";
-      g.font = "12px sans-serif";
-      g.fillText("Assets no encontrados", 12, 24);
-      g.fillText("(tinta-assets/body-*)", 12, 42);
-    });
-  }
-
-  function aplicarSiluetaFigura() {
-    if (!estado.proyecto || !capaActual()) {
-      decir("Abre o crea una lámina primero");
-      return;
-    }
-    capasFiguraPromesas().then(function (capas) {
-      empujarHistorial();
-      var c = capaActual();
-      var ctx = c.lienzo.getContext("2d");
-      var w = c.lienzo.width, h = c.lienzo.height;
-      var scale = Math.min(w / 512, h / 768) * 0.92;
-      var dw = 512 * scale, dh = 768 * scale;
-      var dx = (w - dw) / 2, dy = (h - dh) / 2;
-      ctx.save();
-      pintarCapasFiguraEn(ctx, capas, dx, dy, dw, dh);
-      ctx.restore();
-      componer();
-      decir("Figura " + (estado.figuraVista || "front") + " colocada");
-    }).catch(function () {
-      decir("Faltan PNG en tinta-assets/");
-    });
   }
 
   function empujarHistorial() {
@@ -2012,23 +1846,12 @@ select, input[type="text"].campo {
     else if (r === "opacidad") estado.opacidad = v / 100;
     else if (r === "dureza") estado.dureza = v / 100;
     else if (r === "filtroCantidad") estado.filtroCantidad = v / 100;
-    else if (r === "figuraBust") { estado.figuraBust = limitar(v | 0, 1, 6); pintarVistaFigura(); }
-    else if (r === "figuraHips") { estado.figuraHips = limitar(v | 0, 1, 6); pintarVistaFigura(); }
-    else if (r === "figuraNipples") { estado.figuraNipples = limitar(v | 0, 0, 3); pintarVistaFigura(); }
-    else if (r === "figuraVello") { estado.figuraVello = limitar(v | 0, 0, 3); pintarVistaFigura(); }
-    else if (r === "figuraSobaco") { estado.figuraSobaco = limitar(v | 0, 0, 2); pintarVistaFigura(); }
-    else if (r === "figuraCulo") { estado.figuraCulo = limitar(v | 0, 0, 3); pintarVistaFigura(); }
-    else if (r === "figuraCuloLado") { estado.figuraCuloLado = limitar(v | 0, 0, 3); pintarVistaFigura(); }
     else if (r === "opacidadCapa" && capaActual()) {
       capaActual().opacidad = v / 100;
       componer();
     }
     var lab = cuerpoPanel.querySelector('[data-valor="' + r + '"]');
-    if (lab) {
-      if (r === "figuraBust") lab.textContent = FIGURA_LABELS.bust[estado.figuraBust] || String(v | 0);
-      else if (r === "figuraHips") lab.textContent = FIGURA_LABELS.hips[estado.figuraHips] || String(v | 0);
-      else lab.textContent = String(v | 0);
-    }
+    if (lab) lab.textContent = String(v | 0);
     selloCache = null;
   });
 
@@ -2047,12 +1870,6 @@ select, input[type="text"].campo {
     }
     if (t.id === "deshacer") { deshacer(); return; }
     if (t.id === "rehacer") { rehacer(); return; }
-    if (t.id === "figura-aplicar") { aplicarSiluetaFigura(); return; }
-    if (t.getAttribute("data-vista")) {
-      estado.figuraVista = t.getAttribute("data-vista");
-      pintarFoto();
-      return;
-    }
     if (t.id === "bn") { estado.color = "#1a1916"; pintarPanel(); return; }
     if (t.id === "capa-mas") {
       capas.push(nuevaCapa("Capa " + (capas.length + 1), estado.proyecto.ancho, estado.proyecto.alto));
