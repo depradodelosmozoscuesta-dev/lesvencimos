@@ -893,7 +893,8 @@
     overflow-x: auto;
     overflow-y: visible;
     -webkit-overflow-scrolling: touch;
-    scroll-snap-type: none;
+    scroll-snap-type: none !important;
+    scroll-behavior: auto;
     overscroll-behavior-x: contain;
     gap: 0.4rem 0.55rem;
     align-items: flex-end;
@@ -902,7 +903,7 @@
     z-index: 2;
     scrollbar-width: thin;
     scrollbar-color: color-mix(in srgb, var(--suave) 40%, transparent) transparent;
-    touch-action: pan-x;
+    touch-action: pan-x !important;
     flex-direction: row;
     white-space: nowrap;
   }
@@ -943,6 +944,15 @@
     touch-action: manipulation;
     overflow: visible;
     box-shadow: none;
+  }
+  /* Balda: priorizar scroll horizontal fluido; reorden = pulsación larga */
+  .shelf-icons .launch-tile,
+  .shelf-icons .launch-tile * {
+    touch-action: pan-x;
+  }
+  .shelf-icons .launch-tile.shelf-dragging,
+  .shelf-icons .launch-tile.shelf-dragging * {
+    touch-action: none;
   }
   .launch-tile:focus-visible {
     outline: 2px solid var(--acento);
@@ -2931,7 +2941,7 @@
       </div>
     </div>
 
-    <footer class="site-foot"><span class="wordmark">Les vencimos</span> · escritorio / estantería offline · <span id="est-build">v20261001i</span></footer>
+    <footer class="site-foot"><span class="wordmark">Les vencimos</span> · escritorio / estantería offline · <span id="est-build">v20261001j</span></footer>
   </div>
 
   <div id="mod-viewer" role="dialog" aria-modal="true" aria-labelledby="mod-viewer-title" hidden>
@@ -3678,6 +3688,7 @@
       if (!iconsEl || iconsEl.dataset.anchorDragBound === '1') return;
       iconsEl.dataset.anchorDragBound = '1';
       var drag = null;
+      var HOLD_MS = 520; /* pulsación larga → reorden; swipe = scroll */
 
       function clearDrop() {
         iconsEl.querySelectorAll('.shelf-drop-target').forEach(function (n) {
@@ -3694,13 +3705,32 @@
         var seg = shelfSegmentBounds(iconsEl, tile);
         if (!seg) return;
         var sx = e.clientX, sy = e.clientY;
-        var moved = false;
         var pointerId = e.pointerId;
-        drag = { tile: tile, seg: seg, sx: sx, sy: sy, moved: false, pointerId: pointerId };
+        var holdTimer = null;
+        drag = { tile: tile, seg: seg, sx: sx, sy: sy, moved: false, armed: false, pointerId: pointerId };
+
+        function disarm() {
+          if (holdTimer) { clearTimeout(holdTimer); holdTimer = null; }
+        }
+
+        function endListeners() {
+          document.removeEventListener('pointermove', onMove, true);
+          document.removeEventListener('pointerup', onUp, true);
+          document.removeEventListener('pointercancel', onUp, true);
+        }
 
         function onMove(ev) {
           if (!drag || ev.pointerId !== pointerId) return;
           var dx = ev.clientX - drag.sx, dy = ev.clientY - drag.sy;
+          /* Antes de armar: cualquier gesto → dejar scroll nativo, cancelar hold */
+          if (!drag.armed) {
+            if (dx * dx + dy * dy > 36) {
+              disarm();
+              endListeners();
+              drag = null;
+            }
+            return;
+          }
           if (!drag.moved && dx * dx + dy * dy < 64) return;
           if (!drag.moved) {
             drag.moved = true;
@@ -3708,6 +3738,7 @@
             drag.tile.classList.add('shelf-dragging');
             try { drag.tile.setPointerCapture(pointerId); } catch (errCap) {}
           }
+          if (ev.cancelable) ev.preventDefault();
           clearDrop();
           var el = document.elementFromPoint(ev.clientX, ev.clientY);
           var over = el && el.closest && el.closest('.launch-tile');
@@ -3718,7 +3749,6 @@
           var oix = drag.seg.kids.indexOf(over);
           if (oix < drag.seg.lo || oix > drag.seg.hi) return;
           over.classList.add('shelf-drop-target');
-          /* live reorder within segment */
           var from = drag.seg.kids.indexOf(drag.tile);
           if (from < 0 || oix === from) return;
           if (oix < from) iconsEl.insertBefore(drag.tile, over);
@@ -3729,22 +3759,30 @@
 
         function onUp(ev) {
           if (!drag || ev.pointerId !== pointerId) return;
-          document.removeEventListener('pointermove', onMove, true);
-          document.removeEventListener('pointerup', onUp, true);
-          document.removeEventListener('pointercancel', onUp, true);
+          disarm();
+          endListeners();
           clearDrop();
           drag.tile.classList.remove('shelf-dragging');
-          if (drag.moved) {
+          if (drag.armed && drag.moved) {
             persistShelfIconsOrder(shelfId, iconsEl);
-            try { showToast('Orden · tramo de balda'); } catch (eT) {}
+            /* sin toast molesto «Orden · tramo de balda» */
           }
           drag = null;
         }
 
+        holdTimer = setTimeout(function () {
+          holdTimer = null;
+          if (!drag || drag.pointerId !== pointerId) return;
+          drag.armed = true;
+          _suppressTileClickUntil = Date.now() + 800;
+          drag.tile.classList.add('shelf-dragging');
+          try { drag.tile.setPointerCapture(pointerId); } catch (errArm) {}
+        }, HOLD_MS);
+
         document.addEventListener('pointermove', onMove, true);
         document.addEventListener('pointerup', onUp, true);
         document.addEventListener('pointercancel', onUp, true);
-      });
+      }, { passive: true });
     }
 
     function bumpUsage(id) {
@@ -5396,7 +5434,7 @@
           drag.card.classList.remove('note-dragging');
           if (drag.moved) {
             persistNotesStickiesOrder(strip);
-            try { showToast('Orden · notas'); } catch (eT) {}
+            /* sin toast de orden molesto */
           }
           drag = null;
         }
@@ -8717,7 +8755,7 @@
       });
     }
 
-    var EST_BUILD = 'v20261001i';
+    var EST_BUILD = 'v20261001j';
 
     function layoutPanelSheet() {
       var tb = document.getElementById('desk-toolbar');

@@ -22,7 +22,7 @@ DL = ROOT / "downloads"
 SHELL_SRC = ROOT / "offline-estanteria" / "estanteria.shell.html"
 STAGING = ROOT / "offline-pack-completo"
 OUT = DL / "pack-completo-offline.zip"
-VERSION = "v20261001i"
+VERSION = "v20261001j"
 SNAPSHOT = DL / f"pack-completo-offline-{VERSION}.zip"
 
 # Reuse embed map from the Estantería builder (single source of truth).
