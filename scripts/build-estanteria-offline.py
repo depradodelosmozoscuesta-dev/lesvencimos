@@ -325,7 +325,7 @@ def main() -> None:
     shutil.rmtree(STAGING)
 
     # Also keep last lettered snapshot name pointing at same bytes (bookmarks).
-    snapshot = ROOT / "downloads" / "estanteria-offline-v20261001f.zip"
+    snapshot = ROOT / "downloads" / "estanteria-offline-v20261001k.zip"
     shutil.copy2(OUT, snapshot)
     print(f"Wrote {OUT} ({OUT.stat().st_size} bytes)")
     print(f"Snapshot {snapshot}")
