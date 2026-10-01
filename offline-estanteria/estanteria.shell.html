@@ -526,7 +526,8 @@
     border: 1px solid color-mix(in srgb, #C4A15A 42%, transparent);
     border-radius: 2px;
     overflow: auto;
-    touch-action: pan-y;
+    -webkit-overflow-scrolling: touch;
+    touch-action: pan-y; /* k6 page scroll */
     user-select: none;
     -webkit-user-select: none;
   }
@@ -799,7 +800,7 @@
     border-radius: 4px 4px 3px 3px;
     overflow: visible;
   }
-  /* Ledge / rail — wood plank with brand-gold edge */
+  /* Ledge / rail — brand-gold plank; k6: NO white hairline under icons */
   .shelf-row::after {
     content: "";
     position: absolute;
@@ -820,11 +821,11 @@
         var(--shelf-lip-top) 0%,
         var(--shelf-lip-mid) 45%,
         var(--shelf-lip-bot) 100%);
+    border: none;
     box-shadow:
       0 6px 14px var(--shelf-shadow),
-      0 1px 0 color-mix(in srgb, var(--shelf-lip-top) 75%, #fff),
-      inset 0 1px 0 rgba(255,255,255,0.32),
-      inset 0 -2px 4px rgba(0,0,0,0.32);
+      0 1px 0 color-mix(in srgb, var(--shelf-lip-mid) 72%, var(--shelf-lip-bot)),
+      inset 0 -2px 4px rgba(0,0,0,0.30);
     pointer-events: none;
     z-index: 0;
   }
@@ -953,7 +954,8 @@
     z-index: 2;
     scrollbar-width: thin;
     scrollbar-color: color-mix(in srgb, var(--suave) 40%, transparent) transparent;
-    touch-action: pan-x !important;
+    /* k6: pan-x + pan-y — baldas horiz + page vertical (j fluido) */
+    touch-action: pan-x pan-y !important;
     flex-direction: row;
     white-space: nowrap;
   }
@@ -1002,7 +1004,7 @@
   /* Balda: priorizar scroll horizontal fluido; reorden = pulsación larga */
   .shelf-icons .launch-tile,
   .shelf-icons .launch-tile * {
-    touch-action: pan-x;
+    touch-action: pan-x pan-y !important;
   }
   .shelf-icons .launch-tile.shelf-dragging,
   .shelf-icons .launch-tile.shelf-dragging * {
@@ -2997,7 +2999,7 @@
       </div>
     </div>
 
-    <footer class="site-foot"><span class="wordmark">Les vencimos</span> · escritorio / estantería offline · <span id="est-build">v20261001j</span></footer>
+    <footer class="site-foot"><span class="wordmark">Les vencimos</span> · escritorio / estantería offline · <span id="est-build">v20261001k6</span></footer>
   </div>
 
   <div id="mod-viewer" role="dialog" aria-modal="true" aria-labelledby="mod-viewer-title" hidden>
@@ -3849,7 +3851,7 @@
           drag.armed = true;
           _suppressTileClickUntil = Date.now() + 800;
           drag.tile.classList.add('shelf-dragging');
-          try { drag.tile.setPointerCapture(pointerId); } catch (errArm) {}
+          /* k6: no setPointerCapture on arm — keeps pan fluido (j) */
         }, HOLD_MS);
 
         document.addEventListener('pointermove', onMove, true);
@@ -8245,7 +8247,8 @@
       return panel;
     }
 
-    /* Gentle auto-scroll parade — v20261001k5: k4 + WebView overflow force + pad fallback */
+    /* layoutRev+stamp v20261001k6: anti-rayas + j scroll + k5 parade */
+    /* Gentle auto-scroll parade — v20261001k6: ensureShelfIconsOverflow + no scrollLeft while finger */
     var shelfDriftRafs = [];
     var shelfDriftLifecycleBound = false;
     var DRIFT_PAUSE_MS = 5000;
@@ -8348,18 +8351,33 @@
         var dir = el._driftDir === -1 ? -1 : 1;
         var last = performance.now();
         function pause() { pauseShelfDriftRail(el); }
+        function fingerDown() {
+          el._driftFinger = (el._driftFinger || 0) + 1;
+          pause();
+        }
+        function fingerUp() {
+          el._driftFinger = Math.max(0, (el._driftFinger || 0) - 1);
+          pause();
+        }
+        function onUserScroll() { pause(); }
         if (!el._driftPauseBound) {
           el._driftPauseBound = 1;
-          el.addEventListener('pointerdown', pause, { passive: true });
-          el.addEventListener('touchstart', pause, { passive: true });
-          el.addEventListener('wheel', pause, { passive: true });
+          el.addEventListener('pointerdown', fingerDown, { passive: true, capture: true });
+          el.addEventListener('pointerup', fingerUp, { passive: true, capture: true });
+          el.addEventListener('pointercancel', fingerUp, { passive: true, capture: true });
+          el.addEventListener('touchstart', fingerDown, { passive: true, capture: true });
+          el.addEventListener('touchend', fingerUp, { passive: true, capture: true });
+          el.addEventListener('touchcancel', fingerUp, { passive: true, capture: true });
+          el.addEventListener('wheel', pause, { passive: true, capture: true });
+          el.addEventListener('scroll', onUserScroll, { passive: true });
         }
         function tick(now) {
           if (!el.isConnected) { el._driftRaf = 0; return; }
           var dt = Math.min(48, now - last);
           last = now;
           var until = el._driftPausedUntil || 0;
-          if (now >= until) {
+          /* Completo j: never write scrollLeft while finger down */
+          if (now >= until && !(el._driftFinger > 0)) {
             el.scrollLeft += dir * DRIFT_SPEED * (dt / 1000);
             var max = el.scrollWidth - el.clientWidth;
             if (el.scrollLeft >= max - 0.5) dir = -1;
@@ -8928,7 +8946,7 @@
       });
     }
 
-    var EST_BUILD = 'v20261001k5';
+    var EST_BUILD = 'v20261001k6';
 
     function layoutPanelSheet() {
       var tb = document.getElementById('desk-toolbar');
@@ -10285,6 +10303,7 @@
         /* layoutRev 47: restore parade j + ensure overflow + restart post-splash → v20261001k2 */
         /* layoutRev 48: parade continuo + pausa 5s/balda + visibility/pageshow → v20261001k3 */
         /* layoutRev 49: instrumentos de música SUELTOS en Ocio · iconos propios · v20261001k4 */
+        /* layoutRev 50: sin rayas blancas + scroll j + parade k5 → v20261001k6 */
         /* + v20261001i: maestro pacing lento + Teatro v20261001a sync */
         /* layoutRev 39: curiosidad cards (nombre grande · tap amplía · módulo) · Notas/Vaciar · v20260930m */
         if (typeof state.layoutRev !== 'number' || state.layoutRev < 39) {
