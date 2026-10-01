@@ -2851,9 +2851,9 @@
 <body class="theme-ambar">
   <div id="lv-entry-splash" hidden>
     <video id="lv-splash-vid" playsinline muted autoplay preload="auto">
-      <source src="brand/splash/entrada.mp4?v=20261001h" type="video/mp4">
+      <source src="brand/splash/entrada.mp4?v=20261001i" type="video/mp4">
     </video>
-    <audio id="lv-splash-audio" preload="auto" src="brand/splash/entrada-sonido.m4a?v=20261001h"></audio>
+    <audio id="lv-splash-audio" preload="auto" src="brand/splash/entrada-sonido.m4a?v=20261001i"></audio>
     <audio id="lv-splash-hi" preload="auto"></audio>
     <audio id="lv-splash-cierre" preload="auto"></audio>
     <div class="lv-splash-stub" aria-hidden="true"></div>
@@ -2999,7 +2999,7 @@
       </div>
     </div>
 
-    <footer class="site-foot"><span class="wordmark">Les vencimos</span> · escritorio / estantería offline · <span id="est-build">v20261001k6</span></footer>
+    <footer class="site-foot"><span class="wordmark">Les vencimos</span> · escritorio / estantería offline · <span id="est-build">v20261001k7</span></footer>
   </div>
 
   <div id="mod-viewer" role="dialog" aria-modal="true" aria-labelledby="mod-viewer-title" hidden>
@@ -8247,149 +8247,18 @@
       return panel;
     }
 
-    /* layoutRev+stamp v20261001k6: anti-rayas + j scroll + k5 parade */
-    /* Gentle auto-scroll parade — v20261001k6: ensureShelfIconsOverflow + no scrollLeft while finger */
-    var shelfDriftRafs = [];
-    var shelfDriftLifecycleBound = false;
-    var DRIFT_PAUSE_MS = 5000;
-    var DRIFT_SPEED = 12; /* px/s */
-    function stopShelfDrift() {
-      shelfDriftRafs.forEach(function (id) {
-        try { cancelAnimationFrame(id); } catch (e) {}
-      });
-      shelfDriftRafs = [];
-      document.querySelectorAll('.shelf-icons').forEach(function (el) {
-        if (el._driftRaf) {
-          try { cancelAnimationFrame(el._driftRaf); } catch (e) {}
-          el._driftRaf = 0;
-        }
-      });
-    }
-    /** Force horizontal overflow so parade can run (few tiles / wide screens / WebView). */
-    function ensureShelfIconsOverflow(el) {
-      if (!el) return false;
-      el.querySelectorAll('.shelf-parade-ghost').forEach(function (g) {
-        try { g.remove(); } catch (eR) {}
-      });
-      try { el.style.paddingRight = ''; } catch (eP) {}
-      var guard = 0;
-      while (el.scrollWidth <= el.clientWidth + 8 && guard < 32) {
-        var live = [];
-        for (var i = 0; i < el.children.length; i++) {
-          var c = el.children[i];
-          if (c.nodeType === 1 && !c.classList.contains('shelf-parade-ghost')) live.push(c);
-        }
-        if (!live.length) {
-          var pad = document.createElement('div');
-          pad.className = 'shelf-parade-ghost';
-          pad.setAttribute('aria-hidden', 'true');
-          pad.style.cssText = 'flex:0 0 ' + Math.max(120, Math.ceil(el.clientWidth * 0.55)) + 'px;min-width:' + Math.max(120, Math.ceil(el.clientWidth * 0.55)) + 'px;height:1px;pointer-events:none;opacity:0';
-          el.appendChild(pad);
-          guard++;
-          continue;
-        }
-        var src = live[guard % live.length];
-        var ghost = src.cloneNode(true);
-        ghost.classList.add('shelf-parade-ghost');
-        ghost.setAttribute('aria-hidden', 'true');
-        ghost.tabIndex = -1;
-        try { ghost.removeAttribute('data-id'); } catch (eD) {}
-        ghost.style.pointerEvents = 'none';
-        ghost.style.opacity = '0.5';
-        ghost.style.flex = '0 0 auto';
-        ghost.style.minWidth = ghost.style.minWidth || (src.offsetWidth ? src.offsetWidth + 'px' : '');
-        ghost.onclick = null;
-        ghost.onpointerdown = null;
-        try { ghost.disabled = true; } catch (eDis) {}
-        el.appendChild(ghost);
-        guard++;
-      }
-      /* WebView sometimes keeps scrollWidth==clientWidth despite children — force pad */
-      if (el.scrollWidth <= el.clientWidth + 6) {
-        var need = Math.max(160, Math.floor((el.clientWidth || 320) * 0.65));
-        el.style.paddingRight = need + 'px';
-      }
-      return el.scrollWidth > el.clientWidth + 6;
-    }
-    function pauseShelfDriftRail(el) {
-      if (!el) return;
-      el._driftPausedUntil = performance.now() + DRIFT_PAUSE_MS;
-    }
-    function bindShelfDriftLifecycle() {
-      if (shelfDriftLifecycleBound) return;
-      shelfDriftLifecycleBound = true;
-      function restart() {
-        try {
-          requestAnimationFrame(function () {
-            requestAnimationFrame(function () {
-              try { startShelfDrift(); } catch (eR) {}
-            });
-          });
-        } catch (eB) {
-          try { startShelfDrift(); } catch (eB2) {}
-        }
-      }
-      document.addEventListener('visibilitychange', function () {
-        if (document.visibilityState === 'visible') restart();
-      });
-      window.addEventListener('pageshow', function () { restart(); });
-      window.addEventListener('focus', function () { restart(); });
-    }
+    /* layoutRev+stamp v20261001k7: parade OFF; scroll j + anti-rayas; splash h kept */
+    /* Jorge 2026-10-01: auto-parade OFF — peores gestos en APK; NO ghosts/rAF/timers hasta Jorge diga */
+    var SHELF_PARADE = false; /* kill-switch; must stay false */
+    function stopShelfDrift() { /* parade OFF — no rAF */ }
+    function ensureShelfIconsOverflow(/* el */) { return false; } /* inert — no ghosts / no DOM */
+    function pauseShelfDriftRail(/* el */) { /* parade OFF */ }
+    function bindShelfDriftLifecycle() { /* parade OFF — no visibility/pageshow/focus restart */ }
     function startShelfDrift() {
-      bindShelfDriftLifecycle();
-      stopShelfDrift();
-      var reduce = false;
-      try {
-        reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-      } catch (e) {}
-      /* Native APK/WebView: soft scroll parade is product UX; still pause on touch. */
-      if (reduce && !(window.LvBridge || window.LesVencimosAndroid)) return;
-      if (typeof document !== 'undefined' && document.visibilityState === 'hidden') return;
-      document.querySelectorAll('.shelf-icons').forEach(function (el) {
-        ensureShelfIconsOverflow(el);
-        if (el.scrollWidth <= el.clientWidth + 6) return;
-        var dir = el._driftDir === -1 ? -1 : 1;
-        var last = performance.now();
-        function pause() { pauseShelfDriftRail(el); }
-        function fingerDown() {
-          el._driftFinger = (el._driftFinger || 0) + 1;
-          pause();
-        }
-        function fingerUp() {
-          el._driftFinger = Math.max(0, (el._driftFinger || 0) - 1);
-          pause();
-        }
-        function onUserScroll() { pause(); }
-        if (!el._driftPauseBound) {
-          el._driftPauseBound = 1;
-          el.addEventListener('pointerdown', fingerDown, { passive: true, capture: true });
-          el.addEventListener('pointerup', fingerUp, { passive: true, capture: true });
-          el.addEventListener('pointercancel', fingerUp, { passive: true, capture: true });
-          el.addEventListener('touchstart', fingerDown, { passive: true, capture: true });
-          el.addEventListener('touchend', fingerUp, { passive: true, capture: true });
-          el.addEventListener('touchcancel', fingerUp, { passive: true, capture: true });
-          el.addEventListener('wheel', pause, { passive: true, capture: true });
-          el.addEventListener('scroll', onUserScroll, { passive: true });
-        }
-        function tick(now) {
-          if (!el.isConnected) { el._driftRaf = 0; return; }
-          var dt = Math.min(48, now - last);
-          last = now;
-          var until = el._driftPausedUntil || 0;
-          /* Completo j: never write scrollLeft while finger down */
-          if (now >= until && !(el._driftFinger > 0)) {
-            el.scrollLeft += dir * DRIFT_SPEED * (dt / 1000);
-            var max = el.scrollWidth - el.clientWidth;
-            if (el.scrollLeft >= max - 0.5) dir = -1;
-            if (el.scrollLeft <= 0.5) dir = 1;
-            el._driftDir = dir;
-          }
-          el._driftRaf = requestAnimationFrame(tick);
-        }
-        el._driftRaf = requestAnimationFrame(tick);
-        shelfDriftRafs.push(el._driftRaf);
-      });
+      /* parade OFF: Completo j manual scroll only (touch-action pan-x pan-y). No scrollLeft animation. */
+      if (!SHELF_PARADE) return;
     }
+
 
     function buildAgendaSlot(it, slotKey) {
       var el = document.createElement('div');
@@ -8946,7 +8815,7 @@
       });
     }
 
-    var EST_BUILD = 'v20261001k6';
+    var EST_BUILD = 'v20261001k7'; /* k7: parade OFF; scroll j + anti-rayas; splash h kept */
 
     function layoutPanelSheet() {
       var tb = document.getElementById('desk-toolbar');
@@ -9266,8 +9135,8 @@
       var CHORUS_N = 7;
       var LOVE_AT = 4.55;
       var FINISH_AT = 6.86;
-      var V = '20261001h';
-      var LANGS = [{"id":"es","label":"Español","voice":"es-MX-DaliaNeural","hi":"voz/hi-es.m4a","bye":"voz/bye-es.m4a","hiText":"¡Hola!","byeText":"Te queremos"},{"id":"en","label":"English","voice":"en-US-JennyNeural","hi":"voz/hi-en.m4a","bye":"voz/bye-en.m4a","hiText":"Hello!","byeText":"We love you"},{"id":"fr","label":"Français","voice":"fr-FR-DeniseNeural","hi":"voz/hi-fr.m4a","bye":"voz/bye-fr.m4a","hiText":"Bonjour!","byeText":"On t'aime"},{"id":"pt","label":"Português","voice":"pt-BR-FranciscaNeural","hi":"voz/hi-pt.m4a","bye":"voz/bye-pt.m4a","hiText":"Olá!","byeText":"A gente te quer"},{"id":"it","label":"Italiano","voice":"it-IT-IsabellaNeural","hi":"voz/hi-it.m4a","bye":"voz/bye-it.m4a","hiText":"Ciao!","byeText":"Ti vogliamo bene"},{"id":"de","label":"Deutsch","voice":"de-DE-AmalaNeural","hi":"voz/hi-de.m4a","bye":"voz/bye-de.m4a","hiText":"Hallo!","byeText":"Wir haben dich lieb"},{"id":"ro","label":"Română","voice":"ro-RO-AlinaNeural","hi":"voz/hi-ro.m4a","bye":"voz/bye-ro.m4a","hiText":"Bună!","byeText":"Te iubim"},{"id":"ru","label":"Русский","voice":"ru-RU-SvetlanaNeural","hi":"voz/hi-ru.m4a","bye":"voz/bye-ru.m4a","hiText":"Привет!","byeText":"Мы вас любим"},{"id":"ja","label":"日本語","voice":"ja-JP-NanamiNeural","hi":"voz/hi-ja.m4a","bye":"voz/bye-ja.m4a","hiText":"こんにちは","byeText":"大好き"},{"id":"ko","label":"한국어","voice":"ko-KR-SunHiNeural","hi":"voz/hi-ko.m4a","bye":"voz/bye-ko.m4a","hiText":"안녕하세요!","byeText":"사랑해요"}];
+      var V = '20261001i';
+      var LANGS = [{"id":"es","label":"Español","voice":"en-US-AvaMultilingualNeural","hi":"voz/hi-es.m4a","bye":"voz/bye-es.m4a","hiText":"¡Hola!","byeText":"Te queremos"},{"id":"en","label":"English","voice":"en-US-AvaMultilingualNeural","hi":"voz/hi-en.m4a","bye":"voz/bye-en.m4a","hiText":"Hello!","byeText":"We love you"},{"id":"fr","label":"Français","voice":"fr-FR-VivienneMultilingualNeural","hi":"voz/hi-fr.m4a","bye":"voz/bye-fr.m4a","hiText":"Bonjour!","byeText":"On t'aime"},{"id":"pt","label":"Português","voice":"pt-BR-ThalitaMultilingualNeural","hi":"voz/hi-pt.m4a","bye":"voz/bye-pt.m4a","hiText":"Olá!","byeText":"A gente te quer"},{"id":"it","label":"Italiano","voice":"en-US-AvaMultilingualNeural","hi":"voz/hi-it.m4a","bye":"voz/bye-it.m4a","hiText":"Ciao!","byeText":"Ti vogliamo bene"},{"id":"de","label":"Deutsch","voice":"de-DE-SeraphinaMultilingualNeural","hi":"voz/hi-de.m4a","bye":"voz/bye-de.m4a","hiText":"Hallo!","byeText":"Wir haben dich lieb"},{"id":"ro","label":"Română","voice":"ro-RO-AlinaNeural","hi":"voz/hi-ro.m4a","bye":"voz/bye-ro.m4a","hiText":"Bună!","byeText":"Te iubim"},{"id":"ru","label":"Русский","voice":"ru-RU-SvetlanaNeural","hi":"voz/hi-ru.m4a","bye":"voz/bye-ru.m4a","hiText":"Привет!","byeText":"Мы вас любим"},{"id":"ja","label":"日本語","voice":"ja-JP-NanamiNeural","hi":"voz/hi-ja.m4a","bye":"voz/bye-ja.m4a","hiText":"こんにちは","byeText":"大好き"},{"id":"ko","label":"한국어","voice":"ko-KR-SunHiNeural","hi":"voz/hi-ko.m4a","bye":"voz/bye-ko.m4a","hiText":"안녕하세요!","byeText":"사랑해요"}];
       var cast = pickSplashChorus(LANGS, CHORUS_N);
       var chorusLangs = cast.chorus;
       var loveLang = cast.love;
@@ -10304,6 +10173,7 @@
         /* layoutRev 48: parade continuo + pausa 5s/balda + visibility/pageshow → v20261001k3 */
         /* layoutRev 49: instrumentos de música SUELTOS en Ocio · iconos propios · v20261001k4 */
         /* layoutRev 50: sin rayas blancas + scroll j + parade k5 → v20261001k6 */
+        /* layoutRev 51: parade OFF (no ghosts/rAF); scroll j + anti-rayas; splash h → v20261001k7 */
         /* + v20261001i: maestro pacing lento + Teatro v20261001a sync */
         /* layoutRev 39: curiosidad cards (nombre grande · tap amplía · módulo) · Notas/Vaciar · v20260930m */
         if (typeof state.layoutRev !== 'number' || state.layoutRev < 39) {
@@ -10430,7 +10300,7 @@
         if (pendingFirstRun) {
           showFirstRun();
         }
-        /* k3: desk may have laid out under splash overlay — restart parade when visible */
+        /* k7: parade OFF — updateShelfOverflow only (startShelfDrift is no-op) */
         requestAnimationFrame(function () {
           requestAnimationFrame(function () {
             try { startShelfDrift(); updateShelfOverflow(); } catch (eP) {}
