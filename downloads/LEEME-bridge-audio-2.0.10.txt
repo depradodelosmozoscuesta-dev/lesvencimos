@@ -1,0 +1,55 @@
+═══════════════════════════════════════
+  LvBridge AUDIO — contrato JS (App 2.0.10)
+  LOCAL · sin publicar hasta OK Jorge
+═══════════════════════════════════════
+
+Android cubre sin cambios HTML:
+  · getUserMedia → RECORD_AUDIO + WebChromeClient.onPermissionRequest
+  · <input type=file accept=audio/*> → onShowFileChooser (SAF OPEN_DOCUMENT)
+  · Clic en <a download> con blob:/data: → auto LvBridge.saveAudioBase64
+    (Music/LesVencimos o Documents/LesVencimos vía MediaStore)
+
+APIs window.LvBridge (también útiles si Web las cablea):
+
+  hasMicPermission() → boolean
+  requestMicPermission() → void
+      evento: lv:mic-permission  detail={granted:bool, permission:"RECORD_AUDIO"}
+
+  pickAudioFile() → void
+  openDocument(mimeCsv) → void   // ej. "audio/*" o "audio/*,.mp3"
+      evento: lv:audio-picked
+      detail={ok, name, mime, uri, url, bytes, cachePath}
+      url = https://appassets.androidplatform.net/user-audio/<name>
+            (reproducible en <audio src>)
+
+  saveAudioBase64(base64OrDataUrl, fileName, mime) → JSON string
+      {ok, uri, name, mime, bytes, relativePath, folder, url, cachePath}
+      evento: lv:audio-saved (mismo detail)
+      Carpeta: Music/LesVencimos/ (fallback Documents/LesVencimos/)
+
+  listSavedRecordings() → JSON array [{uri,name,mime,bytes,added},…]
+  getUserMediaFolder() → "LesVencimos"
+
+  startRecording() / stopRecording()
+      No-op nativo (HTML usa MediaRecorder). startRecording pide mic.
+
+Eventos DOM:
+  window.addEventListener('lv:mic-permission', …)
+  window.addEventListener('lv:audio-picked', …)
+  window.addEventListener('lv:audio-saved', …)
+  window.addEventListener('lv:error', …)
+
+Hook opcional Web:
+  window.__lvOnAudioPicked = function(detail){ /* playlist */ }
+
+Permisos Manifest: RECORD_AUDIO, READ_MEDIA_AUDIO (API33+), READ_EXTERNAL_STORAGE maxSdk 32.
+Parade OFF · TTS intacto · Educación packLocal intacto · embed MD5 f363ee8a… (sin bump ZIP).
+EXPECTED_VERSION: v20261001embed-k9-todo-c (solo Java app-only).
+
+Módulos auditados en embed ZIP:
+  modulos/grabadora.html (+ pack-casa/…/grabadora.html) → getUserMedia + MediaRecorder
+  modulos/reproductor.html (+ pack-utiles) → <input type=file accept=audio/*>
+
+Blockers Web (opcionales, APK ya útil):
+  · Si grabadora no usa <a download> blob, cablear saveAudioBase64 al parar.
+  · Si reproductor quiere botón nativo además del input, llamar pickAudioFile().

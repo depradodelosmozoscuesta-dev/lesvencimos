@@ -80,6 +80,7 @@ footer {
   </header>
   <h1>Grabadora</h1>
   <p class="lead">Dos pistas a la vez. <strong>Dentro</strong> es lo que suena esta página. <strong>Fuera</strong> es el micrófono: el ambiente y lo que tocas. No se copian entre sí.</p>
+  <p class="hint" id="persist-note" style="margin:-.4rem 0 1.1rem">Las grabaciones se guardan en el teléfono (carpeta Les vencimos / Descargas). Desinstalar la app no debería borrarlas si las exportaste.</p>
 
   <div class="box">
     <h2>Dentro · lo que suena el móvil aquí</h2>
@@ -138,9 +139,14 @@ footer {
       <button class="ghost" type="button" id="mix-dl">Bajar mezcla</button>
     </div>
     <p class="hint" id="mix-msg"></p>
+    <div class="row" style="margin-top:.7rem">
+      <button class="ghost" type="button" id="export-all">Exportar a Descargas</button>
+      <button class="ghost" type="button" id="show-saved">Ver guardadas</button>
+    </div>
+    <ul class="hint" id="saved-list" style="list-style:none;padding:0;margin:.5rem 0 0"></ul>
   </div>
 
-  <footer>lesvencimos.com · grabadora · v20260927j</footer>
+  <footer>lesvencimos.com · grabadora · v20261001a</footer>
 </div>
 <script>
 (function(){
@@ -176,6 +182,118 @@ footer {
   }
   function say(t){ $("status").textContent=t||""; }
   function fail(t){ $("err").textContent=t||""; }
+
+  function lvBridge(){
+    try{
+      if(window.LvBridge) return window.LvBridge;
+      if(window.LesVencimosAndroid) return window.LesVencimosAndroid;
+      if(window.parent && window.parent!==window){
+        if(window.parent.LvBridge) return window.parent.LvBridge;
+        if(window.parent.LesVencimosAndroid) return window.parent.LesVencimosAndroid;
+      }
+    }catch(e){}
+    return null;
+  }
+  /* Stub opcional: la App puede implementar LvBridge.saveUserFile(name, base64, mime) → Descargas/Les vencimos */
+  function saveUserFileHook(name, blob){
+    var b=lvBridge();
+    if(!b || typeof b.saveUserFile!=="function") return Promise.resolve(false);
+    return blob.arrayBuffer().then(function(buf){
+      var bytes=new Uint8Array(buf), bin="", i;
+      for(i=0;i<bytes.length;i++) bin+=String.fromCharCode(bytes[i]);
+      var b64=btoa(bin);
+      try{
+        var r=b.saveUserFile(name, b64, blob.type||"application/octet-stream");
+        if(r && typeof r.then==="function") return r.then(function(){ return true; }).catch(function(){ return false; });
+        return !!r;
+      }catch(e){ return false; }
+    }).catch(function(){ return false; });
+  }
+  function downloadBlob(name, blob){
+    var u=URL.createObjectURL(blob);
+    var a=document.createElement("a");
+    a.href=u; a.download=name; a.rel="noopener";
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(function(){ try{ URL.revokeObjectURL(u); }catch(e){} }, 4000);
+  }
+  var IDB_NAME="lv-grabadora-v1", IDB_STORE="takes";
+  function idbOpen(){
+    return new Promise(function(resolve, reject){
+      if(!window.indexedDB){ reject(new Error("no-idb")); return; }
+      var req=indexedDB.open(IDB_NAME, 1);
+      req.onupgradeneeded=function(){
+        var db=req.result;
+        if(!db.objectStoreNames.contains(IDB_STORE)) db.createObjectStore(IDB_STORE, {keyPath:"id"});
+      };
+      req.onsuccess=function(){ resolve(req.result); };
+      req.onerror=function(){ reject(req.error||new Error("idb")); };
+    });
+  }
+  function idbPut(rec){
+    return idbOpen().then(function(db){
+      return new Promise(function(resolve, reject){
+        var tx=db.transaction(IDB_STORE, "readwrite");
+        tx.objectStore(IDB_STORE).put(rec);
+        tx.oncomplete=function(){ resolve(true); };
+        tx.onerror=function(){ reject(tx.error); };
+      });
+    });
+  }
+  function idbAll(){
+    return idbOpen().then(function(db){
+      return new Promise(function(resolve, reject){
+        var tx=db.transaction(IDB_STORE, "readonly");
+        var req=tx.objectStore(IDB_STORE).getAll();
+        req.onsuccess=function(){ resolve(req.result||[]); };
+        req.onerror=function(){ reject(req.error); };
+      });
+    }).catch(function(){ return []; });
+  }
+  function micErrorEs(err){
+    var n=(err && (err.name||err.message))||"";
+    if(/NotAllowed|PermissionDenied|Permission dismissed/i.test(n) || (err && err.name==="NotAllowedError"))
+      return "Sin permiso de micrófono. En Android concede RECORD_AUDIO a Les vencimos y vuelve a tocar Grabar.";
+    if(/NotFound|DevicesNotFound/i.test(n)) return "No hay micrófono en este aparato.";
+    if(/NotReadable|TrackStart|Abort/i.test(n)) return "El micrófono está ocupado u otra app lo usa.";
+    if(/SecurityError|secure/i.test(n)) return "El micro necesita contexto seguro (App WebView o https).";
+    return "No se pudo conectar el micrófono. Prueba de nuevo o revisa el permiso.";
+  }
+  function gumConstraints(deviceId){
+    var audio={ echoCancellation:false, noiseSuppression:false, autoGainControl:false };
+    if(deviceId) audio.deviceId={ exact:deviceId };
+    return { audio: audio };
+  }
+  function getMicStream(deviceId){
+    var b=lvBridge();
+    /* Preferir puente nativo si la App lo expone */
+    if(b){
+      if(typeof b.getMicStream==="function"){
+        try{
+          var r=b.getMicStream(deviceId||"");
+          if(r && typeof r.then==="function") return r;
+          if(r) return Promise.resolve(r);
+        }catch(e){}
+      }
+      if(typeof b.requestMic==="function"){
+        try{
+          var r2=b.requestMic(deviceId||"");
+          if(r2 && typeof r2.then==="function") return r2.then(function(){
+            return navigator.mediaDevices.getUserMedia(gumConstraints(deviceId));
+          });
+        }catch(e2){}
+      }
+      if(typeof b.requestAudioPermission==="function"){
+        try{ b.requestAudioPermission(); }catch(e3){}
+      }
+    }
+    if(!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia){
+      return Promise.reject(Object.assign(new Error("unsupported"), {name:"NotSupportedError"}));
+    }
+    return navigator.mediaDevices.getUserMedia(gumConstraints(deviceId)).catch(function(err){
+      if(!deviceId) throw err;
+      return navigator.mediaDevices.getUserMedia(gumConstraints(null));
+    });
+  }
 
   $("gain-in").oninput=function(){ if(master) master.gain.value=this.value/100; };
   $("gain-out").oninput=function(){ if(micGain) micGain.gain.value=this.value/100; };
@@ -267,19 +385,18 @@ footer {
   }
   $("scan").onclick=function(){
     fail("");
-    if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia){
-      fail("Este navegador no abre el micrófono.");
-      return;
-    }
-    navigator.mediaDevices.getUserMedia({audio:true}).then(function(s){
-      s.getTracks().forEach(function(t){ t.stop(); });
-      return navigator.mediaDevices.enumerateDevices();
+    getMicStream(null).then(function(s){
+      try{ s.getTracks().forEach(function(t){ t.stop(); }); }catch(e){}
+      if(navigator.mediaDevices && navigator.mediaDevices.enumerateDevices){
+        return navigator.mediaDevices.enumerateDevices();
+      }
+      return [];
     }).then(function(all){
-      mics=all.filter(function(d){ return d.kind==="audioinput"; });
+      mics=(all||[]).filter(function(d){ return d.kind==="audioinput"; });
       fillMics();
-      say(mics.length? mics.length+" micros." : "Un micro, sin nombre.");
-    }).catch(function(){
-      fail("Sin permiso no aparece el micro USB ni el Bluetooth.");
+      say(mics.length? mics.length+" micros." : "Micro listo.");
+    }).catch(function(err){
+      fail(micErrorEs(err));
     });
   };
   fillMics();
@@ -327,19 +444,16 @@ footer {
   $("rec").onclick=function(){
     fail("");
     if(recording){ stopRec(); return; }
-    if(!navigator.mediaDevices||!window.MediaRecorder){
-      fail("Este navegador no graba.");
+    if(!window.MediaRecorder){
+      fail("Este WebView no graba (MediaRecorder).");
       return;
     }
     ensure();
-    var audio={ echoCancellation:false, noiseSuppression:false, autoGainControl:false };
     var id=$("mic").value;
-    if(id) audio.deviceId={ exact:id };
-    navigator.mediaDevices.getUserMedia({audio:audio}).then(begin).catch(function(){
-      if(!id){ fail("No se abrió el micro."); return; }
-      navigator.mediaDevices.getUserMedia({
-        audio:{ echoCancellation:false, noiseSuppression:false, autoGainControl:false }
-      }).then(begin).catch(function(){ fail("No se abrió el micro."); });
+    say("Conectando micrófono…");
+    getMicStream(id).then(begin).catch(function(err){
+      fail(micErrorEs(err));
+      say("");
     });
   };
 
@@ -353,6 +467,26 @@ footer {
     });
   }
 
+  function stampName(prefix, e){
+    var d=new Date(), p=function(n){ return (n<10?"0":"")+n; };
+    return "LesVencimos-"+prefix+"-"+d.getFullYear()+p(d.getMonth()+1)+p(d.getDate())+"-"+p(d.getHours())+p(d.getMinutes())+p(d.getSeconds())+"."+e;
+  }
+  function persistAndExport(blob, prefix){
+    if(!blob) return Promise.resolve();
+    var e=ext(blob.type||"");
+    var name=stampName(prefix, e);
+    var id=name+"-"+Date.now().toString(36);
+    return idbPut({id:id, name:name, type:blob.type||"audio/webm", size:blob.size||0, created:Date.now(), blob:blob}).then(function(){
+      downloadBlob(name, blob);
+      return saveUserFileHook(name, blob);
+    }).then(function(nativeOk){
+      if(nativeOk) say("Guardado en Descargas (App) · "+name);
+      else say("Exportado · "+name+" (también en IndexedDB de la app)");
+    }).catch(function(){
+      try{ downloadBlob(name, blob); }catch(e){}
+      say("Exportado · "+name);
+    });
+  }
   function showTakes(){
     urls.forEach(function(u){ URL.revokeObjectURL(u); });
     urls=[];
@@ -360,11 +494,51 @@ footer {
     urls=[u1,u2];
     $("hear-in").src=u1; $("hear-out").src=u2;
     var e1=ext(blobIn.type), e2=ext(blobOut.type);
-    $("dl-in").href=u1; $("dl-in").download="dentro."+e1;
-    $("dl-out").href=u2; $("dl-out").download="fuera."+e2;
+    var n1=stampName("dentro", e1), n2=stampName("fuera", e2);
+    $("dl-in").href=u1; $("dl-in").download=n1;
+    $("dl-out").href=u2; $("dl-out").download=n2;
     $("takes").hidden=false;
-    say("Dos pistas. Dentro es la página. Fuera es el micro.");
+    say("Dos pistas. Guardando y exportando…");
+    Promise.all([persistAndExport(blobIn,"dentro"), persistAndExport(blobOut,"fuera")]).then(function(){
+      renderSaved();
+    });
   }
+  function renderSaved(){
+    var ul=$("saved-list"); if(!ul) return;
+    idbAll().then(function(rows){
+      rows.sort(function(a,b){ return (b.created||0)-(a.created||0); });
+      ul.innerHTML="";
+      if(!rows.length){ ul.innerHTML="<li class=\"hint\">Ninguna guardada aún en este aparato.</li>"; return; }
+      rows.slice(0,12).forEach(function(r){
+        var li=document.createElement("li");
+        li.style.margin=".25rem 0";
+        var a=document.createElement("a");
+        a.className="dl"; a.textContent="Bajar "+(r.name||"audio");
+        a.href="#"; a.onclick=function(ev){
+          ev.preventDefault();
+          if(r.blob){ downloadBlob(r.name, r.blob); saveUserFileHook(r.name, r.blob); }
+        };
+        li.appendChild(a);
+        ul.appendChild(li);
+      });
+    });
+  }
+  var btnEx=$("export-all");
+  if(btnEx) btnEx.onclick=function(){
+    if(blobIn) persistAndExport(blobIn,"dentro");
+    if(blobOut) persistAndExport(blobOut,"fuera");
+    if(!blobIn && !blobOut){
+      idbAll().then(function(rows){
+        if(!rows.length){ say("No hay pistas para exportar."); return; }
+        rows.forEach(function(r){ if(r.blob){ downloadBlob(r.name, r.blob); saveUserFileHook(r.name, r.blob); } });
+        say("Reexportadas "+rows.length+" pistas.");
+      });
+    }
+  };
+  var btnSv=$("show-saved");
+  if(btnSv) btnSv.onclick=function(){ $("takes").hidden=false; renderSaved(); };
+  try{ renderSaved(); }catch(e){}
+
 
   $("mix-play").onclick=function(){
     var a=$("hear-in"), b=$("hear-out");
@@ -419,10 +593,10 @@ footer {
       return off.startRendering();
     }).then(function(rendered){
       var wav=wavFrom(rendered);
-      var u=URL.createObjectURL(wav);
-      var a=document.createElement("a");
-      a.href=u; a.download="mezcla.wav"; a.click();
-      $("mix-msg").textContent="Mezcla en WAV.";
+      var name=stampName("mezcla","wav");
+      persistAndExport(wav, "mezcla").then(function(){
+        $("mix-msg").textContent="Mezcla en WAV · "+name;
+      });
     }).catch(function(){
       $("mix-msg").textContent="Este navegador no junta el formato. Baja las dos pistas.";
     });

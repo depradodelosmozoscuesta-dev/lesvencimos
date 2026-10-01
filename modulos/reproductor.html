@@ -49,7 +49,11 @@ button.primary { border: 1px solid var(--acento); background: var(--acento); col
 button.ghost { border: 1px solid var(--linea); background: transparent; color: var(--tinta); }
 button:disabled { opacity: .4; cursor: default; }
 label.file { border: 1px solid var(--linea); background: transparent; color: var(--tinta); }
-input[type=file] { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+input[type=file].lv-file {
+  position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0;
+  font-size: 24px; cursor: pointer; /* WebView: hit-area grande; no clip 1px */
+}
+label.file { position: relative; overflow: hidden; }
 .hint { color: var(--suave); font-size: .84rem; margin: .4rem 0 0; }
 .err { color: var(--peligro); margin: .4rem 0 0; }
 .now {
@@ -88,10 +92,12 @@ footer {
   <div class="box">
     <h2>Abrir</h2>
     <div class="row">
-      <label class="file">Elegir audio<input id="pick" type="file" accept="audio/*,.mp3,.m4a,.wav,.ogg,.aac,.flac,.webm" multiple></label>
+      <label class="file">Elegir audio<input id="pick" class="lv-file" type="file" accept="audio/*,.mp3,.m4a,.wav,.ogg,.aac,.flac,.webm" multiple></label>
+      <button class="ghost" type="button" id="pick-btn">Abrir archivos</button>
       <button class="ghost" type="button" id="clear-recent" disabled>Vaciar recientes</button>
     </div>
-    <p class="hint">Funciona en file://. El navegador no lee carpetas a ciegas: tú eliges el archivo.</p>
+    <p class="hint">En la App toca «Elegir audio» o «Abrir archivos». Acepta varios (mp3, m4a, wav, ogg…). Lista abajo y pulsa Oír.</p>
+    <p class="hint">Las grabaciones exportadas están en Descargas / Les vencimos.</p>
     <p class="err" id="err" role="alert"></p>
   </div>
 
@@ -117,7 +123,7 @@ footer {
   </div>
 
 
-  <footer>lesvencimos.com · reproductor offline · v20260930h</footer>
+  <footer>lesvencimos.com · reproductor offline · v20261001a</footer>
 </div>
 <script>
 (function () {
@@ -352,6 +358,32 @@ footer {
     addFiles(pick.files);
     pick.value = '';
   });
+
+  function openPicker() {
+    setErr('');
+    /* Prefer File System Access API when available (desktop); WebView → input file */
+    if (typeof window.showOpenFilePicker === 'function') {
+      window.showOpenFilePicker({
+        multiple: true,
+        types: [{ description: 'Audio', accept: { 'audio/*': ['.mp3', '.m4a', '.wav', '.ogg', '.aac', '.flac', '.webm'] } }]
+      }).then(function (handles) {
+        return Promise.all((handles || []).map(function (h) { return h.getFile(); }));
+      }).then(function (files) {
+        addFiles(files);
+      }).catch(function (err) {
+        if (err && err.name === 'AbortError') return;
+        /* fallback WebView / permiso */
+        try { pick.click(); } catch (e2) { setErr('No se pudo abrir el selector de archivos.'); }
+      });
+      return;
+    }
+    try { pick.click(); } catch (e) {
+      setErr('Este WebView no abre archivos. Usa el botón «Elegir audio» (área grande).');
+    }
+  }
+  var pickBtn = document.getElementById('pick-btn');
+  if (pickBtn) pickBtn.addEventListener('click', function (ev) { ev.preventDefault(); openPicker(); });
+
 
   btnPlay.addEventListener('click', function () {
     try { player.play(); } catch (e) { setErr('No se pudo reproducir.'); }

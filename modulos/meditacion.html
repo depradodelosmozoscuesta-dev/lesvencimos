@@ -158,8 +158,9 @@ details.faq p{margin:.5rem 0 0;color:var(--suave);font-size:.93rem;line-height:1
         <button type="button" data-t="bell">Campana suave</button>
       </div>
     </label>
-    <label class="field"><span>Volumen</span>
-      <input type="range" id="vol" min="0" max="100" value="55"><p class="hint" id="volLabel">55%</p>
+    <label class="field"><span>Volumen del pitido</span>
+      <input type="range" id="vol" min="0" max="100" value="55" aria-label="Volumen del pitido">
+      <p class="hint" id="volLabel">55% · prueba con «Probar tono»</p>
     </label>
     <label class="field" style="display:flex;align-items:center;gap:.6rem;cursor:pointer">
       <input type="checkbox" id="mute" style="width:auto">
@@ -1459,7 +1460,7 @@ function beep(kind){
     exhale:{f:base*0.75,dur:0.16,mul:1},empty:{f:base*0.67,dur:0.11,mul:1},
     mark:{f:base*1.1,dur:0.07,mul:0.7},test:{f:base,dur:0.25,mul:1}};
   var spec=map[kind]||map.test,t0=ctx.currentTime;
-  var g=ctx.createGain(),peak=Math.max(0.0001,(vol/100)*0.09*spec.mul);
+  var g=ctx.createGain(),peak=Math.max(0.0001,(vol/100)*0.42*spec.mul);
   g.gain.setValueAtTime(0.0001,t0);
   g.gain.exponentialRampToValueAtTime(peak,t0+0.015);
   g.gain.exponentialRampToValueAtTime(0.0001,t0+spec.dur);
@@ -1553,7 +1554,9 @@ $("ritmo").addEventListener("click",function(e){var b=e.target.closest("button")
 $("freqPresets").addEventListener("click",function(e){var b=e.target.closest("button");if(!b)return;freq=parseInt(b.getAttribute("data-hz"),10);$("freqSlider").value=freq;persistSettings();syncSettingsUI()});
 $("freqSlider").addEventListener("input",function(){freq=parseInt(this.value,10);document.querySelectorAll("#freqPresets button").forEach(function(b){b.classList.remove("on")});persistSettings();updateFreqLabel()});
 $("timbre").addEventListener("click",function(e){var b=e.target.closest("button");if(!b)return;timbre=b.getAttribute("data-t");persistSettings();syncSettingsUI()});
-$("vol").addEventListener("input",function(){vol=parseInt(this.value,10);$("volLabel").textContent=vol+"%";persistSettings()});
+function onVol(){vol=parseInt($("vol").value,10);if(!isFinite(vol))vol=55;$("volLabel").textContent=vol+"% · prueba con «Probar tono»";persistSettings()}
+$("vol").addEventListener("input",onVol);
+$("vol").addEventListener("change",onVol);
 $("mute").addEventListener("change",function(){muted=this.checked;persistSettings()});
 $("soloPitidos").addEventListener("change",function(){soloPitidos=this.checked;document.body.classList.toggle("solo-pitidos",soloPitidos);persistSettings()});
 $("go").onclick=start;$("stop").onclick=function(){finish(false)};

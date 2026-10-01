@@ -95,7 +95,8 @@ button:disabled { cursor: default; opacity: .4; }
   overflow: auto;
 }
 .escena { position: relative; background: #0c0b0a; overflow: hidden; touch-action: none; }
-.escena canvas { position: absolute; inset: 0; width: 100%; height: 100%; cursor: crosshair; }
+.escena { touch-action: none; position: relative; }
+.escena canvas { position: absolute; inset: 0; width: 100%; height: 100%; cursor: crosshair; touch-action: none; }
 .panel {
   background: var(--superficie); border-left: 1px solid var(--linea);
   display: flex; flex-direction: column; min-height: 0;
@@ -199,6 +200,21 @@ select, input[type="text"].campo {
 .pieles { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; }
 .piel { height: 44px; border-radius: 8px; border: 2px solid transparent; padding: 0; }
 .piel.activa { border-color: var(--tinta); }
+.zoom-bar {
+  position: absolute; right: 10px; bottom: 14px; z-index: 5;
+  display: flex; gap: 6px; align-items: center;
+  background: rgba(14,14,12,.82); border: 1px solid rgba(230,225,214,.2);
+  border-radius: 8px; padding: 4px; backdrop-filter: blur(6px);
+}
+.zoom-bar button {
+  min-width: 44px; min-height: 44px; border-radius: 6px;
+  border: 1px solid rgba(230,225,214,.22); background: #1C1A16; color: #E6E1D6;
+  font: 700 1.1rem system-ui,sans-serif; cursor: pointer;
+}
+.zoom-bar .zoom-lbl {
+  min-width: 3.2rem; text-align: center; font-size: .78rem; color: #9A9488; font-weight: 700;
+}
+.escena { touch-action: none; } /* pinch + dibujo */
 </style>
 </head>
 <body>
@@ -236,7 +252,14 @@ select, input[type="text"].campo {
   <section class="pantalla" id="pantalla-estudio">
     <div class="estudio">
       <aside class="rail" id="rail"></aside>
-      <div class="escena" id="escena"><canvas id="vista"></canvas></div>
+      <div class="escena" id="escena"><canvas id="vista"></canvas>
+        <div class="zoom-bar" id="zoom-bar" aria-label="Zoom del lienzo">
+          <button type="button" id="zoom-menos" title="Alejar">−</button>
+          <span class="zoom-lbl" id="zoom-lbl">100%</span>
+          <button type="button" id="zoom-mas" title="Acercar">+</button>
+          <button type="button" id="zoom-reset" title="Ajustar">1:1</button>
+        </div>
+      </div>
       <aside class="panel">
         <div class="tabs" id="tabs">
           <button type="button" data-tab="trazo" class="activa">Trazo</button>
@@ -1317,7 +1340,7 @@ select, input[type="text"].campo {
     };
     estado.proyecto = p;
     estado.capaActiva = 0;
-    estado.zoom = 1;
+    estado.zoom = 1; try { pintarZoomLbl(); } catch (eZ) {}
     estado.panX = 0;
     estado.panY = 0;
     capas = [nuevaCapa("Tinta", p.ancho, p.alto)];
@@ -1692,13 +1715,60 @@ select, input[type="text"].campo {
   escena.addEventListener("pointermove", enPunteroMueve);
   escena.addEventListener("pointerup", enPunteroArriba);
   escena.addEventListener("pointercancel", enPunteroArriba);
+  function pintarZoomLbl() {
+    var el = document.getElementById("zoom-lbl");
+    if (el) el.textContent = Math.round(estado.zoom * 100) + "%";
+  }
+  function setZoomFactor(f) {
+    estado.zoom = limitar(estado.zoom * f, 0.2, 8);
+    pintarZoomLbl();
+    componer();
+  }
+  function setZoomAbs(z) {
+    estado.zoom = limitar(z, 0.2, 8);
+    pintarZoomLbl();
+    componer();
+  }
   escena.addEventListener("wheel", function (ev) {
     if (estado.pantalla !== "estudio") return;
     ev.preventDefault();
     var f = ev.deltaY < 0 ? 1.08 : 0.92;
-    estado.zoom = limitar(estado.zoom * f, 0.2, 8);
-    componer();
+    setZoomFactor(f);
   }, { passive: false });
+
+  var zoomMas = document.getElementById("zoom-mas");
+  var zoomMenos = document.getElementById("zoom-menos");
+  var zoomReset = document.getElementById("zoom-reset");
+  if (zoomMas) zoomMas.addEventListener("click", function () { setZoomFactor(1.2); });
+  if (zoomMenos) zoomMenos.addEventListener("click", function () { setZoomFactor(1 / 1.2); });
+  if (zoomReset) zoomReset.addEventListener("click", function () { setZoomAbs(1); });
+
+  /* Pinch-to-zoom (Android WebView / touch) */
+  var pinch = { active: false, startDist: 0, startZoom: 1 };
+  function pinchDist(t0, t1) {
+    var dx = t0.clientX - t1.clientX, dy = t0.clientY - t1.clientY;
+    return Math.sqrt(dx * dx + dy * dy) || 1;
+  }
+  escena.addEventListener("touchstart", function (ev) {
+    if (estado.pantalla !== "estudio") return;
+    if (ev.touches && ev.touches.length === 2) {
+      pinch.active = true;
+      pinch.startDist = pinchDist(ev.touches[0], ev.touches[1]);
+      pinch.startZoom = estado.zoom;
+      estado.dibujando = false;
+      ev.preventDefault();
+    }
+  }, { passive: false });
+  escena.addEventListener("touchmove", function (ev) {
+    if (!pinch.active || !ev.touches || ev.touches.length < 2) return;
+    ev.preventDefault();
+    var d = pinchDist(ev.touches[0], ev.touches[1]);
+    setZoomAbs(pinch.startZoom * (d / pinch.startDist));
+  }, { passive: false });
+  function endPinch() { pinch.active = false; }
+  escena.addEventListener("touchend", endPinch);
+  escena.addEventListener("touchcancel", endPinch);
+  pintarZoomLbl();
 
   document.getElementById("rail").addEventListener("click", function (ev) {
     var b = ev.target.closest("[data-h]");
