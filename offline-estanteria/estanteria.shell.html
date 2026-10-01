@@ -2836,9 +2836,9 @@
 <body class="theme-ambar">
   <div id="lv-entry-splash" hidden>
     <video id="lv-splash-vid" playsinline muted autoplay preload="auto">
-      <source src="brand/splash/entrada.mp4?v=20261001k2" type="video/mp4">
+      <source src="brand/splash/entrada.mp4?v=20261001k3" type="video/mp4">
     </video>
-    <audio id="lv-splash-audio" preload="auto" src="brand/splash/entrada-sonido.m4a?v=20261001k2"></audio>
+    <audio id="lv-splash-audio" preload="auto" src="brand/splash/entrada-sonido.m4a?v=20261001k3"></audio>
     <audio id="lv-splash-hi" preload="auto"></audio>
     <audio id="lv-splash-cierre" preload="auto"></audio>
     <div class="lv-splash-stub" aria-hidden="true"></div>
@@ -8193,8 +8193,11 @@
       return panel;
     }
 
-    /* Gentle auto-scroll parade on overflowing shelf rails — restored from v20261001j + ensure overflow (k2) */
+    /* Gentle auto-scroll parade — v20261001k3: continuo + pausa 5s por balda + reinicio al volver */
     var shelfDriftRafs = [];
+    var shelfDriftLifecycleBound = false;
+    var DRIFT_PAUSE_MS = 5000;
+    var DRIFT_SPEED = 12; /* px/s */
     function stopShelfDrift() {
       shelfDriftRafs.forEach(function (id) {
         try { cancelAnimationFrame(id); } catch (e) {}
@@ -8237,55 +8240,69 @@
         try { ghost.removeAttribute('data-id'); } catch (eD) {}
         ghost.style.pointerEvents = 'none';
         ghost.style.opacity = '0.5';
-        /* neutralize clicks from clone */
         ghost.onclick = null;
         ghost.onpointerdown = null;
         el.appendChild(ghost);
         guard++;
       }
-      var ok = el.scrollWidth > el.clientWidth + 6;
-      try {
-        console.log('[lv-parade]', ok ? 'overflow OK' : 'NO overflow',
-          'sw=' + el.scrollWidth, 'cw=' + el.clientWidth,
-          'ghosts=' + el.querySelectorAll('.shelf-parade-ghost').length);
-      } catch (eL) {}
-      return ok;
+      return el.scrollWidth > el.clientWidth + 6;
+    }
+    function pauseShelfDriftRail(el) {
+      if (!el) return;
+      el._driftPausedUntil = performance.now() + DRIFT_PAUSE_MS;
+    }
+    function bindShelfDriftLifecycle() {
+      if (shelfDriftLifecycleBound) return;
+      shelfDriftLifecycleBound = true;
+      function restart() {
+        try {
+          requestAnimationFrame(function () {
+            requestAnimationFrame(function () {
+              try { startShelfDrift(); } catch (eR) {}
+            });
+          });
+        } catch (eB) {
+          try { startShelfDrift(); } catch (eB2) {}
+        }
+      }
+      document.addEventListener('visibilitychange', function () {
+        if (document.visibilityState === 'visible') restart();
+      });
+      window.addEventListener('pageshow', function () { restart(); });
+      window.addEventListener('focus', function () { restart(); });
     }
     function startShelfDrift() {
+      bindShelfDriftLifecycle();
       stopShelfDrift();
       var reduce = false;
       try {
         reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
       } catch (e) {}
-      if (reduce) {
-        try { console.log('[lv-parade] skipped: prefers-reduced-motion'); } catch (eR) {}
-        return;
-      }
+      if (reduce) return;
+      if (typeof document !== 'undefined' && document.visibilityState === 'hidden') return;
       document.querySelectorAll('.shelf-icons').forEach(function (el) {
         ensureShelfIconsOverflow(el);
-        if (el.scrollWidth <= el.clientWidth + 6) {
-          try { console.log('[lv-parade] skip rail sw<=cw', el.scrollWidth, el.clientWidth); } catch (eS) {}
-          return;
-        }
-        var dir = 1;
-        var pausedUntil = 0;
+        if (el.scrollWidth <= el.clientWidth + 6) return;
+        var dir = el._driftDir === -1 ? -1 : 1;
         var last = performance.now();
-        var speed = 12; /* px/s — soft parade (Completo j) */
-        function pause() {
-          pausedUntil = performance.now() + 3200;
+        function pause() { pauseShelfDriftRail(el); }
+        if (!el._driftPauseBound) {
+          el._driftPauseBound = 1;
+          el.addEventListener('pointerdown', pause, { passive: true });
+          el.addEventListener('touchstart', pause, { passive: true });
+          el.addEventListener('wheel', pause, { passive: true });
         }
-        el.addEventListener('pointerdown', pause, { passive: true });
-        el.addEventListener('touchstart', pause, { passive: true });
-        el.addEventListener('wheel', pause, { passive: true });
         function tick(now) {
           if (!el.isConnected) { el._driftRaf = 0; return; }
           var dt = Math.min(48, now - last);
           last = now;
-          if (now >= pausedUntil) {
-            el.scrollLeft += dir * speed * (dt / 1000);
+          var until = el._driftPausedUntil || 0;
+          if (now >= until) {
+            el.scrollLeft += dir * DRIFT_SPEED * (dt / 1000);
             var max = el.scrollWidth - el.clientWidth;
             if (el.scrollLeft >= max - 0.5) dir = -1;
             if (el.scrollLeft <= 0.5) dir = 1;
+            el._driftDir = dir;
           }
           el._driftRaf = requestAnimationFrame(tick);
         }
@@ -8849,7 +8866,7 @@
       });
     }
 
-    var EST_BUILD = 'v20261001k2';
+    var EST_BUILD = 'v20261001k3';
 
     function layoutPanelSheet() {
       var tb = document.getElementById('desk-toolbar');
@@ -9166,7 +9183,7 @@
       var BYE_AT = 8.55;
       var FINISH_AT = 9.70;
       var HELLO_AT = 0.28;
-      var V = '20261001k2';
+      var V = '20261001k3';
       var LANGS = [{"id": "es", "label": "Español", "hi": "voz/hi-es.m4a", "bye": "voz/bye-es.m4a", "hiText": "¡Hola!\nTe queremos", "byeText": "¡Adiós!\nTe queremos"}, {"id": "ru", "label": "Русский", "hi": "voz/hi-ru.m4a", "bye": "voz/bye-ru.m4a", "hiText": "Привет!\nМы вас любим", "byeText": "До свидания!"}, {"id": "ko", "label": "한국어", "hi": "voz/hi-ko.m4a", "bye": "voz/bye-ko.m4a", "hiText": "안녕하세요!\n사랑해요", "byeText": "안녕히 가세요!"}, {"id": "ro", "label": "Română", "hi": "voz/hi-ro.m4a", "bye": "voz/bye-ro.m4a", "hiText": "Bună!\nTe iubim", "byeText": "La revedere!"}, {"id": "fr", "label": "Français", "hi": "voz/hi-fr.m4a", "bye": "voz/bye-fr.m4a", "hiText": "Bonjour!\nOn t'aime", "byeText": "Au revoir!"}, {"id": "en", "label": "English", "hi": "voz/hi-en.m4a", "bye": "voz/bye-en.m4a", "hiText": "Hello!\nWe love you", "byeText": "Goodbye!"}, {"id": "it", "label": "Italiano", "hi": "voz/hi-it.m4a", "bye": "voz/bye-it.m4a", "hiText": "Ciao!\nTi vogliamo bene", "byeText": "Arrivederci!"}, {"id": "pt", "label": "Português", "hi": "voz/hi-pt.m4a", "bye": "voz/bye-pt.m4a", "hiText": "Olá!\nA gente te quer", "byeText": "Adeus!"}, {"id": "de", "label": "Deutsch", "hi": "voz/hi-de.m4a", "bye": "voz/bye-de.m4a", "hiText": "Hallo!\nWir haben dich lieb", "byeText": "Tschüss!"}, {"id": "ja", "label": "日本語", "hi": "voz/hi-ja.m4a", "bye": "voz/bye-ja.m4a", "hiText": "こんにちは\n大好き", "byeText": "またね!"}];
       var pair = pickSplashLangPair(LANGS);
       var hiLang = pair.hi;
@@ -10152,6 +10169,7 @@
         /* layoutRev 45: voz cálida multiidioma + caption der. · sin succión · outro corto · v20261001f */
         /* layoutRev 46: Completo j scroll/parade + splash f → v20261001k */
         /* layoutRev 47: restore parade j + ensure overflow + restart post-splash → v20261001k2 */
+        /* layoutRev 48: parade continuo + pausa 5s/balda + visibility/pageshow → v20261001k3 */
         /* + v20261001i: maestro pacing lento + Teatro v20261001a sync */
         /* layoutRev 39: curiosidad cards (nombre grande · tap amplía · módulo) · Notas/Vaciar · v20260930m */
         if (typeof state.layoutRev !== 'number' || state.layoutRev < 39) {
@@ -10247,7 +10265,7 @@
         if (pendingFirstRun) {
           showFirstRun();
         }
-        /* k2: desk may have laid out under splash overlay — restart parade when visible */
+        /* k3: desk may have laid out under splash overlay — restart parade when visible */
         requestAnimationFrame(function () {
           requestAnimationFrame(function () {
             try { startShelfDrift(); updateShelfOverflow(); } catch (eP) {}
