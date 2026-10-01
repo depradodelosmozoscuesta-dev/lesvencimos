@@ -948,6 +948,10 @@
     flex-direction: row;
     white-space: nowrap;
   }
+  .shelf-parade-ghost {
+    flex: 0 0 auto;
+    pointer-events: none !important;
+  }
   .shelf-icons::-webkit-scrollbar { height: 4px; }
   .shelf-icons::-webkit-scrollbar-thumb {
     background: var(--suave);
@@ -8232,7 +8236,7 @@
       return panel;
     }
 
-    /* Gentle auto-scroll parade — v20261001k4: continuo + pausa 5s; música suelta en Ocio */
+    /* Gentle auto-scroll parade — v20261001k5: k4 + WebView overflow force + pad fallback */
     var shelfDriftRafs = [];
     var shelfDriftLifecycleBound = false;
     var DRIFT_PAUSE_MS = 5000;
@@ -8249,12 +8253,13 @@
         }
       });
     }
-    /** Force horizontal overflow so parade can run (few tiles / wide screens). */
+    /** Force horizontal overflow so parade can run (few tiles / wide screens / WebView). */
     function ensureShelfIconsOverflow(el) {
       if (!el) return false;
       el.querySelectorAll('.shelf-parade-ghost').forEach(function (g) {
         try { g.remove(); } catch (eR) {}
       });
+      try { el.style.paddingRight = ''; } catch (eP) {}
       var guard = 0;
       while (el.scrollWidth <= el.clientWidth + 8 && guard < 32) {
         var live = [];
@@ -8266,7 +8271,7 @@
           var pad = document.createElement('div');
           pad.className = 'shelf-parade-ghost';
           pad.setAttribute('aria-hidden', 'true');
-          pad.style.cssText = 'flex:0 0 ' + Math.max(120, Math.ceil(el.clientWidth * 0.55)) + 'px;height:1px;pointer-events:none;opacity:0';
+          pad.style.cssText = 'flex:0 0 ' + Math.max(120, Math.ceil(el.clientWidth * 0.55)) + 'px;min-width:' + Math.max(120, Math.ceil(el.clientWidth * 0.55)) + 'px;height:1px;pointer-events:none;opacity:0';
           el.appendChild(pad);
           guard++;
           continue;
@@ -8279,10 +8284,18 @@
         try { ghost.removeAttribute('data-id'); } catch (eD) {}
         ghost.style.pointerEvents = 'none';
         ghost.style.opacity = '0.5';
+        ghost.style.flex = '0 0 auto';
+        ghost.style.minWidth = ghost.style.minWidth || (src.offsetWidth ? src.offsetWidth + 'px' : '');
         ghost.onclick = null;
         ghost.onpointerdown = null;
+        try { ghost.disabled = true; } catch (eDis) {}
         el.appendChild(ghost);
         guard++;
+      }
+      /* WebView sometimes keeps scrollWidth==clientWidth despite children — force pad */
+      if (el.scrollWidth <= el.clientWidth + 6) {
+        var need = Math.max(160, Math.floor((el.clientWidth || 320) * 0.65));
+        el.style.paddingRight = need + 'px';
       }
       return el.scrollWidth > el.clientWidth + 6;
     }
@@ -8317,7 +8330,8 @@
       try {
         reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
       } catch (e) {}
-      if (reduce) return;
+      /* Native APK/WebView: soft scroll parade is product UX; still pause on touch. */
+      if (reduce && !(window.LvBridge || window.LesVencimosAndroid)) return;
       if (typeof document !== 'undefined' && document.visibilityState === 'hidden') return;
       document.querySelectorAll('.shelf-icons').forEach(function (el) {
         ensureShelfIconsOverflow(el);
@@ -8905,7 +8919,7 @@
       });
     }
 
-    var EST_BUILD = 'v20261001k4';
+    var EST_BUILD = 'v20261001k5';
 
     function layoutPanelSheet() {
       var tb = document.getElementById('desk-toolbar');

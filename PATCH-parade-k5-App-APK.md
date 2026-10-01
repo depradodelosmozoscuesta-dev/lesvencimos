@@ -40,6 +40,8 @@ completo-offline.zip              61e285fa94aa31db8b7811dd05d5cc63
 pack-completo-offline.zip         75e798682774c88670562322493feed3
 lesvencimos-completo.apk (2.0.0)    a4d740df96f4a40224bdc5eacece26e5
 estanteria (dentro completo ZIP)  68c1181f66320eb57c8cbc14266232df
+estanteria-offline-v20261001k5.zip  bc6216e812351eda0171aacaed9fcbc7
+estanteria.html (PWA root k5+music) 72259d4a2a10b1778120dcfa207e7e30
 estanteria pack thin staging      402c0db5556c1d2089734b7341103db9
 mesa.html (lesvacimos fat)        a6801f0dcedb33351844d9ac7f2cc74e
 ```
