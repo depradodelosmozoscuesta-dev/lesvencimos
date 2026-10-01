@@ -559,13 +559,20 @@ def main() -> None:
     # Splash vídeo + sonido (misma ruta relativa que la Estantería offline)
     splash_src = ROOT / "brand" / "splash"
     splash_dst = STAGING / "brand" / "splash"
-    for splash_name in ("entrada.mp4", "entrada-sonido.m4a", "cierre-succion.m4a"):
+    splash_dst.mkdir(parents=True, exist_ok=True)
+    for splash_name in ("entrada.mp4", "entrada-sonido.m4a"):
         src = splash_src / splash_name
         if src.is_file():
-            splash_dst.mkdir(parents=True, exist_ok=True)
             shutil.copy2(src, splash_dst / splash_name)
         else:
             print(f"  WARN: missing {src}")
+    voz_src = splash_src / "voz"
+    if voz_src.is_dir():
+        voz_dst = splash_dst / "voz"
+        voz_dst.mkdir(parents=True, exist_ok=True)
+        for clip in sorted(voz_src.glob("*")):
+            if clip.is_file():
+                shutil.copy2(clip, voz_dst / clip.name)
 
     # Count files before LEEME
     files = [p for p in STAGING.rglob("*") if p.is_file()]

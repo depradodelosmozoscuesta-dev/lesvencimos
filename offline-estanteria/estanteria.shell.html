@@ -683,6 +683,47 @@
     border: 1px solid rgba(230,225,214,.25); border-radius: 4px;
     padding: .55rem 1rem; font: inherit; font-weight: 600; min-height: 44px; cursor: pointer;
   }
+
+  /* Right-side warm voice caption (hello / bye) */
+  #lv-entry-splash .lv-splash-caption {
+    position: absolute; z-index: 3;
+    right: max(0.75rem, env(safe-area-inset-right, 0px));
+    top: 42%;
+    transform: translateY(-50%);
+    max-width: min(42vw, 11.5rem);
+    margin: 0; padding: 0.55rem 0.7rem;
+    text-align: right;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity .35s ease;
+    color: #E6E1D6;
+    font-family: var(--serif);
+    font-size: clamp(0.95rem, 3.6vw, 1.25rem);
+    font-weight: 600;
+    line-height: 1.25;
+    letter-spacing: .02em;
+    text-shadow: 0 2px 14px rgba(0,0,0,.95), 0 0 2px #000;
+    white-space: pre-line;
+  }
+  #lv-entry-splash .lv-splash-caption.show { opacity: 1; }
+  #lv-entry-splash .lv-splash-caption .lv-cap-lang {
+    display: block;
+    margin-top: 0.35rem;
+    font-family: system-ui, sans-serif;
+    font-size: 0.68em;
+    font-weight: 500;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    color: var(--acento);
+    opacity: .85;
+  }
+  @media (max-width: 380px) {
+    #lv-entry-splash .lv-splash-caption {
+      right: 0.45rem; max-width: 38vw;
+      font-size: clamp(0.85rem, 3.4vw, 1.05rem);
+    }
+  }
+
   #lv-entry-splash.fade-out { animation: lvSplashOut .4s ease forwards; }
   @keyframes lvSplashOut { to { opacity: 0; visibility: hidden; } }
   @media (prefers-reduced-motion: reduce) {
@@ -2795,16 +2836,18 @@
 <body class="theme-ambar">
   <div id="lv-entry-splash" hidden>
     <video id="lv-splash-vid" playsinline muted autoplay preload="auto">
-      <source src="brand/splash/entrada.mp4?v=20261001e" type="video/mp4">
+      <source src="brand/splash/entrada.mp4?v=20261001f" type="video/mp4">
     </video>
-    <audio id="lv-splash-audio" preload="auto" src="brand/splash/entrada-sonido.m4a?v=20261001e"></audio>
-    <audio id="lv-splash-cierre" preload="auto" src="brand/splash/cierre-succion.m4a?v=20261001e"></audio>
+    <audio id="lv-splash-audio" preload="auto" src="brand/splash/entrada-sonido.m4a?v=20261001f"></audio>
+    <audio id="lv-splash-hi" preload="auto"></audio>
+    <audio id="lv-splash-cierre" preload="auto"></audio>
     <div class="lv-splash-stub" aria-hidden="true"></div>
     <div class="lv-splash-handle-mask" aria-hidden="true"></div>
     <div class="lv-splash-brand">
       <p class="lv-splash-word">LES VENCIMOS</p>
       <p class="lv-splash-lema">Entre todos, vencemos</p>
     </div>
+    <p class="lv-splash-caption" id="lv-splash-caption" aria-live="polite"></p>
     <p class="lv-splash-tap" id="lv-splash-tap" role="button" tabindex="0">Toca para el sonido</p>
     <button type="button" class="lv-splash-skip" id="lv-splash-skip">Saltar</button>
   </div>
@@ -8755,7 +8798,7 @@
       });
     }
 
-    var EST_BUILD = 'v20261001j';
+    var EST_BUILD = 'v20261001f';
 
     function layoutPanelSheet() {
       var tb = document.getElementById('desk-toolbar');
@@ -9059,47 +9102,89 @@
       var splash = document.getElementById('lv-entry-splash');
       var vid = document.getElementById('lv-splash-vid');
       var aud = document.getElementById('lv-splash-audio');
+      var hiAud = document.getElementById('lv-splash-hi');
       var cierre = document.getElementById('lv-splash-cierre');
       var skip = document.getElementById('lv-splash-skip');
       var tap = document.getElementById('lv-splash-tap');
+      var caption = document.getElementById('lv-splash-caption');
       var done = false;
       var soundUnlocked = false;
       var cierrePlayed = false;
-      // End SFX fires near video end (~11.15s of ~12s) so the slam lands on the close.
-      var CIERRE_AT = 11.15;
+      var hiPlayed = false;
+      /* Shorten outro: video ~12.04s freezes ~10.5s; cut dead tail → Estantería sooner. */
+      var BYE_AT = 8.55;
+      var FINISH_AT = 9.70;
+      var HELLO_AT = 0.28;
+      var V = '20261001f';
+      var LANGS = [{"id": "es", "label": "Español", "hi": "voz/hi-es.m4a", "bye": "voz/bye-es.m4a", "hiText": "¡Hola!\nTe queremos", "byeText": "¡Adiós!\nTe queremos"}, {"id": "ru", "label": "Русский", "hi": "voz/hi-ru.m4a", "bye": "voz/bye-ru.m4a", "hiText": "Привет!\nМы вас любим", "byeText": "До свидания!"}, {"id": "ko", "label": "한국어", "hi": "voz/hi-ko.m4a", "bye": "voz/bye-ko.m4a", "hiText": "안녕하세요!\n사랑해요", "byeText": "안녕히 가세요!"}, {"id": "ro", "label": "Română", "hi": "voz/hi-ro.m4a", "bye": "voz/bye-ro.m4a", "hiText": "Bună!\nTe iubim", "byeText": "La revedere!"}, {"id": "fr", "label": "Français", "hi": "voz/hi-fr.m4a", "bye": "voz/bye-fr.m4a", "hiText": "Bonjour!\nOn t'aime", "byeText": "Au revoir!"}, {"id": "en", "label": "English", "hi": "voz/hi-en.m4a", "bye": "voz/bye-en.m4a", "hiText": "Hello!\nWe love you", "byeText": "Goodbye!"}, {"id": "it", "label": "Italiano", "hi": "voz/hi-it.m4a", "bye": "voz/bye-it.m4a", "hiText": "Ciao!\nTi vogliamo bene", "byeText": "Arrivederci!"}, {"id": "pt", "label": "Português", "hi": "voz/hi-pt.m4a", "bye": "voz/bye-pt.m4a", "hiText": "Olá!\nA gente te quer", "byeText": "Adeus!"}, {"id": "de", "label": "Deutsch", "hi": "voz/hi-de.m4a", "bye": "voz/bye-de.m4a", "hiText": "Hallo!\nWir haben dich lieb", "byeText": "Tschüss!"}, {"id": "ja", "label": "日本語", "hi": "voz/hi-ja.m4a", "bye": "voz/bye-ja.m4a", "hiText": "こんにちは\n大好き", "byeText": "またね!"}];
+      var pair = pickSplashLangPair(LANGS);
+      var hiLang = pair.hi;
+      var byeLang = pair.bye;
 
-      function stopSplashAudio() {
-        try { if (aud) { aud.pause(); aud.currentTime = 0; } } catch (eA) {}
-        try { if (cierre) { cierre.pause(); cierre.currentTime = 0; } } catch (eC) {}
+      function setCaption(text, langLabel) {
+        if (!caption) return;
+        var safe = String(text || '').replace(/</g, '&lt;');
+        var lang = String(langLabel || '').replace(/</g, '&lt;');
+        caption.innerHTML = safe + (lang ? '<span class="lv-cap-lang">' + lang + '</span>' : '');
+        caption.classList.add('show');
+      }
+      function hideCaptionSoon(ms) {
+        if (!caption) return;
+        setTimeout(function () { try { caption.classList.remove('show'); } catch (eH) {} }, ms || 2200);
+      }
+      function playClip(el, relPath) {
+        if (!el || !relPath) return false;
+        try {
+          el.src = 'brand/splash/' + relPath + (relPath.indexOf('?') >= 0 ? '&' : '?') + 'v=' + V;
+          el.load();
+          el.currentTime = 0;
+          var p = el.play();
+          if (p && typeof p.catch === 'function') p.catch(function () {});
+          return true;
+        } catch (eP) { return false; }
+      }
+      function playHello() {
+        if (hiPlayed) return;
+        hiPlayed = true;
+        setCaption(hiLang.hiText, hiLang.label);
+        playClip(hiAud, hiLang.hi);
+        hideCaptionSoon(2600);
+      }
+      function playBye() {
+        if (cierrePlayed) return;
+        cierrePlayed = true;
+        setCaption(byeLang.byeText, byeLang.label);
+        playClip(cierre, byeLang.bye);
+        /* keep bye audible through fade — do not hard-stop it immediately */
       }
 
-      function playCierre() {
-        if (cierrePlayed || !cierre) return;
-        cierrePlayed = true;
-        try {
-          cierre.currentTime = 0;
-          var cp = cierre.play();
-          if (cp && typeof cp.catch === 'function') cp.catch(function () {});
-        } catch (eCierre) {}
+      function stopSplashAudio(keepBye) {
+        try { if (aud) { aud.pause(); aud.currentTime = 0; } } catch (eA) {}
+        try { if (hiAud) { hiAud.pause(); hiAud.currentTime = 0; } } catch (eH) {}
+        if (!keepBye) {
+          try { if (cierre) { cierre.pause(); cierre.currentTime = 0; } } catch (eC) {}
+        }
       }
 
       function finish() {
         if (done) return;
         done = true;
         try { sessionStorage.setItem('lv-splash-v8', '1'); } catch (e) {}
-        // Only slam on a natural/near-end close — not on early «Saltar»
         try {
-          if (vid && !isNaN(vid.currentTime) && vid.currentTime >= (CIERRE_AT - 0.35)) playCierre();
+          if (vid && !isNaN(vid.currentTime) && vid.currentTime >= (BYE_AT - 0.4)) playBye();
         } catch (eNear) {}
         try { if (aud) { aud.pause(); } } catch (eA) {}
+        try { if (hiAud) { hiAud.pause(); } } catch (eH) {}
         try { if (vid) { vid.pause(); } } catch (eV) {}
         if (splash) {
           splash.classList.remove('need-gesture');
           splash.classList.add('fade-out');
           setTimeout(function () {
-            stopSplashAudio();
+            stopSplashAudio(true);
             splash.hidden = true;
             if (typeof thenFn === 'function') thenFn();
+            /* stop bye a bit later so farewell can finish warmly */
+            setTimeout(function () { stopSplashAudio(false); }, 1800);
           }, 420);
         } else if (typeof thenFn === 'function') {
           thenFn();
@@ -9120,12 +9205,14 @@
       var reduced = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
       if (reduced || !vid) {
         splash.classList.add('fallback');
+        setCaption(hiLang.hiText, hiLang.label);
+        playClip(hiAud, hiLang.hi);
         setTimeout(finish, 2200);
         return;
       }
 
-      // Full ~12s clay video; safety just past end
-      var safety = setTimeout(finish, 14000);
+      /* Safety just past shortened FINISH_AT (was 14s for full 12s video) */
+      var safety = setTimeout(finish, 11500);
       vid.addEventListener('ended', function () { clearTimeout(safety); finish(); });
       vid.addEventListener('error', function () {
         clearTimeout(safety);
@@ -9133,16 +9220,18 @@
         setTimeout(finish, 1600);
       });
       vid.addEventListener('timeupdate', function () {
-        if (done || cierrePlayed) return;
+        if (done) return;
         try {
-          if (vid.currentTime >= CIERRE_AT) playCierre();
+          var t = vid.currentTime;
+          if (!hiPlayed && t >= HELLO_AT) playHello();
+          if (!cierrePlayed && t >= BYE_AT) playBye();
+          if (t >= FINISH_AT) { clearTimeout(safety); finish(); }
         } catch (eT) {}
       });
 
       function tryPlayMelody() {
         if (!aud) return false;
         try {
-          // Start from 0 only if not already playing (keeps early start on unlock)
           if (aud.paused) {
             try { aud.currentTime = 0; } catch (eCT) {}
             var ap = aud.play();
@@ -9150,6 +9239,7 @@
               ap.then(function () {
                 soundUnlocked = true;
                 splash.classList.remove('need-gesture');
+                if (!hiPlayed) playHello();
               }).catch(function () {
                 splash.classList.add('need-gesture');
               });
@@ -9177,8 +9267,9 @@
         if (done) return;
         if (ev) { try { ev.preventDefault(); } catch (e4) {} }
         playSound();
+        if (!hiPlayed) playHello();
         try {
-          vid.muted = true; // keep Jorge m4a as sole audible track
+          vid.muted = true;
           var up = vid.play();
           if (up && typeof up.catch === 'function') up.catch(function () {});
         } catch (e5) {}
@@ -9190,23 +9281,20 @@
           if (ev.key === 'Enter' || ev.key === ' ') unlockSound(ev);
         });
       }
-      // One-shot gesture anywhere on splash (except Saltar, which finishes)
       splash.addEventListener('pointerdown', function (ev) {
         if (done || soundUnlocked) return;
         if (ev.target && ev.target.id === 'lv-splash-skip') return;
         unlockSound(ev);
       }, { once: true });
 
-      // Music ASAP — do NOT wait for video.play() promise (was late before).
       tryPlayMelody();
 
-      // Video: muted autoplay for reliable picture (Jorge's m4a is the sound)
       vid.muted = true;
       var p = vid.play();
       if (p && typeof p.then === 'function') {
         p.then(function () {
-          // Retry melody once picture is running (in case first play was blocked/racy)
           if (!soundUnlocked) tryPlayMelody();
+          if (!hiPlayed) playHello();
         }).catch(function () {
           clearTimeout(safety);
           splash.classList.add('fallback');
@@ -9216,6 +9304,21 @@
         splash.classList.add('need-gesture');
       }
     }
+
+    /** Round-robin language pairs: each visit 1 or 2 langs (hello / bye). */
+    function pickSplashLangPair(LANGS) {
+      var n = LANGS.length;
+      var idx = 0;
+      try { idx = parseInt(localStorage.getItem('lv-splash-voz-i') || '0', 10) || 0; } catch (eI) { idx = 0; }
+      if (idx < 0) idx = 0;
+      var hi = LANGS[idx % n];
+      /* Every 3rd visit: same language for hello+bye ("uno"); else two langs ("dos"). */
+      var oneLang = (idx % 3 === 0);
+      var bye = oneLang ? hi : LANGS[(idx + 1 + (idx % 5)) % n];
+      try { localStorage.setItem('lv-splash-voz-i', String(idx + 1)); } catch (eS) {}
+      return { hi: hi, bye: bye, idx: idx };
+    }
+
     function init() {
       (function showProtocolHint() {
         var lab = document.getElementById('offline-mode-label');
@@ -9995,6 +10098,7 @@
         /* + v20261001c: cromo Editorial B · héroes diferenciados */
         /* layoutRev 43d: layout b · lema medio · vídeo+sonido Jorge · sin nubes · v20261001d */
         /* layoutRev 44: música antes · fin succión/absorción amorosa · v20261001e */
+        /* layoutRev 45: voz cálida multiidioma + caption der. · sin succión · outro corto · v20261001f */
         /* + v20261001i: maestro pacing lento + Teatro v20261001a sync */
         /* layoutRev 39: curiosidad cards (nombre grande · tap amplía · módulo) · Notas/Vaciar · v20260930m */
         if (typeof state.layoutRev !== 'number' || state.layoutRev < 39) {

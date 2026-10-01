@@ -138,7 +138,7 @@ Este ZIP lleva:
   ABRE-AQUI.html  (= estanteria.html)
   estanteria.html
   LEEME.txt
-  brand/splash/entrada.mp4 + entrada-sonido.m4a + cierre-succion.m4a  (intro; si falta, stub)
+  brand/splash/entrada.mp4 + entrada-sonido.m4a + voz/*.m4a hi/bye multiidioma (intro; si falta, stub)
 
 Baldas deslizables por tema, con etiqueta tipográfica
 (Escritura · Ocio · Casa · Salud · Varios). Desliza
@@ -292,26 +292,40 @@ def main() -> None:
         OUT.unlink()
     splash_dir_src = ROOT / "brand" / "splash"
     splash_dir = STAGING / "brand" / "splash"
-    splash_names = ("entrada.mp4", "entrada-sonido.m4a", "cierre-succion.m4a")
-    for splash_name in splash_names:
+    # Clay video + Jorge melody + warm multilingual hi/bye clips (no succión/portazo)
+    splash_core = ("entrada.mp4", "entrada-sonido.m4a")
+    splash_dir.mkdir(parents=True, exist_ok=True)
+    for splash_name in splash_core:
         splash_src = splash_dir_src / splash_name
         if splash_src.exists():
-            splash_dir.mkdir(parents=True, exist_ok=True)
             shutil.copy2(splash_src, splash_dir / splash_name)
+    voz_src = splash_dir_src / "voz"
+    voz_dst = splash_dir / "voz"
+    if voz_src.is_dir():
+        voz_dst.mkdir(parents=True, exist_ok=True)
+        for clip in sorted(voz_src.glob("*.m4a")):
+            shutil.copy2(clip, voz_dst / clip.name)
+        man = voz_src / "manifest.json"
+        if man.exists():
+            shutil.copy2(man, voz_dst / "manifest.json")
 
     with zipfile.ZipFile(OUT, "w", compression=zipfile.ZIP_DEFLATED) as z:
         for name in ("LEEME.txt", "ABRE-AQUI.html", "estanteria.html"):
             z.write(STAGING / name, arcname=name)
-        for splash_name in splash_names:
+        for splash_name in splash_core:
             splash_staged = splash_dir / splash_name
             if splash_staged.exists():
                 z.write(splash_staged, arcname=f"brand/splash/{splash_name}")
+        if voz_dst.is_dir():
+            for clip in sorted(voz_dst.glob("*")):
+                if clip.is_file():
+                    z.write(clip, arcname=f"brand/splash/voz/{clip.name}")
 
     shutil.copy2(STAGING / "LEEME.txt", ROOT / "downloads" / "LEEME-estanteria.txt")
     shutil.rmtree(STAGING)
 
     # Also keep last lettered snapshot name pointing at same bytes (bookmarks).
-    snapshot = ROOT / "downloads" / "estanteria-offline-v20261001i.zip"
+    snapshot = ROOT / "downloads" / "estanteria-offline-v20261001f.zip"
     shutil.copy2(OUT, snapshot)
     print(f"Wrote {OUT} ({OUT.stat().st_size} bytes)")
     print(f"Snapshot {snapshot}")
