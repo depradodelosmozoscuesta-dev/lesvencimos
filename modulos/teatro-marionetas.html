@@ -2,18 +2,12 @@
 <html lang="es">
 <head>
 <meta charset="utf-8">
-<meta name="lv-module-version" content="v20261001a">
-<!-- Teatro marionetas · v20261001a · sync modulos/teatro-marionetas (contenido v20260930b+) -->
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#0E0E0C">
 <meta name="description" content="Teatro de marionetas Les vencimos — figuras articuladas, offline.">
+<!-- Teatro marionetas · v20261001c · adjunto Jorge 2026-10-01 · bubble off / subbar · molinos -->
 <title>Teatro de marionetas — Les vencimos</title>
 <style>
-
-.lv-brandbar{display:flex;align-items:baseline;justify-content:space-between;gap:.75rem;padding:0 0 .7rem;margin:0 0 .85rem;border-bottom:1px solid rgba(230,225,214,.14)}
-.lv-brandbar .brand{color:inherit;text-decoration:none;font-family:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;font-weight:600;font-size:1rem}
-.lv-brandbar .lv-off{font-size:.7rem;letter-spacing:.12em;text-transform:uppercase;opacity:.65;font-weight:600}
-
 :root{
   --fondo:#0E0E0C; --fondo-2:#161512; --fondo-3:#1C1A16;
   --tinta:#E6E1D6; --suave:#9A9488;
@@ -77,16 +71,10 @@ button.on{background:var(--acento);color:var(--acento-texto);border-color:var(--
 .stage-frame.open .curtain.left{transform:translateX(-88%)}
 .stage-frame.open .curtain.right{transform:translateX(88%)}
 .curtain-bar{position:absolute;top:0;left:0;right:0;height:16px;background:linear-gradient(#a07840,#5A4020);z-index:6;border-bottom:2px solid #3a2810}
-.bubble{
-  position:absolute;left:7%;right:7%;top:12%;z-index:4;
-  background:rgba(230,225,214,.95);color:#1A160E;border-radius:14px;padding:.7rem .9rem;
-  font-size:1.02rem;line-height:1.35;min-height:3.2rem;box-shadow:0 4px 14px rgba(0,0,0,.3);
-}
-.bubble .who{display:block;font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;color:#6a5a40;margin-bottom:.2rem;font-weight:700}
-.bubble.narr{background:rgba(196,161,90,.92)}
+.bubble{display:none !important}
 .subbar{
   margin-top:.65rem;background:var(--fondo-2);border:1px solid var(--linea);border-radius:var(--radio);
-  padding:.75rem 1rem;min-height:3.4rem;font-size:1.02rem;line-height:1.4;
+  padding:.75rem 1rem;min-height:3.4rem;font-size:1.08rem;line-height:1.4;
 }
 .subbar .who{font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;color:var(--acento);margin-bottom:.2rem;font-weight:700}
 .progress{height:4px;background:var(--fondo-3);border-radius:2px;margin:.55rem 0 0;overflow:hidden}
@@ -123,7 +111,7 @@ h2.sec{margin:1.1rem 0 .55rem;font-size:.7rem;letter-spacing:.14em;text-transfor
 .op-sel{color:var(--acento);font-size:.85rem;min-height:1.2em}
 .op-hint{color:var(--suave);font-size:.8rem;line-height:1.35;margin:.3rem 0 .5rem}
 body.escena header, body.escena .blurb, body.escena #lobby, body.escena .foot{display:none}
-body.escena #stageScreen .btn-row, body.escena #stageScreen .subbar, body.escena #stageScreen .progress, body.escena #stageScreen .stage-title, body.escena #sceneHint, body.escena .op-drawer{display:none}
+body.escena #stageScreen .btn-row, body.escena #stageScreen .progress, body.escena #stageScreen .stage-title, body.escena #sceneHint, body.escena .op-drawer{display:none}
 body.escena #btnEscenaTab{display:block}
 body.escena{padding:.35rem .35rem 2.2rem;max-width:none}
 body.escena .stage-wrap{max-width:56rem}
@@ -184,11 +172,9 @@ body.escena .pad-dock{display:none}
 </style>
 </head>
 <body>
-<div class="lv-brandbar"><a class="brand" href="../index.html">Les vencimos</a><span class="lv-off">Offline</span></div>
-
 <header>
   <h1>Teatro de marionetas</h1>
-  <p>Les vencimos · offline · figuras articuladas · v20261001a</p>
+  <p>Les vencimos · offline · figuras articuladas</p>
 </header>
 
 <section id="lobby" class="screen on" aria-label="Vestíbulo">
@@ -224,6 +210,7 @@ body.escena .pad-dock{display:none}
     <button type="button" id="btnPrev" disabled>Anterior</button>
     <button type="button" id="btnNext" disabled>Siguiente</button>
     <button type="button" id="btnPlay" disabled>Play</button>
+    <button type="button" id="btnStop" disabled onclick="if(window.LVParar)window.LVParar()">Parar</button>
     <button type="button" id="btnVoz">Voz no</button>
     <button type="button" id="btnView">Frente</button>
   </div>
@@ -419,13 +406,14 @@ body.escena .pad-dock{display:none}
     raton:    { form:'raton',  sex:'chico', hair:'none',    cloth:'cola',   label:'Ratón' },
     oso:      { form:'oso',    sex:'chico', hair:'none',    cloth:'none',   label:'Oso' },
     conejo:   { form:'conejo', sex:'chico', hair:'none',    cloth:'cola',   label:'Conejo' },
-    perro:    { form:'perro',  sex:'chico', hair:'none',    cloth:'cola',   label:'Perro' }
+    perro:    { form:'perro',  sex:'chico', hair:'none',    cloth:'cola',   label:'Perro' },
+    gigante:  { form:'gigante',sex:'chico', hair:'corto',   cloth:'none',   label:'Gigante' }
   };
 
   /* ——— geometría de pose (unidades locales, cadera = 0) ——— */
   var G = {
     headR: 13.2,
-    neck: 15,
+    neck: 11,
     torso: 42,
     shW: 15.2,
     hipW: 9.5,
@@ -437,9 +425,12 @@ body.escena .pad-dock{display:none}
 
   function neckLen(meta) {
     if (!meta) return G.neck;
-    if (meta.form === 'humano') return 15;
-    if (meta.form === 'ogro' || meta.form === 'oso' || meta.form === 'perro') return 13;
-    return 11;
+    if (meta.form === 'humano') return 11;
+    if (meta.form === 'ogro' || meta.form === 'gigante') return 10;
+    return 8;
+  }
+  function isBeast(meta) {
+    return meta && /lobo|cerdo|gato|raton|oso|conejo|perro/.test(meta.form || "");
   }
   function isMaleHuman(meta) {
     return meta && meta.form === 'humano' && meta.sex === 'chico';
@@ -952,72 +943,54 @@ body.escena .pad-dock{display:none}
   }
 
   function drawHairCap(ctx, pal, style, yaw) {
+    /* Casco del cráneo. El cuello se viste, no se tapa (como Mari / gimnasio). */
     var r = G.headR;
+    var long = style === 'largo' || style === 'coleta' || style === 'princesa' || style === 'moño';
     ctx.fillStyle = pal.hairD;
     ctx.beginPath();
-    ctx.ellipse(0, -2.4, r + 3.6, r + 2.4, 0, Math.PI * 1.08, Math.PI * 1.92);
+    ctx.ellipse(0, -3.6, r + 1.4, r - 1.8, 0, Math.PI, 0);
     ctx.fill();
     ctx.fillStyle = pal.hair;
     ctx.beginPath();
-    ctx.ellipse(0, -3.4, r + 2.2, r + 1.4, 0, Math.PI * 1.12, Math.PI * 1.88);
+    ctx.ellipse(0, -4.0, r + 0.4, r - 2.6, 0, Math.PI, 0);
     ctx.fill();
-    /* raya */
-    ctx.strokeStyle = pal.hairD;
-    ctx.lineWidth = 0.7;
-    ctx.beginPath();
-    ctx.moveTo(-1.2, -8.5);
-    ctx.quadraticCurveTo(-0.4, -3, 0.6, -1.6);
-    ctx.stroke();
+    /* flequillo corto, por encima de la frente */
     ctx.fillStyle = pal.hair;
     ctx.beginPath();
-    if (style === 'largo' || style === 'coleta' || style === 'princesa') {
-      ctx.ellipse(-r + 1.2, 3.8, 3.6, 7.8, -0.18, 0, TWO_PI);
-      ctx.ellipse(r - 1.2, 3.8, 3.6, 7.8, 0.18, 0, TWO_PI);
-    } else {
-      ctx.ellipse(-r + 1.6, 1.0, 3.0, 4.2, -0.12, 0, TWO_PI);
-      ctx.ellipse(r - 1.6, 1.0, 3.0, 4.2, 0.12, 0, TWO_PI);
-    }
+    ctx.moveTo(-r + 2.2, -4.2);
+    ctx.quadraticCurveTo(-3, -1.6, 0, -3.2);
+    ctx.quadraticCurveTo(3, -1.6, r - 2.2, -4.2);
+    ctx.quadraticCurveTo(0, -6.6, -r + 2.2, -4.2);
     ctx.fill();
-    if (style === 'moño') {
-      disk(ctx, { x: 0, y: -r - 4.8 }, 5.8, pal.hairD);
-      disk(ctx, { x: 0, y: -r - 4.8 }, 4.6, pal.hair);
-      ctx.strokeStyle = pal.hairD; ctx.lineWidth = 0.8;
-      ctx.beginPath(); ctx.arc(0, -r - 4.8, 3.2, 0.2, 2.6); ctx.stroke();
-    }
-    if (style === 'largo' || style === 'coleta' || style === 'princesa') {
+    if (style === 'corto') {
       ctx.fillStyle = pal.hairD;
       ctx.beginPath();
-      ctx.ellipse(-r + 1.6, 11, 3.6, 10, 0.18, 0, TWO_PI);
-      ctx.ellipse(r - 1.6, 11, 3.6, 10, -0.18, 0, TWO_PI);
-      ctx.fill();
-      ctx.strokeStyle = pal.hair;
-      ctx.lineWidth = 1.1;
-      ctx.beginPath();
-      ctx.moveTo(-r + 1, 4); ctx.quadraticCurveTo(-r - 2, 14, -r + 3, 20);
-      ctx.moveTo(r - 1, 4); ctx.quadraticCurveTo(r + 2, 14, r - 3, 20);
-      ctx.stroke();
-    }
-    if (style === 'corto') {
-      ctx.fillStyle = pal.hair;
-      ctx.beginPath();
-      ctx.moveTo(-8, -7);
-      ctx.quadraticCurveTo(-3, -5.2, 0, -6.4);
-      ctx.quadraticCurveTo(3, -5.2, 8, -7);
-      ctx.lineTo(7, -9);
-      ctx.quadraticCurveTo(0, -8, -7, -9);
-      ctx.closePath();
+      ctx.ellipse(-r + 2.8, 0.2, 2.2, 3.0, -0.15, 0, TWO_PI);
+      ctx.ellipse(r - 2.8, 0.2, 2.2, 3.0, 0.15, 0, TWO_PI);
       ctx.fill();
     }
-    if (style === 'largo' || style === 'coleta' || style === 'moño' || style === 'princesa') {
+    if (style === 'moño') {
+      disk(ctx, { x: 0, y: -r - 3.6 }, 5.2, pal.hairD);
+      disk(ctx, { x: 0, y: -r - 3.6 }, 4.0, pal.hair);
+    }
+    if (long && style !== 'moño') {
+      /* mechones DETRÁS de las orejas, no sobre el cuello */
+      ctx.fillStyle = pal.hairD;
+      ctx.beginPath();
+      ctx.ellipse(-r - 0.4, 8.5, 2.6, 9.5, 0.22, 0, TWO_PI);
+      ctx.ellipse(r + 0.4, 8.5, 2.6, 9.5, -0.22, 0, TWO_PI);
+      ctx.fill();
       ctx.fillStyle = pal.hair;
       ctx.beginPath();
-      ctx.moveTo(-8.2, -6.2);
-      ctx.quadraticCurveTo(-3, -3.6, 0, -5.4);
-      ctx.quadraticCurveTo(3, -3.6, 8.2, -6.2);
-      ctx.lineTo(7.2, -8.8);
-      ctx.quadraticCurveTo(0, -7.2, -7.2, -8.8);
-      ctx.closePath();
+      ctx.ellipse(-r - 0.2, 7.2, 1.8, 7.8, 0.22, 0, TWO_PI);
+      ctx.ellipse(r + 0.2, 7.2, 1.8, 7.8, -0.22, 0, TWO_PI);
       ctx.fill();
+    }
+    if (style === 'coleta') {
+      ctx.fillStyle = pal.hairD;
+      ctx.beginPath(); ctx.ellipse(0, -r - 2, 3.2, 3.2, 0, 0, TWO_PI); ctx.fill();
+      ctx.fillStyle = pal.hair;
+      ctx.beginPath(); ctx.ellipse(0, -r + 6, 2.4, 8.5, 0, 0, TWO_PI); ctx.fill();
     }
   }
 
@@ -1727,6 +1700,89 @@ body.escena .pad-dock{display:none}
     ctx.beginPath(); ctx.arc(-0.7, 4.8, 0.7, 0, TWO_PI); ctx.fill();
   }
 
+  function drawPaw(ctx, p, pal) {
+    ctx.save();
+    ctx.translate(p.x, p.y);
+    ctx.fillStyle = pal.skin;
+    ctx.strokeStyle = pal.ink;
+    ctx.lineWidth = 0.8;
+    ctx.beginPath(); ctx.ellipse(0, 0.6, 5.0, 3.4, 0, 0, TWO_PI); ctx.fill(); ctx.stroke();
+    var i;
+    for (i = -1; i <= 1; i++) {
+      ctx.beginPath();
+      ctx.ellipse(i * 2.3, -2.6, 1.25, 2.1, 0, 0, TWO_PI);
+      ctx.fill(); ctx.stroke();
+    }
+    ctx.restore();
+  }
+  function drawBeastPuppet(ctx, fig, pal, meta, p, hip, sh, head, armL, armR, legL, legR, blink, mouth, headAng, view) {
+    var groundY = 78;
+    ctx.fillStyle = 'rgba(20,14,8,0.16)';
+    ctx.beginPath(); ctx.ellipse(0, groundY, 28, 6, 0, 0, TWO_PI); ctx.fill();
+    if (fig.tail && fig.tail.length) {
+      drawChainRibbon(ctx, fig.tail, 5.8, 3.4, pal.hairD || pal.skinD, pal.ink);
+    }
+    /* cuerpo pera, no camisa */
+    ctx.fillStyle = pal.skinD;
+    ctx.beginPath();
+    ctx.ellipse(hip.x, hip.y + 6, 18, 24, 0, 0, TWO_PI);
+    ctx.fill();
+    ctx.fillStyle = pal.skin;
+    ctx.beginPath();
+    ctx.ellipse(hip.x, hip.y + 4, 15.5, 21, 0, 0, TWO_PI);
+    ctx.fill();
+    ctx.strokeStyle = pal.ink;
+    ctx.lineWidth = 1.1;
+    ctx.beginPath();
+    ctx.ellipse(hip.x, hip.y + 6, 18, 24, 0, 0, TWO_PI);
+    ctx.stroke();
+    /* pecho más claro */
+    ctx.fillStyle = pal.blush || pal.skin;
+    ctx.globalAlpha = 0.45;
+    ctx.beginPath(); ctx.ellipse(hip.x, hip.y + 8, 7, 11, 0, 0, TWO_PI); ctx.fill();
+    ctx.globalAlpha = 1;
+    /* patas traseras */
+    capsule(ctx, legL.root, legL.mid, 6.0, 4.6, pal.skinD, pal.ink);
+    capsule(ctx, legL.mid, legL.end, 4.6, 3.6, pal.skinD, pal.ink);
+    drawPaw(ctx, legL.end, pal);
+    capsule(ctx, legR.root, legR.mid, 6.2, 4.8, pal.skin, pal.ink);
+    capsule(ctx, legR.mid, legR.end, 4.8, 3.8, pal.skin, pal.ink);
+    drawPaw(ctx, legR.end, pal);
+    /* brazos-pata delanteros */
+    capsule(ctx, armL.root, armL.mid, 4.6, 3.8, pal.skinD, pal.ink);
+    capsule(ctx, armL.mid, armL.end, 3.8, 3.2, pal.skinD, pal.ink);
+    drawPaw(ctx, armL.end, pal);
+    capsule(ctx, armR.root, armR.mid, 4.8, 4.0, pal.skin, pal.ink);
+    capsule(ctx, armR.mid, armR.end, 4.0, 3.2, pal.skin, pal.ink);
+    drawPaw(ctx, armR.end, pal);
+    /* cuello corto peludo */
+    ctx.strokeStyle = pal.skinD;
+    ctx.lineWidth = 7;
+    ctx.lineCap = 'round';
+    ctx.beginPath();
+    ctx.moveTo(sh.x, sh.y + 4);
+    ctx.lineTo(head.x, head.y + 8);
+    ctx.stroke();
+    ctx.strokeStyle = pal.skin;
+    ctx.lineWidth = 5;
+    ctx.beginPath();
+    ctx.moveTo(sh.x, sh.y + 4);
+    ctx.lineTo(head.x, head.y + 8);
+    ctx.stroke();
+    ctx.save();
+    ctx.translate(head.x, head.y);
+    ctx.rotate(headAng * 0.35);
+    if (meta.form === 'lobo') drawWolfHead(ctx, pal, blink, mouth);
+    else if (meta.form === 'cerdo') drawPigHead(ctx, pal, blink);
+    else if (meta.form === 'gato') drawCatHead(ctx, pal, blink, mouth);
+    else if (meta.form === 'raton') drawMouseHead(ctx, pal, blink);
+    else if (meta.form === 'oso') drawBearHead(ctx, pal, blink, mouth);
+    else if (meta.form === 'conejo') drawRabbitHead(ctx, pal, blink);
+    else drawDogHead(ctx, pal, blink, mouth);
+    ctx.restore();
+    if (fig.strings) drawStrings(ctx, head, armL.root, armR.root);
+  }
+
   function drawStrings(ctx, head, shL, shR) {
     ctx.strokeStyle = 'rgba(230,225,214,0.28)';
     ctx.lineWidth = 0.7;
@@ -1797,6 +1853,11 @@ body.escena .pad-dock{display:none}
     var blink = fig.blink;
     if (fig.action === 'die') blink = 1;
     var mouth = fig.talking ? (0.25 + 0.55 * Math.abs(Math.sin(fig.time * 9.5))) : (p.mouth || 0);
+
+    if (isBeast(meta)) {
+      drawBeastPuppet(ctx, fig, pal, meta, p, hip, sh, head, armL, armR, legL, legR, blink, mouth, headAng, view);
+      return;
+    }
 
     /* capa / alas DETRAS */
     if (fig.cape && fig.cape.length) {
@@ -2247,7 +2308,8 @@ body.escena .pad-dock{display:none}
     fantasma:{label:"El rey muerto"},
     quijote:{label:"Quijote"}, sancho:{label:"Sancho"},
     mendigo:{label:"Mendigo"}, mesonero:{label:"Mesonero"},
-    huesped:{label:"Huésped"}, anfitriona:{label:"Anfitriona"}
+    huesped:{label:"Huésped"}, anfitriona:{label:"Anfitriona"},
+    gigante:{label:"Gigante"}
   };
 
   var SHOWS = [
@@ -2414,10 +2476,11 @@ body.escena .pad-dock{display:none}
       bg:"campo",
       scenes:[
         {who:"narr", text:"Por un campo de La Mancha iban un caballero flaco y su escudero.", puppets:["quijote","sancho"], bg:"campo"},
-        {who:"quijote", text:"Sancho, mira aquellos gigantes. Treinta, o más. Voy a deshacer el agravio.", puppets:["quijote","sancho"], bg:"campo", look:"sancho", action:"point"},
-        {who:"sancho", text:"Señor, son molinos. Aspas. Si el viento sopla, os van a zurrar.", puppets:["sancho"], bg:"campo", look:"quijote", action:"talk"},
-        {who:"quijote", text:"Cobardía es esa. El valor no pregunta el nombre de las aspas.", puppets:["quijote"], bg:"campo", look:"sancho", action:"scare"},
-        {who:"narr", text:"Picó espuelas. El viento giró de verdad, y una aspa lo sentó en el polvo.", puppets:["quijote"], bg:"campo", action:"die"},
+        {who:"quijote", text:"Sancho, mira aquellos gigantes. Treinta, o más. Voy a deshacer el agravio.", puppets:["quijote","sancho","gigante"], bg:"campo", look:"gigante", action:"point"},
+        {who:"sancho", text:"Señor, son molinos. Aspas. Si el viento sopla, os van a zurrar.", puppets:["sancho","quijote"], bg:"campo", look:"quijote", action:"talk"},
+        {who:"gigante", text:"(El aire gira las aspas. El gigante no habla: es un molino.)", puppets:["gigante","quijote"], bg:"campo", action:"idle"},
+        {who:"quijote", text:"Cobardía es esa. El valor no pregunta el nombre de las aspas.", puppets:["quijote","gigante"], bg:"campo", look:"gigante", action:"scare"},
+        {who:"narr", text:"Picó espuelas. El viento giró de verdad, y una aspa lo sentó en el polvo.", puppets:["quijote","gigante"], bg:"campo", action:"die"},
         {who:"sancho", text:"¿Veis? Os lo dije. ¿Os habéis muerto, señor, o solo descansáis?", puppets:["sancho","quijote"], bg:"campo", look:"quijote", action:"beg"},
         {who:"quijote", text:"No estoy muerto. El mago Frestón convirtió a los gigantes en molinos. ¡Ah, villano!", puppets:["quijote"], bg:"campo", look:"sancho", action:"talk"},
         {who:"sancho", text:"Si el mago paga el médico, mejor. Levantáos. Hay venta a un cuarto de legua.", puppets:["sancho"], bg:"campo", look:"quijote", action:"pay"},
@@ -2537,6 +2600,67 @@ body.escena .pad-dock{display:none}
     c.strokeStyle = "rgba(40,24,12,0.35)";
     c.lineWidth = 1;
     c.strokeRect(x+w*0.12, y+h*0.22, w*0.22, h*0.22);
+  }
+  function drawWindmill(c, x, y, s, t){
+    var h = 110 * s;
+    c.fillStyle = "rgba(20,12,8,0.18)";
+    c.beginPath(); c.ellipse(x, y+8, 28*s, 7*s, 0, 0, 7); c.fill();
+    c.fillStyle = "#c8b49a";
+    c.beginPath();
+    c.moveTo(x - 16*s, y);
+    c.lineTo(x - 10*s, y - h);
+    c.lineTo(x + 10*s, y - h);
+    c.lineTo(x + 16*s, y);
+    c.closePath(); c.fill();
+    c.fillStyle = "#7a3030";
+    c.beginPath();
+    c.moveTo(x - 14*s, y - h + 4);
+    c.lineTo(x, y - h - 22*s);
+    c.lineTo(x + 14*s, y - h + 4);
+    c.closePath(); c.fill();
+    c.fillStyle = "#3a2418";
+    c.fillRect(x - 4*s, y - 28*s, 8*s, 20*s);
+    var ang = (t || 0) * 0.0011 * (0.7 + (stage.wind || 0) * 0.35);
+    var i, a, span = 46 * s;
+    c.save();
+    c.translate(x, y - h + 6);
+    c.rotate(ang);
+    for(i=0;i<4;i++){
+      a = i * Math.PI / 2;
+      c.save(); c.rotate(a);
+      c.fillStyle = i%2 ? "#e8dcc8" : "#d4c4a8";
+      c.beginPath();
+      c.moveTo(4, -3);
+      c.lineTo(span, -10*s);
+      c.lineTo(span, 10*s);
+      c.lineTo(4, 3);
+      c.closePath(); c.fill();
+      c.strokeStyle = "#5a4030"; c.lineWidth = 1; c.stroke();
+      c.restore();
+    }
+    c.fillStyle = "#8B6840";
+    c.beginPath(); c.arc(0, 0, 6*s, 0, 7); c.fill();
+    c.restore();
+  }
+  function drawGiantSil(c, x, y, s, t){
+    var sway = Math.sin((t||0)*0.0015) * 6 * s;
+    c.fillStyle = "rgba(42,32,28,0.38)";
+    c.beginPath(); c.ellipse(x, y+8, 22*s, 6*s, 0, 0, 7); c.fill();
+    c.fillStyle = "rgba(58,48,44,0.55)";
+    c.beginPath();
+    c.ellipse(x + sway*0.2, y - 70*s, 16*s, 36*s, 0, 0, 7);
+    c.fill();
+    c.beginPath();
+    c.arc(x + sway, y - 118*s, 12*s, 0, 7);
+    c.fill();
+    c.strokeStyle = "rgba(58,48,44,0.55)";
+    c.lineWidth = 7*s; c.lineCap = "round";
+    c.beginPath();
+    c.moveTo(x - 10*s, y - 90*s);
+    c.lineTo(x - 28*s + sway, y - 50*s);
+    c.moveTo(x + 10*s, y - 90*s);
+    c.lineTo(x + 30*s + sway, y - 46*s);
+    c.stroke();
   }
   function floorBoards(c, y0){
     c.fillStyle = "#4a3420";
@@ -2806,6 +2930,10 @@ body.escena .pad-dock{display:none}
       tree(c, 160, H*0.56, 140, "#2a5a30");
       tree(c, 820, H*0.54, 170, "#1a4a28");
       cottage(c, 520, H*0.44, 64, 48);
+      drawWindmill(c, 300, H*0.50, 1.0, t);
+      drawWindmill(c, 740, H*0.46, 1.25, t);
+      drawGiantSil(c, 430, H*0.42, 0.85, t);
+      drawGiantSil(c, 620, H*0.40, 1.05, t);
     } else if(name === "aula"){
       g = c.createLinearGradient(0,0,0,H);
       g.addColorStop(0,"#3a4a48"); g.addColorStop(0.4,"#2a3834"); g.addColorStop(1,"#2a2418");
@@ -3271,6 +3399,7 @@ body.escena .pad-dock{display:none}
     list.forEach(function(a){
       var x = a.xNorm * W;
       var scale = 1.78 * (a.fig.active || a.selected ? 1.07 : 1);
+      if(a.id === "gigante" || (a.fig.meta && a.fig.meta.form === "gigante")) scale *= 1.45;
       var yLift = (a.yOff || 0);
       if(stage.spotlightId === a.id){
         ctx.save();
@@ -3586,6 +3715,8 @@ body.escena .pad-dock{display:none}
     btnNext.disabled = true;
     btnPlay.disabled = true;
     btnPlay.textContent = "Play";
+    var btnStop0 = document.getElementById("btnStop");
+    if(btnStop0) btnStop0.disabled = true;
     subWho.textContent = "";
     subText.textContent = "Toca «Abrir telón» para empezar.";
     bubble.hidden = true;
@@ -3641,7 +3772,10 @@ body.escena .pad-dock{display:none}
     btnPrev.disabled = false;
     btnNext.disabled = false;
     btnPlay.disabled = false;
+    var bs = document.getElementById("btnStop");
+    if(bs) bs.disabled = false;
     renderScene();
+    requestAnimationFrame(function(){ renderScene(); });
   }
   function closeCurtains(){
     curtainsOpen = false;
@@ -3650,6 +3784,8 @@ body.escena .pad-dock{display:none}
     sndCurtain();
     btnCurtain.textContent = "Abrir telón";
     btnPlay.disabled = true;
+    var bs2 = document.getElementById("btnStop");
+    if(bs2) bs2.disabled = true;
     btnPrev.disabled = true;
     btnNext.disabled = true;
     bubble.hidden = true;
@@ -3678,33 +3814,76 @@ body.escena .pad-dock{display:none}
     sndStep();
     renderScene();
   }
+  function sceneDwell(sc){
+    var n = ((sc && sc.text) || "").length;
+    return Math.max(5200, Math.min(14000, 3200 + n * 75));
+  }
+  function muteVoices(){
+    if(window.speechSynthesis) window.speechSynthesis.cancel();
+    if(F){
+      stage.actors.forEach(function(a){
+        if(a.fig) F.setTalking(a.fig, false);
+      });
+    }
+  }
   function stopPlay(){
     playing = false;
-    if(playTimer){ clearInterval(playTimer); playTimer = null; }
+    if(playTimer){ clearTimeout(playTimer); playTimer = null; }
+    muteVoices();
     btnPlay.textContent = "Play";
   }
-  function togglePlay(){
-    if(!curtainsOpen) return;
-    unlockAudio();
-    if(playing){ stopPlay(); return; }
-    playing = true;
-    btnPlay.textContent = "Pausa";
-    playTimer = setInterval(function(){
+  function scheduleAdvance(){
+    if(playTimer){ clearTimeout(playTimer); playTimer = null; }
+    if(!playing || !currentShow) return;
+    var sc = currentShow.scenes[sceneIdx];
+    playTimer = setTimeout(function(){
+      playTimer = null;
+      if(!playing) return;
       if(sceneIdx >= currentShow.scenes.length - 1){
         nextScene();
         stopPlay();
         return;
       }
       nextScene();
-    }, 4200);
+      scheduleAdvance();
+    }, sceneDwell(sc));
   }
+  function togglePlay(){
+    unlockAudio();
+    if(!curtainsOpen) openCurtains();
+    if(playing){ stopPlay(); return; }
+    if(!currentShow) return;
+    playing = true;
+    btnPlay.textContent = "Pausa";
+    var bs = document.getElementById("btnStop");
+    if(bs) bs.disabled = false;
+    scheduleAdvance();
+  }
+  function pararFuncion(){
+    stopPlay();
+    stage.pair = null;
+    stage.pairFx = [];
+    btnPlay.textContent = "Play";
+    btnPlay.disabled = !curtainsOpen;
+    var bs = document.getElementById("btnStop");
+    if(bs) bs.disabled = !curtainsOpen;
+  }
+  window.LVParar = pararFuncion;
 
   btnCurtain.addEventListener("click", function(){
     if(curtainsOpen) closeCurtains(); else openCurtains();
   });
-  btnNext.addEventListener("click", nextScene);
-  btnPrev.addEventListener("click", prevScene);
+  btnNext.addEventListener("click", function(){
+    nextScene();
+    if(playing) scheduleAdvance();
+  });
+  btnPrev.addEventListener("click", function(){
+    prevScene();
+    if(playing) scheduleAdvance();
+  });
   btnPlay.addEventListener("click", togglePlay);
+  var btnStop = document.getElementById("btnStop");
+  if(btnStop) btnStop.addEventListener("click", pararFuncion);
   document.getElementById("btnBackLobby").addEventListener("click", function(){
     stopPlay(); showScreen("lobby");
   });
@@ -4337,7 +4516,7 @@ body.escena .pad-dock{display:none}
     document.getElementById("padHint").textContent = "Mantén el dedo en el pad. Al soltar, el muñeco se para. El escenario queda libre.";
   });
 
-  var CREATE_POOL = ["nina","nino","abuelo","lobo","ogro","princesa","rey","reina","hada","bruja","caballero","pastor","payaso","dragon","gato","raton","oso","conejo","perro","abuela","cerdito","holmes","watson"];
+  var CREATE_POOL = ["nina","nino","abuelo","lobo","ogro","princesa","rey","reina","hada","bruja","caballero","pastor","payaso","dragon","gato","raton","oso","conejo","perro","abuela","cerdito","holmes","watson","gigante"];
   var EXAMPLE_LINES = [
     {who:"nina", text:"Hola. ¿Quieres jugar conmigo?"},
     {who:"nino", text:"Claro. Yo traigo la pelota."},
