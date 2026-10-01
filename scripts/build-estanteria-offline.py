@@ -130,7 +130,7 @@ def inject_embedded(shell: str, embedded: dict[str, str]) -> str:
 def write_leeme() -> str:
     return """═══════════════════════════════════════
   ESCRITORIO / ESTANTERÍA — Les vencimos
-  Build v20261001i
+  Build v20261001k4
   UN SOLO HTML (módulos dentro)
 ═══════════════════════════════════════
 
@@ -176,6 +176,8 @@ Carpeta Mantenimiento de casa (balda Casa):
   · Apagones — Luz · Gas (límites) · Casa preparada · Campo
   · Internet — Sin red (comms offline)
 Carpeta Biblioteca (Escritura): Libros. Maridajes (Ocio): Tabaco.
+Música: hub opcional en Ocio; Guitarra/Piano/Batería/Sax/… van como iconos SUELTOS
+(instalables aparte en catálogo). No hace falta abrir la carpeta Música.
 Ideas y Notas viven en Escritura. Notas: al tocar una sticky se abre
 el editor COMPACTO en el dock (tamaño tarjeta); Ampliar → panel grande
 con tipo/foto/QR; Compactar vuelve al chico. Guardar (ámbar) guarda y
@@ -325,7 +327,7 @@ def main() -> None:
     shutil.rmtree(STAGING)
 
     # Also keep last lettered snapshot name pointing at same bytes (bookmarks).
-    snapshot = ROOT / "downloads" / "estanteria-offline-v20261001k3.zip"
+    snapshot = ROOT / "downloads" / "estanteria-offline-v20261001k4.zip"
     shutil.copy2(OUT, snapshot)
     print(f"Wrote {OUT} ({OUT.stat().st_size} bytes)")
     print(f"Snapshot {snapshot}")
