@@ -2836,9 +2836,9 @@
 <body class="theme-ambar">
   <div id="lv-entry-splash" hidden>
     <video id="lv-splash-vid" playsinline muted autoplay preload="auto">
-      <source src="brand/splash/entrada.mp4?v=20261001k" type="video/mp4">
+      <source src="brand/splash/entrada.mp4?v=20261001k2" type="video/mp4">
     </video>
-    <audio id="lv-splash-audio" preload="auto" src="brand/splash/entrada-sonido.m4a?v=20261001k"></audio>
+    <audio id="lv-splash-audio" preload="auto" src="brand/splash/entrada-sonido.m4a?v=20261001k2"></audio>
     <audio id="lv-splash-hi" preload="auto"></audio>
     <audio id="lv-splash-cierre" preload="auto"></audio>
     <div class="lv-splash-stub" aria-hidden="true"></div>
@@ -8193,7 +8193,7 @@
       return panel;
     }
 
-    /* Gentle auto-scroll parade on overflowing shelf rails */
+    /* Gentle auto-scroll parade on overflowing shelf rails — restored from v20261001j + ensure overflow (k2) */
     var shelfDriftRafs = [];
     function stopShelfDrift() {
       shelfDriftRafs.forEach(function (id) {
@@ -8207,19 +8207,70 @@
         }
       });
     }
+    /** Force horizontal overflow so parade can run (few tiles / wide screens). */
+    function ensureShelfIconsOverflow(el) {
+      if (!el) return false;
+      el.querySelectorAll('.shelf-parade-ghost').forEach(function (g) {
+        try { g.remove(); } catch (eR) {}
+      });
+      var guard = 0;
+      while (el.scrollWidth <= el.clientWidth + 8 && guard < 32) {
+        var live = [];
+        for (var i = 0; i < el.children.length; i++) {
+          var c = el.children[i];
+          if (c.nodeType === 1 && !c.classList.contains('shelf-parade-ghost')) live.push(c);
+        }
+        if (!live.length) {
+          var pad = document.createElement('div');
+          pad.className = 'shelf-parade-ghost';
+          pad.setAttribute('aria-hidden', 'true');
+          pad.style.cssText = 'flex:0 0 ' + Math.max(120, Math.ceil(el.clientWidth * 0.55)) + 'px;height:1px;pointer-events:none;opacity:0';
+          el.appendChild(pad);
+          guard++;
+          continue;
+        }
+        var src = live[guard % live.length];
+        var ghost = src.cloneNode(true);
+        ghost.classList.add('shelf-parade-ghost');
+        ghost.setAttribute('aria-hidden', 'true');
+        ghost.tabIndex = -1;
+        try { ghost.removeAttribute('data-id'); } catch (eD) {}
+        ghost.style.pointerEvents = 'none';
+        ghost.style.opacity = '0.5';
+        /* neutralize clicks from clone */
+        ghost.onclick = null;
+        ghost.onpointerdown = null;
+        el.appendChild(ghost);
+        guard++;
+      }
+      var ok = el.scrollWidth > el.clientWidth + 6;
+      try {
+        console.log('[lv-parade]', ok ? 'overflow OK' : 'NO overflow',
+          'sw=' + el.scrollWidth, 'cw=' + el.clientWidth,
+          'ghosts=' + el.querySelectorAll('.shelf-parade-ghost').length);
+      } catch (eL) {}
+      return ok;
+    }
     function startShelfDrift() {
       stopShelfDrift();
       var reduce = false;
       try {
         reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
       } catch (e) {}
-      if (reduce) return;
+      if (reduce) {
+        try { console.log('[lv-parade] skipped: prefers-reduced-motion'); } catch (eR) {}
+        return;
+      }
       document.querySelectorAll('.shelf-icons').forEach(function (el) {
-        if (el.scrollWidth <= el.clientWidth + 6) return;
+        ensureShelfIconsOverflow(el);
+        if (el.scrollWidth <= el.clientWidth + 6) {
+          try { console.log('[lv-parade] skip rail sw<=cw', el.scrollWidth, el.clientWidth); } catch (eS) {}
+          return;
+        }
         var dir = 1;
         var pausedUntil = 0;
         var last = performance.now();
-        var speed = 12; /* px/s — soft parade */
+        var speed = 12; /* px/s — soft parade (Completo j) */
         function pause() {
           pausedUntil = performance.now() + 3200;
         }
@@ -8798,7 +8849,7 @@
       });
     }
 
-    var EST_BUILD = 'v20261001k';
+    var EST_BUILD = 'v20261001k2';
 
     function layoutPanelSheet() {
       var tb = document.getElementById('desk-toolbar');
@@ -9115,7 +9166,7 @@
       var BYE_AT = 8.55;
       var FINISH_AT = 9.70;
       var HELLO_AT = 0.28;
-      var V = '20261001k';
+      var V = '20261001k2';
       var LANGS = [{"id": "es", "label": "Español", "hi": "voz/hi-es.m4a", "bye": "voz/bye-es.m4a", "hiText": "¡Hola!\nTe queremos", "byeText": "¡Adiós!\nTe queremos"}, {"id": "ru", "label": "Русский", "hi": "voz/hi-ru.m4a", "bye": "voz/bye-ru.m4a", "hiText": "Привет!\nМы вас любим", "byeText": "До свидания!"}, {"id": "ko", "label": "한국어", "hi": "voz/hi-ko.m4a", "bye": "voz/bye-ko.m4a", "hiText": "안녕하세요!\n사랑해요", "byeText": "안녕히 가세요!"}, {"id": "ro", "label": "Română", "hi": "voz/hi-ro.m4a", "bye": "voz/bye-ro.m4a", "hiText": "Bună!\nTe iubim", "byeText": "La revedere!"}, {"id": "fr", "label": "Français", "hi": "voz/hi-fr.m4a", "bye": "voz/bye-fr.m4a", "hiText": "Bonjour!\nOn t'aime", "byeText": "Au revoir!"}, {"id": "en", "label": "English", "hi": "voz/hi-en.m4a", "bye": "voz/bye-en.m4a", "hiText": "Hello!\nWe love you", "byeText": "Goodbye!"}, {"id": "it", "label": "Italiano", "hi": "voz/hi-it.m4a", "bye": "voz/bye-it.m4a", "hiText": "Ciao!\nTi vogliamo bene", "byeText": "Arrivederci!"}, {"id": "pt", "label": "Português", "hi": "voz/hi-pt.m4a", "bye": "voz/bye-pt.m4a", "hiText": "Olá!\nA gente te quer", "byeText": "Adeus!"}, {"id": "de", "label": "Deutsch", "hi": "voz/hi-de.m4a", "bye": "voz/bye-de.m4a", "hiText": "Hallo!\nWir haben dich lieb", "byeText": "Tschüss!"}, {"id": "ja", "label": "日本語", "hi": "voz/hi-ja.m4a", "bye": "voz/bye-ja.m4a", "hiText": "こんにちは\n大好き", "byeText": "またね!"}];
       var pair = pickSplashLangPair(LANGS);
       var hiLang = pair.hi;
@@ -10100,6 +10151,7 @@
         /* layoutRev 44: música antes · fin succión/absorción amorosa · v20261001e */
         /* layoutRev 45: voz cálida multiidioma + caption der. · sin succión · outro corto · v20261001f */
         /* layoutRev 46: Completo j scroll/parade + splash f → v20261001k */
+        /* layoutRev 47: restore parade j + ensure overflow + restart post-splash → v20261001k2 */
         /* + v20261001i: maestro pacing lento + Teatro v20261001a sync */
         /* layoutRev 39: curiosidad cards (nombre grande · tap amplía · módulo) · Notas/Vaciar · v20260930m */
         if (typeof state.layoutRev !== 'number' || state.layoutRev < 39) {
@@ -10195,6 +10247,15 @@
         if (pendingFirstRun) {
           showFirstRun();
         }
+        /* k2: desk may have laid out under splash overlay — restart parade when visible */
+        requestAnimationFrame(function () {
+          requestAnimationFrame(function () {
+            try { startShelfDrift(); updateShelfOverflow(); } catch (eP) {}
+            setTimeout(function () {
+              try { startShelfDrift(); updateShelfOverflow(); } catch (eP2) {}
+            }, 200);
+          });
+        });
       });
     }
 
