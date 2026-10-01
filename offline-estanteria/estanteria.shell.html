@@ -706,6 +706,15 @@
     white-space: pre-line;
   }
   #lv-entry-splash .lv-splash-caption.show { opacity: 1; }
+  #lv-entry-splash .lv-splash-caption .lv-cap-line {
+    display: block;
+    line-height: 1.2;
+    margin: 0.1rem 0;
+  }
+  #lv-entry-splash .lv-splash-caption .lv-cap-line.dim {
+    opacity: .42;
+    font-size: 0.84em;
+  }
   #lv-entry-splash .lv-splash-caption .lv-cap-lang {
     display: block;
     margin-top: 0.35rem;
@@ -2840,9 +2849,9 @@
 <body class="theme-ambar">
   <div id="lv-entry-splash" hidden>
     <video id="lv-splash-vid" playsinline muted autoplay preload="auto">
-      <source src="brand/splash/entrada.mp4?v=20261001k3" type="video/mp4">
+      <source src="brand/splash/entrada.mp4?v=20261001h" type="video/mp4">
     </video>
-    <audio id="lv-splash-audio" preload="auto" src="brand/splash/entrada-sonido.m4a?v=20261001k3"></audio>
+    <audio id="lv-splash-audio" preload="auto" src="brand/splash/entrada-sonido.m4a?v=20261001h"></audio>
     <audio id="lv-splash-hi" preload="auto"></audio>
     <audio id="lv-splash-cierre" preload="auto"></audio>
     <div class="lv-splash-stub" aria-hidden="true"></div>
@@ -9220,6 +9229,7 @@
     }
 
     function runEntrySplash(thenFn) {
+
       var splash = document.getElementById('lv-entry-splash');
       var vid = document.getElementById('lv-splash-vid');
       var aud = document.getElementById('lv-splash-audio');
@@ -9230,28 +9240,47 @@
       var caption = document.getElementById('lv-splash-caption');
       var done = false;
       var soundUnlocked = false;
-      var cierrePlayed = false;
-      var hiPlayed = false;
-      /* Shorten outro: hello early; «te queremos» @ BYE_AT (no adiós); cut dead tail → Estantería. */
-      var BYE_AT = 8.55;
-      var FINISH_AT = 9.70;
-      var HELLO_AT = 0.28;
-      var V = '20261001g';
-      var LANGS = [{"id": "es", "label": "Español", "hi": "voz/hi-es.m4a", "bye": "voz/bye-es.m4a", "hiText": "¡Hola!", "byeText": "Te queremos"}, {"id": "ru", "label": "Русский", "hi": "voz/hi-ru.m4a", "bye": "voz/bye-ru.m4a", "hiText": "Привет!", "byeText": "Мы вас любим"}, {"id": "ko", "label": "한국어", "hi": "voz/hi-ko.m4a", "bye": "voz/bye-ko.m4a", "hiText": "안녕하세요!", "byeText": "사랑해요"}, {"id": "ro", "label": "Română", "hi": "voz/hi-ro.m4a", "bye": "voz/bye-ro.m4a", "hiText": "Bună!", "byeText": "Te iubim"}, {"id": "fr", "label": "Français", "hi": "voz/hi-fr.m4a", "bye": "voz/bye-fr.m4a", "hiText": "Bonjour!", "byeText": "On t'aime"}, {"id": "en", "label": "English", "hi": "voz/hi-en.m4a", "bye": "voz/bye-en.m4a", "hiText": "Hello!", "byeText": "We love you"}, {"id": "it", "label": "Italiano", "hi": "voz/hi-it.m4a", "bye": "voz/bye-it.m4a", "hiText": "Ciao!", "byeText": "Ti vogliamo bene"}, {"id": "pt", "label": "Português", "hi": "voz/hi-pt.m4a", "bye": "voz/bye-pt.m4a", "hiText": "Olá!", "byeText": "A gente te quer"}, {"id": "de", "label": "Deutsch", "hi": "voz/hi-de.m4a", "bye": "voz/bye-de.m4a", "hiText": "Hallo!", "byeText": "Wir haben dich lieb"}, {"id": "ja", "label": "日本語", "hi": "voz/hi-ja.m4a", "bye": "voz/bye-ja.m4a", "hiText": "こんにちは", "byeText": "大好き"}];
-      var pair = pickSplashLangPair(LANGS);
-      var hiLang = pair.hi;
-      var byeLang = pair.bye;
+      var lovePlayed = false;
+      var chorusStarted = false;
+      /* h: finish with Jorge melody (~6.86s); chorus greetings; love near warm end; NO adiós. */
+      var CHORUS_AT = 0.20;
+      var CHORUS_STEP = 0.20;
+      var CHORUS_N = 7;
+      var LOVE_AT = 4.55;
+      var FINISH_AT = 6.86;
+      var V = '20261001h';
+      var LANGS = [{"id":"es","label":"Español","voice":"es-MX-DaliaNeural","hi":"voz/hi-es.m4a","bye":"voz/bye-es.m4a","hiText":"¡Hola!","byeText":"Te queremos"},{"id":"en","label":"English","voice":"en-US-JennyNeural","hi":"voz/hi-en.m4a","bye":"voz/bye-en.m4a","hiText":"Hello!","byeText":"We love you"},{"id":"fr","label":"Français","voice":"fr-FR-DeniseNeural","hi":"voz/hi-fr.m4a","bye":"voz/bye-fr.m4a","hiText":"Bonjour!","byeText":"On t'aime"},{"id":"pt","label":"Português","voice":"pt-BR-FranciscaNeural","hi":"voz/hi-pt.m4a","bye":"voz/bye-pt.m4a","hiText":"Olá!","byeText":"A gente te quer"},{"id":"it","label":"Italiano","voice":"it-IT-IsabellaNeural","hi":"voz/hi-it.m4a","bye":"voz/bye-it.m4a","hiText":"Ciao!","byeText":"Ti vogliamo bene"},{"id":"de","label":"Deutsch","voice":"de-DE-AmalaNeural","hi":"voz/hi-de.m4a","bye":"voz/bye-de.m4a","hiText":"Hallo!","byeText":"Wir haben dich lieb"},{"id":"ro","label":"Română","voice":"ro-RO-AlinaNeural","hi":"voz/hi-ro.m4a","bye":"voz/bye-ro.m4a","hiText":"Bună!","byeText":"Te iubim"},{"id":"ru","label":"Русский","voice":"ru-RU-SvetlanaNeural","hi":"voz/hi-ru.m4a","bye":"voz/bye-ru.m4a","hiText":"Привет!","byeText":"Мы вас любим"},{"id":"ja","label":"日本語","voice":"ja-JP-NanamiNeural","hi":"voz/hi-ja.m4a","bye":"voz/bye-ja.m4a","hiText":"こんにちは","byeText":"大好き"},{"id":"ko","label":"한국어","voice":"ko-KR-SunHiNeural","hi":"voz/hi-ko.m4a","bye":"voz/bye-ko.m4a","hiText":"안녕하세요!","byeText":"사랑해요"}];
+      var cast = pickSplashChorus(LANGS, CHORUS_N);
+      var chorusLangs = cast.chorus;
+      var loveLang = cast.love;
+      var chorusFired = {};
+      var capStack = [];
+      var chorusAudios = [];
 
-      function setCaption(text, langLabel) {
+      function setCaptionStack(text, langLabel, stackMode) {
         if (!caption) return;
         var safe = String(text || '').replace(/</g, '&lt;');
         var lang = String(langLabel || '').replace(/</g, '&lt;');
-        caption.innerHTML = safe + (lang ? '<span class="lv-cap-lang">' + lang + '</span>' : '');
+        if (stackMode) {
+          capStack.push({ t: safe, l: lang });
+          if (capStack.length > 4) capStack.shift();
+        } else {
+          capStack = [{ t: safe, l: lang }];
+        }
+        var html = '';
+        for (var i = 0; i < capStack.length; i++) {
+          var dim = i < capStack.length - 1 ? ' dim' : '';
+          html += '<span class="lv-cap-line' + dim + '">' + capStack[i].t + '</span>';
+        }
+        if (capStack.length) {
+          html += '<span class="lv-cap-lang">' + (capStack[capStack.length - 1].l || '') + '</span>';
+        }
+        caption.innerHTML = html;
         caption.classList.add('show');
       }
       function hideCaptionSoon(ms) {
         if (!caption) return;
-        setTimeout(function () { try { caption.classList.remove('show'); } catch (eH) {} }, ms || 2200);
+        setTimeout(function () { try { caption.classList.remove('show'); } catch (eH) {} }, ms || 1800);
       }
       function playClip(el, relPath) {
         if (!el || !relPath) return false;
@@ -9264,26 +9293,46 @@
           return true;
         } catch (eP) { return false; }
       }
-      function playHello() {
-        if (hiPlayed) return;
-        hiPlayed = true;
-        setCaption(hiLang.hiText, hiLang.label);
-        playClip(hiAud, hiLang.hi);
-        hideCaptionSoon(2600);
+      function ensureChorusAudios() {
+        if (chorusAudios.length) return;
+        for (var i = 0; i < chorusLangs.length; i++) {
+          var a = document.createElement('audio');
+          a.preload = 'auto';
+          a.setAttribute('data-lv-chorus', String(i));
+          if (splash) splash.appendChild(a);
+          chorusAudios.push(a);
+        }
       }
-      function playBye() {
-        if (cierrePlayed) return;
-        cierrePlayed = true;
-        setCaption(byeLang.byeText, byeLang.label);
-        playClip(cierre, byeLang.bye);
-        /* keep «te queremos» audible through fade — do not hard-stop it immediately */
+      function playChorusHit(i) {
+        if (chorusFired[i]) return;
+        chorusFired[i] = true;
+        var L = chorusLangs[i];
+        if (!L) return;
+        ensureChorusAudios();
+        setCaptionStack(L.hiText, L.label, true);
+        playClip(chorusAudios[i], L.hi);
+      }
+      function tickChorus(t) {
+        for (var i = 0; i < chorusLangs.length; i++) {
+          if (t >= CHORUS_AT + i * CHORUS_STEP) playChorusHit(i);
+        }
+        if (!chorusStarted && t >= CHORUS_AT) chorusStarted = true;
+      }
+      function playLove() {
+        if (lovePlayed) return;
+        lovePlayed = true;
+        setCaptionStack(loveLang.byeText, loveLang.label, false);
+        playClip(cierre || hiAud, loveLang.bye);
       }
 
-      function stopSplashAudio(keepBye) {
+      function stopSplashAudio(keepLove) {
         try { if (aud) { aud.pause(); aud.currentTime = 0; } } catch (eA) {}
         try { if (hiAud) { hiAud.pause(); hiAud.currentTime = 0; } } catch (eH) {}
-        if (!keepBye) {
-          try { if (cierre) { cierre.pause(); cierre.currentTime = 0; } } catch (eC) {}
+        for (var i = 0; i < chorusAudios.length; i++) {
+          try { chorusAudios[i].pause(); chorusAudios[i].currentTime = 0; } catch (eC) {}
+        }
+        if (!keepLove) {
+          try { if (cierre) { cierre.pause(); cierre.currentTime = 0; } } catch (eL) {}
         }
       }
 
@@ -9292,9 +9341,12 @@
         done = true;
         try { sessionStorage.setItem('lv-splash-v8', '1'); } catch (e) {}
         try {
-          if (vid && !isNaN(vid.currentTime) && vid.currentTime >= (BYE_AT - 0.4)) playBye();
+          if (vid && !isNaN(vid.currentTime) && vid.currentTime >= (LOVE_AT - 0.35)) playLove();
         } catch (eNear) {}
         try { if (aud) { aud.pause(); } } catch (eA) {}
+        for (var i = 0; i < chorusAudios.length; i++) {
+          try { chorusAudios[i].pause(); } catch (eC2) {}
+        }
         try { if (hiAud) { hiAud.pause(); } } catch (eH) {}
         try { if (vid) { vid.pause(); } } catch (eV) {}
         if (splash) {
@@ -9304,8 +9356,7 @@
             stopSplashAudio(true);
             splash.hidden = true;
             if (typeof thenFn === 'function') thenFn();
-            /* stop love clip a bit later so «te queremos» can finish warmly */
-            setTimeout(function () { stopSplashAudio(false); }, 1800);
+            setTimeout(function () { stopSplashAudio(false); }, 1600);
           }, 420);
         } else if (typeof thenFn === 'function') {
           thenFn();
@@ -9322,18 +9373,20 @@
 
       splash.hidden = false;
       if (skip) skip.onclick = finish;
+      ensureChorusAudios();
 
       var reduced = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
       if (reduced || !vid) {
         splash.classList.add('fallback');
-        setCaption(hiLang.hiText, hiLang.label);
-        playClip(hiAud, hiLang.hi);
-        setTimeout(finish, 2200);
+        setCaptionStack(chorusLangs[0].hiText, chorusLangs[0].label, false);
+        playClip(hiAud, chorusLangs[0].hi);
+        setTimeout(function () { playLove(); }, 900);
+        setTimeout(finish, 2800);
         return;
       }
 
-      /* Safety just past shortened FINISH_AT (was 14s for full 12s video) */
-      var safety = setTimeout(finish, 11500);
+      /* Safety just past FINISH_AT (= melody end) */
+      var safety = setTimeout(finish, 8200);
       vid.addEventListener('ended', function () { clearTimeout(safety); finish(); });
       vid.addEventListener('error', function () {
         clearTimeout(safety);
@@ -9344,8 +9397,8 @@
         if (done) return;
         try {
           var t = vid.currentTime;
-          if (!hiPlayed && t >= HELLO_AT) playHello();
-          if (!cierrePlayed && t >= BYE_AT) playBye();
+          tickChorus(t);
+          if (!lovePlayed && t >= LOVE_AT) playLove();
           if (t >= FINISH_AT) { clearTimeout(safety); finish(); }
         } catch (eT) {}
       });
@@ -9360,7 +9413,7 @@
               ap.then(function () {
                 soundUnlocked = true;
                 splash.classList.remove('need-gesture');
-                if (!hiPlayed) playHello();
+                tickChorus(vid && vid.currentTime || 0);
               }).catch(function () {
                 splash.classList.add('need-gesture');
               });
@@ -9388,7 +9441,7 @@
         if (done) return;
         if (ev) { try { ev.preventDefault(); } catch (e4) {} }
         playSound();
-        if (!hiPlayed) playHello();
+        tickChorus(vid && vid.currentTime || CHORUS_AT);
         try {
           vid.muted = true;
           var up = vid.play();
@@ -9415,7 +9468,7 @@
       if (p && typeof p.then === 'function') {
         p.then(function () {
           if (!soundUnlocked) tryPlayMelody();
-          if (!hiPlayed) playHello();
+          tickChorus(vid.currentTime || 0);
         }).catch(function () {
           clearTimeout(safety);
           splash.classList.add('fallback');
@@ -9424,20 +9477,28 @@
       } else if (!soundUnlocked) {
         splash.classList.add('need-gesture');
       }
+
     }
 
-    /** Round-robin language pairs: each visit 1 or 2 langs (hello / te queremos). */
-    function pickSplashLangPair(LANGS) {
+
+    /** Round-robin chorus cast: 7 staggered greetings + one love line (no goodbye). */
+    function pickSplashChorus(LANGS, nChorus) {
       var n = LANGS.length;
       var idx = 0;
       try { idx = parseInt(localStorage.getItem('lv-splash-voz-i') || '0', 10) || 0; } catch (eI) { idx = 0; }
       if (idx < 0) idx = 0;
-      var hi = LANGS[idx % n];
-      /* Every 3rd visit: same language for hello+love ("uno"); else two langs ("dos"). */
-      var oneLang = (idx % 3 === 0);
-      var bye = oneLang ? hi : LANGS[(idx + 1 + (idx % 5)) % n];
+      var chorus = [];
+      var count = Math.min(nChorus || 7, n);
+      for (var i = 0; i < count; i++) chorus.push(LANGS[(idx + i) % n]);
+      var love = LANGS[(idx + 3) % n];
       try { localStorage.setItem('lv-splash-voz-i', String(idx + 1)); } catch (eS) {}
-      return { hi: hi, bye: bye, idx: idx };
+      return { chorus: chorus, love: love, idx: idx };
+    }
+
+    function pickSplashLangPair(LANGS) {
+      /* back-compat alias */
+      var c = pickSplashChorus(LANGS, 2);
+      return { hi: c.chorus[0], bye: c.love, idx: c.idx };
     }
 
     function init() {
