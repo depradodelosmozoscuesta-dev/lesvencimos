@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0E0E0C">
+<title>Valladolid offline — Les vencimos</title>
+<link rel="stylesheet" href="vendor/leaflet.css">
+<style>
+:root{--fondo:#0E0E0C;--fondo-2:#161512;--fondo-3:#1C1A16;--tinta:#E6E1D6;--suave:#9A9488;--acento:#C4A15A;--linea:rgba(230,225,214,.14);--sans:system-ui,-apple-system,sans-serif;--peligro:#C46A4A;--ok:#2ECC71}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;background:var(--fondo);color:var(--tinta);font-family:var(--sans)}
+body{display:flex;flex-direction:column}
+header{padding:.55rem .75rem .5rem;border-bottom:1px solid var(--linea);background:var(--fondo-2);flex:0 0 auto}
+header h1{margin:0;font-size:1.02rem;font-weight:600}
+header p{margin:.15rem 0 0;color:var(--suave);font-size:.7rem;line-height:1.35}
+.tools{display:flex;flex-wrap:wrap;gap:.35rem;margin-top:.4rem;align-items:center}
+.search{display:flex;gap:.35rem;flex:1 1 12rem;min-width:10rem;position:relative}
+.search input{flex:1;min-height:40px;padding:.35rem .55rem;background:var(--fondo-3);border:1px solid var(--linea);color:var(--tinta);border-radius:2px;font:inherit}
+.search button,.chip,button.loc{min-height:40px;padding:0 .7rem;border-radius:2px;font-weight:600;font:inherit;cursor:pointer;border:1px solid var(--linea);background:var(--fondo-3);color:var(--tinta)}
+.search button{background:var(--acento);color:#1A160E;border-color:var(--acento)}
+button.loc{font-size:.78rem}
+.chips{display:flex;flex-wrap:wrap;gap:.3rem}
+.chip{font-size:.72rem;padding:0 .55rem;min-height:34px}
+.chip.on{background:rgba(196,161,90,.25);border-color:var(--acento);color:var(--acento)}
+#suggest{position:absolute;left:0;right:2.6rem;top:100%;z-index:1000;background:var(--fondo-3);border:1px solid var(--linea);max-height:11rem;overflow:auto;display:none}
+#suggest button{display:block;width:100%;text-align:left;background:transparent;border:0;border-bottom:1px solid var(--linea);color:var(--tinta);padding:.45rem .55rem;font:inherit;cursor:pointer;min-height:36px}
+#suggest button:hover,#suggest button:focus{background:rgba(196,161,90,.15)}
+#map{flex:1 1 auto;min-height:0;background:#1a1814}
+.bar{padding:.4rem .75rem;border-top:1px solid var(--linea);background:var(--fondo-2);font-size:.72rem;color:var(--suave);flex:0 0 auto}
+.bar strong{color:var(--tinta)}
+.leaflet-container{background:#1a1814;font:inherit}
+.leaflet-control-attribution{font-size:10px!important;background:rgba(14,14,12,.85)!important;color:var(--suave)!important}
+.leaflet-control-attribution a{color:var(--acento)!important}
+.leaflet-control-layers{background:var(--fondo-2)!important;color:var(--tinta)!important;border:1px solid var(--linea)!important}
+.leaflet-control-layers label{font-size:12px}
+.msg{font-size:.72rem;color:var(--suave);margin:.3rem 0 0}
+.msg.err{color:var(--peligro)}
+.msg.ok{color:var(--ok)}
+</style>
+</head>
+<body>
+<header>
+  <h1>Valladolid offline</h1>
+  <p id="sub">Calles + POI · bbox metro · zoom 10–16 · © OSM ODbL · capas y búsqueda</p>
+  <div class="tools">
+    <div class="search">
+      <input id="q" type="search" placeholder="Calle, farmacia, barrio…" autocomplete="off" enterkeyhint="search">
+      <div id="suggest" role="listbox"></div>
+      <button type="button" id="btnGo">Ir</button>
+    </div>
+    <button type="button" class="loc" id="btnLoc" title="Usar GPS del aparato">📍 GPS</button>
+  </div>
+  <div class="chips" id="chips" aria-label="Filtros rápidos"></div>
+  <p class="msg" id="status" role="status"></p>
+</header>
+<div id="map" role="application" aria-label="Mapa offline"></div>
+<div class="bar">Incluido en la app · Leaflet local · Datos <strong>© OpenStreetMap</strong> · <strong>ODbL</strong> · lesvencimos.com</div>
+<script src="vendor/leaflet.js"></script>
+<script>
+(function(){
+  'use strict';
+  var CFG = {"mode": "va", "center": [41.6523, -4.7245], "zoom": 13, "minZoom": 10, "maxZoom": 17, "fitSpain": false};
+  var map = L.map('map', { zoomControl: true, attributionControl: true })
+    .setView(CFG.center, CFG.zoom);
+  map.setMinZoom(CFG.minZoom);
+  map.setMaxZoom(CFG.maxZoom);
+  L.control.scale({ imperial: false }).addTo(map);
+
+  var layers = {
+    calles: L.layerGroup(),
+    agua: L.layerGroup(),
+    rail: L.layerGroup(),
+    poi: L.layerGroup(),
+    lugares: L.layerGroup(),
+    esquemas: L.layerGroup()
+  };
+  Object.keys(layers).forEach(function(k){ layers[k].addTo(map); });
+
+  var overlays = {};
+  if (CFG.mode === 'va') {
+    overlays = {
+      'Calles': layers.calles,
+      'Agua / ríos': layers.agua,
+      'Ferrocarril': layers.rail,
+      'POI': layers.poi,
+      'Barrios / lugares': layers.lugares
+    };
+  } else {
+    overlays = {
+      'Ciudades / pueblos': layers.lugares,
+      'Aeropuertos / puertos': layers.poi,
+      'Corredores A/AP (esquema)': layers.calles,
+      'Ríos (esquema)': layers.agua,
+      'CCAA / contornos': layers.esquemas
+    };
+  }
+  L.control.layers(null, overlays, { collapsed: true }).addTo(map);
+
+  var index = []; /* {name, latlng, kind, layer} */
+  var meMarker = null;
+  var statusEl = document.getElementById('status');
+  function setStatus(t, kind){
+    statusEl.textContent = t || '';
+    statusEl.className = 'msg' + (kind ? ' ' + kind : '');
+  }
+
+  function roadStyle(f){
+    var p = f.properties || {};
+    var hw = p.highway || '';
+    var weight = 1.2, color = '#6a655c', opacity = 0.85;
+    if (p.kind === 'motorway_schema' || hw.indexOf('motorway') === 0 || hw.indexOf('trunk') === 0) { color = '#C4A15A'; weight = CFG.mode==='es' ? 2.4 : 3; }
+    else if (hw.indexOf('primary') === 0) { color = '#d4b878'; weight = 2.4; }
+    else if (hw.indexOf('secondary') === 0) { color = '#9A9488'; weight = 2; }
+    else if (hw.indexOf('tertiary') === 0) { color = '#8a8478'; weight = 1.6; }
+    else if (hw === 'cycleway' || hw === 'pedestrian') { color = '#5a6a5a'; weight = 1; opacity = 0.7; }
+    var o = { color: color, weight: weight, opacity: opacity };
+    if (p.railway) { o.color = '#7a6a8a'; o.weight = 1.5; o.dashArray = '4 3'; }
+    if (p.waterway || p.kind === 'waterway_schema') { o.color = '#4a7a9a'; o.weight = CFG.mode==='es' ? 2 : 1.4; o.dashArray = null; }
+    return o;
+  }
+  var outlineStyle = { color: '#C4A15A', weight: 1.5, fillColor: '#2a261e', fillOpacity: 0.28 };
+
+  function popupHtml(p){
+    var bits = ['<strong>' + (p.name || p.ref || '—') + '</strong>'];
+    if (p.ref && p.name) bits.push(p.ref);
+    ['amenity','shop','tourism','place','highway','railway','waterway','kind'].forEach(function(k){
+      if (p[k] && k !== 'kind') bits.push(k + ': ' + p[k]);
+      else if (k === 'kind' && p.kind && (p.kind.indexOf('schema')>=0 || p.kind==='region_label' || p.kind==='outline' || p.kind==='airport' || p.kind==='port'))
+        bits.push(p.kind.replace('_',' '));
+    });
+    return bits.join('<br>');
+  }
+
+  function pointToLayer(f, latlng){
+    var p = f.properties || {};
+    var r = 4, fill = '#C4A15A';
+    if (p.amenity === 'hospital' || p.amenity === 'clinic') fill = '#C46A4A';
+    else if (p.amenity === 'pharmacy') fill = '#2ECC71';
+    else if (p.amenity === 'school' || p.amenity === 'university' || p.amenity === 'college') fill = '#4A9BE8';
+    else if (p.amenity === 'fuel') fill = '#E8A04A';
+    else if (p.railway === 'station' || p.amenity === 'bus_station' || p.highway === 'bus_stop') fill = '#B45CFF';
+    else if (p.amenity === 'airport' || p.kind === 'airport') { r = 6; fill = '#6EC6FF'; }
+    else if (p.kind === 'port') { r = 5; fill = '#5A9BFF'; }
+    else if (p.kind === 'region_label') { r = 0.5; fill = 'transparent'; }
+    else if (p.place === 'city') { r = CFG.mode==='es' ? 6 : 7; fill = '#E8B84A'; }
+    else if (p.place === 'town') { r = 5; fill = '#C4A15A'; }
+    else if (p.place) { r = 3.5; fill = '#9A9488'; }
+    return L.circleMarker(latlng, { radius: r, color: '#0E0E0C', weight: 1, fillColor: fill, fillOpacity: p.kind==='region_label' ? 0 : 0.95 });
+  }
+
+  function pickGroup(f){
+    var p = f.properties || {};
+    var g = f.geometry || {};
+    if (p.kind === 'outline' || p.kind === 'region_label') return layers.esquemas;
+    if (p.waterway || p.kind === 'waterway_schema') return layers.agua;
+    if (p.railway) return layers.rail;
+    if (p.kind === 'motorway_schema' || (p.highway && p.highway !== 'bus_stop')) return layers.calles;
+    if (p.place && g.type === 'Point') return layers.lugares;
+    if (g.type === 'Point') return layers.poi;
+    if (g.type === 'Polygon' || g.type === 'MultiPolygon') return layers.esquemas;
+    return layers.calles;
+  }
+
+  function indexFeature(f, layer){
+    var p = f.properties || {};
+    var name = p.name || p.ref || '';
+    if (!name) return;
+    var latlng = null;
+    if (layer.getLatLng) latlng = layer.getLatLng();
+    else if (layer.getBounds) {
+      try { latlng = layer.getBounds().getCenter(); } catch(e) {}
+    }
+    if (!latlng) return;
+    var kind = 'lugar';
+    if (p.highway) kind = 'calle';
+    else if (p.amenity || p.shop || p.tourism || p.kind === 'airport' || p.kind === 'port') kind = 'poi';
+    else if (p.kind === 'motorway_schema') kind = 'vía';
+    else if (p.kind === 'region_label') kind = 'región';
+    else if (p.place) kind = p.place;
+    index.push({ name: name, latlng: latlng, kind: kind, props: p, layer: layer });
+  }
+
+  function onEach(f, layer){
+    var p = f.properties || {};
+    var name = p.name || p.ref || '';
+    if (name) {
+      if (f.geometry && f.geometry.type === 'Point') {
+        layer.bindTooltip(name, { direction: 'top', opacity: 0.9, permanent: p.kind === 'region_label' });
+      }
+      layer.bindPopup(popupHtml(p));
+    }
+    indexFeature(f, layer);
+    /* bus_stop points often tagged highway=bus_stop on Point */
+  }
+
+  function style(f){
+    var p = f.properties || {};
+    if (p.kind === 'outline') return outlineStyle;
+    if (f.geometry && (f.geometry.type === 'LineString' || f.geometry.type === 'MultiLineString')) return roadStyle(f);
+    if (f.geometry && (f.geometry.type === 'Polygon' || f.geometry.type === 'MultiPolygon')) return outlineStyle;
+    return {};
+  }
+
+  /* Custom GeoJSON add that routes to groups */
+  fetch('data.geojson').then(function(r){
+    if (!r.ok) throw new Error('No se pudo cargar data.geojson');
+    return r.json();
+  }).then(function(geo){
+    var n = (geo.features || []).length;
+    (geo.features || []).forEach(function(f){
+      var grp = pickGroup(f);
+      L.geoJSON(f, { style: style, pointToLayer: pointToLayer, onEachFeature: onEach }).eachLayer(function(ly){
+        grp.addLayer(ly);
+      });
+    });
+    var meta = geo.meta || {};
+    if (meta.coverage) document.getElementById('sub').textContent = meta.coverage;
+    else if (meta.honest_limit) document.getElementById('sub').textContent = meta.honest_limit;
+    /* initial view: prefer meta.bbox */
+    if (meta.bbox && meta.bbox.length === 4) {
+      try {
+        map.fitBounds([[meta.bbox[1], meta.bbox[0]], [meta.bbox[3], meta.bbox[2]]], { padding: [20,20] });
+      } catch(e) {}
+    } else if (CFG.fitSpain) {
+      map.setView(CFG.center, CFG.zoom);
+    }
+    setStatus(n + ' elementos · búsqueda lista. Capas: icono ☰ / capas arriba a la derecha.', 'ok');
+    buildChips();
+  }).catch(function(err){
+    setStatus('Error cargando datos: ' + err.message + '. Abre ABRE-AQUI.html desde la carpeta del pack.', 'err');
+  });
+
+  var CHIP_DEFS_VA = [
+    { id: 'pharmacy', label: 'Farmacias', test: function(p){ return p.amenity==='pharmacy'; } },
+    { id: 'health', label: 'Salud', test: function(p){ return p.amenity==='hospital'||p.amenity==='clinic'||p.amenity==='doctors'; } },
+    { id: 'fuel', label: 'Gasolineras', test: function(p){ return p.amenity==='fuel'; } },
+    { id: 'food', label: 'Supermercados', test: function(p){ return p.shop==='supermarket'||p.shop==='convenience'; } },
+    { id: 'school', label: 'Colegios', test: function(p){ return p.amenity==='school'||p.amenity==='university'||p.amenity==='college'; } },
+    { id: 'tour', label: 'Turismo', test: function(p){ return !!p.tourism; } }
+  ];
+  var CHIP_DEFS_ES = [
+    { id: 'city', label: 'Ciudades', test: function(p){ return p.place==='city'; } },
+    { id: 'town', label: 'Pueblos', test: function(p){ return p.place==='town'; } },
+    { id: 'air', label: 'Aeropuertos', test: function(p){ return p.kind==='airport'||p.amenity==='airport'; } },
+    { id: 'port', label: 'Puertos', test: function(p){ return p.kind==='port'; } },
+    { id: 'via', label: 'A/AP', test: function(p){ return p.kind==='motorway_schema'; } }
+  ];
+  var activeChip = null;
+  var chipHits = [];
+
+  function buildChips(){
+    var box = document.getElementById('chips');
+    box.innerHTML = '';
+    var defs = CFG.mode === 'va' ? CHIP_DEFS_VA : CHIP_DEFS_ES;
+    defs.forEach(function(d){
+      var b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'chip';
+      b.textContent = d.label;
+      b.addEventListener('click', function(){
+        if (activeChip === d.id) {
+          activeChip = null;
+          b.classList.remove('on');
+          clearChipHits();
+          setStatus('Filtro quitado.', '');
+          return;
+        }
+        Array.prototype.forEach.call(box.querySelectorAll('.chip'), function(x){ x.classList.remove('on'); });
+        b.classList.add('on');
+        activeChip = d.id;
+        showChip(d);
+      });
+      box.appendChild(b);
+    });
+  }
+  function clearChipHits(){
+    chipHits.forEach(function(m){ map.removeLayer(m); });
+    chipHits = [];
+  }
+  function showChip(d){
+    clearChipHits();
+    var n = 0;
+    index.forEach(function(it){
+      if (!d.test(it.props || {})) return;
+      n++;
+      if (n <= 80) {
+        var m = L.circleMarker(it.latlng, { radius: 7, color: '#C4A15A', weight: 2, fillColor: '#E8B84A', fillOpacity: 0.35 });
+        m.bindTooltip(it.name);
+        m.addTo(map);
+        chipHits.push(m);
+      }
+    });
+    setStatus(n ? (n + ' · ' + d.label + (n>80?' (resaltados 80)':'')) : ('Ningún ' + d.label + ' en este pack.'), n ? 'ok' : '');
+    if (chipHits.length) {
+      try {
+        var g = L.featureGroup(chipHits);
+        map.fitBounds(g.getBounds().pad(0.15));
+      } catch(e) {}
+    }
+  }
+
+  function norm(s){ return (s||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,''); }
+
+  function search(q){
+    q = norm(q);
+    if (!q || q.length < 1) return [];
+    var hits = [];
+    for (var i = 0; i < index.length; i++) {
+      var n = norm(index[i].name);
+      if (n.indexOf(q) >= 0) hits.push(index[i]);
+      if (hits.length >= 40) break;
+    }
+    hits.sort(function(a,b){
+      var an = norm(a.name), bn = norm(b.name);
+      var ap = an.indexOf(q) === 0 ? 0 : 1;
+      var bp = bn.indexOf(q) === 0 ? 0 : 1;
+      if (ap !== bp) return ap - bp;
+      return an.length - bn.length;
+    });
+    return hits;
+  }
+
+  var suggest = document.getElementById('suggest');
+  var qInput = document.getElementById('q');
+  function renderSuggest(hits){
+    suggest.innerHTML = '';
+    if (!hits.length) { suggest.style.display = 'none'; return; }
+    hits.slice(0,12).forEach(function(h){
+      var b = document.createElement('button');
+      b.type = 'button';
+      b.setAttribute('role','option');
+      b.textContent = h.name + ' · ' + h.kind;
+      b.addEventListener('click', function(){ goTo(h); suggest.style.display='none'; });
+      suggest.appendChild(b);
+    });
+    suggest.style.display = 'block';
+  }
+  function goTo(h){
+    var z = CFG.mode === 'es' ? Math.max(map.getZoom(), 8) : Math.max(map.getZoom(), 14);
+    if (h.kind === 'región') z = 7;
+    if (h.kind === 'vía') z = Math.max(map.getZoom(), 7);
+    map.setView(h.latlng, z);
+    if (h.layer && h.layer.openPopup) try { h.layer.openPopup(); } catch(e) {}
+    qInput.value = h.name;
+    setStatus('Ir a: ' + h.name, 'ok');
+  }
+  function goSearch(){
+    var hits = search(qInput.value);
+    if (!hits.length) { setStatus('No encontrado en este pack: ' + qInput.value, 'err'); suggest.style.display='none'; return; }
+    goTo(hits[0]);
+    suggest.style.display='none';
+  }
+  document.getElementById('btnGo').addEventListener('click', goSearch);
+  qInput.addEventListener('keydown', function(e){
+    if (e.key === 'Enter') { e.preventDefault(); goSearch(); }
+    if (e.key === 'Escape') suggest.style.display='none';
+  });
+  qInput.addEventListener('input', function(){
+    var v = qInput.value.trim();
+    if (v.length < 2) { suggest.style.display='none'; return; }
+    renderSuggest(search(v));
+  });
+  document.addEventListener('click', function(e){
+    if (!suggest.contains(e.target) && e.target !== qInput) suggest.style.display='none';
+  });
+
+  document.getElementById('btnLoc').addEventListener('click', function(){
+    if (!navigator.geolocation) { setStatus('Sin geolocalización en este navegador.', 'err'); return; }
+    setStatus('Pidiendo GPS…');
+    navigator.geolocation.getCurrentPosition(function(pos){
+      var ll = [pos.coords.latitude, pos.coords.longitude];
+      if (meMarker) map.removeLayer(meMarker);
+      meMarker = L.circleMarker(ll, { radius: 8, color: '#E6E1D6', weight: 2, fillColor: '#2ECC71', fillOpacity: 0.9 })
+        .bindPopup('Estás aquí (±' + Math.round(pos.coords.accuracy||0) + ' m)').addTo(map);
+      var z = CFG.mode === 'es' ? Math.max(map.getZoom(), 8) : Math.max(map.getZoom(), 14);
+      map.setView(ll, z);
+      meMarker.openPopup();
+      setStatus('GPS listo.', 'ok');
+    }, function(){
+      setStatus('No se pudo obtener GPS. Revisa permisos o sal al exterior.', 'err');
+    }, { enableHighAccuracy: true, timeout: 20000, maximumAge: 15000 });
+  });
+})();
+</script>
+</body>
+</html>
