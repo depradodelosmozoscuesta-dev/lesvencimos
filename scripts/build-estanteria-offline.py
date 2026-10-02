@@ -56,6 +56,7 @@ EMBED_SOURCES = {
     "auxilios": ROOT / "modulos" / "primeros-auxilios.html",
     "escritura": ROOT / "modulos" / "tinta-escritura.html",
     "dibujo": ROOT / "modulos" / "tinta-estudio.html",
+    "curso-dibujo": ROOT / "modulos" / "curso-dibujo.html",
     "info": ROOT / "modulos" / "informatica.html",
     "guias": ROOT / "modulos" / "guias-viaje.html",
     "mapas": ROOT / "modulos" / "mapas.html",
