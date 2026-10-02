@@ -97,6 +97,91 @@ button.loc{font-size:.78rem}
   }
   L.control.layers(null, overlays, { collapsed: true }).addTo(map);
 
+
+  /* Deep-link: ?lat=&lon=&z=&city=  or  #lat,lon,z  or  #city=nombre */
+  var CITY_COORDS = {
+    valladolid: [41.6523, -4.7245],
+    salamanca: [40.9701, -5.6635],
+    leon: [42.5987, -5.5671],
+    'león': [42.5987, -5.5671],
+    madrid: [40.4168, -3.7038],
+    barcelona: [41.3874, 2.1686],
+    sevilla: [37.3891, -5.9845]
+  };
+  function parseDeepLink(){
+    var out = {};
+    try {
+      var qs = (location.search || '').replace(/^\?/, '');
+      if (qs) qs.split('&').forEach(function(pair){
+        var i = pair.indexOf('=');
+        var k = i < 0 ? pair : pair.slice(0, i);
+        var v = i < 0 ? '' : pair.slice(i + 1);
+        if (!k) return;
+        try { k = decodeURIComponent(k.replace(/\+/g, ' ')); } catch(e) {}
+        try { v = decodeURIComponent(v.replace(/\+/g, ' ')); } catch(e2) {}
+        out[k.toLowerCase()] = v;
+      });
+    } catch(e3) {}
+    try {
+      var hash = (location.hash || '').replace(/^#/, '');
+      if (hash) {
+        if (/^city=/i.test(hash)) {
+          out.city = decodeURIComponent(hash.slice(5));
+        } else {
+          var parts = hash.split(',');
+          if (parts.length >= 2 && !isNaN(parseFloat(parts[0])) && !isNaN(parseFloat(parts[1]))) {
+            out.lat = parts[0]; out.lon = parts[1];
+            if (parts[2] && !isNaN(parseFloat(parts[2]))) out.z = parts[2];
+          }
+        }
+      }
+    } catch(e4) {}
+    return out;
+  }
+  var deep = parseDeepLink();
+  var deepPending = !!(deep.lat || deep.lon || deep.city);
+
+  function applyDeepLink(){
+    if (!deepPending) return false;
+    var lat = parseFloat(deep.lat);
+    var lon = parseFloat(deep.lon);
+    var z = parseInt(deep.z, 10);
+    var cityRaw = (deep.city || '').trim();
+    var cityKey = norm(cityRaw);
+    var ll = null;
+    var label = '';
+    if (!isNaN(lat) && !isNaN(lon)) {
+      ll = [lat, lon];
+      label = cityRaw || (lat.toFixed(4) + ', ' + lon.toFixed(4));
+    } else if (cityKey) {
+      if (CITY_COORDS[cityKey]) {
+        ll = CITY_COORDS[cityKey];
+        label = cityRaw;
+      } else if (CITY_COORDS[cityRaw.toLowerCase()]) {
+        ll = CITY_COORDS[cityRaw.toLowerCase()];
+        label = cityRaw;
+      } else {
+        var hits = search(cityRaw);
+        if (hits.length) { goTo(hits[0]); deepPending = false; return true; }
+        setStatus('Ciudad no encontrada en este pack: ' + cityRaw, 'err');
+        deepPending = false;
+        return false;
+      }
+    }
+    if (!ll) { deepPending = false; return false; }
+    var zoom = !isNaN(z) ? z : (CFG.mode === 'es' ? 9 : 14);
+    zoom = Math.max(CFG.minZoom, Math.min(CFG.maxZoom, zoom));
+    map.setView(ll, zoom);
+    if (meMarker) try { map.removeLayer(meMarker); } catch(e5) {}
+    meMarker = L.circleMarker(ll, { radius: 8, color: '#C4A15A', weight: 2, fillColor: '#E8B84A', fillOpacity: 0.45 })
+      .bindPopup(label || 'Objetivo').addTo(map);
+    try { meMarker.openPopup(); } catch(e6) {}
+    if (label && qInput) qInput.value = label;
+    setStatus('Centrado desde guía: ' + (label || ll.join(', ')), 'ok');
+    deepPending = false;
+    return true;
+  }
+
   var index = []; /* {name, latlng, kind, layer} */
   var meMarker = null;
   var statusEl = document.getElementById('status');
@@ -217,15 +302,19 @@ button.loc{font-size:.78rem}
     var meta = geo.meta || {};
     if (meta.coverage) document.getElementById('sub').textContent = meta.coverage;
     else if (meta.honest_limit) document.getElementById('sub').textContent = meta.honest_limit;
-    /* initial view: prefer meta.bbox */
-    if (meta.bbox && meta.bbox.length === 4) {
-      try {
-        map.fitBounds([[meta.bbox[1], meta.bbox[0]], [meta.bbox[3], meta.bbox[2]]], { padding: [20,20] });
-      } catch(e) {}
-    } else if (CFG.fitSpain) {
-      map.setView(CFG.center, CFG.zoom);
+    /* initial view: prefer deep-link, else meta.bbox */
+    if (!applyDeepLink()) {
+      if (meta.bbox && meta.bbox.length === 4) {
+        try {
+          map.fitBounds([[meta.bbox[1], meta.bbox[0]], [meta.bbox[3], meta.bbox[2]]], { padding: [20,20] });
+        } catch(e) {}
+      } else if (CFG.fitSpain) {
+        map.setView(CFG.center, CFG.zoom);
+      }
+      setStatus(n + ' elementos · búsqueda lista. Capas: icono ☰ / capas arriba a la derecha.', 'ok');
+    } else {
+      setStatus(n + ' elementos · centrado desde enlace de guía.', 'ok');
     }
-    setStatus(n + ' elementos · búsqueda lista. Capas: icono ☰ / capas arriba a la derecha.', 'ok');
     buildChips();
   }).catch(function(err){
     setStatus('Error cargando datos: ' + err.message + '. Abre ABRE-AQUI.html desde la carpeta del pack.', 'err');
