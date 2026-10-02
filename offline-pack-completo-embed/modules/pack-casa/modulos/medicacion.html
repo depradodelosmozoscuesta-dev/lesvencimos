@@ -87,6 +87,12 @@ input,select{width:100%;min-height:48px;padding:.55rem .75rem;font:inherit;backg
 .hidden{display:none!important}
 #editId{display:none}
 .form-note{font-size:.85rem;color:var(--acento);margin:0 0 .75rem}
+
+.cat-bar{display:flex;flex-wrap:wrap;gap:.35rem;margin:.35rem 0 .85rem}
+.cat-bar button{min-height:40px;padding:0 .7rem;font:600 .78rem var(--sans);letter-spacing:.04em;border:1px solid var(--linea);border-radius:var(--radio);background:var(--fondo-3);color:var(--suave);cursor:pointer}
+.cat-bar button.on{background:var(--acento);color:var(--acento-texto);border-color:var(--acento)}
+.db-hit .cat{display:inline-block;font-size:.68rem;letter-spacing:.08em;text-transform:uppercase;color:var(--acento);border:1px solid rgba(196,161,90,.35);padding:.15rem .45rem;border-radius:var(--radio);margin-top:.2rem;margin-right:.35rem}
+
 </style>
 </head>
 <body>
@@ -143,8 +149,12 @@ input,select{width:100%;min-height:48px;padding:.55rem .75rem;font:inherit;backg
   <h2 style="margin-top:0">Base de medicinas (prospecto resumido)</h2>
   <p class="hint">Información general offline · consulta siempre el prospecto del envase · sin consejo personalizado de dosis</p>
   <label class="field"><span>Buscar por nombre</span><input id="dbSearch" autocomplete="off" placeholder="Ej. paracetamol, omeprazol, loratadina…"></label>
+  <div>
+    <span style="display:block;font-size:.78rem;letter-spacing:.08em;text-transform:uppercase;color:var(--suave);margin-bottom:.3rem">Categoría</span>
+    <div class="cat-bar" id="catBar" role="group" aria-label="Filtrar por categoría"></div>
+  </div>
   <div class="list" id="dbResults"></div>
-  <p class="empty" id="dbEmpty">Escribe al menos 2 letras para buscar en la base.</p>
+  <p class="empty" id="dbEmpty">Elige una categoría o escribe al menos 2 letras para buscar.</p>
 </section>
 
 <section class="panel hidden" id="fichaPanel" aria-live="polite">
@@ -156,7 +166,7 @@ input,select{width:100%;min-height:48px;padding:.55rem .75rem;font:inherit;backg
   <p class="hint" id="fichaDisclaimer"></p>
 </section>
 
-<p class="foot">localStorage · sin nube · Les vencimos · v20261002b</p>
+<p class="foot">localStorage · sin nube · Les vencimos · v20261002c</p>
 <script src="medicacion-db.js"></script>
 <script>
 (function(){
@@ -166,6 +176,23 @@ input,select{width:100%;min-height:48px;padding:.55rem .75rem;font:inherit;backg
   const DB = (typeof LV_MEDS_DB !== 'undefined' && Array.isArray(LV_MEDS_DB)) ? LV_MEDS_DB : [];
   const DB_DISC = (typeof LV_MEDS_DISCLAIMER !== 'undefined') ? LV_MEDS_DISCLAIMER :
     'Información general orientativa. No sustituye el prospecto oficial ni la indicación médica. Urgencias: 112.';
+
+  const CAT_LABELS = {
+    analgesico: 'Analgésico / fiebre',
+    digestivo: 'Digestivo',
+    alergia: 'Alergia',
+    respiratorio: 'Respiratorio / resfriado',
+    vitamina: 'Vitaminas / suplementos',
+    topico: 'Piel / tópicos',
+    cronico: 'Crónicos (solo info)',
+    pediatria: 'Pediatría (OTC)',
+    oftalmologia: 'Oftalmología OTC',
+    femenina: 'Salud femenina',
+    urologia: 'Urología / íntimo',
+    otro: 'Otros OTC'
+  };
+  const CAT_ORDER = ['pediatria','analgesico','digestivo','respiratorio','alergia','topico','oftalmologia','femenina','urologia','vitamina','cronico','otro'];
+  let catFilter = '';
 
   function load(){try{return JSON.parse(localStorage.getItem(KEY)||'[]')}catch(e){return[]}}
   function save(arr){localStorage.setItem(KEY,JSON.stringify(arr))}
@@ -300,38 +327,75 @@ input,select{width:100%;min-height:48px;padding:.55rem .75rem;font:inherit;backg
       .normalize('NFD').replace(/[\u0300-\u036f]/g,'');
   }
 
-  function searchDb(q){
+  function catLabel(c){
+    return CAT_LABELS[c] || c || 'Otros';
+  }
+
+  function searchDb(q, cat){
     q=norm(q).trim();
-    if(q.length<2) return [];
-    var parts=q.split(/\s+/).filter(Boolean);
-    return DB.filter(function(m){
-      var blob=norm([m.nombre,m.marca,m.presentacion,m.categoria].join(' '));
+    var parts=q.length>=2 ? q.split(/\s+/).filter(Boolean) : [];
+    var list=DB.filter(function(m){
+      if(cat && m.categoria!==cat) return false;
+      if(!parts.length) return !!cat; // categoría sola: listar todas de esa cat
+      var blob=norm([m.nombre,m.marca,m.presentacion,m.categoria,catLabel(m.categoria)].join(' '));
       return parts.every(function(p){ return blob.indexOf(p)>=0; });
-    }).slice(0,40);
+    });
+    // sin filtro ni búsqueda suficientemente larga
+    if(!cat && parts.length<1) return [];
+    return list.slice(0,60);
+  }
+
+  function renderCatBar(){
+    var bar=document.getElementById('catBar');
+    if(!bar) return;
+    bar.innerHTML='';
+    function addBtn(val, label){
+      var b=document.createElement('button');
+      b.type='button'; b.textContent=label;
+      b.setAttribute('aria-pressed', (catFilter===val)?'true':'false');
+      if(catFilter===val) b.classList.add('on');
+      b.onclick=function(){
+        catFilter = (catFilter===val) ? '' : val;
+        renderCatBar();
+        renderDb();
+      };
+      bar.appendChild(b);
+    }
+    addBtn('', 'Todas');
+    var present={};
+    DB.forEach(function(m){ if(m.categoria) present[m.categoria]=true; });
+    CAT_ORDER.forEach(function(c){
+      if(present[c]) addBtn(c, catLabel(c));
+    });
+    Object.keys(present).sort().forEach(function(c){
+      if(CAT_ORDER.indexOf(c)<0) addBtn(c, catLabel(c));
+    });
   }
 
   function renderDb(){
     var q=dbSearch.value||'';
-    var hits=searchDb(q);
+    var hits=searchDb(q, catFilter);
     dbResults.innerHTML='';
-    if((q.trim().length)<2){
+    var qok=(norm(q).trim().length)>=2;
+    if(!qok && !catFilter){
       dbEmpty.classList.remove('hidden');
-      dbEmpty.textContent= DB.length ? ('Escribe al menos 2 letras · '+DB.length+' fichas en la base.') : 'Base no cargada (falta medicacion-db.js).';
+      dbEmpty.textContent= DB.length ? ('Elige categoría o escribe ≥2 letras · '+DB.length+' fichas.') : 'Base no cargada (falta medicacion-db.js).';
       return;
     }
     if(!hits.length){
       dbEmpty.classList.remove('hidden');
-      dbEmpty.textContent='Sin coincidencias. Prueba el nombre genérico (ej. paracetamol).';
+      dbEmpty.textContent='Sin coincidencias. Prueba genérico (paracetamol) u otra categoría.';
       return;
     }
     dbEmpty.classList.add('hidden');
     hits.forEach(function(m){
       var b=document.createElement('button');
       b.type='button'; b.className='db-hit';
-      b.innerHTML='<strong></strong><span class="mk"></span><span class="pr"></span><span class="tag"></span>';
+      b.innerHTML='<strong></strong><span class="mk"></span><span class="pr"></span><span class="cat"></span><span class="tag"></span>';
       b.querySelector('strong').textContent=m.nombre;
       b.querySelector('.mk').textContent=m.marca||'';
       b.querySelector('.pr').textContent=m.presentacion||'';
+      b.querySelector('.cat').textContent=catLabel(m.categoria);
       b.querySelector('.tag').textContent='Ver prospecto resumido';
       b.onclick=function(){ openFicha(m); };
       dbResults.appendChild(b);
@@ -345,6 +409,11 @@ input,select{width:100%;min-height:48px;padding:.55rem .75rem;font:inherit;backg
     var badge=document.createElement('div'); badge.className='badge';
     badge.textContent='Información general · no es el prospecto del envase';
     fichaBody.appendChild(badge);
+    if(m.categoria){
+      var catb=document.createElement('div'); catb.className='badge';
+      catb.textContent='Categoría: '+catLabel(m.categoria);
+      fichaBody.appendChild(catb);
+    }
     if(m.marca){ var mk=document.createElement('p'); mk.className='marca'; mk.textContent='Marcas habituales (orientativo): '+m.marca; fichaBody.appendChild(mk); }
     var dl=document.createElement('dl');
     function add(dt, dd){

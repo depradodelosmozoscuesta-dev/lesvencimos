@@ -1,7 +1,7 @@
 /* Les vencimos — base de medicinas con prospecto RESUMIDO (offline)
  * Información general orientativa. NO sustituye prospecto oficial ni indicación médica.
  * Urgencias: 112. Sin recomendaciones personalizadas de dosis/tratamiento.
- * v20261002b
+ * v20261002c
  */
 (function (root) {
   'use strict';
@@ -863,6 +863,1044 @@
       "Mareo"
     ],
     "categoria": "analgesico"
+  },
+  {
+    "id": "paracetamol-pediatrico",
+    "nombre": "Paracetamol (suspensión / gotas pediátricas)",
+    "marca": "Apiretal, Febrectal, Gelocatil infantil…",
+    "presentacion": "Suspensión oral o gotas (concentración según envase; medir solo con el dosificador del producto)",
+    "usos": "Alivio de fiebre o dolor en niños cuando un pediatra o el prospecto del envase lo contemplan.",
+    "como": "Vía oral. Usa solo el dosificador del envase. La cantidad depende de peso/edad según el prospecto — no improvises ni uses cucharas de cocina. Ante duda: pediatra o farmacéutico.",
+    "avisos": "Consulta siempre al pediatra en lactantes, fiebre alta/prolongada, vómitos, letargo o si el niño no mejora. No combines varios productos con paracetamol. No es un diagnóstico ni una pauta prescrita.",
+    "efectos": [
+      "Molestias digestivas poco frecuentes",
+      "Reacciones alérgicas raras",
+      "Riesgo hepático si se supera lo indicado en el prospecto"
+    ],
+    "categoria": "pediatria"
+  },
+  {
+    "id": "ibuprofeno-pediatrico",
+    "nombre": "Ibuprofeno (suspensión pediátrica)",
+    "marca": "Dalsy, Junifen, Neobrufen infantil…",
+    "presentacion": "Suspensión oral (concentración según envase; dosificador incluido)",
+    "usos": "Fiebre o dolor con componente inflamatorio en niños, solo según prospecto o pediatra.",
+    "como": "Vía oral, preferible con algo de comida. Mide solo con el dosificador del envase. No inventes cantidades.",
+    "avisos": "No en deshidratación, vómitos intensos, problemas renales o alergia a AINE sin criterio médico. En niños pequeños o síntomas de alarma: consulta pediatra.",
+    "efectos": [
+      "Molestia gástrica",
+      "Acidez",
+      "Mareo",
+      "Mayor riesgo digestivo si se usa mal o mucho tiempo"
+    ],
+    "categoria": "pediatria"
+  },
+  {
+    "id": "simeticona-gotas",
+    "nombre": "Simeticona gotas (gases del bebé)",
+    "marca": "Aero-Red gotas, Flatuben, genéricos…",
+    "presentacion": "Gotas orales (concentración según envase)",
+    "usos": "Alivio sintomático de gases y cólicos leves cuando el pediatra o el prospecto lo contemplan.",
+    "como": "Vía oral según prospecto del envase. No sustituye valoración si el bebé llora mucho, no come o tiene fiebre.",
+    "avisos": "Si hay vómitos, diarrea, fiebre, sangre en heces o decaimiento: pediatra urgente. No es tratamiento de alergia ni de infección.",
+    "efectos": [
+      "Suele tolerarse bien",
+      "Molestia digestiva rara"
+    ],
+    "categoria": "pediatria"
+  },
+  {
+    "id": "sueroral-pediatrico",
+    "nombre": "Sales de rehidratación oral (uso infantil)",
+    "marca": "Sueroral, Farmasierra, genéricos…",
+    "presentacion": "Sobres para disolver en agua (seguir la dilución exacta del envase)",
+    "usos": "Reponer líquidos y sales en diarrea o vómitos leves, según pediatra o prospecto.",
+    "como": "Disuelve exactamente como indica el envase. Ofrece a sorbos. No sustituyas por bebidas azucaradas caseras.",
+    "avisos": "Si el niño no orina, está muy dormido, vomita todo, tiene sangre en heces o signos de deshidratación grave → urgencias/pediatra. Bebés muy pequeños: siempre criterio profesional.",
+    "efectos": [
+      "Náuseas si se bebe demasiado rápido",
+      "Hinchazón leve"
+    ],
+    "categoria": "pediatria"
+  },
+  {
+    "id": "suero-nasal-pediatrico",
+    "nombre": "Suero fisiológico nasal pediátrico",
+    "marca": "Sterimar Baby, Fisiomer, monodosis…",
+    "presentacion": "Spray o monodosis de suero isotónico",
+    "usos": "Limpieza suave de fosas nasales en congestión por resfriado o mocos.",
+    "como": "Según prospecto (suele ser en posición adecuada, sin forzar). No introduzcas objetos en la nariz.",
+    "avisos": "Si hay dificultad respiratoria, fiebre alta o el bebé no come: pediatra. No uses descongestionantes vasoconstrictores en lactantes sin indicación expresa.",
+    "efectos": [
+      "Escozor leve pasajero",
+      "Estornudos"
+    ],
+    "categoria": "pediatria"
+  },
+  {
+    "id": "oxido-zinc-panal",
+    "nombre": "Pasta / pomada de óxido de zinc (pañal)",
+    "marca": "Bepanthol pomada, Pasta Lassar, Mustela…",
+    "presentacion": "Pomada o pasta tópica",
+    "usos": "Protección e hidratación de la zona del pañal ante rozaduras leves.",
+    "como": "Aplicar en piel limpia y seca según prospecto. Cambios de pañal frecuentes ayudan más que cualquier crema.",
+    "avisos": "Si hay ampollas, pus, fiebre o no mejora: pediatra (puede ser infección). Evita productos con corticoide potente sin indicación.",
+    "efectos": [
+      "Manchas en ropa",
+      "Irritación rara si hay alergia a un componente"
+    ],
+    "categoria": "pediatria"
+  },
+  {
+    "id": "lactasa-gotas",
+    "nombre": "Lactasa (gotas / enzima)",
+    "marca": "Lactaid, Dilactasa, genéricos…",
+    "presentacion": "Gotas o comprimidos masticables (según envase)",
+    "usos": "Ayuda a digerir la lactosa en personas con intolerancia, cuando el prospecto lo indica (también hay presentaciones infantiles).",
+    "como": "Según prospecto (a menudo añadir a la leche o tomar con lácteos). No cura alergia a la proteína de la leche.",
+    "avisos": "Distingue intolerancia a lactosa de alergia a leche (esta última puede ser grave). En bebés: solo con criterio pediátrico. No sustituye dieta indicada por profesional.",
+    "efectos": [
+      "Suele tolerarse bien",
+      "Molestia digestiva rara"
+    ],
+    "categoria": "pediatria"
+  },
+  {
+    "id": "crema-hidratante-infantil",
+    "nombre": "Crema / loción hidratante infantil",
+    "marca": "Mustela, A-Derma, LetiAT4, genéricos…",
+    "presentacion": "Crema o loción emoliente",
+    "usos": "Hidratación de piel seca o tendencia atópica leve, como cuidado diario.",
+    "como": "Aplicar en piel limpia según prospecto. En dermatitis de verdad, el pediatra o dermatólogo marcan el plan.",
+    "avisos": "Si hay infección, costras amarillas o empeora: consulta. Evita perfumes fuertes en piel muy sensible.",
+    "efectos": [
+      "Grietas si no se hidrata",
+      "Irritación por fragancias en piel atópica"
+    ],
+    "categoria": "pediatria"
+  },
+  {
+    "id": "cetirizina-gotas-pedia",
+    "nombre": "Cetirizina (gotas / solución pediátrica)",
+    "marca": "Virlix, Zyrtec, genéricos…",
+    "presentacion": "Gotas o solución oral (edad mínima y cantidad: solo prospecto o pediatra)",
+    "usos": "Alivio de síntomas alérgicos (rinitis, urticaria) en niños cuando el producto está autorizado para esa edad.",
+    "como": "Vía oral según prospecto. No uses antihistamínicos «por si acaso» ni en lactantes sin criterio.",
+    "avisos": "Puede dar sueño. Edad mínima estricta según envase. Ante dificultad respiratoria o anafilaxia: 112. Consulta pediatra antes en niños pequeños.",
+    "efectos": [
+      "Somnolencia",
+      "Sequedad de boca",
+      "Irritabilidad ocasional"
+    ],
+    "categoria": "pediatria"
+  },
+  {
+    "id": "antiseptico-piel-pedia",
+    "nombre": "Antiséptico suave para piel (uso infantil)",
+    "marca": "Clorhexidina diluida, suero + limpieza, productos pediátricos…",
+    "presentacion": "Solución o toallitas según envase",
+    "usos": "Limpieza de heridas superficiales leves en niños, según prospecto.",
+    "como": "Limpiar con suavidad; no fricciones agresivas. Cubre si el pediatra o el farmacéutico lo aconsejan.",
+    "avisos": "Heridas profundas, mordeduras, quemaduras extensas o signos de infección → profesional. No uses alcohol fuerte en grandes superficies en bebés.",
+    "efectos": [
+      "Escozor leve",
+      "Irritación si se usa en exceso"
+    ],
+    "categoria": "pediatria"
+  },
+  {
+    "id": "losartan",
+    "nombre": "Losartán",
+    "marca": "Cozaar, genéricos…",
+    "presentacion": "Comprimidos (dosis según envase/prescripción)",
+    "usos": "Tratamiento de la tensión arterial alta y otras indicaciones bajo prescripción médica.",
+    "como": "Solo la pauta que te haya indicado tu médico. Vía oral, a menudo a la misma hora. No cambies ni dejes el fármaco por tu cuenta.",
+    "avisos": "Embarazo: contraindicado en muchas situaciones — consulta. Controla tensión según te indiquen. Mareo al levantarte, hinchazón o tos: coméntalo. Interacciones posibles (potasio, AINE, etc.).",
+    "efectos": [
+      "Mareo",
+      "Cansancio",
+      "Alteraciones de potasio (las valora el médico)"
+    ],
+    "categoria": "cronico"
+  },
+  {
+    "id": "amlodipino",
+    "nombre": "Amlodipino",
+    "marca": "Norvas, Astudal, genéricos…",
+    "presentacion": "Comprimidos (dosis según prescripción)",
+    "usos": "Hipertensión y algunas formas de angina, solo con indicación médica.",
+    "como": "Pauta médica. Vía oral. No improvises dosis ni combines con zumo de pomelo si te lo han restringido.",
+    "avisos": "Hinchazón de tobillos frecuente. Mareo o palpitaciones: consulta. Embarazo/lactancia: criterio médico. No suspendas de golpe sin consejo.",
+    "efectos": [
+      "Edema en tobillos",
+      "Enrojecimiento facial",
+      "Dolor de cabeza",
+      "Palpitaciones"
+    ],
+    "categoria": "cronico"
+  },
+  {
+    "id": "ramipril",
+    "nombre": "Ramipril",
+    "marca": "Acercomp, genéricos…",
+    "presentacion": "Cápsulas / comprimidos (prescripción)",
+    "usos": "Hipertensión, protección cardiovascular en pacientes seleccionados — solo médico.",
+    "como": "Sigue exactamente la pauta prescrita. Suele tomarse vía oral a hora regular.",
+    "avisos": "Tos seca posible (coméntala). Embarazo: no. Control de riñón y potasio según analíticas. Angioedema (hinchazón de cara/lengua): urgencias.",
+    "efectos": [
+      "Tos",
+      "Mareo",
+      "Cansancio",
+      "Hiperpotasemia (control analítico)"
+    ],
+    "categoria": "cronico"
+  },
+  {
+    "id": "bisoprolol",
+    "nombre": "Bisoprolol",
+    "marca": "Emconcor, genéricos…",
+    "presentacion": "Comprimidos (prescripción)",
+    "usos": "Control de tensión, frecuencia cardiaca o insuficiencia cardiaca según indicación médica.",
+    "como": "Solo pauta médica. No lo dejes bruscamente: el médico indica cómo ajustar.",
+    "avisos": "Puede enmascarar síntomas de hipoglucemia en diabéticos. Asma/EPOC, bradicardia o bloqueos: solo con criterio estricto. Fatiga al ejercicio: coméntalo.",
+    "efectos": [
+      "Cansancio",
+      "Manos frías",
+      "Sueño",
+      "Bradicardia si exceso — lo valora el médico"
+    ],
+    "categoria": "cronico"
+  },
+  {
+    "id": "simvastatina",
+    "nombre": "Simvastatina",
+    "marca": "Zocor, genéricos…",
+    "presentacion": "Comprimidos (prescripción)",
+    "usos": "Reducción de colesterol y riesgo cardiovascular bajo control médico.",
+    "como": "Pauta médica (a menudo nocturna). Evita zumo de pomelo si te lo indican.",
+    "avisos": "Dolor muscular intenso, orina oscura o debilidad: consulta pronto (raro pero importante). Interacciones con algunos antibióticos y antifúngicos. Embarazo: no.",
+    "efectos": [
+      "Molestia muscular",
+      "Alteración de analíticas hepáticas",
+      "Digestivo leve"
+    ],
+    "categoria": "cronico"
+  },
+  {
+    "id": "gliclazida",
+    "nombre": "Gliclazida",
+    "marca": "Diamicron, genéricos…",
+    "presentacion": "Comprimidos (prescripción; diabetes tipo 2)",
+    "usos": "Ayuda a controlar la glucosa en diabetes tipo 2 cuando el médico lo prescribe.",
+    "como": "Solo pauta médica, alineada con dieta y controles. No «compenses» comidas saltándote o duplicando tomas por tu cuenta.",
+    "avisos": "Riesgo de hipoglucemia (temblor, sudor, confusión): actúa según te hayan enseñado y consulta. Alcohol y ayunos aumentan el riesgo. Embarazo: otro manejo.",
+    "efectos": [
+      "Hipoglucemia",
+      "Aumento de peso posible",
+      "Molestia digestiva"
+    ],
+    "categoria": "cronico"
+  },
+  {
+    "id": "clopidogrel",
+    "nombre": "Clopidogrel",
+    "marca": "Plavix, genéricos…",
+    "presentacion": "Comprimidos (prescripción; antiagregante)",
+    "usos": "Prevención de eventos trombóticos en pacientes seleccionados — solo médico.",
+    "como": "Pauta estricta. No lo suspendas antes de una cirugía sin que lo sepan médico y cirujano.",
+    "avisos": "Aumenta el sangrado. Avisa siempre que tomas antiagregante. Úlcera, AINE o anticoagulantes: control. Alergias raras.",
+    "efectos": [
+      "Moretones",
+      "Sangrado de encías",
+      "Molestia digestiva",
+      "Hemorragia (urgencia si es importante)"
+    ],
+    "categoria": "cronico"
+  },
+  {
+    "id": "furosemida",
+    "nombre": "Furosemida",
+    "marca": "Seguril, genéricos…",
+    "presentacion": "Comprimidos / ampollas (prescripción; diurético)",
+    "usos": "Eliminar retención de líquidos en insuficiencia cardiaca u otras indicaciones médicas.",
+    "como": "Solo pauta médica. Suele aumentar la orina; el médico fija horario y controles de electrolitos.",
+    "avisos": "Deshidratación, mareo, bajada de potasio o sodio: control analítico. No compenses bebiendo «a ciegas» ni tomes suplementos de potasio sin indicación.",
+    "efectos": [
+      "Aumento de orina",
+      "Calambres",
+      "Mareo",
+      "Alteración de sales (lo vigila el médico)"
+    ],
+    "categoria": "cronico"
+  },
+  {
+    "id": "insulina-info",
+    "nombre": "Insulina (información general)",
+    "marca": "Distintos tipos y marcas (rápida, basal, mezclas…)",
+    "presentacion": "Plumas / viales inyectables (solo con prescripción y educación diabetológica)",
+    "usos": "Tratamiento de la diabetes cuando el médico lo indica. Hay muchos tipos: no son intercambiables a la ligera.",
+    "como": "Solo la técnica, tipo y horario que te hayan enseñado. Conservación según prospecto (nevera/temperatura ambiente según producto). Nunca compartas agujas.",
+    "avisos": "Hipoglucemia es la urgencia más frecuente: ten un plan. No cambies de tipo ni de marca sin criterio. Embarazo, enfermedad aguda o ejercicio intenso: consulta tu equipo. Esta ficha NO enseña a pinchar ni a calcular dosis.",
+    "efectos": [
+      "Hipoglucemia",
+      "Lipodistrofia en zona de inyección",
+      "Aumento de peso posible"
+    ],
+    "categoria": "cronico"
+  },
+  {
+    "id": "ibp-largo-plazo",
+    "nombre": "IBP a largo plazo (omeprazol y similares)",
+    "marca": "Omeprazol, pantoprazol, esomeprazol…",
+    "presentacion": "Cápsulas/comprimidos (automedicación breve o pauta médica prolongada)",
+    "usos": "Acidez/reflujo; a veces protección gástrica crónica bajo control.",
+    "como": "Si lo usas muchos meses, debe haber un plan médico (necesidad, dosis mínima, revisiones).",
+    "avisos": "No alargues indefinidamente «por costumbre» sin revisión. Síntomas de alarma (sangre, pérdida de peso, disfagia): estudio. Interacciones y déficits posibles a muy largo plazo.",
+    "efectos": [
+      "Cefalea",
+      "Gases",
+      "Con uso muy largo: posibles déficits — lo valora el médico"
+    ],
+    "categoria": "cronico"
+  },
+  {
+    "id": "butilescopolamina",
+    "nombre": "Butilescopolamina (butilbromuro de escopolamina)",
+    "marca": "Buscapina, genéricos…",
+    "presentacion": "Comprimidos / grageas (también inyectable hospitalario)",
+    "usos": "Alivio de espasmos digestivos o menstruales cuando el prospecto o el médico lo indican.",
+    "como": "Vía oral según prospecto. No es el tratamiento de un abdomen agudo grave.",
+    "avisos": "Si el dolor es intenso, con fiebre, vómito continuo o abdomen duro → urgencias. Glaucoma, retención urinaria, miastenia: consulta. Puede dar sequedad y visión borrosa.",
+    "efectos": [
+      "Boca seca",
+      "Estreñimiento",
+      "Visión borrosa",
+      "Taquicardia ocasional"
+    ],
+    "categoria": "digestivo"
+  },
+  {
+    "id": "diosmectita",
+    "nombre": "Diosmectita (smectita)",
+    "marca": "Smecta, genéricos…",
+    "presentacion": "Sobres para suspensión oral",
+    "usos": "Alivio sintomático de diarrea aguda leve en adultos/niños según prospecto.",
+    "como": "Disolver y tomar según envase. Mantén hidratación (sales si procede).",
+    "avisos": "Diarrea con sangre, fiebre alta o deshidratación: médico. Puede reducir absorción de otros fármacos: separa tomas según prospecto. Niños: criterio pediátrico.",
+    "efectos": [
+      "Estreñimiento",
+      "Heces más claras"
+    ],
+    "categoria": "digestivo"
+  },
+  {
+    "id": "racecadotrilo",
+    "nombre": "Racecadotrilo",
+    "marca": "Tiorfan, genéricos…",
+    "presentacion": "Cápsulas / sobres (según edad autorizada)",
+    "usos": "Tratamiento sintomático de la diarrea aguda junto a rehidratación, según prospecto o médico.",
+    "como": "Vía oral según envase. La base es hidratarse bien.",
+    "avisos": "No sustituye valoración si hay sangre, fiebre alta o diarrea prolongada. Edad mínima según producto. Embarazo: consulta.",
+    "efectos": [
+      "Dolor de cabeza",
+      "Erupción rara",
+      "Náuseas"
+    ],
+    "categoria": "digestivo"
+  },
+  {
+    "id": "alginato-antiacido",
+    "nombre": "Alginato + antiácido (tipo Gaviscon)",
+    "marca": "Gaviscon, Algiscon, genéricos…",
+    "presentacion": "Comprimidos masticables / suspensión",
+    "usos": "Ardor y reflujo ocasional formando una «balsa» protectora, según prospecto.",
+    "como": "Suele tomarse tras comidas o al acostarse según envase. Mastica bien si son comprimidos.",
+    "avisos": "Si necesitas antiácido a diario muchas semanas o hay alarma (sangre, disfagia, pérdida de peso): médico. Hipertensión/sodio: mira composición. Embarazo: muchas veces se usa, pero confirma.",
+    "efectos": [
+      "Náuseas",
+      "Estreñimiento o diarrea según componente"
+    ],
+    "categoria": "digestivo"
+  },
+  {
+    "id": "bisacodilo",
+    "nombre": "Bisacodilo",
+    "marca": "Dulcolax, genéricos…",
+    "presentacion": "Comprimidos gastrorresistentes / supositorios",
+    "usos": "Estreñimiento ocasional a corto plazo según prospecto.",
+    "como": "Vía oral o rectal según presentación. No es un hábito diario ideal.",
+    "avisos": "Uso prolongado puede empeorar el estreñimiento. Dolor intenso, sangre o sospecha de obstrucción: médico. Embarazo/niños: consulta.",
+    "efectos": [
+      "Cólicos",
+      "Diarrea",
+      "Malestar abdominal"
+    ],
+    "categoria": "digestivo"
+  },
+  {
+    "id": "glicerina-supositorio",
+    "nombre": "Glicerina (supositorios / microenemas)",
+    "marca": "Verolax, Micralax, glicerina…",
+    "presentacion": "Supositorios o microenemas",
+    "usos": "Alivio local del estreñimiento ocasional.",
+    "como": "Uso rectal según prospecto. Hidratación y fibra suelen ser la base a medio plazo.",
+    "avisos": "No uses a diario de forma crónica sin consejo. Sangre, dolor intenso o no hay deposición: médico.",
+    "efectos": [
+      "Escozor local",
+      "Cólico leve"
+    ],
+    "categoria": "digestivo"
+  },
+  {
+    "id": "saccharomyces",
+    "nombre": "Saccharomyces boulardii (probiótico levadura)",
+    "marca": "Ultra-Levura, genéricos…",
+    "presentacion": "Cápsulas / sobres",
+    "usos": "Complemento en diarrea asociada a antibióticos u otros contextos según prospecto.",
+    "como": "Vía oral según envase. Separar de antifúngicos si te lo indican.",
+    "avisos": "Inmunodeprimidos o vías centrales: riesgo raro de fungemia — solo con criterio médico. No sustituye rehidratación ni estudio de diarrea grave.",
+    "efectos": [
+      "Gases",
+      "Hinchazón leve"
+    ],
+    "categoria": "digestivo"
+  },
+  {
+    "id": "carbon-vegetal-digest",
+    "nombre": "Carbón vegetal (gases / digestivo)",
+    "marca": "Carbón vegetal activado (dosis digestivas OTC)",
+    "presentacion": "Comprimidos / cápsulas",
+    "usos": "Alivio sintomático de gases y flatulencia ocasional (distinto del uso de urgencias por intoxicación).",
+    "como": "Según prospecto OTC. Puede ennegrecer las heces.",
+    "avisos": "Reduce absorción de fármacos y anticonceptivos orales: separa tomas. Intoxicación aguda: 112 / toxicología, no automedicación casera. Embarazo: consulta.",
+    "efectos": [
+      "Estreñimiento",
+      "Heces negras",
+      "Náuseas"
+    ],
+    "categoria": "digestivo"
+  },
+  {
+    "id": "clotrimazol-crema",
+    "nombre": "Clotrimazol crema",
+    "marca": "Canesten, genéricos…",
+    "presentacion": "Crema tópica 1% (también óvulos en otra ficha)",
+    "usos": "Infecciones fúngicas superficiales de la piel (pie de atleta, tiña) según prospecto.",
+    "como": "Aplicar en zona limpia y seca según envase, completar el tiempo indicado aunque mejore antes.",
+    "avisos": "Si no mejora, hay pus o afecta uñas/cuero cabelludo extensamente: médico. Evita mucosas oculares. Embarazo: consulta para uso vaginal.",
+    "efectos": [
+      "Escozor local",
+      "Enrojecimiento",
+      "Irritación"
+    ],
+    "categoria": "topico"
+  },
+  {
+    "id": "miconazol-crema",
+    "nombre": "Miconazol crema",
+    "marca": "Daktarin, genéricos…",
+    "presentacion": "Crema / gel tópico",
+    "usos": "Hongos cutáneos superficiales y algunas candidiasis de pliegues, según prospecto.",
+    "como": "Capa fina según envase. Mantén la zona seca.",
+    "avisos": "Interacción posible con anticoagulantes orales si hay mucha superficie: pregunta. Si no mejora o empeora: médico.",
+    "efectos": [
+      "Irritación local",
+      "Quemazón"
+    ],
+    "categoria": "topico"
+  },
+  {
+    "id": "aciclovir-labial",
+    "nombre": "Aciclovir crema (labial)",
+    "marca": "Zovirax labial, genéricos…",
+    "presentacion": "Crema para herpes labial",
+    "usos": "Acortar/aliviar brotes de herpes labial cuando se inicia pronto, según prospecto.",
+    "como": "Aplicar en la zona al notar hormigueo, según envase. Lavarse las manos; no compartir.",
+    "avisos": "No cura de forma definitiva ni evita todos los brotes. Herpes ocular o inmunodepresión: médico urgente. Embarazo: consulta.",
+    "efectos": [
+      "Sequedad",
+      "Escozor leve"
+    ],
+    "categoria": "topico"
+  },
+  {
+    "id": "diclofenaco-gel",
+    "nombre": "Diclofenaco gel / spray",
+    "marca": "Voltaren Emulgel, genéricos…",
+    "presentacion": "Gel o spray tópico",
+    "usos": "Alivio local de dolor muscular o articular leve-moderado.",
+    "como": "Aplicar en zona intacta según prospecto. No uses oclusión fuerte ni en heridas abiertas.",
+    "avisos": "Aunque es tópico, es AINE: cuidado si te han restringido AINE, embarazo o piel dañada. No combines muchos AINE. Fotosensibilidad posible.",
+    "efectos": [
+      "Enrojecimiento",
+      "Picor",
+      "Erupción"
+    ],
+    "categoria": "topico"
+  },
+  {
+    "id": "calamina",
+    "nombre": "Loción de calamina",
+    "marca": "Calamina, genéricos…",
+    "presentacion": "Loción tópica",
+    "usos": "Alivio sintomático de picor y escozor leves (picaduras, irritaciones).",
+    "como": "Agitar y aplicar según prospecto en piel limpia.",
+    "avisos": "No en mucosas ni heridas profundas. Si hay infección, fiebre o reacción generalizada: médico. Mancha la ropa.",
+    "efectos": [
+      "Sequedad",
+      "Irritación rara"
+    ],
+    "categoria": "topico"
+  },
+  {
+    "id": "permetrina-piojos",
+    "nombre": "Permetrina (piojos / escabiosis según producto)",
+    "marca": "Srepiol, Nix, genéricos…",
+    "presentacion": "Crema o loción a concentración según indicación del envase",
+    "usos": "Tratamiento de pediculosis (piojos) u otras indicaciones del prospecto concreto.",
+    "como": "Sigue el tiempo de contacto y aclarado del envase al pie de la letra. Lava ropa de cama/peines según instrucciones.",
+    "avisos": "No uses concentraciones de otro uso. Edad mínima y embarazo: prospecto/profesional. Picor puede continuar días tras matar piojos: no es fallo inmediato.",
+    "efectos": [
+      "Picor",
+      "Enrojecimiento",
+      "Escozor del cuero cabelludo"
+    ],
+    "categoria": "topico"
+  },
+  {
+    "id": "protector-solar",
+    "nombre": "Protector solar (FPS)",
+    "marca": "ISDIN, La Roche-Posay, Avène, genéricos…",
+    "presentacion": "Crema / spray / fluido FPS 30–50+",
+    "usos": "Prevención de quemadura solar y daño actínico; parte del cuidado diario en muchas personas.",
+    "como": "Cantidad generosa, renovar según prospecto (agua, sudor, tiempo). No sustituye sombra ni ropa.",
+    "avisos": "Quemadura intensa, ampollas o golpe de calor: valoración. Alergia a filtros: prueba y consulta. Bebés: criterio pediátrico y sombra prioritaria.",
+    "efectos": [
+      "Ojos irritados si espray",
+      "Foliculitis rara",
+      "Manchas en ropa"
+    ],
+    "categoria": "topico"
+  },
+  {
+    "id": "minoxidil-topico",
+    "nombre": "Minoxidil tópico",
+    "marca": "Regaine, genéricos…",
+    "presentacion": "Solución o espuma (concentración según envase)",
+    "usos": "Tratamiento de algunos tipos de alopecia androgenética en adultos, según prospecto.",
+    "como": "Aplicar en cuero cabelludo seco según envase. La respuesta tarda meses; al dejarlo puede revertirse.",
+    "avisos": "No en menores sin criterio. Problemas cardiacos, embarazo/lactancia: consulta. Irritación intensa o crecimiento no deseado en otras zonas: para y pregunta. No es milagroso en todas las alopecias.",
+    "efectos": [
+      "Picor",
+      "Caspa",
+      "Caída inicial temporal",
+      "Hipertricosis en otras zonas si escurre"
+    ],
+    "categoria": "topico"
+  },
+  {
+    "id": "astringente-aluminio",
+    "nombre": "Solución / pasta astringente (aluminio)",
+    "marca": "Productos astringentes de farmacia / fórmulas suaves…",
+    "presentacion": "Solución o pasta según producto",
+    "usos": "Alivio de maceración leve en pliegues o rozaduras, según prospecto.",
+    "como": "Aplicar en piel limpia según envase; seca bien la zona.",
+    "avisos": "Infección evidente (pus, fiebre): médico. No en mucosas profundas sin indicación.",
+    "efectos": [
+      "Sequedad",
+      "Irritación"
+    ],
+    "categoria": "topico"
+  },
+  {
+    "id": "ambroxol",
+    "nombre": "Ambroxol",
+    "marca": "Mucosan, genéricos…",
+    "presentacion": "Jarabe / comprimidos",
+    "usos": "Facilitar la expulsión de moco en catarros con tos productiva, según prospecto.",
+    "como": "Vía oral según envase. Bebe líquidos. No combines mucolíticos y antitusígenos a ciegas.",
+    "avisos": "Tos con sangre, disnea o dura más de 1–2 semanas: médico. Úlcera activa o embarazo: consulta. Reacciones cutáneas graves raras: suspende y urgencias.",
+    "efectos": [
+      "Náuseas",
+      "Diarrea",
+      "Alteración del gusto"
+    ],
+    "categoria": "respiratorio"
+  },
+  {
+    "id": "pseudoefedrina",
+    "nombre": "Pseudoefedrina (descongestionante oral)",
+    "marca": "En compuestos resfriados (varios); control de dispensación en España",
+    "presentacion": "Comprimidos / sobres (a menudo combinada; suele haber control en farmacia)",
+    "usos": "Alivio temporal de congestión nasal en resfriado o rinitis, según prospecto.",
+    "como": "Vía oral respetando máximo e intervalos del envase. No uses varios productos con el mismo principio.",
+    "avisos": "Hipertensión, corazón, glaucoma, próstata, hipertiroidismo, IMAO: consulta o evita. Nerviosismo, insomnio. Embarazo: criterio profesional. No en niños pequeños según envase.",
+    "efectos": [
+      "Insomnio",
+      "Nerviosismo",
+      "Taquicardia",
+      "Subida de tensión"
+    ],
+    "categoria": "respiratorio"
+  },
+  {
+    "id": "fenilefrina-oral",
+    "nombre": "Fenilefrina (en compuestos resfriados)",
+    "marca": "Varios anticatarrales combinados…",
+    "presentacion": "Comprimidos / sobres combinados",
+    "usos": "Descongestión nasal sintomática a corto plazo según prospecto del compuesto.",
+    "como": "Sigue el envase del producto concreto (a menudo lleva también analgésico).",
+    "avisos": "Cuidado con tensión, corazón y combinación con otros descongestionantes. Lee todos los principios del sobre. Embarazo/niños: prospecto.",
+    "efectos": [
+      "Nerviosismo",
+      "Dolor de cabeza",
+      "Insomnio"
+    ],
+    "categoria": "respiratorio"
+  },
+  {
+    "id": "fluticasona-nasal",
+    "nombre": "Fluticasona spray nasal",
+    "marca": "Flixonase, Avamys (otros), genéricos…",
+    "presentacion": "Spray nasal (algunas presentaciones OTC / otras con consejo)",
+    "usos": "Rinitis alérgica: reducir inflamación local según prospecto.",
+    "como": "Técnica de spray según envase; constancia. No es descongestionante «de un minuto».",
+    "avisos": "Heridas nasales, infecciones o uso prolongado: revisa con profesional. Visión o sangrado nasal persistente: consulta. Niños: edad autorizada.",
+    "efectos": [
+      "Sequedad nasal",
+      "Sangrado leve",
+      "Irritación de garganta"
+    ],
+    "categoria": "respiratorio"
+  },
+  {
+    "id": "oximetazolina",
+    "nombre": "Oximetazolina (nasal)",
+    "marca": "Respons, Utabon Adultos, genéricos…",
+    "presentacion": "Spray / gotas nasales",
+    "usos": "Descongestión nasal rápida a muy corto plazo.",
+    "como": "Según prospecto. Máximo pocos días seguidos (riesgo de efecto rebote).",
+    "avisos": "No alargues: rinitis medicamentosa. Hipertensión/corazón: cuidado. Niños: solo productos y edades autorizadas. Embarazo: consulta.",
+    "efectos": [
+      "Ardor nasal",
+      "Sequedad",
+      "Congestión de rebote si se abusa"
+    ],
+    "categoria": "respiratorio"
+  },
+  {
+    "id": "pastillas-miel-limon",
+    "nombre": "Pastillas / jarabes demulcentes (miel-limón, etc.)",
+    "marca": "Varios OTC de garganta y tos irritativa…",
+    "presentacion": "Pastillas para chupar / jarabes suaves",
+    "usos": "Alivio sintomático de irritación de garganta y tos seca leve.",
+    "como": "Chupar / tomar según envase. Hidratación y humedad ambiental ayudan.",
+    "avisos": "Miel no en menores de 1 año. Tos con ahogo, fiebre alta o tos que dura: médico. Diabéticos: mira azúcares.",
+    "efectos": [
+      "Náuseas raras",
+      "Caries si abuso de azucaradas"
+    ],
+    "categoria": "respiratorio"
+  },
+  {
+    "id": "mentol-balsamo",
+    "nombre": "Bálsamos / ungüentos mentolados",
+    "marca": "Vicks VapoRub, genéricos…",
+    "presentacion": "Ungüento tópico aromático",
+    "usos": "Sensación de alivio en resfriado (aplicación cutánea según prospecto).",
+    "como": "Pecho/espalda según envase. No aplicar en fosas nasales de lactantes ni ingerir.",
+    "avisos": "Prohibido en cara/nariz de bebés (riesgo respiratorio). Irritación cutánea posible. No sustituye valoración de disnea.",
+    "efectos": [
+      "Irritación de piel",
+      "Lagrimeo si cerca de ojos"
+    ],
+    "categoria": "respiratorio"
+  },
+  {
+    "id": "clotrimazol-ovulos",
+    "nombre": "Clotrimazol óvulos / crema vaginal",
+    "marca": "Canesten óvulos, genéricos…",
+    "presentacion": "Óvulos o crema intravaginal",
+    "usos": "Candidiasis vaginal no complicada según prospecto, cuando los síntomas son típicos y ya conocidos.",
+    "como": "Según envase (a menudo al acostarse). Completa el ciclo indicado.",
+    "avisos": "Primera vez, embarazo, fiebre, dolor bajo, flujo maloliente o no mejora: médico (puede no ser cándida). Interacción con látex: mira prospecto.",
+    "efectos": [
+      "Escozor local",
+      "Flujo al expulsar el óvulo"
+    ],
+    "categoria": "femenina"
+  },
+  {
+    "id": "miconazol-ovulos",
+    "nombre": "Miconazol vaginal",
+    "marca": "Gyno-Daktarin, genéricos…",
+    "presentacion": "Óvulos / crema vaginal",
+    "usos": "Infección vaginal por hongos según prospecto.",
+    "como": "Aplicación vaginal según envase.",
+    "avisos": "Misma cautela que otros antifúngicos vaginales: síntomas atípicos → consulta. Embarazo: profesional. Puede dañar preservativos de látex.",
+    "efectos": [
+      "Irritación",
+      "Picor inicial"
+    ],
+    "categoria": "femenina"
+  },
+  {
+    "id": "hialuronico-vaginal",
+    "nombre": "Gel / óvulos de ácido hialurónico (sequedad)",
+    "marca": "Varios hidratantes vaginales OTC…",
+    "presentacion": "Gel o óvulos hidratantes",
+    "usos": "Alivio de sequedad vaginal y molestia por falta de lubricación, según prospecto.",
+    "como": "Según envase. No trata infecciones ni ETS.",
+    "avisos": "Sangrado, dolor intenso u olor fuerte: médico. Embarazo/postparto: pregunta. Distingue hidratante de tratamiento hormonal (este último es médico).",
+    "efectos": [
+      "Escozor leve",
+      "Secreción pasajera"
+    ],
+    "categoria": "femenina"
+  },
+  {
+    "id": "lubricante-intimo",
+    "nombre": "Lubricante íntimo (base agua / silicona)",
+    "marca": "Varios OTC…",
+    "presentacion": "Gel lubricante",
+    "usos": "Reducir fricción y molestia en relaciones o uso de dispositivos, según producto.",
+    "como": "Según envase. Compatibilidad con preservativos: lee la etiqueta (aceites pueden dañar látex).",
+    "avisos": "Irritación persistente: consulta. No sustituye preservativo frente a ETS. Infección activa: profesional.",
+    "efectos": [
+      "Irritación por fragancias",
+      "Pegajosidad"
+    ],
+    "categoria": "femenina"
+  },
+  {
+    "id": "test-embarazo",
+    "nombre": "Test de embarazo (orina)",
+    "marca": "Clearblue, Predictor, genéricos de farmacia…",
+    "presentacion": "Tira / dispositivo de orina",
+    "usos": "Detección orientativa de hCG en orina tras retraso menstrual.",
+    "como": "Sigue el tiempo y la línea de control del envase. Mejor con primera orina de la mañana si el prospecto lo dice.",
+    "avisos": "Falsos negativos tempranos posibles. Resultado positivo o duda: confirma con profesional. Medicamentos de fertilidad con hCG pueden interferir.",
+    "efectos": [
+      "No es un fármaco; resultado ambiguo — repite o consulta"
+    ],
+    "categoria": "femenina"
+  },
+  {
+    "id": "hierro-embarazo-info",
+    "nombre": "Hierro en embarazo (información)",
+    "marca": "Ferrosos / ferrimanitol según pauta…",
+    "presentacion": "Comprimidos / sobres (a menudo prescritos tras analítica)",
+    "usos": "Corregir o prevenir anemia ferropénica en gestación cuando el médico/matrona lo indican.",
+    "como": "Solo la pauta del equipo de embarazo. A menudo mejor con estómago adecuado y separado de algunos alimentos/fármacos según te digan.",
+    "avisos": "No te automediques dosis altas: exceso de hierro es peligroso. Estreñimiento frecuente: coméntalo. Esta ficha no sustituye controles de embarazo.",
+    "efectos": [
+      "Náuseas",
+      "Estreñimiento",
+      "Heces oscuras"
+    ],
+    "categoria": "femenina"
+  },
+  {
+    "id": "arandano-rojo",
+    "nombre": "Arándano rojo (vaccinium) complemento",
+    "marca": "Varios complementos OTC…",
+    "presentacion": "Cápsulas / sobres / zumo (concentración variable)",
+    "usos": "Complemento tradicionalmente usado en higiene urinaria; evidencia mixta. No sustituye antibiótico si hay infección.",
+    "como": "Según envase del complemento. Hidratación abundante es clave.",
+    "avisos": "Ardor al orinar, fiebre, sangre o dolor lumbar: médico (posible ITU). Interacciones con anticoagulantes posibles en extractos. Embarazo: pregunta.",
+    "efectos": [
+      "Molestia gástrica",
+      "Diarrea si zumo muy azucarado"
+    ],
+    "categoria": "urologia"
+  },
+  {
+    "id": "d-manosa",
+    "nombre": "D-manosa",
+    "marca": "Complementos varios…",
+    "presentacion": "Sobres / cápsulas",
+    "usos": "Complemento usado por algunas personas en el contexto de molestias urinarias leves; no es antibiótico.",
+    "como": "Según envase. Bebe agua. Si hay infección real, el médico decide el tratamiento.",
+    "avisos": "No retrases la consulta si hay fiebre, dolor intenso o embarazo. Diabéticos: mira aporte de azúcares. Evidencia limitada.",
+    "efectos": [
+      "Hinchazón",
+      "Diarrea leve"
+    ],
+    "categoria": "urologia"
+  },
+  {
+    "id": "fosfomicina-info",
+    "nombre": "Fosfomicina trometamol (información)",
+    "marca": "Monurol, genéricos…",
+    "presentacion": "Sobre de dosis única (prescripción habitual en cistitis no complicada)",
+    "usos": "Antibiótico de toma única en cistitis seleccionadas — solo con criterio médico/farmacéutico según protocolo.",
+    "como": "Solo si te lo indican. Disolver y tomar según prospecto, a menudo en ayunas nocturno.",
+    "avisos": "No automedicación repetida. Pielonefritis, hombre, embarazo, catéter o recidivas: otro manejo. Resistencias y alergias importan.",
+    "efectos": [
+      "Diarrea",
+      "Náuseas",
+      "Cefalea"
+    ],
+    "categoria": "urologia"
+  },
+  {
+    "id": "tamsulosina-info",
+    "nombre": "Tamsulosina (información)",
+    "marca": "Omnic, genéricos…",
+    "presentacion": "Cápsulas de liberación (prescripción; próstata)",
+    "usos": "Facilitar el vaciado urinario en hiperplasia prostática sintomática bajo control médico.",
+    "como": "Pauta médica. Suele tomarse siempre igual respecto a comidas según envase.",
+    "avisos": "Mareo al levantarse. Cirugía de cataratas: avisa (síndrome de iris flácido). No compartas con otras personas.",
+    "efectos": [
+      "Mareo",
+      "Eyaculación retrógrada",
+      "Congestión nasal"
+    ],
+    "categoria": "urologia"
+  },
+  {
+    "id": "higiene-perianal",
+    "nombre": "Higiene / baños de asiento (cuidado perianal)",
+    "marca": "Productos de higiene suaves, agua tibia…",
+    "presentacion": "Cuidado no farmacológico / jabones suaves",
+    "usos": "Alivio de molestia perianal leve (hemorroides externas irritadas, etc.) como medida de confort.",
+    "como": "Agua tibia, secar sin frotar. Fibras e hidratación ayudan al estreñimiento asociado.",
+    "avisos": "Sangre abundante, dolor intenso, fiebre o bulto que no reduce: médico. Cremas con anestésicos/corticoides: solo según prospecto y poco tiempo.",
+    "efectos": [
+      "Irritación por jabones perfumados"
+    ],
+    "categoria": "urologia"
+  },
+  {
+    "id": "hipromelosa",
+    "nombre": "Hipromelosa (lágrimas artificiales)",
+    "marca": "Artific, Viscofresh, genéricos…",
+    "presentacion": "Colirio / monodosis",
+    "usos": "Alivio de ojo seco e irritación leve por ambiente o pantallas.",
+    "como": "Según prospecto. Si el envase es multidosis con conservante, respeta caducidad tras apertura.",
+    "avisos": "Dolor intenso, pérdida de visión, ojo rojo con secreción o traumatismo: urgencias/oftalmólogo. Lentes de contacto: mira compatibilidad.",
+    "efectos": [
+      "Visión borrosa breve tras instilar",
+      "Escozor leve"
+    ],
+    "categoria": "oftalmologia"
+  },
+  {
+    "id": "hialuronico-ocular",
+    "nombre": "Ácido hialurónico ocular",
+    "marca": "Hylo, Thealoz Duo (combinados), genéricos…",
+    "presentacion": "Colirio lubricante",
+    "usos": "Lubricación más duradera en ojo seco, según prospecto.",
+    "como": "Instilar según envase. Monodosis: desechar tras uso si así lo indica.",
+    "avisos": "Misma alerta de síntomas graves que otras lágrimas. Infección: no solo lubricar.",
+    "efectos": [
+      "Visión borrosa momentánea",
+      "Pegajosidad leve"
+    ],
+    "categoria": "oftalmologia"
+  },
+  {
+    "id": "ketotifeno-colirio",
+    "nombre": "Ketotifeno colirio (antialérgico)",
+    "marca": "Zaditen, genéricos…",
+    "presentacion": "Colirio",
+    "usos": "Alivio de síntomas de conjuntivitis alérgica (picor, lagrimeo) según prospecto.",
+    "como": "Según envase. Quítate lentillas si el prospecto lo pide y espera para ponértelas.",
+    "avisos": "Ojo rojo doloroso con visión borrosa: no es «solo alergia» → profesional. Niños: edad autorizada. Embarazo: consulta.",
+    "efectos": [
+      "Escozor",
+      "Visión borrosa breve",
+      "Sequedad"
+    ],
+    "categoria": "oftalmologia"
+  },
+  {
+    "id": "suero-ocular-monodosis",
+    "nombre": "Suero fisiológico ocular (monodosis)",
+    "marca": "Fisiológico monodosis farmacia…",
+    "presentacion": "Monodosis estériles",
+    "usos": "Lavado suave o alivio de irritación leve / cuerpo extraño superficial tras valoración.",
+    "como": "Según técnica del envase. No reutilices monodosis abiertas si el prospecto lo prohíbe.",
+    "avisos": "Cuerpo extraño clavado, químico o pérdida visual: urgencias, no improvises. Evita colirios vasoconstrictores de «ojo rojo» de forma habitual.",
+    "efectos": [
+      "Escozor leve"
+    ],
+    "categoria": "oftalmologia"
+  },
+  {
+    "id": "pomada-lubricante-ocular",
+    "nombre": "Pomada oftálmica lubricante",
+    "marca": "Lubricantes nocturnos varios…",
+    "presentacion": "Pomada estéril oftálmica",
+    "usos": "Ojo seco nocturno o protección de la superficie ocular según prospecto.",
+    "como": "Aplicar según envase (a menudo por la noche: borra la visión).",
+    "avisos": "No conduzcas tras aplicarla. Infección o herida: oftalmólogo. Caducidad tras apertura.",
+    "efectos": [
+      "Visión borrosa",
+      "Pegajosidad"
+    ],
+    "categoria": "oftalmologia"
+  },
+  {
+    "id": "lagrimas-vision-general",
+    "nombre": "Lágrimas artificiales (visión general)",
+    "marca": "Varias marcas de farmacia…",
+    "presentacion": "Colirios lubricantes con o sin conservante",
+    "usos": "Síntomas leves de ojo seco; complemento de hábitos (parpadear, humidificar, pausas de pantalla).",
+    "como": "Según envase. Si usas varios colirios, separa unos minutos.",
+    "avisos": "Uso diario continuo sin mejora → oftalmólogo. Conservantes pueden molestar si instilas muy a menudo: valora monodosis.",
+    "efectos": [
+      "Escozor",
+      "Visión borrosa breve"
+    ],
+    "categoria": "oftalmologia"
+  },
+  {
+    "id": "omega3",
+    "nombre": "Omega-3 (EPA/DHA)",
+    "marca": "Varios complementos de pescado o algas…",
+    "presentacion": "Cápsulas / perlas",
+    "usos": "Complemento dietético graso; no sustituye medicación cardiovascular prescrita.",
+    "como": "Según envase, a menudo con comida. Mira equivalencia EPA/DHA.",
+    "avisos": "Anticoagulantes o cirugía: consulta (puede influir en coagulación a dosis altas). Alergia a pescado: elige fuente adecuada. Embarazo: criterio profesional.",
+    "efectos": [
+      "Eructos a pescado",
+      "Molestia gástrica",
+      "Diarrea"
+    ],
+    "categoria": "vitamina"
+  },
+  {
+    "id": "zinc-suplemento",
+    "nombre": "Zinc (complemento)",
+    "marca": "Varios…",
+    "presentacion": "Comprimidos / cápsulas",
+    "usos": "Aporte de zinc cuando la dieta es insuficiente o lo indica un profesional.",
+    "como": "Según envase; no abuses de dosis altas prolongadas.",
+    "avisos": "Exceso crónico puede alterar cobre e inmunidad. Náuseas en ayunas. Interacciones con algunos antibióticos (separar).",
+    "efectos": [
+      "Náuseas",
+      "Sabor metálico",
+      "Molestia gástrica"
+    ],
+    "categoria": "vitamina"
+  },
+  {
+    "id": "probiotico-adulto",
+    "nombre": "Probiótico (combinaciones adultas)",
+    "marca": "Lactobacillus/Bifidobacterium varios…",
+    "presentacion": "Cápsulas / sobres",
+    "usos": "Complemento de microbiota en contextos de diarrea o tras antibióticos según prospecto del producto.",
+    "como": "Según envase; a veces separar del antibiótico unas horas.",
+    "avisos": "Inmunodepresión grave: consulta. No sustituye diagnóstico de diarrea inflamatoria. Calidad varía entre marcas.",
+    "efectos": [
+      "Gases",
+      "Hinchazón inicial"
+    ],
+    "categoria": "vitamina"
+  },
+  {
+    "id": "multivitaminico",
+    "nombre": "Multivitamínico adulto",
+    "marca": "Supradyn, Centrum, genéricos…",
+    "presentacion": "Comprimidos efervescentes / cápsulas",
+    "usos": "Complemento cuando la dieta puede ser incompleta; no sustituye alimentación ni tratamientos.",
+    "como": "Según envase. No combines varios multimix (riesgo de exceso de A/D/hierro).",
+    "avisos": "Embarazo: usa el preparado indicado (ácido fólico específico). Hierro/vitamina A en exceso: peligroso. Analíticas si hay síntomas.",
+    "efectos": [
+      "Orina más amarilla (riboflavina)",
+      "Náuseas",
+      "Estreñimiento si lleva hierro"
+    ],
+    "categoria": "vitamina"
+  },
+  {
+    "id": "colageno",
+    "nombre": "Colágeno (hidrolizado) complemento",
+    "marca": "Varios…",
+    "presentacion": "Polvo / comprimidos",
+    "usos": "Complemento popular para piel/articulaciones; evidencia variable. No es un fármaco antiartrósico prescrito.",
+    "como": "Según envase, a menudo disuelto.",
+    "avisos": "Alergia a fuente (pescado/bovino). Enfermedad renal grave: consulta. No sustituye fisioterapia ni analgésicos indicados.",
+    "efectos": [
+      "Saciedad",
+      "Molestia digestiva",
+      "Sabor"
+    ],
+    "categoria": "vitamina"
+  },
+  {
+    "id": "valeriana",
+    "nombre": "Valeriana",
+    "marca": "Valerianadis, genéricos de planta…",
+    "presentacion": "Comprimidos / cápsulas / infusiones",
+    "usos": "Tradicionalmente usada para nerviosismo leve o dificultad para dormir, según prospecto de planta.",
+    "como": "Según envase. No conduzcas si te sedas.",
+    "avisos": "No combinar a la ligera con alcohol, hipnóticos o ansiolíticos. Embarazo/lactancia/niños: consulta. Insomnio crónico: profesional (puede haber otra causa).",
+    "efectos": [
+      "Somnolencia",
+      "Sueños vívidos",
+      "Molestia gástrica"
+    ],
+    "categoria": "vitamina"
+  },
+  {
+    "id": "passiflora",
+    "nombre": "Passiflora (pasionaria)",
+    "marca": "Complementos/plantas varios…",
+    "presentacion": "Comprimidos / infusión",
+    "usos": "Uso tradicional en nerviosismo leve según prospecto.",
+    "como": "Según envase.",
+    "avisos": "Sedación posible. Interacciones con sedantes. Embarazo: consulta. No sustituye tratamiento de ansiedad diagnosticada.",
+    "efectos": [
+      "Somnolencia",
+      "Mareo leve"
+    ],
+    "categoria": "vitamina"
+  },
+  {
+    "id": "coenzima-q10",
+    "nombre": "Coenzima Q10",
+    "marca": "Varios complementos…",
+    "presentacion": "Cápsulas",
+    "usos": "Complemento; a veces comentado junto a estatinas, sin sustituir la medicación prescrita.",
+    "como": "Según envase, preferible con comida grasa.",
+    "avisos": "Anticoagulantes: consulta. Cirugía: informa. Evidencia mixta según objetivo. Embarazo: pregunta.",
+    "efectos": [
+      "Insomnio ocasional",
+      "Molestia gástrica"
+    ],
+    "categoria": "vitamina"
+  },
+  {
+    "id": "onagra",
+    "nombre": "Aceite de onagra",
+    "marca": "Complementos varios…",
+    "presentacion": "Perlas",
+    "usos": "Uso tradicional en molestias cíclicas leves; evidencia limitada.",
+    "como": "Según envase.",
+    "avisos": "Epilepsia o anticoagulantes: consulta. Embarazo: no sin criterio. No sustituye valoración ginecológica.",
+    "efectos": [
+      "Náuseas",
+      "Cefalea",
+      "Heces blandas"
+    ],
+    "categoria": "vitamina"
+  },
+  {
+    "id": "curcuma",
+    "nombre": "Cúrcuma / curcumina complemento",
+    "marca": "Varios…",
+    "presentacion": "Cápsulas / polvo",
+    "usos": "Complemento alimenticio; no sustituye antiinflamatorios prescritos ni diagnóstico.",
+    "como": "Según envase.",
+    "avisos": "Cálculos biliares, anticoagulantes o cirugía: consulta. Dosis altas: molestia hepática rara — para si hay síntomas. Embarazo: pregunta.",
+    "efectos": [
+      "Reflujo",
+      "Diarrea",
+      "Sabor"
+    ],
+    "categoria": "vitamina"
   }
 ];
   root.LV_MEDS_DB = LV_MEDS_DB;
