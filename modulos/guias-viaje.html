@@ -4,18 +4,16 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#0E0E0C">
-<meta name="description" content="Guías de viaje · España (piloto) — Cultura general Les vencimos.">
+<meta name="description" content="Guías de viaje · España (piloto) — Cultura general Les vencimos. Offline.">
 <title>Guías de viaje — Les vencimos</title>
 <style>
-
 .lv-brandbar{display:flex;align-items:baseline;justify-content:space-between;gap:.75rem;padding:0 0 .7rem;margin:0 0 .85rem;border-bottom:1px solid rgba(230,225,214,.14)}
 .lv-brandbar .brand{color:inherit;text-decoration:none;font-family:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;font-weight:600;font-size:1rem}
 .lv-brandbar .lv-off{font-size:.7rem;letter-spacing:.12em;text-transform:uppercase;opacity:.65;font-weight:600}
-
 :root{
   --fondo:#0E0E0C; --fondo-2:#161512; --fondo-3:#1C1A16;
   --tinta:#E6E1D6; --suave:#9A9488; --acento:#C4A15A; --acento-texto:#1A160E;
-  --linea:rgba(230,225,214,0.14); --ok:#8F9A72;
+  --linea:rgba(230,225,214,0.14); --ok:#8F9A72; --peligro:#C46A4A;
   --serif:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;
   --sans:"Segoe UI",system-ui,-apple-system,sans-serif; --radio:6px;
 }
@@ -28,14 +26,25 @@ header p{margin:.35rem 0 0;color:var(--suave);font-size:.72rem;letter-spacing:.1
 .badge{display:inline-block;padding:.15rem .45rem;border:1px solid var(--linea);border-radius:var(--radio);font-size:.72rem;color:var(--acento);letter-spacing:.06em;text-transform:uppercase;font-weight:600}
 .note{background:var(--fondo-2);border:1px solid var(--linea);border-left:3px solid var(--acento);padding:.85rem 1rem;margin:0 0 1rem;font-size:.92rem;color:var(--suave);border-radius:var(--radio)}
 .note strong{color:var(--tinta)}
+.note.ok{border-left-color:var(--ok)}
 .card{display:block;padding:.9rem 1rem;margin:0 0 .5rem;background:var(--fondo-2);border:1px solid var(--linea);border-radius:var(--radio);color:inherit;text-decoration:none;min-height:48px}
 .card:hover{border-color:var(--acento)}
 .card .t{font-family:var(--serif);font-weight:600;font-size:1.05rem}
 .card .m{color:var(--suave);font-size:.85rem;margin-top:.25rem}
+.card .b{color:var(--suave);font-size:.82rem;margin-top:.35rem;line-height:1.4}
 .btn{display:inline-flex;align-items:center;justify-content:center;min-height:48px;padding:0 1.1rem;font:600 .95rem var(--sans);border:1px solid var(--linea);border-radius:var(--radio);background:var(--acento);color:var(--acento-texto);text-decoration:none;margin:.25rem .35rem .25rem 0}
 .btn.ghost{background:var(--fondo-3);color:var(--tinta)}
 .foot{margin-top:1.6rem;color:var(--suave);font-size:.7rem;letter-spacing:.08em;text-transform:uppercase}
 h2{margin:1.2rem 0 .65rem;font-size:.7rem;letter-spacing:.14em;text-transform:uppercase;color:var(--suave);font-weight:600}
+.phones{display:grid;grid-template-columns:repeat(3,1fr);gap:.4rem;margin:.5rem 0 1rem}
+.phone{background:var(--fondo-2);border:1px solid var(--linea);border-radius:var(--radio);padding:.65rem .5rem;text-align:center}
+.phone .lab{display:block;font-size:.65rem;letter-spacing:.1em;text-transform:uppercase;color:var(--suave)}
+.phone .num{display:block;font-family:var(--serif);font-weight:600;font-size:1.15rem;margin-top:.2rem;color:var(--acento)}
+.status{font-size:.78rem;color:var(--suave);margin:.35rem 0 0}
+.status code{font-size:.72rem;color:var(--acento)}
+ul.tips{margin:.4rem 0 0;padding-left:1.15rem;color:var(--suave)}
+ul.tips li{margin:.3rem 0}
+@media (max-width:380px){.phones{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
@@ -48,50 +57,106 @@ h2{margin:1.2rem 0 .65rem;font-size:.7rem;letter-spacing:.14em;text-transform:up
 </header>
 
 <div class="note">
-  <strong>Piloto Castilla y León</strong> (Valladolid, Salamanca, León) + fichas sueltas. No prometemos el resto de España. No forma parte del Profesor escolar.
-  El contenido largo vive en el pack web / ZIP. En <code>file://</code> usa el ZIP; en la web se abren las guías.
+  <strong>Piloto Castilla y León</strong> (Valladolid, Salamanca, León) + fichas sueltas de Madrid, Barcelona y Sevilla.
+  No prometemos el resto de España. No forma parte del Profesor escolar.
 </div>
 
 <p id="guias-web-actions">
-  <a class="btn" href="/guias-viaje/">Abrir guía (web)</a>
-  <a class="btn ghost" href="/guias-viaje/espana/">España</a>
-  <a class="btn ghost" href="/downloads/guias-viaje-espana-offline.zip" download>Descargar ZIP</a>
+  <a class="btn" id="btn-home" href="/guias-viaje/">Abrir guía</a>
+  <a class="btn ghost" id="btn-es" href="/guias-viaje/espana/">España</a>
+  <a class="btn ghost" id="btn-zip" href="/downloads/guias-viaje-espana-offline.zip">ZIP offline</a>
 </p>
-<p id="guias-file-note" class="note" hidden>
-  <strong>Offline · file://</strong> — las rutas <code>/guias-viaje/</code> no existen en este archivo.
-  Descarga el ZIP del pack o ábrelo en lesvencimos.com.
-</p>
+<p class="status" id="guias-status"></p>
+
+<div class="note ok" id="guias-file-note" hidden>
+  <strong>Offline · file://</strong> — enlaces relativos al pack de guías junto a este HTML.
+  Si no abren, descomprime el ZIP <em>guias-viaje-espana</em> y abre <code>ABRE-AQUI.html</code> desde Archivos.
+</div>
+
+<h2>Teléfonos (España)</h2>
+<div class="phones" role="list">
+  <div class="phone" role="listitem"><span class="lab">Emergencias</span><span class="num">112</span></div>
+  <div class="phone" role="listitem"><span class="lab">Policía Nac.</span><span class="num">091</span></div>
+  <div class="phone" role="listitem"><span class="lab">Policía Local</span><span class="num">092</span></div>
+</div>
+<p class="note" style="border-left-color:var(--peligro)"><strong>062</strong> Guardia Civil. No inventamos radios de taxi locales.</p>
 
 <h2>Ciudades escritas</h2>
 <div id="guias-cards">
-<a class="card" href="/guias-viaje/espana/castilla-y-leon/valladolid.html"><div class="t">Valladolid</div><div class="m">Castilla y León</div></a>
-<a class="card" href="/guias-viaje/espana/castilla-y-leon/salamanca.html"><div class="t">Salamanca</div><div class="m">Castilla y León</div></a>
-<a class="card" href="/guias-viaje/espana/castilla-y-leon/leon.html"><div class="t">León</div><div class="m">Castilla y León</div></a>
-<a class="card" href="/guias-viaje/espana/madrid/madrid.html"><div class="t">Madrid</div><div class="m">Comunidad de Madrid</div></a>
-<a class="card" href="/guias-viaje/espana/cataluna/barcelona.html"><div class="t">Barcelona</div><div class="m">Cataluña</div></a>
-<a class="card" href="/guias-viaje/espana/andalucia/sevilla.html"><div class="t">Sevilla</div><div class="m">Andalucía</div></a>
+<a class="card" data-path="espana/castilla-y-leon/valladolid.html" href="/guias-viaje/espana/castilla-y-leon/valladolid.html"><div class="t">Valladolid</div><div class="m">Castilla y León</div><div class="b">Capital castellana · Campo Grande · Semana Santa sobria · pinchos.</div></a>
+<a class="card" data-path="espana/castilla-y-leon/salamanca.html" href="/guias-viaje/espana/castilla-y-leon/salamanca.html"><div class="t">Salamanca</div><div class="m">Castilla y León</div><div class="b">Universidad · piedra de Villamayor · catedrales al Tormes.</div></a>
+<a class="card" data-path="espana/castilla-y-leon/leon.html" href="/guias-viaje/espana/castilla-y-leon/leon.html"><div class="t">León</div><div class="m">Castilla y León</div><div class="b">Vidrieras góticas · Barrio Húmedo · Camino Francés.</div></a>
+<a class="card" data-path="espana/madrid/madrid.html" href="/guias-viaje/espana/madrid/madrid.html"><div class="t">Madrid</div><div class="m">Comunidad de Madrid</div><div class="b">Ficha suelta · ritmo capital · museos y barrios.</div></a>
+<a class="card" data-path="espana/cataluna/barcelona.html" href="/guias-viaje/espana/cataluna/barcelona.html"><div class="t">Barcelona</div><div class="m">Cataluña</div><div class="b">Ficha suelta · mar y ensanche · no es temario escolar.</div></a>
+<a class="card" data-path="espana/andalucia/sevilla.html" href="/guias-viaje/espana/andalucia/sevilla.html"><div class="t">Sevilla</div><div class="m">Andalucía</div><div class="b">Ficha suelta · calor, casco y orillas del Guadalquivir.</div></a>
 </div>
+
+<h2>Cómo usar offline</h2>
+<ul class="tips">
+  <li>En la web: las tarjetas abren la guía en <code>/guias-viaje/</code>.</li>
+  <li>En el ZIP pack-útiles: las tarjetas apuntan a <code>guias-viaje-espana/</code> junto a este HTML.</li>
+  <li>Desde <code>modulos/</code> en el repo: apuntan a <code>../guias-viaje/</code>.</li>
+  <li>Android: abre desde <em>Archivos / Mis archivos</em>, no desde la lista Descargas del navegador.</li>
+</ul>
+
+<p class="foot">lesvencimos.com · cultura general · v20261002</p>
 <script>
 (function(){
   var proto = location.protocol || '';
-  if(proto === 'file:' || proto === 'content:'){
-    var w = document.getElementById('guias-web-actions');
-    var n = document.getElementById('guias-file-note');
-    var c = document.getElementById('guias-cards');
-    if(w) w.hidden = true;
-    if(n) n.hidden = false;
-    if(c){
-      c.querySelectorAll('a.card').forEach(function(a){
-        a.removeAttribute('href');
-        a.style.opacity = '.7';
-        a.style.pointerEvents = 'none';
-        a.title = 'Solo web · descarga el ZIP';
-      });
-    }
+  var isHttp = /^https?:$/i.test(proto);
+  var isFile = proto === 'file:' || proto === 'content:';
+  var path = (location.pathname || '').replace(/\\/g, '/');
+  var base;
+
+  if (isHttp) {
+    base = '/guias-viaje/';
+  } else if (/pack-utiles/i.test(path) || /guias-viaje-espana/i.test(path)) {
+    base = 'guias-viaje-espana/';
+  } else if (/\/modulos\//i.test(path) || /modulos\/guias-viaje\.html$/i.test(path)) {
+    base = '../guias-viaje/';
+  } else {
+    /* ZIP suelto o embed: preferir layout del pack */
+    base = 'guias-viaje-espana/';
   }
+
+  var status = document.getElementById('guias-status');
+  var fileNote = document.getElementById('guias-file-note');
+  var btnHome = document.getElementById('btn-home');
+  var btnEs = document.getElementById('btn-es');
+  var btnZip = document.getElementById('btn-zip');
+
+  if (!isHttp) {
+    if (fileNote) fileNote.hidden = false;
+    if (btnHome) btnHome.href = base + (base.indexOf('guias-viaje-espana')>=0 ? 'index.html' : 'index.html');
+    if (btnHome && base === '../guias-viaje/') btnHome.href = '../guias-viaje/index.html';
+    if (btnHome && base === 'guias-viaje-espana/') btnHome.href = 'guias-viaje-espana/index.html';
+    if (btnEs) {
+      btnEs.href = (base === '../guias-viaje/')
+        ? '../guias-viaje/espana/index.html'
+        : 'guias-viaje-espana/espana/index.html';
+    }
+    if (btnZip) {
+      /* en pack el «ZIP» es abrir ABRE-AQUI; en repo no hay zip local fiable */
+      if (base === 'guias-viaje-espana/') {
+        btnZip.href = 'guias-viaje-espana/ABRE-AQUI.html';
+        btnZip.textContent = 'ABRE-AQUI';
+        btnZip.removeAttribute('download');
+      } else {
+        btnZip.hidden = true;
+      }
+    }
+    if (status) status.innerHTML = 'Modo archivo · base <code>' + base.replace(/</g,'') + '</code>';
+  } else {
+    if (status) status.textContent = 'Modo web · rutas absolutas /guias-viaje/';
+  }
+
+  document.querySelectorAll('#guias-cards a.card[data-path]').forEach(function(a){
+    var rel = a.getAttribute('data-path');
+    if (!rel) return;
+    if (isHttp) a.href = '/guias-viaje/' + rel;
+    else a.href = base + rel;
+  });
 })();
 </script>
-
-<p class="foot">lesvencimos.com · cultura general</p>
 </body>
 </html>
