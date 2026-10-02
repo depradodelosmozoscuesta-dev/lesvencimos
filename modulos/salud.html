@@ -67,6 +67,16 @@ ul.ings{margin:.4rem 0;padding-left:1.1rem;color:var(--suave)}
 .check-item.done .box{background:var(--ok);border-color:var(--ok)}
 
 
+
+body.simple{font-size:1.15rem}
+body.simple h1{font-size:1.85rem}
+body.simple button,.btn,.check-item,.tabs button{min-height:56px;font-size:1.05rem}
+body.simple .card .t{font-size:1.2rem}
+.toolbar{display:flex;flex-wrap:wrap;gap:.5rem;margin:0 0 1rem;align-items:center}
+.toolbar .toggle-label{font-size:.85rem;color:var(--suave)}
+.links-row{display:flex;flex-wrap:wrap;gap:.45rem;margin:.75rem 0 0}
+.links-row a,.links-row button.linkish{min-height:44px;padding:.4rem .85rem;font:600 .88rem var(--sans);border:1px solid var(--linea);border-radius:var(--radio);background:var(--fondo-3);color:var(--tinta);text-decoration:none;cursor:pointer;display:inline-flex;align-items:center}
+
 </style>
 </head>
 <body>
@@ -81,12 +91,21 @@ ul.ings{margin:.4rem 0;padding-left:1.1rem;color:var(--suave)}
   <strong>Aviso:</strong> recordatorio y agenda local. No sustituye indicación médica ni el prospecto.
   Urgencias: <strong>112</strong>. Complementa el módulo Medicación si lo usas aparte.
 </div>
+
+<div class="toolbar" id="toolbar">
+  <span class="toggle-label">Modo sencillo</span>
+  <button type="button" id="btnSimple" aria-pressed="false">Letras grandes: no</button>
+  <button type="button" id="btnExport" class="ghost">Exportar datos</button>
+  <button type="button" id="btnImport" class="ghost">Importar datos</button>
+  <input type="file" id="importFile" accept="application/json,.json" class="hidden" aria-hidden="true">
+</div>
+
 <nav class="tabs" id="tabs"></nav>
 <main id="app"></main>
 <script>
 (function(){
   const TIPS = [{"id": "agua", "titulo": "Agua a ratos", "cuerpo": "Un vaso al levantarte y otro a media mañana. No hace falta beber de golpe: el cuerpo lo aprovecha mejor a sorbos."}, {"id": "pies", "titulo": "Pies en el suelo", "cuerpo": "Al salir de la cama, siéntate un minuto. Luego ponte de pie. Evitas mareos y caídas."}, {"id": "pastilla", "titulo": "Pastilla con rutina", "cuerpo": "Deja la caja junto a algo que ya haces: el café, el cepillo, el vaso de la noche."}, {"id": "luz", "titulo": "Diez minutos de luz", "cuerpo": "Abre la persiana o sal al balcón. La luz de la mañana ordena el sueño y el ánimo."}, {"id": "sal", "titulo": "Sal poco a poco", "cuerpo": "Prueba la comida antes de echar más sal. El sofrito de ajo, cebolla y hierbas ya aporta sabor."}, {"id": "pasamanos", "titulo": "Mano en el pasamanos", "cuerpo": "En escaleras, una mano siempre en el pasamanos. Sin prisa. El orgullo no pega con el suelo."}, {"id": "fruta", "titulo": "Fruta a la vista", "cuerpo": "Un plato con naranjas o peras en la mesa invita más que un cajón. Lo que se ve, se come."}, {"id": "ojos", "titulo": "Ojos al médico", "cuerpo": "Anota la fecha de la cita el mismo día que te la dan. Si cambia, tacha y escribe la nueva."}, {"id": "respirar", "titulo": "Respirar en cuatro", "cuerpo": "Inhala cuatro tiempos, suelta seis. Tres veces. Sirve antes de una analítica o si te agitas."}, {"id": "zapatos", "titulo": "Zapatos que sujetan", "cuerpo": "En casa, zapatillas cerradas. Las abiertas y los calcetines en suelo de baldosa resbalan."}, {"id": "hablar", "titulo": "Hablar un poco", "cuerpo": "Una llamada corta cuenta. El oído y la cabeza se mantienen si hay alguien al otro lado."}, {"id": "envase", "titulo": "No apures el envase", "cuerpo": "Cuando queden tres pastillas, apúntalo en la compra o avisa a farmacia. Así no llegas a cero un domingo."}];
-  const MEDS_DEF = ["Levotiroxina", "Enalapril", "Omeprazol", "Metformina", "AAS", "Atorvastatina", "Paracetamol", "Ibuprofeno", "Amoxicilina", "Vitamina D"];
+  /* Sin lista de fármacos sugeridos: el usuario escribe lo que le recetaron. */
   const K = {
     meds:'lv-salud-meds-v1', /* legado: solo lectura en migrate */
     /* checks muerto: canónico lv-med-check-YYYY-MM-DD */
@@ -156,6 +175,99 @@ ul.ings{margin:.4rem 0;padding-left:1.1rem;color:var(--suave)}
   function esc(s){ return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c]); }
   function uid(){ return 's'+Date.now().toString(36)+Math.random().toString(36).slice(2,5); }
 
+
+  function pushHist(label, id){
+    try{
+      var hist = load(K.hist, []);
+      if(!Array.isArray(hist)) hist = [];
+      hist.unshift({ id: id || uid(), label: label || '', when: new Date().toISOString() });
+      if(hist.length > 200) hist = hist.slice(0, 200);
+      save(K.hist, hist);
+    }catch(e){}
+  }
+  function exportDatos(){
+    migrateSaludMedsToMedicacion();
+    var payload = {
+      v: 1,
+      modulo: 'salud',
+      exportado: new Date().toISOString(),
+      aviso: 'Copia local Les vencimos. No es historial clínico. No sustituye al médico.',
+      keys: {
+        docs: load(K.docs, []),
+        reports: load(K.reports, []),
+        hist: load(K.hist, []),
+        medicacion: loadMedicacion(),
+        medCheckHoy: loadMedChecks(),
+        medCheckKey: 'lv-med-check-'+new Date().toISOString().slice(0,10)
+      }
+    };
+    var blob = new Blob([JSON.stringify(payload, null, 2)], {type:'application/json'});
+    var a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'lesvencimos-salud-'+new Date().toISOString().slice(0,10)+'.json';
+    a.click();
+    setTimeout(function(){ try{ URL.revokeObjectURL(a.href); }catch(e){} }, 1500);
+  }
+  function importDatos(file){
+    if(!file) return;
+    var reader = new FileReader();
+    reader.onload = function(){
+      try{
+        var data = JSON.parse(String(reader.result||''));
+        var keys = (data && data.keys) ? data.keys : data;
+        if(!keys || typeof keys !== 'object'){ alert('JSON no válido.'); return; }
+        if(!confirm('¿Importar médicos, informes e historial de este archivo? La lista de medicinas de Medicación se sustituye si el archivo la trae.')) return;
+        if(Array.isArray(keys.docs)) save(K.docs, keys.docs);
+        if(Array.isArray(keys.reports)) save(K.reports, keys.reports);
+        if(Array.isArray(keys.hist)) save(K.hist, keys.hist);
+        if(Array.isArray(keys.medicacion)) saveMedicacion(keys.medicacion);
+        if(keys.medCheckHoy && typeof keys.medCheckHoy === 'object'){
+          var dayKey = keys.medCheckKey || ('lv-med-check-'+new Date().toISOString().slice(0,10));
+          localStorage.setItem(dayKey, JSON.stringify(keys.medCheckHoy));
+        }
+        alert('Datos importados en este aparato.');
+        render();
+      }catch(e){ alert('No se pudo leer el archivo.'); }
+    };
+    reader.readAsText(file);
+  }
+  function openModulo(name){
+    try{
+      if(window.parent && window.parent !== window){
+        window.parent.postMessage({ lvOpen: name }, '*');
+        return;
+      }
+    }catch(e){}
+    try{ location.href = name + '.html'; }catch(e2){}
+  }
+  function wireChrome(){
+    var btnSimple = document.getElementById('btnSimple');
+    var btnExport = document.getElementById('btnExport');
+    var btnImport = document.getElementById('btnImport');
+    var importFile = document.getElementById('importFile');
+    if(btnSimple && !btnSimple._lv){
+      btnSimple._lv = 1;
+      btnSimple.onclick = function(){
+        var on = document.body.classList.toggle('simple');
+        btnSimple.setAttribute('aria-pressed', on ? 'true' : 'false');
+        btnSimple.textContent = on ? 'Letras grandes: sí' : 'Letras grandes: no';
+        try{ localStorage.setItem('lv-salud-simple', on ? '1' : '0'); }catch(e){}
+      };
+      try{
+        if(localStorage.getItem('lv-salud-simple')==='1' || localStorage.getItem('lv-med-simple')==='1'){
+          if(!document.body.classList.contains('simple')) btnSimple.click();
+        }
+      }catch(e){}
+    }
+    if(btnExport && !btnExport._lv){ btnExport._lv=1; btnExport.onclick = exportDatos; }
+    if(btnImport && importFile && !btnImport._lv){
+      btnImport._lv=1;
+      btnImport.onclick = function(){ importFile.click(); };
+      importFile.onchange = function(){ importDatos(importFile.files && importFile.files[0]); importFile.value=''; };
+    }
+  }
+
+
   let tab='hub';
   const tabs=[
     {id:'hub',label:'Inicio'},
@@ -163,12 +275,14 @@ ul.ings{margin:.4rem 0;padding-left:1.1rem;color:var(--suave)}
     {id:'medicos',label:'Médicos'},
     {id:'informes',label:'Informes'},
     {id:'historial',label:'Historial'},
-    {id:'consejos',label:'Consejos'}
+    {id:'consejos',label:'Consejos'},
+    {id:'datos',label:'Datos'}
   ];
 
   function setTab(id){ tab=id; render(); }
 
   function render(){
+    wireChrome();
     const tel=document.getElementById('tabs');
     tel.innerHTML='';
     tabs.forEach(t=>{
@@ -182,18 +296,28 @@ ul.ings{margin:.4rem 0;padding-left:1.1rem;color:var(--suave)}
         ['medicos','Médicos / centros','Teléfonos y notas'],
         ['informes','Informes','Analíticas y notas locales'],
         ['historial','Historial','Qué tomaste (este aparato)'],
-        ['consejos','Consejos','Hábitos suaves']
+        ['consejos','Consejos','Hábitos suaves'],
+        ['datos','Datos','Exportar / importar local']
       ].map(([id,t,m])=>'<button type="button" class="card" data-go="'+id+'"><div class="t">'+t+'</div><div class="m">'+m+'</div></button>').join('')+'</div>'+
-      '<p class="empty" style="margin-top:1rem">También existe el módulo suelto <strong>Medicación</strong> (más simple). Aquí está la sección Salud completa.</p>';
+      '<div class="panel" style="margin-top:1rem"><div style="font-family:var(--serif);font-weight:600">Enlaces de la balda</div>'+
+      '<div class="links-row">'+
+      '<button type="button" class="linkish" data-mod="medicacion">Medicación</button>'+
+      '<button type="button" class="linkish" data-mod="primeros-auxilios">Primeros auxilios</button>'+
+      '<button type="button" class="linkish" data-mod="higiene">Higiene</button>'+
+      '</div>'+
+      '<p class="empty" style="margin:.65rem 0 0">Recordatorio local. No sustituye al médico. Urgencias: <strong>112</strong>.</p></div>';
       app.querySelectorAll('[data-go]').forEach(b=>b.onclick=()=>setTab(b.getAttribute('data-go')));
+      app.querySelectorAll('[data-mod]').forEach(b=>b.onclick=()=>openModulo(b.getAttribute('data-mod')));
       return;
     }
     if(tab==='pastillas') return renderPastillas(app);
     if(tab==='medicos') return renderMedicos(app);
     if(tab==='informes') return renderInformes(app);
     if(tab==='historial') return renderHist(app);
+    if(tab==='datos') return renderDatos(app);
     if(tab==='consejos'){
-      app.innerHTML=TIPS.map(t=>'<article class="panel"><div style="font-family:var(--serif);font-weight:600;font-size:1.1rem">'+esc(t.titulo)+'</div><p style="margin:.45rem 0 0;color:var(--suave)">'+esc(t.cuerpo)+'</p></article>').join('');
+      app.innerHTML=TIPS.map(t=>'<article class="panel"><div style="font-family:var(--serif);font-weight:600;font-size:1.1rem">'+esc(t.titulo)+'</div><p style="margin:.45rem 0 0;color:var(--suave)">'+esc(t.cuerpo)+'</p></article>').join('')+
+        '<p class="empty">Consejos de hábitos cotidianos. No son indicación médica.</p>';
     }
   }
 
@@ -209,15 +333,7 @@ ul.ings{margin:.4rem 0;padding-left:1.1rem;color:var(--suave)}
       html += '<p class="empty">Aún no hay medicinas en Medicación. Pulsa «Abrir Medicación» para dar de alta.</p>';
     }
     app.innerHTML = html;
-    document.getElementById('open-med').onclick = function(){
-      try{
-        if(window.parent && window.parent !== window){
-          window.parent.postMessage({ lvOpen: 'medicacion' }, '*');
-          return;
-        }
-      }catch(e){}
-      try{ location.href = 'medicacion.html'; }catch(e2){}
-    };
+    document.getElementById('open-med').onclick = function(){ openModulo('medicacion'); };
     function slots(){
       var out=[];
       meds.forEach(function(m){
@@ -238,8 +354,14 @@ ul.ings{margin:.4rem 0;padding-left:1.1rem;color:var(--suave)}
       hoy.querySelectorAll('[data-id]').forEach(function(b){
         b.onclick=function(){
           var id=b.getAttribute('data-id');
-          checks[id]=!checks[id];
+          var nowOn = !checks[id];
+          if(nowOn){ checks[id]=true; } else { delete checks[id]; }
           saveMedChecks(checks);
+          if(nowOn){
+            var horaEl = b.querySelector('span[style*="min-width"]');
+            var nameEl = b.querySelector('strong');
+            pushHist((((horaEl && horaEl.textContent) || '') + ' · ' + ((nameEl && nameEl.textContent) || id)).replace(/^\s·\s/, ''), id);
+          }
           paint();
         };
       });
@@ -301,9 +423,32 @@ function renderMedicos(app){
     };
   }
 
+
+  function renderDatos(app){
+    app.innerHTML =
+      '<div class="panel"><div style="font-family:var(--serif);font-weight:600;font-size:1.1rem">Copia local</div>'+
+      '<p style="margin:.5rem 0;color:var(--suave)">Exporta o importa médicos, informes, historial y la lista de Medicación. Todo queda en este aparato (file:// / localStorage). No sube a ninguna nube.</p>'+
+      '<div class="row">'+
+      '<button type="button" class="primary" id="ex2">Exportar JSON</button>'+
+      '<button type="button" id="im2">Importar JSON</button>'+
+      '</div></div>'+
+      '<div class="panel"><div style="font-family:var(--serif);font-weight:600">Claves localStorage</div>'+
+      '<ul class="ings">'+
+      '<li><code>lv-medicacion-v1</code> — lista de medicinas (fuente de verdad; también Medicación)</li>'+
+      '<li><code>lv-med-check-YYYY-MM-DD</code> — checklist del día</li>'+
+      '<li><code>lv-salud-docs-v1</code> — médicos/centros</li>'+
+      '<li><code>lv-salud-reports-v1</code> — informes/notas</li>'+
+      '<li><code>lv-salud-hist-v1</code> — historial de tomas marcadas</li>'+
+      '<li>Migraciones one-shot: <code>lv-salud-meds-migrated-v1</code>, <code>lv-salud-checks-migrated-v1</code> (desde <code>lv-salud-meds-v1</code> / <code>lv-salud-check-*</code>)</li>'+
+      '</ul>'+
+      '<p class="empty">AVISO: no es historial clínico ni sustituye al médico. Urgencias: <strong>112</strong>.</p></div>';
+    document.getElementById('ex2').onclick = exportDatos;
+    document.getElementById('im2').onclick = function(){ document.getElementById('importFile').click(); };
+  }
+
   function renderHist(app){
     const hist=load(K.hist,[]);
-    app.innerHTML=hist.length?hist.map(h=>'<div class="panel" style="margin-bottom:.45rem"><div class="badge">'+esc((h.when||'').replace('T',' ').slice(0,16))+'</div><div style="margin-top:.35rem">'+esc(h.label||h.id)+'</div></div>').join('')+'<p style="margin-top:1rem"><button type="button" class="danger" id="clr">Vaciar historial</button></p>':'<p class="empty">Cuando marques una pastilla como tomada, aparecerá aquí.</p>';
+    app.innerHTML=hist.length?hist.map(h=>'<div class="panel" style="margin-bottom:.45rem"><div class="badge">'+esc((h.when||'').replace('T',' ').slice(0,16))+'</div><div style="margin-top:.35rem">'+esc(h.label||h.id)+'</div></div>').join('')+'<p style="margin-top:1rem"><button type="button" class="danger" id="clr">Vaciar historial</button></p>':'<p class="empty">Cuando marques una pastilla como tomada en Pastillas (o en Medicación vía checklist compartido), aparecerá aquí. Si ya marcaste hoy, vuelve a marcar tras esta actualización.</p>';
     const clr=document.getElementById('clr'); if(clr) clr.onclick=()=>{ save(K.hist,[]); render(); };
   }
 
