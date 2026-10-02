@@ -61,10 +61,10 @@ button.loc{font-size:.78rem}
 <body>
 <header>
   <h1>Valladolid offline</h1>
-  <p id="sub">Calles + POI · bbox metro · zoom 10–16 · © OSM ODbL · capas y búsqueda</p>
+  <p id="sub">Metro VA denso OSM · calles/footways/POI/ríos/rail · ~12 MB datos + grafo peatonal · zoom 10–18 · © OSM ODbL</p>
   <div class="tools">
     <div class="search">
-      <input id="q" type="search" placeholder="Calle, farmacia, barrio…" autocomplete="off" enterkeyhint="search">
+      <input id="q" type="search" placeholder="Calle, farmacia, bar, barrio…" autocomplete="off" enterkeyhint="search">
       <div id="suggest" role="listbox"></div>
       <button type="button" id="btnGo">Buscar</button>
       <button type="button" id="btnIraSearch" class="ghost" title="Usar el primer resultado como destino">Ir a</button>
@@ -76,8 +76,8 @@ button.loc{font-size:.78rem}
 </header>
 
 <section class="ira" aria-labelledby="ira-h">
-  <h2 id="ira-h">Ir a · prototipo</h2>
-  <p class="ira-aviso"><strong>No es navegación tipo Maps:</strong> solo línea recta GPS→destino. Sin ruta calle a calle ni voz. Velocidades orientativas (~5 km/h a pie, ~30 km/h coche urbano).</p>
+  <h2 id="ira-h">Ir a · ruta peatonal offline</h2>
+  <p class="ira-aviso"><strong>Ruta peatonal offline</strong> (snap a calle + A* sobre grafo OSM) si el grafo carga; si no, línea recta. Sin voz ni tráfico. ETA orientativa (~5 km/h a pie, ~30 km/h coche). Pack ~16 MB sin comprimir.</p>
   <p class="ira-dest" id="iraDest"><span>Destino:</span> toca el mapa, un POI o busca y pulsa «Ir a».</p>
   <div class="ira-stats" aria-live="polite">
     <div class="s"><span class="k">Distancia</span><span class="v" id="outDist">—</span></div>
@@ -98,7 +98,7 @@ button.loc{font-size:.78rem}
 <script>
 (function(){
   'use strict';
-  var CFG = {"mode": "va", "center": [41.6523, -4.7245], "zoom": 13, "minZoom": 10, "maxZoom": 17, "fitSpain": false};
+  var CFG = {"mode": "va", "center": [41.6523, -4.7245], "zoom": 13, "minZoom": 10, "maxZoom": 18, "fitSpain": false};
   var map = L.map('map', { zoomControl: true, attributionControl: true })
     .setView(CFG.center, CFG.zoom);
   map.setMinZoom(CFG.minZoom);
@@ -231,15 +231,20 @@ button.loc{font-size:.78rem}
   function roadStyle(f){
     var p = f.properties || {};
     var hw = p.highway || '';
-    var weight = 1.2, color = '#6a655c', opacity = 0.85;
+    var weight = 1.2, color = '#6a655c', opacity = 0.85, dashArray = null;
     if (p.kind === 'motorway_schema' || hw.indexOf('motorway') === 0 || hw.indexOf('trunk') === 0) { color = '#C4A15A'; weight = CFG.mode==='es' ? 2.4 : 3; }
     else if (hw.indexOf('primary') === 0) { color = '#d4b878'; weight = 2.4; }
     else if (hw.indexOf('secondary') === 0) { color = '#9A9488'; weight = 2; }
     else if (hw.indexOf('tertiary') === 0) { color = '#8a8478'; weight = 1.6; }
-    else if (hw === 'cycleway' || hw === 'pedestrian') { color = '#5a6a5a'; weight = 1; opacity = 0.7; }
+    else if (hw === 'residential' || hw === 'living_street' || hw === 'unclassified') { color = '#7a756c'; weight = 1.35; }
+    else if (hw === 'service') { color = '#5e5950'; weight = 1; opacity = 0.7; }
+    else if (hw === 'footway' || hw === 'path' || hw === 'steps' || hw === 'corridor') { color = '#6b8f71'; weight = 1.05; opacity = 0.75; }
+    else if (hw === 'cycleway' || hw === 'pedestrian') { color = '#5a6a5a'; weight = 1.1; opacity = 0.75; }
+    else if (hw === 'track') { color = '#6a5a4a'; weight = 1; opacity = 0.55; dashArray = '2 3'; }
     var o = { color: color, weight: weight, opacity: opacity };
+    if (dashArray) o.dashArray = dashArray;
     if (p.railway) { o.color = '#7a6a8a'; o.weight = 1.5; o.dashArray = '4 3'; }
-    if (p.waterway || p.kind === 'waterway_schema') { o.color = '#4a7a9a'; o.weight = CFG.mode==='es' ? 2 : 1.4; o.dashArray = null; }
+    if (p.waterway || p.kind === 'waterway_schema') { o.color = '#4a7a9a'; o.weight = CFG.mode==='es' ? 2 : 1.4; delete o.dashArray; }
     return o;
   }
   var outlineStyle = { color: '#C4A15A', weight: 1.5, fillColor: '#2a261e', fillOpacity: 0.28 };
@@ -258,10 +263,13 @@ button.loc{font-size:.78rem}
   function pointToLayer(f, latlng){
     var p = f.properties || {};
     var r = 4, fill = '#C4A15A';
-    if (p.amenity === 'hospital' || p.amenity === 'clinic') fill = '#C46A4A';
+    if (p.amenity === 'hospital' || p.amenity === 'clinic' || p.amenity === 'doctors') fill = '#C46A4A';
     else if (p.amenity === 'pharmacy') fill = '#2ECC71';
     else if (p.amenity === 'school' || p.amenity === 'university' || p.amenity === 'college') fill = '#4A9BE8';
     else if (p.amenity === 'fuel') fill = '#E8A04A';
+    else if (p.amenity === 'restaurant' || p.amenity === 'fast_food') fill = '#E07A5F';
+    else if (p.amenity === 'cafe' || p.amenity === 'bar' || p.amenity === 'pub') fill = '#F2CC8F';
+    else if (p.kind === 'building') { r = 3; fill = '#8a8070'; }
     else if (p.railway === 'station' || p.amenity === 'bus_station' || p.highway === 'bus_stop') fill = '#B45CFF';
     else if (p.amenity === 'airport' || p.kind === 'airport') { r = 6; fill = '#6EC6FF'; }
     else if (p.kind === 'port') { r = 5; fill = '#5A9BFF'; }
@@ -346,8 +354,11 @@ button.loc{font-size:.78rem}
       });
     });
     var meta = geo.meta || {};
-    if (meta.coverage) document.getElementById('sub').textContent = meta.coverage;
-    else if (meta.honest_limit) document.getElementById('sub').textContent = meta.honest_limit;
+    var subBits = [];
+    if (meta.coverage) subBits.push(meta.coverage);
+    subBits.push((geo.features||[]).length + ' features · ~12 MB GeoJSON + grafo peatonal');
+    if (meta.honest) subBits.push(meta.honest);
+    document.getElementById('sub').textContent = subBits.join(' · ');
     /* initial view: prefer deep-link, else meta.bbox */
     if (!applyDeepLink()) {
       if (meta.bbox && meta.bbox.length === 4) {
@@ -370,9 +381,11 @@ button.loc{font-size:.78rem}
     { id: 'pharmacy', label: 'Farmacias', test: function(p){ return p.amenity==='pharmacy'; } },
     { id: 'health', label: 'Salud', test: function(p){ return p.amenity==='hospital'||p.amenity==='clinic'||p.amenity==='doctors'; } },
     { id: 'fuel', label: 'Gasolineras', test: function(p){ return p.amenity==='fuel'; } },
-    { id: 'food', label: 'Supermercados', test: function(p){ return p.shop==='supermarket'||p.shop==='convenience'; } },
+    { id: 'food', label: 'Supers', test: function(p){ return p.shop==='supermarket'||p.shop==='convenience'; } },
+    { id: 'gastro', label: 'Bares/Rest.', test: function(p){ return p.amenity==='restaurant'||p.amenity==='cafe'||p.amenity==='bar'||p.amenity==='pub'||p.amenity==='fast_food'; } },
     { id: 'school', label: 'Colegios', test: function(p){ return p.amenity==='school'||p.amenity==='university'||p.amenity==='college'; } },
-    { id: 'tour', label: 'Turismo', test: function(p){ return !!p.tourism; } }
+    { id: 'tour', label: 'Turismo', test: function(p){ return !!p.tourism; } },
+    { id: 'building', label: 'Edif. nombrados', test: function(p){ return p.kind==='building'; } }
   ];
   var CHIP_DEFS_ES = [
     { id: 'city', label: 'Ciudades', test: function(p){ return p.place==='city'; } },
@@ -419,14 +432,14 @@ button.loc{font-size:.78rem}
     index.forEach(function(it){
       if (!d.test(it.props || {})) return;
       n++;
-      if (n <= 80) {
+      if (n <= 120) {
         var m = L.circleMarker(it.latlng, { radius: 7, color: '#C4A15A', weight: 2, fillColor: '#E8B84A', fillOpacity: 0.35 });
         m.bindTooltip(it.name);
         m.addTo(map);
         chipHits.push(m);
       }
     });
-    setStatus(n ? (n + ' · ' + d.label + (n>80?' (resaltados 80)':'')) : ('Ningún ' + d.label + ' en este pack.'), n ? 'ok' : '');
+    setStatus(n ? (n + ' · ' + d.label + (n>120?' (resaltados 120)':'')) : ('Ningún ' + d.label + ' en este pack.'), n ? 'ok' : '');
     if (chipHits.length) {
       try {
         var g = L.featureGroup(chipHits);
@@ -530,6 +543,136 @@ button.loc{font-size:.78rem}
       Math.sin(dLon / 2) * Math.sin(dLon / 2);
     return R * 2 * Math.atan2(Math.sqrt(x), Math.sqrt(1 - x));
   }
+
+  /* —— Grafo peatonal offline (snap + A*) —— */
+  var routeGraph = null; /* {nodes:{id:[lon,lat]}, adj:{id:[[v,w],...]}, grid} */
+  var routeMode = 'straight'; /* straight | walk */
+  function buildAdj(g){
+    var adj = {};
+    var edges = g.edges || [];
+    for (var i = 0; i < edges.length; i++) {
+      var e = edges[i];
+      var u = String(e[0]), v = String(e[1]), w = e[2];
+      if (!adj[u]) adj[u] = [];
+      adj[u].push([v, w]);
+    }
+    var nodes = g.nodes || {};
+    var grid = {};
+    Object.keys(nodes).forEach(function(id){
+      var ll = nodes[id];
+      var key = Math.round(ll[1]*100) + ':' + Math.round(ll[0]*100); /* ~1.1km cells */
+      if (!grid[key]) grid[key] = [];
+      grid[key].push(id);
+    });
+    return { nodes: nodes, adj: adj, grid: grid, meta: g.meta || {} };
+  }
+  function loadRoutingGraph(){
+    return fetch('routing-graph.json').then(function(r){
+      if (!r.ok) throw new Error('sin grafo');
+      return r.json();
+    }).then(function(g){
+      if (!g || !g.nodes || !g.edges) throw new Error('grafo vacío');
+      routeGraph = buildAdj(g);
+      routeMode = 'walk';
+      setIraMsg('Grafo peatonal listo (' + (g.meta && g.meta.node_count ? g.meta.node_count : '?') + ' nodos). Ruta por calles al marcar destino.', 'ok');
+    }).catch(function(){
+      routeGraph = null;
+      routeMode = 'straight';
+    });
+  }
+  loadRoutingGraph();
+
+  function nearestNode(latlng, maxM){
+    if (!routeGraph) return null;
+    maxM = maxM || 120;
+    var lat = latlng.lat, lon = latlng.lng;
+    var best = null, bestD = Infinity;
+    var cellLat = Math.round(lat*100), cellLon = Math.round(lon*100);
+    for (var dlat = -1; dlat <= 1; dlat++) {
+      for (var dlon = -1; dlon <= 1; dlon++) {
+        var key = (cellLat+dlat) + ':' + (cellLon+dlon);
+        var arr = routeGraph.grid[key];
+        if (!arr) continue;
+        for (var i = 0; i < arr.length; i++) {
+          var id = arr[i];
+          var ll = routeGraph.nodes[id];
+          if (!ll) continue;
+          var d = haversineKm(L.latLng(lat, lon), L.latLng(ll[1], ll[0])) * 1000;
+          if (d < bestD) { bestD = d; best = id; }
+        }
+      }
+    }
+    if (best == null || bestD > maxM) return null;
+    return { id: best, distM: bestD };
+  }
+
+  function astar(startId, goalId){
+    if (!routeGraph || startId == null || goalId == null) return null;
+    if (startId === goalId) return { path: [startId], costM: 0 };
+    var nodes = routeGraph.nodes, adj = routeGraph.adj;
+    var goal = nodes[goalId];
+    if (!goal || !nodes[startId]) return null;
+    function h(id){
+      var ll = nodes[id];
+      return haversineKm(L.latLng(ll[1], ll[0]), L.latLng(goal[1], goal[0])) * 1000;
+    }
+    var open = [];
+    var fScore = {};
+    var gScore = {};
+    var came = {};
+    var inOpen = {};
+    function push(id, f){
+      open.push({ id: id, f: f });
+      inOpen[id] = true;
+    }
+    function pop(){
+      var bi = 0;
+      for (var i = 1; i < open.length; i++) if (open[i].f < open[bi].f) bi = i;
+      var x = open[bi];
+      open.splice(bi, 1);
+      inOpen[x.id] = false;
+      return x.id;
+    }
+    gScore[startId] = 0;
+    fScore[startId] = h(startId);
+    push(startId, fScore[startId]);
+    var expanded = 0;
+    var LIMIT = 80000;
+    while (open.length) {
+      var cur = pop();
+      expanded++;
+      if (expanded > LIMIT) return null;
+      if (cur === goalId) {
+        var path = [cur];
+        while (came[path[path.length-1]] != null) path.push(came[path[path.length-1]]);
+        path.reverse();
+        return { path: path, costM: gScore[goalId] };
+      }
+      var neigh = adj[cur] || [];
+      for (var i = 0; i < neigh.length; i++) {
+        var nid = neigh[i][0], w = neigh[i][1];
+        var tent = gScore[cur] + w;
+        if (gScore[nid] == null || tent < gScore[nid]) {
+          came[nid] = cur;
+          gScore[nid] = tent;
+          fScore[nid] = tent + h(nid);
+          if (!inOpen[nid]) push(nid, fScore[nid]);
+        }
+      }
+    }
+    return null;
+  }
+
+  function pathToLatLngs(pathIds){
+    var out = [];
+    for (var i = 0; i < pathIds.length; i++) {
+      var ll = routeGraph.nodes[pathIds[i]];
+      if (ll) out.push(L.latLng(ll[1], ll[0]));
+    }
+    return out;
+  }
+
+
   function formatEta(hours){
     if (!isFinite(hours) || hours < 0) return '—';
     if (hours < 1 / 60) return '< 1 min';
@@ -549,14 +692,35 @@ button.loc{font-size:.78rem}
       else { elDist.textContent = '…'; elWalk.textContent = '…'; elCar.textContent = '…'; }
       return;
     }
-    var km = haversineKm(myLatLng, destLatLng);
-    elDist.textContent = km < 1 ? (Math.round(km * 1000) + ' m') : (km.toFixed(2) + ' km');
-    elWalk.textContent = formatEta(km / WALK_KMH);
-    elCar.textContent = formatEta(km / CAR_KMH);
+    var straightKm = haversineKm(myLatLng, destLatLng);
+    var routeKm = straightKm;
+    var latlngs = [myLatLng, destLatLng];
+    var usedWalk = false;
+    if (routeGraph && routeMode === 'walk') {
+      var a = nearestNode(myLatLng, 140);
+      var b = nearestNode(destLatLng, 140);
+      if (a && b) {
+        var res = astar(a.id, b.id);
+        if (res && res.path && res.path.length >= 2) {
+          latlngs = [myLatLng].concat(pathToLatLngs(res.path)).concat([destLatLng]);
+          routeKm = (a.distM + res.costM + b.distM) / 1000;
+          usedWalk = true;
+        }
+      }
+    }
+    elDist.textContent = routeKm < 1 ? (Math.round(routeKm * 1000) + ' m') : (routeKm.toFixed(2) + ' km');
+    elWalk.textContent = formatEta(routeKm / WALK_KMH);
+    elCar.textContent = formatEta(straightKm / CAR_KMH);
     if (routeLine) map.removeLayer(routeLine);
-    routeLine = L.polyline([myLatLng, destLatLng], {
-      color: '#C4A15A', weight: 3, opacity: 0.9, dashArray: '8 6'
+    routeLine = L.polyline(latlngs, {
+      color: usedWalk ? '#6b8f71' : '#C4A15A',
+      weight: usedWalk ? 4 : 3,
+      opacity: 0.92,
+      dashArray: usedWalk ? null : '8 6'
     }).addTo(map);
+    if (usedWalk) setIraMsg('Ruta peatonal por calles/footways (~' + (routeKm < 1 ? Math.round(routeKm*1000)+' m' : routeKm.toFixed(2)+' km') + '). No es OSRM/Maps.', 'ok');
+    else if (routeGraph) setIraMsg('Sin camino peatonal cercano: línea recta (snap falló o desconectado).', '');
+    else setIraMsg('Sin grafo: línea recta GPS→destino.', '');
   }
   function ensureMeMarkerIra(){
     if (!myLatLng) return;
@@ -579,7 +743,7 @@ button.loc{font-size:.78rem}
     map.setView(destLatLng, Math.max(map.getZoom(), CFG.mode === 'es' ? 9 : 14));
     updateIraStats();
     if (!myLatLng) setIraMsg('Destino marcado. Pulsa «Seguir GPS» para línea y ETA.', 'ok');
-    else setIraMsg('Destino listo · línea recta (no ruta por calles).', 'ok');
+    else setIraMsg(routeGraph ? 'Destino listo · calculando ruta peatonal…' : 'Destino listo · línea recta (sin grafo).', 'ok');
   }
   function clearDestination(){
     destLatLng = null; destLabel = '';
@@ -605,7 +769,7 @@ button.loc{font-size:.78rem}
     setIraMsg(
       'GPS activo' + (acc ? ' (±' + Math.round(acc) + ' m)' : '') +
       (destLatLng ? ' · actualizando línea/ETA' : ' · elige destino') +
-      '. Línea recta, no es Maps.',
+      '. ' + (routeGraph ? 'Ruta peatonal offline.' : 'Línea recta, no es Maps.'),
       'ok'
     );
   }
