@@ -101,6 +101,7 @@ input,select{width:100%;min-height:48px;padding:.55rem .75rem;font:inherit;backg
 .cat-bar button.on{background:var(--acento);color:var(--acento-texto);border-color:var(--acento)}
 .db-hit .cat{display:inline-block;font-size:.68rem;letter-spacing:.08em;text-transform:uppercase;color:var(--acento);border:1px solid rgba(196,161,90,.35);padding:.15rem .45rem;border-radius:var(--radio);margin-top:.2rem;margin-right:.35rem}
 .status-line{font-size:.85rem;color:var(--suave);margin:.25rem 0 .75rem}
+.status-line.is-error,.empty.is-error{color:#ffd0c8;font-weight:600;background:rgba(180,60,40,.28);border:1px solid rgba(255,160,140,.55);border-radius:var(--radio);padding:.65rem .75rem}
 .checkrow{display:flex;align-items:center;gap:.5rem;margin:.5rem 0 .85rem;font-size:.9rem;color:var(--suave)}
 .checkrow input{width:auto;min-height:auto}
 </style>
@@ -236,8 +237,10 @@ input,select{width:100%;min-height:48px;padding:.55rem .75rem;font:inherit;backg
 
 <input type="file" id="photoInput" accept="image/*" class="hidden" capture="environment">
 
-<p class="foot">localStorage + IndexedDB (fotos) · sin nube · Les vencimos · v20261002d</p>
+<p class="foot">localStorage + IndexedDB (fotos) · sin nube · Les vencimos · v20261003a</p>
 <script src="medicacion-db.js"></script>
+<script src="nomenclator/pako-inflate.min.js"></script>
+<script src="nomenclator/cima-index.embed.js"></script>
 <script src="medicacion-nomenclator.js"></script>
 <script>
 (function(){
@@ -479,27 +482,45 @@ input,select{width:100%;min-height:48px;padding:.55rem .75rem;font:inherit;backg
   }
 
   var cimaLoading=false;
+  var cimaLoadError=null;
+  function showCimaError(msg){
+    cimaLoadError=msg;
+    var st=document.getElementById('cimaStatus');
+    var empty=document.getElementById('cimaEmpty');
+    var dates=document.getElementById('cimaAttrDates');
+    if(st){ st.classList.add('is-error'); st.setAttribute('role','alert'); st.textContent=msg; }
+    if(empty){ empty.classList.remove('hidden'); empty.classList.add('is-error'); empty.textContent=msg; }
+    if(dates) dates.textContent=msg;
+  }
   async function ensureCimaLoaded(){
     if(cimaData || cimaLoading) return;
     cimaLoading=true;
     var st=document.getElementById('cimaStatus');
-    st.textContent='Cargando índice offline (gzip)…';
+    st.classList.remove('is-error');
+    st.removeAttribute('role');
+    st.textContent='Cargando índice offline (embebido, sin red)…';
     try{
       if(!NOM) throw new Error('Falta medicacion-nomenclator.js');
       cimaData = await NOM.loadIndex();
+      cimaLoadError=null;
       setCimaAttr();
-      st.textContent='Índice listo · '+(cimaData.meta.n_medicamentos||cimaData.meds.length)+' medicamentos. Escribe para buscar.';
+      st.textContent='Índice listo · '+(cimaData.meta.n_medicamentos||cimaData.meds.length)+' medicamentos. Busca por nombre, principio activo o CN.';
       document.getElementById('cimaFichaDisclaimer').textContent =
         (cimaData.meta.atribucion||NOM.ATRIBUCION)+'. '+(cimaData.meta.aviso||DB_DISC);
+      var empty=document.getElementById('cimaEmpty');
+      empty.classList.remove('is-error');
     }catch(e){
-      st.textContent='No se pudo cargar el índice CIMA offline. ¿Está nomenclator/cima-index.json.gz junto a esta página? ('+(e&&e.message?e.message:e)+')';
-      document.getElementById('cimaEmpty').textContent=st.textContent;
+      showCimaError('No se pudo cargar el índice CIMA offline. '+(e&&e.message?e.message:e));
     }finally{
       cimaLoading=false;
     }
   }
 
   function renderCimaResults(){
+    try { renderCimaResultsInner(); }
+    catch(e){ showCimaError('Error al buscar: '+(e&&e.message?e.message:e)); }
+  }
+  function renderCimaResultsInner(){
     var q=document.getElementById('cimaSearch').value||'';
     var only=document.getElementById('cimaOnlyCom').checked;
     var box=document.getElementById('cimaResults');
@@ -507,7 +528,8 @@ input,select{width:100%;min-height:48px;padding:.55rem .75rem;font:inherit;backg
     box.innerHTML='';
     if(!cimaData){
       empty.classList.remove('hidden');
-      empty.textContent='Índice aún no cargado.';
+      empty.classList.toggle('is-error', !!cimaLoadError);
+      empty.textContent=cimaLoadError || 'Índice aún no cargado.';
       return;
     }
     if(norm(q).trim().length<2 && !/^\d{6,7}$/.test(String(q).replace(/\s+/g,''))){
@@ -518,9 +540,16 @@ input,select{width:100%;min-height:48px;padding:.55rem .75rem;font:inherit;backg
     var hits=NOM.searchMeds(cimaData.meds, q, {limit:40, onlyComercializados:only});
     if(!hits.length){
       empty.classList.remove('hidden');
-      empty.textContent='Sin coincidencias en el nomenclátor offline.';
+      empty.classList.remove('is-error');
+      var msg='Sin coincidencias en el nomenclátor offline.';
+      if(only){
+        var any=NOM.searchMeds(cimaData.meds, q, {limit:1, onlyComercializados:false});
+        if(any.length) msg='Sin coincidencias entre comercializados. Quita «Solo comercializados» para ver autorizados no comercializados.';
+      }
+      empty.textContent=msg;
       return;
     }
+    empty.classList.remove('is-error');
     empty.classList.add('hidden');
     hits.forEach(function(m){
       var b=document.createElement('button');

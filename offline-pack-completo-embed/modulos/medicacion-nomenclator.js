@@ -1,7 +1,7 @@
 /* Les vencimos — cargador/búsqueda Nomenclátor CIMA offline (AEMPS)
  * Atribución obligatoria: «Fuente de la información: Agencia Española de Medicamentos y Productos Sanitarios www.aemps.gob.es» + fecha obtención.
  * Sin fotos AEMPS. Campos oficiales sin transformar.
- * v20261002d
+ * v20261003a
  */
 (function (root) {
   'use strict';
@@ -87,14 +87,70 @@
     return '';
   }
 
-  async function inflateGzip(buf) {
-    if (typeof DecompressionStream !== 'undefined') {
-      var ds = new DecompressionStream('gzip');
-      var stream = new Response(buf).body.pipeThrough(ds);
-      var text = await new Response(stream).text();
-      return text;
+  function b64ToBytes(b64) {
+    var clean = String(b64 || '').replace(/\s+/g, '');
+    if (!clean) throw new Error('Indice embebido vacio');
+    var bin;
+    try {
+      bin = atob(clean);
+    } catch (e) {
+      throw new Error('Indice embebido ilegible (base64)');
     }
-    throw new Error('DecompressionStream no disponible; usa un navegador reciente o el ZIP con servidor local.');
+    var out = new Uint8Array(bin.length);
+    for (var i = 0; i < bin.length; i++) out[i] = bin.charCodeAt(i) & 255;
+    return out;
+  }
+
+  function ungzipPako(u8) {
+    var pako = root.pako;
+    if (!pako || typeof pako.ungzip !== 'function') return null;
+    return pako.ungzip(u8, { to: 'string' });
+  }
+
+  async function ungzipBytes(u8) {
+    var pakoText = null;
+    var pakoErr = null;
+    try {
+      pakoText = ungzipPako(u8);
+    } catch (e) {
+      pakoErr = e;
+    }
+    if (typeof pakoText === 'string' && pakoText.charAt(0) === '{') return pakoText;
+    if (typeof DecompressionStream !== 'undefined') {
+      try {
+        var ds = new DecompressionStream('gzip');
+        var stream = new Blob([u8]).stream().pipeThrough(ds);
+        var text = await new Response(stream).text();
+        if (text && text.charAt(0) === '{') return text;
+      } catch (e2) {
+        pakoErr = pakoErr || e2;
+      }
+    }
+    if (typeof pakoText === 'string') return pakoText;
+    throw pakoErr || new Error('No se pudo descomprimir el indice (sin pako ni DecompressionStream).');
+  }
+
+  function parseIndexText(text, origin) {
+    var data;
+    try {
+      data = JSON.parse(text);
+    } catch (e) {
+      throw new Error('Indice CIMA corrupto (' + origin + ')');
+    }
+    if (!data || !Array.isArray(data.meds)) {
+      throw new Error('Indice CIMA sin lista de medicamentos (' + origin + ')');
+    }
+    return data;
+  }
+
+  async function loadEmbedded() {
+    if (root.LV_CIMA_INDEX && Array.isArray(root.LV_CIMA_INDEX.meds)) {
+      return root.LV_CIMA_INDEX;
+    }
+    if (!root.LV_CIMA_INDEX_GZ_B64) return null;
+    var u8 = b64ToBytes(root.LV_CIMA_INDEX_GZ_B64);
+    var text = await ungzipBytes(u8);
+    return parseIndexText(text, 'embed');
   }
 
   async function fetchIndex(url) {
@@ -103,28 +159,61 @@
     return res;
   }
 
-  /**
-   * Load nomenclátor index. Tries nomenclator/cima-index.json.gz then .json.
-   * @returns {Promise<{meta:object, meds:array}>}
-   */
-  async function loadIndex(baseOverride) {
-    var base = baseOverride != null ? baseOverride : scriptBase() + 'nomenclator/';
+  async function loadFromFetch(base) {
     var lastErr = null;
     try {
       var resGz = await fetchIndex(base + 'cima-index.json.gz');
-      var buf = await resGz.arrayBuffer();
-      var text = await inflateGzip(buf);
-      return JSON.parse(text);
+      var buf = new Uint8Array(await resGz.arrayBuffer());
+      var text = await ungzipBytes(buf);
+      return parseIndexText(text, 'gz');
     } catch (e) {
       lastErr = e;
     }
     try {
       var resJson = await fetchIndex(base + 'cima-index.json');
-      return await resJson.json();
+      return parseIndexText(await resJson.text(), 'json');
     } catch (e2) {
       lastErr = e2;
     }
-    throw lastErr || new Error('No se pudo cargar el índice CIMA offline');
+    throw lastErr || new Error('No se pudo cargar el indice CIMA offline');
+  }
+
+  /**
+   * Load nomenclator. Prefers the embedded base64 gzip (script src, file:// safe).
+   * Fetch of .gz/.json is only a fallback and fails on file:// in Chrome.
+   * @returns {Promise<{meta:object, meds:array}>}
+   */
+  async function loadIndex(baseOverride) {
+    var embedErr = null;
+    try {
+      var embedded = await loadEmbedded();
+      if (embedded) return embedded;
+    } catch (e) {
+      embedErr = e;
+    }
+    var base = baseOverride != null ? baseOverride : scriptBase() + 'nomenclator/';
+    var fileProto = false;
+    try {
+      fileProto = typeof location !== 'undefined' && location.protocol === 'file:';
+    } catch (eLoc) {}
+    if (embedErr && fileProto) {
+      throw new Error(
+        'El indice embebido no se pudo leer (' + (embedErr.message || embedErr) +
+        '). En file:// el navegador bloquea fetch del .gz; hacen falta nomenclator/cima-index.embed.js y nomenclator/pako-inflate.min.js.'
+      );
+    }
+    try {
+      return await loadFromFetch(base);
+    } catch (fetchErr) {
+      var parts = [];
+      if (embedErr) parts.push('embed: ' + (embedErr.message || embedErr));
+      else parts.push('falta nomenclator/cima-index.embed.js (script src)');
+      parts.push('fetch: ' + (fetchErr && fetchErr.message ? fetchErr.message : fetchErr));
+      if (fileProto) {
+        parts.push('file:// bloquea fetch de archivos locales');
+      }
+      throw new Error(parts.join(' · '));
+    }
   }
 
   function searchMeds(meds, query, opts) {

@@ -1,5 +1,5 @@
 MEDICACIÓN — Les vencimos
-v20261002d
+v20261003a
 
 FASE 1+2: recordatorio local + Nomenclátor CIMA/AEMPS offline + guía rápida (129).
 
@@ -10,13 +10,28 @@ Pestañas:
      comercializados). Atribución + fecha snapshot. Ver en CIMA / prospecto / FT (enlace online).
   3) Guía rápida — 129 fichas resumen propias (medicacion-db.js), aparte del nomenclátor.
 
+Cómo carga el índice (importante):
+  NO depende de fetch(). En file:// (Chrome, y el WebView si AllowFileAccessFromFileURLs
+  está en false) fetch de un .gz hermano falla con "Failed to fetch" y la búsqueda queda vacía.
+  El índice viaja embebido:
+    1. nomenclator/pako-inflate.min.js   (pako 2.1.0, MIT/Zlib) descomprime si no hay DecompressionStream
+    2. nomenclator/cima-index.embed.js   (window.LV_CIMA_INDEX_GZ_B64 = gzip del JSON en base64)
+    3. medicacion-nomenclator.js         lee el base64, infla con pako o DecompressionStream, busca
+  Esos dos scripts van ANTES de medicacion-nomenclator.js, con <script src> (mismo origen, file://).
+  Si el embed falla, se intenta fetch de nomenclator/cima-index.json.gz y luego .json (solo http/https).
+  Si nada carga, la pestaña muestra el error en rojo (role=alert), no un fallo silencioso.
+  Búsqueda: nombre, principio activo y CN (6–7 dígitos), sin acentos. Mínimo 2 letras.
+  Casilla «Solo comercializados» (activada por defecto): si oculta resultados, el aviso lo dice.
+
 Archivos:
   - medicacion.html
   - medicacion-db.js          (guía rápida 129)
-  - medicacion-nomenclator.js (carga gzip, búsqueda, placeholders, fotos IDB)
-  - nomenclator/cima-index.json.gz
+  - medicacion-nomenclator.js (carga embed, búsqueda, placeholders, fotos IDB)
+  - nomenclator/pako-inflate.min.js
+  - nomenclator/cima-index.embed.js
+  - nomenclator/cima-index.json.gz      (fuente; el runtime no lo necesita en file://)
   - nomenclator/cima-index.meta.json
-  - build-nomenclator.py      (pipeline reproducible)
+  - build-nomenclator.py      (pipeline reproducible; también escribe el .embed.js)
 
 Atribución obligatoria (AEMPS):
   «Fuente de la información: Agencia Española de Medicamentos y Productos Sanitarios
@@ -30,9 +45,9 @@ Al marcar toma → lv-salud-hist-v1 (compartido con Salud).
 AVISO: no sustituye el prospecto del envase ni la indicación médica. Urgencias: 112.
 Sin pautas prescritas automáticas. Solo local; sin nube.
 
-1. Abre medicacion.html (necesita los JS y nomenclator/ al lado).
-2. Para file://: Chromium suele poder fetch del .json.gz hermano; si falla, usa un servidor local
-   o la app Les vencimos.
+1. Abre medicacion.html con los JS y la carpeta nomenclator/ al lado (file:// vale).
+2. Pestaña Buscar CIMA: debe decir «Índice listo» sin red. Prueba paracetamol, ácido acetilsalicílico o un CN.
 3. Rebuild índice: python3 build-nomenclator.py --fecha-obtencion YYYY-MM-DD
+   (regenera .json.gz, .meta.json y cima-index.embed.js).
 
 lesvencimos.com
