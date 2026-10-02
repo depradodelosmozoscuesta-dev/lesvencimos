@@ -37,6 +37,25 @@ button.loc{font-size:.78rem}
 .msg{font-size:.72rem;color:var(--suave);margin:.3rem 0 0}
 .msg.err{color:var(--peligro)}
 .msg.ok{color:var(--ok)}
+
+.ira{padding:.45rem .75rem;border-bottom:1px solid var(--linea);background:var(--fondo-2);flex:0 0 auto}
+.ira h2{margin:0 0 .3rem;font-size:.68rem;letter-spacing:.12em;text-transform:uppercase;color:var(--suave);font-weight:600}
+.ira-aviso{margin:0 0 .35rem;font-size:.72rem;line-height:1.35;color:var(--suave)}
+.ira-aviso strong{color:var(--acento)}
+.ira-stats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:.35rem;margin:.3rem 0}
+.ira-stats .s{background:var(--fondo-3);border:1px solid var(--linea);border-radius:2px;padding:.35rem .45rem}
+.ira-stats .k{display:block;font-size:.62rem;letter-spacing:.08em;text-transform:uppercase;color:var(--suave)}
+.ira-stats .v{display:block;font-size:.92rem;font-weight:600;margin-top:.1rem}
+.ira-dest{font-size:.82rem;margin:.15rem 0 .3rem;color:var(--tinta)}
+.ira-dest span{color:var(--suave)}
+.ira-row{display:flex;flex-wrap:wrap;gap:.35rem;align-items:center}
+.ira-row button{min-height:40px;padding:0 .75rem;border-radius:2px;font:600 .85rem var(--sans);cursor:pointer;border:1px solid var(--linea);background:var(--fondo-3);color:var(--tinta)}
+.ira-row button.primary{background:var(--acento);color:#1A160E;border-color:var(--acento)}
+.ira-row button:disabled{opacity:.45;cursor:not-allowed}
+.ira-msg{margin:.25rem 0 0;font-size:.75rem;color:var(--suave);min-height:1.1em}
+.ira-msg.ok{color:var(--ok)}
+.ira-msg.err{color:var(--peligro)}
+.search button.ghost{background:var(--fondo-3);color:var(--tinta);border:1px solid var(--linea)}
 </style>
 </head>
 <body>
@@ -47,13 +66,32 @@ button.loc{font-size:.78rem}
     <div class="search">
       <input id="q" type="search" placeholder="Calle, farmacia, barrio…" autocomplete="off" enterkeyhint="search">
       <div id="suggest" role="listbox"></div>
-      <button type="button" id="btnGo">Ir</button>
+      <button type="button" id="btnGo">Buscar</button>
+      <button type="button" id="btnIraSearch" class="ghost" title="Usar el primer resultado como destino">Ir a</button>
     </div>
-    <button type="button" class="loc" id="btnLoc" title="Usar GPS del aparato">📍 GPS</button>
+    <button type="button" class="loc" id="btnLoc" title="Usar GPS del aparato (una vez)">📍 GPS</button>
   </div>
   <div class="chips" id="chips" aria-label="Filtros rápidos"></div>
   <p class="msg" id="status" role="status"></p>
 </header>
+
+<section class="ira" aria-labelledby="ira-h">
+  <h2 id="ira-h">Ir a · prototipo</h2>
+  <p class="ira-aviso"><strong>No es navegación tipo Maps:</strong> solo línea recta GPS→destino. Sin ruta calle a calle ni voz. Velocidades orientativas (~5 km/h a pie, ~30 km/h coche urbano).</p>
+  <p class="ira-dest" id="iraDest"><span>Destino:</span> toca el mapa, un POI o busca y pulsa «Ir a».</p>
+  <div class="ira-stats" aria-live="polite">
+    <div class="s"><span class="k">Distancia</span><span class="v" id="outDist">—</span></div>
+    <div class="s"><span class="k">ETA a pie</span><span class="v" id="outWalk">—</span></div>
+    <div class="s"><span class="k">ETA coche</span><span class="v" id="outCar">—</span></div>
+  </div>
+  <div class="ira-row">
+    <button type="button" class="primary" id="btnFollow">Seguir GPS</button>
+    <button type="button" id="btnStop" disabled>Parar</button>
+    <button type="button" id="btnClearDest" disabled>Quitar destino</button>
+  </div>
+  <p class="ira-msg" id="iraMsg" role="status"></p>
+</section>
+
 <div id="map" role="application" aria-label="Mapa offline"></div>
 <div class="bar">Incluido en la app · Leaflet local · Datos <strong>© OpenStreetMap</strong> · <strong>ODbL</strong> · lesvencimos.com</div>
 <script src="vendor/leaflet.js"></script>
@@ -273,10 +311,18 @@ button.loc{font-size:.78rem}
       if (f.geometry && f.geometry.type === 'Point') {
         layer.bindTooltip(name, { direction: 'top', opacity: 0.9, permanent: p.kind === 'region_label' });
       }
-      layer.bindPopup(popupHtml(p));
+      var html = popupHtml(p);
+      var ll = null;
+      if (layer.getLatLng) ll = layer.getLatLng();
+      else if (layer.getBounds) {
+        try { ll = layer.getBounds().getCenter(); } catch(e) {}
+      }
+      if (ll && name) {
+        html += '<br><button type="button" class="lv-ira-pop" data-lat="' + ll.lat + '" data-lon="' + ll.lng + '" data-name="' + String(name).replace(/"/g, '&quot;') + '">Ir a aquí</button>';
+      }
+      layer.bindPopup(html);
     }
     indexFeature(f, layer);
-    /* bus_stop points often tagged highway=bus_stop on Point */
   }
 
   function style(f){
@@ -454,18 +500,201 @@ button.loc{font-size:.78rem}
     if (!suggest.contains(e.target) && e.target !== qInput) suggest.style.display='none';
   });
 
+
+  /* —— Ir a / ETA / Seguir GPS (prototipo línea recta) —— */
+  var WALK_KMH = 5;
+  var CAR_KMH = 30;
+  var destLatLng = null;
+  var destLabel = '';
+  var myLatLng = null;
+  var watchId = null;
+  var routeLine = null;
+  var destMarker = null;
+  var lastHits = [];
+  var elDest = document.getElementById('iraDest');
+  var elDist = document.getElementById('outDist');
+  var elWalk = document.getElementById('outWalk');
+  var elCar = document.getElementById('outCar');
+  var elMsg = document.getElementById('iraMsg');
+  var btnFollow = document.getElementById('btnFollow');
+  var btnStop = document.getElementById('btnStop');
+  var btnClearDest = document.getElementById('btnClearDest');
+
+  function toRad(d){ return d * Math.PI / 180; }
+  function haversineKm(a, b){
+    var R = 6371;
+    var dLat = toRad(b.lat - a.lat);
+    var dLon = toRad(b.lng - a.lng);
+    var x = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+      Math.cos(toRad(a.lat)) * Math.cos(toRad(b.lat)) *
+      Math.sin(dLon / 2) * Math.sin(dLon / 2);
+    return R * 2 * Math.atan2(Math.sqrt(x), Math.sqrt(1 - x));
+  }
+  function formatEta(hours){
+    if (!isFinite(hours) || hours < 0) return '—';
+    if (hours < 1 / 60) return '< 1 min';
+    if (hours < 1) return Math.round(hours * 60) + ' min';
+    var h = Math.floor(hours);
+    var m = Math.round((hours - h) * 60);
+    if (m === 60) { h += 1; m = 0; }
+    return h + ' h' + (m ? ' ' + m + ' min' : '');
+  }
+  function setIraMsg(text, kind){
+    elMsg.textContent = text || '';
+    elMsg.className = 'ira-msg' + (kind ? ' ' + kind : '');
+  }
+  function updateIraStats(){
+    if (!destLatLng || !myLatLng) {
+      if (!destLatLng) { elDist.textContent = '—'; elWalk.textContent = '—'; elCar.textContent = '—'; }
+      else { elDist.textContent = '…'; elWalk.textContent = '…'; elCar.textContent = '…'; }
+      return;
+    }
+    var km = haversineKm(myLatLng, destLatLng);
+    elDist.textContent = km < 1 ? (Math.round(km * 1000) + ' m') : (km.toFixed(2) + ' km');
+    elWalk.textContent = formatEta(km / WALK_KMH);
+    elCar.textContent = formatEta(km / CAR_KMH);
+    if (routeLine) map.removeLayer(routeLine);
+    routeLine = L.polyline([myLatLng, destLatLng], {
+      color: '#C4A15A', weight: 3, opacity: 0.9, dashArray: '8 6'
+    }).addTo(map);
+  }
+  function ensureMeMarkerIra(){
+    if (!myLatLng) return;
+    if (meMarker) meMarker.setLatLng(myLatLng);
+    else {
+      meMarker = L.circleMarker(myLatLng, {
+        radius: 7, color: '#0E0E0C', weight: 2, fillColor: '#4A9BE8', fillOpacity: 1
+      }).addTo(map).bindTooltip('Tú', { permanent: false });
+    }
+  }
+  function setDestination(latlng, label){
+    destLatLng = latlng;
+    destLabel = label || (latlng.lat.toFixed(5) + ', ' + latlng.lng.toFixed(5));
+    elDest.innerHTML = '<span>Destino:</span> ' + destLabel;
+    btnClearDest.disabled = false;
+    if (destMarker) map.removeLayer(destMarker);
+    destMarker = L.circleMarker(destLatLng, {
+      radius: 8, color: '#0E0E0C', weight: 2, fillColor: '#C46A4A', fillOpacity: 1
+    }).addTo(map).bindTooltip(destLabel, { permanent: false });
+    map.setView(destLatLng, Math.max(map.getZoom(), CFG.mode === 'es' ? 9 : 14));
+    updateIraStats();
+    if (!myLatLng) setIraMsg('Destino marcado. Pulsa «Seguir GPS» para línea y ETA.', 'ok');
+    else setIraMsg('Destino listo · línea recta (no ruta por calles).', 'ok');
+  }
+  function clearDestination(){
+    destLatLng = null; destLabel = '';
+    elDest.innerHTML = '<span>Destino:</span> toca el mapa, un POI o busca y pulsa «Ir a».';
+    elDist.textContent = '—'; elWalk.textContent = '—'; elCar.textContent = '—';
+    btnClearDest.disabled = true;
+    if (destMarker) { map.removeLayer(destMarker); destMarker = null; }
+    if (routeLine) { map.removeLayer(routeLine); routeLine = null; }
+    setIraMsg('Destino quitado.');
+  }
+  function stopWatch(){
+    if (watchId != null && navigator.geolocation) navigator.geolocation.clearWatch(watchId);
+    watchId = null;
+    btnFollow.disabled = false;
+    btnStop.disabled = true;
+    setIraMsg(destLatLng ? 'Seguimiento parado. Destino sigue marcado.' : 'Seguimiento parado.');
+  }
+  function onPos(pos){
+    myLatLng = L.latLng(pos.coords.latitude, pos.coords.longitude);
+    ensureMeMarkerIra();
+    updateIraStats();
+    var acc = pos.coords.accuracy;
+    setIraMsg(
+      'GPS activo' + (acc ? ' (±' + Math.round(acc) + ' m)' : '') +
+      (destLatLng ? ' · actualizando línea/ETA' : ' · elige destino') +
+      '. Línea recta, no es Maps.',
+      'ok'
+    );
+  }
+  function onPosErr(err){
+    var tip = ' Activa ubicación o sal al exterior. Sin red: el GPS del móvil basta.';
+    if (err && err.code === 1) setIraMsg('Permiso de ubicación denegado.' + tip, 'err');
+    else if (err && err.code === 2) setIraMsg('Posición no disponible.' + tip, 'err');
+    else if (err && err.code === 3) setIraMsg('Tiempo de espera agotado.' + tip, 'err');
+    else setIraMsg('No se pudo obtener GPS.' + tip, 'err');
+    stopWatch();
+  }
+  function startFollow(){
+    if (!navigator.geolocation) { setIraMsg('Este navegador no ofrece geolocalización.', 'err'); return; }
+    if (watchId != null) stopWatch();
+    setIraMsg('Pidiendo permiso de ubicación…');
+    btnFollow.disabled = true;
+    btnStop.disabled = false;
+    watchId = navigator.geolocation.watchPosition(onPos, onPosErr, {
+      enableHighAccuracy: true, timeout: 20000, maximumAge: 5000
+    });
+  }
+
+  document.addEventListener('click', function(e){
+    var t = e.target;
+    if (t && t.classList && t.classList.contains('lv-ira-pop')) {
+      var lat = parseFloat(t.getAttribute('data-lat'));
+      var lon = parseFloat(t.getAttribute('data-lon'));
+      var nm = t.getAttribute('data-name') || 'Destino';
+      if (isFinite(lat) && isFinite(lon)) {
+        setDestination(L.latLng(lat, lon), nm);
+        map.closePopup();
+      }
+    }
+  });
+
+  map.on('click', function(e){
+    /* ignore clicks that open popups on features shortly after */
+    setDestination(e.latlng, 'Punto en mapa (' + e.latlng.lat.toFixed(5) + ', ' + e.latlng.lng.toFixed(5) + ')');
+  });
+
+  function iraFromSearch(){
+    var hits = lastHits.length ? lastHits : search(qInput.value);
+    if (!hits.length) {
+      hits = search(qInput.value);
+      lastHits = hits;
+      renderSuggest(hits);
+    }
+    if (!hits.length) {
+      setIraMsg('No encontrado en este pack: ' + (qInput.value || ''), 'err');
+      setStatus('No encontrado en este pack: ' + (qInput.value || ''), 'err');
+      return;
+    }
+    var h = hits[0];
+    suggest.style.display = 'none';
+    qInput.value = h.name;
+    setDestination(h.latlng, h.name + ' (' + h.kind + ')');
+  }
+
+  var _renderSuggest = renderSuggest;
+  renderSuggest = function(hits){
+    lastHits = hits || [];
+    _renderSuggest(hits);
+  };
+  var _goTo = goTo;
+  goTo = function(h){
+    _goTo(h);
+    if (h && h.latlng) setDestination(h.latlng, h.name + ' (' + h.kind + ')');
+  };
+
+  document.getElementById('btnIraSearch').addEventListener('click', iraFromSearch);
+  btnFollow.addEventListener('click', startFollow);
+  btnStop.addEventListener('click', stopWatch);
+  btnClearDest.addEventListener('click', clearDestination);
+
   document.getElementById('btnLoc').addEventListener('click', function(){
     if (!navigator.geolocation) { setStatus('Sin geolocalización en este navegador.', 'err'); return; }
     setStatus('Pidiendo GPS…');
     navigator.geolocation.getCurrentPosition(function(pos){
-      var ll = [pos.coords.latitude, pos.coords.longitude];
+      myLatLng = L.latLng(pos.coords.latitude, pos.coords.longitude);
+      var ll = [myLatLng.lat, myLatLng.lng];
       if (meMarker) map.removeLayer(meMarker);
       meMarker = L.circleMarker(ll, { radius: 8, color: '#E6E1D6', weight: 2, fillColor: '#2ECC71', fillOpacity: 0.9 })
         .bindPopup('Estás aquí (±' + Math.round(pos.coords.accuracy||0) + ' m)').addTo(map);
       var z = CFG.mode === 'es' ? Math.max(map.getZoom(), 8) : Math.max(map.getZoom(), 14);
       map.setView(ll, z);
       meMarker.openPopup();
+      updateIraStats();
       setStatus('GPS listo.', 'ok');
+      setIraMsg(destLatLng ? 'GPS una vez · ETA actualizada. Usa «Seguir GPS» para continuo.' : 'GPS listo. Elige destino o «Seguir GPS».', 'ok');
     }, function(){
       setStatus('No se pudo obtener GPS. Revisa permisos o sal al exterior.', 'err');
     }, { enableHighAccuracy: true, timeout: 20000, maximumAge: 15000 });
