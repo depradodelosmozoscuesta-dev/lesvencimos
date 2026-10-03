@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Laboratorio L01 · HTML y estructura de una página</title>
+<style>
+:root{--ink:#0E0E0C;--amber:#C4A15A;--paper:#FAF7F0;--line:rgba(14,14,12,.14);--blue:#2F5D7A;--green:#3D6B4F;--bad:#A85A3C}
+*{box-sizing:border-box}
+body{margin:0;font-family:"Segoe UI",system-ui,sans-serif;background:var(--paper);color:var(--ink);line-height:1.45}
+header{padding:.7rem 1rem;border-bottom:2px solid var(--amber);background:#fff}
+header h1{margin:0;font-size:1.05rem;font-family:Palatino,Georgia,serif}
+header p{margin:.2rem 0 0;font-size:.8rem;color:#5C564C}
+main{padding:.75rem 1rem 2rem;max-width:62rem}
+label{display:block;font-size:.75rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:#5C564C;margin:.55rem 0 .2rem}
+textarea,input[type=text],input[type=number],select{width:100%;font:14px/1.4 ui-monospace,monospace;border:1px solid var(--line);border-radius:6px;padding:.4rem .5rem;background:#fff;color:var(--ink)}
+textarea{min-height:11rem;resize:vertical}
+.row{display:flex;flex-wrap:wrap;gap:.4rem;margin:.5rem 0}
+button{background:var(--amber);color:#1A160E;border:0;border-radius:4px;padding:.45rem .75rem;font-weight:700;cursor:pointer}
+button.sec{background:#fff;border:1px solid var(--line)}
+.grid{display:grid;gap:.75rem}
+@media(min-width:800px){.grid.dos{grid-template-columns:1fr 1fr}}
+iframe.pv,.pv{width:100%;min-height:280px;border:1px solid var(--line);border-radius:8px;background:#fff}
+.out{font-size:.9rem;background:#fff;border:1px solid var(--line);border-radius:8px;padding:.55rem .7rem}
+.ok{color:var(--green);font-weight:700}.bad{color:var(--bad);font-weight:700}
+canvas{width:100%;height:auto;background:#fff;border:1px solid var(--line);border-radius:8px}
+.nota{font-size:.82rem;color:#5C564C}
+.lab-row{display:flex;flex-wrap:wrap;gap:.4rem;margin:.45rem 0}
+.lab-out{font-size:.9rem;background:#fff;border:1px solid var(--line);border-radius:8px;padding:.55rem .7rem;margin-top:.35rem}
+.lab-canvas{width:100%;background:#fff;border:1px solid var(--line);border-radius:8px;display:block}
+.lab-preview{width:100%;min-height:260px;border:1px solid var(--line);border-radius:8px;background:#fff}
+h2{font-family:Palatino,Georgia,serif;font-size:1.05rem}
+</style>
+</head>
+<body>
+<header>
+  <h1>Laboratorio · L01 · HTML y estructura de una página</h1>
+  <p>Offline, en esta página. No se envía nada a un servidor. Carbón + ámbar.</p>
+</header>
+<main>
+
+<p class="nota">Editor de estructura. La vista previa y el informe ocurren en esta página.</p>
+<label for="src">Documento HTML</label>
+<textarea id="src" spellcheck="false"></textarea>
+<div class="lab-row">
+  <button type="button" id="bPrev">Vista previa</button>
+  <button type="button" id="bChk" class="sec">Comprobar estructura</button>
+  <button type="button" id="bRes" class="sec">Restaurar ejemplo</button>
+</div>
+<iframe id="pv" class="lab-preview" title="Vista previa del HTML" sandbox=""></iframe>
+<div id="out" class="lab-out">Aún no has comprobado.</div>
+
+</main>
+<script>
+
+function byId(id){return document.getElementById(id);}
+function esc(s){return String(s).replace(/[&<>"]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;"}[c];});}
+function say(html){var o=byId("out"); if(o) o.innerHTML=html;}
+
+
+var BASE = [
+"<!DOCTYPE html>",
+"<html lang=\"es\">",
+"<head>",
+"<meta charset=\"utf-8\"/>",
+"<title>Semana de la Ciencia · IES Duero</title>",
+"</head>",
+"<body>",
+"<header><p>IES Duero · Aranda de Duero</p><h1>Semana de la Ciencia</h1></header>",
+"<nav><a href=\"#programa\">Programa</a> · <a href=\"#lugar\">Lugar</a></nav>",
+"<main>",
+"<section id=\"programa\"><h2>Programa</h2><p>Talleres el jueves por la tarde en el salón de actos.</p></section>",
+"<section id=\"lugar\"><h2>Lugar</h2><p>Plaza Mayor no: el instituto, calle San Francisco.</p></section>",
+"</main>",
+"<footer><p>Página local. Ábrela con file:// desde la carpeta del proyecto.</p></footer>",
+"</body>",
+"</html>"
+].join("\n");
+function preview(){ byId("pv").srcdoc = byId("src").value; }
+function check(){
+  var raw = byId("src").value;
+  var s = raw.toLowerCase();
+  var tests = [
+    ["Empieza por &lt;!DOCTYPE html&gt;", /<!doctype\s+html>/.test(s)],
+    ["&lt;html lang=\"es\"&gt;", /<html[^>]*lang\s*=\s*["']es["']/.test(s)],
+    ["charset utf-8", /charset\s*=\s*["']utf-8["']/.test(s)],
+    ["hay &lt;title&gt;", /<title>[^<]+<\/title>/.test(s)],
+    ["un solo &lt;h1&gt;", (s.match(/<h1[\s>]/g)||[]).length===1],
+    ["hay &lt;main&gt;", /<main[\s>]/.test(s)],
+    ["hay &lt;header&gt;", /<header[\s>]/.test(s)],
+    ["hay &lt;footer&gt;", /<footer[\s>]/.test(s)],
+    ["hay un párrafo", /<p[\s>]/.test(s)]
+  ];
+  say(tests.map(function(t){return '<div class="'+(t[1]?"ok":"bad")+'">'+(t[1]?"Sí":"No")+" · "+t[0]+"</div>";}).join(""));
+  preview();
+}
+function boot(){ byId("src").value = BASE; preview(); }
+byId("bPrev").onclick=preview;
+byId("bChk").onclick=check;
+byId("bRes").onclick=boot;
+boot();
+
+</script>
+</body>
+</html>

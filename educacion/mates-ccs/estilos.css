@@ -1,0 +1,620 @@
+/* Les vencimos — shell visual de lección (offline / file://)
+   Carbón #0E0E0C · ámbar #C4A15A · tinta #E6E1D6 (Bach staging)
+   Sin CDN. Sin Google Fonts. Tipografía de sistema. */
+
+:root {
+  --lv-fondo: #0E0E0C;
+  --lv-fondo-2: #161512;
+  --lv-panel: #1C1A16;
+  --lv-panel-soft: #221F1A;
+  --lv-crema: #161512;
+  --lv-tinta: #E6E1D6;
+  --lv-titulo: #E6E1D6;
+  --lv-suave: #9A9488;
+  --lv-acento: #C4A15A;
+  --lv-acento-texto: #1A160E;
+  --lv-verde: #3D6B4F;
+  --lv-azul: #2F5D7A;
+  --lv-linea: rgba(230, 225, 214, 0.14);
+  --lv-linea-fuerte: rgba(196, 161, 90, 0.55);
+  --lv-ok: #3D6B4F;
+  --lv-peligro: #A85A3C;
+  --lv-serif: "Iowan Old Style", "Palatino Linotype", Palatino, "Times New Roman", Georgia, serif;
+  --lv-sans: "Segoe UI", system-ui, -apple-system, sans-serif;
+  --lv-radio: 4px;
+  --lv-radio-card: 10px;
+  --lv-max: 60rem;
+  /* Cajas enmarcadas más estrechas que el cuerpo de lectura */
+  --lv-caja-inset: clamp(0.5rem, 4vw, 2.5rem);
+  --lv-sombra: 0 2px 12px rgba(0, 0, 0, 0.35);
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+
+html {
+  color-scheme: dark;
+  scroll-behavior: smooth;
+}
+
+body.leccion-shell {
+  margin: 0;
+  min-height: 100%;
+  background: var(--lv-fondo);
+  color: var(--lv-tinta);
+  font-family: var(--lv-sans);
+  font-size: 1.12rem;
+  font-weight: 400;
+  line-height: 1.65;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+.leccion-shell a {
+  color: var(--lv-azul);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.18em;
+}
+.leccion-shell a:hover {
+  color: #1F4560;
+}
+
+.leccion-wrap {
+  max-width: var(--lv-max);
+  margin: 0 auto;
+  padding: 1.25rem 1rem 3.5rem;
+}
+@media (min-width: 720px) {
+  .leccion-wrap { padding: 1.75rem 1.25rem 4.5rem; }
+}
+@media (min-width: 960px) {
+  .leccion-wrap { padding: 2rem 1.5rem 4.5rem; }
+}
+
+
+/* —— Cuerpo ancho vs cajas enmarcadas ——
+   Wrap ~60rem. El cuerpo (objetivos, explicación…) usa todo el ancho.
+   Las cajas (título, curiosidad, vida real, reto, interactivo) llevan
+   inset horizontal para leerse «enmarcadas» y más estrechas que el cuerpo.
+   La barra sticky NO se reduce. */
+.bloque-titulo,
+.bloque-curiosidad,
+.bloque-vida-real,
+.bloque-reto,
+.bloque-interactivo {
+  margin-inline: var(--lv-caja-inset);
+}
+
+.bloque-cuerpo {
+  margin-inline: 0;
+  max-width: none;
+}
+
+/* Tarjetas dentro del cuerpo: a ancho completo del cuerpo */
+.bloque-cuerpo > .tarjeta {
+  margin-inline: 0;
+}
+
+/* —— Barra sticky: progreso / calculadora / prev-next —— */
+.leccion-barra {
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.65rem 1rem;
+  margin: 0 0 1.25rem;
+  padding: 0.55rem 0.75rem;
+  background: rgba(255, 255, 255, 0.94);
+  border: 1px solid var(--lv-linea);
+  border-bottom: 2px solid var(--lv-linea-fuerte);
+  border-radius: var(--lv-radio-card);
+  box-shadow: var(--lv-sombra);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+.leccion-progreso {
+  display: flex;
+  flex-direction: column;
+  gap: 0.28rem;
+  min-width: 7.5rem;
+  flex: 1 1 8rem;
+  max-width: 16rem;
+}
+.progreso-texto {
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: var(--lv-suave);
+}
+.progreso-texto strong {
+  color: var(--lv-titulo);
+  font-weight: 700;
+}
+.progreso-pista {
+  height: 0.35rem;
+  background: var(--lv-fondo-2);
+  border: 1px solid var(--lv-linea);
+  border-radius: 999px;
+  overflow: hidden;
+}
+.progreso-lleno {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, var(--lv-acento), #D4B56E);
+  border-radius: inherit;
+  transition: width 0.25s ease;
+}
+.leccion-atajos {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.4rem;
+}
+.leccion-barra .atajo {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.35rem 0.7rem;
+  font-size: 0.78rem;
+  font-weight: 650;
+  letter-spacing: 0.02em;
+  text-decoration: none;
+  color: var(--lv-titulo);
+  background: var(--lv-fondo);
+  border: 1px solid var(--lv-linea);
+  border-radius: var(--lv-radio);
+  line-height: 1.2;
+  white-space: nowrap;
+}
+.leccion-barra .atajo:hover {
+  color: var(--lv-titulo);
+  border-color: var(--lv-acento);
+  background: var(--lv-panel-soft);
+}
+.leccion-barra .atajo-calc {
+  color: var(--lv-acento-texto);
+  background: rgba(196, 161, 90, 0.22);
+  border-color: var(--lv-acento);
+}
+.leccion-barra .atajo-calc:hover {
+  background: rgba(196, 161, 90, 0.38);
+}
+.leccion-barra .atajo.is-disabled,
+.leccion-barra .atajo[aria-disabled="true"] {
+  opacity: 0.45;
+  pointer-events: none;
+  cursor: not-allowed;
+  color: var(--lv-suave);
+  background: var(--lv-fondo-2);
+  border-color: var(--lv-linea);
+  text-decoration: none;
+}
+@media (max-width: 560px) {
+  .leccion-barra {
+    padding: 0.5rem 0.6rem;
+    gap: 0.5rem;
+  }
+  .leccion-progreso { max-width: none; flex: 1 1 100%; }
+  .leccion-atajos { width: 100%; justify-content: space-between; }
+  .leccion-barra .atajo { flex: 1 1 auto; padding: 0.4rem 0.5rem; font-size: 0.74rem; }
+}
+
+/* —— Cabecera mínima —— */
+.leccion-top {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--lv-linea);
+  margin-bottom: 1.75rem;
+}
+.leccion-marca {
+  font-family: var(--lv-serif);
+  font-size: 0.95rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: var(--lv-titulo);
+  text-decoration: none;
+}
+.leccion-marca span { color: var(--lv-acento); }
+.leccion-meta-top {
+  font-size: 0.7rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--lv-suave);
+  font-weight: 600;
+}
+
+/* —— Título de lección (no H1 plano) —— */
+.bloque-titulo {
+  margin-block: 0 1.75rem;
+  /* margin-inline from shared caja inset */
+  padding: 1.35rem 1.25rem 1.4rem;
+  background:
+    linear-gradient(135deg, rgba(196, 161, 90, 0.10), transparent 55%),
+    var(--lv-panel);
+  border: 1px solid var(--lv-linea);
+  border-left: 3px solid var(--lv-acento);
+  border-radius: var(--lv-radio-card);
+  box-shadow: var(--lv-sombra);
+}
+.bloque-titulo .eyebrow {
+  display: block;
+  font-size: 0.72rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--lv-acento);
+  font-weight: 600;
+  margin-bottom: 0.55rem;
+}
+.bloque-titulo .titulo-leccion {
+  margin: 0;
+  font-family: var(--lv-serif);
+  font-size: clamp(1.45rem, 4.2vw, 2.05rem);
+  font-weight: 600;
+  line-height: 1.22;
+  letter-spacing: 0.005em;
+  color: var(--lv-titulo);
+  text-wrap: balance;
+}
+.bloque-titulo .titulo-leccion em {
+  font-style: italic;
+  color: var(--lv-acento);
+  font-weight: 600;
+}
+.bloque-titulo .meta-leccion {
+  margin: 0.85rem 0 0;
+  font-size: 0.88rem;
+  color: var(--lv-suave);
+  line-height: 1.45;
+}
+
+/* —— Cuerpo legible —— */
+.bloque-cuerpo {
+  margin-block: 0 1.5rem;
+  margin-inline: 0; /* full wrap width — wider than framed boxes */
+}
+.bloque-cuerpo h2,
+.bloque-cuerpo h3 {
+  font-family: var(--lv-serif);
+  font-weight: 600;
+  color: var(--lv-titulo);
+  line-height: 1.3;
+}
+.bloque-cuerpo h2 {
+  font-size: 1.35rem;
+  margin: 1.6rem 0 0.65rem;
+  padding-bottom: 0.35rem;
+  border-bottom: 1px solid var(--lv-linea);
+}
+.bloque-cuerpo h3 {
+  font-size: 1.12rem;
+  margin: 1.2rem 0 0.45rem;
+  color: var(--lv-azul);
+}
+.bloque-cuerpo p { margin: 0 0 0.85rem; color: var(--lv-tinta); }
+.bloque-cuerpo ul, .bloque-cuerpo ol {
+  margin: 0 0 0.95rem;
+  padding-left: 1.25rem;
+  color: var(--lv-tinta);
+}
+.bloque-cuerpo li { margin-bottom: 0.35rem; }
+.bloque-cuerpo strong { color: var(--lv-titulo); font-weight: 600; }
+
+.tarjeta {
+  background: var(--lv-fondo-2);
+  border: 1px solid var(--lv-linea);
+  border-radius: var(--lv-radio-card);
+  padding: 1.1rem 1.15rem;
+  margin: 0 0 1.25rem;
+  box-shadow: var(--lv-sombra);
+}
+
+/* —— Etiqueta de bloque (ornamental simple) —— */
+.etiqueta-bloque {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  margin: 0 0 0.75rem;
+  font-size: 0.72rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: var(--lv-acento);
+}
+.etiqueta-bloque::before,
+.etiqueta-bloque::after {
+  content: "";
+  display: inline-block;
+  width: 0.55rem;
+  height: 0.55rem;
+  border: 1px solid var(--lv-acento);
+  transform: rotate(45deg);
+  opacity: 0.85;
+}
+
+/* —— Curiosidad histórica —— */
+.bloque-curiosidad {
+  margin-block: 0 1.5rem;
+  padding: 1.25rem 1.2rem 1.3rem;
+  background:
+    radial-gradient(ellipse at top right, rgba(47, 93, 122, 0.08), transparent 55%),
+    var(--lv-panel-soft);
+  border: 1px solid var(--lv-linea);
+  border-left: 3px solid var(--lv-azul);
+  border-radius: var(--lv-radio-card);
+  box-shadow: var(--lv-sombra);
+}
+.bloque-curiosidad .etiqueta-bloque {
+  color: var(--lv-azul);
+}
+.bloque-curiosidad .etiqueta-bloque::before,
+.bloque-curiosidad .etiqueta-bloque::after {
+  border-color: var(--lv-azul);
+}
+.bloque-curiosidad .titulo-curiosidad {
+  margin: 0 0 0.65rem;
+  font-family: var(--lv-serif);
+  font-size: 1.28rem;
+  font-weight: 600;
+  color: var(--lv-titulo);
+  letter-spacing: 0.01em;
+}
+.bloque-curiosidad .titulo-curiosidad::first-letter {
+  color: var(--lv-acento);
+  font-size: 1.15em;
+}
+.bloque-curiosidad .texto-curiosidad {
+  margin: 0;
+  color: var(--lv-tinta);
+  font-size: 0.98rem;
+}
+.bloque-curiosidad .ilustracion-slot {
+  margin-top: 1rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 4.5rem;
+  padding: 0.5rem;
+  background: var(--lv-fondo-2);
+  border-radius: var(--lv-radio);
+  border: 1px dashed rgba(47, 93, 122, 0.28);
+}
+.bloque-curiosidad .ilustracion-slot:empty { display: none; }
+.bloque-curiosidad .ilustracion-slot svg,
+.bloque-curiosidad .ilustracion-slot img {
+  max-width: 100%;
+  height: auto;
+  max-height: 7rem;
+}
+
+/* —— En la vida real / aplicaciones —— */
+.bloque-vida-real {
+  margin-block: 0 1.5rem;
+  display: grid;
+  gap: 1rem;
+  padding: 1.2rem 1.15rem;
+  background: var(--lv-panel);
+  border: 1px solid var(--lv-linea);
+  border-left: 3px solid var(--lv-verde);
+  border-radius: var(--lv-radio-card);
+  box-shadow: var(--lv-sombra);
+}
+@media (min-width: 560px) {
+  .bloque-vida-real.con-figura {
+    grid-template-columns: minmax(5.5rem, 7.5rem) 1fr;
+    align-items: start;
+  }
+}
+.bloque-vida-real .etiqueta-bloque {
+  color: var(--lv-verde);
+}
+.bloque-vida-real .etiqueta-bloque::before,
+.bloque-vida-real .etiqueta-bloque::after {
+  border-color: var(--lv-verde);
+}
+.bloque-vida-real .figura {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 5.5rem;
+  padding: 0.4rem;
+  background: var(--lv-fondo-2);
+  border: 1px solid var(--lv-linea);
+  border-radius: var(--lv-radio);
+}
+.bloque-vida-real .figura svg {
+  width: 100%;
+  max-width: 7rem;
+  height: auto;
+  display: block;
+}
+.bloque-vida-real .contenido-vida h2,
+.bloque-vida-real .contenido-vida .titulo-vida {
+  margin: 0 0 0.55rem;
+  font-family: var(--lv-serif);
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: var(--lv-titulo);
+}
+.bloque-vida-real .contenido-vida p,
+.bloque-vida-real .contenido-vida li {
+  color: var(--lv-tinta);
+  font-size: 0.98rem;
+}
+.bloque-vida-real .contenido-vida ul {
+  margin: 0;
+  padding-left: 1.15rem;
+}
+.bloque-vida-real .contenido-vida li { margin-bottom: 0.3rem; }
+
+/* —— Reto Profesor —— */
+.bloque-reto {
+  margin-block: 0 1.5rem;
+  padding: 1.25rem 1.2rem 1.35rem;
+  background:
+    linear-gradient(180deg, rgba(196, 161, 90, 0.14), transparent 42%),
+    var(--lv-panel-soft);
+  border: 1px solid var(--lv-acento);
+  border-radius: var(--lv-radio-card);
+  box-shadow: var(--lv-sombra);
+}
+.bloque-reto .etiqueta-reto {
+  display: inline-block;
+  margin: 0 0 0.55rem;
+  padding: 0.28rem 0.65rem;
+  font-size: 0.68rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: var(--lv-acento-texto);
+  background: var(--lv-acento);
+  border-radius: 2px;
+}
+.bloque-reto .titulo-reto {
+  margin: 0 0 0.55rem;
+  font-family: var(--lv-serif);
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--lv-titulo);
+}
+.bloque-reto p { margin: 0 0 0.65rem; color: var(--lv-tinta); }
+.bloque-reto ul {
+  margin: 0.4rem 0 0;
+  padding-left: 1.15rem;
+  color: var(--lv-tinta);
+}
+.bloque-reto .reto-id {
+  margin-top: 0.85rem;
+  font-size: 0.78rem;
+  color: var(--lv-suave);
+  font-family: ui-monospace, "Cascadia Code", "Segoe UI Mono", monospace;
+}
+
+/* —— Problema / Interactivo —— */
+.bloque-interactivo {
+  margin-block: 0 1.5rem;
+  padding: 0.9rem 0.85rem 0.95rem;
+  background: var(--lv-panel);
+  border: 1px solid var(--lv-linea);
+  border-radius: var(--lv-radio-card);
+  box-shadow: var(--lv-sombra);
+}
+.bloque-interactivo .marco-interactivo-cabecera {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  margin-bottom: 0.65rem;
+  padding: 0 0.2rem;
+}
+.bloque-interactivo .etiqueta-interactivo {
+  font-size: 0.7rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: var(--lv-acento);
+}
+.bloque-interactivo .enlace-abrir {
+  font-size: 0.85rem;
+  color: var(--lv-azul);
+}
+.bloque-interactivo .marco-interactivo {
+  position: relative;
+  width: 100%;
+  min-height: 22rem;
+  background: #f7faf8; /* lienzo claro típico de los widgets Mate */
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid rgba(14, 14, 12, 0.12);
+}
+.bloque-interactivo .marco-interactivo iframe {
+  display: block;
+  width: 100%;
+  height: 28rem;
+  max-height: 70vh;
+  border: 0;
+  background: #f7faf8;
+}
+
+/* Offline flat pack: srcdoc-embedded widgets need taller frames so animations aren't clipped */
+.leccion-shell.offline-embed .bloque-interactivo .marco-interactivo,
+.leccion-shell.offline-embed .bloque-interactivo .marco-offline-embed {
+  min-height: 36rem;
+}
+.leccion-shell.offline-embed .bloque-interactivo .marco-interactivo iframe,
+.leccion-shell.offline-embed .bloque-interactivo .marco-interactivo iframe.widget-srcdoc {
+  height: 36rem;
+  min-height: 32rem;
+  max-height: none;
+}
+
+.bloque-interactivo .fallback-enlace {
+  margin: 0.65rem 0 0;
+  font-size: 0.88rem;
+  color: var(--lv-suave);
+  padding: 0 0.2rem;
+}
+
+/* —— Pie de lección —— */
+.leccion-pie {
+  margin-top: 2.5rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--lv-linea);
+  font-size: 0.8rem;
+  color: var(--lv-suave);
+  letter-spacing: 0.04em;
+}
+.leccion-pie strong { color: var(--lv-acento); font-weight: 600; }
+
+/* —— Utilidades —— */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  border: 0;
+}
+
+
+/* Jorge 2026-09-24: interactivos más altos + CTA pantalla completa */
+.bloque-interactivo .marco-interactivo iframe {
+  width: 100%;
+  min-height: min(78vh, 720px);
+  height: 78vh;
+  border: 0;
+  display: block;
+}
+.bloque-interactivo .enlace-abrir {
+  display: inline-block;
+  font-weight: 700;
+  padding: 0.5rem 1rem;
+  border-radius: 999px;
+  background: var(--lv-acento, #2F5D7A);
+  color: #fff !important;
+  text-decoration: none;
+  margin: 0.4rem 0 0.8rem;
+}
+.bloque-interactivo .enlace-abrir:hover {
+  filter: brightness(1.08);
+}
+.glosa-simbolo {
+  display: block;
+  margin: 0.35rem 0 0.85rem;
+  padding: 0.55rem 0.75rem;
+  background: #f3eee4;
+  border-left: 4px solid var(--lv-acento, #2F5D7A);
+  border-radius: 0 8px 8px 0;
+  font-size: 0.98rem;
+  line-height: 1.45;
+}

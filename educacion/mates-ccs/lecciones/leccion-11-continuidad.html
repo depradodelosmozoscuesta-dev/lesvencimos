@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<meta name="theme-color" content="#0E0E0C"/>
+<title>Lección 11 · Continuidad · Les vencimos</title>
+<link rel="icon" href="../icons/favicon.svg" type="image/svg+xml"/>
+<link rel="stylesheet" href="../leccion-shell.css"/>
+<style>
+
+  .pasos{list-style:none;margin:0 0 1rem;padding:0;counter-reset:paso}
+  .pasos li{position:relative;margin:0 0 .7rem;padding:.7rem .8rem .7rem 3.1rem;background:var(--lv-panel);border:1px solid var(--lv-linea);border-radius:10px}
+  .pasos li::before{counter-increment:paso;content:counter(paso);position:absolute;left:.65rem;top:.7rem;width:1.7rem;height:1.7rem;border-radius:50%;background:#C4A15A;color:#1A160E;font-weight:700;font-size:.9rem;display:flex;align-items:center;justify-content:center}
+  .figura-svg{background:var(--lv-panel);border:1px solid var(--lv-linea);border-radius:10px;padding:.4rem;margin:.4rem 0 1rem}
+  .figura-svg svg{width:100%;height:auto;display:block}
+  .ej{margin:0 0 1rem;padding:.85rem .95rem;background:var(--lv-panel);border:1px solid var(--lv-linea);border-left:3px solid #C4A15A;border-radius:10px}
+  .ej h3{margin:0 0 .35rem;font-family:var(--lv-serif);font-size:1.05rem;color:var(--lv-titulo)}
+  .editor,textarea.editor{width:100%;min-height:5.2rem;font-family:ui-monospace,monospace;font-size:.95rem;line-height:1.4;padding:.55rem .65rem;border:1px solid rgba(196,161,90,.45);border-radius:8px;background:#161512;color:#E6E1D6;resize:vertical}
+  .lienzo{display:block;width:100%;height:240px;background:#161512;border:1px solid #C4A15A;border-radius:8px;touch-action:none;cursor:crosshair}
+  .fila{display:flex;flex-wrap:wrap;gap:.4rem;margin:.45rem 0}
+  .boton{font:inherit;font-weight:700;font-size:.85rem;padding:.35rem .75rem;border-radius:999px;border:1px solid #C4A15A;background:transparent;color:#E6E1D6;cursor:pointer}
+  .boton.amber{background:#C4A15A;color:#1A160E;border-color:#b08d45}
+  .porque{margin-top:.5rem;padding:.6rem .7rem;background:#1a2218;border-radius:8px;color:#E6E1D6}
+  .dato{font-size:.95rem;color:var(--lv-suave)}
+  .formula{background:#161512;border-left:3px solid #C4A15A;padding:.45rem .7rem;overflow-x:auto;font-family:ui-monospace,monospace}
+  .glosa{font-size:.95rem;color:#d9d0bc;margin-top:.25rem}
+  table.datos{width:100%;border-collapse:collapse;margin:.4rem 0 1rem;font-size:.98rem}
+  table.datos th,table.datos td{border:1px solid var(--lv-linea);padding:.35rem .5rem;text-align:left}
+  table.datos th{background:#161512;color:#C4A15A}
+  table.datos td.num{font-variant-numeric:tabular-nums}
+
+</style>
+<script src="../leccion-shell-nav.js" defer></script>
+</head>
+<body class="leccion-shell">
+<div class="leccion-wrap">
+
+<nav class="leccion-barra" aria-label="Navegación de lección" data-actual="11" data-total="33">
+  <div class="leccion-progreso" role="status">
+    <span class="progreso-texto"><strong>11</strong> de <strong>33</strong></span>
+    <div class="progreso-pista" aria-hidden="true"><div class="progreso-lleno" style="width:34.38%"></div></div>
+  </div>
+  <div class="leccion-atajos">
+    <a class="atajo atajo-prev" href="leccion-10-limites.html">← Anterior</a>
+    <a class="atajo atajo-next" href="leccion-12-derivada-cambio.html">Siguiente →</a>
+  </div>
+</nav>
+
+<header class="leccion-top">
+  <a class="leccion-marca" href="../mates-ccs.html">Les <span>vencimos</span></a>
+  <p class="leccion-meta-top">Matemáticas Aplicadas a las Ciencias Sociales I · 1.º Bachillerato</p>
+</header>
+
+<header class="bloque-titulo">
+  <span class="eyebrow">Lección 11 · B.2 · Cambio</span>
+  <h1 class="titulo-leccion">Continuidad mediante <em>límites</em></h1>
+  <p class="meta-leccion">Decreto 40/2022 CyL · primer curso · antes de segundo</p>
+</header>
+
+<aside class="bloque-curiosidad" aria-label="Para situarte">
+  <p class="etiqueta-bloque">Para situarte</p>
+  <h2 class="titulo-curiosidad">Continua significa «el límite coincide con el valor»</h2>
+  <p class="texto-curiosidad">En bachillerato de sociales no hace falta una definición más fina: una función es continua en un punto cuando existe el límite y ese límite es exactamente el valor de la función.</p>
+</aside>
+
+<section class="bloque-cuerpo">
+  <h2>Objetivos</h2>
+  <ul>
+    <li>Decidir la continuidad en un punto comparando el límite con el valor de la función.</li>
+    <li>Reconocer una discontinuidad evitable y saber qué valor la arreglaría.</li>
+    <li>Reconocer una discontinuidad de salto con límites laterales distintos.</li>
+    <li>Reconocer una discontinuidad asintótica cuando la función se dispara al acercarse al punto.</li>
+  </ul>
+
+  <h2>Tres preguntas en este orden</h2>
+  <p>El bloque B.2 pide estudiar la continuidad aplicando límites. El orden evita discusiones vacías. En un punto a te preguntas:</p>
+  <ol class="pasos">
+    <li>¿Existe f(a)? Si no existe, ya no puede ser continua en a. Aún debes mirar el límite: el tipo de discontinuidad depende de él.</li>
+    <li>¿Existe el límite de f(x) cuando x tiende a a, con los dos lados de acuerdo y el resultado un número finito?</li>
+    <li>¿Ese número es igual a f(a)? Solo entonces es continua en a.</li>
+  </ol>
+  <p class="formula">f es continua en a si lim (x → a) f(x) = f(a)</p>
+  <p class="glosa">f es la función que estudias; a es el punto concreto, no «todo el dominio»; el límite es el comportamiento de los vecinos; f(a) es el valor que la función tiene escrito en a. Las tres piezas tienen que ser el mismo número.</p>
+  <p>Si el límite existe y es finito, pero f(a) no existe o es otro número, la discontinuidad es evitable. «Evitable» no significa que ya esté arreglada: significa que bastaría definir o redefinir f(a) con el valor del límite. El hueco, o el punto mal puesto, se tapa.</p>
+  <p>Si el límite por la izquierda y el límite por la derecha existen y son finitos, pero no coinciden, la discontinuidad es de salto. No hay un único número con el que redefinir f(a) para contentar a los dos lados. Las tarifas que cambian al cruzar un umbral suelen ser de este tipo.</p>
+  <p>Si al acercarte a a la función crece o decrece sin estabilizarse en un número (suele haber una asíntota vertical), la discontinuidad es asintótica. No es un salto de tamaño finito y no se evita cambiando un solo valor.</p>
+  <p>Un polinomio es continuo en cualquier punto: puedes sustituir. Una fracción de polinomios es continua en los puntos donde el denominador no es cero. El trabajo de esta lección está en los puntos sospechosos: el que anula un denominador y el corte de una función a trozos.</p>
+
+  <div class="figura-svg">
+    <svg viewBox="0 0 720 230" role="img" aria-label="Tres esquemas: hueco evitable, salto y asíntota vertical">
+      <title>Tres discontinuidades: evitable con hueco, de salto y asintótica</title>
+      <rect width="720" height="230" fill="#161512"/>
+      <g font-family="Segoe UI,sans-serif" font-size="14" fill="#E6E1D6">
+        <line x1="30" y1="150" x2="210" y2="150" stroke="#9A9488"/>
+        <line x1="120" y1="40" x2="120" y2="190" stroke="#9A9488"/>
+        <line x1="50" y1="170" x2="190" y2="90" stroke="#C4A15A" stroke-width="2"/>
+        <circle cx="120" cy="130" r="5" fill="#161512" stroke="#E6E1D6" stroke-width="2"/>
+        <text x="120" y="215" text-anchor="middle" fill="#C4A15A">evitable</text>
+        <line x1="250" y1="150" x2="450" y2="150" stroke="#9A9488"/>
+        <line x1="350" y1="40" x2="350" y2="190" stroke="#9A9488"/>
+        <line x1="270" y1="120" x2="350" y2="120" stroke="#C4A15A" stroke-width="2"/>
+        <line x1="350" y1="70" x2="430" y2="70" stroke="#C4A15A" stroke-width="2"/>
+        <circle cx="350" cy="70" r="4" fill="#C4A15A"/>
+        <circle cx="350" cy="120" r="4" fill="#161512" stroke="#E6E1D6"/>
+        <text x="350" y="215" text-anchor="middle" fill="#C4A15A">de salto</text>
+        <line x1="490" y1="150" x2="690" y2="150" stroke="#9A9488"/>
+        <line x1="590" y1="30" x2="590" y2="200" stroke="#9A9488"/>
+        <path d="M520 90 Q570 90 582 40" fill="none" stroke="#C4A15A" stroke-width="2"/>
+        <path d="M598 200 Q610 120 680 110" fill="none" stroke="#C4A15A" stroke-width="2"/>
+        <text x="590" y="215" text-anchor="middle" fill="#C4A15A">asintótica</text>
+      </g>
+    </svg>
+  </div>
+
+  <h2>Ejemplo 1. Evitable: el límite existe y el valor no cuadra</h2>
+  <p>f(x) = (x<sup>2</sup> − 9) / (x − 3) si x ≠ 3, y f(3) = 0. Alguien ha rellenado el punto con un cero para «que no quede vacío». Hay que ver si ese cero es el que tocaba.</p>
+  <ol class="pasos">
+    <li>f(3) existe y vale 0. La primera pregunta está respondida.</li>
+    <li>x<sup>2</sup> − 9 = (x − 3)(x + 3). Si x ≠ 3, f(x) = x + 3.</li>
+    <li>Cuando x tiende a 3, x + 3 tiende a 6. Los dos lados coinciden. El límite es 6, un número finito.</li>
+    <li>6 ≠ 0. No es continua en 3. Como el límite sí existe y es finito, la discontinuidad es evitable: habría que cambiar f(3) de 0 a 6.</li>
+  </ol>
+  <p class="formula">lim (x → 3) f(x) = 6 &nbsp; pero &nbsp; f(3) = 0</p>
+  <p class="glosa">x es la variable; 3 es el punto donde se anulaba el denominador; f(x) coincide con x + 3 fuera de ese punto; 6 es el límite, el valor que taparía el fallo; 0 es el valor que alguien escribió en f(3) y que no coincide con el límite.</p>
+  <p>Si la función ni siquiera estuviera definida en 3, el diagnóstico sería el mismo: discontinuidad evitable, y la definición que la hace continua es f(3) = 6. No continua «por los otros puntos»: en cualquier a distinto de 3, la expresión x + 3 es un polinomio y ahí sí es continua.</p>
+
+  <h2>Ejemplo 2. Salto en una tarifa y asíntota en un coste medio</h2>
+  <p>Una beca, en algún baremo sencillo, paga g(x) = 2x euros si la renta x es menor que 2 (en miles de euros), y g(x) = x + 5 si la renta es mayor o igual que 2. Queremos saber qué pasa en el corte x = 2.</p>
+  <ol class="pasos">
+    <li>g(2) = 2 + 5 = 7. El punto está definido.</li>
+    <li>Por la izquierda, x &lt; 2, se usa 2x. El límite por la izquierda es 2 · 2 = 4.</li>
+    <li>Por la derecha se usa x + 5, que tiende a 7. Coincide con g(2), pero eso solo salva el lado derecho.</li>
+    <li>4 ≠ 7. El límite de dos lados no existe. Discontinuidad de salto. El salto mide 7 − 4 = 3 euros en este baremo.</li>
+  </ol>
+  <p class="formula">lim (x → 2<sup>−</sup>) g(x) = 4 &nbsp; y &nbsp; lim (x → 2<sup>+</sup>) g(x) = 7 = g(2)</p>
+  <p class="glosa">x es la renta en miles de euros; 2 es el umbral; g(x) es la beca en euros; 4 es a lo que se acerca la rama baja; 7 es el valor de la rama alta y también g(2).</p>
+  <p>No sirve redefinir g(2). Pongas el número que pongas, uno de los dos lados queda a otra altura. La discontinuidad de salto no es evitable.</p>
+  <p>El tercer tipo, en una expresión distinta: h(x) = 1 / (x − 2). En x = 2 no existe. Si x se acerca a 2 por la derecha, x − 2 es positivo y pequeño, y h(x) se hace positivo y muy grande. Por la izquierda, x − 2 es negativo y pequeño, y h(x) se hace negativo y muy grande en valor absoluto. No hay límite finito ni por un lado ni por el otro. Hay una asíntota vertical en x = 2: discontinuidad asintótica. Cambiar «un valor» no la quita, porque el problema no es un punto mal escrito sino que la expresión se dispara.</p>
+  <p class="formula">h(x) = 1 / (x − 2), sin límite finito cuando x → 2</p>
+  <p class="glosa">h(x) es la función; 1 es el numerador constante; x − 2 es el denominador, que se acerca a 0; 2 es la abscisa de la asíntota vertical.</p>
+
+  <h2>Ejercicios</h2>
+  <article class="ej">
+    <h3>1. Un polinomio en un punto</h3>
+    <p>k(x) = x<sup>2</sup>. Estudia la continuidad en x = 3: calcula k(3) y el límite, y concluye.</p>
+    <label for="e11-1">Tu conclusión</label>
+    <textarea class="editor" id="e11-1"></textarea>
+    <details>
+      <summary>Corrección</summary>
+      <ol class="pasos">
+        <li>k(3) = 9.</li>
+        <li>El límite cuando x tiende a 3 también es 9, porque se puede sustituir.</li>
+        <li>Coinciden. k es continua en 3.</li>
+      </ol>
+      <p class="porque">La continuidad no exige que la gráfica sea una recta. Una parábola de polinomio no tiene cortes ni denominadores: en cada punto el límite y el valor son el mismo número.</p>
+    </details>
+  </article>
+  <article class="ej">
+    <h3>2. Hueco sin definir</h3>
+    <p>m(x) = (x<sup>2</sup> − 4) / (x + 2) para x ≠ −2, y no está definida en −2. Clasifica la discontinuidad y di qué valor habría que darle a m(−2) para hacerla continua.</p>
+    <label for="e11-2">Tipo y valor que la arregla</label>
+    <textarea class="editor" id="e11-2"></textarea>
+    <details>
+      <summary>Corrección</summary>
+      <ol class="pasos">
+        <li>m(−2) no existe, así que no es continua en −2.</li>
+        <li>x<sup>2</sup> − 4 = (x − 2)(x + 2). Para x ≠ −2, m(x) = x − 2.</li>
+        <li>El límite cuando x tiende a −2 es −2 − 2 = −4, finito y por los dos lados.</li>
+        <li>Discontinuidad evitable. La definición que la hace continua es m(−2) = −4.</li>
+      </ol>
+      <p class="porque">Cancelar x + 2 solo es válido fuera de −2. El límite usa precisamente esa expresión simplificada. Poner m(−2) = −4 no cambia los vecinos: los hace coincidir con el punto.</p>
+    </details>
+  </article>
+  <article class="ej">
+    <h3>3. Un corte de salto</h3>
+    <p>p(x) = −1 si x &lt; 1, y p(x) = 3 si x ≥ 1. Estudia x = 1: valor, límites laterales y tipo de discontinuidad. Di si redefinir p(1) la arreglaría.</p>
+    <label for="e11-3">Laterales y tipo</label>
+    <textarea class="editor" id="e11-3"></textarea>
+    <details>
+      <summary>Corrección</summary>
+      <ol class="pasos">
+        <li>p(1) = 3.</li>
+        <li>Límite por la izquierda: −1. Límite por la derecha: 3.</li>
+        <li>No existe el límite de dos lados. Discontinuidad de salto. La altura del salto es 3 − (−1) = 4.</li>
+        <li>Redefinir p(1) no la hace continua: los laterales seguirían en desacuerdo.</li>
+      </ol>
+      <p class="porque">En un salto los dos límites laterales son números, pero distintos. La condición de continuidad pide un solo límite, igual al valor. Aquí falla ya la existencia de ese límite único.</p>
+    </details>
+  </article>
+  <article class="ej">
+    <h3>4. Denominador que se anula de verdad</h3>
+    <p>r(x) = 5 / (x − 4). Clasifica lo que ocurre en x = 4. No intentes «simplificar»: el numerador no se anula.</p>
+    <label for="e11-4">Tu clasificación</label>
+    <textarea class="editor" id="e11-4"></textarea>
+    <details>
+      <summary>Corrección</summary>
+      <ol class="pasos">
+        <li>r(4) no existe: el denominador es 0 y el numerador es 5.</li>
+        <li>Por la derecha, x − 4 → 0<sup>+</sup> y r(x) → +∞.</li>
+        <li>Por la izquierda, x − 4 → 0<sup>−</sup> y r(x) → −∞.</li>
+        <li>No hay límite finito. Discontinuidad asintótica, con asíntota vertical x = 4.</li>
+      </ol>
+      <p class="porque">Si solo se anula el denominador, no hay factor común que cancelar. La función no se acerca a una altura: se aleja sin cota. Eso no se tapa asignando un valor a r(4).</p>
+    </details>
+  </article>
+
+  <h2>Cierre</h2>
+  <p>Continua en a quiere decir: límite finito y ese mismo número escrito en f(a). Si el límite finito existe y el valor no cuadra, es evitable. Si los laterales finitos no coinciden, es de salto. Si la función se dispara, es asintótica.</p>
+</section>
+
+<footer class="leccion-pie">
+  <strong>Les vencimos</strong> · Lección 11 de 33 · Matemáticas Aplicadas a las CCSS I · staging · sin publicar
+</footer>
+</div>
+<!-- saber: B.2 Cambio. Continuidad de funciones: aplicación de límites en el estudio de la continuidad. -->
+
+</body>
+</html>

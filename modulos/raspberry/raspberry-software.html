@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#0E0E0C">
+<title>Raspberry Pi · Software — les vencimos</title>
+<style>
+:root{
+  --fondo:#0E0E0C; --fondo-2:#161512; --panel:#1C1A16; --panel-claro:#2a2620;
+  --tinta:#E6E1D6; --tinta-suave:#C9C2B4; --acento:#C4A15A; --ambar:#C4A15A;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0; background:var(--fondo); color:var(--tinta);
+  font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  font-size:17px; line-height:1.55;
+}
+.barra{
+  position:sticky; top:0; z-index:2;
+  display:flex; align-items:baseline; gap:.75rem; flex-wrap:wrap;
+  padding:.7rem 1rem; background:var(--fondo-2);
+  border-bottom:1px solid var(--panel-claro);
+}
+.marca{
+  font-family:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;
+  font-weight:600; font-size:1.05rem; color:var(--tinta); text-decoration:none;
+}
+.barra h1{font-size:1rem; font-weight:650; margin:0; flex:1}
+.offline{font-size:.68rem; letter-spacing:.14em; text-transform:uppercase; color:var(--acento); font-weight:700}
+.cuerpo{max-width:42rem; margin:0 auto; padding:1rem 1rem 3rem}
+nav.indice{
+  background:var(--panel); border:1px solid var(--panel-claro);
+  border-radius:14px; padding:.8rem 1rem; margin:0 0 1.2rem;
+}
+nav.indice a{color:var(--acento); text-decoration:none; display:inline-block; margin:.15rem .7rem .15rem 0}
+nav.indice a:hover{text-decoration:underline}
+h2{font-size:1.35rem; margin:2rem 0 .6rem; scroll-margin-top:4rem}
+h3{font-size:1.05rem; margin:1.4rem 0 .4rem; scroll-margin-top:4rem}
+p{margin:.55rem 0}
+a{color:var(--acento)}
+.curso{font-size:.92rem; color:var(--tinta-suave)}
+pre{
+  background:#0a0a08; border:1px solid var(--panel-claro); border-radius:12px;
+  padding:.8rem 1rem; overflow-x:auto; font-size:.86rem; line-height:1.45;
+}
+code{font-family:ui-monospace,"Cascadia Code","Source Code Pro",monospace}
+.cuidado{
+  border:1px solid var(--acento); border-radius:12px;
+  padding:.7rem .9rem; margin:.8rem 0; background:rgba(196,161,90,.06);
+}
+.cuidado strong{color:var(--acento)}
+svg.esquema{width:100%; height:auto; background:var(--panel); border:1px solid var(--panel-claro); border-radius:14px; margin:.6rem 0}
+.nota{font-size:.9rem; color:var(--tinta-suave)}
+</style>
+</head>
+<body>
+<header class="barra">
+  <span class="marca">les vencimos</span>
+  <h1>Raspberry Pi · Software</h1>
+  <span class="offline">offline</span>
+</header>
+<main class="cuerpo">
+<p>Esto es la referencia de consulta: el sistema, los comandos y las librerías. El catálogo de placas, el pinout y los voltajes están en <a href="raspberry-hardware.html">Hardware</a>. El curso, con su orden y el modo Maestro, está en <a href="raspberry-ensenanza.html">Enseñanza</a>. Los proyectos armados están en <a href="raspberry-proyectos.html">Proyectos</a>. El Pico no es un Pi con Linux: no usa nada de lo que sigue. Si lo tienes, mira <a href="raspberry-hardware.html#pico">la ficha del Pico</a>.</p>
+<nav class="indice" aria-label="Índice">
+<a href="#que-es">Qué es</a>
+<a href="#sistemas">Sistemas</a>
+<a href="#arranque">Arranque</a>
+<a href="#ssh">SSH</a>
+<a href="#raspi-config">raspi-config</a>
+<a href="#config-txt">config.txt</a>
+<a href="#sistema">Sistema</a>
+<a href="#sin-red">Sin red</a>
+<a href="#python">Python 3</a>
+<a href="#gpiozero">gpiozero</a>
+<a href="#pwm">PWM</a>
+<a href="#antirrebotes">Antirrebotes</a>
+<a href="#depurar-led">Si el LED no enciende</a>
+<a href="#i2c">I2C</a>
+<a href="#spi">SPI</a>
+<a href="#onewire">1-Wire</a>
+<a href="#libgpiod">libgpiod</a>
+<a href="#pigpio">pigpio</a>
+<a href="#libcamera">Cámara</a>
+<a href="#audio">Audio</a>
+<a href="#servidor-local">Web local</a>
+<a href="#csv">CSV</a>
+<a href="#systemd">systemd</a>
+<a href="#cron">cron</a>
+<a href="#apagado">Apagado</a>
+<a href="#reloj">Reloj</a>
+<a href="#fuentes">Fuentes</a>
+</nav>
+<section id="que-es">
+<h2>Qué cubre este archivo</h2>
+<p>Sirve cuando ya tienes la placa encendida y quieres saber qué comando toca qué. No enseña el curso paso a paso y no dibuja el mapa de 40 pines: el número físico de cada GPIO está en Hardware. Aquí los ejemplos usan el número BCM, que es el que piden gpiozero y el device tree.</p>
+<p>El lenguaje de los ejemplos es Python 3. Cuando un programa tiene que arrancar solo, más abajo están cron y systemd. La cámara, el sonido y un servidor web mínimo también están aquí, no en el curso.</p>
+</section>
+
+<section id="sistemas">
+<h2>Sistemas</h2>
+<p class="curso">En el curso: <a href="raspberry-ensenanza.html#leccion-05">lección 5</a> y <a href="raspberry-ensenanza.html#leccion-06">lección 6</a>.</p>
+<p>La versión recomendada, a 3 de octubre de 2026, es Raspberry Pi OS basado en Debian 13 Trixie, publicada el 15 de septiembre de 2026, con kernel 6.18. En la página oficial de descargas hay imagen de 64 bits con escritorio, imagen Full e imagen Lite. Bookworm es la generación anterior: sigue existiendo, pero este manual habla de Trixie.</p>
+<p>Empieza por la imagen con escritorio si vas a usar pantalla. Lite es el mismo sistema sin escritorio: entra por terminal o por SSH y ocupa menos. Elige Lite cuando la Pi va a hacer un trabajo fijo (un sensor, una cámara, un script) y nadie va a sentarse delante.</p>
+<p>Hay otras imágenes. Ubuntu publica escritorio y servidor para Raspberry Pi; en su página de descarga figura 26.04.1 LTS. DietPi es una imagen mínima de terceros: el Imager la ofrece dentro de «Other general-purpose OS». Ninguna de las dos es la base de los ejemplos de este archivo. Si las usas, los nombres de paquete y las rutas de arranque pueden no coincidir.</p>
+</section>
+
+<section id="arranque">
+<h2>Imagen y primer arranque</h2>
+<p>Graba la imagen con Raspberry Pi Imager. En la personalización, el apartado User pide un usuario y una contraseña: ponlos. No dejes el usuario por defecto de los tutoriales viejos.</p>
+<p>Wi-Fi y SSH se pueden dejar vacíos. Si no rellenas nada, el escritorio vuelve a preguntar en el primer arranque, y el Wi-Fi se puede saltar. A partir de ahí la Pi trabaja sin red: GPIO, archivos y scripts no la necesitan.</p>
+<p class="curso">En el curso, la imagen y el primer arranque: <a href="raspberry-ensenanza.html#leccion-03">lección 3</a>.</p>
+<p>Sin pantalla, SSH tiene que quedar activado en el Imager, porque si no, no hay forma de entrar. Cómo entrar está en <a href="#ssh">SSH</a>, no aquí.</p>
+<div class="cuidado"><strong>Cuidado.</strong> Una Pi sin usuario puesto en el Imager y sin pantalla se queda en el asistente del primer arranque. No es un fallo de la tarjeta.</div>
+</section>
+
+
+<section id="ssh">
+<h2>SSH</h2>
+<p class="curso">En el curso: <a href="raspberry-ensenanza.html#leccion-36">lección 36</a>.</p>
+<p>SSH es entrar a la terminal de la Pi desde otro equipo. Se activa en el Imager, al grabar, o después en <code>sudo raspi-config</code>, en Interface Options. Sin eso, el puerto no responde.</p>
+<p>Desde el otro equipo, con el usuario que creaste (no uno de un tutorial viejo) y la dirección de la Pi en tu red:</p>
+<pre><code>ssh TUUSUARIO@DIRECCION</code></pre>
+<p>DIRECCION es la IP que le haya dado el router. Si al grabar pusiste un nombre y en tu red resuelve, también vale ese nombre. La contraseña es la del Imager. No hay una de fábrica que sirva.</p>
+<div class="cuidado"><strong>Cuidado.</strong> Si la Pi está en el asistente del primer arranque, todavía no acepta SSH. Termina usuario e idioma (con pantalla, o habiéndolos puesto en el Imager) y vuelve a probar.</div>
+</section>
+<section id="raspi-config">
+<h2>raspi-config</h2>
+<p>Es el menú de texto para lo que no quieres editar a mano. Se abre así:</p>
+<pre><code>sudo raspi-config</code></pre>
+<p>El menú principal, leído del propio programa, es este. No hay opción 7.</p>
+<pre><code>1 System Options          sistema
+2 Display Options         pantalla
+3 Interface Options       buses y servicios (I2C, SPI, 1-Wire, SSH…)
+4 Performance Options     rendimiento; solo aparece en un Pi
+5 Localisation Options    idioma, teclado, zona horaria, país del Wi-Fi
+6 Advanced Options        ajustes finos
+8 Update                  actualiza esta herramienta (hace falta red)
+9 About raspi-config</code></pre>
+<p>Dentro de rendimiento, la documentación oficial nombra cosas concretas y no un overclock genérico. El overclock con presets («4 Performance Options &gt; P1 Overclock») es para Pi 1 y Pi 2. No lo uses como receta en una <a href="raspberry-hardware.html#pi-4b">Pi 4</a> ni en una <a href="raspberry-hardware.html#pi-5">Pi 5</a>. También están el ventilador de la caja de la Pi 4, el límite de corriente USB en Pi 5, 500 y 500+, el sistema de archivos en solo lectura (overlay), la velocidad PCIe de la Pi 5, y el consumo al quedar apagada en las familias Pi 4 y Pi 5. Ese último no apaga la placa: cambia lo que hace la alimentación cuando ya está apagada. El apagado en sí está más abajo, en <a href="#apagado">Apagado</a>.</p>
+<div class="cuidado"><strong>Cuidado.</strong> Varios cambios piden reiniciar. Si dudas, termina el menú y reinicia una sola vez, no a cada clic.</div>
+</section>
+<section id="config-txt">
+<h2>config.txt y cmdline.txt</h2>
+<p>No hay lección de esto en el curso. Vive aquí.</p>
+<p>config.txt lo lee el firmware antes de arrancar Linux. En Raspberry Pi OS, desde Bookworm, el archivo está en <code>/boot/firmware/config.txt</code>. Antes la partición de arranque se montaba en <code>/boot/</code>. Edita siempre la ruta nueva.</p>
+<p>Haz una copia antes de tocar nada:</p>
+<pre><code>sudo cp /boot/firmware/config.txt /boot/firmware/config.txt.bak</code></pre>
+<p>El formato es una línea <code>clave=valor</code>. Un <code>#</code> al principio comenta la línea. cmdline.txt está en la misma partición de arranque: no le añadas flags sueltos copiados de un foro. Si no sabes qué cambia un flag del kernel, no lo pongas.</p>
+<p>Claves que la documentación lista y que ya suelen venir en la imagen:</p>
+<pre><code>camera_auto_detect=1
+display_auto_detect=1</code></pre>
+<p><code>camera_auto_detect=1</code> carga el overlay de una cámara CSI reconocida. Para quitarlo, ponlo a 0. <code>display_auto_detect</code> hace lo mismo con una pantalla DSI. <code>dtoverlay</code> carga un overlay con nombre. <code>dtparam</code> pasa un parámetro. <code>arm_boost</code> solo aplica a Pi 4B de revisiones tardías y a la <a href="raspberry-hardware.html#pi-400">Pi 400</a>: sube el turbo de 1,5 GHz a 1,8 GHz y ya viene activado donde toca. No lo añadas a mano en otras placas. <code>power_force_3v3_pwm</code> solo aplica a Pi 5, 500, 500+ y <a href="raspberry-hardware.html#cm5">CM5</a>. <code>hdmi_enable_4kp60</code> solo a Pi 4B, CM4, CM4S y Pi 400, y solo en HDMI0: gasta más y calienta más.</p>
+<div class="cuidado"><strong>Cuidado.</strong> Una línea mal puesta en config.txt puede dejar la Pi sin imagen. Si pasa, saca la tarjeta, ábrela en otro ordenador y restaura el <code>.bak</code>. La partición de arranque es la pequeña, en FAT.</div>
+</section>
+
+<section id="sistema">
+<h2>Usuarios, permisos y servicios</h2>
+<p class="curso">En el curso: <a href="raspberry-ensenanza.html#leccion-10">lección 10</a>, <a href="raspberry-ensenanza.html#leccion-11">11</a>, <a href="raspberry-ensenanza.html#leccion-12">12</a>, <a href="raspberry-ensenanza.html#leccion-13">13</a>, <a href="raspberry-ensenanza.html#leccion-14">14</a> y <a href="raspberry-ensenanza.html#leccion-16">16</a>.</p>
+<p>Trabaja con tu usuario. <code>sudo</code> es para lo que de verdad toca el sistema: instalar un paquete, editar config.txt, activar un servicio. Un script de GPIO no tiene por qué ser root.</p>
+<p>Qué grupos tienes (no los inventes: el comando te los dice):</p>
+<pre><code>groups</code></pre>
+<p>Un servicio se mira y se deja encendido así. <code>NOMBRE</code> es el del servicio, por ejemplo <code>ssh</code>:</p>
+<pre><code>systemctl status NOMBRE
+sudo systemctl enable --now NOMBRE</code></pre>
+<p>Si algo falló al arrancar, las últimas líneas del registro:</p>
+<pre><code>journalctl -n 50 --no-pager</code></pre>
+</section>
+
+<section id="sin-red">
+<h2>Qué sigue funcionando sin red</h2>
+<p class="curso">En el curso, apt: <a href="raspberry-ensenanza.html#leccion-15">lección 15</a>.</p>
+<p>Una vez grabada la imagen y instalado lo que vayas a usar, la Pi no necesita internet para leer GPIO, guardar un CSV, hacer una foto con la cámara ya configurada ni arrancar un script. Lo que sí pide red es bajar paquetes nuevos: <code>apt update</code> y un <code>pip install</code> contra PyPI.</p>
+<p>Por eso este manual no manda a instalar con pip. Si un paquete falta, se busca en apt, y solo entra si ya está en la imagen o en la caché que bajaste antes, con la Pi aún en una red:</p>
+<pre><code>apt-cache search gpiozero
+sudo apt install python3-gpiozero</code></pre>
+<p>El segundo comando falla sin red y sin caché. No es un fallo del programa: no hay de dónde bajarlo.</p>
+</section>
+
+<section id="python">
+<h2>Python 3</h2>
+<p class="curso">En el curso: lecciones <a href="raspberry-ensenanza.html#leccion-17">17</a> a <a href="raspberry-ensenanza.html#leccion-22">22</a>.</p>
+<p>Los ejemplos de este archivo son Python 3, el que trae el sistema. Compruébalo:</p>
+<pre><code>python3 --version</code></pre>
+<p>Un entorno virtual aísla librerías de un proyecto. Créalo y entra:</p>
+<pre><code>python3 -m venv --system-site-packages ~/venv
+. ~/venv/bin/activate</code></pre>
+<p><code>--system-site-packages</code> deja ver lo que ya vino con la imagen, gpiozero incluido. Sin esa opción el venv no ve el gpiozero del sistema y parece que «no está instalado».</p>
+</section>
+<section id="gpiozero">
+<h2>gpiozero</h2>
+<p class="curso">En el curso, la librería: <a href="raspberry-ensenanza.html#leccion-25">lección 25</a>. El pin y el circuito son las lecciones 23 y 24, en Hardware y en el curso, no aquí.</p>
+<p>gpiozero viene con Raspberry Pi OS. Si en tu imagen no está, el paquete apt es <code>python3-gpiozero</code>. No lo instales con pip.</p>
+<p>La pin factory por defecto es <code>LGPIOFactory</code> (<code>gpiozero.pins.lgpio</code>) cuando lgpio está instalado. En la <a href="raspberry-hardware.html#pi-5">Pi 5</a>, de las factories clásicas, la que funciona es lgpio. RPi.GPIO y pigpio no sirven en esa placa.</p>
+<p>El número del ejemplo es BCM 17. Qué patilla física es el 17 lo dice <a href="raspberry-hardware.html">Hardware</a>. El dibujo de abajo es el circuito del ejemplo, no el mapa de la placa.</p>
+<svg class="esquema" viewBox="0 0 640 168" role="img" aria-label="GPIO 17, resistencia, LED y tierra">
+  <rect x="16" y="48" width="110" height="56" rx="8" fill="#1C1A16" stroke="#C4A15A"/>
+  <text x="71" y="80" text-anchor="middle" fill="#E6E1D6" font-size="15" font-family="system-ui">GPIO 17</text>
+  <line x1="126" y1="76" x2="190" y2="76" stroke="#C4A15A" stroke-width="3"/>
+  <rect x="190" y="58" width="92" height="36" rx="4" fill="none" stroke="#C4A15A"/>
+  <text x="236" y="81" text-anchor="middle" fill="#E6E1D6" font-size="14" font-family="system-ui">330 Ω</text>
+  <line x1="282" y1="76" x2="360" y2="76" stroke="#C4A15A" stroke-width="3"/>
+  <polygon points="360,56 400,76 360,96" fill="none" stroke="#C4A15A" stroke-width="2"/>
+  <line x1="400" y1="60" x2="400" y2="92" stroke="#C4A15A" stroke-width="2"/>
+  <text x="430" y="72" fill="#C9C2B4" font-size="13" font-family="system-ui">LED</text>
+  <line x1="400" y1="76" x2="500" y2="76" stroke="#C4A15A" stroke-width="3"/>
+  <rect x="500" y="48" width="110" height="56" rx="8" fill="#1C1A16" stroke="#C4A15A"/>
+  <text x="555" y="80" text-anchor="middle" fill="#E6E1D6" font-size="15" font-family="system-ui">GND</text>
+</svg>
+<p class="nota">La resistencia va en serie con el LED. 330 Ω es un valor habitual para un LED pequeño a 3,3 V; si el LED trae otra en su ficha, usa esa.</p>
+<pre><code>from gpiozero import LED
+from time import sleep
+
+led = LED(17)
+
+while True:
+    led.on()
+    sleep(1)
+    led.off()
+    sleep(1)</code></pre>
+<div class="cuidado"><strong>Cuidado.</strong> Un GPIO es de 3,3 V. Meter 5 V en el pin lo rompe. El LED no va directo del GPIO a tierra: siempre con resistencia en serie.</div>
+
+<h3 id="pwm">PWM</h3>
+<p class="curso">En el curso: <a href="raspberry-ensenanza.html#leccion-27">lección 27</a>.</p>
+<p>El mismo LED puede no estar solo encendido o apagado. PWMLED reparte el tiempo en alto y en bajo. <code>value</code> va de 0 (apagado) a 1 (siempre en alto). 0,5 es la mitad del brillo, no la mitad de los voltios.</p>
+<svg class="esquema" viewBox="0 0 640 140" role="img" aria-label="Tren de pulsos PWM a la mitad">
+  <text x="16" y="28" fill="#C9C2B4" font-size="14" font-family="system-ui">value = 0,5</text>
+  <polyline points="16,100 70,100 70,40 150,40 150,100 230,100 230,40 310,40 310,100 390,100 390,40 470,40 470,100 550,100" fill="none" stroke="#C4A15A" stroke-width="3"/>
+  <text x="16" y="124" fill="#C9C2B4" font-size="13" font-family="system-ui">alto la mitad del tiempo, bajo la otra mitad</text>
+</svg>
+<pre><code>from gpiozero import PWMLED
+from time import sleep
+
+led = PWMLED(17)
+
+while True:
+    led.value = 0
+    sleep(1)
+    led.value = 0.5
+    sleep(1)
+    led.value = 1
+    sleep(1)</code></pre>
+
+<h3 id="antirrebotes">Antirrebotes</h3>
+<p class="curso">En el curso: <a href="raspberry-ensenanza.html#leccion-26">lección 26</a>.</p>
+<p>Un botón mecánico no cierra limpio: al pulsarlo rebota y el programa puede ver varios cambios. <code>bounce_time</code> es el tiempo, en segundos, que se ignoran los cambios después del primero. Por defecto es <code>None</code>, o sea sin antirrebotes. 0,2 s basta para un pulsador de tablero.</p>
+<svg class="esquema" viewBox="0 0 640 150" role="img" aria-label="Botón entre GPIO y tierra">
+  <rect x="16" y="46" width="120" height="52" rx="8" fill="#1C1A16" stroke="#C4A15A"/>
+  <text x="76" y="77" text-anchor="middle" fill="#E6E1D6" font-size="15" font-family="system-ui">GPIO</text>
+  <line x1="136" y1="72" x2="250" y2="72" stroke="#C4A15A" stroke-width="3"/>
+  <line x1="250" y1="56" x2="330" y2="56" stroke="#C4A15A" stroke-width="3"/>
+  <circle cx="250" cy="72" r="5" fill="#C4A15A"/>
+  <circle cx="330" cy="72" r="5" fill="#C4A15A"/>
+  <text x="290" y="44" text-anchor="middle" fill="#C9C2B4" font-size="13" font-family="system-ui">botón</text>
+  <line x1="330" y1="72" x2="470" y2="72" stroke="#C4A15A" stroke-width="3"/>
+  <rect x="470" y="46" width="120" height="52" rx="8" fill="#1C1A16" stroke="#C4A15A"/>
+  <text x="530" y="77" text-anchor="middle" fill="#E6E1D6" font-size="15" font-family="system-ui">GND</text>
+  <text x="16" y="130" fill="#C9C2B4" font-size="13" font-family="system-ui">Un lado al GPIO, el otro a tierra. gpiozero activa el pull-up interno.</text>
+</svg>
+<pre><code>from gpiozero import LED, Button
+from signal import pause
+
+led = LED(17)
+# El 2 sale en el ejemplo oficial. Si ese pin está en el bus I2C,
+# elige otro GPIO libre. El mapa está en Hardware.
+boton = Button(2, bounce_time=0.2)
+
+boton.when_pressed = led.on
+boton.when_released = led.off
+pause()</code></pre>
+<p>La otra forma oficial es alimentar el botón desde 3,3 V y crear el <code>Button</code> con <code>pull_up=False</code>. Nunca desde 5 V.</p>
+</section>
+
+<section id="depurar-led">
+<h2>Si el LED no enciende</h2>
+<p>El programa de <a href="#gpiozero">gpiozero</a> corre y el LED no se ve. Mira en este orden. Para en cuanto uno falle: el siguiente no va a arreglarlo.</p>
+<ol>
+<li>La terminal tiene que seguir en el programa, sin un error en rojo. Si dice que el pin está ocupado o que no encuentra gpiozero, el LED no entra: lee esa línea. En una <a href="raspberry-hardware.html#pi-5">Pi 5</a> la factory tiene que ser lgpio. Si forzaste RPi.GPIO o pigpio, no va a encender.</li>
+<li>El 17 del ejemplo es el número BCM, no el de la patilla contando desde el borde. Qué agujero físico es el BCM 17 lo dice Hardware. Un cable en el agujero de al lado es otro GPIO, o es tierra, o es 5 V.</li>
+<li>El LED tiene lado. El lado del GPIO (pasando la resistencia) es el ánodo, la pata larga en un LED nuevo. Al revés no luce. Con resistencia y 3,3 V, ponerlo al revés no suele romperlo.</li>
+<li>La resistencia va en serie, en el camino del GPIO al LED. Puenteada (las dos patas del LED en el mismo punto) no limita nada: o no se ve, o el pin sufre.</li>
+<li>La otra pata del LED tiene que llegar a una tierra del conector, GND, no a un segundo GPIO ni a 5 V.</li>
+<li>Prueba solo esto, diez segundos. Si este tampoco luce, no es el programa largo: es el cable o el número de pin.</li>
+</ol>
+<pre><code>from gpiozero import LED
+from time import sleep
+
+led = LED(17)
+led.on()
+sleep(10)
+led.off()</code></pre>
+<div class="cuidado"><strong>Cuidado.</strong> No puentees el GPIO a 5 V «para probar si el LED funciona». A 5 V el pin se quema. La prueba es el programa de arriba, a 3,3 V, con la resistencia puesta.</div>
+</section>
+<section id="i2c">
+<h2>I2C</h2>
+<p class="curso">En el curso: <a href="raspberry-ensenanza.html#leccion-31">lección 31</a>.</p>
+<p>I2C es un bus de dos hilos. Qué pines físicos son el reloj y los datos lo dice Hardware. Aquí solo se enciende el bus y se habla con un chip cuya dirección ya conoces.</p>
+<p>Por raspi-config: Interface Options, I2C, activar, reiniciar. A mano, en <code>/boot/firmware/config.txt</code>, la línea que escribe raspi-config es:</p>
+<pre><code>dtparam=i2c_arm=on</code></pre>
+<p>Después de reiniciar, el bus del conector GPIO se ve así en los modelos donde ese bus es el 1. Si <code>i2cdetect</code> no está, el paquete es <code>i2c-tools</code>, y sin red solo entra si ya estaba en la caché:</p>
+<pre><code>sudo i2cdetect -y 1</code></pre>
+<p>En Debian Trixie el acceso desde Python es el paquete <code>python3-smbus</code>. La dirección y el registro no los pone este manual: salen de la hoja del chip. El <code>0x48</code> de abajo es un ejemplo de forma, no un chip concreto. Cámbialo.</p>
+<pre><code>from smbus import SMBus
+
+bus = SMBus(1)
+direccion = 0x48          # la de TU chip, en hexadecimal
+registro = 0              # el que diga su hoja
+valor = bus.read_byte_data(direccion, registro)
+print(valor)
+bus.close()</code></pre>
+<div class="cuidado"><strong>Cuidado.</strong> Dos chips con la misma dirección en el mismo bus no se distinguen. Si <code>i2cdetect</code> no muestra la tuya, el bus no está activado, el cableado no es el de Hardware, o el chip no tiene alimentación.</div>
+</section>
+
+<section id="spi">
+<h2>SPI</h2>
+<p>SPI es otro bus, más rápido, con una línea de selección por dispositivo. Los pines físicos están en Hardware.</p>
+<p>Actívalo en Interface Options, o con la línea que escribe raspi-config:</p>
+<pre><code>dtparam=spi=on</code></pre>
+<p>Reinicia. SPI0 aparece entonces como <code>/dev/spidev0.0</code> y <code>/dev/spidev0.1</code> (dos selecciones). El paquete Python se busca en la propia Pi (<code>apt-cache search spidev</code>), sin darlo por hecho. Este programa solo abre el dispositivo 0.0 y manda un byte: los bytes de verdad los dicta el chip, no los copies de otro proyecto.</p>
+<pre><code>import spidev
+
+spi = spidev.SpiDev()
+spi.open(0, 0)            # bus 0, selección 0 → /dev/spidev0.0
+spi.max_speed_hz = 50000
+respuesta = spi.xfer2([0x00])
+print(respuesta)
+spi.close()</code></pre>
+</section>
+
+<section id="onewire">
+<h2>1-Wire</h2>
+<p>1-Wire lleva datos por un solo GPIO. El pin físico por defecto no lo fijo aquí: lo confirma Hardware y el overlay. raspi-config, al activarlo, escribe esto en config.txt:</p>
+<pre><code>dtoverlay=w1-gpio</code></pre>
+<p>Reinicia. Un sensor de temperatura de la familia 28 (el DS18B20 es el habitual) aparece como carpeta <code>28-…</code> dentro de <code>/sys/bus/w1/devices/</code>. La lectura vale si el fichero contiene <code>YES</code>. El número que sigue a <code>t=</code> está en milésimas de grado.</p>
+<pre><code>from pathlib import Path
+
+base = Path("/sys/bus/w1/devices")
+for f in sorted(base.glob("28-*/w1_slave")):
+    texto = f.read_text(encoding="ascii", errors="replace")
+    if "YES" not in texto:
+        print(f.parent.name, "lectura no válida")
+        continue
+    bruto = texto.split("t=")[-1].strip()
+    print(f.parent.name, int(bruto) / 1000)</code></pre>
+<p>Si no aparece ninguna carpeta <code>28-</code>, el overlay no cargó o el sensor no está en el pin que el overlay usa. No inventes un <code>gpiopin=</code> sin mirar Hardware.</p>
+</section>
+
+<section id="libgpiod">
+<h2>libgpiod</h2>
+<p>Es la capa con la que Linux habla con los GPIO, por debajo de lgpio y, por tanto, de gpiozero. El curso no la practica: la nombra en la <a href="raspberry-ensenanza.html#leccion-25">lección 25</a>.</p>
+<p>Las herramientas de línea de comandos suelen llamarse <code>gpiodetect</code>, <code>gpioinfo</code>, <code>gpioset</code> y <code>gpioget</code>. Si no están, no des por hecho el nombre del paquete:</p>
+<pre><code>apt-cache search gpiodetect</code></pre>
+<p>Sirven para ver qué chip GPIO tiene la placa y el estado de una línea, sin escribir un programa. En la Pi 5 el chip no es el mismo que en las anteriores: <code>gpiodetect</code> te dice el nombre real. No lo copies de un tutorial de la Pi 4.</p>
+</section>
+
+<section id="pigpio">
+<h2>pigpio</h2>
+<p>pigpio es un demonio (<code>pigpiod</code>) que temporiza los GPIO con más precisión que el Python a pelo. El curso no lo practica: lo nombra en la <a href="raspberry-ensenanza.html#leccion-25">lección 25</a>.</p>
+<p>En la <a href="raspberry-hardware.html#pi-5">Pi 5</a> no lo uses. Ahí la factory que funciona es lgpio, y gpiozero ya la elige solo. Arrancar <code>pigpiod</code> en una Pi 5 no te da los pines.</p>
+<div class="cuidado"><strong>Cuidado.</strong> No mezcles pigpio y gpiozero sobre el mismo pin a la vez. Quédate en gpiozero salvo que un proyecto concreto te pida el demonio, y solo en placas anteriores a la Pi 5.</div>
+</section>
+<section id="libcamera">
+<h2>Cámara</h2>
+<p class="curso">En el curso: <a href="raspberry-ensenanza.html#leccion-33">lección 33</a> y <a href="raspberry-ensenanza.html#leccion-34">lección 34</a>.</p>
+<p>Los comandos actuales son <code>rpicam-still</code> y <code>rpicam-vid</code>. <code>raspistill</code> y <code>raspivid</code> son los nombres viejos: no los pongas en un script nuevo. Las opciones concretas cambian con la versión. Míralas en la propia Pi, no en una chuleta:</p>
+<pre><code>rpicam-still --help
+rpicam-vid --help</code></pre>
+<p>Una foto a un archivo, con las opciones por defecto del comando (si el help de tu versión usa otro nombre de opción, manda el help):</p>
+<pre><code>rpicam-still -o foto.jpg</code></pre>
+<p>Esa <code>-o</code> es la opción de salida que la documentación de libcamera viene usando. Si tu <code>--help</code> no la lista, no la fuerces.</p>
+<p>En Python el módulo se llama <code>picamera2</code>. El nombre del paquete apt no lo afirmes a ciegas:</p>
+<pre><code>apt-cache search picamera2</code></pre>
+<p><code>camera_auto_detect=1</code> ya viene en config.txt. Si la cámara es CSI y no aparece, mira primero que esa línea siga en 1 y que el conector sea el de Hardware, antes de instalar nada.</p>
+</section>
+
+<section id="audio">
+<h2>Audio</h2>
+<p>No hay lección de audio en el curso. Vive aquí.</p>
+<p>Para oír un wav por ALSA:</p>
+<pre><code>aplay -l
+aplay sonido.wav</code></pre>
+<p><code>aplay -l</code> lista las salidas: HDMI y, si la hay, la analógica. El número de tarjeta y de dispositivo sale en esa lista. Para forzar una:</p>
+<pre><code>aplay -D plughw:TARJETA,DISPOSITIVO sonido.wav</code></pre>
+<p>Sustituye TARJETA y DISPOSITIVO por lo que haya impreso <code>aplay -l</code>. No des por hecho que el escritorio de Trixie manda el sonido solo por ALSA: la sesión puede tener otro servidor encima. Si <code>aplay</code> dice que reprodujo y no oyes nada, la salida por defecto no es el cable que estás mirando. Cámbiala con <code>-D</code> antes de tocar config.txt.</p>
+</section>
+
+<section id="servidor-local">
+<h2>Servidor web en la propia Pi</h2>
+<p>Para ver una carpeta de archivos desde el navegador de esa Pi, sin analytics y sin CDN, basta la biblioteca estándar. Átalo a localhost para que no escuche en la red:</p>
+<pre><code>cd /ruta/de/la/carpeta
+python3 -m http.server 8080 --bind 127.0.0.1</code></pre>
+<p>Abres <code>http://127.0.0.1:8080/</code> en el navegador de la propia Pi. Parar: Ctrl+C.</p>
+<div class="cuidado"><strong>Cuidado.</strong> No tiene usuario ni contraseña. Si quitas el <code>--bind</code>, cualquiera en la red puede leer esa carpeta. No lo dejes así.</div>
+</section>
+
+<section id="csv">
+<h2>CSV en disco</h2>
+<p class="curso">En el curso: <a href="raspberry-ensenanza.html#leccion-21">lección 21</a>.</p>
+<p>Las medidas se quedan en un archivo. El módulo <code>csv</code> viene con Python. <code>newline=""</code> evita filas en blanco de más.</p>
+<pre><code>import csv
+from datetime import datetime
+from pathlib import Path
+
+ruta = Path.home() / "medidas.csv"
+nuevo = not ruta.exists()
+
+with ruta.open("a", newline="", encoding="utf-8") as fh:
+    w = csv.writer(fh)
+    if nuevo:
+        w.writerow(["fecha", "valor"])
+    w.writerow([datetime.now().isoformat(timespec="seconds"), 21.5])
+
+with ruta.open(newline="", encoding="utf-8") as fh:
+    for fila in csv.reader(fh):
+        print(fila)</code></pre>
+<p>La carpeta tiene que ser de tu usuario. No escribas en <code>/boot/firmware/</code>: eso es la partición de arranque.</p>
+</section>
+
+<section id="systemd">
+<h2>systemd</h2>
+<p class="curso">Por qué arrancar solo al encender: <a href="raspberry-ensenanza.html#leccion-41">lección 41</a>.</p>
+<p>Una unidad de sistema lanza el programa al arrancar y lo relanza si se cae. Crea el archivo <code>/etc/systemd/system/medidas.service</code> (hace falta sudo). Cambia la ruta y el usuario por los tuyos. No uses el usuario <code>pi</code> si no es el que creaste en el Imager.</p>
+<pre><code>[Unit]
+Description=Medidas en CSV
+After=multi-user.target
+
+[Service]
+User=TUUSUARIO
+WorkingDirectory=/home/TUUSUARIO
+ExecStart=/usr/bin/python3 /home/TUUSUARIO/medidas.py
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target</code></pre>
+<pre><code>sudo systemctl daemon-reload
+sudo systemctl enable --now medidas.service
+systemctl status medidas.service
+journalctl -u medidas.service -n 30 --no-pager</code></pre>
+<p>Si <code>status</code> dice failed, el motivo está en esas líneas de <code>journalctl</code>, no en un reinicio a ciegas.</p>
+</section>
+
+<section id="cron">
+<h2>cron</h2>
+<p class="curso">El mismo porqué, en la <a href="raspberry-ensenanza.html#leccion-41">lección 41</a>.</p>
+<p>cron sirve cuando el programa tiene que lanzarse y terminar, no quedarse vivo. <code>@reboot</code> lo lanza al arrancar, sin esperar a la red.</p>
+<pre><code>crontab -e</code></pre>
+<p>Una línea, con rutas absolutas:</p>
+<pre><code>@reboot /usr/bin/python3 /home/TUUSUARIO/medidas.py &gt;&gt; /home/TUUSUARIO/medidas.log 2&gt;&amp;1</code></pre>
+<p>Si no pasa nada, mira el log. cron no enseña el error en pantalla. Para algo que deba seguir corriendo, usa la unidad de systemd de arriba, no cron.</p>
+</section>
+
+<section id="apagado">
+<h2>Apagado seguro</h2>
+<p class="curso">En el curso: <a href="raspberry-ensenanza.html#leccion-09">lección 9</a>.</p>
+<p>Apagar el sistema antes de cortar la corriente:</p>
+<pre><code>sudo shutdown -h now</code></pre>
+<p>Espera a que la actividad de la tarjeta pare (en muchas placas el LED verde deja de parpadear) y solo entonces quita la alimentación. Cortar antes puede romper el sistema de archivos.</p>
+<p>Otra cosa distinta es el consumo cuando ya está apagada. En las familias Pi 4 y Pi 5 eso se cambia en raspi-config, en las opciones de rendimiento. No sustituye al comando de arriba.</p>
+</section>
+
+<section id="reloj">
+<h2>Reloj, NTP y RTC</h2>
+<p>Sin red y sin pila de reloj, la hora se pierde al cortar la corriente. Con red, el sistema la pide por NTP. Para ver si está activo:</p>
+<pre><code>timedatectl</code></pre>
+<p>La línea que importa es la de «NTP service» o «System clock synchronized». Si dice que no, y hay red, no inventes un servidor: en Raspberry Pi OS el cliente ya viene configurado. Revisa antes que la Pi tenga hora de red de verdad (<code>ping</code> no, porque este manual no asume red; <code>timedatectl</code> basta).</p>
+<p>Un RTC es una pieza con pila. El overlay depende del chip y está en Hardware. Aquí no hay un <code>dtoverlay</code> de un chip concreto: poner el de otro reloj deja el bus ocupado y la hora igual de mal.</p>
+</section>
+
+<section id="fuentes">
+<h2>Fuentes</h2>
+<p>Lo de este archivo se apoya en esto, consultado para el estado a 3 de octubre de 2026. Los enlaces no se abren sin red. Están para saber de dónde sale cada cosa.</p>
+<ul>
+<li>Descargas de Raspberry Pi OS (Trixie, 15 sep 2026, kernel 6.18): https://www.raspberrypi.com/software/operating-systems/</li>
+<li>Anuncio de Trixie: https://www.raspberrypi.com/news/trixie-the-new-version-of-raspberry-pi-os/</li>
+<li>Configuración y raspi-config: https://www.raspberrypi.com/documentation/computers/configuration.html</li>
+<li>config.txt en /boot/firmware/: https://www.raspberrypi.com/documentation/computers/config_txt.html</li>
+<li>Opciones comunes (camera_auto_detect, arm_boost, hdmi_enable_4kp60): https://github.com/raspberrypi/documentation/blob/master/documentation/asciidoc/computers/config_txt/common.adoc</li>
+<li>Menú de raspi-config y dtoverlay=w1-gpio: https://github.com/RPi-Distro/raspi-config</li>
+<li>Recetas gpiozero (LED 17, PWMLED, Button): https://gpiozero.readthedocs.io/en/stable/recipes.html</li>
+<li>Pin factory LGPIOFactory y Pi 5: https://gpiozero.readthedocs.io/en/latest/api_pins.html</li>
+<li>python3-smbus en Debian Trixie: https://packages.debian.org/python3-smbus</li>
+</ul>
+<p class="nota">Quedó a propósito sin afirmar: el nombre del paquete apt de las herramientas gpiodetect, el de picamera2, el pin por defecto del overlay w1-gpio, y si el escritorio de Trixie enruta el audio solo por ALSA. En la Pi se mira con apt-cache, con el README del overlay y con aplay -l.</p>
+</section>
+</main>
+</body>
+</html>

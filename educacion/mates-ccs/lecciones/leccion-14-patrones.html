@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<meta name="theme-color" content="#0E0E0C"/>
+<title>Lección 14 · Patrones · Les vencimos</title>
+<link rel="icon" href="../icons/favicon.svg" type="image/svg+xml"/>
+<link rel="stylesheet" href="../leccion-shell.css"/>
+<style>
+
+  .pasos{list-style:none;margin:0 0 1rem;padding:0;counter-reset:paso}
+  .pasos li{position:relative;margin:0 0 .7rem;padding:.7rem .8rem .7rem 3.1rem;background:var(--lv-panel);border:1px solid var(--lv-linea);border-radius:10px}
+  .pasos li::before{counter-increment:paso;content:counter(paso);position:absolute;left:.65rem;top:.7rem;width:1.7rem;height:1.7rem;border-radius:50%;background:#C4A15A;color:#1A160E;font-weight:700;font-size:.9rem;display:flex;align-items:center;justify-content:center}
+  .figura-svg{background:var(--lv-panel);border:1px solid var(--lv-linea);border-radius:10px;padding:.4rem;margin:.4rem 0 1rem}
+  .figura-svg svg{width:100%;height:auto;display:block}
+  .ej{margin:0 0 1rem;padding:.85rem .95rem;background:var(--lv-panel);border:1px solid var(--lv-linea);border-left:3px solid #C4A15A;border-radius:10px}
+  .ej h3{margin:0 0 .35rem;font-family:var(--lv-serif);font-size:1.05rem;color:var(--lv-titulo)}
+  .editor,textarea.editor{width:100%;min-height:5.2rem;font-family:ui-monospace,monospace;font-size:.95rem;line-height:1.4;padding:.55rem .65rem;border:1px solid rgba(196,161,90,.45);border-radius:8px;background:#161512;color:#E6E1D6;resize:vertical}
+  .lienzo{display:block;width:100%;height:240px;background:#161512;border:1px solid #C4A15A;border-radius:8px;touch-action:none;cursor:crosshair}
+  .fila{display:flex;flex-wrap:wrap;gap:.4rem;margin:.45rem 0}
+  .boton{font:inherit;font-weight:700;font-size:.85rem;padding:.35rem .75rem;border-radius:999px;border:1px solid #C4A15A;background:transparent;color:#E6E1D6;cursor:pointer}
+  .boton.amber{background:#C4A15A;color:#1A160E;border-color:#b08d45}
+  .porque{margin-top:.5rem;padding:.6rem .7rem;background:#1a2218;border-radius:8px;color:#E6E1D6}
+  .dato{font-size:.95rem;color:var(--lv-suave)}
+  .formula{background:#161512;border-left:3px solid #C4A15A;padding:.45rem .7rem;overflow-x:auto;font-family:ui-monospace,monospace}
+  .glosa{font-size:.95rem;color:#d9d0bc;margin-top:.25rem}
+  table.datos{width:100%;border-collapse:collapse;margin:.4rem 0 1rem;font-size:.98rem}
+  table.datos th,table.datos td{border:1px solid var(--lv-linea);padding:.35rem .5rem;text-align:left}
+  table.datos th{background:#161512;color:#C4A15A}
+  table.datos td.num{font-variant-numeric:tabular-nums}
+
+</style>
+<script src="../leccion-shell-nav.js" defer></script>
+</head>
+<body class="leccion-shell">
+<div class="leccion-wrap">
+
+<nav class="leccion-barra" aria-label="Navegación de lección" data-actual="14" data-total="33">
+  <div class="leccion-progreso" role="status">
+    <span class="progreso-texto"><strong>14</strong> de <strong>33</strong></span>
+    <div class="progreso-pista" aria-hidden="true"><div class="progreso-lleno" style="width:43.75%"></div></div>
+  </div>
+  <div class="leccion-atajos">
+    <a class="atajo atajo-prev" href="leccion-13-derivadas-elementales.html">← Anterior</a>
+    <a class="atajo atajo-next" href="leccion-15-modelos.html">Siguiente →</a>
+  </div>
+</nav>
+
+<header class="leccion-top">
+  <a class="leccion-marca" href="../mates-ccs.html">Les <span>vencimos</span></a>
+  <p class="leccion-meta-top">Matemáticas Aplicadas a las Ciencias Sociales I · 1.º Bachillerato</p>
+</header>
+
+<header class="bloque-titulo">
+  <span class="eyebrow">Lección 14 · C.1 · Patrones</span>
+  <h1 class="titulo-leccion">Generalizar un <em>patrón</em></h1>
+  <p class="meta-leccion">Decreto 40/2022 CyL · primer curso · antes de segundo</p>
+</header>
+
+<aside class="bloque-curiosidad" aria-label="Para situarte">
+  <p class="etiqueta-bloque">Para situarte</p>
+  <h2 class="titulo-curiosidad">El patrón es la frase que vale para cualquier paso</h2>
+  <p class="texto-curiosidad">Contar cinco términos no es generalizar. Generalizar es escribir una fórmula que, puesta la posición n, devuelva ese término sin seguir la lista a mano.</p>
+</aside>
+
+<section class="bloque-cuerpo">
+  <h2>Objetivos</h2>
+  <ul>
+    <li>Describir con palabras cómo se pasa de un término al siguiente.</li>
+    <li>Pasar de esa descripción a una fórmula en función de n.</li>
+    <li>Comprobar la fórmula en los términos ya vistos y en uno que no se había calculado.</li>
+    <li>Hacer lo mismo con un patrón de figuras, contando piezas y no solo «mirando».</li>
+  </ul>
+
+  <h2>De la lista a la posición n</h2>
+  <p>El sentido algebraico, apartado C.1 del primer curso, pide generalizar patrones en situaciones sencillas. El patrón puede ser una lista de números o una figura que crece. El oficio es el mismo: decidir qué representa n, calcular varios casos, conjeturar la fórmula y verificarla en un caso nuevo.</p>
+  <p>Conviene fijar el convenio antes de escribir letras. En esta lección, n empieza en 1: el primer término es el de n = 1, no el de n = 0, salvo que el enunciado diga lo contrario. Cambiar el origen cambia la fórmula aunque la lista sea la misma. Si alguien escribe 4n − 3 y tú escribes 4n + 1, puede que los dos tengáis razón y estéis contando el paso cero de otra manera. La comprobación con n = 1 lo aclara.</p>
+  <p class="formula">a<sub>n</sub> = a<sub>1</sub> + (n − 1) · d</p>
+  <p class="glosa">a<sub>n</sub> es el término que ocupa la posición n; a<sub>1</sub> es el primero; d es la diferencia constante entre un término y el siguiente; n − 1 cuenta cuántos saltos de tamaño d hay desde el primero hasta el n-ésimo. Esta fórmula solo vale cuando la diferencia es siempre la misma.</p>
+  <p>Si la diferencia no es constante, no fuerces esa plantilla. Mira las diferencias segundas, o prueba con n<sup>2</sup>, con n(n + 1) o con una fracción n / (n + 1). La pista suele estar en cómo crece la figura: filas que añaden un objeto más cada vez suelen llevar a un número triangular n(n + 1) / 2; una cuadrícula n por n lleva a n<sup>2</sup>.</p>
+  <p class="formula">T<sub>n</sub> = n(n + 1) / 2</p>
+  <p class="glosa">T<sub>n</sub> es el total de objetos de una figura triangular en el paso n; n es el número de filas, o el lado; n + 1 es la fila que todavía no está, y el producto partido por 2 evita contar dos veces la misma pareja. Para n = 1 da 1; para n = 4 da 10.</p>
+  <p>Una figura se generaliza igual que una lista, pero el recuento tiene que poder contarse en voz alta: «en el paso n hay n mesas y cada mesa nueva añade dos asientos a los que ya había». Si no puedes decir esa frase, la fórmula todavía es una adivinanza.</p>
+
+  <div class="figura-svg">
+    <svg viewBox="0 0 720 220" role="img" aria-label="Tres figuras de puntos en triángulo, con 1, 3 y 6 puntos">
+      <title>Patrón triangular: 1 punto, luego 3, luego 6; el paso n tiene n(n + 1) / 2 puntos</title>
+      <rect width="720" height="220" fill="#161512"/>
+      <g fill="#C4A15A">
+        <circle cx="80" cy="90" r="7"/>
+        <circle cx="230" cy="70" r="7"/>
+        <circle cx="214" cy="110" r="7"/>
+        <circle cx="246" cy="110" r="7"/>
+        <circle cx="420" cy="50" r="7"/>
+        <circle cx="404" cy="90" r="7"/>
+        <circle cx="436" cy="90" r="7"/>
+        <circle cx="388" cy="130" r="7"/>
+        <circle cx="420" cy="130" r="7"/>
+        <circle cx="452" cy="130" r="7"/>
+      </g>
+      <g fill="#E6E1D6" font-family="Segoe UI,sans-serif" font-size="15">
+        <text x="80" y="180" text-anchor="middle">n = 1 → 1</text>
+        <text x="230" y="180" text-anchor="middle">n = 2 → 3</text>
+        <text x="420" y="180" text-anchor="middle">n = 3 → 6</text>
+        <text x="620" y="100" text-anchor="middle" fill="#C4A15A">n → n(n+1)/2</text>
+      </g>
+    </svg>
+  </div>
+
+  <h2>Ejemplo 1. Una cuota que sube de cuatro en cuatro</h2>
+  <p>Una actividad cobra, en euros, 5 la primera semana, 9 la segunda, 13 la tercera y 17 la cuarta. Se quiere la cuota de la semana n, no solo la de la quinta.</p>
+  <ol class="pasos">
+    <li>Diferencias: 9 − 5 = 4, 13 − 9 = 4, 17 − 13 = 4. La diferencia d es constante e igual a 4.</li>
+    <li>El primer término es a<sub>1</sub> = 5. La fórmula de diferencia constante da a<sub>n</sub> = 5 + (n − 1) · 4.</li>
+    <li>Se simplifica: 5 + 4n − 4 = 4n + 1.</li>
+    <li>Comprobación: n = 1 → 5; n = 2 → 9; n = 3 → 13; n = 4 → 17. Los cuatro datos encajan.</li>
+    <li>Un término nuevo, la semana 6: a<sub>6</sub> = 4 · 6 + 1 = 25. No hacía falta sumar 4 seis veces.</li>
+  </ol>
+  <p class="formula">a<sub>n</sub> = 4n + 1</p>
+  <p class="glosa">n es el número de semana, empezando en 1; 4 es la subida semanal en euros; 1 es el ajuste para que la primera semana valga 5 y no 4; a<sub>n</sub> es la cuota de esa semana, en euros.</p>
+  <p>Si hubieras tomado n = 0 para la primera semana, la fórmula sería otra, 4n + 5, y también serviría, pero entonces n ya no sería «el número de semana» tal como lo cuenta el cartel. Por eso el enunciado y la fórmula tienen que usar el mismo n.</p>
+
+  <h2>Ejemplo 2. Asientos al juntar mesas</h2>
+  <p>Una mesa cuadrada, sola, tiene 4 asientos. Al juntar dos mesas por un lado se pierden los asientos del lado compartido y quedan 6. Con tres mesas en fila quedan 8. Se quiere el número de asientos con n mesas en una sola fila.</p>
+  <ol class="pasos">
+    <li>Lista: n = 1 → 4; n = 2 → 6; n = 3 → 8. La diferencia es 2 cada vez que se añade una mesa.</li>
+    <li>Frase: hay 4 asientos en la primera mesa, y cada mesa nueva añade 2 asientos (los dos lados largos; los cortos ya no están libres por dentro de la fila).</li>
+    <li>Fórmula: 4 + (n − 1) · 2 = 4 + 2n − 2 = 2n + 2.</li>
+    <li>También se puede ver como 2 asientos en cada cabecera más 1 asiento a cada lado de cada mesa: 2 + 2n, el mismo resultado.</li>
+    <li>Comprobación n = 3: 2 · 3 + 2 = 8. Caso nuevo n = 5: 12 asientos.</li>
+  </ol>
+  <p class="formula">s<sub>n</sub> = 2n + 2</p>
+  <p class="glosa">n es el número de mesas en fila; 2n cuenta un asiento por cada lado largo de cada mesa; el +2 cuenta las dos cabeceras; s<sub>n</sub> es el número de asientos.</p>
+  <p>Las dos lecturas, la de la diferencia constante y la del dibujo, dan la misma fórmula. Cuando no dan la misma, una de las dos frases está mal contada. No se elige la que «queda más bonita».</p>
+
+  <h2>Ejercicios</h2>
+  <article class="ej">
+    <h3>1. Otra diferencia constante</h3>
+    <p>La lista es 7, 12, 17, 22. Escribe a<sub>n</sub> con n empezando en 1 y calcula el término 10.</p>
+    <label for="e14-1">Fórmula y término 10</label>
+    <textarea class="editor" id="e14-1"></textarea>
+    <details>
+      <summary>Corrección</summary>
+      <ol class="pasos">
+        <li>La diferencia es 5. a<sub>1</sub> = 7.</li>
+        <li>a<sub>n</sub> = 7 + (n − 1) · 5 = 5n + 2.</li>
+        <li>Comprueba n = 4: 20 + 2 = 22. Correcto.</li>
+        <li>n = 10: 50 + 2 = 52.</li>
+      </ol>
+      <p class="porque">5n daría 5, 10, 15, 20, que va por detrás de la lista. El +2 es exactamente lo que separa 5n de 7, 12, 17, 22. Sin ese ajuste, n = 1 ya falla.</p>
+    </details>
+  </article>
+  <article class="ej">
+    <h3>2. El producto de dos consecutivos</h3>
+    <p>Observa 2, 6, 12, 20, 30. La diferencia ya no es constante. Halla una fórmula para el término n y el término 6.</p>
+    <label for="e14-2">Fórmula</label>
+    <textarea class="editor" id="e14-2"></textarea>
+    <details>
+      <summary>Corrección</summary>
+      <ol class="pasos">
+        <li>2 = 1 · 2, 6 = 2 · 3, 12 = 3 · 4, 20 = 4 · 5, 30 = 5 · 6.</li>
+        <li>El término n es n(n + 1).</li>
+        <li>n = 6: 6 · 7 = 42.</li>
+      </ol>
+      <p class="porque">Las diferencias 4, 6, 8, 10 crecen de dos en dos, así que no vale la fórmula a<sub>1</sub> + (n − 1)d. El emparejamiento con n y n + 1 explica todos los términos dados, no solo el último.</p>
+    </details>
+  </article>
+  <article class="ej">
+    <h3>3. Cuadrícula</h3>
+    <p>Una figura pone 1 punto, luego un cuadrado 2 × 2 con 4 puntos, luego 3 × 3 con 9, luego 4 × 4 con 16. Escribe la fórmula y el número de puntos en el paso 7.</p>
+    <label for="e14-3">Puntos del paso n</label>
+    <textarea class="editor" id="e14-3"></textarea>
+    <details>
+      <summary>Corrección</summary>
+      <ol class="pasos">
+        <li>En el paso n hay n filas y n columnas.</li>
+        <li>El número de puntos es n<sup>2</sup>.</li>
+        <li>Paso 7: 49 puntos.</li>
+      </ol>
+      <p class="porque">1, 4, 9, 16 son cuadrados perfectos y el lado de la figura es precisamente n. n(n + 1) daría 2, 6, 12, 20, que es el ejercicio anterior, no este dibujo.</p>
+    </details>
+  </article>
+  <article class="ej">
+    <h3>4. Fracciones que se acercan a 1</h3>
+    <p>La lista es 1/2, 2/3, 3/4, 4/5. Escribe el término n y el término 6, en fracción.</p>
+    <label for="e14-4">Término general</label>
+    <textarea class="editor" id="e14-4"></textarea>
+    <details>
+      <summary>Corrección</summary>
+      <ol class="pasos">
+        <li>El numerador es la posición n. El denominador es uno más: n + 1.</li>
+        <li>a<sub>n</sub> = n / (n + 1).</li>
+        <li>n = 1 da 1/2; n = 4 da 4/5. Encaja.</li>
+        <li>n = 6 da 6/7.</li>
+      </ol>
+      <p class="porque">Cada término está a 1 / (n + 1) de distancia de 1, porque 1 − n/(n + 1) = 1/(n + 1). La fórmula no solo reproduce la lista: explica por qué se acerca a 1 sin llegar nunca, para n entero positivo.</p>
+    </details>
+  </article>
+
+  <h2>Cierre</h2>
+  <p>Di en voz alta cómo crece el paso, escribe la fórmula con el mismo n del enunciado y compruébala en los datos y en un término nuevo. Si es una figura, la frase tiene que contar piezas, no solo nombrar la forma.</p>
+</section>
+
+<footer class="leccion-pie">
+  <strong>Les vencimos</strong> · Lección 14 de 33 · Matemáticas Aplicadas a las CCSS I · staging · sin publicar
+</footer>
+</div>
+<!-- saber: C.1 Patrones. Generalización de patrones en situaciones sencillas. -->
+
+</body>
+</html>

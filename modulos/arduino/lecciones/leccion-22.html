@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="color-scheme" content="dark">
+<title>L22 · Servo · les vencimos</title>
+<style>
+:root{--bg:#0E0E0C;--surf:#161512;--panel:#1C1A16;--ink:#E6E1D6;--mut:#9A9488;--acc:#C4A15A;--acc-ink:#1A160E;--danger:#C46A4A;--ok:#8F9A72;--line:#2A2720}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:400 17px/1.55 "Segoe UI",system-ui,sans-serif}
+h1,h2,h3{font-family:"Iowan Old Style",Palatino,Georgia,serif;font-weight:600;line-height:1.25}
+a{color:var(--acc)}
+.wrap{max-width:42rem;margin:0 auto;padding:1.25rem 1.1rem 3.5rem}
+header.top{border-bottom:1px solid var(--line);padding-bottom:.8rem;margin-bottom:1.2rem}
+.marca{font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;color:var(--mut);margin:0}
+h1{font-size:1.7rem;margin:.35rem 0 .2rem}
+.meta{color:var(--mut);margin:0 0 .8rem;font-size:.92rem}
+nav.pasos{display:flex;flex-wrap:wrap;gap:.5rem;margin:.4rem 0 0}
+nav.pasos a,button{min-height:44px;padding:.45rem .8rem;border:1px solid var(--line);border-radius:2px;background:var(--surf);color:var(--ink);font:inherit;text-decoration:none;cursor:pointer}
+button.acc{background:var(--acc);color:var(--acc-ink);border-color:var(--acc);font-weight:600}
+.maestro{background:var(--panel);border:1px solid var(--line);padding:1rem 1.05rem;margin:1.1rem 0}
+.maestro h2{margin:.1rem 0 .6rem;font-size:1.05rem;color:var(--acc)}
+pre{background:var(--surf);border:1px solid var(--line);padding:.9rem 1rem;overflow:auto;font-size:.88rem;line-height:1.45}
+.warn{border-left:3px solid var(--danger);padding:.2rem 0 .2rem .8rem;color:var(--ink)}
+.quiz{margin-top:1.2rem}
+figure{margin:1rem 0;background:#161512;border:1px solid var(--line);padding:.55rem .7rem}
+figure svg{width:100%;height:auto;display:block}
+figcaption{color:var(--mut);font-size:.9rem;margin:.45rem 0 0}
+.ejemplo{background:#161512;border:1px solid var(--line);padding:.8rem .95rem;margin:.7rem 0}
+.ejemplo h3{margin:.1rem 0 .4rem;font-size:1.05rem}
+
+.pregunta{background:var(--surf);border:1px solid var(--line);padding:.8rem 1rem;margin:.7rem 0}
+.respuesta{color:var(--ok);margin:.55rem 0 0}
+footer{margin-top:2.2rem;padding-top:.8rem;border-top:1px solid var(--line);color:var(--mut);font-size:.82rem}
+.pend{color:var(--mut)}
+ol.temario{padding-left:1.2rem}
+ol.temario li{margin:.28rem 0}
+
+.sim,.anota{margin:1rem 0;background:#161512;border:1px solid var(--line);padding:.8rem .9rem}
+.sim h2,.anota h2{margin:.1rem 0 .4rem;font-size:1.15rem}
+.sim-canvas{width:100%;height:auto;background:#1C1A16;border:1px solid var(--line);margin:.6rem 0;display:block}
+.sim-lab{display:flex;align-items:center;gap:.6rem;margin:.4rem 0;color:var(--ink)}
+.sim-range{flex:1;min-height:44px}
+.sim-out{min-width:3rem;color:var(--acc)}
+.sim-dedo{margin-top:.4rem}
+textarea.nota-montaje{width:100%;min-height:8rem;background:#1C1A16;color:var(--ink);border:1px solid var(--line);padding:.7rem;font:inherit;line-height:1.45}
+
+</style>
+</head>
+<body>
+<article class="wrap" id="ens-servo" data-ens="ens-servo" data-hw="modulo-servo">
+<header class="top">
+<p class="marca">les vencimos · offline</p>
+<h1>L22. Servo</h1>
+<p class="meta">Actuadores (54–70%)</p>
+<nav class="pasos"><a href="../arduino-ensenanza.html">Al curso</a><a href="leccion-21.html">Anterior</a><a href="leccion-23.html">Siguiente</a></nav>
+</header>
+<section class="maestro" id="maestro">
+<h2>Maestro</h2>
+<p id="maestro-texto">Un servo de modelismo gira a un ángulo y se queda. Tres cables: señal, alimentación y masa. La señal sale de un pin. La corriente no. Si enchufas el rojo del servo al pin, estás pidiendo amperios a una patilla que no los tiene. Un servo pequeño puede probarse con el 5V de la placa. Si la placa se reinicia, come aparte, y la masa sigue siendo común.</p>
+<button type="button" class="acc" id="escuchar">Escuchar</button>
+</section>
+<section class="lectura">
+<p>El cable de señal, casi siempre naranja o amarillo, va al pin 9. El marrón o negro va a GND. El rojo va a 5V de la placa solo para un servo pequeño y un rato de prueba. Varios servos, o uno que al moverse apaga el USB, piden 5 voltios externos y la masa unida a la de la placa. Sin masa común el servo tiembla o no obedece. En el catálogo Hardware la ficha es <a href="../arduino-hardware.html#modulo-servo">modulo-servo</a>.</p>
+<p>La biblioteca Servo.h viene con el entorno. s.attach(9) une el objeto al pin. s.write(90) pide el centro, en grados de 0 a 180, según el servo. No todos llegan a los extremos sin hacer ruido: si zumba forzado en 0 o en 180, quédate en 20 y 160.</p>
+<p>delay entre dos ángulos vuelve a bloquear. Aquí es aceptable porque el servo es la única tarea. Cuando combine con un botón, habrá que quitar esa espera. El pin 9 deja de servir como PWM normal mientras el servo está attached: la biblioteca usa ese temporizador. No pongas un LED regulado en el 9 a la vez.</p>
+<p class="warn">Placa de 3,3 voltios: un servo pensado a 5 voltios no se alimenta del pin de 3,3 ni se le manda una señal que el fabricante no admita. El curso lo prueba en el Uno.</p>
+</section>
+<h2>Montaje</h2>
+<figure><svg viewBox="0 0 560 210">
+<rect x="10" y="50" width="100" height="110" rx="6" fill="#1C1A16" stroke="#C4A15A"/>
+<text x="60" y="100" text-anchor="middle" fill="#E6E1D6" font-size="12">Uno</text>
+<text x="60" y="118" text-anchor="middle" fill="#9A9488" font-size="10">pin 9 · GND</text>
+<rect x="350" y="40" width="90" height="70" rx="4" fill="#161512" stroke="#C4A15A"/>
+<text x="395" y="80" text-anchor="middle" fill="#E6E1D6" font-size="11">SG90</text>
+<line x1="110" y1="100" x2="350" y2="70" stroke="#5B8FA8" stroke-width="3"/>
+<text x="220" y="65" fill="#5B8FA8" font-size="10">señal (naranja)</text>
+<rect x="200" y="140" width="100" height="50" rx="4" fill="#2A2720" stroke="#C46A4A"/>
+<text x="250" y="170" text-anchor="middle" fill="#C46A4A" font-size="11">5V ext.</text>
+<line x1="300" y1="155" x2="395" y2="110" stroke="#C46A4A" stroke-width="3"/>
+<text x="340" y="125" fill="#C46A4A" font-size="9">rojo V+</text>
+<line x1="60" y1="140" x2="60" y2="180" stroke="#6B6560" stroke-width="2"/>
+<line x1="60" y1="180" x2="395" y2="180" stroke="#6B6560" stroke-width="3"/>
+<line x1="395" y1="180" x2="395" y2="110" stroke="#6B6560" stroke-width="3"/>
+<line x1="250" y1="190" x2="250" y2="180" stroke="#6B6560" stroke-width="2"/>
+<text x="200" y="200" fill="#6B6560" font-size="10">masa común (marrón/negro)</text>
+</svg><figcaption>Tres hilos del servo: señal al 9, alimentación al 5 V de la placa si es uno pequeño, masa a GND. No alimentes el motor desde el pin 9.</figcaption></figure>
+<h2>Pines de esta lección</h2>
+<figure><svg viewBox="0 0 340 118" aria-label="Pines de la lección"><rect x="6" y="16" width="328" height="86" rx="8" fill="#1C1A16" stroke="#C4A15A"/><text x="16" y="14" fill="#9A9488" font-size="11">Uno R3 · 5 V · mira la serigrafía, no la memoria</text><rect x="16" y="32" width="68" height="32" rx="4" fill="#161512" stroke="#C4A15A"/><text x="50" y="53" text-anchor="middle" fill="#E6E1D6" font-size="13">9</text><text x="50" y="84" text-anchor="middle" fill="#9A9488" font-size="10">señal</text><rect x="94" y="32" width="68" height="32" rx="4" fill="#161512" stroke="#9A9488"/><text x="128" y="53" text-anchor="middle" fill="#E6E1D6" font-size="13">5 V</text><text x="128" y="84" text-anchor="middle" fill="#9A9488" font-size="10">el rojo</text><rect x="172" y="32" width="68" height="32" rx="4" fill="#161512" stroke="#9A9488"/><text x="206" y="53" text-anchor="middle" fill="#E6E1D6" font-size="13">GND</text><text x="206" y="84" text-anchor="middle" fill="#9A9488" font-size="10">común</text><rect x="250" y="32" width="68" height="32" rx="4" fill="#161512" stroke="#9A9488"/><text x="284" y="53" text-anchor="middle" fill="#E6E1D6" font-size="13">20</text><text x="284" y="84" text-anchor="middle" fill="#9A9488" font-size="10">grados</text></svg><figcaption>El 9 ya no hace analogWrite en esta lección: lo ocupa la librería. Los grados se quedan entre 20 y 160.</figcaption></figure>
+<h2>Por qué</h2>
+<p>El servo de modelismo espera pulsos, no una tensión continua de ángulo. La librería Servo.h los fabrica en el pin que enganchas con attach. Tú escribes grados. El pin 9 es el de esta lección. Si lo compartes con analogWrite, los dos se pisan. Una lección, un uso del pin.</p><p>Los extremos 0 y 180 fuerzan el mecanizado barato y a veces zumban, calientan y gastan de más. Este curso se queda cerca de 20 y 160. Si tu servo golpea un tope físico antes, no insistas: baja el número. El tope no es un fallo del programa.</p><p>Un servo pequeño puede probarse desde el 5 V de la placa. Si al moverse el Uno se reinicia o el USB se cae, la placa no da para ese pico. Se pasa la alimentación del servo a una fuente de 5 V externa y se une la masa de esa fuente con la GND de la placa. Sin masa común, la señal del pin 9 no tiene referencia y el servo tiembla o se va a un extremo.</p><p>Varios servos no se negocian: de entrada, fuente externa. El pin solo lleva la señal, un hilo que casi no da corriente. El rojo del servo nunca se clava en el pin 9.</p><h2>Práctica</h2>
+<ol><li>Quita el LED del pin 9 si sigue ahí. El 9 queda para la señal del servo.</li><li>Rojo o el hilo de alimentación del servo a 5 V de la placa. Marrón o negro a GND. El de señal, a menudo naranja o amarillo, al 9.</li><li>Carga el sketch que va de 20 a 160 y vuelve.</li><li>Mira si el movimiento es limpio o si la placa se reinicia. Si se reinicia, para y lee el párrafo de la fuente externa.</li><li>No pidas 0 ni 180. Si oyes un zumbido continuo en un extremo, aléjate de ese número.</li><li>Toca el servo un segundo: calor fuerte significa tope o alimentación mala. Corta y revisa.</li><li>Deja el barrido de la lección funcionando una vez, y desenchufa si no vas a seguir.</li></ol><section class="sim" data-sim="servo" data-a="90" data-b=""><h2>Práctica en la página</h2><p>El brazo barre de 20 a 160 grados mientras la simulación está encendida. La simulación arranca encendida.</p><button type="button" class="sim-toggle" aria-pressed="true">Parar simulación</button><canvas class="sim-canvas" width="320" height="160" aria-label="Simulación del circuito"></canvas><label class="sim-lab">Grados <input class="sim-range" type="range" min="20" max="160" value="90"></label><output class="sim-out"></output></section><h2>Ejemplos resueltos</h2>
+<div class="ejemplo"><h3>Se reinicia al moverse</h3><p>Un solo servo, alimentado del 5 V del Uno, tira un pico al arrancar. El USB se cae y el programa vuelve a empezar, así que el servo repite el golpe.</p><p>Se saca el rojo del servo del 5 V de la placa y se lleva a una fuente de 5 V. El GND de esa fuente se une al GND del Uno. La señal sigue en el 9. El programa no se toca.</p></div><div class="ejemplo"><h3>Tiembla en un ángulo</h3><p>La masa del servo no está en la masa de la placa, aunque la fuente externa enciende el motor. La señal no tiene cero común y el servo busca un pulso que no entiende.</p><p>Un cable de GND a GND. En cuanto hay cero común, el ángulo se quieta. No se sube el delay para disimular el temblor.</p></div><h2>Soldadura y seguridad</h2>
+<div class="soldar"><p>Los servos vienen con conector. No sueldes el conector a la protoboard. Si alargas hilos, suelda empalme a empalme, aísla cada uno, y no dejes el rojo y la señal en el mismo pegote.</p><p>No sueldes con el servo alimentado: un estaño que salta entre rojo y señal mete 5 V en el pin 9. Placa apagada, fuente apagada, ventana abierta.</p></div><h2>En la mesa</h2>
+<p>Con el servo en 5 V, GND y señal en el 9, carga y aparta la mano del eje. Tiene que ir de un lado a otro sin que tú lo acompañes. Si la placa se reinicia, lo verás porque el movimiento vuelve a empezar justo cuando el USB suena. Para. No insistas cinco veces: cada arranque es un pico. Pasa la alimentación fuera y une las masas antes de la siguiente prueba.</p>
+<p>Si zumban en el extremo, no busques un delay más largo. Baja de 160 o sube de 20 hasta que calle en la pausa. El zumbido continuo es el motor empujando un tope. Se calienta. Un servo caliente no se educa con software.</p>
+<p>Cuando el barrido sea limpio, quita el USB un segundo y vuelve. Debe seguir, si la alimentación del servo no era lo único que sostenía la placa. Si solo comía del USB, se para, y es normal. No confundas eso con un sketch que no se guardó.</p>
+<h2>Sketch</h2>
+<pre><code>#include &lt;Servo.h&gt;
+Servo s;
+
+void setup() {
+  s.attach(9);
+}
+
+void loop() {
+  s.write(20);
+  delay(700);
+  s.write(160);
+  delay(700);
+}
+</code></pre>
+<h2>Ejercicio</h2>
+<p>Un solo servo en el pin 9, rojo a 5V de la placa, negro a GND. Que vaya de 20 a 160 grados. Si el Uno se reinicia al moverse, quita el rojo de la placa y aliméntalo aparte, sin soltar la masa común.</p>
+<section class="quiz">
+<h2>Autoevaluación</h2>
+<div class="pregunta"><p><strong>1.</strong> ¿El cable rojo del servo puede ir al pin 9?</p><button type="button" class="ver">ver respuesta</button><p class="respuesta" hidden>No. El pin 9 es la señal. El rojo es alimentación.</p></div><div class="pregunta"><p><strong>2.</strong> Si hay varios servos, ¿de dónde comen?</p><button type="button" class="ver">ver respuesta</button><p class="respuesta" hidden>De 5 voltios aparte, con la masa unida a la de la placa.</p></div><div class="pregunta"><p><strong>3.</strong> ¿Qué hace s.write(90)?</p><button type="button" class="ver">ver respuesta</button><p class="respuesta" hidden>Pide un ángulo, cerca del centro, no una velocidad.</p></div>
+</section>
+<footer>les vencimos · Arduino Enseñanza · offline</footer>
+</article>
+<script>
+document.querySelectorAll("button.ver").forEach(function(b){
+  b.addEventListener("click", function(){
+    var r = b.parentElement.querySelector(".respuesta");
+    if(!r) return;
+    r.hidden = !r.hidden;
+    b.textContent = r.hidden ? "ver respuesta" : "ocultar respuesta";
+  });
+});
+var btn = document.getElementById("escuchar");
+if(btn){
+  btn.addEventListener("click", function(){
+    var el = document.getElementById("maestro-texto");
+    var texto = el ? el.textContent : "";
+    if(window.LesVencimosMaestro && typeof window.LesVencimosMaestro.decir === "function"){
+      window.LesVencimosMaestro.decir(texto);
+      return;
+    }
+    if(!window.speechSynthesis || typeof window.SpeechSynthesisUtterance !== "function") return;
+    window.speechSynthesis.cancel();
+    var u = new SpeechSynthesisUtterance(texto);
+    u.lang = "es-ES";
+    u.rate = 0.95;
+    window.speechSynthesis.speak(u);
+  });
+}
+
+document.querySelectorAll("textarea.nota-montaje").forEach(function(ta){
+  var art = document.querySelector("[data-ens]");
+  var key = "lv-ens-nota-" + (art ? art.getAttribute("data-ens") : "leccion");
+  try {
+    var prev = localStorage.getItem(key);
+    if(prev) ta.value = prev;
+    ta.addEventListener("input", function(){ localStorage.setItem(key, ta.value); });
+  } catch (e) {}
+});
+var sim = document.querySelector("section.sim");
+if(sim){
+  var canvas = sim.querySelector("canvas.sim-canvas");
+  var ctx = canvas.getContext("2d");
+  var kind = sim.getAttribute("data-sim");
+  var da = sim.getAttribute("data-a") || "";
+  var db = sim.getAttribute("data-b") || "";
+  var toggle = sim.querySelector(".sim-toggle");
+  var range = sim.querySelector(".sim-range");
+  var out = sim.querySelector(".sim-out");
+  var dedo = sim.querySelector(".sim-dedo");
+  var vivo = true;
+  var pulsado = false;
+  var permiso = true;
+  var ledOn = false;
+  var ultimoFlanco = 0;
+  var t0 = Date.now();
+  function num(el, fallo){ return el ? parseInt(el.value, 10) : fallo; }
+  if(dedo && kind !== "noche"){
+    dedo.addEventListener("pointerdown", function(ev){
+      pulsado = true;
+      if(kind === "flanco"){
+        var ahora = Date.now();
+        if(ahora - ultimoFlanco > 30){
+          ledOn = !ledOn;
+          ultimoFlanco = ahora;
+        }
+      }
+      ev.preventDefault();
+    });
+    window.addEventListener("pointerup", function(){ pulsado = false; });
+  }
+  if(dedo && kind === "noche"){
+    dedo.addEventListener("click", function(){
+      permiso = !permiso;
+      dedo.setAttribute("aria-pressed", permiso ? "true" : "false");
+      dedo.textContent = permiso ? "Permiso dado" : "Sin permiso";
+    });
+  }
+  if(toggle){
+    toggle.addEventListener("click", function(){
+      vivo = !vivo;
+      toggle.setAttribute("aria-pressed", vivo ? "true" : "false");
+      toggle.textContent = vivo ? "Parar simulación" : "Encender simulación";
+    });
+  }
+  function circulo(x, y, r, on, nivel){
+    ctx.beginPath();
+    ctx.arc(x, y, r, 0, Math.PI * 2);
+    if(on){
+      var a = nivel == null ? 1 : nivel;
+      ctx.fillStyle = "rgba(196,161,90," + (0.25 + 0.75 * a) + ")";
+      ctx.shadowColor = "#C4A15A";
+      ctx.shadowBlur = 16 * a;
+    } else {
+      ctx.fillStyle = "#2A2720";
+      ctx.shadowBlur = 0;
+    }
+    ctx.fill();
+    ctx.shadowBlur = 0;
+    ctx.lineWidth = 2;
+    ctx.strokeStyle = on ? "#C4A15A" : "#9A9488";
+    ctx.stroke();
+  }
+  function caja(x, y, w, h, titulo){
+    ctx.fillStyle = "#161512";
+    ctx.strokeStyle = "#C4A15A";
+    ctx.lineWidth = 2;
+    ctx.fillRect(x, y, w, h);
+    ctx.strokeRect(x, y, w, h);
+    ctx.fillStyle = "#E6E1D6";
+    ctx.font = "14px sans-serif";
+    ctx.fillText(titulo, x + 10, y + 22);
+  }
+  function texto(x, y, s, col){
+    ctx.fillStyle = col || "#E6E1D6";
+    ctx.font = "13px sans-serif";
+    ctx.fillText(s, x, y);
+  }
+  function frame(){
+    var ahora = Date.now();
+    var lectura = num(range, 0);
+    var enciende = false;
+    var nivel = 1;
+    var etiqueta = "";
+    if(kind === "blink"){
+      var hi = parseInt(da, 10) || 500;
+      var lo = parseInt(db, 10) || 500;
+      var ciclo = hi + lo;
+      var fase = vivo ? ((ahora - t0) % ciclo) : 0;
+      enciende = vivo && fase < hi;
+      etiqueta = enciende ? "HIGH" : "LOW";
+    } else if(kind === "hold"){
+      enciende = vivo && pulsado;
+      etiqueta = pulsado ? "LOW, pulsado" : "HIGH, suelto";
+    } else if(kind === "nivel"){
+      enciende = vivo && pulsado;
+      etiqueta = pulsado ? "lectura LOW" : "lectura HIGH";
+    } else if(kind === "flanco"){
+      enciende = vivo && ledOn;
+      etiqueta = enciende ? "LED encendido" : "LED apagado";
+    } else if(kind === "umbral"){
+      var umbral = parseInt(da, 10);
+      enciende = vivo && (db === "lt" ? lectura < umbral && lectura > 0 : lectura > umbral);
+      if(sim.getAttribute("data-sim") === "umbral" && da === "20"){
+        enciende = vivo && lectura > 0 && lectura < umbral;
+      }
+      etiqueta = String(lectura);
+      nivel = 1;
+    } else if(kind === "pwm"){
+      nivel = vivo ? lectura / 255 : 0;
+      enciende = vivo && lectura > 0;
+      etiqueta = String(lectura);
+    } else if(kind === "servo"){
+      var span = 140;
+      var pos = vivo ? ((ahora - t0) % 2800) / 2800 : 0.5;
+      var tri = pos < 0.5 ? pos * 2 : (1 - pos) * 2;
+      var grados = Math.round(20 + tri * span);
+      if(range) range.value = String(grados);
+      lectura = grados;
+      enciende = vivo;
+      etiqueta = grados + " grados";
+    } else if(kind === "buzz"){
+      var fb = vivo ? ((ahora - t0) % 1000) : 500;
+      etiqueta = fb < 300 ? "440" : (fb < 600 ? "880" : "silencio");
+      enciende = vivo && fb < 600;
+    } else if(kind === "carga"){
+      var fc = vivo ? ((ahora - t0) % 4000) : 2000;
+      enciende = vivo && fc < 2000;
+      etiqueta = enciende ? "pin en HIGH" : "pin en LOW";
+    } else if(kind === "semi"){
+      var fs = vivo ? ((ahora - t0) % 3500) : 0;
+      etiqueta = fs < 1500 ? "rojo" : (fs < 2000 ? "ambar" : "verde");
+      enciende = vivo;
+    } else if(kind === "alarma"){
+      enciende = vivo && lectura > 0 && lectura < 20;
+      etiqueta = lectura + " cm";
+    } else if(kind === "noche"){
+      var noche = lectura < 400 && permiso;
+      enciende = vivo && noche;
+      nivel = enciende ? 180/255 : 0;
+      etiqueta = (permiso ? "con permiso" : "sin permiso") + " · " + lectura;
+    }
+    if(out) out.textContent = etiqueta;
+    ctx.clearRect(0, 0, 320, 160);
+    ctx.fillStyle = "#1C1A16";
+    ctx.fillRect(0, 0, 320, 160);
+    caja(12, 28, 90, 100, "Uno");
+    if(kind === "semi"){
+      var fs2 = vivo ? ((ahora - t0) % 3500) : 0;
+      circulo(160, 48, 14, vivo && fs2 < 1500, 1);
+      circulo(210, 48, 14, vivo && fs2 >= 1500 && fs2 < 2000, 1);
+      circulo(260, 48, 14, vivo && fs2 >= 2000, 1);
+      texto(150, 78, "10 rojo");
+      texto(198, 78, "11");
+      texto(248, 78, "12 verde");
+      texto(16, 150, vivo ? "ciclo en marcha" : "simulación parada", "#9A9488");
+    } else if(kind === "servo"){
+      var rad = (180 - lectura) * Math.PI / 180;
+      ctx.strokeStyle = "#C4A15A";
+      ctx.lineWidth = 4;
+      ctx.beginPath();
+      ctx.moveTo(200, 110);
+      ctx.lineTo(200 + Math.cos(rad) * 70, 110 - Math.sin(rad) * 50);
+      ctx.stroke();
+      circulo(200, 110, 8, true, 1);
+      texto(120, 150, etiqueta);
+    } else if(kind === "buzz" || kind === "alarma"){
+      circulo(150, 80, 18, kind === "alarma" ? enciende : false, 1);
+      texto(176, 76, kind === "alarma" ? "LED 13" : "");
+      ctx.beginPath();
+      ctx.arc(250, 80, 22, 0, Math.PI * 2);
+      ctx.strokeStyle = enciende ? "#C4A15A" : "#9A9488";
+      ctx.lineWidth = 3;
+      ctx.stroke();
+      if(enciende){
+        ctx.beginPath();
+        ctx.arc(250, 80, 32, 0, Math.PI * 2);
+        ctx.stroke();
+      }
+      texto(120, 140, etiqueta);
+    } else if(kind === "carga"){
+      circulo(170, 70, 16, enciende, 1);
+      texto(196, 66, "orden");
+      ctx.strokeStyle = enciende ? "#8F9A72" : "#9A9488";
+      ctx.strokeRect(230, 48, 70, 44);
+      texto(242, 74, enciende ? "carga" : "quieta", enciende ? "#8F9A72" : "#9A9488");
+      texto(16, 150, etiqueta, "#9A9488");
+    } else {
+      circulo(200, 78, 18, enciende, nivel);
+      texto(230, 74, "LED");
+      texto(16, 150, etiqueta, "#9A9488");
+    }
+    if(!vivo){
+      texto(230, 150, "parada", "#9A9488");
+    }
+    requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+}
+
+</script>
+</body>
+</html>

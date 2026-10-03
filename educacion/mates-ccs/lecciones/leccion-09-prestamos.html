@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<meta name="theme-color" content="#0E0E0C"/>
+<title>Lección 09 · Cuotas y amortización francesa · Les vencimos</title>
+<link rel="icon" href="../icons/favicon.svg" type="image/svg+xml"/>
+<link rel="stylesheet" href="../leccion-shell.css"/>
+<style>
+
+  .pasos{list-style:none;margin:0 0 1rem;padding:0;counter-reset:paso}
+  .pasos li{position:relative;margin:0 0 .7rem;padding:.7rem .8rem .7rem 3.1rem;background:var(--lv-panel);border:1px solid var(--lv-linea);border-radius:10px}
+  .pasos li::before{counter-increment:paso;content:counter(paso);position:absolute;left:.65rem;top:.7rem;width:1.7rem;height:1.7rem;border-radius:50%;background:#C4A15A;color:#1A160E;font-weight:700;font-size:.9rem;display:flex;align-items:center;justify-content:center}
+  .figura-svg{background:var(--lv-panel);border:1px solid var(--lv-linea);border-radius:10px;padding:.4rem;margin:.4rem 0 1rem}
+  .figura-svg svg{width:100%;height:auto;display:block}
+  .ej{margin:0 0 1rem;padding:.85rem .95rem;background:var(--lv-panel);border:1px solid var(--lv-linea);border-left:3px solid #C4A15A;border-radius:10px}
+  .ej h3{margin:0 0 .35rem;font-family:var(--lv-serif);font-size:1.05rem;color:var(--lv-titulo)}
+  .editor,textarea.editor{width:100%;min-height:5.2rem;font-family:ui-monospace,monospace;font-size:.95rem;line-height:1.4;padding:.55rem .65rem;border:1px solid rgba(196,161,90,.45);border-radius:8px;background:#161512;color:#E6E1D6;resize:vertical}
+  .lienzo{display:block;width:100%;height:240px;background:#161512;border:1px solid #C4A15A;border-radius:8px;touch-action:none;cursor:crosshair}
+  .fila{display:flex;flex-wrap:wrap;gap:.4rem;margin:.45rem 0}
+  .boton{font:inherit;font-weight:700;font-size:.85rem;padding:.35rem .75rem;border-radius:999px;border:1px solid #C4A15A;background:transparent;color:#E6E1D6;cursor:pointer}
+  .boton.amber{background:#C4A15A;color:#1A160E;border-color:#b08d45}
+  .porque{margin-top:.5rem;padding:.6rem .7rem;background:#1a2218;border-radius:8px;color:#E6E1D6}
+  .dato{font-size:.95rem;color:var(--lv-suave)}
+  .formula{background:#161512;border-left:3px solid #C4A15A;padding:.45rem .7rem;overflow-x:auto;font-family:ui-monospace,monospace}
+  .glosa{font-size:.95rem;color:#d9d0bc;margin-top:.25rem}
+  table.datos{width:100%;border-collapse:collapse;margin:.4rem 0 1rem;font-size:.98rem}
+  table.datos th,table.datos td{border:1px solid var(--lv-linea);padding:.35rem .5rem;text-align:left}
+  table.datos th{background:#161512;color:#C4A15A}
+  table.datos td.num{font-variant-numeric:tabular-nums}
+
+</style>
+<script src="../leccion-shell-nav.js" defer></script>
+</head>
+<body class="leccion-shell">
+<div class="leccion-wrap">
+
+<nav class="leccion-barra" aria-label="Navegación de lección" data-actual="9" data-total="33">
+  <div class="leccion-progreso" role="status">
+    <span class="progreso-texto"><strong>9</strong> de <strong>33</strong></span>
+    <div class="progreso-pista" aria-hidden="true"><div class="progreso-lleno" style="width:28.12%"></div></div>
+  </div>
+  <div class="leccion-atajos">
+    <a class="atajo atajo-prev" href="leccion-08-interes.html">← Anterior</a>
+    <a class="atajo atajo-next" href="leccion-10-limites.html">Siguiente →</a>
+  </div>
+</nav>
+
+<header class="leccion-top">
+  <a class="leccion-marca" href="../mates-ccs.html">Les <span>vencimos</span></a>
+  <p class="leccion-meta-top">Matemáticas Aplicadas a las Ciencias Sociales I · 1.º Bachillerato</p>
+</header>
+
+<header class="bloque-titulo">
+  <span class="eyebrow">Lección 09 · A.4 · Educación financiera</span>
+  <h1 class="titulo-leccion">Cuotas y amortización <em>francesa</em></h1>
+  <p class="meta-leccion">Decreto 40/2022 CyL · primer curso · antes de segundo</p>
+</header>
+
+<aside class="bloque-curiosidad" aria-label="Para situarte">
+  <p class="etiqueta-bloque">Para situarte</p>
+  <h2 class="titulo-curiosidad">La cuota no es «capital entre meses»</h2>
+  <p class="texto-curiosidad">En un préstamo a cuota constante, cada pago mezcla interés del periodo y devolución de capital. Si divides el capital entre el número de plazos, olvidas el interés y el saldo no llega a cero.</p>
+</aside>
+
+<section class="bloque-cuerpo">
+  <h2>Objetivos</h2>
+  <ul>
+    <li>Distinguir la tasa del periodo de la tasa anual cuando la cuota es mensual, trimestral o anual.</li>
+    <li>Calcular la cuota constante de la amortización francesa y redondearla al céntimo.</li>
+    <li>Construir el cuadro: interés, amortización y saldo, y ajustar la última cuota para que el saldo quede en cero.</li>
+    <li>Comprobar una fila del cuadro con una multiplicación, sin fiarte solo de la fórmula.</li>
+  </ul>
+
+  <h2>Qué se paga en cada cuota</h2>
+  <p>Un préstamo entrega un capital hoy y lo recupera en varios plazos. En la amortización francesa la cuota ordinaria es la misma todos los periodos, salvo el ajuste final de céntimos. Dentro de esa cuota hay dos trozos que sí cambian: el interés baja porque se calcula sobre el saldo vivo, y la parte que devuelve capital sube.</p>
+  <p>El decreto, en el sentido numérico A.4 del primer curso, pide resolver problemas de cuotas, tasas, amortización, intereses y préstamos. Aquí el modelo es el francés, el de la hipoteca y de la mayoría de los préstamos al consumo: cuota constante, interés sobre el saldo pendiente.</p>
+  <p>La letra que más se confunde es <em>i</em>. No es «el tanto por ciento que dice el anuncio» si el anuncio es anual y tú pagas cada mes. <em>i</em> es la tasa de un solo periodo de pago, escrita en tanto por uno. Un 12&nbsp;% nominal anual con cuotas mensuales no es <em>i</em> = 0,12: es 0,12 / 12 = 0,01, un 1&nbsp;% cada mes. Si el periodo es el año, entonces sí, el 5&nbsp;% anual es <em>i</em> = 0,05.</p>
+  <p class="formula">a = C · i / (1 − (1 + i)<sup>−n</sup>)</p>
+  <p class="glosa">En esta lección, C es el capital prestado en euros; i es la tasa del periodo en tanto por uno (no la anual, salvo que el periodo sea el año); n es el número de cuotas; a es la cuota teórica, antes de redondear a céntimos. El exponente −n cuenta periodos de la misma clase que i.</p>
+  <p>El denominador es menor que 1, así que a es mayor que C · i. Eso encaja: C · i sería solo el interés del primer periodo si no devolvieras capital. La cuota tiene que cubrir ese interés y, además, ir comiendo el capital.</p>
+  <p>En euros de verdad no se pagan milésimas. Redondeamos a al céntimo más próximo: si la tercera cifra decimal es 5 o más, el céntimo sube. Con esa cuota ya redondeada se rellena el cuadro. En cada periodo ordinario:</p>
+  <ol class="pasos">
+    <li>Interés del periodo = saldo anterior × i, redondeado al céntimo.</li>
+    <li>Amortización = cuota redondeada − interés de ese periodo.</li>
+    <li>Saldo nuevo = saldo anterior − amortización.</li>
+  </ol>
+  <p>La última cuota no se copia a ciegas. Se calcula para liquidar: interés sobre el saldo que queda, redondeado al céntimo, más ese saldo entero. Así el saldo final es 0,00 €. A veces la última cuota coincide con las anteriores; a veces se aparta uno o dos céntimos. Los dos desenlaces son correctos. Lo incorrecto es dejar un céntimo colgando o cobrar de más.</p>
+
+  <div class="figura-svg">
+    <svg viewBox="0 0 720 220" role="img" aria-label="Esquema de una cuota francesa: interés más amortización">
+      <title>Una cuota francesa se parte en interés del saldo y amortización del capital</title>
+      <rect width="720" height="220" fill="#161512"/>
+      <rect x="40" y="70" width="250" height="70" rx="8" fill="#1C1A16" stroke="#C4A15A"/>
+      <rect x="300" y="70" width="160" height="70" rx="8" fill="#1C1A16" stroke="#E6E1D6"/>
+      <rect x="470" y="70" width="210" height="70" rx="8" fill="#1C1A16" stroke="#8F9A72"/>
+      <text x="165" y="112" text-anchor="middle" fill="#C4A15A" font-size="18" font-family="Segoe UI,sans-serif">cuota a</text>
+      <text x="380" y="112" text-anchor="middle" fill="#E6E1D6" font-size="16" font-family="Segoe UI,sans-serif">interés</text>
+      <text x="575" y="112" text-anchor="middle" fill="#8F9A72" font-size="16" font-family="Segoe UI,sans-serif">amortización</text>
+      <text x="360" y="40" text-anchor="middle" fill="#9A9488" font-size="15" font-family="Segoe UI,sans-serif">El interés se calcula sobre el saldo vivo, no sobre el capital inicial</text>
+      <text x="360" y="180" text-anchor="middle" fill="#9A9488" font-size="15" font-family="Segoe UI,sans-serif">La última cuota se recalcula para que el saldo quede en 0,00 €</text>
+    </svg>
+  </div>
+
+  <h2>Ejemplo 1. Tres cuotas mensuales</h2>
+  <p>Una asociación pide 1&nbsp;000 € y los devuelve en 3 meses. La tasa del mes es el 1&nbsp;%: i = 0,01. No uses 0,12 aunque el anuncio dijera «12&nbsp;% nominal anual»: el periodo de esta cuota es el mes.</p>
+  <ol class="pasos">
+    <li>Calcula (1,01)<sup>3</sup>. 1,01<sup>2</sup> = 1,0201 y 1,0201 × 1,01 = 1,030301.</li>
+    <li>(1,01)<sup>−3</sup> = 1 / 1,030301 ≈ 0,97059015. El denominador es 1 − 0,97059015 = 0,02940985.</li>
+    <li>El numerador es C · i = 1&nbsp;000 × 0,01 = 10. Entonces a = 10 / 0,02940985 ≈ 340,0221 €.</li>
+    <li>Al céntimo: la tercera decimal es 2, no sube. Cuota ordinaria a = 340,02 €.</li>
+  </ol>
+  <p class="formula">a = 1000 · 0,01 / (1 − (1,01)<sup>−3</sup>) ≈ 340,0221 → 340,02 €</p>
+  <p class="glosa">1000 es C, el capital en euros; 0,01 es i, el 1&nbsp;% de cada mes; 3 es n, el número de meses; 340,02 es la cuota ya redondeada que se paga en los meses 1 y 2.</p>
+  <table class="datos">
+    <thead><tr><th>Mes</th><th>Cuota</th><th>Interés</th><th>Amortización</th><th>Saldo</th></tr></thead>
+    <tbody>
+      <tr><td>0</td><td class="num">—</td><td class="num">—</td><td class="num">—</td><td class="num">1000,00</td></tr>
+      <tr><td>1</td><td class="num">340,02</td><td class="num">10,00</td><td class="num">330,02</td><td class="num">669,98</td></tr>
+      <tr><td>2</td><td class="num">340,02</td><td class="num">6,70</td><td class="num">333,32</td><td class="num">336,66</td></tr>
+      <tr><td>3</td><td class="num">340,03</td><td class="num">3,37</td><td class="num">336,66</td><td class="num">0,00</td></tr>
+    </tbody>
+  </table>
+  <p>Comprueba el mes 2 a mano: 669,98 × 0,01 = 6,6998, que al céntimo es 6,70. Amortización 340,02 − 6,70 = 333,32. Saldo 669,98 − 333,32 = 336,66. En el mes 3 el interés es 336,66 × 0,01 = 3,3666 → 3,37. La cuota que cuadra es 336,66 + 3,37 = 340,03 €, un céntimo más que la ordinaria. Si cobraras otra vez 340,02 €, quedaría 0,01 € sin pagar.</p>
+  <p>El mismo capital, los mismos 3 meses y la tasa anual 0,12 metida por error en la fórmula dan unos 416,35 € de cuota. No es «otra aproximación»: es otro préstamo, con un 12&nbsp;% cada mes. Por eso el primer gesto es nombrar el periodo.</p>
+
+  <h2>Ejemplo 2. Tres cuotas anuales</h2>
+  <p>Un ayuntamiento aplaza 2&nbsp;000 € en 3 años, con una cuota al año y una tasa anual del 5&nbsp;%. Aquí el periodo es el año, así que i = 0,05 y n = 3. No dividas entre 12: no hay meses en el contrato.</p>
+  <ol class="pasos">
+    <li>(1,05)<sup>2</sup> = 1,1025 y (1,05)<sup>3</sup> = 1,157625. (1,05)<sup>−3</sup> ≈ 0,86383760.</li>
+    <li>Denominador: 1 − 0,86383760 = 0,13616240. Numerador: 2&nbsp;000 × 0,05 = 100.</li>
+    <li>a = 100 / 0,13616240 ≈ 734,4171 €. Al céntimo: 734,42 €.</li>
+    <li>Año 1: interés 2&nbsp;000 × 0,05 = 100,00. Amortización 734,42 − 100,00 = 634,42. Saldo 1&nbsp;365,58.</li>
+    <li>Año 2: 1&nbsp;365,58 × 0,05 = 68,279 → 68,28. Amortización 734,42 − 68,28 = 666,14. Saldo 699,44.</li>
+    <li>Año 3: 699,44 × 0,05 = 34,972 → 34,97. Última cuota 699,44 + 34,97 = 734,41 €. Saldo 0,00.</li>
+  </ol>
+  <p class="formula">a = 2000 · 0,05 / (1 − (1,05)<sup>−3</sup>) ≈ 734,4171 → 734,42 €</p>
+  <p class="glosa">2000 es el capital aplazado, en euros; 0,05 es la tasa de cada año, porque la cuota es anual; 3 es el número de años; 734,42 es la cuota de los dos primeros años; la del tercero será 734,41 para cerrar el saldo.</p>
+  <p>Fíjate en el signo del ajuste: en el ejemplo 1 la última cuota subía un céntimo; aquí baja un céntimo. El redondeo acumulado no tiene un sentido fijo. La regla sí: la última fila liquida saldo más interés de ese saldo, ambos en céntimos.</p>
+
+  <h2>Ejercicios</h2>
+  <article class="ej">
+    <h3>1. Cuadro de 600 €</h3>
+    <p>Capital 600 €, tres cuotas mensuales, i = 0,01 cada mes. La cuota teórica sale 204,0132… €. Escríbela al céntimo y completa interés, amortización y saldo de los tres meses. La última debe dejar el saldo en 0,00.</p>
+    <label for="e9-1">Tu cuadro</label>
+    <textarea class="editor" id="e9-1" placeholder="Mes 1: cuota, interés, amortización, saldo…"></textarea>
+    <details>
+      <summary>Corrección</summary>
+      <ol class="pasos">
+        <li>204,0132… redondea a 204,01 € (la tercera decimal es 3).</li>
+        <li>Mes 1: interés 600 × 0,01 = 6,00. Amortización 198,01. Saldo 401,99.</li>
+        <li>Mes 2: 401,99 × 0,01 = 4,0199 → 4,02. Amortización 204,01 − 4,02 = 199,99. Saldo 202,00.</li>
+        <li>Mes 3: interés 202,00 × 0,01 = 2,02. Cuota que cuadra: 202,00 + 2,02 = 204,02 €. Saldo 0,00.</li>
+      </ol>
+      <p class="porque">La cuota ordinaria se redondea una sola vez, al principio. En el último mes ya no manda esa cifra: manda que el saldo vivo más su interés, ambos a céntimos, sumen la cuota final. Por eso 204,02 y no 204,01.</p>
+    </details>
+  </article>
+  <article class="ej">
+    <h3>2. El anuncio dice 12&nbsp;% anual</h3>
+    <p>Préstamo de 1&nbsp;000 €, tres pagos mensuales, 12&nbsp;% nominal anual. ¿Qué i debes meter en la fórmula? Calcula la cuota ordinaria al céntimo y di cuánto se paga el tercer mes si el cuadro se lleva como en el ejemplo 1.</p>
+    <label for="e9-2">Tu tasa y tus cuotas</label>
+    <textarea class="editor" id="e9-2" placeholder="i = … ; cuota ordinaria = … ; última = …"></textarea>
+    <details>
+      <summary>Corrección</summary>
+      <ol class="pasos">
+        <li>El periodo es el mes: i = 0,12 / 12 = 0,01. No es 0,12.</li>
+        <li>Es el mismo cálculo del ejemplo 1: cuota ordinaria 340,02 €.</li>
+        <li>Tercer mes: 340,03 €, y el saldo queda en cero.</li>
+        <li>Con i = 0,12 la fórmula daría unos 416,35 €. Esa cifra describe un 12&nbsp;% cada mes, no el anuncio.</li>
+      </ol>
+      <p class="porque">Nominal anual entre doce es la tasa del mes solo cuando los pagos son mensuales y el 12&nbsp;% está repartido a partes iguales, sin convertir todavía a tasa efectiva anual. Cambiar el periodo sin cambiar i cambia el préstamo.</p>
+    </details>
+  </article>
+  <article class="ej">
+    <h3>3. Dos semestres</h3>
+    <p>500 € en dos cuotas semestrales. La tasa del semestre es el 10&nbsp;%, i = 0,10. Halla la cuota al céntimo y el cuadro completo.</p>
+    <label for="e9-3">Tu cuadro semestral</label>
+    <textarea class="editor" id="e9-3"></textarea>
+    <details>
+      <summary>Corrección</summary>
+      <ol class="pasos">
+        <li>(1,10)<sup>2</sup> = 1,21. (1,10)<sup>−2</sup> = 1 / 1,21 ≈ 0,82644628. Denominador ≈ 0,17355372.</li>
+        <li>Numerador 500 × 0,10 = 50. a ≈ 288,0952 → 288,10 €.</li>
+        <li>Semestre 1: interés 50,00. Amortización 238,10. Saldo 261,90.</li>
+        <li>Semestre 2: 261,90 × 0,10 = 26,19 exactos al céntimo. Última cuota 261,90 + 26,19 = 288,09 €. Saldo 0,00.</li>
+      </ol>
+      <p class="porque">Aquí i = 0,10 es la tasa del semestre, no un 10&nbsp;% anual. La última cuota baja un céntimo respecto de 288,10 porque el redondeo del primer interés y de la cuota dejó un saldo cuyo cierre no coincide con la cuota ordinaria.</p>
+    </details>
+  </article>
+  <article class="ej">
+    <h3>4. Cuando la última no se mueve</h3>
+    <p>800 €, dos cuotas, i = 0,02 por periodo. La cuota teórica es 412,0396… €. Redondéala, haz las dos filas y comprueba si la última coincide con la ordinaria.</p>
+    <label for="e9-4">Tus dos filas</label>
+    <textarea class="editor" id="e9-4"></textarea>
+    <details>
+      <summary>Corrección</summary>
+      <ol class="pasos">
+        <li>412,0396… → 412,04 €.</li>
+        <li>Periodo 1: interés 800 × 0,02 = 16,00. Amortización 396,04. Saldo 403,96.</li>
+        <li>Periodo 2: 403,96 × 0,02 = 8,0792 → 8,08. Cuota de cierre 403,96 + 8,08 = 412,04 €.</li>
+        <li>Coincide con la ordinaria y el saldo es 0,00. El ajuste de céntimos es cero, no «falta la última fila».</li>
+      </ol>
+      <p class="porque">Cuadrar el saldo no obliga a que la última cuota sea distinta. Obliga a calcularla como saldo pendiente más interés de ese saldo. Si esa suma cae en el mismo céntimo, se paga la misma cifra y se termina igual de limpio.</p>
+    </details>
+  </article>
+
+  <h2>Cierre</h2>
+  <p>Primero el periodo, después i en tanto por uno, después la cuota al céntimo y el cuadro. La última fila no se copia: liquida. Si el saldo final no es 0,00, el error está en un redondeo o en haber usado la tasa anual dentro de un mes.</p>
+</section>
+
+<footer class="leccion-pie">
+  <strong>Les vencimos</strong> · Lección 09 de 33 · Matemáticas Aplicadas a las CCSS I · staging · sin publicar
+</footer>
+</div>
+<!-- saber: A.4 Educación financiera. Cuotas, tasas y amortización. -->
+
+</body>
+</html>

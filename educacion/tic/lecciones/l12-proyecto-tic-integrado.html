@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Laboratorio L12 · Proyecto TIC integrado</title>
+<style>
+:root{--ink:#0E0E0C;--amber:#C4A15A;--paper:#FAF7F0;--line:rgba(14,14,12,.14);--blue:#2F5D7A;--green:#3D6B4F;--bad:#A85A3C}
+*{box-sizing:border-box}
+body{margin:0;font-family:"Segoe UI",system-ui,sans-serif;background:var(--paper);color:var(--ink);line-height:1.45}
+header{padding:.7rem 1rem;border-bottom:2px solid var(--amber);background:#fff}
+header h1{margin:0;font-size:1.05rem;font-family:Palatino,Georgia,serif}
+header p{margin:.2rem 0 0;font-size:.8rem;color:#5C564C}
+main{padding:.75rem 1rem 2rem;max-width:62rem}
+label{display:block;font-size:.75rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:#5C564C;margin:.55rem 0 .2rem}
+textarea,input[type=text],input[type=number],select{width:100%;font:14px/1.4 ui-monospace,monospace;border:1px solid var(--line);border-radius:6px;padding:.4rem .5rem;background:#fff;color:var(--ink)}
+textarea{min-height:11rem;resize:vertical}
+.row{display:flex;flex-wrap:wrap;gap:.4rem;margin:.5rem 0}
+button{background:var(--amber);color:#1A160E;border:0;border-radius:4px;padding:.45rem .75rem;font-weight:700;cursor:pointer}
+button.sec{background:#fff;border:1px solid var(--line)}
+.grid{display:grid;gap:.75rem}
+@media(min-width:800px){.grid.dos{grid-template-columns:1fr 1fr}}
+iframe.pv,.pv{width:100%;min-height:280px;border:1px solid var(--line);border-radius:8px;background:#fff}
+.out{font-size:.9rem;background:#fff;border:1px solid var(--line);border-radius:8px;padding:.55rem .7rem}
+.ok{color:var(--green);font-weight:700}.bad{color:var(--bad);font-weight:700}
+canvas{width:100%;height:auto;background:#fff;border:1px solid var(--line);border-radius:8px}
+.nota{font-size:.82rem;color:#5C564C}
+.lab-row{display:flex;flex-wrap:wrap;gap:.4rem;margin:.45rem 0}
+.lab-out{font-size:.9rem;background:#fff;border:1px solid var(--line);border-radius:8px;padding:.55rem .7rem;margin-top:.35rem}
+.lab-canvas{width:100%;background:#fff;border:1px solid var(--line);border-radius:8px;display:block}
+.lab-preview{width:100%;min-height:260px;border:1px solid var(--line);border-radius:8px;background:#fff}
+h2{font-family:Palatino,Georgia,serif;font-size:1.05rem}
+</style>
+</head>
+<body>
+<header>
+  <h1>Laboratorio · L12 · Proyecto TIC integrado</h1>
+  <p>Offline, en esta página. No se envía nada a un servidor. Carbón + ámbar.</p>
+</header>
+<main>
+
+<p class="nota">Mini proyecto del bloque A: una página, tres láminas y un aviso sonoro. El LED simula la salida digital del taller.</p>
+
+<style>
+.gpio-sim{display:grid;grid-template-columns:7.5rem 1fr;gap:.8rem;align-items:center;background:#0E0E0C;color:#FAF7F0;border-radius:10px;padding:.85rem 1rem;margin:.4rem 0 0}
+.gpio-sim p{margin:.2rem 0;color:#FAF7F0;font-size:.92rem}
+.gpio-sim .pin{font-family:ui-monospace,monospace;color:#C4A15A}
+button.sw{width:4.2rem;height:2rem;min-height:2rem;border-radius:999px;border:1px solid #C4A15A;background:#2A2620;color:#FAF7F0;position:relative;cursor:pointer;padding:0;font-weight:700}
+button.sw[aria-pressed="true"]{background:#C4A15A;color:#1A160E}
+button.sw i{position:absolute;top:2px;left:2px;width:1.6rem;height:1.6rem;border-radius:50%;background:#FAF7F0;display:block;transition:left .15s}
+button.sw[aria-pressed="true"] i{left:2.2rem;background:#fff}
+</style>
+<div class="gpio-sim" id="gpioL12">
+  <svg viewBox="0 0 120 140" width="120" height="140" role="img" aria-label="LED simulado en el pin GPIO 18">
+    <rect x="34" y="78" width="52" height="18" rx="3" fill="#5C564C"/>
+    <rect x="54" y="48" width="12" height="34" fill="#8A8175"/>
+    <circle id="gpioL12-glow" cx="60" cy="36" r="30" fill="#E24B2A" opacity="0"/>
+    <circle id="gpioL12-bulb" cx="60" cy="36" r="22" fill="#3A3530" stroke="#C4A15A" stroke-width="3"/>
+    <text x="60" y="118" text-anchor="middle" fill="#C4A15A" font-size="11" font-family="ui-monospace,monospace">GPIO 18</text>
+  </svg>
+  <div>
+    <p style="letter-spacing:.08em;text-transform:uppercase;font-size:.72rem;color:#C4A15A">Simulación local · sin hardware</p>
+    <p><strong>Raspberry Pi (BCM) · paralelo didáctico Arduino UNO D13</strong> · pin <span class="pin">GPIO 18</span></p>
+    <p>Estado del pin: <strong id="gpioL12-state">LOW</strong> · LED <strong id="gpioL12-led">apagado</strong></p>
+    <p><button type="button" class="sw" id="gpioL12-btn" aria-pressed="false" aria-label="Interruptor ON/OFF del LED en GPIO 18"><i></i></button>
+    <span id="gpioL12-sw">OFF</span></p>
+    <p style="color:#C8C0B4;font-size:.82rem">En el proyecto integrado el LED indica que la charla ha empezado: salida digital, no un adorno. HIGH enciende el LED (en la Pi, 3,3 V; en Arduino UNO el paralelo didáctico es un digitalWrite HIGH, por ejemplo en D13). No se envía nada fuera de esta página.</p>
+  </div>
+</div>
+<script>
+(function(){
+  var uid = 'gpioL12';
+  var on = false;
+  var btn = document.getElementById(uid+"-btn");
+  var bulb = document.getElementById(uid+"-bulb");
+  var glow = document.getElementById(uid+"-glow");
+  var st = document.getElementById(uid+"-state");
+  var led = document.getElementById(uid+"-led");
+  var sw = document.getElementById(uid+"-sw");
+  function paint(){
+    btn.setAttribute("aria-pressed", on ? "true" : "false");
+    sw.textContent = on ? "ON" : "OFF";
+    bulb.setAttribute("fill", on ? "#E24B2A" : "#3A3530");
+    glow.setAttribute("opacity", on ? "0.35" : "0");
+    st.textContent = on ? "HIGH" : "LOW";
+    led.textContent = on ? "encendido" : "apagado";
+  }
+  btn.addEventListener("click", function(){ on = !on; paint(); });
+  paint();
+})();
+</script>
+
+<label for="tit">Título de la página</label>
+<input id="tit" type="text" value="Semana de la Ciencia · IES Duero"/>
+<label for="lead">Entradilla</label>
+<textarea id="lead" style="min-height:4rem">Jueves en Aranda de Duero. Tres láminas para la charla y un pitido de aviso al empezar.</textarea>
+<label for="s1">Lámina 1</label><input id="s1" type="text" value="Abrimos el laboratorio"/>
+<label for="s2">Lámina 2</label><input id="s2" type="text" value="Medimos luz"/>
+<label for="s3">Lámina 3</label><input id="s3" type="text" value="Preguntas"/>
+<div class="lab-row">
+  <button type="button" id="bAsm">Ensamblar</button>
+  <button type="button" id="bBeep" class="sec">Pitido de aviso</button>
+  <button type="button" id="bZip">ZIP del proyecto</button>
+</div>
+<iframe id="pv" class="lab-preview" title="Proyecto ensamblado" sandbox="allow-same-origin"></iframe>
+<div id="out" class="lab-out">Criterios del bloque: web, presentación, pieza sonora, paquete local.</div>
+
+</main>
+<script>
+
+function byId(id){return document.getElementById(id);}
+function esc(s){return String(s).replace(/[&<>"]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;"}[c];});}
+function say(html){var o=byId("out"); if(o) o.innerHTML=html;}
+
+
+
+function toneSamples(freq, seconds, rate){
+  rate=rate||22050;
+  var n=Math.floor(rate*seconds), s=new Float32Array(n);
+  for(var i=0;i<n;i++){
+    var env=Math.min(1,i/180)*Math.min(1,(n-i)/500);
+    s[i]=Math.sin(2*Math.PI*freq*i/rate)*0.28*env;
+  }
+  return s;
+}
+function wavBlob(samples, rate){
+  var n=samples.length, buf=new ArrayBuffer(44+n*2), v=new DataView(buf);
+  function ws(o,s){for(var i=0;i<s.length;i++) v.setUint8(o+i,s.charCodeAt(i));}
+  ws(0,"RIFF"); v.setUint32(4,36+n*2,true); ws(8,"WAVE"); ws(12,"fmt ");
+  v.setUint32(16,16,true); v.setUint16(20,1,true); v.setUint16(22,1,true);
+  v.setUint32(24,rate,true); v.setUint32(28,rate*2,true); v.setUint16(32,2,true); v.setUint16(34,16,true);
+  ws(36,"data"); v.setUint32(40,n*2,true);
+  for(var i=0;i<n;i++){
+    var x=Math.max(-1,Math.min(1,samples[i]));
+    v.setInt16(44+i*2, x<0?x*32768:x*32767, true);
+  }
+  return new Blob([buf],{type:"audio/wav"});
+}
+
+
+function crc32(bytes){
+  if(!crc32.t){
+    crc32.t=[];
+    for(var n=0;n<256;n++){var c=n; for(var k=0;k<8;k++) c=(c&1)?(0xEDB88320^(c>>>1)):(c>>>1); crc32.t[n]=c>>>0;}
+  }
+  var crc=0xFFFFFFFF;
+  for(var i=0;i<bytes.length;i++) crc=crc32.t[(crc^bytes[i])&255]^(crc>>>8);
+  return (crc^0xFFFFFFFF)>>>0;
+}
+function u16(n){return [n&255,(n>>>8)&255];}
+function u32(n){return [n&255,(n>>>8)&255,(n>>>16)&255,(n>>>24)&255];}
+function zipStore(files){
+  var enc=new TextEncoder();
+  var locals=[], centrals=[], offset=0;
+  files.forEach(function(f){
+    var name=enc.encode(f.name), data=enc.encode(f.text), crc=crc32(data);
+    var lh=u32(0x04034b50).concat(u16(20),u16(0),u16(0),u16(0),u16(0),u32(crc),u32(data.length),u32(data.length),u16(name.length),u16(0));
+    var lb=new Uint8Array(lh.length+name.length+data.length);
+    lb.set(lh,0); lb.set(name,lh.length); lb.set(data,lh.length+name.length);
+    locals.push(lb);
+    var ch=u32(0x02014b50).concat(u16(20),u16(20),u16(0),u16(0),u16(0),u16(0),u32(crc),u32(data.length),u32(data.length),u16(name.length),u16(0),u16(0),u16(0),u16(0),u32(0),u32(offset));
+    var cb=new Uint8Array(ch.length+name.length);
+    cb.set(ch,0); cb.set(name,ch.length); centrals.push(cb);
+    offset+=lb.length;
+  });
+  var csize=centrals.reduce(function(a,b){return a+b.length;},0);
+  var eocd=u32(0x06054b50).concat(u16(0),u16(0),u16(files.length),u16(files.length),u32(csize),u32(offset),u16(0));
+  var parts=locals.concat(centrals,[new Uint8Array(eocd)]);
+  var total=parts.reduce(function(a,b){return a+b.length;},0);
+  var out=new Uint8Array(total), o=0;
+  parts.forEach(function(p){out.set(p,o); o+=p.length;});
+  return new Blob([out],{type:"application/zip"});
+}
+function saveBlob(name, blob){
+  var a=document.createElement("a");
+  a.href=URL.createObjectURL(blob); a.download=name; a.click();
+}
+
+var beepUrl="";
+function pageHtml(){
+  var lis=[byId("s1").value, byId("s2").value, byId("s3").value].map(function(s,n){
+    return "<section><h2>Lámina "+(n+1)+"</h2><p>"+esc(s)+"</p></section>";
+  }).join("");
+  var audio = beepUrl ? "<audio controls src='"+beepUrl+"'></audio>" : "<p>Sin audio todavía.</p>";
+  return "<!DOCTYPE html><html lang='es'><head><meta charset='utf-8'/><title>"+esc(byId("tit").value)+"</title><style>body{font-family:Georgia,serif;background:#FAF7F0;color:#0E0E0C;margin:1rem;max-width:40rem} h1{border-bottom:3px solid #C4A15A}</style></head><body><header><h1>"+esc(byId("tit").value)+"</h1></header><main><p>"+esc(byId("lead").value)+"</p>"+lis+audio+"<p>Salida digital simulada: GPIO 18, ver interruptor de la práctica.</p></main></body></html>";
+}
+function guion(){
+  return [1,2,3].map(function(n){return n+". "+byId("s"+n).value;}).join("\n");
+}
+byId("bAsm").onclick=function(){
+  byId("pv").srcdoc=pageHtml();
+  var ok = byId("tit").value.trim() && byId("s1").value && byId("s2").value && byId("s3").value;
+  say(ok?"<span class='ok'>Proyecto ensamblado: página + tres láminas. Falta el ZIP si quieres llevarlo en un pendrive.</span>":"<span class='bad'>Completa título y tres láminas.</span>");
+};
+byId("bBeep").onclick=function(){
+  var samples=toneSamples(880,0.25,22050);
+  if(beepUrl) URL.revokeObjectURL(beepUrl);
+  beepUrl=URL.createObjectURL(wavBlob(samples,22050));
+  var a=new Audio(beepUrl); a.play();
+  say("<span class='ok'>Aviso sonoro en memoria (WAV). No es una pista de un CDN.</span>");
+  byId("pv").srcdoc=pageHtml();
+};
+byId("bZip").onclick=function(){
+  var files=[
+    {name:"index.html", text: pageHtml().replace(/src='blob:[^']*'/g, "src='aviso.wav'")},
+    {name:"guion.txt", text: guion()},
+    {name:"LEEME.txt", text: "Proyecto bloque A · IES Duero.\\nAbrir index.html en local.\\nEl WAV solo viaja en el ZIP si lo añades; esta exportación deja el guion y la página.\\nGPIO 18 es una simulación de clase, no un circuito.\\n"}
+  ];
+  if(beepUrl){
+    /* el blob no se puede meter fácil en el ZIP de texto; dejamos constancia */
+    files.push({name:"AUDIO.txt", text:"Se generó un WAV de aviso a 880 Hz, 0,25 s, mono, 22050 Hz. Vuelve a pulsar el pitido al abrir la práctica: el ZIP de texto no incrusta binario en esta versión didáctica.\\n"});
+  }
+  saveBlob("proyecto-bloque-a.zip", zipStore(files));
+  say("<span class='ok'>ZIP local descargado. Ábrelo y comprueba index.html, guion.txt y LEEME.txt.</span>");
+};
+byId("bAsm").onclick();
+
+</script>
+</body>
+</html>

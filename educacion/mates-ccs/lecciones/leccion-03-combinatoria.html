@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<meta name="theme-color" content="#0E0E0C"/>
+<title>Lección 03 · Variaciones, permutaciones y combinaciones · Les vencimos</title>
+<link rel="icon" href="../icons/favicon.svg" type="image/svg+xml"/>
+<link rel="stylesheet" href="../leccion-shell.css"/>
+<style>
+  .pasos{list-style:none;margin:0 0 1rem;padding:0;counter-reset:paso}
+  .pasos li{position:relative;margin:0 0 .7rem;padding:.7rem .8rem .7rem 3.1rem;background:var(--lv-panel);border:1px solid var(--lv-linea);border-radius:10px}
+  .pasos li::before{counter-increment:paso;content:counter(paso);position:absolute;left:.65rem;top:.7rem;width:1.7rem;height:1.7rem;border-radius:50%;background:#C4A15A;color:#1A160E;font-weight:700;font-size:.9rem;display:flex;align-items:center;justify-content:center}
+  .figura-svg{background:var(--lv-panel);border:1px solid var(--lv-linea);border-radius:10px;padding:.4rem;margin:.4rem 0 1rem}
+  .figura-svg svg{width:100%;height:auto;display:block}
+  .ej{margin:0 0 1rem;padding:.85rem .95rem;background:var(--lv-panel);border:1px solid var(--lv-linea);border-left:3px solid #C4A15A;border-radius:10px}
+  .ej h3{margin:0 0 .35rem;font-family:var(--lv-serif);font-size:1.05rem;color:var(--lv-titulo)}
+  .editor,textarea.editor{width:100%;min-height:5.2rem;font-family:ui-monospace,monospace;font-size:.95rem;line-height:1.4;padding:.55rem .65rem;border:1px solid rgba(196,161,90,.45);border-radius:8px;background:#161512;color:#E6E1D6;resize:vertical}
+  .porque{margin-top:.5rem}
+  .formula{margin:0 0 .35rem;padding:.45rem .7rem;background:#161512;border-left:3px solid #C4A15A;overflow-x:auto;font-family:ui-monospace,monospace}
+  .glosa{font-size:.98rem;color:#d9d0bc}
+  table.datos{width:100%;border-collapse:collapse;margin:.4rem 0 1rem;font-size:.98rem}
+  table.datos th,table.datos td{border:1px solid var(--lv-linea);padding:.35rem .5rem;text-align:left;vertical-align:top}
+  table.datos th{background:#161512;color:#C4A15A}
+  details.correccion{margin:.4rem 0 0;padding:.35rem .6rem;background:#141410;border-radius:8px}
+  details.correccion summary{cursor:pointer;color:#C4A15A;font-weight:650}
+</style>
+<script src="../leccion-shell-nav.js" defer></script>
+</head>
+<body class="leccion-shell">
+<div class="leccion-wrap">
+<nav class="leccion-barra" aria-label="Navegación de lección" data-actual="3" data-total="33">
+  <div class="leccion-progreso" role="status">
+    <span class="progreso-texto"><strong>3</strong> de <strong>33</strong></span>
+    <div class="progreso-pista" aria-hidden="true"><div class="progreso-lleno" style="width:9.38%"></div></div>
+  </div>
+  <div class="leccion-atajos">
+    <a class="atajo atajo-prev" href="leccion-02-arboles.html">← Anterior</a>
+    <a class="atajo atajo-next" href="leccion-04-reales.html">Siguiente →</a>
+  </div>
+</nav>
+<header class="leccion-top">
+  <a class="leccion-marca" href="../mates-ccs.html">Les <span>vencimos</span></a>
+  <p class="leccion-meta-top">Matemáticas Aplicadas a las CCSS I · 1º Bachillerato</p>
+</header>
+<header class="bloque-titulo">
+  <span class="eyebrow">Lección 03 · A.1 Conteo</span>
+  <h1 class="titulo-leccion">Variaciones, permutaciones y <em>combinaciones</em></h1>
+  <p class="meta-leccion">Decreto 40/2022 CyL · primer curso · sentido numérico A.1</p>
+</header>
+
+<aside class="bloque-curiosidad" aria-label="Para situarte">
+  <p class="etiqueta-bloque">Para situarte</p>
+  <h2 class="titulo-curiosidad">Tres técnicas, no un añadido</h2>
+  <p class="texto-curiosidad">A.1 cita «diagramas de árbol, técnicas de combinatoria». En este curso esas técnicas son las variaciones sin repetición, las permutaciones y las combinaciones. No son un extra por si sobra tiempo: son el recuento cuando listar el árbol entero ya no es razonable, y hay que saber cuál de las tres escribe el enunciado.</p>
+</aside>
+
+<section class="bloque-cuerpo">
+  <h2>Objetivos</h2>
+  <ul>
+    <li>Decidir si el orden genera resultados distintos y si se puede repetir elemento.</li>
+    <li>Calcular variaciones sin repetición V(n, k) = n! / (n − k)!.</li>
+    <li>Calcular permutaciones de n elementos distintos, n!, como el caso k = n.</li>
+    <li>Calcular combinaciones C(n, k) = n! / (k! · (n − k)!) cuando el orden no distingue.</li>
+    <li>Comprobar con la relación V(n, k) = C(n, k) × k! en un caso pequeño.</li>
+  </ul>
+
+  <h2>La pregunta que elige la técnica</h2>
+  <p>Se parte de un conjunto de n elementos distintos. Se forman grupos de k elementos, con k ≤ n, sin repetir elemento dentro del grupo. Hay dos preguntas:</p>
+  <ul>
+    <li>¿Dos grupos con los mismos elementos en distinto orden cuentan como dos resultados? Si sí, es una variación. Si no, es una combinación.</li>
+    <li>¿El grupo usa los n elementos, es decir k = n? Entonces la variación se llama permutación: es un orden de todo el conjunto.</li>
+  </ul>
+  <p>Esta lección no usa variaciones con repetición ni combinaciones con repetición. Si el enunciado permitiera repetir (un código donde la misma cifra vuelve a salir), el modelo sería otro y no se aplica V(n, k). El decreto, en la formulación que seguimos aquí, pide estas tres técnicas sin repetición.</p>
+  <table class="datos">
+    <thead><tr><th>Técnica</th><th>Orden</th><th>Tamaño</th><th>Fórmula</th></tr></thead>
+    <tbody>
+      <tr><td>Variación sin repetición</td><td>importa</td><td>k de n, k ≤ n</td><td>V(n, k) = n! / (n − k)!</td></tr>
+      <tr><td>Permutación</td><td>importa</td><td>los n</td><td>P(n) = n!</td></tr>
+      <tr><td>Combinación</td><td>no importa</td><td>k de n</td><td>C(n, k) = n! / (k! · (n − k)!)</td></tr>
+    </tbody>
+  </table>
+
+  <h2>Factorial, el producto que cuenta un orden completo</h2>
+  <p>n! se lee «n factorial» y es el producto de los enteros de n hacia abajo hasta 1. Por convenio, 0! = 1, que hará falta cuando k = n y el denominador sea (n − n)!.</p>
+  <p class="formula">5! = 5 × 4 × 3 × 2 × 1 = 120</p>
+  <p class="glosa">En el ejemplo de los cinco informes, el 5 es el número de informes distintos, cada factor es la cantidad de huecos que quedan al elegir el siguiente, y 120 es el número de órdenes de lectura. No es una suma de informes.</p>
+  <p>El primer puesto se puede cubrir de n maneras, el segundo de n − 1 (ya no se repite el elegido), el tercero de n − 2, y así hasta completar k puestos. Ese producto es exactamente n! / (n − k)!, porque al dividir n! entre (n − k)! se cancelan los factores que no se usan.</p>
+
+  <div class="figura-svg">
+    <svg viewBox="0 0 720 210" role="img">
+      <title>El mismo trío ABC cuenta una vez si el orden no importa y seis veces si importa</title>
+      <rect width="720" height="210" fill="#161512"/>
+      <g font-family="Segoe UI, sans-serif" font-size="14" fill="#E6E1D6">
+        <text x="180" y="28" text-anchor="middle" fill="#C4A15A">Combinación: un grupo</text>
+        <rect x="70" y="48" width="220" height="52" rx="8" fill="#1C1A16" stroke="#C4A15A"/>
+        <text x="180" y="79" text-anchor="middle">{A, B, C}</text>
+        <text x="180" y="128" text-anchor="middle" fill="#9A9488">C(3, 3) = 1</text>
+        <text x="530" y="28" text-anchor="middle" fill="#C4A15A">Variación o permutación: seis órdenes</text>
+        <g fill="#1C1A16" stroke="#C4A15A">
+          <rect x="400" y="44" width="90" height="32" rx="6"/>
+          <rect x="500" y="44" width="90" height="32" rx="6"/>
+          <rect x="600" y="44" width="90" height="32" rx="6"/>
+          <rect x="400" y="86" width="90" height="32" rx="6"/>
+          <rect x="500" y="86" width="90" height="32" rx="6"/>
+          <rect x="600" y="86" width="90" height="32" rx="6"/>
+        </g>
+        <g fill="#E6E1D6" font-size="13">
+          <text x="445" y="65" text-anchor="middle">ABC</text>
+          <text x="545" y="65" text-anchor="middle">ACB</text>
+          <text x="645" y="65" text-anchor="middle">BAC</text>
+          <text x="445" y="107" text-anchor="middle">BCA</text>
+          <text x="545" y="107" text-anchor="middle">CAB</text>
+          <text x="645" y="107" text-anchor="middle">CBA</text>
+        </g>
+        <text x="530" y="150" text-anchor="middle" fill="#9A9488">3! = 6 órdenes del mismo trio</text>
+        <text x="360" y="190" text-anchor="middle" fill="#9A9488">V(n, k) = C(n, k) × k! : cada grupo no ordenado admite k! órdenes</text>
+      </g>
+    </svg>
+  </div>
+
+  <h2>Ejemplo resuelto 1. Variación: presidencia y tesorería</h2>
+  <p>De 8 personas distintas se eligen presidencia y tesorería. Nadie ocupa los dos cargos. El cargo importa: presidenta A y tesorero B no es lo mismo que presidenta B y tesorero A.</p>
+  <ol class="pasos">
+    <li>Dato: n = 8 personas, k = 2 cargos ordenados, sin repetición.</li>
+    <li>Modelo: variación sin repetición, porque el orden (el cargo) distingue y no se repite persona.</li>
+    <li>V(8, 2) = 8! / (8 − 2)! = 8! / 6!.</li>
+    <li>8! = 8 × 7 × 6! , así que 8! / 6! = 8 × 7 = 56. No hace falta calcular 8! entero: los factores de 6! se cancelan.</li>
+    <li>Comprobación por etapas: 8 opciones para presidencia y, elegida esa persona, 7 para tesorería. 8 × 7 = 56. El árbol tendría 56 hojas; no se listan, pero el producto de las dos etapas coincide con la fórmula.</li>
+    <li>Frase: hay 56 formas de cubrir presidencia y tesorería.</li>
+  </ol>
+  <p class="formula">V(8, 2) = 8! / 6! = 56</p>
+  <p class="glosa">8 es n, el número de personas; 2 es k, el número de cargos; 6 es n − k, los factores del factorial que se cancelan porque no hay un tercer cargo; 56 es el número de pares ordenados (presidencia, tesorería).</p>
+  <p>Si hubiera que ordenar a las 8 personas en una fila de ocho puestos, k sería 8 y V(8, 8) = 8! / 0! = 8!. Eso ya es una permutación. El nombre cambia; la fórmula de la variación lo contiene.</p>
+
+  <h2>Ejemplo resuelto 2. Combinación, y la misma elección ordenada</h2>
+  <p>De 10 personas voluntarias se elige un grupo de trabajo de 3. Dentro del grupo no hay cargos: {Ana, Luis, Vera} es el mismo grupo que {Vera, Ana, Luis}.</p>
+  <ol class="pasos">
+    <li>Dato: n = 10, k = 3, sin repetición, orden irrelevante.</li>
+    <li>Modelo: combinación C(10, 3) = 10! / (3! × 7!).</li>
+    <li>Se cancelan los factores de 7! en 10! = 10 × 9 × 8 × 7!. Queda (10 × 9 × 8) / (3 × 2 × 1).</li>
+    <li>Numerador: 10 × 9 = 90; 90 × 8 = 720. Denominador: 3! = 6. Cociente: 720 / 6 = 120.</li>
+    <li>Comprobación con la variación del mismo enunciado si los tres puestos fueran distintos (coordinación, acta, portavocía): V(10, 3) = 10 × 9 × 8 = 720. Cada combinación se puede ordenar de 3! = 6 maneras, y 120 × 6 = 720. Las dos técnicas encajan; no se han contado grupos de más.</li>
+    <li>Frase: hay 120 grupos distintos de 3 personas. Si los tres cargos se distinguieran, habría 720 asignaciones, no 120.</li>
+  </ol>
+  <p class="formula">C(10, 3) = 10! / (3! × 7!) = 120</p>
+  <p class="glosa">10 es el número de voluntarios, 3 es el tamaño del grupo, 7 es lo que sobra (10 − 3) y por eso 7! está en el denominador junto con 3!, que borra el orden interno. 120 es el número de grupos, no de personas.</p>
+  <p class="formula">V(10, 3) = C(10, 3) × 3! = 120 × 6 = 720</p>
+  <p class="glosa">V(10, 3) cuenta asignaciones ordenadas de 3 cargos entre 10 personas; C(10, 3) cuenta grupos sin cargo; 3! = 6 es el número de formas de repartir tres cargos distintos dentro de un mismo grupo; 720 es el producto, que coincide con 10 × 9 × 8.</p>
+
+  <h2>Escribe el razonamiento</h2>
+  <p>En cada ejercicio escribe primero «orden sí/no» y «¿se usan todos?». Esa frase decide la fórmula antes de tocar el factorial.</p>
+  <label for="razonamiento">Razonamiento en esta página</label>
+  <textarea class="editor" id="razonamiento" placeholder="n = …, k = …, orden…, fórmula…, cancelación…, comprobación…"></textarea>
+
+  <h2>Ejercicios</h2>
+  <article class="ej">
+    <h3>1. Podio de tres, entre siete</h3>
+    <p>En una carrera de 7 atletas se asignan oro, plata y bronce, sin empates. ¿Cuántos podios distintos hay?</p>
+    <label for="e1">Tu desarrollo</label>
+    <textarea class="editor" id="e1"></textarea>
+    <details class="correccion"><summary>Corrección</summary>
+      <ol class="pasos">
+        <li>El metal distingue el orden y no se repite atleta: variación V(7, 3).</li>
+        <li>V(7, 3) = 7! / 4! = 7 × 6 × 5 = 210.</li>
+        <li>Por etapas: 7 opciones para el oro, 6 para la plata, 5 para el bronce. 7 × 6 = 42; 42 × 5 = 210.</li>
+      </ol>
+      <p class="porque">Hay 210 podios. Usar C(7, 3) = 35 contaría tercios de atletas sin medalla asignada: el enunciado distingue oro, plata y bronce, así que el orden forma parte del resultado.</p>
+    </details>
+  </article>
+  <article class="ej">
+    <h3>2. Orden de cuatro intervenciones</h3>
+    <p>Cuatro ponentes distintos intervienen uno detrás de otro. ¿En cuántos órdenes pueden hacerlo?</p>
+    <label for="e2">Tu desarrollo</label>
+    <textarea class="editor" id="e2"></textarea>
+    <details class="correccion"><summary>Corrección</summary>
+      <ol class="pasos">
+        <li>Se ordenan los 4, todos. Es una permutación P(4) = 4!.</li>
+        <li>4! = 4 × 3 × 2 × 1 = 24.</li>
+        <li>Como variación: V(4, 4) = 4! / 0! = 24 / 1 = 24. Mismo número.</li>
+      </ol>
+      <p class="porque">Hay 24 órdenes. El 0! del denominador es 1 por convenio, precisamente para que la permutación coincida con la variación de n elementos tomados de n en n. No se divide entre cero.</p>
+    </details>
+  </article>
+  <article class="ej">
+    <h3>3. Parejas de un grupo de seis</h3>
+    <p>En un grupo de 6 estudiantes se forman parejas de trabajo no ordenadas. ¿Cuántas parejas distintas hay? Lista las de un grupo imaginario {1, 2, 3, 4, 5, 6} que contengan al 1 y comprueba cuántas faltan.</p>
+    <label for="e3">Tu desarrollo</label>
+    <textarea class="editor" id="e3"></textarea>
+    <details class="correccion"><summary>Corrección</summary>
+      <ol class="pasos">
+        <li>La pareja {1, 2} es la misma que {2, 1}. Combinación C(6, 2).</li>
+        <li>C(6, 2) = 6! / (2! × 4!) = (6 × 5) / 2 = 15.</li>
+        <li>Parejas con el 1: {1,2}, {1,3}, {1,4}, {1,5}, {1,6}: son 5.</li>
+        <li>Sin el 1 quedan 5 personas, y C(5, 2) = (5 × 4) / 2 = 10. Total 5 + 10 = 15.</li>
+      </ol>
+      <p class="porque">Hay 15 parejas. Dividir entre 2! quita el doble conteo de cada pareja leída al revés. Si no se dividiera, V(6, 2) = 30 contaría cada pareja dos veces, una por cada forma de nombrar primero a uno o al otro.</p>
+    </details>
+  </article>
+  <article class="ej">
+    <h3>4. Un trío de entre ocho, y un número que coincide por casualidad</h3>
+    <p>De 8 proyectos se eligen 3 para financiarlos, sin orden de prioridad entre los elegidos. Calcula cuántos tríos hay. Compara el número con V(8, 2) = 56 de la presidencia y la tesorería, y di si son el mismo tipo de recuento.</p>
+    <label for="e4">Tu desarrollo</label>
+    <textarea class="editor" id="e4"></textarea>
+    <details class="correccion"><summary>Corrección</summary>
+      <ol class="pasos">
+        <li>Sin prioridad: combinación C(8, 3) = 8! / (3! × 5!).</li>
+        <li>(8 × 7 × 6) / (3 × 2 × 1) = 336 / 6 = 56.</li>
+        <li>V(8, 2) = 8 × 7 = 56. El numeral coincide.</li>
+        <li>No es el mismo recuento: 56 tríos no ordenados de 3 proyectos, frente a 56 pares ordenados de 2 cargos. Cambia n, cambia k y cambia si el orden cuenta.</li>
+      </ol>
+      <p class="porque">Hay 56 tríos. Que el resultado numérico sea 56 en los dos problemas no autoriza a copiar la fórmula: la comprobación V = C × k! en este caso sería V(8, 3) = 56 × 6 = 336, que es 8 × 7 × 6, no 8 × 7. El 56 de los cargos era un producto de dos factores; este 56 es un producto de tres factores partido por 6.</p>
+    </details>
+  </article>
+
+  <h2>Cierre</h2>
+  <p>Variación sin repetición, permutación y combinación son el bloque de combinatoria de A.1. El orden y el tamaño del grupo eligen la fórmula; el factorial abreviado evita calcular productos que luego se cancelan; y V(n, k) = C(n, k) × k! comprueba que no se ha contado dos veces el mismo grupo ni se ha olvidado un orden que el enunciado distinguía.</p>
+</section>
+
+<footer class="leccion-pie">
+  <strong>Les vencimos</strong> · Lección 03 de 33 · Matemáticas Aplicadas a las CCSS I · staging · sin publicar
+</footer>
+</div>
+</body>
+</html>
+<!-- saber: A.1 -->

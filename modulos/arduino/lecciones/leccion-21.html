@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="color-scheme" content="dark">
+<title>L21 · PWM: brillo y velocidad · les vencimos</title>
+<style>
+:root{--bg:#0E0E0C;--surf:#161512;--panel:#1C1A16;--ink:#E6E1D6;--mut:#9A9488;--acc:#C4A15A;--acc-ink:#1A160E;--danger:#C46A4A;--ok:#8F9A72;--line:#2A2720}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:400 17px/1.55 "Segoe UI",system-ui,sans-serif}
+h1,h2,h3{font-family:"Iowan Old Style",Palatino,Georgia,serif;font-weight:600;line-height:1.25}
+a{color:var(--acc)}
+.wrap{max-width:42rem;margin:0 auto;padding:1.25rem 1.1rem 3.5rem}
+header.top{border-bottom:1px solid var(--line);padding-bottom:.8rem;margin-bottom:1.2rem}
+.marca{font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;color:var(--mut);margin:0}
+h1{font-size:1.7rem;margin:.35rem 0 .2rem}
+.meta{color:var(--mut);margin:0 0 .8rem;font-size:.92rem}
+nav.pasos{display:flex;flex-wrap:wrap;gap:.5rem;margin:.4rem 0 0}
+nav.pasos a,button{min-height:44px;padding:.45rem .8rem;border:1px solid var(--line);border-radius:2px;background:var(--surf);color:var(--ink);font:inherit;text-decoration:none;cursor:pointer}
+button.acc{background:var(--acc);color:var(--acc-ink);border-color:var(--acc);font-weight:600}
+.maestro{background:var(--panel);border:1px solid var(--line);padding:1rem 1.05rem;margin:1.1rem 0}
+.maestro h2{margin:.1rem 0 .6rem;font-size:1.05rem;color:var(--acc)}
+pre{background:var(--surf);border:1px solid var(--line);padding:.9rem 1rem;overflow:auto;font-size:.88rem;line-height:1.45}
+.warn{border-left:3px solid var(--danger);padding:.2rem 0 .2rem .8rem;color:var(--ink)}
+.quiz{margin-top:1.2rem}
+figure{margin:1rem 0;background:#161512;border:1px solid var(--line);padding:.55rem .7rem}
+figure svg{width:100%;height:auto;display:block}
+figcaption{color:var(--mut);font-size:.9rem;margin:.45rem 0 0}
+.ejemplo{background:#161512;border:1px solid var(--line);padding:.8rem .95rem;margin:.7rem 0}
+.ejemplo h3{margin:.1rem 0 .4rem;font-size:1.05rem}
+
+.pregunta{background:var(--surf);border:1px solid var(--line);padding:.8rem 1rem;margin:.7rem 0}
+.respuesta{color:var(--ok);margin:.55rem 0 0}
+footer{margin-top:2.2rem;padding-top:.8rem;border-top:1px solid var(--line);color:var(--mut);font-size:.82rem}
+.pend{color:var(--mut)}
+ol.temario{padding-left:1.2rem}
+ol.temario li{margin:.28rem 0}
+
+.sim,.anota{margin:1rem 0;background:#161512;border:1px solid var(--line);padding:.8rem .9rem}
+.sim h2,.anota h2{margin:.1rem 0 .4rem;font-size:1.15rem}
+.sim-canvas{width:100%;height:auto;background:#1C1A16;border:1px solid var(--line);margin:.6rem 0;display:block}
+.sim-lab{display:flex;align-items:center;gap:.6rem;margin:.4rem 0;color:var(--ink)}
+.sim-range{flex:1;min-height:44px}
+.sim-out{min-width:3rem;color:var(--acc)}
+.sim-dedo{margin-top:.4rem}
+textarea.nota-montaje{width:100%;min-height:8rem;background:#1C1A16;color:var(--ink);border:1px solid var(--line);padding:.7rem;font:inherit;line-height:1.45}
+
+</style>
+</head>
+<body>
+<article class="wrap" id="ens-pwm" data-ens="ens-pwm">
+<header class="top">
+<p class="marca">les vencimos · offline</p>
+<h1>L21. PWM: brillo y velocidad</h1>
+<p class="meta">Actuadores (54–70%)</p>
+<nav class="pasos"><a href="../arduino-ensenanza.html">Al curso</a><a href="leccion-20.html">Anterior</a><a href="leccion-22.html">Siguiente</a></nav>
+</header>
+<section class="maestro" id="maestro">
+<h2>Maestro</h2>
+<p id="maestro-texto">analogWrite no saca un voltaje a medias. Enciende y apaga el pin muy rápido, y el LED lo ve como brillo. En el Uno eso solo ocurre en unos pines: 3, 5, 6, 9, 10 y 11. El número va de 0 a 255. Cero es apagado. 255 es encendido del todo. El pin 13 no entra en esa lista.</p>
+<button type="button" class="acc" id="escuchar">Escuchar</button>
+</section>
+<section class="lectura">
+<p>El truco se llama PWM, modulación por ancho de pulso. Si el pin está alto la mitad del tiempo, el LED parece a media luz. El chip lo hace solo miles de veces por segundo. Tú solo das el ancho: analogWrite(9, 30) es tenue, analogWrite(9, 200) es fuerte. No es una tensión de 1 voltio limpia. Un motor pequeño puede cambiar de velocidad con la misma idea, pero el pin no alimenta el motor. Como mucho le marca el ritmo a un transistor.</p>
+<p>El LED externo va en el pin 9, con su resistencia de 220 ohmios a masa, ánodo hacia el pin. El del pin 13 se queda para pruebas de sí o no. Si escribes analogWrite(13, 128) en un Uno, no obtienes media luz: ese pin no tiene PWM.</p>
+<p>El sketch sube el brillo y lo baja. delay aquí solo pausa entre escalones. Sigue bloqueando, y ya sabes el precio. Para un brillo fijo no hace falta loop complicado: escribes el número y se queda.</p>
+</section>
+<h2>Montaje</h2>
+<figure><svg viewBox="0 0 640 180" aria-label="PWM no es voltaje fijo"><rect x="16" y="30" width="140" height="120" rx="6" fill="#1C1A16" stroke="#C4A15A"/><text x="86.0" y="48" text-anchor="middle" fill="#E6E1D6" font-size="13">pin 9</text><text x="26" y="68" fill="#9A9488" font-size="11">analogWrite</text><text x="26" y="84" fill="#9A9488" font-size="11">0 a 255</text><text x="26" y="100" fill="#9A9488" font-size="11">LED + 220</text><text x="180" y="28" fill="#9A9488" font-size="11">20</text><path d="M180 120 v-16 h14 v16" fill="none" stroke="#C4A15A" stroke-width="2"/><path d="M208 120 v-16 h14 v16" fill="none" stroke="#C4A15A" stroke-width="2"/><path d="M236 120 v-16 h14 v16" fill="none" stroke="#C4A15A" stroke-width="2"/><path d="M264 120 v-16 h14 v16" fill="none" stroke="#C4A15A" stroke-width="2"/><text x="330" y="28" fill="#9A9488" font-size="11">120</text><path d="M330 120 v-36 h14 v36" fill="none" stroke="#C4A15A" stroke-width="2"/><path d="M358 120 v-36 h14 v36" fill="none" stroke="#C4A15A" stroke-width="2"/><path d="M386 120 v-36 h14 v36" fill="none" stroke="#C4A15A" stroke-width="2"/><path d="M414 120 v-36 h14 v36" fill="none" stroke="#C4A15A" stroke-width="2"/><text x="480" y="28" fill="#9A9488" font-size="11">255</text><path d="M480 120 v-64 h14 v64" fill="none" stroke="#C4A15A" stroke-width="2"/><path d="M508 120 v-64 h14 v64" fill="none" stroke="#C4A15A" stroke-width="2"/><path d="M536 120 v-64 h14 v64" fill="none" stroke="#C4A15A" stroke-width="2"/><path d="M564 120 v-64 h14 v64" fill="none" stroke="#C4A15A" stroke-width="2"/><text x="180" y="160" fill="#9A9488" font-size="11">se enciende y apaga muy rápido: el ojo lo ve tenue</text></svg><figcaption>El LED con su resistencia va al pin 9, no al 13. El 13 no hace analogWrite de verdad en este curso: se usan 3, 5, 6, 9, 10 u 11.</figcaption></figure>
+<h2>Pines de esta lección</h2>
+<figure><svg viewBox="0 0 340 118" aria-label="Pines de la lección"><rect x="6" y="16" width="328" height="86" rx="8" fill="#1C1A16" stroke="#C4A15A"/><text x="16" y="14" fill="#9A9488" font-size="11">Uno R3 · 5 V · mira la serigrafía, no la memoria</text><rect x="16" y="32" width="68" height="32" rx="4" fill="#161512" stroke="#C4A15A"/><text x="50" y="53" text-anchor="middle" fill="#E6E1D6" font-size="13">9</text><text x="50" y="84" text-anchor="middle" fill="#9A9488" font-size="10">PWM</text><rect x="94" y="32" width="68" height="32" rx="4" fill="#161512" stroke="#9A9488"/><text x="128" y="53" text-anchor="middle" fill="#E6E1D6" font-size="13">220</text><text x="128" y="84" text-anchor="middle" fill="#9A9488" font-size="10">con el LED</text><rect x="172" y="32" width="68" height="32" rx="4" fill="#161512" stroke="#9A9488"/><text x="206" y="53" text-anchor="middle" fill="#E6E1D6" font-size="13">0</text><text x="206" y="84" text-anchor="middle" fill="#9A9488" font-size="10">apagado</text><rect x="250" y="32" width="68" height="32" rx="4" fill="#161512" stroke="#9A9488"/><text x="284" y="53" text-anchor="middle" fill="#E6E1D6" font-size="13">255</text><text x="284" y="84" text-anchor="middle" fill="#9A9488" font-size="10">lleno</text></svg><figcaption>9 es el pin del brillo. 255 no es 255 voltios: es el pulso casi siempre encendido.</figcaption></figure>
+<h2>Por qué</h2>
+<p>analogWrite no entrega un voltaje quieto. Enciende y apaga el pin muy rápido. El argumento va de 0 a 255. 0 es siempre apagado. 255 es siempre encendido. 128 pasa la mitad del tiempo encendido y el ojo, o un motor pequeño a través de un transistor, lo nota como un medio. Un polímetro lento puede enseñar un número intermedio; el pin, en cada instante, está arriba o abajo.</p><p>En el Uno los pines con esa capacidad, marcados a menudo con una virgulilla, son 3, 5, 6, 9, 10 y 11. El 13 no está en la lista. Si escribes analogWrite(13, 80) no obtienes un brillo fino: obtienes un comportamiento que no es el de la lección. El LED de prueba se mueve al 9, con su resistencia de 220.</p><p>20, 120 y 255, con pausas, enseñan tres escalones que sí se distinguen. Un salto de 250 a 255 no se ve. No persigas suavidad de catálogo. Persigue que el ojo diga bajo, medio, alto. El delay aquí es didáctico. En un proyecto con botón, esos delay se irán.</p><p>PWM no da derecho a saltarte la resistencia. A 255 el pin está a 5 V el tiempo entero, y sin resistencia es el mismo cortocircuito de la lección del LED. A 20 la corriente media baja, y sigue haciendo falta el límite.</p><h2>Práctica</h2>
+<ol><li>Pasa el LED y su 220 ohmios del pin 13 al pin 9. Masa como siempre.</li><li>Carga el sketch de los tres niveles: 20, 120 y 255.</li><li>Di en voz alta bajo, medio, alto, al ritmo de las pausas.</li><li>Cambia 20 por 0. El bajo tiene que ser oscuro de verdad.</li><li>Prueba analogWrite en el pin 8 a propósito, un momento. No debe parecerse al 9. Vuelve al 9.</li><li>Deja 20, 120 y 255 antes de seguir.</li><li>Comprueba en la serigrafía que el 9 lleva la marca de PWM. El 13 no es su sustituto.</li></ol><section class="sim" data-sim="pwm" data-a="120" data-b=""><h2>Práctica en la página</h2><p>El brillo sigue al número, de 0 a 255. Arranca en 120. La simulación arranca encendida.</p><button type="button" class="sim-toggle" aria-pressed="true">Parar simulación</button><canvas class="sim-canvas" width="320" height="160" aria-label="Simulación del circuito"></canvas><label class="sim-lab">analogWrite <input class="sim-range" type="range" min="0" max="255" value="120"></label><output class="sim-out"></output></section><h2>Ejemplos resueltos</h2>
+<div class="ejemplo"><h3>Brillo que no cambia</h3><p>El LED se quedó en el 13 y analogWrite escribe el 9, que no tiene cable. El 13 se queda en lo último que alguien escribió, o apagado. Los tres niveles existen en un pin que nadie mira.</p><p>Se mueve el cable al 9 o se cambia el número del sketch al pin donde está el LED, siempre que ese pin sea de los seis. Una de las dos, y la resistencia también se mueve.</p></div><div class="ejemplo"><h3>Se quita la resistencia porque a 20 se ve poco</h3><p>A 20 el LED es tenue y se puentea la resistencia. Cuando el ciclo llega a 255, el pin entrega de más. El brillo medio era bajo; el pico no.</p><p>Se deja la 220. Si a 20 no se ve, se sube el primer escalón a 40, no se quita la protección.</p></div><h2>En la mesa</h2>
+<p>Mira el LED del pin 9 y di el nivel antes de que cambie: bajo, medio, alto. Si el medio no se distingue del alto, separa más los números, ciento veinte y doscientos cincuenta y cinco ya deberían poderse. Si ni así, el LED no está en un pin de PWM y estás viendo un HIGH perezoso. Vuelve a la lista: 3, 5, 6, 9, 10, 11. El 13 no entra.</p>
+<p>Pasa un momento a cero y confirma oscuridad. Un cero que aún luce es un cable a 5 V, no un analogWrite tímido. Luego vuelve a los tres escalones del sketch. No dejes el pin en doscientos cincuenta y cinco toda la noche: no aporta y, si la resistencia faltara, es el peor sitio para olvidarse.</p>
+<p>Explica a alguien, o a la pared, que el pin no sabe hacer dos voltios y medio: sabe estar encendido a ratos. Si la frase no te sale, relee el dibujo de los pulsos. Esa frase es el examen, no el brillo.</p>
+<h2>Sketch</h2>
+<pre><code>void setup() {
+  pinMode(9, OUTPUT);
+}
+
+void loop() {
+  analogWrite(9, 20);
+  delay(600);
+  analogWrite(9, 120);
+  delay(600);
+  analogWrite(9, 255);
+  delay(600);
+}
+</code></pre>
+<h2>Ejercicio</h2>
+<p>Pon un LED con resistencia de 220 ohmios en el pin 9. Prueba analogWrite con 20, con 80 y con 255. Anota cuál distingues de verdad con la vista.</p>
+<section class="quiz">
+<h2>Autoevaluación</h2>
+<div class="pregunta"><p><strong>1.</strong> ¿analogWrite entrega una tensión continua a medias?</p><button type="button" class="ver">ver respuesta</button><p class="respuesta" hidden>No. Enciende y apaga muy rápido. El ojo lo lee como brillo.</p></div><div class="pregunta"><p><strong>2.</strong> ¿Qué pines del Uno sirven para eso?</p><button type="button" class="ver">ver respuesta</button><p class="respuesta" hidden>3, 5, 6, 9, 10 y 11. El 13 no.</p></div><div class="pregunta"><p><strong>3.</strong> ¿Qué número es el máximo, encendido del todo?</p><button type="button" class="ver">ver respuesta</button><p class="respuesta" hidden>255.</p></div>
+</section>
+<footer>les vencimos · Arduino Enseñanza · offline</footer>
+</article>
+<script>
+document.querySelectorAll("button.ver").forEach(function(b){
+  b.addEventListener("click", function(){
+    var r = b.parentElement.querySelector(".respuesta");
+    if(!r) return;
+    r.hidden = !r.hidden;
+    b.textContent = r.hidden ? "ver respuesta" : "ocultar respuesta";
+  });
+});
+var btn = document.getElementById("escuchar");
+if(btn){
+  btn.addEventListener("click", function(){
+    var el = document.getElementById("maestro-texto");
+    var texto = el ? el.textContent : "";
+    if(window.LesVencimosMaestro && typeof window.LesVencimosMaestro.decir === "function"){
+      window.LesVencimosMaestro.decir(texto);
+      return;
+    }
+    if(!window.speechSynthesis || typeof window.SpeechSynthesisUtterance !== "function") return;
+    window.speechSynthesis.cancel();
+    var u = new SpeechSynthesisUtterance(texto);
+    u.lang = "es-ES";
+    u.rate = 0.95;
+    window.speechSynthesis.speak(u);
+  });
+}
+
+document.querySelectorAll("textarea.nota-montaje").forEach(function(ta){
+  var art = document.querySelector("[data-ens]");
+  var key = "lv-ens-nota-" + (art ? art.getAttribute("data-ens") : "leccion");
+  try {
+    var prev = localStorage.getItem(key);
+    if(prev) ta.value = prev;
+    ta.addEventListener("input", function(){ localStorage.setItem(key, ta.value); });
+  } catch (e) {}
+});
+var sim = document.querySelector("section.sim");
+if(sim){
+  var canvas = sim.querySelector("canvas.sim-canvas");
+  var ctx = canvas.getContext("2d");
+  var kind = sim.getAttribute("data-sim");
+  var da = sim.getAttribute("data-a") || "";
+  var db = sim.getAttribute("data-b") || "";
+  var toggle = sim.querySelector(".sim-toggle");
+  var range = sim.querySelector(".sim-range");
+  var out = sim.querySelector(".sim-out");
+  var dedo = sim.querySelector(".sim-dedo");
+  var vivo = true;
+  var pulsado = false;
+  var permiso = true;
+  var ledOn = false;
+  var ultimoFlanco = 0;
+  var t0 = Date.now();
+  function num(el, fallo){ return el ? parseInt(el.value, 10) : fallo; }
+  if(dedo && kind !== "noche"){
+    dedo.addEventListener("pointerdown", function(ev){
+      pulsado = true;
+      if(kind === "flanco"){
+        var ahora = Date.now();
+        if(ahora - ultimoFlanco > 30){
+          ledOn = !ledOn;
+          ultimoFlanco = ahora;
+        }
+      }
+      ev.preventDefault();
+    });
+    window.addEventListener("pointerup", function(){ pulsado = false; });
+  }
+  if(dedo && kind === "noche"){
+    dedo.addEventListener("click", function(){
+      permiso = !permiso;
+      dedo.setAttribute("aria-pressed", permiso ? "true" : "false");
+      dedo.textContent = permiso ? "Permiso dado" : "Sin permiso";
+    });
+  }
+  if(toggle){
+    toggle.addEventListener("click", function(){
+      vivo = !vivo;
+      toggle.setAttribute("aria-pressed", vivo ? "true" : "false");
+      toggle.textContent = vivo ? "Parar simulación" : "Encender simulación";
+    });
+  }
+  function circulo(x, y, r, on, nivel){
+    ctx.beginPath();
+    ctx.arc(x, y, r, 0, Math.PI * 2);
+    if(on){
+      var a = nivel == null ? 1 : nivel;
+      ctx.fillStyle = "rgba(196,161,90," + (0.25 + 0.75 * a) + ")";
+      ctx.shadowColor = "#C4A15A";
+      ctx.shadowBlur = 16 * a;
+    } else {
+      ctx.fillStyle = "#2A2720";
+      ctx.shadowBlur = 0;
+    }
+    ctx.fill();
+    ctx.shadowBlur = 0;
+    ctx.lineWidth = 2;
+    ctx.strokeStyle = on ? "#C4A15A" : "#9A9488";
+    ctx.stroke();
+  }
+  function caja(x, y, w, h, titulo){
+    ctx.fillStyle = "#161512";
+    ctx.strokeStyle = "#C4A15A";
+    ctx.lineWidth = 2;
+    ctx.fillRect(x, y, w, h);
+    ctx.strokeRect(x, y, w, h);
+    ctx.fillStyle = "#E6E1D6";
+    ctx.font = "14px sans-serif";
+    ctx.fillText(titulo, x + 10, y + 22);
+  }
+  function texto(x, y, s, col){
+    ctx.fillStyle = col || "#E6E1D6";
+    ctx.font = "13px sans-serif";
+    ctx.fillText(s, x, y);
+  }
+  function frame(){
+    var ahora = Date.now();
+    var lectura = num(range, 0);
+    var enciende = false;
+    var nivel = 1;
+    var etiqueta = "";
+    if(kind === "blink"){
+      var hi = parseInt(da, 10) || 500;
+      var lo = parseInt(db, 10) || 500;
+      var ciclo = hi + lo;
+      var fase = vivo ? ((ahora - t0) % ciclo) : 0;
+      enciende = vivo && fase < hi;
+      etiqueta = enciende ? "HIGH" : "LOW";
+    } else if(kind === "hold"){
+      enciende = vivo && pulsado;
+      etiqueta = pulsado ? "LOW, pulsado" : "HIGH, suelto";
+    } else if(kind === "nivel"){
+      enciende = vivo && pulsado;
+      etiqueta = pulsado ? "lectura LOW" : "lectura HIGH";
+    } else if(kind === "flanco"){
+      enciende = vivo && ledOn;
+      etiqueta = enciende ? "LED encendido" : "LED apagado";
+    } else if(kind === "umbral"){
+      var umbral = parseInt(da, 10);
+      enciende = vivo && (db === "lt" ? lectura < umbral && lectura > 0 : lectura > umbral);
+      if(sim.getAttribute("data-sim") === "umbral" && da === "20"){
+        enciende = vivo && lectura > 0 && lectura < umbral;
+      }
+      etiqueta = String(lectura);
+      nivel = 1;
+    } else if(kind === "pwm"){
+      nivel = vivo ? lectura / 255 : 0;
+      enciende = vivo && lectura > 0;
+      etiqueta = String(lectura);
+    } else if(kind === "servo"){
+      var span = 140;
+      var pos = vivo ? ((ahora - t0) % 2800) / 2800 : 0.5;
+      var tri = pos < 0.5 ? pos * 2 : (1 - pos) * 2;
+      var grados = Math.round(20 + tri * span);
+      if(range) range.value = String(grados);
+      lectura = grados;
+      enciende = vivo;
+      etiqueta = grados + " grados";
+    } else if(kind === "buzz"){
+      var fb = vivo ? ((ahora - t0) % 1000) : 500;
+      etiqueta = fb < 300 ? "440" : (fb < 600 ? "880" : "silencio");
+      enciende = vivo && fb < 600;
+    } else if(kind === "carga"){
+      var fc = vivo ? ((ahora - t0) % 4000) : 2000;
+      enciende = vivo && fc < 2000;
+      etiqueta = enciende ? "pin en HIGH" : "pin en LOW";
+    } else if(kind === "semi"){
+      var fs = vivo ? ((ahora - t0) % 3500) : 0;
+      etiqueta = fs < 1500 ? "rojo" : (fs < 2000 ? "ambar" : "verde");
+      enciende = vivo;
+    } else if(kind === "alarma"){
+      enciende = vivo && lectura > 0 && lectura < 20;
+      etiqueta = lectura + " cm";
+    } else if(kind === "noche"){
+      var noche = lectura < 400 && permiso;
+      enciende = vivo && noche;
+      nivel = enciende ? 180/255 : 0;
+      etiqueta = (permiso ? "con permiso" : "sin permiso") + " · " + lectura;
+    }
+    if(out) out.textContent = etiqueta;
+    ctx.clearRect(0, 0, 320, 160);
+    ctx.fillStyle = "#1C1A16";
+    ctx.fillRect(0, 0, 320, 160);
+    caja(12, 28, 90, 100, "Uno");
+    if(kind === "semi"){
+      var fs2 = vivo ? ((ahora - t0) % 3500) : 0;
+      circulo(160, 48, 14, vivo && fs2 < 1500, 1);
+      circulo(210, 48, 14, vivo && fs2 >= 1500 && fs2 < 2000, 1);
+      circulo(260, 48, 14, vivo && fs2 >= 2000, 1);
+      texto(150, 78, "10 rojo");
+      texto(198, 78, "11");
+      texto(248, 78, "12 verde");
+      texto(16, 150, vivo ? "ciclo en marcha" : "simulación parada", "#9A9488");
+    } else if(kind === "servo"){
+      var rad = (180 - lectura) * Math.PI / 180;
+      ctx.strokeStyle = "#C4A15A";
+      ctx.lineWidth = 4;
+      ctx.beginPath();
+      ctx.moveTo(200, 110);
+      ctx.lineTo(200 + Math.cos(rad) * 70, 110 - Math.sin(rad) * 50);
+      ctx.stroke();
+      circulo(200, 110, 8, true, 1);
+      texto(120, 150, etiqueta);
+    } else if(kind === "buzz" || kind === "alarma"){
+      circulo(150, 80, 18, kind === "alarma" ? enciende : false, 1);
+      texto(176, 76, kind === "alarma" ? "LED 13" : "");
+      ctx.beginPath();
+      ctx.arc(250, 80, 22, 0, Math.PI * 2);
+      ctx.strokeStyle = enciende ? "#C4A15A" : "#9A9488";
+      ctx.lineWidth = 3;
+      ctx.stroke();
+      if(enciende){
+        ctx.beginPath();
+        ctx.arc(250, 80, 32, 0, Math.PI * 2);
+        ctx.stroke();
+      }
+      texto(120, 140, etiqueta);
+    } else if(kind === "carga"){
+      circulo(170, 70, 16, enciende, 1);
+      texto(196, 66, "orden");
+      ctx.strokeStyle = enciende ? "#8F9A72" : "#9A9488";
+      ctx.strokeRect(230, 48, 70, 44);
+      texto(242, 74, enciende ? "carga" : "quieta", enciende ? "#8F9A72" : "#9A9488");
+      texto(16, 150, etiqueta, "#9A9488");
+    } else {
+      circulo(200, 78, 18, enciende, nivel);
+      texto(230, 74, "LED");
+      texto(16, 150, etiqueta, "#9A9488");
+    }
+    if(!vivo){
+      texto(230, 150, "parada", "#9A9488");
+    }
+    requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+}
+
+</script>
+</body>
+</html>

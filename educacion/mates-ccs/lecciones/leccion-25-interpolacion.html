@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<meta name="theme-color" content="#0E0E0C"/>
+<title>Lección 25 · Interpolación y extrapolación lineal · Les vencimos</title>
+<link rel="icon" href="../icons/favicon.svg" type="image/svg+xml"/>
+<link rel="stylesheet" href="../leccion-shell.css"/>
+<style>
+  .pasos{list-style:none;margin:0 0 1rem;padding:0;counter-reset:paso}
+  .pasos li{position:relative;margin:0 0 .7rem;padding:.7rem .8rem .7rem 3.1rem;background:var(--lv-panel);border:1px solid var(--lv-linea);border-radius:10px}
+  .pasos li::before{counter-increment:paso;content:counter(paso);position:absolute;left:.65rem;top:.7rem;width:1.7rem;height:1.7rem;border-radius:50%;background:#C4A15A;color:#1A160E;font-weight:700;font-size:.9rem;display:flex;align-items:center;justify-content:center}
+  .figura-svg{background:var(--lv-panel);border:1px solid var(--lv-linea);border-radius:10px;padding:.4rem;margin:.4rem 0 1rem}
+  .figura-svg svg{width:100%;height:auto;display:block}
+  .ej{margin:0 0 1rem;padding:.85rem .95rem;background:var(--lv-panel);border:1px solid var(--lv-linea);border-left:3px solid #C4A15A;border-radius:10px}
+  .ej h3{margin:0 0 .35rem;font-family:var(--lv-serif);font-size:1.05rem;color:var(--lv-titulo)}
+  .editor,textarea.editor{width:100%;min-height:5.2rem;font-family:ui-monospace,monospace;font-size:.95rem;line-height:1.4;padding:.55rem .65rem;border:1px solid rgba(196,161,90,.45);border-radius:8px;background:#161512;color:#E6E1D6;resize:vertical;box-sizing:border-box}
+  .lienzo{display:block;width:100%;max-width:640px;height:280px;background:#161512;border:1px solid #C4A15A;border-radius:8px;touch-action:none;cursor:crosshair}
+  .fila{display:flex;flex-wrap:wrap;gap:.4rem;margin:.45rem 0;align-items:center}
+  .boton{font:inherit;font-weight:700;font-size:.85rem;padding:.35rem .75rem;border-radius:999px;border:1px solid #C4A15A;background:transparent;color:#E6E1D6;cursor:pointer}
+  .porque{margin-top:.5rem;padding:.6rem .7rem;background:#1a2218;border-radius:8px;color:#E6E1D6}
+  .dato{font-size:.95rem;color:var(--lv-suave)}
+  table.datos{width:100%;border-collapse:collapse;margin:.4rem 0 1rem;font-size:.98rem}
+  table.datos th,table.datos td{border:1px solid var(--lv-linea);padding:.35rem .5rem;text-align:left}
+  table.datos th{background:#161512;color:#C4A15A}
+  .glosa{display:block;font-size:.9rem;color:#9A9488;margin:.15rem 0 .7rem}
+  .formula{display:block;margin:.35rem 0 .15rem;padding:.45rem .7rem;background:#161512;border-left:3px solid #C4A15A;overflow-x:auto}
+  input.campo{background:#161512;color:#E6E1D6;border:1px solid #C4A15A;border-radius:6px;padding:.3rem .45rem;width:5.5rem}
+  .salida{font-family:ui-monospace,monospace;color:#C4A15A}
+</style>
+<script src="../leccion-shell-nav.js" defer></script>
+</head>
+<body class="leccion-shell">
+<div class="leccion-wrap">
+<nav class="leccion-barra" aria-label="Navegación de lección" data-actual="25" data-total="33">
+  <div class="leccion-progreso" role="status">
+    <span class="progreso-texto"><strong>25</strong> de <strong>33</strong></span>
+    <div class="progreso-pista" aria-hidden="true"><div class="progreso-lleno" style="width:78.12%"></div></div>
+  </div>
+  <div class="leccion-atajos">
+    <a class="atajo atajo-prev" href="leccion-24-composicion-inversa.html">← Anterior</a>
+    <a class="atajo atajo-next" href="leccion-26-algoritmos.html">Siguiente →</a>
+  </div>
+</nav>
+<header class="leccion-top">
+  <p class="leccion-marca">Les <span>vencimos</span></p>
+  <p class="leccion-meta-top">Matemáticas Aplicadas a las CCSS I · 1º Bachillerato</p>
+</header>
+<header class="bloque-titulo">
+  <span class="eyebrow">Lección 25 · C.4 · Aproximar</span>
+  <h1 class="titulo-leccion">Interpolación y <em>extrapolación</em></h1>
+  <p class="meta-leccion">1º Bach CCSS · CyL Decreto 40/2022 · C.4 Interpolación y extrapolación</p>
+</header>
+
+<aside class="bloque-curiosidad"><p class="etiqueta-bloque">Para situarte</p>
+<h2 class="titulo-curiosidad">Dos puntos determinan una recta; no determinan el fenómeno</h2>
+<p class="texto-curiosidad">Interpolar es estimar dentro del intervalo de los datos. Extrapolar es salir de ese intervalo. La cuenta puede ser exacta y el pronóstico, aun así, poco de fiar.</p></aside>
+<section class="bloque-cuerpo">
+<h2>Objetivos</h2>
+<ul>
+<li>Calcular la pendiente entre dos observaciones y escribir la recta.</li>
+<li>Distinguir un valor interpolado de uno extrapolado.</li>
+<li>Decir por qué la extrapolación se vuelve poco de fiar lejos de los datos o si el fenómeno no es lineal.</li>
+</ul>
+<h2>La recta de dos puntos</h2>
+<p class="formula">m = (y₂ − y₁) / (x₂ − x₁), &nbsp; y = y₁ + m(x − x₁).</p>
+<span class="glosa"> (x₁, y₁) y (x₂, y₂) son los dos datos; m es el aumento de y por cada unidad de x; x es el valor donde se quiere estimar; y es la estimación de la recta, no una medición nueva.</span>
+<div class="figura-svg"><svg viewBox="0 0 460 180" role="img">
+<title>Dos puntos de población unidos por un tramo continuo y una prolongación discontinua</title>
+<rect width="460" height="180" fill="#161512"/>
+<line x1="40" y1="150" x2="430" y2="40" stroke="#9A9488" stroke-dasharray="5 4"/>
+<line x1="120" y1="120" x2="250" y2="70" stroke="#C4A15A" stroke-width="3"/>
+<circle cx="120" cy="120" r="5" fill="#C4A15A"/>
+<circle cx="250" cy="70" r="5" fill="#C4A15A"/>
+<text x="90" y="140" fill="#E6E1D6" font-size="12">2018</text>
+<text x="230" y="60" fill="#E6E1D6" font-size="12">2022</text>
+<text x="300" y="30" fill="#9A9488" font-size="12">extrapolación</text>
+</svg></div>
+<h2>Ejemplo 1. Población municipal</h2>
+<p>En 2018 el padrón marca 12&nbsp;000 habitantes. En 2022 marca 13&nbsp;200. Se usa la recta solo como modelo local.</p>
+<ol class="pasos">
+<li>m = (13200 − 12000) / (2022 − 2018) = 1200 / 4 = 300 habitantes por año.</li>
+<li>P(t) = 12000 + 300(t − 2018).</li>
+<li>Interpolación en 2020: 12000 + 300·2 = 12600.</li>
+<li>Extrapolación en 2030: 12000 + 300·12 = 12000 + 3600 = 15600.</li>
+</ol>
+<p class="formula">P(t) = 12000 + 300(t − 2018).</p>
+<span class="glosa">t es el año; 12000 es la población de 2018; 300 es el ritmo medio anual entre los dos padrones; 2018 es el origen del modelo, no «el año cero».</span>
+<p>15600 es lo que diría la recta si el ritmo de 300 hab./año se mantuviera ocho años más allá del último dato. Eso es mucho pedir: una política de vivienda, una fábrica que cierra o un cambio de natalidad rompen la recta. Además solo hay dos observaciones: la recta pasa por ellas por construcción, pero no hay un tercer punto que la confirme. Si el crecimiento real fuera del 2&nbsp;% anual compuesto, la recta solo se parecería al fenómeno cerca de 2018–2022.</p>
+<h2>Ejemplo 2. Precio entre dos cantidades</h2>
+<p>A 2 km, un servicio cuesta 10 euros. A 6 km cuesta 18 euros.</p>
+<ol class="pasos">
+<li>m = (18 − 10) / (6 − 2) = 8/4 = 2 euros por km.</li>
+<li>C(x) = 10 + 2(x − 2) = 2x + 6.</li>
+<li>Interpolación a 4 km: 2·4 + 6 = 14, que cae entre 2 y 6.</li>
+<li>Extrapolación a 10 km: 2·10 + 6 = 26. Si existe una tarifa plana a partir de 8 km, 26 ya no describe el precio real.</li>
+</ol>
+<p class="formula">C(x) = 2x + 6.</p>
+<span class="glosa">x es la distancia en km; 2 es el euro extra por km entre los dos datos; 6 es el término independiente de esta recta (no es el precio en el kilómetro 0 medido: en x = 0 la fórmula da 6, fuera del tramo observado).</span>
+<h2>Lienzo</h2>
+<p>El tramo ámbar une 2018 y 2022. Lo discontinuo prolonga la misma pendiente. Pulsa para leer la estimación del modelo y si caes dentro o fuera.</p>
+<canvas id="lienzo25" class="lienzo" width="640" height="280" aria-label="Lienzo de interpolación lineal entre 2018 y 2022"></canvas>
+<p id="lectura25" class="dato">Pulsa el lienzo sobre la recta.</p>
+<h2>Ejercicios</h2>
+<article class="ej">
+<h3>1. Dentro del intervalo</h3>
+<p>Los puntos (0, 10) y (4, 18) están medidos. Estima y en x = 3.</p>
+<label for="e25a">Tu razonamiento</label>
+<textarea class="editor" id="e25a"></textarea>
+<details class="porque"><summary>Corrección</summary>
+<ol class="pasos"><li>m = (18 − 10)/(4 − 0) = 8/4 = 2.</li><li>y = 10 + 2x.</li><li>En x = 3: y = 16.</li><li>3 está entre 0 y 4: es interpolación.</li></ol>
+<p class="porque">16 cae entre 10 y 18, como corresponde a una recta creciente evaluada por dentro. No es una medición: es lo que la recta dice.</p>
+</details>
+</article>
+<article class="ej">
+<h3>2. Fuera</h3>
+<p>Con la misma recta y = 10 + 2x, estima x = 10 y di por qué es menos de fiar.</p>
+<label for="e25b">Tu razonamiento</label>
+<textarea class="editor" id="e25b"></textarea>
+<details class="porque"><summary>Corrección</summary>
+<ol class="pasos"><li>y = 10 + 20 = 30.</li><li>x = 10 está a la derecha de 4, el último dato: extrapolación.</li><li>Solo hay dos puntos, así que cualquier curvatura real es invisible.</li><li>Si el fenómeno se satura, 30 puede quedar alto.</li></ol>
+<p class="porque">La aritmética 10 + 2·10 = 30 no está en duda. Lo que no está garantizado es que la pendiente 2 siga vigente seis unidades más allá del intervalo [0, 4].</p>
+</details>
+</article>
+<article class="ej">
+<h3>3. Visitantes</h3>
+<p>En 2010 hubo 500 visitantes y en 2014 hubo 580. Estima 2012 y 2018.</p>
+<label for="e25c">Tu razonamiento</label>
+<textarea class="editor" id="e25c"></textarea>
+<details class="porque"><summary>Corrección</summary>
+<ol class="pasos"><li>m = (580 − 500)/(2014 − 2010) = 80/4 = 20 por año.</li><li>V(t) = 500 + 20(t − 2010).</li><li>2012: 500 + 40 = 540. Interpolación.</li><li>2018: 500 + 20·8 = 660. Extrapolación, cuatro años después del último dato.</li></ol>
+<p class="porque">540 usa un año que está a mitad de camino entre las dos mediciones. 660 supone que el ritmo de 20 visitantes al año sobrevivió desde 2014 hasta 2018 sin un dato que lo sostenga.</p>
+</details>
+</article>
+<article class="ej">
+<h3>4. Recta horizontal</h3>
+<p>Los datos son (1, 7) y (5, 7). Estima x = 3 y comenta x = 20.</p>
+<label for="e25d">Tu razonamiento</label>
+<textarea class="editor" id="e25d"></textarea>
+<details class="porque"><summary>Corrección</summary>
+<ol class="pasos"><li>m = (7 − 7)/(5 − 1) = 0.</li><li>y = 7 en todo el modelo.</li><li>En x = 3, interpolación, y = 7.</li><li>En x = 20 la recta también da 7, pero es extrapolación: una meseta entre 1 y 5 no prueba que el valor siga siendo 7 mucho después.</li></ol>
+<p class="porque">Pendiente cero no significa «dato seguro para siempre». Significa que los dos únicos puntos coinciden en ordenada. Fuera del intervalo [1, 5] no hay evidencia.</p>
+</details>
+</article>
+
+<h2>Cierre</h2>
+<p>Di siempre si el x pedido está entre los dos datos o fuera. La extrapolación es poco de fiar cuando te alejas del intervalo, cuando solo hay dos puntos, o cuando sabes que el fenómeno es porcentual, se satura o cambia de régimen.</p>
+</section>
+
+<footer class="leccion-pie"><strong>Les vencimos</strong> · L25 de 33 · Matemáticas Aplicadas a las CCSS I · sin publicar</footer>
+</div>
+<script type="application/json" data-maestro="guion">{"curso": "bach1-mates-ccs", "leccion": 25, "titulo": "Interpolación y extrapolación lineal", "url": "leccion-25-interpolacion.html", "musica": false}</script>
+
+<script>
+(function(){
+  var c = document.getElementById('lienzo25');
+  if(!c) return;
+  var ctx = c.getContext('2d');
+  function XP(year){ return 40 + (year-2016)*32; }
+  function YP(pop){ return 250 - (pop-11000)*0.028; }
+  function fondo(){
+    ctx.fillStyle='#161512'; ctx.fillRect(0,0,c.width,c.height);
+    ctx.strokeStyle='#3a3428'; ctx.lineWidth=1;
+    ctx.beginPath(); ctx.moveTo(30,YP(11000)); ctx.lineTo(610,YP(11000)); ctx.stroke();
+    ctx.strokeStyle='#E6E1D6'; ctx.setLineDash([6,4]); ctx.lineWidth=1.5;
+    ctx.beginPath(); ctx.moveTo(XP(2016), YP(12000+300*(2016-2018))); ctx.lineTo(XP(2032), YP(12000+300*(2032-2018))); ctx.stroke();
+    ctx.setLineDash([]); ctx.strokeStyle='#C4A15A'; ctx.lineWidth=3;
+    ctx.beginPath(); ctx.moveTo(XP(2018), YP(12000)); ctx.lineTo(XP(2022), YP(13200)); ctx.stroke();
+    [[2018,12000],[2022,13200]].forEach(function(p){
+      ctx.fillStyle='#C4A15A'; ctx.beginPath(); ctx.arc(XP(p[0]), YP(p[1]), 5, 0, 6.3); ctx.fill();
+    });
+    ctx.fillStyle='#E6E1D6'; ctx.font='13px sans-serif';
+    ctx.fillText('2018 · 12000', XP(2018)-10, YP(12000)-12);
+    ctx.fillText('2022 · 13200', XP(2022)-10, YP(13200)-12);
+    ctx.fillStyle='#9A9488'; ctx.fillText('Tramo continuo: interpolación. Discontinuo: extrapolación.', 40, 22);
+  }
+  c.addEventListener('pointerdown', function(ev){
+    var r = c.getBoundingClientRect();
+    var px = (ev.clientX-r.left)*c.width/r.width;
+    var year = 2016 + (px-40)/32;
+    var pop = 12000 + 300*(year-2018);
+    var zona = (year>=2018 && year<=2022) ? 'interpolación' : 'extrapolación';
+    var out = document.getElementById('lectura25');
+    if(out) out.textContent = 'Año ≈ '+year.toFixed(2)+' → modelo '+Math.round(pop)+' hab. Esto es '+zona+'.';
+    fondo();
+    ctx.fillStyle='#E6E1D6'; ctx.beginPath(); ctx.arc(px, YP(pop), 4, 0, 6.3); ctx.fill();
+  });
+  fondo();
+})();
+</script>
+
+<!-- saber: C.4 -->
+</body>
+</html>

@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="color-scheme" content="dark">
+<title>L20 · Lo que un pin puede mover y lo que no · les vencimos</title>
+<style>
+:root{--bg:#0E0E0C;--surf:#161512;--panel:#1C1A16;--ink:#E6E1D6;--mut:#9A9488;--acc:#C4A15A;--acc-ink:#1A160E;--danger:#C46A4A;--ok:#8F9A72;--line:#2A2720}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:400 17px/1.55 "Segoe UI",system-ui,sans-serif}
+h1,h2,h3{font-family:"Iowan Old Style",Palatino,Georgia,serif;font-weight:600;line-height:1.25}
+a{color:var(--acc)}
+.wrap{max-width:42rem;margin:0 auto;padding:1.25rem 1.1rem 3.5rem}
+header.top{border-bottom:1px solid var(--line);padding-bottom:.8rem;margin-bottom:1.2rem}
+.marca{font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;color:var(--mut);margin:0}
+h1{font-size:1.7rem;margin:.35rem 0 .2rem}
+.meta{color:var(--mut);margin:0 0 .8rem;font-size:.92rem}
+nav.pasos{display:flex;flex-wrap:wrap;gap:.5rem;margin:.4rem 0 0}
+nav.pasos a,button{min-height:44px;padding:.45rem .8rem;border:1px solid var(--line);border-radius:2px;background:var(--surf);color:var(--ink);font:inherit;text-decoration:none;cursor:pointer}
+button.acc{background:var(--acc);color:var(--acc-ink);border-color:var(--acc);font-weight:600}
+.maestro{background:var(--panel);border:1px solid var(--line);padding:1rem 1.05rem;margin:1.1rem 0}
+.maestro h2{margin:.1rem 0 .6rem;font-size:1.05rem;color:var(--acc)}
+pre{background:var(--surf);border:1px solid var(--line);padding:.9rem 1rem;overflow:auto;font-size:.88rem;line-height:1.45}
+.warn{border-left:3px solid var(--danger);padding:.2rem 0 .2rem .8rem;color:var(--ink)}
+.quiz{margin-top:1.2rem}
+figure{margin:1rem 0;background:#161512;border:1px solid var(--line);padding:.55rem .7rem}
+figure svg{width:100%;height:auto;display:block}
+figcaption{color:var(--mut);font-size:.9rem;margin:.45rem 0 0}
+.ejemplo{background:#161512;border:1px solid var(--line);padding:.8rem .95rem;margin:.7rem 0}
+.ejemplo h3{margin:.1rem 0 .4rem;font-size:1.05rem}
+
+.pregunta{background:var(--surf);border:1px solid var(--line);padding:.8rem 1rem;margin:.7rem 0}
+.respuesta{color:var(--ok);margin:.55rem 0 0}
+footer{margin-top:2.2rem;padding-top:.8rem;border-top:1px solid var(--line);color:var(--mut);font-size:.82rem}
+.pend{color:var(--mut)}
+ol.temario{padding-left:1.2rem}
+ol.temario li{margin:.28rem 0}
+
+.sim,.anota{margin:1rem 0;background:#161512;border:1px solid var(--line);padding:.8rem .9rem}
+.sim h2,.anota h2{margin:.1rem 0 .4rem;font-size:1.15rem}
+.sim-canvas{width:100%;height:auto;background:#1C1A16;border:1px solid var(--line);margin:.6rem 0;display:block}
+.sim-lab{display:flex;align-items:center;gap:.6rem;margin:.4rem 0;color:var(--ink)}
+.sim-range{flex:1;min-height:44px}
+.sim-out{min-width:3rem;color:var(--acc)}
+.sim-dedo{margin-top:.4rem}
+textarea.nota-montaje{width:100%;min-height:8rem;background:#1C1A16;color:var(--ink);border:1px solid var(--line);padding:.7rem;font:inherit;line-height:1.45}
+
+</style>
+</head>
+<body>
+<article class="wrap" id="ens-corriente-de-pin" data-ens="ens-corriente-de-pin">
+<header class="top">
+<p class="marca">les vencimos · offline</p>
+<h1>L20. Lo que un pin puede mover y lo que no</h1>
+<p class="meta">Actuadores (54–70%)</p>
+<nav class="pasos"><a href="../arduino-ensenanza.html">Al curso</a><a href="leccion-19.html">Anterior</a><a href="leccion-21.html">Siguiente</a></nav>
+</header>
+<section class="maestro" id="maestro">
+<h2>Maestro</h2>
+<p id="maestro-texto">Un pin del Uno puede avisar. No puede empujar un motor, ni una tira de luces, ni la bobina de un relé. El tope prudente son unos 20 miliamperios. Pasarse no «va un poco justo»: calienta el chip por dentro y un día ese pin muere, a veces la placa entera. La corriente gorda sale de la alimentación, no de la patilla que programa.</p>
+<button type="button" class="acc" id="escuchar">Escuchar</button>
+</section>
+<section class="lectura">
+<p>Lo que sí puede el pin: encender un LED con su resistencia, dar una señal a un transistor, decirle a un servo que se mueva si el servo come de otra fuente, marcar el ritmo de un zumbador pequeño. Lo que no puede: ser la fuente de un motor, aunque sea de juguete; alimentar varios LED en paralelo «porque son chicos»; disparar un relé conectado del pin a masa sin transistor. El pin pone 5 voltios o los quita. Los amperios, si hacen falta, vienen del pin 5V, de VIN o de una pila, a través de una pieza que sepa conmutar.</p>
+<p>Esa pieza, más adelante, será un transistor para cargas pequeñas de corriente continua, o el circuito de un módulo ya hecho. El servo, cuando llegue, llevará masa común con la placa y, si hay varios, 5 voltios aparte. Hoy no se monta. Hoy se reconoce el dibujo peligroso: un motor con una pata en el pin 9 y la otra en GND. Ese dibujo sobra.</p>
+<p>Síntomas de haberte pasado: la placa se reinicia al arrancar el motor, el USB se cae, un olor dulzón, un pin que ya no enciende ni el LED de prueba. Se desconecta. No se insiste «un poco más fuerte».</p>
+<p class="warn">Relé que conmuta la red de 230 voltios: fuera de este curso, aunque el módulo parezca inocente por el lado de los 5 voltios. Un error al otro lado del relé no lo perdona la placa. No se practica aquí.</p>
+</section>
+<h2>Montaje</h2>
+<figure><svg viewBox="0 0 640 180" aria-label="Corriente de un pin"><rect x="16" y="30" width="250" height="120" rx="6" fill="#1C1A16" stroke="#8F9A72"/><text x="141.0" y="48" text-anchor="middle" fill="#E6E1D6" font-size="13">Un pin aguanta</text><text x="26" y="68" fill="#9A9488" font-size="11">unos 20 mA</text><text x="26" y="84" fill="#9A9488" font-size="11">un LED con resistencia</text><text x="26" y="100" fill="#9A9488" font-size="11">no un motor</text><rect x="320" y="30" width="290" height="120" rx="6" fill="#1C1A16" stroke="#C46A4A"/><text x="465.0" y="48" text-anchor="middle" fill="#E6E1D6" font-size="13">Si pides más</text><text x="330" y="68" fill="#9A9488" font-size="11">el pin se calienta</text><text x="330" y="84" fill="#9A9488" font-size="11">la placa se reinicia</text><text x="330" y="100" fill="#9A9488" font-size="11">o el pin muere</text></svg><figcaption>Un pin puede encender un LED. No puede empujar un motor, un servo ni una bobina.</figcaption></figure>
+<h2>Pines de esta lección</h2>
+<figure><svg viewBox="0 0 340 118" aria-label="Pines de la lección"><rect x="6" y="16" width="328" height="86" rx="8" fill="#1C1A16" stroke="#C4A15A"/><text x="16" y="14" fill="#9A9488" font-size="11">Uno R3 · 5 V · mira la serigrafía, no la memoria</text><rect x="16" y="32" width="68" height="32" rx="4" fill="#161512" stroke="#C4A15A"/><text x="50" y="53" text-anchor="middle" fill="#E6E1D6" font-size="13">20 mA</text><text x="50" y="84" text-anchor="middle" fill="#9A9488" font-size="10">techo</text><rect x="94" y="32" width="68" height="32" rx="4" fill="#161512" stroke="#9A9488"/><text x="128" y="53" text-anchor="middle" fill="#E6E1D6" font-size="13">220</text><text x="128" y="84" text-anchor="middle" fill="#9A9488" font-size="10">con el LED</text><rect x="172" y="32" width="68" height="32" rx="4" fill="#161512" stroke="#9A9488"/><text x="206" y="53" text-anchor="middle" fill="#E6E1D6" font-size="13">5 V</text><text x="206" y="84" text-anchor="middle" fill="#9A9488" font-size="10">no es un pin</text><rect x="250" y="32" width="68" height="32" rx="4" fill="#161512" stroke="#9A9488"/><text x="284" y="53" text-anchor="middle" fill="#E6E1D6" font-size="13">GND</text><text x="284" y="84" text-anchor="middle" fill="#9A9488" font-size="10">el retorno</text></svg><figcaption>20 mA es la frontera de la lección. Por debajo, con resistencia, se trabaja. Por encima, se cambia de circuito.</figcaption></figure>
+<h2>Por qué</h2>
+<p>El pin de salida del ATmega328P se queda en torno a 20 mA si quieres que viva. La hoja del fabricante habla de límites absolutos más altos que no son un permiso de trabajo. En clase, 20 mA es el techo. El LED con 220 ohmios se queda cerca de 14 mA. Dos LED en paralelo en el mismo pin, sin resistencia cada uno, se pasan. Cada LED lleva la suya, y aun así suma.</p><p>La corriente sale del pin y tiene que volver por GND. Si el retorno no existe, no hay corriente y no hay luz. Si el retorno es un cable directo sin resistencia, hay corriente de más y hay daño. La resistencia no está para que el LED se vea decente: está para que el pin siga siendo un pin mañana.</p><p>Un servo quieto ya puede pasar de ese techo al arrancar. Un motor de juguete, también. La bobina de un relé, también, y al soltarla genera un pico. El pin no es una fuente de alimentación. El 5 V de la placa alimenta poca cosa, y varios servos ni eso: se van a una fuente de 5 V externa con la masa unida a la de la placa.</p><p>Repartir no es infinito. Aunque cada pin aguante su LED, la placa entera tiene un límite de corriente en el grupo de pines y en el USB. Ocho LED a plena luz, más un sensor, más el chip, pueden resets del USB. Si la placa se reinicia al encender luces, no es un bug místico: es hambre o un pico.</p><h2>Práctica</h2>
+<ol><li>Recalcula (5 menos 2) entre 220. Anota los miliamperios. Tienen que quedar por debajo de 20.</li><li>Mira tu LED: una resistencia, no un cable puente en su lugar.</li><li>Di tres cargas prohibidas en un pin: motor, servo, bobina.</li><li>Si tienes un motor a mano, no lo conectes. Escríbelo en la lista de espera de la lección del transistor.</li><li>Cuenta cuántos LED de 14 mA caben en un solo pin sin pasar de 20. Cabe uno.</li><li>Revisa que todos los retornos van a GND de la placa, no a GND de otra fuente suelta.</li><li>Deja el circuito del LED legal montado. Es el contraejemplo bueno.</li></ol><section class="anota"><h2>Anota el montaje</h2><p>Escribe qué cable va a qué pin, o qué has entendido del paso. Se guarda en este aparato.</p><textarea class="nota-montaje" rows="6" placeholder="Pin, color del cable, a qué agujero."></textarea></section><h2>Ejemplos resueltos</h2>
+<div class="ejemplo"><h3>Dos LED y una sola resistencia</h3><p>Se ponen dos LED en paralelo detrás de una sola 220. Se reparten mal: uno se lleva casi todo, brilla de más, y el pin puede pasar de 20 mA. Además, si uno se quita, el otro se queda con toda la corriente.</p><p>Cada LED con su 220, y en pines distintos si los quieres independientes. Un pin, un LED, en este curso.</p></div><div class="ejemplo"><h3>El servo en el pin 9 y en el 5 V a la vez, mal entendido</h3><p>Alguien alimenta el servo desde el mismo pin que la señal, puenteando el rojo del servo al pin 9. El pin da la orden y además la corriente del motor. La placa se reinicia al moverse.</p><p>La señal es un hilo fino. La alimentación del servo es 5 V de la placa, solo para un servo pequeño de prueba, o una fuente externa si hay varios o si la placa se reinicia. La masa, común.</p></div><h2>Soldadura y seguridad</h2>
+<div class="soldar"><p>No se suelda un puente para que un pin aguante más. El estaño no sube el límite de 20 mA. Si una carga pide más, el circuito cambia: transistor o alimentación aparte, que es una lección posterior.</p><p>Si al probar notaste calor en el chip, corta el USB antes de seguir tocando hilos. Se deja enfriar. Luego se busca el cable sin resistencia, que es la causa habitual.</p></div><h2>En la mesa</h2>
+<p>Mira el circuito que tienes montado y señala el único camino por donde puede salir corriente de un pin: el LED y su 220. Si hay otro camino, un cable puente, un motor de una bolsa, quítalo antes de enchufar. Luego haz la cuenta en el papel otra vez, en miliamperios, y escribe el resultado al lado del LED. Tiene que ser un número menor que veinte. Si no te sale, no enchufes hasta que te salga.</p>
+<p>Toca el chip después de un minuto de parpadeo. Frío. Ese es el control, más fiable que una opinión sobre el brillo. Un brillo fuerte no es un éxito si el chip se templa. Se apaga, se busca el atajo, se repite el minuto.</p>
+<p>Si tienes un servo en la mesa de la próxima lección, déjalo en la bolsa durante esta. La tentación de probarlo ya es la forma en que se reinicia la placa y se culpa al USB. El pin de señal y la alimentación se separan en su lección, con tiempo, no en un hueco de esta.</p>
+
+<h2>Ejercicio</h2>
+<p>Mira un esquema cualquiera que tengas a mano, de internet o de una caja. Marca si el motor, el servo o el relé comen del pin o de la alimentación. Si comen del pin, el esquema no se construye.</p>
+<section class="quiz">
+<h2>Autoevaluación</h2>
+<div class="pregunta"><p><strong>1.</strong> ¿Cuánta corriente es un tope prudente por pin en el Uno?</p><button type="button" class="ver">ver respuesta</button><p class="respuesta" hidden>Unos 20 miliamperios.</p></div><div class="pregunta"><p><strong>2.</strong> ¿De dónde debe salir la corriente de un motor?</p><button type="button" class="ver">ver respuesta</button><p class="respuesta" hidden>De la alimentación, a través de un transistor o de un módulo, no del pin de señal.</p></div><div class="pregunta"><p><strong>3.</strong> ¿Un relé de red entra en este curso?</p><button type="button" class="ver">ver respuesta</button><p class="respuesta" hidden>No. 230 voltios quedan fuera.</p></div>
+</section>
+<footer>les vencimos · Arduino Enseñanza · offline</footer>
+</article>
+<script>
+document.querySelectorAll("button.ver").forEach(function(b){
+  b.addEventListener("click", function(){
+    var r = b.parentElement.querySelector(".respuesta");
+    if(!r) return;
+    r.hidden = !r.hidden;
+    b.textContent = r.hidden ? "ver respuesta" : "ocultar respuesta";
+  });
+});
+var btn = document.getElementById("escuchar");
+if(btn){
+  btn.addEventListener("click", function(){
+    var el = document.getElementById("maestro-texto");
+    var texto = el ? el.textContent : "";
+    if(window.LesVencimosMaestro && typeof window.LesVencimosMaestro.decir === "function"){
+      window.LesVencimosMaestro.decir(texto);
+      return;
+    }
+    if(!window.speechSynthesis || typeof window.SpeechSynthesisUtterance !== "function") return;
+    window.speechSynthesis.cancel();
+    var u = new SpeechSynthesisUtterance(texto);
+    u.lang = "es-ES";
+    u.rate = 0.95;
+    window.speechSynthesis.speak(u);
+  });
+}
+
+document.querySelectorAll("textarea.nota-montaje").forEach(function(ta){
+  var art = document.querySelector("[data-ens]");
+  var key = "lv-ens-nota-" + (art ? art.getAttribute("data-ens") : "leccion");
+  try {
+    var prev = localStorage.getItem(key);
+    if(prev) ta.value = prev;
+    ta.addEventListener("input", function(){ localStorage.setItem(key, ta.value); });
+  } catch (e) {}
+});
+var sim = document.querySelector("section.sim");
+if(sim){
+  var canvas = sim.querySelector("canvas.sim-canvas");
+  var ctx = canvas.getContext("2d");
+  var kind = sim.getAttribute("data-sim");
+  var da = sim.getAttribute("data-a") || "";
+  var db = sim.getAttribute("data-b") || "";
+  var toggle = sim.querySelector(".sim-toggle");
+  var range = sim.querySelector(".sim-range");
+  var out = sim.querySelector(".sim-out");
+  var dedo = sim.querySelector(".sim-dedo");
+  var vivo = true;
+  var pulsado = false;
+  var permiso = true;
+  var ledOn = false;
+  var ultimoFlanco = 0;
+  var t0 = Date.now();
+  function num(el, fallo){ return el ? parseInt(el.value, 10) : fallo; }
+  if(dedo && kind !== "noche"){
+    dedo.addEventListener("pointerdown", function(ev){
+      pulsado = true;
+      if(kind === "flanco"){
+        var ahora = Date.now();
+        if(ahora - ultimoFlanco > 30){
+          ledOn = !ledOn;
+          ultimoFlanco = ahora;
+        }
+      }
+      ev.preventDefault();
+    });
+    window.addEventListener("pointerup", function(){ pulsado = false; });
+  }
+  if(dedo && kind === "noche"){
+    dedo.addEventListener("click", function(){
+      permiso = !permiso;
+      dedo.setAttribute("aria-pressed", permiso ? "true" : "false");
+      dedo.textContent = permiso ? "Permiso dado" : "Sin permiso";
+    });
+  }
+  if(toggle){
+    toggle.addEventListener("click", function(){
+      vivo = !vivo;
+      toggle.setAttribute("aria-pressed", vivo ? "true" : "false");
+      toggle.textContent = vivo ? "Parar simulación" : "Encender simulación";
+    });
+  }
+  function circulo(x, y, r, on, nivel){
+    ctx.beginPath();
+    ctx.arc(x, y, r, 0, Math.PI * 2);
+    if(on){
+      var a = nivel == null ? 1 : nivel;
+      ctx.fillStyle = "rgba(196,161,90," + (0.25 + 0.75 * a) + ")";
+      ctx.shadowColor = "#C4A15A";
+      ctx.shadowBlur = 16 * a;
+    } else {
+      ctx.fillStyle = "#2A2720";
+      ctx.shadowBlur = 0;
+    }
+    ctx.fill();
+    ctx.shadowBlur = 0;
+    ctx.lineWidth = 2;
+    ctx.strokeStyle = on ? "#C4A15A" : "#9A9488";
+    ctx.stroke();
+  }
+  function caja(x, y, w, h, titulo){
+    ctx.fillStyle = "#161512";
+    ctx.strokeStyle = "#C4A15A";
+    ctx.lineWidth = 2;
+    ctx.fillRect(x, y, w, h);
+    ctx.strokeRect(x, y, w, h);
+    ctx.fillStyle = "#E6E1D6";
+    ctx.font = "14px sans-serif";
+    ctx.fillText(titulo, x + 10, y + 22);
+  }
+  function texto(x, y, s, col){
+    ctx.fillStyle = col || "#E6E1D6";
+    ctx.font = "13px sans-serif";
+    ctx.fillText(s, x, y);
+  }
+  function frame(){
+    var ahora = Date.now();
+    var lectura = num(range, 0);
+    var enciende = false;
+    var nivel = 1;
+    var etiqueta = "";
+    if(kind === "blink"){
+      var hi = parseInt(da, 10) || 500;
+      var lo = parseInt(db, 10) || 500;
+      var ciclo = hi + lo;
+      var fase = vivo ? ((ahora - t0) % ciclo) : 0;
+      enciende = vivo && fase < hi;
+      etiqueta = enciende ? "HIGH" : "LOW";
+    } else if(kind === "hold"){
+      enciende = vivo && pulsado;
+      etiqueta = pulsado ? "LOW, pulsado" : "HIGH, suelto";
+    } else if(kind === "nivel"){
+      enciende = vivo && pulsado;
+      etiqueta = pulsado ? "lectura LOW" : "lectura HIGH";
+    } else if(kind === "flanco"){
+      enciende = vivo && ledOn;
+      etiqueta = enciende ? "LED encendido" : "LED apagado";
+    } else if(kind === "umbral"){
+      var umbral = parseInt(da, 10);
+      enciende = vivo && (db === "lt" ? lectura < umbral && lectura > 0 : lectura > umbral);
+      if(sim.getAttribute("data-sim") === "umbral" && da === "20"){
+        enciende = vivo && lectura > 0 && lectura < umbral;
+      }
+      etiqueta = String(lectura);
+      nivel = 1;
+    } else if(kind === "pwm"){
+      nivel = vivo ? lectura / 255 : 0;
+      enciende = vivo && lectura > 0;
+      etiqueta = String(lectura);
+    } else if(kind === "servo"){
+      var span = 140;
+      var pos = vivo ? ((ahora - t0) % 2800) / 2800 : 0.5;
+      var tri = pos < 0.5 ? pos * 2 : (1 - pos) * 2;
+      var grados = Math.round(20 + tri * span);
+      if(range) range.value = String(grados);
+      lectura = grados;
+      enciende = vivo;
+      etiqueta = grados + " grados";
+    } else if(kind === "buzz"){
+      var fb = vivo ? ((ahora - t0) % 1000) : 500;
+      etiqueta = fb < 300 ? "440" : (fb < 600 ? "880" : "silencio");
+      enciende = vivo && fb < 600;
+    } else if(kind === "carga"){
+      var fc = vivo ? ((ahora - t0) % 4000) : 2000;
+      enciende = vivo && fc < 2000;
+      etiqueta = enciende ? "pin en HIGH" : "pin en LOW";
+    } else if(kind === "semi"){
+      var fs = vivo ? ((ahora - t0) % 3500) : 0;
+      etiqueta = fs < 1500 ? "rojo" : (fs < 2000 ? "ambar" : "verde");
+      enciende = vivo;
+    } else if(kind === "alarma"){
+      enciende = vivo && lectura > 0 && lectura < 20;
+      etiqueta = lectura + " cm";
+    } else if(kind === "noche"){
+      var noche = lectura < 400 && permiso;
+      enciende = vivo && noche;
+      nivel = enciende ? 180/255 : 0;
+      etiqueta = (permiso ? "con permiso" : "sin permiso") + " · " + lectura;
+    }
+    if(out) out.textContent = etiqueta;
+    ctx.clearRect(0, 0, 320, 160);
+    ctx.fillStyle = "#1C1A16";
+    ctx.fillRect(0, 0, 320, 160);
+    caja(12, 28, 90, 100, "Uno");
+    if(kind === "semi"){
+      var fs2 = vivo ? ((ahora - t0) % 3500) : 0;
+      circulo(160, 48, 14, vivo && fs2 < 1500, 1);
+      circulo(210, 48, 14, vivo && fs2 >= 1500 && fs2 < 2000, 1);
+      circulo(260, 48, 14, vivo && fs2 >= 2000, 1);
+      texto(150, 78, "10 rojo");
+      texto(198, 78, "11");
+      texto(248, 78, "12 verde");
+      texto(16, 150, vivo ? "ciclo en marcha" : "simulación parada", "#9A9488");
+    } else if(kind === "servo"){
+      var rad = (180 - lectura) * Math.PI / 180;
+      ctx.strokeStyle = "#C4A15A";
+      ctx.lineWidth = 4;
+      ctx.beginPath();
+      ctx.moveTo(200, 110);
+      ctx.lineTo(200 + Math.cos(rad) * 70, 110 - Math.sin(rad) * 50);
+      ctx.stroke();
+      circulo(200, 110, 8, true, 1);
+      texto(120, 150, etiqueta);
+    } else if(kind === "buzz" || kind === "alarma"){
+      circulo(150, 80, 18, kind === "alarma" ? enciende : false, 1);
+      texto(176, 76, kind === "alarma" ? "LED 13" : "");
+      ctx.beginPath();
+      ctx.arc(250, 80, 22, 0, Math.PI * 2);
+      ctx.strokeStyle = enciende ? "#C4A15A" : "#9A9488";
+      ctx.lineWidth = 3;
+      ctx.stroke();
+      if(enciende){
+        ctx.beginPath();
+        ctx.arc(250, 80, 32, 0, Math.PI * 2);
+        ctx.stroke();
+      }
+      texto(120, 140, etiqueta);
+    } else if(kind === "carga"){
+      circulo(170, 70, 16, enciende, 1);
+      texto(196, 66, "orden");
+      ctx.strokeStyle = enciende ? "#8F9A72" : "#9A9488";
+      ctx.strokeRect(230, 48, 70, 44);
+      texto(242, 74, enciende ? "carga" : "quieta", enciende ? "#8F9A72" : "#9A9488");
+      texto(16, 150, etiqueta, "#9A9488");
+    } else {
+      circulo(200, 78, 18, enciende, nivel);
+      texto(230, 74, "LED");
+      texto(16, 150, etiqueta, "#9A9488");
+    }
+    if(!vivo){
+      texto(230, 150, "parada", "#9A9488");
+    }
+    requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+}
+
+</script>
+</body>
+</html>

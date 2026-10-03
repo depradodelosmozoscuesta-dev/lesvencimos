@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Laboratorio · Diacríticos, puntuación y lectura · Griego I</title>
+<style>
+  :root { --fondo:#FAF7F0; --tinta:#2A2620; --carbon:#0E0E0C; --ambar:#C4A15A; }
+  * { box-sizing: border-box; }
+  body { margin:0; background:var(--fondo); color:var(--tinta); font-family: Palatino, "Palatino Linotype", "Times New Roman", serif; line-height:1.45; }
+  [lang="grc"] { font-family: Palatino, "Palatino Linotype", "Times New Roman", serif; }
+  header, main { padding: 1rem 1.25rem; max-width: 42rem; margin: 0 auto; }
+  header { background: var(--carbon); color: var(--fondo); border-bottom: 4px solid var(--ambar); }
+  header p { margin: 0.2rem 0; }
+  h1 { font-size: 1.4rem; margin: 0 0 0.3rem; }
+  h2 { font-size: 1.15rem; }
+  .stage { background: var(--carbon); min-height: 11rem; display:flex; align-items:center; justify-content:center; margin: 0.6rem 0 1rem; }
+  .stage svg { width: 100%; height: auto; display:block; }
+  button.op, button.navb { display:block; width:100%; text-align:left; margin: 0.4rem 0; padding: 0.7rem 0.9rem; background: var(--fondo); color: var(--tinta); border: 1px solid var(--carbon); font: inherit; cursor: pointer; }
+  button.navb { width: auto; background: var(--carbon); color: var(--fondo); border-color: var(--ambar); }
+  button.op.bien { background: var(--carbon); color: var(--fondo); border-color: var(--ambar); }
+  button.op.mal { text-decoration: line-through; }
+  button.op:disabled { cursor: default; }
+  #feedback { min-height: 3.2rem; font-weight: 600; }
+  #glosario { border-top: 2px solid var(--ambar); margin-top: 2rem; }
+  dt { font-weight: 700; margin-top: 0.6rem; }
+  .marca-curso { letter-spacing: 0.04em; color: var(--ambar); font-size: 0.85rem; }
+</style>
+</head>
+<body>
+<header>
+  <p class="marca-curso">Les vencimos · 1º Bachillerato · Griego I</p>
+  <h1>Laboratorio. Diacríticos, puntuación y lectura</h1>
+  <p>Seis rondas y un mini-check de cuatro. Reconoces signos; no inventas acentos.</p>
+</header>
+<main>
+  <p id="etapa">Ronda 1 de 6</p>
+  <div class="stage" id="stage"></div>
+  <h2 id="pregunta"></h2>
+  <div id="opciones"></div>
+  <p id="feedback" role="status"></p>
+  <button type="button" class="navb" id="siguiente" hidden>Siguiente</button>
+  <section id="glosario">
+    <h2>Glosario de la lección</h2>
+    <dl>
+      <dt>Espíritu suave</dt><dd>Sin h. En diptongo inicial, va en la segunda vocal.</dd>
+      <dt>Espíritu áspero</dt><dd>Con h. También <span lang="grc">ῥ</span> cuando la rho es inicial: es la letra, no una palabra de la lista.</dd>
+      <dt>Agudo</dt><dd>Una de las tres últimas sílabas.</dd>
+      <dt>Circunflejo</dt><dd>Una de las dos últimas, solo en vocal larga o diptongo.</dd>
+      <dt>Grave</dt><dd>Sustituye al agudo final si sigue otra palabra acentuada.</dd>
+      <dt>Punto</dt><dd>Cierra.</dd>
+      <dt>Punto alto</dt><dd><span lang="grc">·</span> Pausa. No es pregunta.</dd>
+      <dt>Interrogación</dt><dd><span lang="grc">;</span> Al final. No se usa ¿?.</dd>
+    </dl>
+  </section>
+</main>
+<script>
+(function () {
+  var rondas = [
+    {
+      tipo: "aspero", titulo: "Espíritu áspero sobre la ómicron de ὁδός",
+      pregunta: "En <span lang=\"grc\">ὁδός</span>, el espíritu es…",
+      opciones: [
+        { t: "Áspero: en la transcripción hay h (hodós).", bien: true, why: "Cumple esta regla: la ómicron inicial lleva áspero; la delta no lleva espíritu. Con «Suave: no se escribe h con punto» te confundirías, y esa no vale porque suave es el de ἀγαθός; en ὁδός el signo es el áspero." },
+        { t: "Suave: no se escribe h.", bien: false, why: "Falla esta regla: suave es el de ἀγαθός; en ὁδός el signo es el áspero. La opción que sí cumple en esta pregunta es «Áspero: en la transcripción hay h (hodós) con punto», porque la ómicron inicial lleva áspero; la delta no lleva espíritu." },
+        { t: "No lleva, porque hay una delta.", bien: false, why: "Falla esta regla: la delta no anula el espíritu; la palabra empieza por vocal, y esa vocal lo lleva. La opción que sí cumple en esta pregunta es «Áspero: en la transcripción hay h (hodós) con punto», porque la ómicron inicial lleva áspero; la delta no lleva espíritu." },
+        { t: "Áspero, pero escrito sobre la delta.", bien: false, why: "Falla esta regla: el espíritu va en la vocal inicial, no en la consonante siguiente. La opción que sí cumple en esta pregunta es «Áspero: en la transcripción hay h (hodós) con punto», porque la ómicron inicial lleva áspero; la delta no lleva espíritu." }
+      ]
+    },
+    {
+      tipo: "circun", titulo: "Circunflejo sobre la omega larga de δῶρον",
+      pregunta: "¿Por qué <span lang=\"grc\">δῶρον</span> puede llevar circunflejo?",
+      opciones: [
+        { t: "Porque está en la penúltima y la vocal es omega, larga.", bien: true, why: "Cumple esta regla: el circunflejo cabe en una de las dos últimas si hay vocal larga o diptongo; omega es larga. Con «Porque toda penúltima lleva circunflejo con punto» te confundirías, y esa no vale porque λόγος también acentúa la penúltima y lleva agudo: su vocal es ómicron, breve." },
+        { t: "Porque toda penúltima lleva circunflejo.", bien: false, why: "Falla esta regla: λόγος también acentúa la penúltima y lleva agudo: su vocal es ómicron, breve. La opción que sí cumple en esta pregunta es «Porque está en la penúltima y la vocal es omega, larga con punto», porque el circunflejo cabe en una de las dos últimas si hay vocal larga o diptongo; omega es larga." },
+        { t: "Porque el circunflejo puede ir en la tercera sílaba desde el final.", bien: false, why: "Falla esta regla: el circunflejo no pasa de las dos últimas; el que llega a la tercera es el agudo, como en ἄνθρωπος. La opción que sí cumple en esta pregunta es «Porque está en la penúltima y la vocal es omega, larga con punto», porque el circunflejo cabe en una de las dos últimas si hay vocal larga o diptongo; omega es larga." },
+        { t: "Porque omega es breve.", bien: false, why: "Falla esta regla: omega es siempre larga; la breve es ómicron; por eso el circunflejo sí cabe en δῶρον. La opción que sí cumple en esta pregunta es «Porque está en la penúltima y la vocal es omega, larga con punto», porque el circunflejo cabe en una de las dos últimas si hay vocal larga o diptongo; omega es larga." }
+      ]
+    },
+    {
+      tipo: "breve", titulo: "Ómicron breve: el circunflejo no cabe en λόγος",
+      pregunta: "¿Puede el circunflejo ir sobre la <span lang=\"grc\">ο</span> de <span lang=\"grc\">λόγος</span>?",
+      opciones: [
+        { t: "No. Ómicron es siempre breve.", bien: true, why: "Cumple esta regla: el circunflejo solo va en vocal larga o en diptongo; λόγος lleva agudo; λο͂γος no es una palabra del curso. Con «Sí, porque el acento está en la penúltima con punto» te confundirías, y esa no vale porque la penúltima permite circunflejo solo si la vocal es larga o es diptongo; ómicron no lo es." },
+        { t: "Sí, porque el acento está en la penúltima.", bien: false, why: "Falla esta regla: la penúltima permite circunflejo solo si la vocal es larga o es diptongo; ómicron no lo es. La opción que sí cumple en esta pregunta es «No Ómicron es siempre breve con punto», porque el circunflejo solo va en vocal larga o en diptongo; λόγος lleva agudo; λο͂γος no es una palabra del curso." },
+        { t: "Sí, porque λόγος tiene solo dos sílabas.", bien: false, why: "Falla esta regla: el número de sílabas no convierte una breve en larga. La opción que sí cumple en esta pregunta es «No Ómicron es siempre breve con punto», porque el circunflejo solo va en vocal larga o en diptongo; λόγος lleva agudo; λο͂γος no es una palabra del curso." },
+        { t: "Sí, si la palabra va al final de la frase.", bien: false, why: "Falla esta regla: el final de frase no cambia la cantidad de la ómicron; el grave, además, sustituye a un agudo, no crea un circunflejo. La opción que sí cumple en esta pregunta es «No Ómicron es siempre breve con punto», porque el circunflejo solo va en vocal larga o en diptongo; λόγος lleva agudo; λο͂γος no es una palabra del curso." }
+      ]
+    },
+    {
+      tipo: "grave", titulo: "Agudo final de θεός convertido en grave ante ἀγαθός",
+      pregunta: "En la frase de clase <span lang=\"grc\">θεὸς ἀγαθός</span>, ¿por qué <span lang=\"grc\">θεὸς</span> no lleva agudo?",
+      opciones: [
+        { t: "Porque el agudo de la última sílaba pasa a grave si sigue otra palabra acentuada.", bien: true, why: "Cumple esta regla: ἀγαθός lleva acento; sola, la palabra sigue siendo θεός, con agudo. Con «Porque el circunflejo de la penúltima se ha caído con punto» te confundirías, y esa no vale porque θεός no tiene circunflejo ni acento en la penúltima; tiene agudo final, y ese es el que el grave sustituye." },
+        { t: "Porque θεός lleva siempre grave.", bien: false, why: "Falla esta regla: sola se escribe θεός, con agudo; el grave no es el acento fijo de esa palabra. La opción que sí cumple en esta pregunta es «Porque el agudo de la última sílaba pasa a grave si sigue otra palabra acentuada con punto», porque ἀγαθός lleva acento; sola, la palabra sigue siendo θεός, con agudo." },
+        { t: "Porque ἀγαθός no tiene acento.", bien: false, why: "Falla esta regla: ἀγαθός sí lleva agudo en la última sílaba; precisamente por eso la palabra anterior cambia. La opción que sí cumple en esta pregunta es «Porque el agudo de la última sílaba pasa a grave si sigue otra palabra acentuada con punto», porque ἀγαθός lleva acento; sola, la palabra sigue siendo θεός, con agudo." },
+        { t: "Porque el circunflejo de la penúltima se ha caído.", bien: false, why: "Falla esta regla: θεός no tiene circunflejo ni acento en la penúltima; tiene agudo final, y ese es el que el grave sustituye. La opción que sí cumple en esta pregunta es «Porque el agudo de la última sílaba pasa a grave si sigue otra palabra acentuada con punto», porque ἀγαθός lleva acento; sola, la palabra sigue siendo θεός, con agudo." }
+      ]
+    },
+    {
+      tipo: "pregunta", titulo: "Interrogación griega al final de ὁ φίλος",
+      pregunta: "¿Cuál es la interrogación griega de la frase de clase «el amigo»?",
+      opciones: [
+        { t: "<span lang=\"grc\">ὁ φίλος;</span>", bien: true, why: "Cumple esta regla: la pregunta va solo al final y usa el signo griego, parecido a un punto y coma. Con «ὁ φίλος·» te confundirías, y esa no vale porque ese es el punto alto: una pausa, no una pregunta." },
+        { t: "<span lang=\"grc\">¿ὁ φίλος?</span>", bien: false, why: "Falla esta regla: el par español de interrogación es la interrogación española; en griego no se abre la pregunta. La opción que sí cumple en esta pregunta es «ὁ φίλος;», porque la pregunta va solo al final y usa el signo griego, parecido a un punto y coma." },
+        { t: "<span lang=\"grc\">ὁ φίλος·</span>", bien: false, why: "Falla esta regla: ese es el punto alto: una pausa, no una pregunta. La opción que sí cumple en esta pregunta es «ὁ φίλος;», porque la pregunta va solo al final y usa el signo griego, parecido a un punto y coma." },
+        { t: "<span lang=\"grc\">ὁ φίλος.</span>", bien: false, why: "Falla esta regla: el punto cierra una frase, no pregunta. La opción que sí cumple en esta pregunta es «ὁ φίλος;», porque la pregunta va solo al final y usa el signo griego, parecido a un punto y coma." }
+      ]
+    },
+    {
+      tipo: "diptongo", titulo: "Espíritu suave en la segunda vocal de αὐτός",
+      pregunta: "En <span lang=\"grc\">αὐτός</span>, el espíritu suave está…",
+      opciones: [
+        { t: "En la ípsilon, segunda vocal del diptongo.", bien: true, why: "Cumple esta regla: en diptongo inicial el signo va en la segunda letra; aquí es suave: sin h; el agudo de la palabra está en otra sílaba, la de ό. Con «En la alfa, primera vocal con punto» te confundirías, y esa no vale porque la alfa abre el diptongo, pero el espíritu no se escribe ahí: se escribe en la ípsilon." },
+        { t: "En la alfa, primera vocal.", bien: false, why: "Falla esta regla: la alfa abre el diptongo, pero el espíritu no se escribe ahí: se escribe en la ípsilon. La opción que sí cumple en esta pregunta es «En la ípsilon, segunda vocal del diptongo con punto», porque en diptongo inicial el signo va en la segunda letra; aquí es suave: sin h; el agudo de la palabra está en otra sílaba, la de ό." },
+        { t: "No lleva, porque hay diptongo.", bien: false, why: "Falla esta regla: el diptongo inicial sí lleva espíritu; lo que no lleva es καί, porque empieza por consonante. La opción que sí cumple en esta pregunta es «En la ípsilon, segunda vocal del diptongo con punto», porque en diptongo inicial el signo va en la segunda letra; aquí es suave: sin h; el agudo de la palabra está en otra sílaba, la de ό." },
+        { t: "Es áspero, y la transcripción empieza por h.", bien: false, why: "Falla esta regla: el signo de αὐτός es suave; áspero, con h, sería el de ὁδός o el de ὑπο-. La opción que sí cumple en esta pregunta es «En la ípsilon, segunda vocal del diptongo con punto», porque en diptongo inicial el signo va en la segunda letra; aquí es suave: sin h; el agudo de la palabra está en otra sílaba, la de ό." }
+      ]
+    }
+  ];
+  var checks = [
+    {
+      pregunta: "El agudo puede caer…",
+      opciones: [
+        { t: "En una de las tres últimas sílabas.", bien: true, why: "Cumple esta regla: en ἄνθρωπος llega a la tercera por el final; más atrás, no. Con «En cualquier sílaba de la palabra con punto» te confundirías, y esa no vale porque ἱστορία tiene cuatro sílabas y el agudo no está en la primera: esa sería la cuarta por el final." },
+        { t: "Solo en la última.", bien: false, why: "Falla esta regla: la última es el sitio del grave cuando sustituye al agudo, pero el agudo también va en penúltima y antepenúltima. La opción que sí cumple en esta pregunta es «En una de las tres últimas sílabas con punto», porque en ἄνθρωπος llega a la tercera por el final; más atrás, no." },
+        { t: "En cualquier sílaba de la palabra.", bien: false, why: "Falla esta regla: ἱστορία tiene cuatro sílabas y el agudo no está en la primera: esa sería la cuarta por el final. La opción que sí cumple en esta pregunta es «En una de las tres últimas sílabas con punto», porque en ἄνθρωπος llega a la tercera por el final; más atrás, no." },
+        { t: "Solo en vocal larga.", bien: false, why: "Falla esta regla: esa condición es del circunflejo; el agudo puede ir en breve, como la ómicron de λόγος o la épsilon de ἡμέρα. La opción que sí cumple en esta pregunta es «En una de las tres últimas sílabas con punto», porque en ἄνθρωπος llega a la tercera por el final; más atrás, no." }
+      ]
+    },
+    {
+      pregunta: "Rho al principio de palabra…",
+      opciones: [
+        { t: "Lleva espíritu áspero: <span lang=\"grc\">ῥ</span>. En la lista aún no hay palabra que empiece así.", bien: true, why: "Cumple esta regla: es regla de la letra; no inventas un ejemplo de vocabulario. Con «Lleva espíritu suave con punto» te confundirías, y esa no vale porque la rho inicial no va suave; el áspero es obligatorio en ese sitio." },
+        { t: "Lleva espíritu suave.", bien: false, why: "Falla esta regla: la rho inicial no va suave; el áspero es obligatorio en ese sitio. La opción que sí cumple en esta pregunta es «Lleva espíritu áspero: ῥ En la lista aún no hay palabra que empiece así con punto», porque es regla de la letra; no inventas un ejemplo de vocabulario." },
+        { t: "No lleva espíritu nunca.", bien: false, why: "Falla esta regla: dentro de la palabra, como en λόγος, la rho no lleva espíritu; al principio, sí: áspero. La opción que sí cumple en esta pregunta es «Lleva espíritu áspero: ῥ En la lista aún no hay palabra que empiece así con punto», porque es regla de la letra; no inventas un ejemplo de vocabulario." },
+        { t: "Se transcribe siempre con f.", bien: false, why: "Falla esta regla: rho es r; el áspero añade aspiración; no convierte la letra en otra. La opción que sí cumple en esta pregunta es «Lleva espíritu áspero: ῥ En la lista aún no hay palabra que empiece así con punto», porque es regla de la letra; no inventas un ejemplo de vocabulario." }
+      ]
+    },
+    {
+      pregunta: "El punto alto <span lang=\"grc\">·</span>…",
+      opciones: [
+        { t: "Marca una pausa y no es la interrogación.", bien: true, why: "Cumple esta regla: la pregunta es el otro signo, ;, al final. Con «Es la interrogación griega con punto» te confundirías, y esa no vale porque lo confundes con el signo de pregunta; el punto alto no pregunta." },
+        { t: "Es la interrogación griega.", bien: false, why: "Falla esta regla: lo confundes con el signo de pregunta; el punto alto no pregunta. La opción que sí cumple en esta pregunta es «Marca una pausa y no es la interrogación con punto», porque la pregunta es el otro signo, ;, al final." },
+        { t: "Equivale a abrir una exclamación.", bien: false, why: "Falla esta regla: este curso no usa el punto alto como exclamación; separa, dentro de la lectura. La opción que sí cumple en esta pregunta es «Marca una pausa y no es la interrogación con punto», porque la pregunta es el otro signo, ;, al final." },
+        { t: "Sustituye al espíritu áspero.", bien: false, why: "Falla esta regla: el punto alto es puntuación; el espíritu es un signo sobre la vocal inicial. La opción que sí cumple en esta pregunta es «Marca una pausa y no es la interrogación con punto», porque la pregunta es el otro signo, ;, al final." }
+      ]
+    },
+    {
+      pregunta: "En <span lang=\"grc\">ἄνθρωπος</span> hay…",
+      opciones: [
+        { t: "Espíritu suave y agudo en la antepenúltima.", bien: true, why: "Cumple esta regla: sin h; tres sílabas, golpe en la primera: án-thrō-pos. Con «Espíritu áspero y circunflejo en la omega con punto» te confundirías, y esa no vale porque el espíritu es suave, no áspero; el acento es agudo y no está en la omega." },
+        { t: "Espíritu áspero y circunflejo en la omega.", bien: false, why: "Falla esta regla: el espíritu es suave, no áspero; el acento es agudo y no está en la omega. La opción que sí cumple en esta pregunta es «Espíritu suave y agudo en la antepenúltima con punto», porque sin h; tres sílabas, golpe en la primera: án-thrō-pos." },
+        { t: "Ningún espíritu, porque tiene theta.", bien: false, why: "Falla esta regla: empieza por vocal; la theta es aspirada por sí misma, pero eso no quita el espíritu de la alfa. La opción que sí cumple en esta pregunta es «Espíritu suave y agudo en la antepenúltima con punto», porque sin h; tres sílabas, golpe en la primera: án-thrō-pos." },
+        { t: "Agudo en la cuarta sílaba.", bien: false, why: "Falla esta regla: ἄνθρωπος tiene tres sílabas, no cuatro; el agudo ya está en el límite: la tercera por el final. La opción que sí cumple en esta pregunta es «Espíritu suave y agudo en la antepenúltima con punto», porque sin h; tres sílabas, golpe en la primera: án-thrō-pos." }
+      ]
+    }
+  ];
+  var i = 0, aciertos = 0, modo = "ronda", ci = 0, caciertos = 0, cerrado = false;
+
+  function svg(tipo, titulo) {
+    var cuerpo = "";
+    if (tipo === "aspero") {
+      cuerpo = '<text x="320" y="130" text-anchor="middle" fill="#FAF7F0" font-size="80" font-family="Palatino, Times New Roman, serif">ὁ</text>'
+        + '<text x="320" y="175" text-anchor="middle" fill="#C4A15A" font-size="18" font-family="Palatino, Times New Roman, serif">h</text>';
+    } else if (tipo === "circun") {
+      cuerpo = '<text x="320" y="125" text-anchor="middle" fill="#FAF7F0" font-size="80" font-family="Palatino, Times New Roman, serif">ῶ</text>'
+        + '<text x="320" y="175" text-anchor="middle" fill="#C4A15A" font-size="18" font-family="Palatino, Times New Roman, serif">larga</text>';
+    } else if (tipo === "breve") {
+      cuerpo = '<text x="240" y="125" text-anchor="middle" fill="#FAF7F0" font-size="72" font-family="Palatino, Times New Roman, serif">ό</text>'
+        + '<text x="430" y="125" text-anchor="middle" fill="#C4A15A" font-size="28" font-family="Palatino, Times New Roman, serif">no ῶ</text>';
+    } else if (tipo === "grave") {
+      cuerpo = '<text x="320" y="130" text-anchor="middle" fill="#FAF7F0" font-size="64" font-family="Palatino, Times New Roman, serif">θεὸς</text>';
+    } else if (tipo === "pregunta") {
+      cuerpo = '<text x="220" y="120" text-anchor="middle" fill="#FAF7F0" font-size="64" font-family="Palatino, Times New Roman, serif">;</text>'
+        + '<text x="420" y="120" text-anchor="middle" fill="#C4A15A" font-size="48" font-family="Palatino, Times New Roman, serif">·</text>'
+        + '<text x="220" y="165" text-anchor="middle" fill="#C4A15A" font-size="16" font-family="Palatino, Times New Roman, serif">pregunta</text>'
+        + '<text x="420" y="165" text-anchor="middle" fill="#FAF7F0" font-size="16" font-family="Palatino, Times New Roman, serif">pausa</text>';
+    } else if (tipo === "diptongo") {
+      cuerpo = '<text x="320" y="125" text-anchor="middle" fill="#FAF7F0" font-size="80" font-family="Palatino, Times New Roman, serif">αὐ</text>'
+        + '<path d="M390 70 L430 40" stroke="#C4A15A" fill="none" stroke-width="3"/>'
+        + '<text x="500" y="40" fill="#C4A15A" font-size="16" font-family="Palatino, Times New Roman, serif">en la 2.ª</text>';
+    } else {
+      cuerpo = '<text x="320" y="125" text-anchor="middle" fill="#FAF7F0" font-size="64" font-family="Palatino, Times New Roman, serif">.</text>';
+    }
+    return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 200" role="img"><title>' + titulo + '</title><rect width="640" height="200" fill="#0E0E0C"/>' + cuerpo + '</svg>';
+  }
+
+  function pintarLista(lista, tituloEtapa) {
+    cerrado = false;
+    document.getElementById("etapa").textContent = tituloEtapa;
+    document.getElementById("feedback").textContent = "";
+    document.getElementById("siguiente").hidden = true;
+    var caja = document.getElementById("opciones");
+    caja.innerHTML = "";
+    lista.opciones.forEach(function (op, n) {
+      var b = document.createElement("button");
+      b.type = "button";
+      b.className = "op";
+      b.innerHTML = op.t;
+      b.addEventListener("click", function () { elegir(lista, n); });
+      caja.appendChild(b);
+    });
+  }
+  function pintarRonda() {
+    var r = rondas[i];
+    document.getElementById("stage").innerHTML = svg(r.tipo, r.titulo);
+    document.getElementById("pregunta").innerHTML = r.pregunta;
+    pintarLista(r, "Ronda " + (i + 1) + " de 6");
+  }
+  function pintarCheck() {
+    var r = checks[ci];
+    document.getElementById("stage").innerHTML = svg("cierre", "Mini-check de diacríticos, pregunta " + (ci + 1));
+    document.getElementById("pregunta").innerHTML = r.pregunta;
+    pintarLista(r, "Mini-check " + (ci + 1) + " de 4");
+  }
+  function elegir(lista, n) {
+    if (cerrado) return;
+    cerrado = true;
+    var op = lista.opciones[n];
+    var botones = document.querySelectorAll("#opciones button");
+    botones.forEach(function (b, k) {
+      b.disabled = true;
+      if (lista.opciones[k].bien) b.classList.add("bien");
+      if (k === n && !op.bien) b.classList.add("mal");
+    });
+    if (op.bien) {
+      if (modo === "ronda") aciertos += 1; else caciertos += 1;
+      document.getElementById("feedback").textContent = "Correcto. " + op.why;
+    } else {
+      document.getElementById("feedback").textContent = "No. " + op.why;
+    }
+    var sig = document.getElementById("siguiente");
+    sig.hidden = false;
+    if (modo === "ronda" && i === rondas.length - 1) sig.textContent = "Pasar al mini-check";
+    else if (modo === "check" && ci === checks.length - 1) sig.textContent = "Ver el recuento";
+    else sig.textContent = "Siguiente";
+  }
+  document.getElementById("siguiente").addEventListener("click", function () {
+    if (modo === "ronda") {
+      if (i < rondas.length - 1) { i += 1; pintarRonda(); }
+      else { modo = "check"; pintarCheck(); }
+      return;
+    }
+    if (ci < checks.length - 1) { ci += 1; pintarCheck(); return; }
+    document.getElementById("etapa").textContent = "Hecho";
+    document.getElementById("pregunta").textContent = "Rondas: " + aciertos + " de 6. Mini-check: " + caciertos + " de 4.";
+    document.getElementById("opciones").innerHTML = "";
+    document.getElementById("feedback").textContent = "Puedes recargar la página para repetir. El glosario sigue debajo.";
+    document.getElementById("siguiente").hidden = true;
+    document.getElementById("stage").innerHTML = svg("cierre", "Cierre del laboratorio de diacríticos");
+  });
+  pintarRonda();
+})();
+</script>
+</body>
+</html>

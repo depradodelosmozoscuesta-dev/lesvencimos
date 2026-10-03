@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<meta name="theme-color" content="#FAF7F0"/>
+<title>Lección 34 · Gauss con tres incógnitas · Les vencimos</title>
+<link rel="icon" href="../../../../brand/favicon/favicon.svg" type="image/svg+xml"/>
+<link rel="icon" href="../../../../brand/favicon/favicon-32.png" sizes="32x32" type="image/png"/>
+<link rel="apple-touch-icon" href="../../../../brand/favicon/apple-touch-icon.png"/>
+<link rel="manifest" href="../manifest.webmanifest"/>
+<link rel="stylesheet" href="../../../../profesor/_plantilla-leccion/leccion-shell.css"/>
+<link rel="stylesheet" href="../../../../profesor/_maestro/maestro-puntero.css"/>
+<script src="../../../../profesor/_plantilla-leccion/leccion-shell-nav.js" defer></script>
+<script src="../../../../profesor/_maestro/maestro-runtime.js" defer></script>
+<style>
+.editor-alumno{min-height:7.5rem;border:1px solid rgba(14,14,12,.22);border-radius:8px;padding:.75rem 1rem;background:#fff;font:inherit;line-height:1.5}
+.editor-alumno:empty:before{content:attr(data-placeholder);color:#5C564C}
+.figura-viva svg{width:100%;max-width:40rem;height:auto;background:#fff;border:1px solid rgba(14,14,12,.12);border-radius:8px;display:block}
+.controles{display:flex;flex-wrap:wrap;gap:.75rem 1rem;align-items:center;margin:.55rem 0 .8rem}
+.controles label{font-size:.98rem}
+.tabla-signos{border-collapse:collapse;margin:.4rem 0 1rem}
+.tabla-signos th,.tabla-signos td{border:1px solid rgba(14,14,12,.28);padding:.28rem .5rem;text-align:center}
+.salida-viva{font-weight:600}
+pre.codigo{background:#1e1c18;color:#f4efe4;padding:.75rem 1rem;border-radius:8px;overflow:auto;font-size:.92rem;line-height:1.4}
+details.extra-placa{margin:1rem 0}
+</style>
+<style>
+.editor,textarea.editor{width:100%;min-height:5.5rem;font-family:ui-monospace,monospace;font-size:.95rem;line-height:1.45;padding:.55rem .65rem;border:1px solid rgba(196,161,90,.45);border-radius:8px;background:#161512;color:#E6E1D6;resize:vertical}
+.lienzo{display:block;width:100%;height:260px;background:#161512;border:1px solid #C4A15A;border-radius:8px;touch-action:none;cursor:crosshair;margin:.4rem 0 1rem}
+.fila-lienzo{display:flex;flex-wrap:wrap;gap:.4rem;margin:.45rem 0 1rem}
+.boton-lienzo{font:inherit;font-weight:700;font-size:.85rem;padding:.45rem .85rem;border-radius:999px;border:1px solid #C4A15A;background:transparent;color:#E6E1D6;cursor:pointer}
+</style>
+</head>
+<body class="leccion-shell" data-maestro-json="maestro-34.json">
+<div class="leccion-wrap">
+
+  <nav class="leccion-barra" aria-label="Navegación de lección" data-actual="34" data-total="48">
+    <div class="leccion-progreso" role="status">
+      <span class="progreso-texto"><strong>34</strong> de <strong>48</strong></span>
+      <a class="atajo atajo-maestro" href="?maestro=1">Modo maestro</a>
+      <div class="progreso-pista" aria-hidden="true"><div class="progreso-lleno" style="width:71%"></div></div>
+    </div>
+    <div class="leccion-atajos">
+      <a class="atajo atajo-calc" href="../../../../modulos/calculadora.html" title="Calculadora offline">Calculadora</a>
+      <a class="atajo atajo-prev" href="leccion-33-sistemas.html" title="Lección anterior">← Anterior</a>
+      <a class="atajo atajo-next" href="leccion-35-familias-funciones.html" title="Lección siguiente">Siguiente →</a>
+    </div>
+  </nav>
+
+  <header class="leccion-top">
+    <a class="leccion-marca" href="../../../../index.html">Les <span>vencimos</span></a>
+    <p class="leccion-meta-top">1º Bachillerato Matemáticas I · Ciencias y Tecnología</p>
+  </header>
+
+  <header class="bloque-titulo" id="maestro-titulo" data-maestro="titulo">
+    <span class="eyebrow">Lección 34 · Sentido algebraico</span>
+    <h1 class="titulo-leccion" id="titulo-leccion">El método de <em>Gauss</em> con tres incógnitas</h1>
+    <p class="meta-leccion">1º Bachillerato Matemáticas I · Ciencias y Tecnología</p>
+    <p class="meta-leccion">Saberes (Decreto 40/2022): resolución de sistemas de ecuaciones lineales con tres incógnitas mediante el método de Gauss (sentido algebraico).</p>
+  </header>
+
+
+  <section class="bloque-cuerpo" id="maestro-objetivos">
+    <h2>Objetivos</h2>
+    <ol>
+      <li>Triangular un sistema 3×3 con el método de Gauss y leer la solución por remontado.</li>
+      <li>Comprobar la solución en las tres ecuaciones de partida.</li>
+      <li>Reconocer, en un sistema pequeño aparte, qué significa una fila 0 = 1 y una fila 0 = 0.</li>
+    </ol>
+  </section>
+
+  <section class="bloque-cuerpo" id="maestro-explicacion">
+    <h2>Explicación</h2>
+    <h3>El sistema de esta lección</h3>
+    <p>x + y + z = 6<br/>2x − y + z = 3<br/>x + 2y − z = 2</p>
+    <p>La matriz ampliada junta los coeficientes y el término independiente:</p>
+    <table class="tabla-signos">
+      <tr><td>1</td><td>1</td><td>1</td><td>6</td></tr>
+      <tr><td>2</td><td>−1</td><td>1</td><td>3</td></tr>
+      <tr><td>1</td><td>2</td><td>−1</td><td>2</td></tr>
+    </table>
+    <h3>Triangular</h3>
+    <p>Se anulan los coeficientes de debajo del pivote. El pivote es el coeficiente con el que se elimina. Conviene que sea 1, o al menos distinto de cero: si el pivote natural es cero o incómodo, se intercambian filas. Eso es pivotar.</p>
+    <ol>
+      <li>F2 ← F2 − 2·F1. Coeficientes: 2−2 = 0, −1−2 = −3, 1−2 = −1, término 3−12 = −9. Queda 0, −3, −1 | −9.</li>
+      <li>F3 ← F3 − F1. Coeficientes: 0, 2−1 = 1, −1−1 = −2, término 2−6 = −4. Queda 0, 1, −2 | −4.</li>
+      <li>Pivotar: se intercambian la segunda y la tercera fila para que el pivote de la columna y sea 1, no −3.
+        <br/>1 &nbsp; 1 &nbsp; 1 &nbsp; | &nbsp; 6
+        <br/>0 &nbsp; 1 &nbsp; −2 &nbsp; | &nbsp; −4
+        <br/>0 &nbsp; −3 &nbsp; −1 &nbsp; | &nbsp; −9</li>
+      <li>F3 ← F3 + 3·F2. Columna y: −3 + 3 = 0. Columna z: −1 + 3·(−2) = −1 − 6 = −7. Término: −9 + 3·(−4) = −9 − 12 = −21.
+        <br/>1 &nbsp; 1 &nbsp; 1 &nbsp; | &nbsp; 6
+        <br/>0 &nbsp; 1 &nbsp; −2 &nbsp; | &nbsp; −4
+        <br/>0 &nbsp; 0 &nbsp; −7 &nbsp; | &nbsp; −21</li>
+    </ol>
+    <h3>Remontar</h3>
+    <ol>
+      <li>−7z = −21, z = 3.</li>
+      <li>y − 2z = −4, y − 6 = −4, y = 2.</li>
+      <li>x + y + z = 6, x + 2 + 3 = 6, x = 1.</li>
+    </ol>
+    <p>Solución única: x = 1, y = 2, z = 3.</p>
+    <h3>Comprobación en las tres ecuaciones</h3>
+    <ul>
+      <li>1 + 2 + 3 = 6.</li>
+      <li>2·1 − 2 + 3 = 3.</li>
+      <li>1 + 2·2 − 3 = 1 + 4 − 3 = 2.</li>
+    </ul>
+    <h3>Qué dirían otras filas</h3>
+    <p>Una fila 0 = 1 (todo coeficiente cero y término distinto de cero) hace el sistema incompatible: no hay solución. Ejemplo aparte, ya comprobado: x + y = 1 y x + y = 2. Al restar, 0 = 1. No existe un par que valga 1 y 2 a la vez.</p>
+    <p>Una fila 0 = 0 no aporta condición: sobra, y puede haber infinitas soluciones. Ejemplo aparte: x + y = 3 y 2x + 2y = 6. La segunda es el doble de la primera; al restar 2·F1 queda 0 = 0. Las soluciones son x = t, y = 3 − t. Comprueba: t + (3 − t) = 3 y 2t + 2(3 − t) = 6.</p>
+    <h3 id="maestro-glosas">Glosas de esta lección</h3>
+    <p class="glosa-simbolo"><strong>Matriz ampliada</strong> Coeficientes y términos independientes en una tabla. Cada fila es una ecuación.</p>
+    <p class="glosa-simbolo"><strong>Pivote</strong> Coeficiente que se usa para anular los de debajo en su columna. Si estorba, se cambia la fila.</p>
+    <p class="glosa-simbolo"><strong>0 = 1</strong> Fila imposible. El sistema no tiene solución.</p>
+    <p class="glosa-simbolo"><strong>0 = 0</strong> Fila redundante. No añade información; puede quedar un parámetro libre.</p>
+  </section>
+
+  <section class="bloque-cuerpo" id="maestro-ejemplo-1">
+    <h2>Ejemplo 1 · La triangular ya remontada</h2>
+    <p>De la última fila, z = (−21)/(−7) = 3. No se divide entre cero: el pivote es −7.</p>
+    <ol>
+      <li>y = −4 + 2·3 = −4 + 6 = 2.</li>
+      <li>x = 6 − 2 − 3 = 1.</li>
+      <li>Las tres comprobaciones de arriba cierran el ejemplo: 6, 3 y 2.</li>
+    </ol>
+  </section>
+
+  <section class="bloque-cuerpo" id="maestro-ejemplo-2">
+    <h2>Ejemplo 2 · Los dos avisos, en sistemas de dos ecuaciones</h2>
+    <ol>
+      <li>x + y = 1, x + y = 2. Resta: 0 = 1. Incompatible.</li>
+      <li>x + y = 3, 2x + 2y = 6. F2 − 2·F1: 0 = 0. Para cada t, (t, 3 − t) es solución. Con t = 1: (1, 2), y 1 + 2 = 3, 2 + 4 = 6.</li>
+    </ol>
+  </section>
+
+  <section class="bloque-cuerpo" id="maestro-error">
+    <h2>Error típico</h2>
+    <div class="tarjeta">
+      <p>Operar los coeficientes y olvidar el término independiente, o no remontar y dar por solución la última fila sola.</p>
+      <p><strong>Corrección:</strong> F2 − 2·F1 cambia también el 3: 3 − 2·6 = −9, no 3. Y −7z = −21 da z = 3, pero y y x salen después: y = 2, x = 1. Si solo se dice «z = 3» faltan las otras dos incógnitas. La comprobación 1 + 2 + 3 = 6 caza ese descuido.</p>
+    </div>
+  </section>
+
+  <section class="bloque-cuerpo" id="maestro-practica">
+    <h2>Práctica</h2>
+    <p>Avanza los pasos de la triangularización. El dibujo marca la fila en la que estás. Copia la solución y sustitúyela en el editor.</p>
+    <div class="figura-viva" id="maestro-figura">
+      <svg viewBox="0 0 440 160" role="img" aria-label="Sistema triangular con pivotes">
+        <rect id="f1" x="16" y="16" width="400" height="36" fill="#fff" stroke="#2A2620"/>
+        <rect id="f2" x="16" y="60" width="400" height="36" fill="#fff" stroke="#2A2620"/>
+        <rect id="f3" x="16" y="104" width="400" height="36" fill="#fff" stroke="#2A2620"/>
+        <text id="t1" x="28" y="40" font-size="16">1    1    1   |  6</text>
+        <text id="t2" x="28" y="84" font-size="16">2   −1    1   |  3</text>
+        <text id="t3" x="28" y="128" font-size="16">1    2   −1   |  2</text>
+      </svg>
+    </div>
+    <div class="controles">
+      <button type="button" id="b-paso">Paso siguiente</button>
+      <span class="salida-viva" id="salida-viva">Sistema de partida.</span>
+    </div>
+    <div id="editor-alumno" class="editor-alumno" contenteditable="true" spellcheck="true" role="textbox" aria-label="Respuesta de la práctica" data-placeholder="Escribe x = 1, y = 2, z = 3 y las tres comprobaciones." data-clave="bach1-mates-i-L34"></div>
+  </section>
+
+  <section class="bloque-cuerpo" id="maestro-comprueba">
+    <h2>Comprueba</h2>
+    <details>
+      <summary>Comprueba · 1 + 2 + 3</summary>
+      <p>Por qué: 1 + 2 + 3 = 6. La primera ecuación se cumple con la solución remontada, y hay que comprobarla en el sistema de partida, no solo en la triangular: al remontar se puede arrastrar un signo. x = 1, y = 2 y z = 3 salen de −7z = −21 y de las filas de encima; volver a x + y + z = 6 confirma que ese remontado no ha cambiado el problema. Si la suma no fuera 6, la triangular y el sistema original se habrían separado.</p>
+    </details>
+    <details>
+      <summary>Comprueba · 2x − y + z</summary>
+      <p>Por qué: 2 − 2 + 3 = 3. La segunda también. El menos de y no se pierde: −y con y = 2 es −2.</p>
+    </details>
+    <details>
+      <summary>Comprueba · la fila −7z = −21</summary>
+      <p>Por qué: −21/−7 = 3, y al sustituir y = 2, x = 1 la tercera ecuación da 1 + 4 − 3 = 2. El pivote −7 no es cero: hay solución única.</p>
+    </details>
+  </section>
+
+  <section class="bloque-cuerpo" id="maestro-cierre">
+    <h2>Cierre</h2>
+    <p>Gauss triangulariza, pivotando si hace falta, y se remonta. Este sistema da x = 1, y = 2, z = 3, y las tres ecuaciones lo confirman. 0 = 1 es imposible; 0 = 0 es una fila que no informa.</p>
+  </section>
+
+  <section class="bloque-reto" id="maestro-reto">
+    <span class="etiqueta-reto">Reto</span>
+    <h2 class="titulo-reto">Sin mirar la triangular</h2>
+    <p>Sustituye x = 1, y = 2, z = 3 otra vez, pero en desorden: empieza por la tercera ecuación. Después explica en una frase por qué x + y = 1 junto con x + y = 3 no se podría remontar.</p>
+    <p class="reto-id">reto_id: bach1-mates-i-L34</p>
+  </section>
+
+
+  <footer class="leccion-pie">
+    <strong>Les vencimos</strong> · L34 de 48 · shell HTML · offline / file:// · sin instalar
+  </footer>
+</div>
+
+<script>
+(function(){
+  var ed=document.getElementById("editor-alumno");
+  if(!ed) return;
+  var KEY=ed.getAttribute("data-clave");
+  try{var s=localStorage.getItem(KEY); if(s) ed.textContent=s;}catch(e){}
+  ed.addEventListener("input", function(){
+    try{localStorage.setItem(KEY, ed.textContent);}catch(e){}
+  });
+})();
+</script>
+
+<script>
+
+(function(){
+  var pasos=[
+    {t1:"1    1    1   |  6", t2:"2   −1    1   |  3", t3:"1    2   −1   |  2", s:"Sistema de partida.", f:"f1"},
+    {t1:"1    1    1   |  6", t2:"0   −3   −1   | −9", t3:"0    1   −2   | −4", s:"F2 menos 2 por F1, y F3 menos F1.", f:"f2"},
+    {t1:"1    1    1   |  6", t2:"0    1   −2   | −4", t3:"0   −3   −1   | −9", s:"Se pivota: la fila del 1 sube.", f:"f2"},
+    {t1:"1    1    1   |  6", t2:"0    1   −2   | −4", t3:"0    0   −7   | −21", s:"F3 más 3 por F2. Triangular.", f:"f3"},
+    {t1:"x = 1", t2:"y = 2", t3:"z = 3", s:"Remonte: z = 3, y = 2, x = 1.", f:"f3"}
+  ];
+  var i=0;
+  var out=document.getElementById("salida-viva");
+  function show(){
+    var p=pasos[i];
+    document.getElementById("t1").textContent=p.t1;
+    document.getElementById("t2").textContent=p.t2;
+    document.getElementById("t3").textContent=p.t3;
+    out.textContent=p.s;
+    ["f1","f2","f3"].forEach(function(id){
+      document.getElementById(id).setAttribute("fill", id===p.f ? "#F3EEE4" : "#fff");
+    });
+  }
+  document.getElementById("b-paso").addEventListener("click", function(){
+    i=(i+1)%pasos.length; show();
+  });
+  show();
+})();
+
+</script>
+<section class="bloque-cuerpo" id="maestro-editor">
+  <h2>Tu resolución</h2>
+  <p>Escribe el desarrollo en este cuadro. Si necesitas un boceto, dibújalo en el lienzo de esta misma página. No se envía a ningún sitio.</p>
+  <label for="razonamiento-34">Tu resolución</label>
+  <textarea class="editor" id="razonamiento-34" placeholder="Dato… Modelo… Cálculo… Comprobación…"></textarea>
+  <p>Lienzo para el boceto.</p>
+  <canvas id="lienzo-34" class="lienzo" width="900" height="260" aria-label="Lienzo para el boceto de la lección 34"></canvas>
+  <div class="fila-lienzo"><button type="button" class="boton-lienzo" data-clear="lienzo-34">Borrar lienzo</button></div>
+</section>
+<script type="application/json" data-maestro="guion">
+{
+  "curso": "bach1-mates-i",
+  "leccion": 34,
+  "titulo": "Gauss con tres incógnitas",
+  "url": "leccion-34-gauss.html",
+  "musica": false,
+  "pasos": [
+    {
+      "id": "intro",
+      "decir": "Gauss con tres incógnitas, sobre un sistema que ya tiene solución única.",
+      "ancla": "#maestro-titulo",
+      "puntero": true,
+      "esperaMs": 300
+    },
+    {
+      "id": "objetivos",
+      "decir": "Triangular, remontar, comprobar en las tres ecuaciones, y saber qué es una fila cero igual a uno o cero igual a cero.",
+      "ancla": "#maestro-objetivos",
+      "puntero": true,
+      "esperaMs": 300
+    },
+    {
+      "id": "sistema",
+      "decir": "El sistema es x más y más z igual a 6, 2x menos y más z igual a 3, y x más 2y menos z igual a 2.",
+      "ancla": "#maestro-explicacion",
+      "puntero": true,
+      "esperaMs": 300
+    },
+    {
+      "id": "triangular",
+      "decir": "Se resta, se pivota para dejar un 1, y la última fila queda menos 7z igual a menos 21.",
+      "ancla": "#maestro-explicacion",
+      "puntero": true,
+      "esperaMs": 300
+    },
+    {
+      "id": "sol",
+      "decir": "z es 3, y es 2, x es 1. Comprueba 6, 3 y 2 en las tres ecuaciones.",
+      "ancla": "#maestro-ejemplo-1",
+      "puntero": true,
+      "esperaMs": 300
+    },
+    {
+      "id": "avisos",
+      "decir": "Cero igual a uno es imposible. Cero igual a cero es una fila que no añade nada.",
+      "ancla": "#maestro-ejemplo-2",
+      "puntero": true,
+      "esperaMs": 300
+    },
+    {
+      "id": "error",
+      "decir": "El término independiente también se opera. 3 menos 12 es menos 9, no 3.",
+      "ancla": "#maestro-error",
+      "puntero": true,
+      "esperaMs": 300
+    },
+    {
+      "id": "figura",
+      "decir": "El botón recorre la triangularización en el dibujo.",
+      "ancla": "#maestro-figura",
+      "puntero": true,
+      "esperaMs": 300
+    },
+    {
+      "id": "glosas",
+      "decir": "Pivotar es elegir una fila cómoda para eliminar. El pivote no puede ser cero si quieres dividir.",
+      "ancla": "#maestro-glosas",
+      "puntero": true,
+      "esperaMs": 300
+    },
+    {
+      "id": "cierre",
+      "decir": "Solución única 1, 2 y 3. Las filas cero igual a uno y cero igual a cero dicen otra cosa.",
+      "ancla": "#maestro-cierre",
+      "puntero": true,
+      "esperaMs": 300
+    }
+  ]
+}
+</script>
+<script>(function(){function liga(c){var ctx=c.getContext('2d');function fondo(){ctx.fillStyle='#161512';ctx.fillRect(0,0,c.width,c.height);ctx.strokeStyle='#C4A15A';ctx.strokeRect(.5,.5,c.width-1,c.height-1);}function fit(){var r=c.getBoundingClientRect();var w=Math.max(320,Math.floor(r.width));if(c.width!==w){c.width=w;c.height=260;fondo();}}var dib=false,last=null;function pos(ev){var r=c.getBoundingClientRect();var s=ev.touches?ev.touches[0]:ev;return{x:(s.clientX-r.left)*c.width/r.width,y:(s.clientY-r.top)*c.height/r.height};}c.addEventListener('pointerdown',function(ev){dib=true;last=pos(ev);try{c.setPointerCapture(ev.pointerId);}catch(e){}ev.preventDefault();});c.addEventListener('pointermove',function(ev){if(!dib)return;var p=pos(ev);ctx.strokeStyle='#E6E1D6';ctx.lineWidth=2.2;ctx.lineCap='round';ctx.beginPath();ctx.moveTo(last.x,last.y);ctx.lineTo(p.x,p.y);ctx.stroke();last=p;ev.preventDefault();});function up(){dib=false;}c.addEventListener('pointerup',up);c.addEventListener('pointerleave',up);var b=document.querySelector('[data-clear="'+c.id+'"]');if(b)b.addEventListener('click',fondo);fit();window.addEventListener('resize',fit);}document.querySelectorAll('canvas.lienzo').forEach(liga);})();</script>
+</body>
+</html>

@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="color-scheme" content="dark">
+<title>L06 · El LED y la resistencia (por qué se quema) · les vencimos</title>
+<style>
+:root{--bg:#0E0E0C;--surf:#161512;--panel:#1C1A16;--ink:#E6E1D6;--mut:#9A9488;--acc:#C4A15A;--acc-ink:#1A160E;--danger:#C46A4A;--ok:#8F9A72;--line:#2A2720}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:400 17px/1.55 "Segoe UI",system-ui,sans-serif}
+h1,h2,h3{font-family:"Iowan Old Style",Palatino,Georgia,serif;font-weight:600;line-height:1.25}
+a{color:var(--acc)}
+.wrap{max-width:42rem;margin:0 auto;padding:1.25rem 1.1rem 3.5rem}
+header.top{border-bottom:1px solid var(--line);padding-bottom:.8rem;margin-bottom:1.2rem}
+.marca{font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;color:var(--mut);margin:0}
+h1{font-size:1.7rem;margin:.35rem 0 .2rem}
+.meta{color:var(--mut);margin:0 0 .8rem;font-size:.92rem}
+nav.pasos{display:flex;flex-wrap:wrap;gap:.5rem;margin:.4rem 0 0}
+nav.pasos a,button{min-height:44px;padding:.45rem .8rem;border:1px solid var(--line);border-radius:2px;background:var(--surf);color:var(--ink);font:inherit;text-decoration:none;cursor:pointer}
+button.acc{background:var(--acc);color:var(--acc-ink);border-color:var(--acc);font-weight:600}
+.maestro{background:var(--panel);border:1px solid var(--line);padding:1rem 1.05rem;margin:1.1rem 0}
+.maestro h2{margin:.1rem 0 .6rem;font-size:1.05rem;color:var(--acc)}
+pre{background:var(--surf);border:1px solid var(--line);padding:.9rem 1rem;overflow:auto;font-size:.88rem;line-height:1.45}
+.warn{border-left:3px solid var(--danger);padding:.2rem 0 .2rem .8rem;color:var(--ink)}
+.quiz{margin-top:1.2rem}
+figure{margin:1rem 0;background:#161512;border:1px solid var(--line);padding:.55rem .7rem}
+figure svg{width:100%;height:auto;display:block}
+figcaption{color:var(--mut);font-size:.9rem;margin:.45rem 0 0}
+.ejemplo{background:#161512;border:1px solid var(--line);padding:.8rem .95rem;margin:.7rem 0}
+.ejemplo h3{margin:.1rem 0 .4rem;font-size:1.05rem}
+
+.pregunta{background:var(--surf);border:1px solid var(--line);padding:.8rem 1rem;margin:.7rem 0}
+.respuesta{color:var(--ok);margin:.55rem 0 0}
+footer{margin-top:2.2rem;padding-top:.8rem;border-top:1px solid var(--line);color:var(--mut);font-size:.82rem}
+.pend{color:var(--mut)}
+ol.temario{padding-left:1.2rem}
+ol.temario li{margin:.28rem 0}
+
+.sim,.anota{margin:1rem 0;background:#161512;border:1px solid var(--line);padding:.8rem .9rem}
+.sim h2,.anota h2{margin:.1rem 0 .4rem;font-size:1.15rem}
+.sim-canvas{width:100%;height:auto;background:#1C1A16;border:1px solid var(--line);margin:.6rem 0;display:block}
+.sim-lab{display:flex;align-items:center;gap:.6rem;margin:.4rem 0;color:var(--ink)}
+.sim-range{flex:1;min-height:44px}
+.sim-out{min-width:3rem;color:var(--acc)}
+.sim-dedo{margin-top:.4rem}
+textarea.nota-montaje{width:100%;min-height:8rem;background:#1C1A16;color:var(--ink);border:1px solid var(--line);padding:.7rem;font:inherit;line-height:1.45}
+
+</style>
+</head>
+<body>
+<article class="wrap" id="ens-led-resistencia" data-ens="ens-led-resistencia">
+<header class="top">
+<p class="marca">les vencimos · offline</p>
+<h1>L06. El LED y la resistencia (por qué se quema)</h1>
+<p class="meta">Primera luz (8–22%)</p>
+<nav class="pasos"><a href="../arduino-ensenanza.html">Al curso</a><a href="leccion-05.html">Anterior</a><a href="leccion-07.html">Siguiente</a></nav>
+</header>
+<section class="maestro" id="maestro">
+<h2>Maestro</h2>
+<p id="maestro-texto">Un LED deja pasar corriente en un sentido y casi nada en el otro. Sin resistencia, esa corriente la pone el pin, y el pin no está hecho para eso. Se quema el LED, o el pin, o los dos con suerte desigual. La resistencia no es un adorno. Es el freno que calculaste en la lección de la electricidad.</p>
+<button type="button" class="acc" id="escuchar">Escuchar</button>
+</section>
+<section class="lectura">
+<p>El LED tiene dos patas. La larga, el ánodo, va hacia el lado positivo. La corta, el cátodo, hacia masa. Dentro de la cápsula, el cátodo suele coincidir con el lado achatado. Si lo pones al revés no luce, y normalmente no se rompe en el acto. Si lo pones bien y sin resistencia, sí puede romperse.</p>
+<p>De 5 voltios, el LED se queda cerca de 2. El resto tiene que caer en la resistencia. Con 220 ohmios la corriente queda en torno a (5−2)/220, unos 14 miliamperios. Un pin del Uno no debería pasar de unos 20 miliamperios. 220 ohmios te deja holgura. 100 ohmios ya aprieta. Cero ohmios es un cortocircuito a través del LED.</p>
+<p>El primer parpadeo del curso usará el LED que ya viene soldado en el pin 13, precisamente para no cablear mal el primer día. Cuando pases a un LED externo, la resistencia va en serie: da igual si está en la pata larga o en la corta, porque la corriente es la misma en todo el camino. Una sola resistencia basta. Dos LED en paralelo no comparten una resistencia con educación: cada uno lleva la suya.</p>
+<p class="warn">No alimentes una tira, un motor o varios LED desde el pin. El pin manda la señal. La corriente gorda, si algún día hace falta, vendrá de 5V a través de otra pieza. Eso se cierra en la lección de lo que un pin puede mover.</p>
+</section>
+<h2>Montaje</h2>
+<figure><svg viewBox="0 0 560 200" aria-label="Esquema LED">
+<rect x="10" y="40" width="100" height="120" rx="6" fill="#1C1A16" stroke="#C4A15A"/>
+<text x="60" y="105" text-anchor="middle" fill="#E6E1D6" font-size="12">Uno</text>
+<text x="60" y="122" text-anchor="middle" fill="#9A9488" font-size="10">pin 13</text>
+<text x="60" y="138" text-anchor="middle" fill="#9A9488" font-size="10">GND</text>
+<line x1="110" y1="115" x2="200" y2="115" stroke="#5B8FA8" stroke-width="3"/>
+<text x="150" y="105" fill="#5B8FA8" font-size="10">señal</text>
+<!-- resistor zigzag -->
+<path d="M200 115 L215 115 L220 100 L230 130 L240 100 L250 130 L260 115 L280 115" fill="none" stroke="#C4A15A" stroke-width="2"/>
+<text x="230" y="90" fill="#C4A15A" font-size="10">220 Ω</text>
+<!-- LED -->
+<circle cx="310" cy="115" r="14" fill="none" stroke="#C46A4A" stroke-width="2"/>
+<path d="M300 105 L320 125 M320 105 L300 125" stroke="#C46A4A" stroke-width="2"/>
+<text x="310" y="150" text-anchor="middle" fill="#C46A4A" font-size="10">LED</text>
+<line x1="324" y1="115" x2="400" y2="115" stroke="#6B6560" stroke-width="3"/>
+<line x1="400" y1="115" x2="400" y2="150" stroke="#6B6560" stroke-width="3"/>
+<line x1="400" y1="150" x2="110" y2="150" stroke="#6B6560" stroke-width="3"/>
+<text x="250" y="170" fill="#6B6560" font-size="10">GND (masa común)</text>
+</svg><figcaption>Pin 13, resistencia de 220 ohmios, LED, masa. Sin la resistencia el pin paga el atajo.</figcaption></figure>
+<h2>Pines de esta lección</h2>
+<figure><svg viewBox="0 0 340 118" aria-label="Pines de la lección"><rect x="6" y="16" width="328" height="86" rx="8" fill="#1C1A16" stroke="#C4A15A"/><text x="16" y="14" fill="#9A9488" font-size="11">Uno R3 · 5 V · mira la serigrafía, no la memoria</text><rect x="16" y="32" width="68" height="32" rx="4" fill="#161512" stroke="#C4A15A"/><text x="50" y="53" text-anchor="middle" fill="#E6E1D6" font-size="13">13</text><text x="50" y="84" text-anchor="middle" fill="#9A9488" font-size="10">salida</text><rect x="94" y="32" width="68" height="32" rx="4" fill="#161512" stroke="#9A9488"/><text x="128" y="53" text-anchor="middle" fill="#E6E1D6" font-size="13">220</text><text x="128" y="84" text-anchor="middle" fill="#9A9488" font-size="10">ohmios</text><rect x="172" y="32" width="68" height="32" rx="4" fill="#161512" stroke="#9A9488"/><text x="206" y="53" text-anchor="middle" fill="#E6E1D6" font-size="13">LED</text><text x="206" y="84" text-anchor="middle" fill="#9A9488" font-size="10">pata larga</text><rect x="250" y="32" width="68" height="32" rx="4" fill="#161512" stroke="#9A9488"/><text x="284" y="53" text-anchor="middle" fill="#E6E1D6" font-size="13">GND</text><text x="284" y="84" text-anchor="middle" fill="#9A9488" font-size="10">cátodo</text></svg><figcaption>El 13 manda. GND cierra. 5 V no entra en este circuito.</figcaption></figure>
+<h2>Por qué</h2>
+<p>Un LED deja pasar corriente en un solo sentido y, al hacerlo, se enciende. La pata larga es el ánodo, el lado del positivo, el que mira hacia el pin. La pata corta, o el lado con el chaflán, es el cátodo y va hacia GND. Al revés no se rompe en el acto: simplemente no luce, y es fácil creer que el programa está mal.</p><p>Sin resistencia, el LED casi no frena la corriente. El pin intenta pasar mucho más de 20 mA. A veces el LED sobrevive un rato y el pin no. La cuenta de clase: el LED se queda unos 2 V, la placa da 5 V, sobran 3 V. Si queremos unos 15 mA, 3 entre 0,015 da 200 ohmios. 220 ohmios es el valor de clase, un poco por debajo de 15 mA, y sirve para casi todos los LED rojos, ámbar y verdes pequeños.</p><p>El pin 13 del Uno ya tiene un LED en la placa. Si cableas otro LED también en el 13, los dos se encienden juntos. Sirve para comprobar. No sirve para un segundo indicador independiente: ese pide otro pin.</p><p>El color del cable no cambia la electricidad, pero te salva la vista. Rojo para el lado del pin o de 5 V, negro o azul para masa, otro color para la señal. Dentro de un mes no recordarás qué era el cable naranja.</p><h2>Práctica</h2>
+<ol><li>Placa desenchufada. Identifica la pata larga del LED.</li><li>Coloca el LED cruzando la zanja, pata larga en una fila libre.</li><li>En la misma fila de la pata larga, mete una pata de la resistencia de 220. La otra pata de la resistencia va a otra fila.</li><li>Un cable de esa segunda fila al agujero 13 de la placa.</li><li>Un cable de la fila de la pata corta a un GND de la placa.</li><li>Enchufa el USB. Carga el parpadeo de la lección siguiente cuando llegues; hoy, si el pin aún no es salida, puede que no veas nada y es normal.</li><li>Si al programar el LED externo luce al revés de lo que crees, gira el LED, no cambies el sketch al tuntún.</li></ol><section class="anota"><h2>Anota el montaje</h2><p>Escribe qué cable va a qué pin, o qué has entendido del paso. Se guarda en este aparato.</p><textarea class="nota-montaje" rows="6" placeholder="Pin, color del cable, a qué agujero."></textarea></section><h2>Ejemplos resueltos</h2>
+<div class="ejemplo"><h3>Se enciende el de la placa y no el tuyo</h3><p>El LED junto al pin 13 parpadea y el de la protoboard no. El programa está bien. El camino externo está abierto: la pata corta no llega a GND, o la resistencia está en otra fila, o el LED está al revés.</p><p>Se sigue con el dedo, placa apagada: agujero 13, cable, resistencia, pata larga, pata corta, cable, GND. Un solo salto explica el fallo. No se añaden más LEDs para ver si alguno quiere.</p></div><div class="ejemplo"><h3>Brilla y huele</h3><p>Alguien puenteó la resistencia porque el brillo le parecía bajo. El LED luce muy fuerte y al rato el pin 13 deja de gobernar incluso el LED de la placa.</p><p>Se apaga todo. Se vuelve a poner 220 ohmios. Si el LED de a bordo ya no responde a un sketch conocido, ese pin puede haber muerto. Se pasa el experimento al pin 12, también con resistencia, y el 13 se da por perdido.</p></div><h2>Soldadura y seguridad</h2>
+<div class="soldar"><p>No sueldes el LED en un circuito definitivo sin la resistencia en serie. En protoboard la resistencia puede estar a dos agujeros; en una placa soldada tiene que seguir estando, si no el estaño solo hace permanente el error.</p><p>Si un día sueldas las patas a un cable, el estaño moja el cobre en un segundo o dos y queda brillante. Una bola redonda es una soldadura fría: se cae. No respires encima del humo; abre la ventana. Y nunca sueldes con la placa alimentada.</p></div><h2>En la mesa</h2>
+<p>Monta el camino y, antes de enchufar, recórrelo en voz alta con el dedo quieto en cada nudo: agujero 13, cable, resistencia, pata larga, cuerpo del LED, pata corta, cable, GND. Si en algún salto el dedo cambia de fila sin que haya una pata o un cable, ahí está el corte. Esta lectura en voz alta pilla más fallos que volver a cargar el sketch.</p>
+<p>Enchufa. Si todavía no has cargado un programa que ponga el 13 en salida, puede que no veas nada, y es una respuesta válida. No puentees la resistencia para comprobar. Espera a la lección del pinMode, o carga solo si ya sabes pulsar el botón de cargar sin cambiar pines. El LED de la propia placa, cuando parpadee, te dirá que el chip obedece. El tuyo dirá si el camino externo está cerrado. Son dos exámenes distintos.</p>
+<p>Gira el LED una vez, a propósito, con la placa apagada, y vuelve a enchufar cuando haya programa. Tiene que apagarse. Así memorizas el síntoma del sentido contrario, que es silencio, no humo. Luego déjalo en el sentido que luce. Anota en el papel qué pata iba al pin, por si mañana lo desarmas.</p>
+
+<h2>Ejercicio</h2>
+<p>Dibuja el camino: pin, resistencia de 220 ohmios, ánodo, cátodo, GND. Marca qué pata del LED es la larga.</p>
+<section class="quiz">
+<h2>Autoevaluación</h2>
+<div class="pregunta"><p><strong>1.</strong> ¿Qué le pasa a un LED bien orientado si no lleva resistencia?</p><button type="button" class="ver">ver respuesta</button><p class="respuesta" hidden>La corriente se dispara y puede quemar el LED o el pin.</p></div><div class="pregunta"><p><strong>2.</strong> ¿La resistencia tiene que ir sí o sí en la pata larga?</p><button type="button" class="ver">ver respuesta</button><p class="respuesta" hidden>No. En serie da igual el lado, la corriente es la misma.</p></div><div class="pregunta"><p><strong>3.</strong> ¿Cuánto es un tope prudente de corriente por un pin del Uno?</p><button type="button" class="ver">ver respuesta</button><p class="respuesta" hidden>Unos 20 miliamperios.</p></div>
+</section>
+<footer>les vencimos · Arduino Enseñanza · offline</footer>
+</article>
+<script>
+document.querySelectorAll("button.ver").forEach(function(b){
+  b.addEventListener("click", function(){
+    var r = b.parentElement.querySelector(".respuesta");
+    if(!r) return;
+    r.hidden = !r.hidden;
+    b.textContent = r.hidden ? "ver respuesta" : "ocultar respuesta";
+  });
+});
+var btn = document.getElementById("escuchar");
+if(btn){
+  btn.addEventListener("click", function(){
+    var el = document.getElementById("maestro-texto");
+    var texto = el ? el.textContent : "";
+    if(window.LesVencimosMaestro && typeof window.LesVencimosMaestro.decir === "function"){
+      window.LesVencimosMaestro.decir(texto);
+      return;
+    }
+    if(!window.speechSynthesis || typeof window.SpeechSynthesisUtterance !== "function") return;
+    window.speechSynthesis.cancel();
+    var u = new SpeechSynthesisUtterance(texto);
+    u.lang = "es-ES";
+    u.rate = 0.95;
+    window.speechSynthesis.speak(u);
+  });
+}
+
+document.querySelectorAll("textarea.nota-montaje").forEach(function(ta){
+  var art = document.querySelector("[data-ens]");
+  var key = "lv-ens-nota-" + (art ? art.getAttribute("data-ens") : "leccion");
+  try {
+    var prev = localStorage.getItem(key);
+    if(prev) ta.value = prev;
+    ta.addEventListener("input", function(){ localStorage.setItem(key, ta.value); });
+  } catch (e) {}
+});
+var sim = document.querySelector("section.sim");
+if(sim){
+  var canvas = sim.querySelector("canvas.sim-canvas");
+  var ctx = canvas.getContext("2d");
+  var kind = sim.getAttribute("data-sim");
+  var da = sim.getAttribute("data-a") || "";
+  var db = sim.getAttribute("data-b") || "";
+  var toggle = sim.querySelector(".sim-toggle");
+  var range = sim.querySelector(".sim-range");
+  var out = sim.querySelector(".sim-out");
+  var dedo = sim.querySelector(".sim-dedo");
+  var vivo = true;
+  var pulsado = false;
+  var permiso = true;
+  var ledOn = false;
+  var ultimoFlanco = 0;
+  var t0 = Date.now();
+  function num(el, fallo){ return el ? parseInt(el.value, 10) : fallo; }
+  if(dedo && kind !== "noche"){
+    dedo.addEventListener("pointerdown", function(ev){
+      pulsado = true;
+      if(kind === "flanco"){
+        var ahora = Date.now();
+        if(ahora - ultimoFlanco > 30){
+          ledOn = !ledOn;
+          ultimoFlanco = ahora;
+        }
+      }
+      ev.preventDefault();
+    });
+    window.addEventListener("pointerup", function(){ pulsado = false; });
+  }
+  if(dedo && kind === "noche"){
+    dedo.addEventListener("click", function(){
+      permiso = !permiso;
+      dedo.setAttribute("aria-pressed", permiso ? "true" : "false");
+      dedo.textContent = permiso ? "Permiso dado" : "Sin permiso";
+    });
+  }
+  if(toggle){
+    toggle.addEventListener("click", function(){
+      vivo = !vivo;
+      toggle.setAttribute("aria-pressed", vivo ? "true" : "false");
+      toggle.textContent = vivo ? "Parar simulación" : "Encender simulación";
+    });
+  }
+  function circulo(x, y, r, on, nivel){
+    ctx.beginPath();
+    ctx.arc(x, y, r, 0, Math.PI * 2);
+    if(on){
+      var a = nivel == null ? 1 : nivel;
+      ctx.fillStyle = "rgba(196,161,90," + (0.25 + 0.75 * a) + ")";
+      ctx.shadowColor = "#C4A15A";
+      ctx.shadowBlur = 16 * a;
+    } else {
+      ctx.fillStyle = "#2A2720";
+      ctx.shadowBlur = 0;
+    }
+    ctx.fill();
+    ctx.shadowBlur = 0;
+    ctx.lineWidth = 2;
+    ctx.strokeStyle = on ? "#C4A15A" : "#9A9488";
+    ctx.stroke();
+  }
+  function caja(x, y, w, h, titulo){
+    ctx.fillStyle = "#161512";
+    ctx.strokeStyle = "#C4A15A";
+    ctx.lineWidth = 2;
+    ctx.fillRect(x, y, w, h);
+    ctx.strokeRect(x, y, w, h);
+    ctx.fillStyle = "#E6E1D6";
+    ctx.font = "14px sans-serif";
+    ctx.fillText(titulo, x + 10, y + 22);
+  }
+  function texto(x, y, s, col){
+    ctx.fillStyle = col || "#E6E1D6";
+    ctx.font = "13px sans-serif";
+    ctx.fillText(s, x, y);
+  }
+  function frame(){
+    var ahora = Date.now();
+    var lectura = num(range, 0);
+    var enciende = false;
+    var nivel = 1;
+    var etiqueta = "";
+    if(kind === "blink"){
+      var hi = parseInt(da, 10) || 500;
+      var lo = parseInt(db, 10) || 500;
+      var ciclo = hi + lo;
+      var fase = vivo ? ((ahora - t0) % ciclo) : 0;
+      enciende = vivo && fase < hi;
+      etiqueta = enciende ? "HIGH" : "LOW";
+    } else if(kind === "hold"){
+      enciende = vivo && pulsado;
+      etiqueta = pulsado ? "LOW, pulsado" : "HIGH, suelto";
+    } else if(kind === "nivel"){
+      enciende = vivo && pulsado;
+      etiqueta = pulsado ? "lectura LOW" : "lectura HIGH";
+    } else if(kind === "flanco"){
+      enciende = vivo && ledOn;
+      etiqueta = enciende ? "LED encendido" : "LED apagado";
+    } else if(kind === "umbral"){
+      var umbral = parseInt(da, 10);
+      enciende = vivo && (db === "lt" ? lectura < umbral && lectura > 0 : lectura > umbral);
+      if(sim.getAttribute("data-sim") === "umbral" && da === "20"){
+        enciende = vivo && lectura > 0 && lectura < umbral;
+      }
+      etiqueta = String(lectura);
+      nivel = 1;
+    } else if(kind === "pwm"){
+      nivel = vivo ? lectura / 255 : 0;
+      enciende = vivo && lectura > 0;
+      etiqueta = String(lectura);
+    } else if(kind === "servo"){
+      var span = 140;
+      var pos = vivo ? ((ahora - t0) % 2800) / 2800 : 0.5;
+      var tri = pos < 0.5 ? pos * 2 : (1 - pos) * 2;
+      var grados = Math.round(20 + tri * span);
+      if(range) range.value = String(grados);
+      lectura = grados;
+      enciende = vivo;
+      etiqueta = grados + " grados";
+    } else if(kind === "buzz"){
+      var fb = vivo ? ((ahora - t0) % 1000) : 500;
+      etiqueta = fb < 300 ? "440" : (fb < 600 ? "880" : "silencio");
+      enciende = vivo && fb < 600;
+    } else if(kind === "carga"){
+      var fc = vivo ? ((ahora - t0) % 4000) : 2000;
+      enciende = vivo && fc < 2000;
+      etiqueta = enciende ? "pin en HIGH" : "pin en LOW";
+    } else if(kind === "semi"){
+      var fs = vivo ? ((ahora - t0) % 3500) : 0;
+      etiqueta = fs < 1500 ? "rojo" : (fs < 2000 ? "ambar" : "verde");
+      enciende = vivo;
+    } else if(kind === "alarma"){
+      enciende = vivo && lectura > 0 && lectura < 20;
+      etiqueta = lectura + " cm";
+    } else if(kind === "noche"){
+      var noche = lectura < 400 && permiso;
+      enciende = vivo && noche;
+      nivel = enciende ? 180/255 : 0;
+      etiqueta = (permiso ? "con permiso" : "sin permiso") + " · " + lectura;
+    }
+    if(out) out.textContent = etiqueta;
+    ctx.clearRect(0, 0, 320, 160);
+    ctx.fillStyle = "#1C1A16";
+    ctx.fillRect(0, 0, 320, 160);
+    caja(12, 28, 90, 100, "Uno");
+    if(kind === "semi"){
+      var fs2 = vivo ? ((ahora - t0) % 3500) : 0;
+      circulo(160, 48, 14, vivo && fs2 < 1500, 1);
+      circulo(210, 48, 14, vivo && fs2 >= 1500 && fs2 < 2000, 1);
+      circulo(260, 48, 14, vivo && fs2 >= 2000, 1);
+      texto(150, 78, "10 rojo");
+      texto(198, 78, "11");
+      texto(248, 78, "12 verde");
+      texto(16, 150, vivo ? "ciclo en marcha" : "simulación parada", "#9A9488");
+    } else if(kind === "servo"){
+      var rad = (180 - lectura) * Math.PI / 180;
+      ctx.strokeStyle = "#C4A15A";
+      ctx.lineWidth = 4;
+      ctx.beginPath();
+      ctx.moveTo(200, 110);
+      ctx.lineTo(200 + Math.cos(rad) * 70, 110 - Math.sin(rad) * 50);
+      ctx.stroke();
+      circulo(200, 110, 8, true, 1);
+      texto(120, 150, etiqueta);
+    } else if(kind === "buzz" || kind === "alarma"){
+      circulo(150, 80, 18, kind === "alarma" ? enciende : false, 1);
+      texto(176, 76, kind === "alarma" ? "LED 13" : "");
+      ctx.beginPath();
+      ctx.arc(250, 80, 22, 0, Math.PI * 2);
+      ctx.strokeStyle = enciende ? "#C4A15A" : "#9A9488";
+      ctx.lineWidth = 3;
+      ctx.stroke();
+      if(enciende){
+        ctx.beginPath();
+        ctx.arc(250, 80, 32, 0, Math.PI * 2);
+        ctx.stroke();
+      }
+      texto(120, 140, etiqueta);
+    } else if(kind === "carga"){
+      circulo(170, 70, 16, enciende, 1);
+      texto(196, 66, "orden");
+      ctx.strokeStyle = enciende ? "#8F9A72" : "#9A9488";
+      ctx.strokeRect(230, 48, 70, 44);
+      texto(242, 74, enciende ? "carga" : "quieta", enciende ? "#8F9A72" : "#9A9488");
+      texto(16, 150, etiqueta, "#9A9488");
+    } else {
+      circulo(200, 78, 18, enciende, nivel);
+      texto(230, 74, "LED");
+      texto(16, 150, etiqueta, "#9A9488");
+    }
+    if(!vivo){
+      texto(230, 150, "parada", "#9A9488");
+    }
+    requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+}
+
+</script>
+</body>
+</html>

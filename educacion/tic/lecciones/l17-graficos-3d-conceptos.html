@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="es"><head><meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Laboratorio L17 · Gráficos 3D: conceptos</title>
+<style>
+:root{--ink:#0E0E0C;--amber:#C4A15A;--paper:#FAF7F0;--line:rgba(14,14,12,.14)}
+*{box-sizing:border-box} body{margin:0;font-family:Segoe UI,system-ui,sans-serif;background:var(--paper);color:var(--ink);line-height:1.45}
+header{padding:.7rem 1rem;border-bottom:2px solid var(--amber);background:#fff} header h1{margin:0;font-size:1.05rem;font-family:Georgia,serif}
+header p{margin:.2rem 0 0;font-size:.8rem;color:#5C564C} main{padding:.75rem 1rem 2rem;max-width:62rem}
+label{display:block;font-size:.75rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:#5C564C;margin:.55rem 0 .2rem}
+textarea,input[type=text],input[type=number],select{width:100%;font:14px/1.4 ui-monospace,monospace;border:1px solid var(--line);border-radius:6px;padding:.4rem .5rem}
+.nota{font-size:.82rem;color:#5C564C}
+
+.bloque-cuerpo table{width:100%;border-collapse:collapse;font-size:.92rem;margin:0 0 1rem}
+.bloque-cuerpo th,.bloque-cuerpo td{border:1px solid rgba(14,14,12,.12);padding:.45rem .55rem;vertical-align:top;text-align:left}
+.bloque-cuerpo th{background:#F0EBE0;font-weight:650}
+.bloque-cuerpo pre{background:#0E0E0C;color:#FAF7F0;padding:.9rem 1rem;border-radius:8px;overflow:auto;font-size:.82rem;line-height:1.45}
+.bloque-cuerpo pre code{color:inherit;font-size:inherit}
+.bloque-cuerpo code{font-family:ui-monospace,"Cascadia Code","Segoe UI Mono",monospace}
+.figura-svg{margin:1rem 0 1.15rem;background:#fff;border:1px solid rgba(14,14,12,.12);border-radius:10px;padding:.6rem .6rem .35rem}
+.figura-svg svg{width:100%;height:auto;display:block}
+.figura-svg figcaption{font-size:.82rem;color:#5C564C;padding:.35rem .2rem 0}
+details.comprueba{margin:.55rem 0;background:#fff;border:1px solid rgba(14,14,12,.12);border-left:3px solid #C4A15A;border-radius:8px;padding:.55rem .85rem}
+details.comprueba summary{cursor:pointer;font-weight:650;color:#0E0E0C}
+.lab-embed{background:#FAF7F0;border:1px solid rgba(14,14,12,.12);border-radius:8px;padding:.75rem}
+.lab-embed label{display:block;font-size:.78rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:#5C564C;margin:.4rem 0 .2rem}
+.lab-embed textarea,.lab-embed input[type=text],.lab-embed input[type=number],.lab-embed select{width:100%;font-family:ui-monospace,monospace;font-size:.82rem;border:1px solid rgba(14,14,12,.2);border-radius:6px;padding:.4rem .5rem;background:#fff;color:#0E0E0C}
+.lab-embed textarea{min-height:7rem;resize:vertical}
+.lab-row{display:flex;flex-wrap:wrap;gap:.4rem;margin:.45rem 0}
+.lab-embed button{background:#C4A15A;color:#1A160E;border:0;border-radius:4px;padding:.4rem .7rem;font-weight:700;cursor:pointer}
+.lab-embed button.sec{background:#fff;border:1px solid rgba(14,14,12,.2)}
+.lab-out{font-size:.88rem;background:#fff;border:1px solid rgba(14,14,12,.12);border-radius:6px;padding:.5rem .65rem;margin-top:.4rem}
+.lab-out .ok{color:#3D6B4F;font-weight:650}
+.lab-out .bad{color:#A85A3C;font-weight:650}
+.lab-canvas{width:100%;max-width:640px;background:#fff;border:1px solid rgba(14,14,12,.15);border-radius:6px;display:block;touch-action:none}
+.gpio-sim{display:grid;grid-template-columns:7.5rem 1fr;gap:.8rem;align-items:center;background:#0E0E0C;color:#FAF7F0;border-radius:10px;padding:.85rem 1rem;margin:.4rem 0 .6rem}
+.gpio-sim p{margin:.2rem 0;color:#FAF7F0}
+.gpio-sim .pin{font-family:ui-monospace,monospace;color:#C4A15A}
+button.sw{width:4.2rem;height:2rem;min-height:2rem;border-radius:999px;border:1px solid #C4A15A;background:#2A2620;color:#FAF7F0;position:relative;cursor:pointer;padding:0;font-weight:700}
+button.sw[aria-pressed="true"]{background:#C4A15A;color:#1A160E}
+button.sw i{position:absolute;top:2px;left:2px;width:1.6rem;height:1.6rem;border-radius:50%;background:#FAF7F0;display:block}
+button.sw[aria-pressed="true"] i{left:2.2rem;background:#fff}
+</style></head><body>
+<header><h1>Laboratorio · L17 · Gráficos 3D: conceptos</h1>
+<p>Offline, en esta página. No se envía nada a un servidor.</p></header>
+<main><p class="nota">Extrusión simplificada: una base y una altura. Las tres caras visibles bastan para leer el volumen. La «textura» es un motivo, no un material de motor de juego.</p>
+<label for="w">Ancho</label><input id="w" type="number" min="40" max="160" value="90"/>
+<label for="d">Fondo</label><input id="d" type="number" min="30" max="120" value="60"/>
+<label for="h">Altura de extrusión</label><input id="h" type="number" min="10" max="140" value="70"/>
+<label for="tex">Textura de la cara frontal</label>
+<select id="tex"><option value="liso">Liso</option><option value="rayas">Rayas</option><option value="puntos">Puntos</option></select>
+<div class="lab-row"><button type="button" id="bDraw">Extruir</button></div>
+<canvas id="cv" class="lab-canvas" width="640" height="320"></canvas>
+<div id="out" class="lab-out"></div>
+</main>
+<script>function byId(id){return document.getElementById(id);}
+function iso(x,y,z){ return {x: 320+(x-z)*0.86, y: 210+(x+z)*0.5 - y}; }
+function draw(){
+  var w=+byId("w").value||90, d=+byId("d").value||60, h=+byId("h").value||70;
+  var c=byId("cv"), g=c.getContext("2d");
+  g.fillStyle="#FAF7F0"; g.fillRect(0,0,640,320);
+  function face(pts, fill){
+    g.beginPath();
+    var p0=iso(pts[0][0],pts[0][1],pts[0][2]);
+    g.moveTo(p0.x,p0.y);
+    for(var i=1;i<pts.length;i++){ var p=iso(pts[i][0],pts[i][1],pts[i][2]); g.lineTo(p.x,p.y); }
+    g.closePath(); g.fillStyle=fill; g.fill(); g.strokeStyle="#0E0E0C"; g.stroke();
+  }
+  face([[0,0,0],[0,0,d],[w,0,d],[w,0,0]], "#C4A15A");
+  face([[0,0,d],[0,h,d],[w,h,d],[w,0,d]], "#2F5D7A");
+  face([[w,0,0],[w,0,d],[w,h,d],[w,h,0]], "#3D6B4F");
+  if(byId("tex").value==="rayas"){
+    g.save(); g.beginPath();
+    var a=iso(0,0,d), b=iso(w,0,d), c1=iso(w,h,d), d1=iso(0,h,d);
+    g.moveTo(a.x,a.y); g.lineTo(b.x,b.y); g.lineTo(c1.x,c1.y); g.lineTo(d1.x,d1.y); g.closePath(); g.clip();
+    g.strokeStyle="rgba(250,247,240,.7)"; g.lineWidth=3;
+    for(var i=0;i<8;i++){ var y=20+i*18; g.beginPath(); g.moveTo(250,y); g.lineTo(520,y+30); g.stroke(); }
+    g.restore();
+  } else if(byId("tex").value==="puntos"){
+    g.fillStyle="#FAF7F0";
+    for(var i=0;i<6;i++){ var p=iso(15+ (i%3)*25, 15+Math.floor(i/3)*25, d); g.beginPath(); g.arc(p.x,p.y,3,0,6.28); g.fill(); }
+  }
+  g.fillStyle="#5C564C"; g.font="13px sans-serif";
+  var ox=iso(0,0,0);
+  g.fillText("X ancho", ox.x+8, ox.y+16);
+  g.fillText("Y altura (extrusión)", 24, 28);
+  g.fillText("Z fondo", 24, 48);
+  byId("out").textContent="Base "+w+"×"+d+" extruida "+h+" en Y. Tres caras: suelo ámbar, frente azul, lado verde. No es un render: es el volumen leído.";
+}
+byId("bDraw").onclick=draw;
+["w","d","h","tex"].forEach(function(id){ byId(id).addEventListener("input", draw); });
+draw();
+</script>
+</body></html>

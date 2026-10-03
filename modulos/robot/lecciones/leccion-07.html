@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lección 7. Equilibrio quieto · Robot humanoide · Les vencimos</title>
+<style>
+
+:root{--bg:#0E0E0C;--surf:#161512;--panel:#1C1A16;--ink:#E6E1D6;--mut:#9A9488;--acc:#C4A15A;--acc-ink:#1A160E;--danger:#C46A4A;--ok:#8F9A72;--line:#2A2720}
+*{box-sizing:border-box}
+html{color-scheme:dark}
+body{margin:0;background:var(--bg);color:var(--ink);font:400 17px/1.55 "Segoe UI",system-ui,sans-serif}
+h1,h2,h3{font-family:"Iowan Old Style",Palatino,Georgia,serif;font-weight:600;line-height:1.25;letter-spacing:0}
+h1{font-size:1.85rem;margin:.35rem 0 .4rem}
+h2{font-size:1.28rem;margin:1.6rem 0 .5rem}
+h3{font-size:1.05rem;margin:1.15rem 0 .35rem}
+a{color:var(--acc)}
+a:hover{color:var(--ink)}
+.wrap{max-width:46rem;margin:0 auto;padding:1.25rem 1.1rem 4rem}
+header.top{border-bottom:1px solid var(--line);padding-bottom:.85rem;margin-bottom:1.15rem}
+.marca{font-variant:small-caps;text-transform:lowercase;letter-spacing:.14em;color:var(--mut);margin:0;font-size:.78rem}
+.meta{color:var(--mut);margin:.45rem 0 0}
+nav.pasos{display:flex;flex-wrap:wrap;gap:.45rem;margin:1.2rem 0 0}
+nav.pasos a,button{min-height:44px;min-width:44px;padding:.45rem .85rem;border:1px solid var(--line);border-radius:2px;background:var(--surf);color:var(--ink);font:400 16px/1.3 "Segoe UI",system-ui,sans-serif;text-decoration:none;cursor:pointer}
+button.acc{background:var(--acc);color:var(--acc-ink);border-color:var(--acc);font-weight:600}
+button:focus-visible,a:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
+.maestro{background:var(--panel);border:1px solid var(--line);border-radius:2px;padding:1rem 1.05rem;margin:1rem 0 1.2rem}
+.maestro h2{margin:.1rem 0 .55rem;font-size:1.05rem;color:var(--acc)}
+.aviso{border-left:3px solid var(--danger);padding:.4rem 0 .4rem .85rem;margin:1rem 0}
+.aviso strong{color:var(--danger);font-weight:600}
+.puentes{background:var(--surf);border:1px solid var(--line);border-radius:2px;padding:.9rem 1rem;margin:1rem 0}
+.puentes h2{margin-top:0}
+ol.temario{padding-left:1.2rem}
+ol.temario li{margin:.4rem 0}
+li.pend{color:var(--mut)}
+.esquema{width:100%;height:auto;background:var(--surf);border:1px solid var(--line);border-radius:2px;margin:.7rem 0 1rem}
+.esquema text{font-family:"Segoe UI",system-ui,sans-serif}
+table{width:100%;border-collapse:collapse;margin:.7rem 0 1rem;font-size:.95rem}
+th,td{border-bottom:1px solid var(--line);text-align:left;padding:.45rem .35rem;vertical-align:top}
+th{color:var(--acc);font-weight:600}
+.practica{background:var(--panel);border:1px solid var(--line);border-radius:2px;padding:.95rem 1rem 1.05rem;margin:1.2rem 0}
+.practica h2{margin-top:0}
+ol.juego{list-style:none;padding:0;margin:.5rem 0}
+ol.juego li{display:flex;gap:.45rem;align-items:center;background:var(--surf);border:1px solid var(--line);border-radius:2px;padding:.35rem .45rem;margin:.4rem 0}
+ol.juego li span{flex:1}
+.opciones{display:flex;flex-direction:column;gap:.45rem;margin:.5rem 0}
+.opciones button{text-align:left}
+.resultado{margin:.7rem 0 0}
+.resultado.ok{color:var(--ok)}
+.resultado.mal{color:var(--danger)}
+.porque{margin:.7rem 0 0}
+.nota{color:var(--mut)}
+footer{margin-top:2rem;padding-top:.85rem;border-top:1px solid var(--line);color:var(--mut);font-size:.82rem}
+code{font-family:ui-monospace,"Cascadia Code",monospace;font-size:.92em}
+
+.cuaderno{background:var(--surf);border:1px solid var(--line);border-radius:2px;padding:.95rem 1rem 1.05rem;margin:1.2rem 0}
+.cuaderno h2{margin-top:0}
+.cuaderno textarea{display:block;width:100%;min-height:12rem;margin:.6rem 0 .4rem;padding:.7rem .75rem;border:1px solid var(--line);border-radius:2px;background:var(--bg);color:var(--ink);font:400 17px/1.45 "Segoe UI",system-ui,sans-serif;resize:vertical}
+.cuaderno textarea:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
+
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="top">
+<p class="marca">Les vencimos · Robot humanoide · Enseñanza</p>
+<p class="meta">Lección 07 de 10 · Primera prueba sin marcha</p>
+<h1>Equilibrio: qué le pides al programa y cómo pruebas que está quieto</h1>
+</header>
+<main>
+<section class="maestro">
+<h2>Versión corta</h2>
+<p class="maestro-texto">La primera prueba es sin marcha, y va atada. El punto de arriba tiene que aguantar el peso del robot y el tirón de una caída, no solo el peso quieto. La superficie no resbala. Nadie, tú incluido, está en el arco que barrería el cuerpo si la atadura falla o es larga. Los pies cargan de verdad: la atadura no lo cuelga como una grúa, porque entonces no estás probando el equilibrio. Le pides al programa, con estas palabras, que mantenga la vertical del peso dentro de la planta. Si esa vertical sale, quita el par o corta. No sigas andando: no hay paso en esta prueba. Miras tres cosas. Se va de punteras: el peso queda por delante del tobillo. Se va de talón: queda por detrás. Oscila y la oscilación crece: la corrección se pasa y es una caída lenta. En el ejemplo de mesa, 3,0 kilogramos son 29,4 newton; a 2 centímetros por delante del eje, el par en ese tobillo en apoyo simple es 0,59 newton metro. En doble apoyo no partes ese par por la mitad. Si tu masa no es 3,0 kilogramos, rehaces la cuenta. El programa de estar quieto no tapa un pie que no cumple el margen del 60 por ciento de la semilongitud útil.</p>
+<button type="button" class="escuchar acc">Escuchar</button>
+</section>
+<section>
+<h2>Tratado</h2>
+<p>Esta lección es el gesto de la prueba. No es la cinemática de la pierna ni el listado que mueve los servos. Eso, si lo necesitas cuando esta prueba ya esté hecha, está en Control, en el ancla de equilibrio. Aquí se decide qué le pides al programa con palabras, cómo atas, qué miras y cuándo cortas. Si al terminar no puedes hacer la prueba atada sin abrir ese ancla, no has hecho la lección.</p>
+<p>La frase que le pides es una sola. Mantén la vertical del peso dentro de la planta. Si la vertical sale, quita el par o corta. No des un paso. La primera prueba es esa, y es sin marcha. Un paso escrito para tapar un centro que no cabe es la manera de no enterarte de que el pie está mal. Andar es otra campaña. No empieza hoy.</p>
+
+<h3>Qué tiene que ser verdad antes de atar</h3>
+<p>La masa está anotada, con la batería puesta, como en la lección 2. El pie se dibujó a partir de esa masa, no al revés, como en la lección 3. El centro se leyó en la mesa, sin caminar, como en la lección 4, y se repitió si el montaje de la lección 5 movió algo. Los topes existen y se recorrieron con la mano, y la corriente se dio en el orden de la lección 6: pack fuera mientras cableabas, lógica sola, servo suelto, y solo después el servo en una junta que ya tenía tope. Si falta uno de esos pasos, no atas «para ir viendo». La atadura no corrige una masa sin pesar ni un tope que no existe.</p>
+<p>En el ejemplo de mesa, que no es tu robot, la masa es 3,0 kg, la gravedad es 9,81 m/s² y el peso es 29,4 N. Si el centro queda 0,02 m por delante del eje de un tobillo, el par estático en ese tobillo, en apoyo simple, es 0,59 N·m. Ese número no se parte por dos porque los dos pies estén en el suelo. El doble apoyo cambia la pregunta geométrica —el polígono que une las dos plantas— y no te autoriza a encargar la mitad del par. Si tu báscula no marca 3,0 kg, no reutilizas 29,4 N ni 0,59 N·m. Vuelves a multiplicar. El par que salga se le pide a Diseño. Esta lección no elige reductora ni un servo comercial «que se parece».</p>
+
+<h3>La prueba atada</h3>
+<p>Atar no es colgar el robot de una lámpara para que no se caiga y llamar a eso equilibrio. La atadura es la red por si se va. Mientras está quieto, los pies tienen que cargar el peso. Si la cuerda trabaja como una grúa y los pies apenas rozan, no estás midiendo nada: estás viendo una suspensión. Dejas holgura bastante para que la planta apoye con el peso encima, y poca bastante para que, si cae, la cabeza no llegue al canto de la mesa ni a nadie. Esas dos condiciones se prueban con el robot sin corriente, empujándolo tú a mano, antes de energizar.</p>
+<p>El punto de arriba aguanta el peso del robot y el tirón de la caída, no solo el peso quieto. En el ejemplo, el peso quieto son 29,4 N. Una cuerda o un nudo pensados justo para esos 29,4 N se alargan o se sueltan cuando el cuerpo llega al final de la holgura con velocidad. No calcules aquí una energía de impacto que esta lección no tiene: elige un punto que ya uses para colgar, con margen, una masa mayor que la del robot, y una cuerda que no sea elástica hasta el punto de dejar pasar la cabeza. Una silla que vuelca, el respaldo de una estantería sin fijar, o el cable de una lámpara, no son un punto. Si el punto no te convence sin corriente, no lo convence la prueba.</p>
+<p>La superficie no resbala. Si la planta patina, aprendes que la mesa es lisa, no si el programa tiene el peso dentro del pie. Papel suelto, tela que se arruga, o metal pulido, no valen. Vale una base firme que no se desplace sobre el banco, y un apoyo en el que el pie no patine sobre la base. Lo compruebas a mano, sin corriente: empujas el cuerpo de lado y el pie no sale disparado. Si sale, cambias la superficie antes de hablar del programa.</p>
+<p>Nadie está en el arco de caída. El arco es el volumen que barre el cuerpo, brazos incluidos, si la atadura falla o si es más larga de lo que creías. También barre alrededor del punto de arriba si el nudo desliza. Tú no pones la cara en ese arco para «ver mejor el tobillo». Te colocas fuera, con la mano en el corte físico de la lección 6, no en la rodilla. La lección 10 desarrolla manos y arco en el uso. Aquí basta con no empezar la prueba dentro del arco, y con no meter a nadie más en la sala de la prueba. Un espectador curioso es una persona en el arco.</p>
+
+<figure>
+<svg class="esquema" viewBox="0 0 640 400" role="img" aria-labelledby="t7svg">
+<title id="t7svg">Prueba atada: punto de anclaje, pies que cargan, arco de caída vacío</title>
+<rect x="0" y="0" width="640" height="400" fill="#161512"/>
+<line x1="40" y1="340" x2="600" y2="340" stroke="#2A2720" stroke-width="2"/>
+<rect x="150" y="328" width="200" height="12" fill="#1C1A16" stroke="#8F9A72" stroke-width="2"/>
+<text x="250" y="368" text-anchor="middle" fill="#8F9A72" font-size="13">superficie que no resbala</text>
+<rect x="230" y="160" width="40" height="168" fill="#1C1A16" stroke="#E6E1D6" stroke-width="2"/>
+<circle cx="250" cy="150" r="16" fill="#1C1A16" stroke="#E6E1D6" stroke-width="2"/>
+<line x1="250" y1="40" x2="250" y2="118" stroke="#C4A15A" stroke-width="2"/>
+<circle cx="250" cy="36" r="6" fill="#C4A15A"/>
+<text x="264" y="40" fill="#C4A15A" font-size="13">punto que aguanta el peso y el tirón</text>
+<path d="M250 200 A 150 150 0 0 1 400 340" fill="none" stroke="#C46A4A" stroke-width="2" stroke-dasharray="5 4"/>
+<text x="360" y="250" fill="#C46A4A" font-size="13">arco de caída, vacío</text>
+<line x1="270" y1="200" x2="270" y2="340" stroke="#C4A15A" stroke-width="1.5" stroke-dasharray="3 3"/>
+<circle cx="270" cy="210" r="5" fill="#C4A15A"/>
+<text x="278" y="206" fill="#C4A15A" font-size="13">vertical del peso, dentro</text>
+<rect x="500" y="250" width="28" height="70" fill="none" stroke="#9A9488" stroke-width="1.5"/>
+<text x="470" y="240" fill="#9A9488" font-size="13">tú, fuera</text>
+<text x="458" y="300" fill="#9A9488" font-size="12">mano en el corte</text>
+<text x="40" y="28" fill="#E6E1D6" font-size="14">La cuerda no trabaja de grúa: los pies cargan.</text>
+<text x="40" y="392" fill="#9A9488" font-size="13">Sin marcha. Si la vertical sale de la planta, se quita el par o se corta.</text>
+</svg>
+<figcaption class="nota">Gesto de la prueba, no un plano de marcha. La holgura deja cargar a los pies. El arco queda libre. El corte está en la mano, no un menú.</figcaption>
+</figure>
+
+<h3>Qué es estar quieto</h3>
+<p>Quieto, en esta prueba, quiere decir las dos plantas en el suelo, cargando, y la vertical del peso dentro del polígono que de verdad apoya. Con los dos pies planos y cargados, ese polígono va de un borde exterior al otro e incluye el hueco entre los pies. El hueco sujeta porque los dos contactos están. No porque hayas partido el par. En cuanto un pie deja de cargar, el polígono es solo la planta del otro. El pie en el aire no cuenta, aunque el programa crea que sigue abajo.</p>
+<p>La primera prueba no levanta un pie. No pasa a apoyo simple «un segundo, para ver». Apoyo simple es el caso en el que todo el par del peso con su brazo cae en el tobillo que queda, el 0,59 N·m del ejemplo si x sigue siendo 0,02 m, no la mitad. No te lo ganas el primer día. Te quedas en doble apoyo, de pie, y miras si eso se sostiene solo.</p>
+<p>La vertical se observa, no se supone. Se va de punteras cuando el cuerpo se inclina hacia delante y la carga se acumula en el borde delantero. El centro ha quedado por delante del eje del tobillo, y el peso quiere tumbar hacia las punteras. En el ejemplo, 0,02 m por delante ya son 0,59 N·m en ese tobillo si estuvieras en apoyo simple. En doble apoyo no anotas 0,295 N·m para consolarte: anotas lo que ves, que es hacia qué borde se va, y mides de nuevo la x de la lección 4 si el programa no lo devuelve. Se va de talón cuando la carga se va al borde trasero: el centro está por detrás del eje. Misma cuenta, brazo hacia atrás, dirección escrita con palabras. No cambies el signo porque estés mirando la otra pierna.</p>
+<p>Oscila cuando la corrección se pasa de largo: el tobillo empuja, el cuerpo cruza la vertical, el tobillo empuja al otro lado, y cada vez un poco más. Una oscilación que se apaga y deja el cuerpo en la planta es una corrección que ha vuelto. Una oscilación que crece es una caída en cámara lenta. No es «casi quieto». No la tapas con un paso, que metería otro golpe encima de un lazo que ya se pasa. Quitas par o cortas, y bajas la corrección cuando vuelvas a probar, todavía sin marcha.</p>
+<p>El margen de taller sigue vigente aunque no vuelque. El desplazamiento previsto se orienta al 60 % de la semilongitud útil de la planta, no al borde. En el ejemplo, x = 0,02 m pide al menos unos 3,3 cm de vuelo útil por delante del eje. Si en la prueba quieta la vertical se queda a un 67 % de esa semilongitud, dentro del borde, el robot puede no caerse en el estático y aun así incumplir el margen. No das por buena la prueba. Y no pides un paso para «salir de ahí». Sales midiendo otra vez, o recortando menos planta de la que no debiste recortar. Una planta de 3 cm con el centro a 2 cm es exactamente ese incumplimiento: el 60 % de 3 cm son 1,8 cm.</p>
+
+<h3>Qué le pides al programa, en palabras</h3>
+<p>Le pides que mantenga la vertical del peso dentro de la planta. Nada más, en esta prueba. La corrección pequeña es de tobillo: el cuerpo se queda casi rígido y el tobillo empuja el centro de vuelta hacia el interior, como cuando te balanceas sin despegar los talones. Sirve mientras la proyección sigue cerca del interior y el servo todavía tiene recorrido y par. Si el servo está contra su tope, la orden de un grado más no es una corrección: el engranaje ya no gira. Recortas la orden antes de mandarla. No pides una estrategia de cadera sacada de un artículo para compensar. Un servo de este taller a menudo es lento, tiene holgura y se queda sin par cerca del tope. Si la orden llega cuando el cuerpo ya se ha ido, la orden existe y el robot está en la cuerda. En esta prueba, si el tobillo no lo sujeta, cortas. No inventas la cadera, y no reduces «el paso» porque no hay paso.</p>
+<p>Si la vertical sale de la planta, le pides que quite el par o que corte. Quitar el par es dejar de empujar, no seguir mandando la pose de pie contra el suelo o contra la cuerda. Cortar es el mando físico del positivo de los servos, el de la lección 6, no el reset y no una casilla en pantalla. Las dos cosas son válidas. Seguir andando no es válida. No hay una tercera opción que sea «un pasito para recuperar». El pasito encoge el polígono justo cuando ya estabas fuera.</p>
+<p>La inclinación te dice cuánto se ha ido el cuerpo. No te dice, por sí sola, qué pie está cargado. Puedes estar inclinado y seguir con los dos pies abajo, o casi vertical y con un pie ya en el aire. Si tienes un sensor de fuerza bajo la planta, ya calibrado en este robot, la fuerza decide si ese pie forma parte del polígono. Por debajo del umbral que mediste, ese pie no cuenta y no lanzas un balanceo. Esta lección no cablea ese sensor. Sí te prohíbe dar por cargado un pie que no lo está. Si no tienes sensor, no levantas un pie y no te inventas el umbral: te quedas en la prueba de los dos pies, mirando con los ojos si los dos apoyan.</p>
+<p>Cada vuelta del programa, dicha sin código, hace tres cosas. Lee la inclinación y, si la tienes, la carga. Compara con la vertical que quieres, dentro de la planta. Escribe el ángulo solo a los servos que esta prueba permite mover: los que sujetan el estar quieto, no los de un paso. La vuelta tiene que vivir lo bastante seguida como para que el servo se entere a tiempo. Como orientación de este taller, entre 50 y 200 veces por segundo. No es una ley ni una ficha. Por debajo, el servo se entera tarde. Por encima, no ganas nada si el propio servo tarda más que eso en moverse. Lo que rompe la vuelta, aunque el número parezca alto, es una espera que la bloquea entera: el hercio que calculaste no existe, y el servo obedece un ángulo viejo. El tiempo se cuenta sin parar el programa dentro de la vuelta. El signo se comprueba a mano: inclinas el robot hacia las punteras, sin que sea un empujón de caída, y el tobillo tiene que empujar al revés de esa inclinación. Si empuja a favor, el signo está al revés. Se cambia el signo. No se sube la corrección: subirla solo te tira más deprisa hacia el lado malo.</p>
+
+<h3>Cómo pruebas que está quieto</h3>
+<p>Sin corriente, atas, compruebas holgura y superficie, y recorres el arco con la mano para ver que no hay nadie y que la cabeza no llega al canto. El corte está en tu mano. Energizas como en la lección 6, lógica y luego servos, con los topes ya puestos. No sujetas el torso. Si lo sujetas, la prueba la estás haciendo tú.</p>
+<p>Lo dejas un rato que hayas decidido antes, no un vistazo. Medio minuto ya enseña una deriva que un segundo esconde. Anotas cuál de las tres cosas ocurre, si ocurre: punteras, talón, u oscilación que crece. Si no ocurre ninguna y los dos pies siguen cargando, sigue quieto en ese tramo. Entonces, y solo entonces, un empujón pequeño, del tamaño de un toque, no de una patada, con la mano ya fuera del arco en cuanto lo sueltas. Si vuelve y se queda, el estar quieto aguanta una perturbación. Si no vuelve, cortas. No conviertes el toque en el primer paso.</p>
+<p>Si se va de punteras o de talón y no vuelve, no alargas la prueba «a ver si el lazo lo caza». Cortas. Vuelves a la masa y a la x. Un centro a 4 cm por delante, con los 29,4 N del ejemplo, ya son 1,18 N·m, y una planta mínima de 3,3 cm se queda corta del todo: la vertical ni siquiera cae dentro. Ningún programa de estar quieto mete esa vertical otra vez en una planta que no la cubre. Si tu masa es otra, la cuenta se rehace antes de tocar la corrección.</p>
+<p>La holgura del engranaje también miente. Si pides tres grados y el engranaje se los come, el programa tiene razón en la hoja y el pie no se mueve. Lo ves porque la orden cambia y el tobillo no. No lo arreglas pidiendo marcha. Lo arreglas en la mecánica, o reconociendo que esa corrección no llega al suelo.</p>
+
+<h3>Errores típicos de taller</h3>
+<p>Colgar el robot de la cuerda hasta que los pies flotan, y anotar que «está estable». No has probado la planta. Has probado el nudo.</p>
+<p>Atar a un punto que solo aguanta el peso quieto. Al caer, la cuerda cede y el arco real es más grande que el que habías vaciado. El punto tiene que aguantar el tirón.</p>
+<p>Probar en papel o en mesa barnizada. El pie patina, lo llamas desequilibrio, y retocas el programa. La superficie era el fallo.</p>
+<p>Poner la cara junto a la rodilla para ver el servo. Estás en el arco, y la mano está donde la lección 10 no la quiere cuando hay corriente.</p>
+<p>Dar por buena la prueba porque no ha volcado, con la vertical al 67 % de la semilongitud. Dentro del borde no es el margen del 60 %. Se anota como incumplimiento.</p>
+<p>Partir 0,59 N·m entre los dos tobillos porque están los dos pies abajo. Esa no es la regla. El apoyo simple, el día que llegue, verá el par entero. El doble apoyo no te regala la mitad.</p>
+<p>Reutilizar 0,59 N·m cuando la báscula marca otra masa. La cuenta de 3,0 kg ha muerto. Cinco kilogramos con la misma x de 0,02 m son 0,981 N·m, y además x hay que volver a medirla: no se presta.</p>
+<p>Mandar un paso en cuanto se va de punteras. El polígono se encoge. Has convertido una deriva en una caída, y no sabes cuál de las dos cosas falló.</p>
+<p>Subir la corrección cuando el signo está al revés. Inclinas a punteras y el tobillo empuja a punteras. Más corrección es más caída. Se cambia el signo.</p>
+<p>Copiar una estrategia de cadera de un texto porque el tobillo no llega. Si el servo no tiene el par ni el tiempo, la orden llega tarde. En esta prueba se corta. No se simula el artículo.</p>
+<p>Dejar una espera que bloquea la vuelta, y creer que el lazo va a 100 veces por segundo porque así lo escribiste. La espera se come el número. El servo obedece tarde.</p>
+<p>Levantar un pie el primer día, sin saber si carga, porque «el doble apoyo ya se ve fácil». Fácil no es la prueba. La prueba es que se quede, atado, sin marcha, el tiempo que dijiste.</p>
+
+<h3>Qué haces en el banco</h3>
+<p>Compruebas la hoja: masa, peso, x con su dirección, par en apoyo simple sin dividir, y semilongitud útil frente al 60 %. Si la masa no es 3,0 kg, los números del ejemplo no están en la hoja. Si el margen no se cumple, no energizas para compensar.</p>
+<p>Preparas el punto, la cuerda y la superficie. Sin corriente, compruebas que los pies cargan, que la holgura no deja llegar la cabeza al canto, y que el arco está vacío. La mano que va a energizar sale del arco y se queda en el corte.</p>
+<p>Energizas. No sujetas el torso. Miras punteras, talón y oscilación durante el tiempo fijado. Si la vertical sale, quitas el par o cortas. No pides un paso. Si se queda, un toque, y otra vez: o vuelve, o cortas.</p>
+<p>Solo una prueba que se queda, con el margen cumplido, te autoriza a pensar en otra cosa. Pensar no es andar. La marcha no se escribe en esta lección. La IA, menos: es la lección 8, y entra después de que este cuerpo se tenga en pie, no en lugar de esta prueba.</p>
+</section>
+
+<section class="practica eleccion" data-bien="c">
+<h2>Práctica</h2>
+<p>En la primera prueba, atado, el robot se va de punteras y no vuelve. Los dos pies seguían en el suelo al empezar. ¿Qué le pides al programa?</p>
+<div class="opciones">
+<button type="button" class="opcion" data-k="a" data-porque="Un paso encoge el apoyo justo cuando la vertical ya se va de la planta. La primera prueba es sin marcha. Seguir andando no recupera el peso: esconde el fallo.">Un paso corto hacia delante, para traer la planta bajo el peso</button>
+<button type="button" class="opcion" data-k="b" data-porque="En doble apoyo no se parte el par por la mitad, y además la prueba ya te está diciendo que la vertical se va. Anotar 0,295 N·m no la mete otra vez en la planta. El ejemplo, si x es 0,02 m en apoyo simple, sigue siendo 0,59 N·m en ese tobillo, y solo si la masa es 3,0 kg.">Nada: como hay dos pies, el par es la mitad de 0,59 N·m y puede seguir</button>
+<button type="button" class="opcion" data-k="c" data-porque="Correcto. La frase es mantener la vertical dentro de la planta. Si sale, se quita el par o se corta. No hay paso en esta prueba. Después se vuelve a la masa y a la x, no a una marcha escrita para taparlas.">Que quite el par o que cortes. Ni un paso</button>
+</div>
+<p class="resultado" hidden></p>
+</section>
+
+<section class="puentes">
+<h2>Puente</h2>
+<p><a href="../robot-control.html#equilibrio">Control · equilibrio</a> es el programa de estar quieto: polígono, tobillo y la vuelta que lee y corrige. No está aquí la cinemática ni el código. Esta lección es el gesto de la prueba atada y la frase que le pides; el enlace no sustituye esa prueba.</p>
+</section>
+
+<section class="cuaderno">
+<h2>Cuaderno</h2>
+<p>Anota el tiempo de la prueba atada y qué hizo la vertical: se quedó, se fue de punteras, de talón u osciló.</p>
+<textarea id="cuaderno" rows="8" data-clave="lv-robot-ens-l07" placeholder="tiempo, punteras, talón u oscilación"></textarea>
+<p class="nota">Se guarda en este aparato si el navegador lo permite.</p>
+</section>
+
+<nav class="pasos" aria-label="Entre lecciones">
+<a href="leccion-06.html">Anterior</a>
+<a href="../robot-ensenanza.html">Índice</a>
+<a href="leccion-08.html">Siguiente: la IA offline</a>
+</nav>
+</main>
+<footer>
+<p>Les vencimos · Robot humanoide · Enseñanza. Lección 7. Primera prueba atada y sin marcha. Si la vertical sale de la planta, se quita el par o se corta. No se parte el par a la mitad.</p>
+</footer>
+
+</div>
+<script>
+
+function hablar(texto){
+  if(window.LesVencimosMaestro && typeof window.LesVencimosMaestro.decir==="function"){
+    window.LesVencimosMaestro.decir(texto);
+    return;
+  }
+  if(!window.speechSynthesis || typeof SpeechSynthesisUtterance!=="function") return;
+  window.speechSynthesis.cancel();
+  var u=new SpeechSynthesisUtterance(texto);
+  u.lang="es-ES";
+  u.rate=0.95;
+  window.speechSynthesis.speak(u);
+}
+document.querySelectorAll("button.escuchar").forEach(function(b){
+  b.addEventListener("click", function(){
+    var t=b.parentElement.querySelector(".maestro-texto");
+    if(t) hablar(t.textContent);
+  });
+});
+function marca(box, ok, bien, mal){
+  var p=box.querySelector(".resultado");
+  p.hidden=false;
+  p.className="resultado "+(ok?"ok":"mal");
+  p.textContent=ok?bien:mal;
+}
+document.querySelectorAll(".practica.orden").forEach(function(box){
+  function mover(li, dir){
+    var lista=li.parentElement;
+    if(dir<0 && li.previousElementSibling) lista.insertBefore(li, li.previousElementSibling);
+    if(dir>0 && li.nextElementSibling) lista.insertBefore(li.nextElementSibling, li);
+  }
+  box.querySelectorAll("button.subir").forEach(function(b){
+    b.addEventListener("click", function(){ mover(b.closest("li"), -1); });
+  });
+  box.querySelectorAll("button.bajar").forEach(function(b){
+    b.addEventListener("click", function(){ mover(b.closest("li"), 1); });
+  });
+  box.querySelector("button.comprobar").addEventListener("click", function(){
+    var got=[].map.call(box.querySelectorAll("li"), function(li){ return li.dataset.k; }).join(",");
+    var ok=got===box.dataset.solucion;
+    marca(box, ok, "Ese es el orden.", "Todavía no. Lee el mecanismo y mueve las piezas.");
+    var w=box.querySelector(".porque");
+    if(w) w.hidden=!ok;
+  });
+});
+document.querySelectorAll(".practica.eleccion").forEach(function(box){
+  box.querySelectorAll("button.opcion").forEach(function(b){
+    b.addEventListener("click", function(){
+      var ok=b.dataset.k===box.dataset.bien;
+      marca(box, ok, b.dataset.porque||"Correcto.", b.dataset.porque||"Esa no es la lectura.");
+    });
+  });
+});
+
+(function(){
+  var ta=document.getElementById("cuaderno");
+  if(!ta) return;
+  var clave=ta.getAttribute("data-clave");
+  try{
+    var guardado=localStorage.getItem(clave);
+    if(guardado!==null) ta.value=guardado;
+  }catch(e){}
+  ta.addEventListener("input", function(){
+    try{ localStorage.setItem(clave, ta.value); }catch(e){}
+  });
+})();
+
+</script>
+</body>
+</html>

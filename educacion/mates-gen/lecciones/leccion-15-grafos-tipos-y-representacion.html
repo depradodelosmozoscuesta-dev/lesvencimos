@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<meta name="theme-color" content="#0E0E0C"/>
+<title>Lección 15 · Grafos: tipos y representación · Les vencimos</title>
+<link rel="icon" href="../icons/favicon.svg" type="image/svg+xml"/>
+<link rel="manifest" href="../manifest.webmanifest"/>
+<link rel="stylesheet" href="../leccion-shell.css"/>
+<style>
+.pasos{list-style:none;margin:0 0 1rem;padding:0;counter-reset:paso}
+.pasos li{position:relative;margin:0 0 .7rem;padding:.7rem .8rem .7rem 3.1rem;background:var(--lv-panel);border:1px solid var(--lv-linea);border-radius:10px}
+.pasos li::before{counter-increment:paso;content:counter(paso);position:absolute;left:.65rem;top:.7rem;width:1.7rem;height:1.7rem;border-radius:50%;background:#C4A15A;color:#1A160E;font-weight:700;font-size:.9rem;display:flex;align-items:center;justify-content:center}
+.figura-svg{background:#161512;border:1px solid var(--lv-linea);border-radius:10px;padding:.5rem;margin:.5rem 0 1.1rem}
+.figura-svg svg{width:100%;height:auto;display:block}
+.ej{margin:0 0 1rem;padding:.85rem .95rem;background:var(--lv-panel);border:1px solid var(--lv-linea);border-left:3px solid #C4A15A;border-radius:10px}
+.ej h3{margin:0 0 .35rem;font-family:var(--lv-serif);font-size:1.05rem;color:var(--lv-titulo)}
+.editor,textarea.editor{width:100%;min-height:5.5rem;font-family:ui-monospace,monospace;font-size:.95rem;line-height:1.45;padding:.55rem .65rem;border:1px solid rgba(196,161,90,.45);border-radius:8px;background:#161512;color:#E6E1D6;resize:vertical}
+.lienzo{display:block;width:100%;height:280px;background:#161512;border:1px solid #C4A15A;border-radius:8px;touch-action:none;cursor:crosshair}
+.fila{display:flex;flex-wrap:wrap;gap:.4rem;margin:.45rem 0}
+.boton{font:inherit;font-weight:700;font-size:.85rem;padding:.4rem .8rem;border-radius:999px;border:1px solid #C4A15A;background:transparent;color:#E6E1D6;cursor:pointer}
+.porque{margin-top:.55rem;padding:.65rem .75rem;background:#1a2218;border-radius:8px;color:#E6E1D6}
+.dato{font-size:.95rem;color:var(--lv-suave)}
+.glosa{display:block;font-size:.9rem;color:#9A9488;margin:.25rem 0 .5rem;line-height:1.4}
+.lab-box{margin:1rem 0;padding:.85rem;border:1px dashed rgba(196,161,90,.5);border-radius:10px;background:#141210}
+.lab-box iframe{width:100%;min-height:320px;border:1px solid #C4A15A;border-radius:8px;background:#0E0E0C}
+table.datos{width:100%;border-collapse:collapse;margin:.45rem 0 1rem;font-size:.98rem}
+table.datos th,table.datos td{border:1px solid var(--lv-linea);padding:.4rem .55rem;text-align:left}
+table.datos th{background:#161512;color:#C4A15A}
+</style>
+<script src="../leccion-shell-nav.js" defer></script>
+</head>
+<body class="leccion-shell" data-maestro-json="maestro-15.json">
+<div class="leccion-wrap">
+<nav class="leccion-barra" aria-label="Navegación de lección" data-actual="15" data-total="38">
+  <div class="leccion-progreso" role="status">
+    <span class="progreso-texto"><strong>15</strong> de <strong>38</strong></span>
+    <div class="progreso-pista" aria-hidden="true"><div class="progreso-lleno" style="width:39.47%"></div></div>
+  </div>
+  <div class="leccion-atajos">
+    <a class="atajo atajo-calc" href="../../../../modulos/calculadora.html" title="Calculadora offline">Calculadora</a>
+    <a class="atajo atajo-prev" href="leccion-14-derivada-concepto-e-interpretacion.html">← Anterior</a>
+    <a class="atajo atajo-next" href="leccion-16-euler-y-grafos-planos.html">Siguiente →</a>
+  </div>
+</nav>
+<header class="leccion-top">
+  <a class="leccion-marca" href="../../../../index.html">Les <span>vencimos</span></a>
+  <p class="leccion-meta-top">Matemáticas Generales · 1º Bachillerato</p>
+</header>
+<header class="bloque-titulo">
+  <span class="eyebrow">Lección 15 · C · Espacial</span>
+  <h1 class="titulo-leccion">Grafos: tipos y <em>representación</em></h1>
+  <p class="meta-leccion">1º Bach Matemáticas Generales · CyL Decreto 40/2022 · C.1 Grafos dirigidos, planos, ponderados y árboles</p>
+</header>
+<aside class="bloque-curiosidad" aria-label="Para situarte">
+  <p class="etiqueta-bloque">Para situarte</p>
+  <h2 class="titulo-curiosidad">Flechas que no se pueden dar la vuelta</h2>
+  <p class="texto-curiosidad">CyL distingue grafos dirigidos, planos, ponderados y árboles. A la izquierda, el ejemplo dirigido: arcos A→B, B→C, C→A y A→C. A la derecha, un árbol de cuatro vértices, sin ciclo y con una arista menos que vértices.</p>
+</aside>
+<section class="bloque-cuerpo">
+  <h2>Objetivos</h2>
+  <ul><li>Leer un grafo dirigido y separar grado de salida y de entrada.</li><li>Reconocer un árbol: conexo, sin ciclos, E = V − 1.</li><li>Decir qué añade un peso o una flecha respecto de un grafo simple.</li></ul>
+</section>
+<section class="bloque-cuerpo">
+<h2>El mismo dibujo no significa siempre lo mismo</h2>
+<p>Un grafo es un conjunto de vértices y un conjunto de relaciones entre ellos. Si la relación tiene dirección, hablamos de grafo dirigido y dibujamos flechas: el arco A→B no es el arco B→A. Si la relación no tiene dirección, una sola arista vale para los dos extremos.</p>
+<p><span class="glosa">grado de salida = flechas que salen · grado de entrada = flechas que llegan · árbol = grafo conexo y sin ciclos · en un árbol E = V − 1 · ponderado = cada arista lleva un número (distancia, tiempo, coste) · plano = se puede dibujar sin cruces; el cruce de dos trazos no es un vértice</span></p>
+<p>En el ejemplo de la izquierda hay 3 vértices y 4 arcos. De A salen dos flechas (a B y a C), así que su grado de salida es 2. A C llegan dos (desde B y desde A), grado de entrada 2. Esa cuenta no se puede hacer en el árbol de la derecha, porque allí no hay flechas: cada arista suma 1 al grado de sus dos extremos y no hay «salida» distinta de la «entrada».</p>
+<p>El árbol tiene V = 4 y E = 3. Es conexo (se puede ir de cualquier vértice a cualquier otro) y no contiene un ciclo: si quitas una arista, dejas de poder conectar los dos lados. Un ciclo, como el triángulo A→B→C→A de la izquierda, es justo lo que un árbol prohíbe.</p>
+<table class="datos"><thead><tr><th></th><th>Grafo dirigido del ejemplo</th><th>Árbol de la derecha</th></tr></thead>
+<tbody>
+<tr><td>Vértices</td><td>3 (A, B, C)</td><td>4</td></tr>
+<tr><td>Aristas o arcos</td><td>4 arcos</td><td>3 aristas</td></tr>
+<tr><td>¿Ciclo?</td><td>sí, A-B-C-A</td><td>no</td></tr>
+<tr><td>Relación E y V</td><td>E = 4, V − 1 = 2</td><td>E = V − 1</td></tr>
+</tbody></table>
+<h2>Gráfico del ejemplo</h2>
+<p class="dato">La figura no es decoración: los trazos corresponden a los números del ejemplo 1.</p>
+<div class="figura-svg"><svg viewBox="0 0 720 320" role="img" aria-label="Grafo dirigido A→B, B→C, C→A, A→C junto a un árbol de 4 vértices y 3 aristas"><title>Grafo dirigido A→B, B→C, C→A, A→C junto a un árbol de 4 vértices y 3 aristas</title><rect width="720" height="320" fill="#161512"/>
+<line x1="120" y1="150" x2="300" y2="60" stroke="#C4A15A" stroke-width="2.5"/>
+<line x1="300" y1="60" x2="300" y2="230" stroke="#C4A15A" stroke-width="2.5"/>
+<line x1="300" y1="230" x2="120" y2="150" stroke="#C4A15A" stroke-width="2.5"/>
+<line x1="120" y1="150" x2="300" y2="230" stroke="#8F9A72" stroke-width="2"/>
+<polygon points="292,68 278,52 286,78" fill="#C4A15A"/>
+<polygon points="308,210 292,198 312,190" fill="#C4A15A"/>
+<polygon points="140,158 128,140 150,142" fill="#C4A15A"/>
+<polygon points="270,214 250,200 258,222" fill="#8F9A72"/>
+<circle cx="120" cy="150" r="16" fill="#1C1A16" stroke="#E6E1D6" stroke-width="2"/>
+<circle cx="300" cy="60" r="16" fill="#1C1A16" stroke="#E6E1D6" stroke-width="2"/>
+<circle cx="300" cy="230" r="16" fill="#1C1A16" stroke="#E6E1D6" stroke-width="2"/>
+<text x="120" y="155" text-anchor="middle" fill="#E6E1D6">A</text>
+<text x="300" y="65" text-anchor="middle" fill="#E6E1D6">B</text>
+<text x="300" y="235" text-anchor="middle" fill="#E6E1D6">C</text>
+<text x="40" y="28" fill="#C4A15A" font-size="14">dirigido: A→B, B→C, C→A y A→C</text>
+<line x1="460" y1="40" x2="560" y2="110" stroke="#C4A15A" stroke-width="2"/>
+<line x1="560" y1="110" x2="640" y2="40" stroke="#C4A15A" stroke-width="2"/>
+<line x1="560" y1="110" x2="560" y2="210" stroke="#C4A15A" stroke-width="2"/>
+<circle cx="460" cy="40" r="14" fill="#1C1A16" stroke="#E6E1D6" stroke-width="2"/>
+<circle cx="560" cy="110" r="14" fill="#1C1A16" stroke="#E6E1D6" stroke-width="2"/>
+<circle cx="640" cy="40" r="14" fill="#1C1A16" stroke="#E6E1D6" stroke-width="2"/>
+<circle cx="560" cy="210" r="14" fill="#1C1A16" stroke="#E6E1D6" stroke-width="2"/>
+<text x="430" y="250" fill="#9A9488" font-size="14">árbol: 4 vértices, 3 aristas, sin ciclo</text>
+</svg></div>
+<h2>Ejemplo resuelto 1 — Grados con flecha</h2><p>En el grafo dirigido del gráfico, calcula el grado de salida y el de entrada de A, B y C.</p><ol class="pasos">
+<li>Arcos: A→B, B→C, C→A y A→C. Léelos en las flechas, no inventes B→A.<span class="glosa">Glosa: la flecha verde A→C es un arco más, no la misma relación que C→A.</span></li>
+<li>Salida: A manda a B y a C (2); B solo a C (1); C solo a A (1).<span class="glosa">Glosa: el grado de salida cuenta arcos cuyo origen es ese vértice.</span></li>
+<li>Entrada: a A solo llega C (1); a B solo llega A (1); a C llegan B y A (2).<span class="glosa">Glosa: entrada y salida no tienen por qué coincidir. En A, 2 de salida y 1 de entrada.</span></li>
+<li>Comprueba la suma: salidas 2+1+1 = 4 y entradas 1+1+2 = 4. Las dos sumas valen el número de arcos.<span class="glosa">Glosa: cada arco aporta 1 a una salida y 1 a una entrada. Si no cuadra, falta una flecha.</span></li>
+</ol>
+<h2>Ejemplo resuelto 2 — El árbol no es un detalle</h2><p>Comprueba que la figura de la derecha es un árbol y que le sobra o le falta algo si añades una arista entre las dos hojas superiores.</p><ol class="pasos">
+<li>V = 4, E = 3 y E = V − 1. Está conectado: desde el vértice central se llega a los otros tres.<span class="glosa">Glosa: E = V − 1 es necesario en un grafo conexo, y junto con la conexión evita ciclos.</span></li>
+<li>No hay ciclo: no puedes volver al punto de partida sin repetir una arista.<span class="glosa">Glosa: un ciclo necesitaría al menos tres vértices unidos en redondo, y aquí no se cierra.</span></li>
+<li>Si unes las dos hojas de arriba, añades una arista: E = 4 y V − 1 = 3. Aparece un triángulo y deja de ser árbol.<span class="glosa">Glosa: esa arista de más crea exactamente un ciclo y rompe la igualdad E = V − 1.</span></li>
+<li>Sigue siendo conexo, pero ya no es árbol. Conexo y árbol no son sinónimos.<span class="glosa">Glosa: el ciclo dirigido de la izquierda también es conexo en su sentido, y tampoco es un árbol.</span></li>
+</ol>
+<h2>Ejemplo resuelto 3 — Qué falta para otros tipos</h2><p>Di qué habría que añadir al árbol para que fuera ponderado y qué habría que exigir para llamarlo plano. ¿El dirigido de la izquierda es plano?</p><ol class="pasos">
+<li>Ponderado: un número en cada arista (por ejemplo minutos). El dibujo actual no trae números, luego no está ponderado.<span class="glosa">Glosa: el peso no es el grado. El grado se calcula; el peso se declara.</span></li>
+<li>Plano: que exista un dibujo sin cruces. El árbol de la derecha ya está dibujado sin cruces, así que es plano.<span class="glosa">Glosa: plano no significa «dibujado en horizontal»; significa «sin cruces forzados».</span></li>
+<li>El dirigido también está dibujado sin que las flechas se crucen en un punto que no sea vértice. Es plano.<span class="glosa">Glosa: que A→C y el lado B-C se toquen en C no es un cruce: C es un vértice.</span></li>
+<li>Un cruce de verdad aparecería si dos arcos se cortaran por el medio y ese corte no fuera un vértice del grafo. Aquí no ocurre.<span class="glosa">Glosa: en la lección siguiente un grafo no plano no se puede salvar cambiando el dibujo.</span></li>
+</ol>
+<h2>Ejercicios</h2>
+<p class="dato">Escribe el razonamiento completo en el editor, no solo la cifra. Si el enunciado pide figura, dibújala en el lienzo de esta misma página.</p>
+<article class="ej"><h3>1. Suma de arcos</h3><p>Un dirigido tiene suma de grados de salida 7. ¿Cuántos arcos tiene? ¿Cuánto suma la entrada?</p><label for="e15a">Tu resolución</label><textarea class="editor" id="e15a" placeholder="Escribe aquí el razonamiento completo…"></textarea><details class="porque"><summary>Por qué (abre cuando hayas escrito)</summary><p>Cada arco cuenta una vez en la salida de su origen, así que hay 7 arcos. La suma de los grados de entrada también es 7, porque ese mismo arco cuenta una vez en el destino. El paso es no dividir entre 2: esa división era del grafo no dirigido, donde cada arista suma a dos grados indistintos. Aquí entrada y salida ya separan los dos papeles, y cada suma, por sí sola, vale E. Si te dieran solo grados sin decir si son de salida, no podrías aplicar esta lectura.</p></details></article>
+<article class="ej"><h3>2. ¿Árbol?</h3><p>V = 6 y E = 5, conexo y sin ciclos. ¿Es un árbol? ¿Y si te dicen que tiene un ciclo?</p><label for="e15b">Tu resolución</label><textarea class="editor" id="e15b" placeholder="Escribe aquí el razonamiento completo…"></textarea><details class="porque"><summary>Por qué (abre cuando hayas escrito)</summary><p>E = V − 1 = 5 y, además, conexo y sin ciclos: es un árbol. Las tres condiciones van juntas en la definición que usamos; la igualdad E = V − 1 en un grafo conexo ya impide el ciclo. Si te dicen que tiene un ciclo, entonces no es árbol, y además no puede cumplir a la vez ser conexo y E = V − 1: un ciclo obliga a tener al menos una arista de más. El paso es no quedarte solo con el dibujo «parece un árbol» si el enunciado trae un ciclo.</p></details></article>
+<article class="ej"><h3>3. Flecha inversa</h3><p>En el ejemplo, ¿está el arco B→A? ¿Qué grado de salida de B cambiaría si lo añadieras?</p><label for="e15c">Tu resolución</label><textarea class="editor" id="e15c" placeholder="Escribe aquí el razonamiento completo…"></textarea><details class="porque"><summary>Por qué (abre cuando hayas escrito)</summary><p>No está: la flecha entre A y B apunta a B, no a A. Añadir B→A sería un arco nuevo. El grado de salida de B pasaría de 1 a 2, y el de entrada de A pasaría de 1 a 2. El paso es mirar la punta de la flecha, no el segmento. En un no dirigido esa pregunta no existiría: una sola arista AB serviría para los dos. Por eso el dirigido de la izquierda y un triángulo sin flechas no guardan la misma información aunque el «dibujo de líneas» se parezca.</p></details></article>
+<h2>Dibuja en el lienzo</h2>
+<p>Reproduce a mano el gráfico del ejemplo: ejes o nodos, los datos numéricos y una frase con la conclusión. El botón borra el lienzo sin salir de la lección.</p>
+<canvas id="lienzo15" class="lienzo" width="900" height="280"></canvas><div class="fila"><button type="button" class="boton" data-clear="lienzo15">Borrar lienzo</button></div>
+</section>
+<div class="lab-box"><p><strong>Laboratorio</strong> — Grados de un grafo dirigido. Si el marco no carga, abre el hermano: <a href="l15-grafos-tipos-y-representacion.html">l15-grafos-tipos-y-representacion.html</a>.</p><iframe src="l15-grafos-tipos-y-representacion.html" title="Grados de un grafo dirigido" loading="lazy"></iframe></div>
+<section class="bloque-cuerpo">
+  <h2>Comprueba</h2>
+  <p class="dato">Tres preguntas. Responde mentalmente antes de abrir el porqué.</p>
+  <details class="porque"><summary>¿Cuántos arcos salen de A en el gráfico?</summary><p>Dos: A→B y A→C. Por qué: se ven dos flechas con origen en A. El arco C→A llega a A, así que cuenta como entrada, no como salida. Mezclarlas daría grado 3 y la suma de salidas dejaría de valer 4.</p></details>
+<details class="porque"><summary>¿Por qué el de la derecha es un árbol?</summary><p>Porque es conexo, no tiene ciclos y E = V − 1 (3 = 4 − 1). Por qué: con esas condiciones no sobra ni falta ninguna arista para unir los vértices. Si faltara una, quedaría desconectado; si sobrara una, aparecería un ciclo.</p></details>
+<details class="porque"><summary>¿Un grafo ponderado es lo mismo que un grafo con grados?</summary><p>No. Por qué: el peso es un dato escrito en la arista (distancia, coste). El grado es un recuento de aristas incidentes. El árbol del gráfico tiene grados pero no tiene pesos: no es ponderado hasta que alguien asigne números a las aristas.</p></details>
+</section>
+<section class="bloque-reto">
+  <span class="etiqueta-reto">Reto Profesor</span>
+  <h2 class="titulo-reto">Un mapa con flechas</h2>
+  <p>Dibuja en el lienzo tres lugares de tu barrio y flechas de «puedo ir andando en ese sentido». Anota grados de salida.</p>
+  <p class="reto-id">reto_id: bach1-mates-gen-L15</p>
+</section>
+<footer class="leccion-pie"><strong>Les vencimos</strong> · L15 de 38 · Matemáticas Generales · staging · file:// · sin publicar</footer>
+</div>
+<script type="application/json" data-maestro="guion">{"curso": "bach1-mates-gen", "leccion": 15, "titulo": "Grafos: tipos y representación", "url": "leccion-15-grafos-tipos-y-representacion.html", "musica": false, "pasos": [{"id": "abrir", "dicho": "Izquierda: cuatro flechas A→B, B→C, C→A y A→C. Derecha: árbol de 4 vértices y 3 aristas.", "hacer": "Leer en voz alta el apartado Para situarte y los objetivos."}, {"id": "figura", "dicho": "La salida de A es 2 y su entrada es 1. No son el mismo número.", "hacer": "Mirar el SVG y decir qué dato numérico marca cada trazo."}, {"id": "ej1", "dicho": "Ejemplo 1: las sumas de salidas y de entradas valen 4, el número de arcos.", "hacer": "Rehacer el ejemplo 1, glosa a glosa, sin mirar el resultado final."}, {"id": "ej2", "dicho": "Ejemplo 2: si cierras las dos hojas del árbol, dejas de tener E = V − 1.", "hacer": "Rehacer el ejemplo 2 y contrastarlo con el 1."}, {"id": "ej3", "dicho": "Ejemplo 3: sin números en las aristas no hay ponderación; sin cruces, lo dibujado es plano.", "hacer": "Rehacer el ejemplo 3 y anotar la comprobación."}, {"id": "practica", "dicho": "En el laboratorio contrasta entrada y salida.", "hacer": "Escribir el razonamiento de al menos dos ejercicios y usar el lienzo."}, {"id": "cierre", "dicho": "No des la vuelta a una flecha si el arco no existe.", "hacer": "Contestar Comprueba antes de abrir y dejar el reto por escrito."}]}</script>
+<script>(function(){function liga(c){var ctx=c.getContext('2d');function fondo(){ctx.fillStyle='#161512';ctx.fillRect(0,0,c.width,c.height);ctx.strokeStyle='#C4A15A';ctx.strokeRect(.5,.5,c.width-1,c.height-1);}function fit(){var r=c.getBoundingClientRect();var w=Math.max(320,Math.floor(r.width));if(c.width!==w){c.width=w;c.height=280;fondo();}}var dib=false,last=null;function pos(ev){var r=c.getBoundingClientRect();var s=ev.touches?ev.touches[0]:ev;return{x:(s.clientX-r.left)*c.width/r.width,y:(s.clientY-r.top)*c.height/r.height};}c.addEventListener('pointerdown',function(ev){dib=true;last=pos(ev);ev.preventDefault();});c.addEventListener('pointermove',function(ev){if(!dib)return;var p=pos(ev);ctx.strokeStyle='#E6E1D6';ctx.lineWidth=2.2;ctx.lineCap='round';ctx.beginPath();ctx.moveTo(last.x,last.y);ctx.lineTo(p.x,p.y);ctx.stroke();last=p;ev.preventDefault();});function up(){dib=false;}c.addEventListener('pointerup',up);c.addEventListener('pointerleave',up);var b=document.querySelector('[data-clear="'+c.id+'"]');if(b)b.addEventListener('click',fondo);fit();window.addEventListener('resize',fit);}document.querySelectorAll('canvas.lienzo').forEach(liga);})();</script>
+</body>
+</html>

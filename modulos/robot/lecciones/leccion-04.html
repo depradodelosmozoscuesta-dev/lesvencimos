@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lección 4. El centro en la mesa · Robot humanoide · Les vencimos</title>
+<style>
+
+:root{--bg:#0E0E0C;--surf:#161512;--panel:#1C1A16;--ink:#E6E1D6;--mut:#9A9488;--acc:#C4A15A;--acc-ink:#1A160E;--danger:#C46A4A;--ok:#8F9A72;--line:#2A2720}
+*{box-sizing:border-box}
+html{color-scheme:dark}
+body{margin:0;background:var(--bg);color:var(--ink);font:400 17px/1.55 "Segoe UI",system-ui,sans-serif}
+h1,h2,h3{font-family:"Iowan Old Style",Palatino,Georgia,serif;font-weight:600;line-height:1.25;letter-spacing:0}
+h1{font-size:1.85rem;margin:.35rem 0 .4rem}
+h2{font-size:1.28rem;margin:1.6rem 0 .5rem}
+h3{font-size:1.05rem;margin:1.15rem 0 .35rem}
+a{color:var(--acc)}
+a:hover{color:var(--ink)}
+.wrap{max-width:46rem;margin:0 auto;padding:1.25rem 1.1rem 4rem}
+header.top{border-bottom:1px solid var(--line);padding-bottom:.85rem;margin-bottom:1.15rem}
+.marca{font-variant:small-caps;text-transform:lowercase;letter-spacing:.14em;color:var(--mut);margin:0;font-size:.78rem}
+.meta{color:var(--mut);margin:.45rem 0 0}
+nav.pasos{display:flex;flex-wrap:wrap;gap:.45rem;margin:1.2rem 0 0}
+nav.pasos a,button{min-height:44px;min-width:44px;padding:.45rem .85rem;border:1px solid var(--line);border-radius:2px;background:var(--surf);color:var(--ink);font:400 16px/1.3 "Segoe UI",system-ui,sans-serif;text-decoration:none;cursor:pointer}
+button.acc{background:var(--acc);color:var(--acc-ink);border-color:var(--acc);font-weight:600}
+button:focus-visible,a:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
+.maestro{background:var(--panel);border:1px solid var(--line);border-radius:2px;padding:1rem 1.05rem;margin:1rem 0 1.2rem}
+.maestro h2{margin:.1rem 0 .55rem;font-size:1.05rem;color:var(--acc)}
+.aviso{border-left:3px solid var(--danger);padding:.4rem 0 .4rem .85rem;margin:1rem 0}
+.aviso strong{color:var(--danger);font-weight:600}
+.puentes{background:var(--surf);border:1px solid var(--line);border-radius:2px;padding:.9rem 1rem;margin:1rem 0}
+.puentes h2{margin-top:0}
+ol.temario{padding-left:1.2rem}
+ol.temario li{margin:.4rem 0}
+li.pend{color:var(--mut)}
+.esquema{width:100%;height:auto;background:var(--surf);border:1px solid var(--line);border-radius:2px;margin:.7rem 0 1rem}
+.esquema text{font-family:"Segoe UI",system-ui,sans-serif}
+table{width:100%;border-collapse:collapse;margin:.7rem 0 1rem;font-size:.95rem}
+th,td{border-bottom:1px solid var(--line);text-align:left;padding:.45rem .35rem;vertical-align:top}
+th{color:var(--acc);font-weight:600}
+.practica{background:var(--panel);border:1px solid var(--line);border-radius:2px;padding:.95rem 1rem 1.05rem;margin:1.2rem 0}
+.practica h2{margin-top:0}
+ol.juego{list-style:none;padding:0;margin:.5rem 0}
+ol.juego li{display:flex;gap:.45rem;align-items:center;background:var(--surf);border:1px solid var(--line);border-radius:2px;padding:.35rem .45rem;margin:.4rem 0}
+ol.juego li span{flex:1}
+.opciones{display:flex;flex-direction:column;gap:.45rem;margin:.5rem 0}
+.opciones button{text-align:left}
+.resultado{margin:.7rem 0 0}
+.resultado.ok{color:var(--ok)}
+.resultado.mal{color:var(--danger)}
+.porque{margin:.7rem 0 0}
+.nota{color:var(--mut)}
+footer{margin-top:2rem;padding-top:.85rem;border-top:1px solid var(--line);color:var(--mut);font-size:.82rem}
+code{font-family:ui-monospace,"Cascadia Code",monospace;font-size:.92em}
+
+.cuaderno{background:var(--surf);border:1px solid var(--line);border-radius:2px;padding:.95rem 1rem 1.05rem;margin:1.2rem 0}
+.cuaderno h2{margin-top:0}
+.cuaderno textarea{display:block;width:100%;min-height:12rem;margin:.6rem 0 .4rem;padding:.7rem .75rem;border:1px solid var(--line);border-radius:2px;background:var(--bg);color:var(--ink);font:400 17px/1.45 "Segoe UI",system-ui,sans-serif;resize:vertical}
+.cuaderno textarea:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
+
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="top">
+<p class="marca">Les vencimos · Robot humanoide · Enseñanza</p>
+<p class="meta">Lección 04 de 10 · Ejemplo de mesa, no la especificación</p>
+<h1>Centro de gravedad en la mesa, con el robot aún sin caminar</h1>
+</header>
+<main>
+<section class="maestro">
+<h2>Versión corta</h2>
+<p class="maestro-texto">Con el robot sin alimentación y sin dar un paso, buscas dónde cae de verdad el peso. En este tamaño, centro de gravedad y centro de masas son el mismo punto. El ejemplo de mesa lo pone a 0,02 m por delante del eje y de ahí salen 29,4 newton y 0,59 newton metro. Tu canto puede decir otra cosa. Si al montar el centro pasa a 0,04 m, el par pasa a 1,176 newton metro y una planta recortada para 2 centímetros ya no vale. Si la planta útil mide 5 centímetros, 4 siguen dentro del borde y no vuelca quieto, pero el 60 por ciento de 5 centímetros son 3, y el margen no se cumple. Lo descuadra una batería movida, un mazo de cables, un eslabón de distinta longitud, una planta más gruesa de un lado, un tornillo flojo o medir desde la puntera. No empotres el pie al banco. No alimentes servos para que «se tenga».</p>
+<button type="button" class="escuchar acc">Escuchar</button>
+</section>
+<section>
+<h2>Tratado</h2>
+<p>Las lecciones 2 y 3 usan una distancia x. Esta lección es cómo se obtiene x en la mesa, y qué del montaje la vuelve mentira. El robot no camina. No hay consigna de paso, no hay servo alimentado sujetando la pose y no hay un vídeo de «ya casi». Hay un cuerpo, en la postura que llamas quieto, y una vertical que o cae donde creías o no cae.</p>
+<p>Centro de gravedad y centro de masas, aquí, no se distinguen. La gravedad del taller es la misma en todo el robot, así que la vertical del peso pasa por el centro de masas. Cuando alguien diga «el centro de gravedad se ha ido hacia delante», está diciendo que esa vertical se ha separado del eje. No busques dos puntos distintos ni corrijas uno con el otro.</p>
+
+<h3>En qué postura se mide</h3>
+<p>Se mide en la postura de estar quieto, la que luego querrás reconocer, con las articulaciones en el cero mecánico que hayas marcado en frío. Si una articulación está floja, el eslabón cede cuando apoyas el robot en el canto y el centro se mueve durante la propia medida. Entonces no estás midiendo una máquina: estás midiendo un mecanismo que cambia. Antes del canto, lo que no debe girar va fijo por estructura, pasador o brida de montaje, no por un servo con corriente. Lo que sí debe poder girar en la vida de la máquina se deja, para esta medida, en el ángulo marcado, sujeto de forma que no se vaya solo y que puedas soltar después sin haberlo deformado.</p>
+<p>Sin batería no es la postura, aunque el resto esté montado. La batería entra en la masa y, sobre todo, entra en el sitio. Medir sin ella y «sumar luego» no se hace. Si todavía no tienes la batería, un lastre de la misma masa en el mismo sitio sirve solo si anotas que es lastre y lo cambias por la batería real antes de dar x por cerrado. Un lastre más alto o más adelantado que la batería de verdad miente el centro con la misma báscula.</p>
+<p>La atadura de seguridad no puede ser la que sujeta el equilibrio. Una cuerda que ya está tirando coloca la vertical donde la cuerda quiere. La cuerda, o un tope blando, solo entra cuando el vuelco ya ha empezado, para que no llegue al suelo ni a la mano. Si al aflojarla el robot se va, x no era el que creías.</p>
+
+<h3>El canto en el banco</h3>
+<p>El útil es un canto recto y duro que no ruede: el lomo de una regla metálica bien apoyada, o un perfil que no flexione con los 3 kg del ejemplo ni con los que tú tengas. Un lápiz redondo rueda y te regala un equilibrio falso. El canto se coloca en el centro del banco, no en el borde. A cada lado, cerca, un tope blando. El vuelco de prueba es de pocos grados. No se hace solo con la mesa alta y el robot por fuera del tablero.</p>
+<p>Para el desplazamiento hacia delante o hacia atrás, el canto queda paralelo al eje del tobillo, es decir, de lado a lado del robot. Deslizas el conjunto, con cuidado, hasta que no cae ni hacia las punteras ni hacia el talón. El plano vertical que contiene el canto contiene el centro. La distancia horizontal desde el eje del tobillo hasta ese plano, medida en la dirección de la marcha y no en diagonal, es x. La anotas en metros y con palabras: por delante o por detrás.</p>
+<p>Si el canto no está paralelo al eje, la distancia que lees es una diagonal. Parece un x y no lo es. Antes de deslizar, miras el canto contra el eje marcado en las dos piernas, no contra la carcasa.</p>
+<p>Para el desplazamiento lateral repites el gesto con el canto girado: ahora va de delante a atrás, y deslizas el robot de lado a lado. La distancia desde el plano medio que hayas definido —el que equidista de los dos ejes, si las dos piernas son iguales— hasta el plano del canto es el descentrado lateral. Se juzga contra la semianchura útil de la planta, con la misma regla del 60 %. El 0,02 m del ejemplo es un número hacia delante, no un permiso lateral. No copies 2 cm a los lados porque «el ejemplo usa 2 cm».</p>
+<p>Repites cada lectura tres veces, soltando y volviendo a apoyar. Si las tres se separan más de lo que tu regla distingue con honradez, algo se mueve: un juego, un canto que se clava en una goma, una brida que desliza. No promedies para tranquilizarte. Corrige el movimiento y mide otra vez. Cuando las lecturas se tienen, el x que usas para el margen es el más desfavorable de esa dirección, el que más se come la planta, no la media que te deja dentro por unas décimas. El margen del 60 % existe precisamente porque el estático no lo cuenta todo. Gastar el margen con una media optimista es gastarlo dos veces.</p>
+
+<figure>
+<svg class="esquema" viewBox="0 0 680 340" role="img" aria-labelledby="t4svg">
+<title id="t4svg">Medir el centro en la mesa con un canto paralelo al eje del tobillo</title>
+<rect width="680" height="340" fill="#161512"/>
+<text x="24" y="28" fill="#E6E1D6" font-size="15">Ejemplo de mesa · el canto busca la vertical · el robot no camina</text>
+<rect x="40" y="250" width="600" height="16" fill="#1C1A16" stroke="#2A2720"/>
+<polygon points="300,250 292,220 308,220" fill="#C4A15A"/>
+<line x1="300" y1="80" x2="300" y2="220" stroke="#C4A15A" stroke-width="1.5" stroke-dasharray="4 3"/>
+<rect x="250" y="120" width="86" height="100" fill="#1C1A16" stroke="#E6E1D6" stroke-width="2"/>
+<rect x="230" y="210" width="160" height="12" fill="#1C1A16" stroke="#C4A15A" stroke-width="2"/>
+<line x1="268" y1="200" x2="268" y2="222" stroke="#9A9488" stroke-width="2"/>
+<circle cx="300" cy="150" r="6" fill="#C4A15A"/>
+<line x1="268" y1="168" x2="300" y2="168" stroke="#C4A15A" stroke-width="1.5"/>
+<text x="312" y="164" fill="#C4A15A" font-size="13">x horizontal</text>
+<text x="248" y="292" fill="#9A9488" font-size="13">eje del tobillo</text>
+<text x="320" y="210" fill="#C4A15A" font-size="13">canto</text>
+<rect x="500" y="200" width="90" height="18" fill="#1C1A16" stroke="#8F9A72"/>
+<text x="500" y="192" fill="#8F9A72" font-size="12">tope blando, cerca</text>
+<text x="40" y="80" fill="#9A9488" font-size="13">El canto, paralelo al eje, de lado a lado.</text>
+<text x="40" y="100" fill="#9A9488" font-size="13">Cuando no cae a un lado ni al otro, el centro está en ese plano.</text>
+<text x="430" y="120" fill="#C46A4A" font-size="13">No midas en el borde de la mesa.</text>
+<text x="430" y="140" fill="#9A9488" font-size="13">No empotres el pie al tablero.</text>
+</svg>
+<figcaption class="nota">El canto no sujeta el robot: lo deja en el umbral de caer a un lado o al otro. La distancia que importa es la horizontal, del eje al plano del canto, no la diagonal de la carcasa.</figcaption>
+</figure>
+
+<h3>Dos básculas, para la otra lectura</h3>
+<p>Si puedes poner una báscula bajo cada apoyo, con el robot ya en doble apoyo y sin corriente, la suma de las dos lecturas de fuerza tiene que cuadrar con el peso. En el ejemplo de mesa el peso es 29,4 N, así que las dos lecturas, en newtons, suman 29,4. Si tu báscula habla en kilogramos, no mezcles: o pasas las dos a newtons con 9,81, o trabajas en masa y exiges que sumen los kilogramos que ya pesaste en la lección 2. Una suma que no cuadra es una báscula mal puesta a cero, un pie que roza un tercer sitio o una mano que todavía ayuda. No sigas.</p>
+<p>La posición del centro entre las dos líneas de apoyo sale de las fuerzas. Si la separación horizontal entre esas líneas es d, y la báscula del lado 2 lee una fuerza N2, la distancia desde el lado 1 hasta la vertical del peso es N2 · d / W. En el ejemplo, si cada lado lee 14,7 N, esa distancia es la mitad de d: el centro está en medio, en la dirección que separa las dos básculas. Eso es todo lo que dicen las lecturas iguales. No dicen que cada tobillo vea 0,295 N·m. El par hacia las punteras depende del x de delante a atrás, que estas dos básculas no miden si las has alineado de lado a lado.</p>
+<p>Si una báscula lee prácticamente cero y la otra se queda con el peso entero, no estás en doble apoyo. Estás en apoyo simple, aunque el segundo pie parezca tocar. Un roce sin fuerza no ensancha el polígono. Para la cuenta, ese pie no existe hasta que carga. Es un descuadre de montaje frecuente: una planta más gruesa, o una pierna más larga, deja el otro pie en el aire y tú crees que hay dos apoyos porque los ves cerca del suelo.</p>
+<p>Puedes cruzar el método. Básculas para saber qué pie carga y para situar el centro entre ellos. Canto para el x respecto del eje del tobillo, que es el brazo del par. No sustituyas el canto por una impresión de «está centrado» porque las dos básculas se parecen. Se parecen en la dirección de d, no en la dirección de la marcha.</p>
+
+<h3>Del número medido al par, otra vez</h3>
+<p>Cuando tengas x, no reutilices 0,59 N·m salvo que la masa sea 3,0 kg y x sea 0,02 m. Vuelves a multiplicar. Peso igual a tu masa por 9,81. Par igual a ese peso por tu x, en metros, en ese tobillo, entero, sin partir por dos.</p>
+<p>Caso derivado del ejemplo, para ver qué hace el montaje. La masa sigue en 3,0 kg y el peso en 29,4 N, pero el canto deja el centro a 0,04 m por delante del eje. El par es 29,4 · 0,04 = 1,176 N·m. El doble brazo, respecto de los 0,02 m, dobla el 0,588 y da 1,176, que no es «un poco más que 0,59». Si habías encargado 0,59, el encargo ha muerto. Se lo dices a Diseño con el número nuevo. No eliges tú la reductora.</p>
+<p>La planta que era mínima para 0,02 m, unos 3,3 cm útiles, no contiene 0,04 m. La vertical cae fuera. Quieto, en la mesa, sin marcha, vuelca hacia las punteras. No hace falta un paso para verlo. Si la cuerda es lo único que lo impide, la cuerda está haciendo de planta. La medida es inválida como prueba de equilibrio y válida como prueba de que no está dentro.</p>
+<p>Otra planta, de 5,0 cm útiles por delante. El centro a 0,04 m sigue dentro del borde, porque 0,04 es menor que 0,05. En estático ideal no vuelca. El 60 % de 0,05 m es 0,030 m. Cuatro centímetros están por encima de tres. El margen no se cumple. Anotas las dos frases, porque dicen cosas distintas: no vuelca quieto, y no sirve para el taller. El par, además, es 1,176 N·m, no 0,59. Geometría y encargo se escriben los dos. Corregir solo el dibujo del pie y dejar el 0,59 en la hoja es quedarte a medias.</p>
+<p>Si la masa también hubiera pasado a 5,0 kg, no escales 1,176 a ojo. El peso sería 49,05 N y, con el mismo x de 0,04 m, el par sería 49,05 · 0,04 = 1,962 N·m. Y x de 0,04 m con una masa nueva no se hereda: se vuelve a medir, porque la masa que añadiste tiene sitio. El número 1,962 solo vale si el canto confirma esos 0,04 m.</p>
+
+<h3>Qué descuadra el montaje</h3>
+<p>La batería no está donde estaba cuando pesaste o cuando mediste. Es el bloque denso. Unos centímetros de batería hacia delante cambian x sin que la silueta general lo grite. Después de cada cambio de sitio, canto otra vez. No se corrige con un margen mental.</p>
+<p>El mazo de cables se ha ido de la espalda al pecho, o de un costado al otro. Pesa poco al lado de la estructura y basta para sacar el centro del 60 % si habías fabricado justo. El cable en la postura quieta forma parte de la masa. El cable que todavía vas a mover cuando haya movimiento se deja, ya en esta medida, en la posición de quieto, con la holgura recogida donde vaya a vivir, no estirado de cualquier modo sobre la mesa.</p>
+<p>Un eslabón de distinta longitud, o una planta más gruesa de un lado, inclina la pelvis. El centro se va de lado. Las básculas dejan de leer igual y puede que un pie deje de cargar. No se «iguala a ojo» apretando el tornillo del lado alto hasta que la carcasa parece recta: eso pretensa. Se mide la altura de los dos ejes al mismo tablero y se corrige la pieza que está mal. La lección 5 entra en cómo no generar ese error al cerrar la estructura. Aquí basta reconocerlo: si las alturas no coinciden, el x lateral que mides es el de una máquina torcida, y promediarlo no la endereza.</p>
+<p>Un tornillo flojo deja vencer un tramo cuando el peso carga. En la mano, antes de apoyar, parece cerrado. En el canto, cede y x crece. Por eso las tres lecturas tienen que repetirse. Si la tercera se va más adelante que la primera, no estás convergiendo: estás cediendo. Aprietas lo estructural, vuelves a marcar el cero mecánico y mides de nuevo.</p>
+<p>Medir desde la puntera. Con el ejemplo, eje a 5 cm del borde útil y centro a 2 cm por delante del eje, la distancia del centro al borde es 3 cm. Esos 3 cm no son el brazo. El brazo es 0,02 m y el par del ejemplo sigue siendo 0,59 N·m, no 29,4 · 0,03 = 0,882 N·m. El canto se refiere al eje marcado, y la cinta se lee respecto de esa marca.</p>
+<p>Dejar el servo alimentado «un momento, para que no se caiga la postura». El servo empuja. Puede sostener un centro que ya está fuera, o enmascarar un flojo, hasta que corta corriente o llega al tope. La medida se hace sin alimentación en los accionamientos. Los topes y la primera prueba con corriente pertenecen a otra fase. El tratado eléctrico es la lección 6, todavía sin escribir. Hoy no se enchufa para medir.</p>
+<p>Empotrar el pie al tablero para que la prueba sea «estable». Cualquier x cabe si el suelo agarra la planta por tornillos. Has medido la rigidez del banco, no el centro. La planta se apoya. Si resbala, cambias el agarre de la superficie —goma contra tablero que no patine— y distingues resbalar de volcar. No atornillas.</p>
+<p>Copiar 0,02 m porque es el ejemplo, cuando el canto dice otra cifra. El ejemplo enseña la cuenta. Tu hoja guarda tu cifra. Si tu cifra es 0,02 m de verdad, lo es porque lo has medido, y aun así el par solo es 0,59 N·m si la masa es 3,0 kg.</p>
+
+<h3>Cuándo se repite</h3>
+<p>Se mide cuando ya hay una masa reconocible, aunque sea lastre en el sitio, antes de dar por cortada la planta definitiva. Se vuelve a medir cuando la estructura se cierra, porque cerrar cambia longitudes y sitios. Se vuelve a medir cuando entran los brazos o la cabeza, que son masa y se mueven: la postura quieta de los brazos forma parte de x. Un brazo adelantado no es un detalle de aspecto. Es un cambio de brazo de momento, en el sentido literal.</p>
+<p>No se mide «al final, cuando ya ande». Esta lección es anterior a la marcha a propósito. Un centro que no cabe quieto no se va a ordenar dando un paso. Si la lección 7 existe algún día y pide un programa que esté quieto, el quieto se comparará con el x de esta mesa, no con una sensación.</p>
+
+<h3>Qué haces hoy en el banco</h3>
+<p>Servos sin corriente. Topes puestos si ya existen; si no existen, no aproveches para alimentar igual. Batería montada en su sitio, o lastre anotado como lastre. Cero mecánico marcado. Canto en el centro de la mesa, topes blandos cerca, nada de empotrar el pie.</p>
+<p>Lees x delantero o trasero tres veces. Lees el lateral tres veces. Te quedas con el valor desfavorable de cada dirección. Calculas el par con tu masa y ese x. Calculas el 60 % de la semilongitud útil que de verdad apoya, con la hoja de papel si hace falta. Escribes si cabe, si cabe solo en el borde, o si está fuera.</p>
+<p>Si una báscula se queda en cero, anotas apoyo simple aunque el otro pie parezca tocar. Si las dos cargan, anotas doble apoyo y no divides el par.</p>
+<p>La hoja gana cuatro líneas nuevas junto a las de la lección 2: x medido y su dirección, x lateral, par rehecho, y el veredicto del 60 %. Si el veredicto falla, no sigues a cerrar la pelvis «para verlo luego completo». Un montaje cerrado sobre un centro mentiroso es el que la lección 5 te va a hacer deshacer.</p>
+</section>
+
+<section class="practica eleccion" data-bien="b">
+<h2>Práctica</h2>
+<p>El canto, con la masa del ejemplo todavía en 3,0 kg, deja el centro a 0,04 m por delante del eje. La planta útil por delante mide 5 cm. ¿Qué decides?</p>
+<div class="opciones">
+<button type="button" class="opcion" data-k="a" data-porque="Cuatro centímetros son menos que cinco, así que en estático ideal no vuelca. Eso no es el margen. El 60 % de 5 cm son 3 cm, y 4 están por encima. Además el par ya no es 0,59 N·m: 29,4 por 0,04 da 1,176 N·m. Las dos cosas se anotan.">Cabe holgado, porque 4 cm es menos que 5. El par sigue siendo 0,59 N·m.</button>
+<button type="button" class="opcion" data-k="b" data-porque="Correcto. 0,04 m está dentro de 0,05 m, así que quieto y en ideal no vuelca. El 60 % de 0,05 m es 0,030 m, y 0,04 m no cabe en ese margen. El par de ese tobillo es 29,4 por 0,04, o sea 1,176 N·m, no 0,59. No se parte por dos. A Diseño se le pide el número nuevo, sin elegir aquí la reductora.">No cumple el 60 %, aunque no vuelca quieto. El par pasa a 1,176 N·m.</button>
+<button type="button" class="opcion" data-k="c" data-porque="No está fuera del borde: 4 cm caben en 5. No hace falta un vuelco que no existe para rechazar el margen. El fallo es el 60 %, y el par sí ha cambiado a 1,176 N·m porque el brazo ya no es 0,02 m.">Vuelca en la mesa seguro, porque 4 cm es el doble del ejemplo y se sale de cualquier planta de 5 cm.</button>
+</div>
+<p class="resultado" hidden></p>
+</section>
+
+<section class="practica orden" data-solucion="frio,canto,tres,par,margen">
+<h2>Orden de la medida</h2>
+<p>Deja la medida en el orden en que no te miente. Hoy no hay marcha y no hay servos alimentados.</p>
+<ol class="juego">
+<li data-k="par"><span>Calcular el par con la masa real y ese x, sin partirlo</span><button type="button" class="subir">Subir</button><button type="button" class="bajar">Bajar</button></li>
+<li data-k="tres"><span>Repetir tres veces y quedarte con el x desfavorable</span><button type="button" class="subir">Subir</button><button type="button" class="bajar">Bajar</button></li>
+<li data-k="margen"><span>Comparar ese x con el 60 % de la planta que de verdad apoya</span><button type="button" class="subir">Subir</button><button type="button" class="bajar">Bajar</button></li>
+<li data-k="canto"><span>Buscar el equilibrio en el canto, paralelo al eje</span><button type="button" class="subir">Subir</button><button type="button" class="bajar">Bajar</button></li>
+<li data-k="frio"><span>Postura quieta en frío, batería en su sitio, sin corriente</span><button type="button" class="subir">Subir</button><button type="button" class="bajar">Bajar</button></li>
+</ol>
+<button type="button" class="comprobar acc">Comprobar</button>
+<p class="resultado" hidden></p>
+<div class="porque" hidden>
+<p>Primero la postura, en frío y con la batería donde vive: si no, mides otro robot. Después el canto, paralelo al eje, en el centro del banco. Después tres lecturas; si se mueven, no hay x todavía. Con el x desfavorable se rehace el par, entero. Al final se compara con el 60 % de la semilongitud que apoya de verdad. Encargar el 0,59 del ejemplo antes de medir es saltarse la mesa.</p>
+</div>
+</section>
+
+<section class="puentes">
+<h2>Puente</h2>
+<p><a href="../robot-diseno.html#masa">Diseño · masa</a> es el despiece de masas contra el que comparas lo que has puesto en la báscula, cuando el archivo exista. La forma de sacar x en la mesa, y el veredicto de si el montaje ha invalidado la cuenta, están en esta lección. La planta contra la que comparas el 60 % se juzga con el criterio de la lección 3; las piezas de esa planta, si el archivo existe, están en <a href="../robot-diseno.html#pies">Diseño · pies</a>. Ninguno de los dos archivos está en esta pasada.</p>
+</section>
+
+<section class="cuaderno">
+<h2>Cuaderno</h2>
+<p>Anota el x que deja el canto, con su dirección, y el par rehecho con tu masa: no copies 0,59 N·m si no es el ejemplo.</p>
+<textarea id="cuaderno" rows="8" data-clave="lv-robot-ens-l04" placeholder="x del canto, dirección, par rehecho"></textarea>
+<p class="nota">Se guarda en este aparato si el navegador lo permite.</p>
+</section>
+
+<nav class="pasos" aria-label="Entre lecciones">
+<a href="leccion-03.html">Anterior</a>
+<a href="../robot-ensenanza.html">Índice</a>
+<a href="leccion-05.html">Siguiente: la estructura</a>
+</nav>
+</main>
+<footer>
+<p>Les vencimos · Robot humanoide · Enseñanza. Lección 4. El canto manda sobre el 0,02 m del ejemplo. Sin corriente, sin pie empotrado, sin marcha.</p>
+</footer>
+
+</div>
+<script>
+
+function hablar(texto){
+  if(window.LesVencimosMaestro && typeof window.LesVencimosMaestro.decir==="function"){
+    window.LesVencimosMaestro.decir(texto);
+    return;
+  }
+  if(!window.speechSynthesis || typeof SpeechSynthesisUtterance!=="function") return;
+  window.speechSynthesis.cancel();
+  var u=new SpeechSynthesisUtterance(texto);
+  u.lang="es-ES";
+  u.rate=0.95;
+  window.speechSynthesis.speak(u);
+}
+document.querySelectorAll("button.escuchar").forEach(function(b){
+  b.addEventListener("click", function(){
+    var t=b.parentElement.querySelector(".maestro-texto");
+    if(t) hablar(t.textContent);
+  });
+});
+function marca(box, ok, bien, mal){
+  var p=box.querySelector(".resultado");
+  p.hidden=false;
+  p.className="resultado "+(ok?"ok":"mal");
+  p.textContent=ok?bien:mal;
+}
+document.querySelectorAll(".practica.orden").forEach(function(box){
+  function mover(li, dir){
+    var lista=li.parentElement;
+    if(dir<0 && li.previousElementSibling) lista.insertBefore(li, li.previousElementSibling);
+    if(dir>0 && li.nextElementSibling) lista.insertBefore(li.nextElementSibling, li);
+  }
+  box.querySelectorAll("button.subir").forEach(function(b){
+    b.addEventListener("click", function(){ mover(b.closest("li"), -1); });
+  });
+  box.querySelectorAll("button.bajar").forEach(function(b){
+    b.addEventListener("click", function(){ mover(b.closest("li"), 1); });
+  });
+  box.querySelector("button.comprobar").addEventListener("click", function(){
+    var got=[].map.call(box.querySelectorAll("li"), function(li){ return li.dataset.k; }).join(",");
+    var ok=got===box.dataset.solucion;
+    marca(box, ok, "Ese es el orden.", "Todavía no. Lee el mecanismo y mueve las piezas.");
+    var w=box.querySelector(".porque");
+    if(w) w.hidden=!ok;
+  });
+});
+document.querySelectorAll(".practica.eleccion").forEach(function(box){
+  box.querySelectorAll("button.opcion").forEach(function(b){
+    b.addEventListener("click", function(){
+      var ok=b.dataset.k===box.dataset.bien;
+      marca(box, ok, b.dataset.porque||"Correcto.", b.dataset.porque||"Esa no es la lectura.");
+    });
+  });
+});
+
+(function(){
+  var ta=document.getElementById("cuaderno");
+  if(!ta) return;
+  var clave=ta.getAttribute("data-clave");
+  try{
+    var guardado=localStorage.getItem(clave);
+    if(guardado!==null) ta.value=guardado;
+  }catch(e){}
+  ta.addEventListener("input", function(){
+    try{ localStorage.setItem(clave, ta.value); }catch(e){}
+  });
+})();
+
+</script>
+</body>
+</html>

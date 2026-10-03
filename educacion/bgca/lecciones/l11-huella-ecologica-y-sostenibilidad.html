@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
+<title>L11 · Laboratorio · Huella ecológica: qué entra y qué no</title>
+<style>
+:root{--bg:#FAF7F0;--ink:#2A2620;--muted:#5C564C;--card:#fff;--gold:#C4A15A;--gold-soft:#F5EDD8;--gold-deep:#8A6B2F;--green:#3D6B4F;--green-soft:#E4F0E8;--blue:#2F5D7A;--blue-soft:#E3EEF4;--rose:#9B3A4A;--rose-soft:#F8E8EB;--shadow:0 10px 32px rgba(42,38,32,.09);--radius:18px}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{min-height:100%;background:var(--bg);color:var(--ink);font-family:"Segoe UI",system-ui,-apple-system,sans-serif}
+body{padding:14px 10px 36px}
+.wrap{width:100%;max-width:920px;margin:0 auto}
+header{text-align:center;margin-bottom:12px}
+.badge{display:inline-block;font-size:.75rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--gold-deep);background:var(--gold-soft);padding:4px 12px;border-radius:999px;margin-bottom:8px}
+h1{font-size:clamp(1.25rem,4vw,1.7rem);line-height:1.25;font-weight:800}
+.subtitle{margin-top:6px;color:var(--muted);font-size:.98rem}
+.card{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);padding:16px 14px 18px;margin-bottom:14px}
+.card h2{font-size:1.15rem;margin-bottom:8px}
+.hint{color:var(--muted);font-size:.92rem;line-height:1.45;margin-bottom:10px}
+.q{border:2px solid #E0D0A8;border-radius:14px;padding:12px;margin:10px 0;background:#FFFcf5}
+.q h3{font-size:1rem;margin-bottom:8px;line-height:1.35}
+.opt{display:block;width:100%;text-align:left;padding:10px 12px;margin:6px 0;border:2px solid #D9D0C0;border-radius:12px;background:#fff;font-weight:650;cursor:pointer;font-family:inherit;font-size:.95rem;line-height:1.35;color:var(--ink)}
+.opt:hover{border-color:var(--gold)}
+.opt.ok{border-color:var(--green);background:var(--green-soft)}
+.opt.bad{border-color:var(--rose);background:var(--rose-soft)}
+.why{display:none;margin-top:8px;padding:8px 10px;border-radius:10px;background:var(--blue-soft);font-size:.92rem;line-height:1.4}
+.why.show{display:block}
+.score{font-weight:800;color:var(--gold-deep);margin-top:8px}
+button.action{appearance:none;border:none;border-radius:999px;padding:10px 16px;font-weight:800;cursor:pointer;background:var(--gold);color:#fff;margin:4px 6px 4px 0;font-family:inherit}
+button.action.secondary{background:#fff;color:var(--gold-deep);border:2px solid var(--gold)}
+.topbar{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:8px}
+footer{text-align:center;font-size:.8rem;color:var(--muted);margin-top:8px}
+svg.fig{width:100%;height:auto;display:block;margin:8px 0}
+</style>
+</head>
+<body>
+<div class="wrap" id="lab">
+  <header>
+    <div class="badge">Lección 11 · Bloque B · Ecología y sostenibilidad</div>
+    <h1>Huella ecológica: qué entra y qué no</h1>
+    <p class="subtitle">Sin calcular la huella de una ciudad.</p>
+  </header>
+  <section class="card">
+    <div class="topbar">
+      <h2>Laboratorio · 11 preguntas</h2>
+      <div>
+        <button type="button" class="action secondary" id="btnFs">Pantalla completa</button>
+        <button type="button" class="action secondary" id="btnReset">Reiniciar</button>
+      </div>
+    </div>
+    <p class="hint">Corrección inmediata.</p>
+    
+    <div id="quiz"></div>
+    <p class="score" id="score" aria-live="polite">Aciertos: 0 / 7</p>
+  </section>
+  <footer>1º Bachillerato · Biología, Geología y Ciencias Ambientales · Castilla y León · Decreto 40/2022 · Offline file:// · sin red</footer>
+</div>
+<script>
+(function(){
+  const ITEMS = [{"q": "La huella ecológica se expresa, en el método de Wackernagel y Rees, en…", "opts": ["Kilogramos de CO2 solo.", "Hectáreas globales: superficie biológicamente productiva que exigiría un consumo.", "Número de especies.", "Grados de temperatura."], "ok": 1, "why": "La unidad es la hectárea global. Los kilogramos de CO2 son otra contabilidad, la huella de carbono en masa, que no es el mismo número."}, {"q": "¿Qué componente traduce las emisiones de CO2 a superficie?", "opts": ["El suelo urbanizado, que es la ciudad entera.", "El componente de carbono: el bosque que, según el método, haría falta para fijar el CO2 no absorbido por el océano.", "La huella hídrica gris.", "El censo de aves."], "ok": 1, "why": "Es una convención contable, no un bosque que exista al lado de la ciudad. Por eso la huella puede superar la biocapacidad del territorio."}, {"q": "¿Qué no mide la huella ecológica?", "opts": ["La demanda de cultivo, pasto, bosque, pesca, suelo construido y carbono.", "La toxicidad de un xenobiótico o la pérdida de biodiversidad especie a especie.", "Si la demanda supera a la biocapacidad.", "Un estilo de vida en términos de superficie."], "ok": 1, "why": "No es un índice completo de sostenibilidad. No ve el metilmercurio, ni la equidad, ni el ruido."}, {"q": "La huella hídrica (verde, azul y gris)…", "opts": ["Es el mismo indicador, con otro nombre.", "Contabiliza agua. No sustituye a las hectáreas globales.", "Mide solo el CO2.", "Calcula sola la huella de una capital."], "ok": 1, "why": "Son indicadores complementarios. Usar uno por el otro cambia la pregunta."}, {"q": "Déficit ecológico significa…", "opts": ["Que la huella supera la biocapacidad de la población o del territorio que se compara.", "Que el país no tiene ríos.", "Que el 10 % trófico se ha cumplido.", "Que hay superávit de biocapacidad."], "ok": 0, "why": "Si la huella es mayor que la biocapacidad, hay déficit. El superávit es el caso contrario. La fecha del día de la sobrecarga cambia cada año y no se fija aquí."}, {"q": "¿Por qué esta lección no calcula la huella de Valladolid o de León?", "opts": ["Porque el método no existe.", "Porque haría falta un inventario real de consumos y factores del año; inventarlo sería un falso dato local.", "Porque las ciudades no consumen.", "Porque la hectárea global está prohibida."], "ok": 1, "why": "Se puede explicar qué mediría y qué no. El número, sin el inventario, no se fabrica."}, {"q": "Dos personas con la misma huella de carbono en kilogramos de CO2 pueden diferir en la huella ecológica si…", "opts": ["Es imposible: son el mismo indicador.", "Su dieta, su pesca o su suelo construido pesan en las hectáreas y no solo en el CO2.", "Una vive en la Meseta.", "El argón del aire cambia."], "ok": 1, "why": "El carbono es un componente. Cultivo, pasto, bosque, pesca y suelo urbanizado son otros. Igualar los dos indicadores borra esa diferencia."}];
+  const quiz = document.getElementById('quiz');
+  const scoreEl = document.getElementById('score');
+  let aciertos = 0;
+  function render(){
+    aciertos = 0;
+    quiz.innerHTML = '';
+    ITEMS.forEach((it, i) => {
+      const box = document.createElement('div');
+      box.className = 'q';
+      const h = document.createElement('h3');
+      h.textContent = (i+1) + '. ' + it.q;
+      box.appendChild(h);
+      const why = document.createElement('p');
+      why.className = 'why';
+      let locked = false;
+      it.opts.forEach((t, j) => {
+        const b = document.createElement('button');
+        b.type = 'button';
+        b.className = 'opt';
+        b.textContent = t;
+        b.addEventListener('click', () => {
+          if (locked) return;
+          locked = true;
+          const buttons = box.querySelectorAll('.opt');
+          buttons.forEach((bb, k) => {
+            bb.disabled = true;
+            if (k === it.ok) bb.classList.add('ok');
+          });
+          if (j === it.ok) {
+            aciertos += 1;
+          } else {
+            b.classList.add('bad');
+          }
+          why.textContent = (j === it.ok ? 'Correcto. ' : 'No es la mejor opción. ') + it.why;
+          why.classList.add('show');
+          scoreEl.textContent = 'Aciertos: ' + aciertos + ' / ' + ITEMS.length;
+        });
+        box.appendChild(b);
+      });
+      box.appendChild(why);
+      quiz.appendChild(box);
+    });
+    scoreEl.textContent = 'Aciertos: 0 / ' + ITEMS.length;
+  }
+  document.getElementById('btnReset').addEventListener('click', render);
+  document.getElementById('btnFs').addEventListener('click', () => {
+    const el = document.documentElement;
+    if (!document.fullscreenElement) {
+      if (el.requestFullscreen) el.requestFullscreen();
+    } else if (document.exitFullscreen) {
+      document.exitFullscreen();
+    }
+  });
+  window.addEventListener('message', (ev) => {
+    const d = ev.data || {};
+    if (d.type === 'maestro:reset') render();
+    if (d.type === 'maestro:highlight') {
+      const f = document.querySelector('.q');
+      if (f) f.style.outline = '3px solid #C4A15A';
+    }
+  });
+  render();
+})();
+</script>
+</body>
+</html>

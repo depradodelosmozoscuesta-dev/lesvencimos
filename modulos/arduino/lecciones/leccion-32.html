@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="color-scheme" content="dark">
+<title>L32 · Semáforo · les vencimos</title>
+<style>
+:root{--bg:#0E0E0C;--surf:#161512;--panel:#1C1A16;--ink:#E6E1D6;--mut:#9A9488;--acc:#C4A15A;--acc-ink:#1A160E;--danger:#C46A4A;--ok:#8F9A72;--line:#2A2720}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:400 17px/1.55 "Segoe UI",system-ui,sans-serif}
+h1,h2,h3{font-family:"Iowan Old Style",Palatino,Georgia,serif;font-weight:600;line-height:1.25}
+a{color:var(--acc)}
+.wrap{max-width:42rem;margin:0 auto;padding:1.25rem 1.1rem 3.5rem}
+header.top{border-bottom:1px solid var(--line);padding-bottom:.8rem;margin-bottom:1.2rem}
+.marca{font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;color:var(--mut);margin:0}
+h1{font-size:1.7rem;margin:.35rem 0 .2rem}
+.meta{color:var(--mut);margin:0 0 .8rem;font-size:.92rem}
+nav.pasos{display:flex;flex-wrap:wrap;gap:.5rem;margin:.4rem 0 0}
+nav.pasos a,button{min-height:44px;padding:.45rem .8rem;border:1px solid var(--line);border-radius:2px;background:var(--surf);color:var(--ink);font:inherit;text-decoration:none;cursor:pointer}
+button.acc{background:var(--acc);color:var(--acc-ink);border-color:var(--acc);font-weight:600}
+.maestro{background:var(--panel);border:1px solid var(--line);padding:1rem 1.05rem;margin:1.1rem 0}
+.maestro h2{margin:.1rem 0 .6rem;font-size:1.05rem;color:var(--acc)}
+pre{background:var(--surf);border:1px solid var(--line);padding:.9rem 1rem;overflow:auto;font-size:.88rem;line-height:1.45}
+.warn{border-left:3px solid var(--danger);padding:.2rem 0 .2rem .8rem;color:var(--ink)}
+.quiz{margin-top:1.2rem}
+figure{margin:1rem 0;background:#161512;border:1px solid var(--line);padding:.55rem .7rem}
+figure svg{width:100%;height:auto;display:block}
+figcaption{color:var(--mut);font-size:.9rem;margin:.45rem 0 0}
+.ejemplo{background:#161512;border:1px solid var(--line);padding:.8rem .95rem;margin:.7rem 0}
+.ejemplo h3{margin:.1rem 0 .4rem;font-size:1.05rem}
+
+.pregunta{background:var(--surf);border:1px solid var(--line);padding:.8rem 1rem;margin:.7rem 0}
+.respuesta{color:var(--ok);margin:.55rem 0 0}
+footer{margin-top:2.2rem;padding-top:.8rem;border-top:1px solid var(--line);color:var(--mut);font-size:.82rem}
+.pend{color:var(--mut)}
+ol.temario{padding-left:1.2rem}
+ol.temario li{margin:.28rem 0}
+
+.sim,.anota{margin:1rem 0;background:#161512;border:1px solid var(--line);padding:.8rem .9rem}
+.sim h2,.anota h2{margin:.1rem 0 .4rem;font-size:1.15rem}
+.sim-canvas{width:100%;height:auto;background:#1C1A16;border:1px solid var(--line);margin:.6rem 0;display:block}
+.sim-lab{display:flex;align-items:center;gap:.6rem;margin:.4rem 0;color:var(--ink)}
+.sim-range{flex:1;min-height:44px}
+.sim-out{min-width:3rem;color:var(--acc)}
+.sim-dedo{margin-top:.4rem}
+textarea.nota-montaje{width:100%;min-height:8rem;background:#1C1A16;color:var(--ink);border:1px solid var(--line);padding:.7rem;font:inherit;line-height:1.45}
+
+</style>
+</head>
+<body>
+<article class="wrap" id="ens-semaforo" data-ens="ens-semaforo">
+<header class="top">
+<p class="marca">les vencimos · offline</p>
+<h1>L32. Semáforo</h1>
+<p class="meta">Proyectos guiados (92–97%)</p>
+<nav class="pasos"><a href="../arduino-ensenanza.html">Al curso</a><a href="leccion-31.html">Anterior</a><a href="leccion-33.html">Siguiente</a></nav>
+</header>
+<section class="maestro" id="maestro">
+<h2>Maestro</h2>
+<p id="maestro-texto">Primer proyecto cerrado. Tres luces, un orden, y nada que escuchar. Por eso aquí delay es honesto: el semáforo no atiende un botón. Rojo, ámbar, verde. Cada uno con su resistencia. Ninguno come más de la cuenta del pin, porque son LED, no lámparas de calle.</p>
+<button type="button" class="acc" id="escuchar">Escuchar</button>
+</section>
+<section class="lectura">
+<p>Pines del curso: rojo en 10, ámbar en 11, verde en 12. Cada LED con 220 ohmios hacia el pin, cátodo a GND. Da igual si la resistencia va del lado del pin o del lado de masa, mientras haya una por LED. No pongas los tres en paralelo con una sola resistencia. Apaga los tres antes de encender el siguiente, para no dejar dos fases a la vez por un descuido.</p>
+<p>Tiempos de juguete, para no aburrirte en la mesa: rojo 3 segundos, ámbar 1, verde 3. En una calle serían otros. El programa es una secuencia. Si más adelante quieres un botón de peatón, delay sobra y toca pasar a estados con millis. Hoy no.</p>
+<p>Si una luz no enciende, cambia solo ese LED de sitio con otro que sí. Si al cambiar se enciende, el pin o el cable era el fallo. Si sigue apagada, el LED está al revés o sin resistencia bien puesta. No reescribas la secuencia hasta hacer esa prueba.</p>
+</section>
+<h2>Montaje</h2>
+<figure><svg viewBox="0 0 640 210" aria-label="Semáforo tres LED"><rect x="16" y="40" width="120" height="130" rx="6" fill="#1C1A16" stroke="#C4A15A"/><text x="76.0" y="58" text-anchor="middle" fill="#E6E1D6" font-size="13">Uno</text><text x="26" y="78" fill="#9A9488" font-size="11">10 rojo</text><text x="26" y="94" fill="#9A9488" font-size="11">11 ámbar</text><text x="26" y="110" fill="#9A9488" font-size="11">12 verde</text><text x="26" y="126" fill="#9A9488" font-size="11">GND</text><line x1="136" y1="66" x2="250" y2="66" stroke="#5B8FA8" stroke-width="3"/><path d="M250 66 L264 66 L270 54 L282 78 L294 54 L306 78 L312 66 L326 66" fill="none" stroke="#C4A15A" stroke-width="2"/><circle cx="400" cy="66" r="16" fill="#C46A4A"/><text x="430" y="70" fill="#E6E1D6" font-size="12">pin 10 · 220</text><line x1="136" y1="114" x2="250" y2="114" stroke="#5B8FA8" stroke-width="3"/><path d="M250 114 L264 114 L270 102 L282 126 L294 102 L306 126 L312 114 L326 114" fill="none" stroke="#C4A15A" stroke-width="2"/><circle cx="400" cy="114" r="16" fill="#C4A15A"/><text x="430" y="118" fill="#E6E1D6" font-size="12">pin 11 · 220</text><line x1="136" y1="162" x2="250" y2="162" stroke="#5B8FA8" stroke-width="3"/><path d="M250 162 L264 162 L270 150 L282 174 L294 150 L306 174 L312 162 L326 162" fill="none" stroke="#C4A15A" stroke-width="2"/><circle cx="400" cy="162" r="16" fill="#8F9A72"/><text x="430" y="166" fill="#E6E1D6" font-size="12">pin 12 · 220</text></svg><figcaption>Tres LED, tres resistencias de 220, pines 10, 11 y 12. Un solo encendido a la vez. Los tiempos: rojo tres segundos, ámbar uno, verde tres.</figcaption></figure>
+<h2>Pines de esta lección</h2>
+<figure><svg viewBox="0 0 340 118" aria-label="Pines de la lección"><rect x="6" y="16" width="328" height="86" rx="8" fill="#1C1A16" stroke="#C4A15A"/><text x="16" y="14" fill="#9A9488" font-size="11">Uno R3 · 5 V · mira la serigrafía, no la memoria</text><rect x="16" y="32" width="68" height="32" rx="4" fill="#161512" stroke="#C4A15A"/><text x="50" y="53" text-anchor="middle" fill="#E6E1D6" font-size="13">10</text><text x="50" y="84" text-anchor="middle" fill="#9A9488" font-size="10">rojo</text><rect x="94" y="32" width="68" height="32" rx="4" fill="#161512" stroke="#9A9488"/><text x="128" y="53" text-anchor="middle" fill="#E6E1D6" font-size="13">11</text><text x="128" y="84" text-anchor="middle" fill="#9A9488" font-size="10">ámbar</text><rect x="172" y="32" width="68" height="32" rx="4" fill="#161512" stroke="#9A9488"/><text x="206" y="53" text-anchor="middle" fill="#E6E1D6" font-size="13">12</text><text x="206" y="84" text-anchor="middle" fill="#9A9488" font-size="10">verde</text><rect x="250" y="32" width="68" height="32" rx="4" fill="#161512" stroke="#9A9488"/><text x="284" y="53" text-anchor="middle" fill="#E6E1D6" font-size="13">GND</text><text x="284" y="84" text-anchor="middle" fill="#9A9488" font-size="10">los tres</text></svg><figcaption>Ningún LED comparte resistencia. Ninguno va al pin 13, que puede quedarse de testigo si lo quieres, pero el semáforo no lo usa.</figcaption></figure>
+<h2>Por qué</h2>
+<p>El semáforo es la primera vez que el programa se parece a un objeto de la calle. Aun así es el mismo oficio: pines de salida, un solo HIGH a la vez, esperas que son el mensaje. Rojo en el 10, ámbar en el 11, verde en el 12. Si los cruzas, el programa está bien y la calle miente. Se mueve el cable o el número, no se discute el color real del LED.</p><p>Cada LED con su 220. Un retorno común a GND. Si pones una sola resistencia en el GND común, el brillo cambia al encender más de uno y, el día que enciendas ámbar y rojo juntos, te pasas de corriente o se quedan flojos. La función poner escribe los tres pines cada vez, para que no quede un LED encendido de la fase anterior por olvido.</p><p>Los delay de 3000 y 1000 bloquean. En este proyecto no hay botón, así que es lícito. No añadas un pulsador de peatón dentro de estos delay: no lo oirás. Si lo quieres, el semáforo tiene que pasar a millis y a estados, que ya conoces. Es un buen extra, no es obligatorio para dar la lección por hecha.</p><p>Colores: el LED rojo no se distingue del ámbar en una foto. En la mesa, enciéndelos uno a uno en setup, un segundo cada uno, la primera vez, y marca los cables. Luego puedes quitar esa presentación.</p><h2>Práctica</h2>
+<ol><li>Tres LED, tres filas, tres resistencias de 220, cátodos a GND.</li><li>Ánodos, vía la resistencia, a los pines 10, 11 y 12.</li><li>Carga. Rojo, ámbar, verde, y otra vez. Nunca dos a la vez.</li><li>Cuenta el rojo: tiene que ser claramente más largo que el ámbar.</li><li>Intercambia a propósito los cables de 10 y 12. Mira el verde hacer de rojo. Devuélvelos.</li><li>Tapa un LED con el dedo y comprueba que los otros siguen su turno. No comparten una sola resistencia.</li><li>Déjalo un minuto. Si la placa se reinicia, hay un LED sin resistencia: se apaga y se revisa.</li></ol><section class="sim" data-sim="semi" data-a="" data-b=""><h2>Práctica en la página</h2><p>En la página el ciclo va más rápido para verlo: rojo, ámbar, verde. El sketch usa 3 s, 1 s y 3 s. La simulación arranca encendida.</p><button type="button" class="sim-toggle" aria-pressed="true">Parar simulación</button><canvas class="sim-canvas" width="320" height="160" aria-label="Simulación del circuito"></canvas></section><h2>Ejemplos resueltos</h2>
+<div class="ejemplo"><h3>El ámbar se queda encendido con el verde</h3><p>Al pasar de fase se enciende el nuevo LED y no se apaga el anterior. Falta escribir LOW, o la función poner no se usa y una rama se olvidó.</p><p>Cada cambio pasa por poner, que escribe los tres. No hay un cuarto digitalWrite suelto que deje un HIGH viejo.</p></div><div class="ejemplo"><h3>El rojo dura lo mismo que el ámbar</h3><p>Los tres delay quedaron en 1000, copiados. El ciclo es correcto en el orden y mentiroso en el tiempo. En la calle, el ámbar no dura igual que el rojo.</p><p>3000, 1000, 3000. El mensaje es la duración, no solo el color.</p></div><h2>Soldadura y seguridad</h2>
+<div class="soldar"><p>Tres LED en protoboard no se sueldan todavía. Si fijas el semáforo en una caja, suelda cada resistencia en serie con su LED, no una común escondida en el mazo. Placa apagada. Cada soldadura brillante y separada de la vecina.</p><p>No hay lámpara de 230 V al final de este semáforo. Es un modelo de mesa. El relé de red no entra en la caja.</p></div><h2>En la mesa</h2>
+<p>Siéntate delante del semáforo y no toques nada durante un ciclo entero. Di el color antes de que cambie. Si fallas, o los tiempos son iguales y no dan pista, o los cables están cruzados. Mira el ámbar: tiene que ser el corto. Un ámbar tan largo como el rojo es un delay copiado, y en la mesa se nota sin abrir el sketch.</p>
+<p>Tapa el rojo con un papel. El ámbar y el verde tienen que seguir a su hora. Si al tapar el rojo se apaga otro, comparten resistencia o comparten fila. Cada uno con su 220 es la condición para poder tapar sin efectos raros.</p>
+<p>Un minuto seguido sin RESET espontáneo. Si se reinicia, hay un LED sin resistencia y el USB se cansa. Se apaga y se mira cada pata, no se alarga el delay para disimular el reinicio.</p>
+<h2>Sketch</h2>
+<pre><code>void setup() {
+  pinMode(10, OUTPUT);
+  pinMode(11, OUTPUT);
+  pinMode(12, OUTPUT);
+}
+
+void poner(int r, int a, int v) {
+  digitalWrite(10, r);
+  digitalWrite(11, a);
+  digitalWrite(12, v);
+}
+
+void loop() {
+  poner(HIGH, LOW, LOW);
+  delay(3000);
+  poner(LOW, HIGH, LOW);
+  delay(1000);
+  poner(LOW, LOW, HIGH);
+  delay(3000);
+}
+</code></pre>
+<h2>Ejercicio</h2>
+<p>Monta los tres LED y sube la secuencia. Cronometra un ciclo. Tiene que ser rojo, luego ámbar, luego verde, sin dos encendidos a la vez.</p>
+<section class="quiz">
+<h2>Autoevaluación</h2>
+<div class="pregunta"><p><strong>1.</strong> ¿Por qué en este proyecto delay no es una trampa?</p><button type="button" class="ver">ver respuesta</button><p class="respuesta" hidden>Porque el semáforo no tiene que escuchar nada mientras espera.</p></div><div class="pregunta"><p><strong>2.</strong> ¿Cuántas resistencias hacen falta?</p><button type="button" class="ver">ver respuesta</button><p class="respuesta" hidden>Una por LED. No una sola para los tres.</p></div><div class="pregunta"><p><strong>3.</strong> Si más adelante hay un botón de peatón, ¿sigue valiendo delay?</p><button type="button" class="ver">ver respuesta</button><p class="respuesta" hidden>No. Habrá que pasar a estados y a millis.</p></div>
+</section>
+<footer>les vencimos · Arduino Enseñanza · offline</footer>
+</article>
+<script>
+document.querySelectorAll("button.ver").forEach(function(b){
+  b.addEventListener("click", function(){
+    var r = b.parentElement.querySelector(".respuesta");
+    if(!r) return;
+    r.hidden = !r.hidden;
+    b.textContent = r.hidden ? "ver respuesta" : "ocultar respuesta";
+  });
+});
+var btn = document.getElementById("escuchar");
+if(btn){
+  btn.addEventListener("click", function(){
+    var el = document.getElementById("maestro-texto");
+    var texto = el ? el.textContent : "";
+    if(window.LesVencimosMaestro && typeof window.LesVencimosMaestro.decir === "function"){
+      window.LesVencimosMaestro.decir(texto);
+      return;
+    }
+    if(!window.speechSynthesis || typeof window.SpeechSynthesisUtterance !== "function") return;
+    window.speechSynthesis.cancel();
+    var u = new SpeechSynthesisUtterance(texto);
+    u.lang = "es-ES";
+    u.rate = 0.95;
+    window.speechSynthesis.speak(u);
+  });
+}
+
+document.querySelectorAll("textarea.nota-montaje").forEach(function(ta){
+  var art = document.querySelector("[data-ens]");
+  var key = "lv-ens-nota-" + (art ? art.getAttribute("data-ens") : "leccion");
+  try {
+    var prev = localStorage.getItem(key);
+    if(prev) ta.value = prev;
+    ta.addEventListener("input", function(){ localStorage.setItem(key, ta.value); });
+  } catch (e) {}
+});
+var sim = document.querySelector("section.sim");
+if(sim){
+  var canvas = sim.querySelector("canvas.sim-canvas");
+  var ctx = canvas.getContext("2d");
+  var kind = sim.getAttribute("data-sim");
+  var da = sim.getAttribute("data-a") || "";
+  var db = sim.getAttribute("data-b") || "";
+  var toggle = sim.querySelector(".sim-toggle");
+  var range = sim.querySelector(".sim-range");
+  var out = sim.querySelector(".sim-out");
+  var dedo = sim.querySelector(".sim-dedo");
+  var vivo = true;
+  var pulsado = false;
+  var permiso = true;
+  var ledOn = false;
+  var ultimoFlanco = 0;
+  var t0 = Date.now();
+  function num(el, fallo){ return el ? parseInt(el.value, 10) : fallo; }
+  if(dedo && kind !== "noche"){
+    dedo.addEventListener("pointerdown", function(ev){
+      pulsado = true;
+      if(kind === "flanco"){
+        var ahora = Date.now();
+        if(ahora - ultimoFlanco > 30){
+          ledOn = !ledOn;
+          ultimoFlanco = ahora;
+        }
+      }
+      ev.preventDefault();
+    });
+    window.addEventListener("pointerup", function(){ pulsado = false; });
+  }
+  if(dedo && kind === "noche"){
+    dedo.addEventListener("click", function(){
+      permiso = !permiso;
+      dedo.setAttribute("aria-pressed", permiso ? "true" : "false");
+      dedo.textContent = permiso ? "Permiso dado" : "Sin permiso";
+    });
+  }
+  if(toggle){
+    toggle.addEventListener("click", function(){
+      vivo = !vivo;
+      toggle.setAttribute("aria-pressed", vivo ? "true" : "false");
+      toggle.textContent = vivo ? "Parar simulación" : "Encender simulación";
+    });
+  }
+  function circulo(x, y, r, on, nivel){
+    ctx.beginPath();
+    ctx.arc(x, y, r, 0, Math.PI * 2);
+    if(on){
+      var a = nivel == null ? 1 : nivel;
+      ctx.fillStyle = "rgba(196,161,90," + (0.25 + 0.75 * a) + ")";
+      ctx.shadowColor = "#C4A15A";
+      ctx.shadowBlur = 16 * a;
+    } else {
+      ctx.fillStyle = "#2A2720";
+      ctx.shadowBlur = 0;
+    }
+    ctx.fill();
+    ctx.shadowBlur = 0;
+    ctx.lineWidth = 2;
+    ctx.strokeStyle = on ? "#C4A15A" : "#9A9488";
+    ctx.stroke();
+  }
+  function caja(x, y, w, h, titulo){
+    ctx.fillStyle = "#161512";
+    ctx.strokeStyle = "#C4A15A";
+    ctx.lineWidth = 2;
+    ctx.fillRect(x, y, w, h);
+    ctx.strokeRect(x, y, w, h);
+    ctx.fillStyle = "#E6E1D6";
+    ctx.font = "14px sans-serif";
+    ctx.fillText(titulo, x + 10, y + 22);
+  }
+  function texto(x, y, s, col){
+    ctx.fillStyle = col || "#E6E1D6";
+    ctx.font = "13px sans-serif";
+    ctx.fillText(s, x, y);
+  }
+  function frame(){
+    var ahora = Date.now();
+    var lectura = num(range, 0);
+    var enciende = false;
+    var nivel = 1;
+    var etiqueta = "";
+    if(kind === "blink"){
+      var hi = parseInt(da, 10) || 500;
+      var lo = parseInt(db, 10) || 500;
+      var ciclo = hi + lo;
+      var fase = vivo ? ((ahora - t0) % ciclo) : 0;
+      enciende = vivo && fase < hi;
+      etiqueta = enciende ? "HIGH" : "LOW";
+    } else if(kind === "hold"){
+      enciende = vivo && pulsado;
+      etiqueta = pulsado ? "LOW, pulsado" : "HIGH, suelto";
+    } else if(kind === "nivel"){
+      enciende = vivo && pulsado;
+      etiqueta = pulsado ? "lectura LOW" : "lectura HIGH";
+    } else if(kind === "flanco"){
+      enciende = vivo && ledOn;
+      etiqueta = enciende ? "LED encendido" : "LED apagado";
+    } else if(kind === "umbral"){
+      var umbral = parseInt(da, 10);
+      enciende = vivo && (db === "lt" ? lectura < umbral && lectura > 0 : lectura > umbral);
+      if(sim.getAttribute("data-sim") === "umbral" && da === "20"){
+        enciende = vivo && lectura > 0 && lectura < umbral;
+      }
+      etiqueta = String(lectura);
+      nivel = 1;
+    } else if(kind === "pwm"){
+      nivel = vivo ? lectura / 255 : 0;
+      enciende = vivo && lectura > 0;
+      etiqueta = String(lectura);
+    } else if(kind === "servo"){
+      var span = 140;
+      var pos = vivo ? ((ahora - t0) % 2800) / 2800 : 0.5;
+      var tri = pos < 0.5 ? pos * 2 : (1 - pos) * 2;
+      var grados = Math.round(20 + tri * span);
+      if(range) range.value = String(grados);
+      lectura = grados;
+      enciende = vivo;
+      etiqueta = grados + " grados";
+    } else if(kind === "buzz"){
+      var fb = vivo ? ((ahora - t0) % 1000) : 500;
+      etiqueta = fb < 300 ? "440" : (fb < 600 ? "880" : "silencio");
+      enciende = vivo && fb < 600;
+    } else if(kind === "carga"){
+      var fc = vivo ? ((ahora - t0) % 4000) : 2000;
+      enciende = vivo && fc < 2000;
+      etiqueta = enciende ? "pin en HIGH" : "pin en LOW";
+    } else if(kind === "semi"){
+      var fs = vivo ? ((ahora - t0) % 3500) : 0;
+      etiqueta = fs < 1500 ? "rojo" : (fs < 2000 ? "ambar" : "verde");
+      enciende = vivo;
+    } else if(kind === "alarma"){
+      enciende = vivo && lectura > 0 && lectura < 20;
+      etiqueta = lectura + " cm";
+    } else if(kind === "noche"){
+      var noche = lectura < 400 && permiso;
+      enciende = vivo && noche;
+      nivel = enciende ? 180/255 : 0;
+      etiqueta = (permiso ? "con permiso" : "sin permiso") + " · " + lectura;
+    }
+    if(out) out.textContent = etiqueta;
+    ctx.clearRect(0, 0, 320, 160);
+    ctx.fillStyle = "#1C1A16";
+    ctx.fillRect(0, 0, 320, 160);
+    caja(12, 28, 90, 100, "Uno");
+    if(kind === "semi"){
+      var fs2 = vivo ? ((ahora - t0) % 3500) : 0;
+      circulo(160, 48, 14, vivo && fs2 < 1500, 1);
+      circulo(210, 48, 14, vivo && fs2 >= 1500 && fs2 < 2000, 1);
+      circulo(260, 48, 14, vivo && fs2 >= 2000, 1);
+      texto(150, 78, "10 rojo");
+      texto(198, 78, "11");
+      texto(248, 78, "12 verde");
+      texto(16, 150, vivo ? "ciclo en marcha" : "simulación parada", "#9A9488");
+    } else if(kind === "servo"){
+      var rad = (180 - lectura) * Math.PI / 180;
+      ctx.strokeStyle = "#C4A15A";
+      ctx.lineWidth = 4;
+      ctx.beginPath();
+      ctx.moveTo(200, 110);
+      ctx.lineTo(200 + Math.cos(rad) * 70, 110 - Math.sin(rad) * 50);
+      ctx.stroke();
+      circulo(200, 110, 8, true, 1);
+      texto(120, 150, etiqueta);
+    } else if(kind === "buzz" || kind === "alarma"){
+      circulo(150, 80, 18, kind === "alarma" ? enciende : false, 1);
+      texto(176, 76, kind === "alarma" ? "LED 13" : "");
+      ctx.beginPath();
+      ctx.arc(250, 80, 22, 0, Math.PI * 2);
+      ctx.strokeStyle = enciende ? "#C4A15A" : "#9A9488";
+      ctx.lineWidth = 3;
+      ctx.stroke();
+      if(enciende){
+        ctx.beginPath();
+        ctx.arc(250, 80, 32, 0, Math.PI * 2);
+        ctx.stroke();
+      }
+      texto(120, 140, etiqueta);
+    } else if(kind === "carga"){
+      circulo(170, 70, 16, enciende, 1);
+      texto(196, 66, "orden");
+      ctx.strokeStyle = enciende ? "#8F9A72" : "#9A9488";
+      ctx.strokeRect(230, 48, 70, 44);
+      texto(242, 74, enciende ? "carga" : "quieta", enciende ? "#8F9A72" : "#9A9488");
+      texto(16, 150, etiqueta, "#9A9488");
+    } else {
+      circulo(200, 78, 18, enciende, nivel);
+      texto(230, 74, "LED");
+      texto(16, 150, etiqueta, "#9A9488");
+    }
+    if(!vivo){
+      texto(230, 150, "parada", "#9A9488");
+    }
+    requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+}
+
+</script>
+</body>
+</html>

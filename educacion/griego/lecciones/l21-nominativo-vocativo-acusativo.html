@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Laboratorio · Lección 21 · Nominativo, vocativo y acusativo</title>
+<style>
+  :root { --fondo:#FAF7F0; --carbon:#2A2620; --negro:#0E0E0C; --ambar:#C4A15A; }
+  * { box-sizing: border-box; }
+  body { margin:0; background:var(--fondo); color:var(--carbon); font-family: Palatino, "Palatino Linotype", "Times New Roman", serif; line-height:1.45; }
+  header, main, footer { padding: 1rem 1.25rem; }
+  header { background: var(--negro); color: var(--fondo); }
+  header p { margin: 0.25rem 0 0; color: var(--ambar); }
+  h1, h2 { font-weight: 600; line-height: 1.2; }
+  h1 { font-size: 1.5rem; margin: 0; }
+  .stage { background: var(--fondo); border: 2px solid var(--negro); margin: 0.75rem 0; }
+  .stage svg { display:block; width:100%; height:auto; }
+  .pregunta { font-size: 1.15rem; }
+  .opciones { display:grid; gap:0.5rem; margin: 0.75rem 0; }
+  button.op, button.navb { font: inherit; text-align:left; background: var(--fondo); color: var(--negro); border: 2px solid var(--negro); padding: 0.65rem 0.8rem; cursor: pointer; }
+  button.op[lang=grc] { font-size: 1.25rem; }
+  button.op:hover, button.navb:hover { border-color: var(--ambar); }
+  button.op[disabled] { cursor: default; opacity: 0.85; }
+  button.op.bien { background: var(--ambar); }
+  button.op.mal { background: #2A2620; color: #FAF7F0; }
+  .why { border-left: 4px solid var(--ambar); padding: 0.4rem 0.8rem; min-height: 3.2rem; }
+  footer { border-top: 2px solid var(--negro); }
+  dt { font-weight: 700; margin-top: 0.6rem; }
+  dd { margin: 0.15rem 0 0; }
+  [lang=grc] { font-family: Palatino, "Palatino Linotype", "Times New Roman", serif; }
+</style>
+</head>
+<body>
+<header>
+  <h1>Laboratorio · Nominativo, vocativo y acusativo</h1>
+  <p>Lección 21 · Griego I · sin red</p>
+</header>
+<main>
+  <p id="estado">Ronda 1 de 6</p>
+  <div class="stage" id="stage"></div>
+  <p class="pregunta" id="pregunta"></p>
+  <div class="opciones" id="opciones"></div>
+  <p class="why" id="why" aria-live="polite"></p>
+  <p><button type="button" class="navb" id="siguiente" hidden>Siguiente</button></p>
+  <p id="resumen" hidden></p>
+</main>
+<footer>
+  <h2>Glosario de la lección</h2>
+  <dl>
+    <dt>Sujeto</dt><dd>Nominativo. <span lang="grc">ὁ παῖς γράφει</span>.</dd>
+    <dt>Atributo</dt><dd>Nominativo con <span lang="grc">εἰμί</span>. <span lang="grc">σοφὸς ἐστιν</span>, no <span lang="grc">σοφόν</span>.</dd>
+    <dt>Vocativo</dt><dd>Llamada, sin artículo. <span lang="grc">φίλε</span>, <span lang="grc">πάτερ</span>, <span lang="grc">βασιλεῦ</span>, <span lang="grc">ποιητά</span>.</dd>
+    <dt>ὦ</dt><dd>Marca de llamada. No se declina. No es el artículo.</dd>
+    <dt>Objeto</dt><dd>Acusativo. <span lang="grc">τὴν ὁδόν</span> es femenino: artículo <span lang="grc">τήν</span>.</dd>
+    <dt>Extensión</dt><dd><span lang="grc">τρεῖς ἡμέρας</span>, durante tres días. <span lang="grc">τρεῖς</span> solo se glosa «tres».</dd>
+    <dt>Neutro</dt><dd><span lang="grc">δῶρον</span> se escribe igual en nominativo y en acusativo. Manda la función.</dd>
+    <dt>Orden</dt><dd>No es fijo. El caso dice la función.</dd>
+  </dl>
+</footer>
+<script>
+(function () {
+  "use strict";
+  function svgWrap(titulo, cuerpo) {
+    return '<svg role="img" viewBox="0 0 640 200" xmlns="http://www.w3.org/2000/svg"><title>' + titulo + '</title><rect width="640" height="200" fill="#FAF7F0"/>' + cuerpo + '</svg>';
+  }
+  var escenas = {
+    atrib: svgWrap("Dos bloques en nominativo: el sujeto poeta y el atributo sofós", "<rect x=\"30\" y=\"40\" width=\"270\" height=\"120\" fill=\"#0E0E0C\"/><rect x=\"330\" y=\"40\" width=\"280\" height=\"120\" fill=\"#C4A15A\"/><text x=\"165\" y=\"110\" text-anchor=\"middle\" fill=\"#FAF7F0\" font-size=\"26\" font-family=\"Palatino, Times New Roman, serif\">ὁ ποιητής</text><text x=\"470\" y=\"110\" text-anchor=\"middle\" fill=\"#0E0E0C\" font-size=\"28\" font-family=\"Palatino, Times New Roman, serif\">σοφός</text>"),
+    pater: svgWrap("La llamada páter sin artículo, sola en el centro", "<circle cx=\"120\" cy=\"100\" r=\"28\" fill=\"#C4A15A\"/><rect x=\"220\" y=\"45\" width=\"360\" height=\"110\" fill=\"#0E0E0C\"/><text x=\"400\" y=\"115\" text-anchor=\"middle\" fill=\"#FAF7F0\" font-size=\"40\" font-family=\"Palatino, Times New Roman, serif\">πάτερ</text>"),
+    hodos: svgWrap("Un camino en acusativo femenino, ten hodón, como objeto", "<path d=\"M40 140 H240\" stroke=\"#2A2620\" stroke-width=\"8\"/><rect x=\"270\" y=\"45\" width=\"330\" height=\"110\" fill=\"#0E0E0C\"/><text x=\"435\" y=\"112\" text-anchor=\"middle\" fill=\"#C4A15A\" font-size=\"32\" font-family=\"Palatino, Times New Roman, serif\">τὴν ὁδόν</text>"),
+    dias: svgWrap("Tres bloques de día y la extensión treís heméras", "<rect x=\"30\" y=\"36\" width=\"70\" height=\"50\" fill=\"#C4A15A\"/><rect x=\"110\" y=\"36\" width=\"70\" height=\"50\" fill=\"#C4A15A\"/><rect x=\"190\" y=\"36\" width=\"70\" height=\"50\" fill=\"#2A2620\"/><rect x=\"30\" y=\"100\" width=\"560\" height=\"70\" fill=\"#0E0E0C\"/><text x=\"310\" y=\"145\" text-anchor=\"middle\" fill=\"#FAF7F0\" font-size=\"28\" font-family=\"Palatino, Times New Roman, serif\">τρεῖς ἡμέρας</text>"),
+    noart: svgWrap("Ho fíle tachado: el vocativo no admite artículo", "<rect x=\"40\" y=\"45\" width=\"250\" height=\"110\" fill=\"#2A2620\"/><text x=\"165\" y=\"110\" text-anchor=\"middle\" fill=\"#FAF7F0\" font-size=\"28\" font-family=\"Palatino, Times New Roman, serif\">ὁ φίλε</text><path d=\"M60 70 L270 140\" stroke=\"#C4A15A\" stroke-width=\"6\"/><rect x=\"330\" y=\"45\" width=\"270\" height=\"110\" fill=\"#C4A15A\"/><text x=\"465\" y=\"112\" text-anchor=\"middle\" fill=\"#0E0E0C\" font-size=\"32\" font-family=\"Palatino, Times New Roman, serif\">φίλε</text>"),
+    artfem: svgWrap("Hodós es femenino: el acusativo lleva ten, no ton", "<rect x=\"40\" y=\"40\" width=\"250\" height=\"120\" fill=\"#C4A15A\"/><text x=\"165\" y=\"110\" text-anchor=\"middle\" fill=\"#0E0E0C\" font-size=\"40\" font-family=\"Palatino, Times New Roman, serif\">τήν</text><rect x=\"340\" y=\"40\" width=\"260\" height=\"120\" fill=\"#0E0E0C\"/><text x=\"470\" y=\"110\" text-anchor=\"middle\" fill=\"#FAF7F0\" font-size=\"36\" font-family=\"Palatino, Times New Roman, serif\">ὁδός</text>"),
+    bas: svgWrap("El vocativo basileû, con circunflejo, distinto del nominativo", "<rect x=\"100\" y=\"40\" width=\"440\" height=\"120\" fill=\"#0E0E0C\"/><text x=\"320\" y=\"115\" text-anchor=\"middle\" fill=\"#C4A15A\" font-size=\"40\" font-family=\"Palatino, Times New Roman, serif\">βασιλεῦ</text>"),
+    sofon: svgWrap("Sofón tachado como atributo; sofós queda en nominativo", "<rect x=\"30\" y=\"45\" width=\"250\" height=\"110\" fill=\"#2A2620\"/><text x=\"155\" y=\"110\" text-anchor=\"middle\" fill=\"#FAF7F0\" font-size=\"32\" font-family=\"Palatino, Times New Roman, serif\">σοφόν</text><path d=\"M50 70 L250 140\" stroke=\"#C4A15A\" stroke-width=\"6\"/><rect x=\"330\" y=\"45\" width=\"270\" height=\"110\" fill=\"#C4A15A\"/><text x=\"465\" y=\"112\" text-anchor=\"middle\" fill=\"#0E0E0C\" font-size=\"32\" font-family=\"Palatino, Times New Roman, serif\">σοφός</text>"),
+    pais: svgWrap("Ho país en el bloque alto: es el sujeto, no el acusativo", "<rect x=\"40\" y=\"30\" width=\"280\" height=\"140\" fill=\"#0E0E0C\"/><text x=\"180\" y=\"110\" text-anchor=\"middle\" fill=\"#C4A15A\" font-size=\"32\" font-family=\"Palatino, Times New Roman, serif\">ὁ παῖς</text><rect x=\"360\" y=\"70\" width=\"230\" height=\"70\" fill=\"#2A2620\"/><text x=\"475\" y=\"114\" text-anchor=\"middle\" fill=\"#FAF7F0\" font-size=\"24\" font-family=\"Palatino, Times New Roman, serif\">γράφει</text>"),
+    doron: svgWrap("To dóron junto a estín: se lee nominativo, aunque la forma parezca acusativo", "<rect x=\"30\" y=\"45\" width=\"300\" height=\"110\" fill=\"#C4A15A\"/><text x=\"180\" y=\"112\" text-anchor=\"middle\" fill=\"#0E0E0C\" font-size=\"28\" font-family=\"Palatino, Times New Roman, serif\">τὸ δῶρον</text><rect x=\"360\" y=\"45\" width=\"240\" height=\"110\" fill=\"#0E0E0C\"/><text x=\"480\" y=\"112\" text-anchor=\"middle\" fill=\"#FAF7F0\" font-size=\"32\" font-family=\"Palatino, Times New Roman, serif\">ἐστιν</text>")
+  };
+  var rondas = [
+    { escena: "atrib", pregunta: "En ὁ ποιητὴς σοφὸς ἐστιν, ¿qué es σοφὸς?", opciones: [
+      { t: "Nominativo, atributo", ok: true, why: "Con εἰμί, lo que se dice del sujeto va en nominativo. Cumple la regla pedida y se confunde a menudo con «Acusativo, objeto», que no aplica el mismo criterio en esta pregunta." },
+      { t: "Acusativo, objeto", ok: false, why: "El objeto iría en acusativo, σοφόν. Ahí falla la regla del enunciado, y el contraste lo da la opción buena «Nominativo, atributo», que sí aplica el criterio correcto en esta pregunta." },
+      { t: "Vocativo de llamada", ok: false, why: "El vocativo de un masculino de la 2.ª acaba en -ε, como φίλε. Ahí falla la regla del enunciado, y el contraste lo da la opción buena «Nominativo, atributo», que sí aplica el criterio correcto en esta pregunta." },
+      { t: "Nominativo, sujeto", ok: false, why: "El sujeto es ὁ ποιητής. Ahí falla la regla del enunciado, y el contraste lo da la opción buena «Nominativo, atributo», que sí aplica el criterio correcto en esta pregunta." }
+    ]},
+    { escena: "pater", pregunta: "¿Cuál es el vocativo de πατήρ?", opciones: [
+      { t: "πάτερ", ok: true, why: "Es el vocativo de la tabla. Cumple la regla del enunciado y se confunde con «πατήρ», que parece cercana pero rompe el criterio de esta pregunta y de la lección, Revisa el contraste con la opción correcta de esta misma pregunta y no mezcles funciones." },
+      { t: "πατήρ", ok: false, why: "πατήρ es nominativo. Esa lectura rompe la regla que pide el enunciado y se aparta del contraste con la opción buena «πάτερ», que sí cumple el criterio de esta pregunta." },
+      { t: "πατέρα", ok: false, why: "πατέρα es acusativo. Esa lectura rompe la regla que pide el enunciado y se aparta del contraste con la opción buena «πάτερ», que sí cumple el criterio de esta pregunta." },
+      { t: "πατρός", ok: false, why: "πατρός es genitivo. Esa lectura rompe la regla que pide el enunciado y se aparta del contraste con la opción buena «πάτερ», que sí cumple el criterio de esta pregunta." }
+    ]},
+    { escena: "hodos", pregunta: "En ὁ φίλος τὴν ὁδὸν ἔλιπεν, ¿qué función tiene τὴν ὁδόν?", opciones: [
+      { t: "Objeto directo", ok: true, why: "Es el acusativo de lo que se deja. Cumple la regla del enunciado y se confunde con «Sujeto», que parece cercana pero rompe el criterio de esta pregunta y de la lección." },
+      { t: "Sujeto", ok: false, why: "El sujeto va en nominativo. Ahí falla la regla del enunciado, y el contraste lo da la opción buena «Objeto directo», que sí aplica el criterio correcto en esta pregunta." },
+      { t: "Atributo", ok: false, why: "El atributo va con εἰμί y en nominativo. Ahí falla la regla del enunciado, y el contraste lo da la opción buena «Objeto directo», que sí aplica el criterio correcto en esta pregunta." },
+      { t: "Extensión de tiempo", ok: false, why: "La extensión de esta lección es τρεῖς ἡμέρας. Ahí falla la regla del enunciado, y el contraste lo da la opción buena «Objeto directo», que sí aplica el criterio correcto en esta pregunta." }
+    ]},
+    { escena: "dias", pregunta: "En ὁ παῖς τρεῖς ἡμέρας γράφει, ¿qué es τρεῖς ἡμέρας?", opciones: [
+      { t: "Extensión de tiempo", ok: true, why: "Acusativo de cuánto dura: durante tres días. Cumple la regla pedida y se confunde a menudo con «Objeto directo», que no aplica el mismo criterio en esta pregunta." },
+      { t: "Objeto directo", ok: false, why: "En esta frase no hay otro acusativo, pero τρεῖς ἡμέρας no es lo que se escribe: es el tiempo. Ahí falla la regla del enunciado, y el contraste lo da la opción buena «Extensión de tiempo», que sí aplica el criterio correcto en esta pregunta." },
+      { t: "Vocativo", ok: false, why: "ἡμέρας no es una llamada. Ahí falla la regla del enunciado, y el contraste lo da la opción buena «Extensión de tiempo», que sí aplica el criterio correcto en esta pregunta." },
+      { t: "Sujeto", ok: false, why: "El sujeto es ὁ παῖς, nominativo. Ahí falla la regla del enunciado, y el contraste lo da la opción buena «Extensión de tiempo», que sí aplica el criterio correcto en esta pregunta." }
+    ]},
+    { escena: "noart", pregunta: "¿Cuál de estas no es un vocativo válido de la lección?", opciones: [
+      { t: "ὁ φίλε", ok: true, why: "El vocativo va sin artículo. Cumple la regla del enunciado y se confunde con «φίλε», que parece cercana pero rompe el criterio de esta pregunta y de la lección, Revisa el contraste con la opción correcta de esta misma pregunta y no mezcles funciones." },
+      { t: "φίλε", ok: false, why: "φίλε es el vocativo de φίλος, como λόγε. Ahí falla la regla del enunciado, y el contraste lo da la opción buena «ὁ φίλε», que sí aplica el criterio correcto en esta pregunta." },
+      { t: "πάτερ", ok: false, why: "πάτερ es el vocativo de πατήρ. Ahí falla la regla del enunciado, y el contraste lo da la opción buena «ὁ φίλε», que sí aplica el criterio correcto en esta pregunta." },
+      { t: "βασιλεῦ", ok: false, why: "βασιλεῦ es el vocativo de βασιλεύς. Ahí falla la regla del enunciado, y el contraste lo da la opción buena «ὁ φίλε», que sí aplica el criterio correcto en esta pregunta." }
+    ]},
+    { escena: "artfem", pregunta: "ὁδός es femenino. ¿Qué artículo lleva en acusativo singular?", opciones: [
+      { t: "τήν", ok: true, why: "Aunque el nombre acabe en -ος, el género es femenino. Cumple la regla del enunciado y se confunde con «τόν», que parece cercana pero rompe el criterio de esta pregunta y de la lección." },
+      { t: "τόν", ok: false, why: "τόν es el acusativo masculino. Ahí falla la regla del enunciado, y el contraste lo da la opción buena «τήν», que sí aplica el criterio correcto en esta pregunta." },
+      { t: "τό", ok: false, why: "τό es neutro. Esa lectura rompe la regla que pide el enunciado y se aparta del contraste con la opción buena «τήν», que sí cumple el criterio de esta pregunta, Revisa el contraste con la opción correcta de esta misma pregunta y no mezcles funciones." },
+      { t: "ὁ", ok: false, why: "ὁ es nominativo masculino. Esa lectura rompe la regla que pide el enunciado y se aparta del contraste con la opción buena «τήν», que sí cumple el criterio de esta pregunta." }
+    ]}
+  ];
+  var checks = [
+    { escena: "bas", pregunta: "¿Cuál es el vocativo de βασιλεύς?", opciones: [
+      { t: "βασιλεῦ", ok: true, why: "Circunflejo en la última sílaba, el de la tabla. Cumple la regla del enunciado y se confunde con «βασιλεύς», que parece cercana pero rompe el criterio de esta pregunta y de la lección." },
+      { t: "βασιλεύς", ok: false, why: "βασιλεύς es nominativo. Esa lectura rompe la regla que pide el enunciado y se aparta del contraste con la opción buena «βασιλεῦ», que sí cumple el criterio de esta pregunta." },
+      { t: "βασιλέα", ok: false, why: "βασιλέα es acusativo, objeto. Ahí falla la regla del enunciado, y el contraste lo da la opción buena «βασιλεῦ», que sí aplica el criterio correcto en esta pregunta." },
+      { t: "βασιλέως", ok: false, why: "βασιλέως es genitivo. Esa lectura rompe la regla que pide el enunciado y se aparta del contraste con la opción buena «βασιλεῦ», que sí cumple el criterio de esta pregunta." }
+    ]},
+    { escena: "sofon", pregunta: "ὁ φίλος ___ ἐστιν. ¿Qué forma es el atributo?", opciones: [
+      { t: "σοφὸς", ok: true, why: "Nominativo masculino singular, como el sujeto. Cumple la regla del enunciado y se confunde con «σοφόν», que parece cercana pero rompe el criterio de esta pregunta y de la lección." },
+      { t: "σοφόν", ok: false, why: "σοφόν es acusativo o neutro. Ahí falla la regla del enunciado, y el contraste lo da la opción buena «σοφὸς», que sí aplica el criterio correcto en esta pregunta." },
+      { t: "σοφοῦ", ok: false, why: "σοφοῦ es genitivo. Esa lectura rompe la regla que pide el enunciado y se aparta del contraste con la opción buena «σοφὸς», que sí cumple el criterio de esta pregunta." },
+      { t: "φίλε", ok: false, why: "φίλε es vocativo. Esa lectura rompe la regla que pide el enunciado y se aparta del contraste con la opción buena «σοφὸς», que sí cumple el criterio de esta pregunta." }
+    ]},
+    { escena: "pais", pregunta: "En ὁ παῖς γράφει τὸν λόγον, ¿cuál es el sujeto?", opciones: [
+      { t: "ὁ παῖς", ok: true, why: "Nominativo. Cumple la regla del enunciado y se confunde con «τὸν λόγον», que parece cercana pero rompe el criterio de esta pregunta y de la lección, Revisa el contraste con la opción correcta de esta misma pregunta y no mezcles funciones." },
+      { t: "τὸν λόγον", ok: false, why: "τὸν λόγον es acusativo, el objeto directo. Ahí falla la regla del enunciado, y el contraste lo da la opción buena «ὁ παῖς», que sí aplica el criterio correcto en esta pregunta." },
+      { t: "φίλε", ok: false, why: "φίλε ni siquiera está en la frase. Ahí falla la regla del enunciado, y el contraste lo da la opción buena «ὁ παῖς», que sí aplica el criterio correcto en esta pregunta." },
+      { t: "γράφει", ok: false, why: "γράφει es el verbo, 3.ª singular. Ahí falla la regla del enunciado, y el contraste lo da la opción buena «ὁ παῖς», que sí aplica el criterio correcto en esta pregunta." }
+    ]},
+    { escena: "doron", pregunta: "En τὸ δῶρον καλὸν ἐστιν, ¿qué es τὸ δῶρον?", opciones: [
+      { t: "Nominativo, sujeto", ok: true, why: "El neutro escribe igual nominativo y acusativo. Cumple la regla pedida y se confunde a menudo con «Acusativo, objeto», que no aplica el mismo criterio en esta pregunta." },
+      { t: "Acusativo, objeto", ok: false, why: "No hay verbo transitivo. Ahí falla la regla del enunciado, y el contraste lo da la opción buena «Nominativo, sujeto», que sí aplica el criterio correcto en esta pregunta." },
+      { t: "Vocativo", ok: false, why: "Nadie llama al regalo en esta frase. Ahí falla la regla del enunciado, y el contraste lo da la opción buena «Nominativo, sujeto», que sí aplica el criterio correcto en esta pregunta." },
+      { t: "Extensión de tiempo", ok: false, why: "δῶρον no mide tiempo. Ahí falla la regla del enunciado, y el contraste lo da la opción buena «Nominativo, sujeto», que sí aplica el criterio correcto en esta pregunta." }
+    ]}
+  ];
+  var fase = "ronda";
+  var i = 0;
+  var aciertos = 0;
+  var rondaAciertos = 0;
+  var bloqueada = false;
+  var estado = document.getElementById("estado");
+  var stage = document.getElementById("stage");
+  var pregunta = document.getElementById("pregunta");
+  var caja = document.getElementById("opciones");
+  var why = document.getElementById("why");
+  var siguiente = document.getElementById("siguiente");
+  var resumen = document.getElementById("resumen");
+  function listaActual() { return fase === "ronda" ? rondas : checks; }
+  function pintar() {
+    var item = listaActual()[i];
+    var total = fase === "ronda" ? 6 : 4;
+    var nombre = fase === "ronda" ? "Ronda" : "Mini-check";
+    estado.textContent = nombre + " " + (i + 1) + " de " + total;
+    stage.innerHTML = escenas[item.escena];
+    pregunta.innerHTML = item.pregunta.replace(/([\u0370-\u03FF\u1F00-\u1FFF]+)/g, '<span lang="grc">$1</span>');
+    why.textContent = "";
+    siguiente.hidden = true;
+    bloqueada = false;
+    caja.innerHTML = "";
+    item.opciones.forEach(function (op, n) {
+      var b = document.createElement("button");
+      b.type = "button";
+      b.className = "op";
+      b.innerHTML = op.t.replace(/([\u0370-\u03FF\u1F00-\u1FFF]+)/g, '<span lang="grc">$1</span>');
+      b.addEventListener("click", function () { elegir(n); });
+      caja.appendChild(b);
+    });
+  }
+  function elegir(n) {
+    if (bloqueada) return;
+    bloqueada = true;
+    var item = listaActual()[i];
+    var op = item.opciones[n];
+    var botones = caja.querySelectorAll("button");
+    botones.forEach(function (b, k) {
+      b.disabled = true;
+      if (item.opciones[k].ok) b.classList.add("bien");
+      else if (k === n) b.classList.add("mal");
+    });
+    if (op.ok) aciertos += 1;
+    var correcta = item.opciones.filter(function (x) { return x.ok; })[0];
+    why.innerHTML = op.why.replace(/([\u0370-\u03FF\u1F00-\u1FFF]+)/g, '<span lang="grc">$1</span>') + (op.ok ? "" : " La opción que sí cuadra: " + correcta.t.replace(/([\u0370-\u03FF\u1F00-\u1FFF]+)/g, '<span lang="grc">$1</span>') + ".");
+    siguiente.hidden = false;
+    siguiente.textContent = (fase === "ronda" && i === 5) ? "Pasar al mini-check" : (fase === "check" && i === 3) ? "Ver el resultado" : "Siguiente";
+  }
+  siguiente.addEventListener("click", function () {
+    var lista = listaActual();
+    if (i < lista.length - 1) { i += 1; pintar(); return; }
+    if (fase === "ronda") {
+      fase = "check";
+      rondaAciertos = aciertos;
+      i = 0;
+      aciertos = 0;
+      pintar();
+      return;
+    }
+    resumen.hidden = false;
+    resumen.textContent = "Rondas: " + rondaAciertos + " de 6. Mini-check: " + aciertos + " de 4. Recarga la página si quieres repetir.";
+    siguiente.hidden = true;
+    estado.textContent = "Hecho";
+  });
+  pintar();
+})();
+</script>
+</body>
+</html>

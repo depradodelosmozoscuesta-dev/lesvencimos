@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
+<title>L06 · Laboratorio · Flujo, red y modelo del 10 %</title>
+<style>
+:root{--bg:#FAF7F0;--ink:#2A2620;--muted:#5C564C;--card:#fff;--gold:#C4A15A;--gold-soft:#F5EDD8;--gold-deep:#8A6B2F;--green:#3D6B4F;--green-soft:#E4F0E8;--blue:#2F5D7A;--blue-soft:#E3EEF4;--rose:#9B3A4A;--rose-soft:#F8E8EB;--shadow:0 10px 32px rgba(42,38,32,.09);--radius:18px}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{min-height:100%;background:var(--bg);color:var(--ink);font-family:"Segoe UI",system-ui,-apple-system,sans-serif}
+body{padding:14px 10px 36px}
+.wrap{width:100%;max-width:920px;margin:0 auto}
+header{text-align:center;margin-bottom:12px}
+.badge{display:inline-block;font-size:.75rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--gold-deep);background:var(--gold-soft);padding:4px 12px;border-radius:999px;margin-bottom:8px}
+h1{font-size:clamp(1.25rem,4vw,1.7rem);line-height:1.25;font-weight:800}
+.subtitle{margin-top:6px;color:var(--muted);font-size:.98rem}
+.card{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);padding:16px 14px 18px;margin-bottom:14px}
+.card h2{font-size:1.15rem;margin-bottom:8px}
+.hint{color:var(--muted);font-size:.92rem;line-height:1.45;margin-bottom:10px}
+.q{border:2px solid #E0D0A8;border-radius:14px;padding:12px;margin:10px 0;background:#FFFcf5}
+.q h3{font-size:1rem;margin-bottom:8px;line-height:1.35}
+.opt{display:block;width:100%;text-align:left;padding:10px 12px;margin:6px 0;border:2px solid #D9D0C0;border-radius:12px;background:#fff;font-weight:650;cursor:pointer;font-family:inherit;font-size:.95rem;line-height:1.35;color:var(--ink)}
+.opt:hover{border-color:var(--gold)}
+.opt.ok{border-color:var(--green);background:var(--green-soft)}
+.opt.bad{border-color:var(--rose);background:var(--rose-soft)}
+.why{display:none;margin-top:8px;padding:8px 10px;border-radius:10px;background:var(--blue-soft);font-size:.92rem;line-height:1.4}
+.why.show{display:block}
+.score{font-weight:800;color:var(--gold-deep);margin-top:8px}
+button.action{appearance:none;border:none;border-radius:999px;padding:10px 16px;font-weight:800;cursor:pointer;background:var(--gold);color:#fff;margin:4px 6px 4px 0;font-family:inherit}
+button.action.secondary{background:#fff;color:var(--gold-deep);border:2px solid var(--gold)}
+.topbar{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:8px}
+footer{text-align:center;font-size:.8rem;color:var(--muted);margin-top:8px}
+svg.fig{width:100%;height:auto;display:block;margin:8px 0}
+</style>
+</head>
+<body>
+<div class="wrap" id="lab">
+  <header>
+    <div class="badge">Lección 06 · Bloque B · Ecología y sostenibilidad</div>
+    <h1>Flujo, red y modelo del 10 %</h1>
+    <p class="subtitle">El porcentaje es un supuesto. Los julios del enunciado son datos de ejemplo.</p>
+  </header>
+  <section class="card">
+    <div class="topbar">
+      <h2>Laboratorio · 6 preguntas</h2>
+      <div>
+        <button type="button" class="action secondary" id="btnFs">Pantalla completa</button>
+        <button type="button" class="action secondary" id="btnReset">Reiniciar</button>
+      </div>
+    </div>
+    <p class="hint">Corrección inmediata.</p>
+    
+    <div id="quiz"></div>
+    <p class="score" id="score" aria-live="polite">Aciertos: 0 / 7</p>
+  </section>
+  <footer>1º Bachillerato · Biología, Geología y Ciencias Ambientales · Castilla y León · Decreto 40/2022 · Offline file:// · sin red</footer>
+</div>
+<script>
+(function(){
+  const ITEMS = [{"q": "¿Qué le ocurre a la energía en un ecosistema, a diferencia de la materia?", "opts": ["Se recicla igual que el fósforo.", "Entra, se transforma y se disipa como calor; no vuelve a ser luz utilizable por el mismo productor.", "Se crea en cada nivel trófico.", "Desaparece sin dejar calor."], "ok": 1, "why": "La materia circula en ciclos. La energía fluye y, en cada transferencia, una parte se pierde como calor no aprovechable por el nivel siguiente."}, {"q": "Una cadena es hierba → saltamontes → musaraña. Una red incluye además que el zorro coma saltamontes y frutos. ¿Qué añade la red?", "opts": ["Nada: es el mismo dibujo con más colores.", "Vías alternativas y omnivoría: quitar un nodo no deja un único hilo.", "Que la energía se recicle.", "Que la pirámide de energía pueda invertirse."], "ok": 1, "why": "La cadena es un camino. La red es el conjunto de caminos. La pirámide de energía sigue derecha en los dos casos."}, {"q": "¿Qué pirámide puede invertirse sin violar el flujo de energía?", "opts": ["La de energía, en un bosque.", "La de biomasa, por ejemplo si el fitoplancton tiene poca biomasa instantánea y un recambio muy rápido.", "Ninguna.", "La de energía, si el 10 % se toma como ley."], "ok": 1, "why": "La energía acumulada por unidad de tiempo decrece hacia arriba. La biomasa es una foto fija y puede ser menor en los productores si producen muy deprisa."}, {"q": "En un modelo del 10 %, 20 000 kJ de producción neta de los productores pasan a herbívoros. ¿Cuánta energía entra en los herbívoros?", "opts": ["20 000 kJ, porque la energía no se pierde.", "2 000 kJ.", "200 kJ.", "10 kJ, porque el 10 % es una ley física exacta."], "ok": 1, "why": "20 000 × 0,10 = 2 000. Es un modelo didáctico, no una constante. Hay que escribir la suposición."}, {"q": "Si en el mismo problema el modelo fuera del 20 % en vez del 10 %, ¿qué cambia?", "opts": ["Nada: el 10 % es una ley y el 20 % está prohibido.", "Los herbívoros recibirían 4 000 kJ. La conclusión numérica depende del supuesto.", "La pirámide de energía se invierte.", "El Sol deja de ser la fuente."], "ok": 1, "why": "Por eso el 10 % no se aplica como si fuera la gravedad. Eficiencias reales a menudo caen en un intervalo amplio, del orden del 5 % al 20 %."}, {"q": "¿Por qué un quinto nivel trófico es poco frecuente?", "opts": ["Porque una ley lo prohíbe.", "Porque, con transferencias del orden del modelo, queda muy poca energía utilizable.", "Porque los descomponedores ocupan siempre ese piso.", "Porque las redes no existen."], "ok": 1, "why": "No es una prohibición. Es una consecuencia del modelo de pérdidas. Los descomponedores no son «el quinto piso»: actúan sobre detritos de varios niveles."}, {"q": "Producción neta de los productores es…", "opts": ["Toda la luz que llega al ecosistema.", "La producción bruta menos la respiración de los propios productores.", "El 10 % exacto de la luz, por ley.", "La energía de los carnívoros."], "ok": 1, "why": "Lo que queda disponible para los herbívoros no es la luz incidente ni la producción bruta entera."}];
+  const quiz = document.getElementById('quiz');
+  const scoreEl = document.getElementById('score');
+  let aciertos = 0;
+  function render(){
+    aciertos = 0;
+    quiz.innerHTML = '';
+    ITEMS.forEach((it, i) => {
+      const box = document.createElement('div');
+      box.className = 'q';
+      const h = document.createElement('h3');
+      h.textContent = (i+1) + '. ' + it.q;
+      box.appendChild(h);
+      const why = document.createElement('p');
+      why.className = 'why';
+      let locked = false;
+      it.opts.forEach((t, j) => {
+        const b = document.createElement('button');
+        b.type = 'button';
+        b.className = 'opt';
+        b.textContent = t;
+        b.addEventListener('click', () => {
+          if (locked) return;
+          locked = true;
+          const buttons = box.querySelectorAll('.opt');
+          buttons.forEach((bb, k) => {
+            bb.disabled = true;
+            if (k === it.ok) bb.classList.add('ok');
+          });
+          if (j === it.ok) {
+            aciertos += 1;
+          } else {
+            b.classList.add('bad');
+          }
+          why.textContent = (j === it.ok ? 'Correcto. ' : 'No es la mejor opción. ') + it.why;
+          why.classList.add('show');
+          scoreEl.textContent = 'Aciertos: ' + aciertos + ' / ' + ITEMS.length;
+        });
+        box.appendChild(b);
+      });
+      box.appendChild(why);
+      quiz.appendChild(box);
+    });
+    scoreEl.textContent = 'Aciertos: 0 / ' + ITEMS.length;
+  }
+  document.getElementById('btnReset').addEventListener('click', render);
+  document.getElementById('btnFs').addEventListener('click', () => {
+    const el = document.documentElement;
+    if (!document.fullscreenElement) {
+      if (el.requestFullscreen) el.requestFullscreen();
+    } else if (document.exitFullscreen) {
+      document.exitFullscreen();
+    }
+  });
+  window.addEventListener('message', (ev) => {
+    const d = ev.data || {};
+    if (d.type === 'maestro:reset') render();
+    if (d.type === 'maestro:highlight') {
+      const f = document.querySelector('.q');
+      if (f) f.style.outline = '3px solid #C4A15A';
+    }
+  });
+  render();
+})();
+</script>
+</body>
+</html>

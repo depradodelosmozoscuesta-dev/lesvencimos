@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<meta name="theme-color" content="#0E0E0C"/>
+<title>Lección 12 · La derivada como cambio · Les vencimos</title>
+<link rel="icon" href="../icons/favicon.svg" type="image/svg+xml"/>
+<link rel="stylesheet" href="../leccion-shell.css"/>
+<style>
+
+  .pasos{list-style:none;margin:0 0 1rem;padding:0;counter-reset:paso}
+  .pasos li{position:relative;margin:0 0 .7rem;padding:.7rem .8rem .7rem 3.1rem;background:var(--lv-panel);border:1px solid var(--lv-linea);border-radius:10px}
+  .pasos li::before{counter-increment:paso;content:counter(paso);position:absolute;left:.65rem;top:.7rem;width:1.7rem;height:1.7rem;border-radius:50%;background:#C4A15A;color:#1A160E;font-weight:700;font-size:.9rem;display:flex;align-items:center;justify-content:center}
+  .figura-svg{background:var(--lv-panel);border:1px solid var(--lv-linea);border-radius:10px;padding:.4rem;margin:.4rem 0 1rem}
+  .figura-svg svg{width:100%;height:auto;display:block}
+  .ej{margin:0 0 1rem;padding:.85rem .95rem;background:var(--lv-panel);border:1px solid var(--lv-linea);border-left:3px solid #C4A15A;border-radius:10px}
+  .ej h3{margin:0 0 .35rem;font-family:var(--lv-serif);font-size:1.05rem;color:var(--lv-titulo)}
+  .editor,textarea.editor{width:100%;min-height:5.2rem;font-family:ui-monospace,monospace;font-size:.95rem;line-height:1.4;padding:.55rem .65rem;border:1px solid rgba(196,161,90,.45);border-radius:8px;background:#161512;color:#E6E1D6;resize:vertical}
+  .lienzo{display:block;width:100%;height:240px;background:#161512;border:1px solid #C4A15A;border-radius:8px;touch-action:none;cursor:crosshair}
+  .fila{display:flex;flex-wrap:wrap;gap:.4rem;margin:.45rem 0}
+  .boton{font:inherit;font-weight:700;font-size:.85rem;padding:.35rem .75rem;border-radius:999px;border:1px solid #C4A15A;background:transparent;color:#E6E1D6;cursor:pointer}
+  .boton.amber{background:#C4A15A;color:#1A160E;border-color:#b08d45}
+  .porque{margin-top:.5rem;padding:.6rem .7rem;background:#1a2218;border-radius:8px;color:#E6E1D6}
+  .dato{font-size:.95rem;color:var(--lv-suave)}
+  .formula{background:#161512;border-left:3px solid #C4A15A;padding:.45rem .7rem;overflow-x:auto;font-family:ui-monospace,monospace}
+  .glosa{font-size:.95rem;color:#d9d0bc;margin-top:.25rem}
+  table.datos{width:100%;border-collapse:collapse;margin:.4rem 0 1rem;font-size:.98rem}
+  table.datos th,table.datos td{border:1px solid var(--lv-linea);padding:.35rem .5rem;text-align:left}
+  table.datos th{background:#161512;color:#C4A15A}
+  table.datos td.num{font-variant-numeric:tabular-nums}
+
+</style>
+<script src="../leccion-shell-nav.js" defer></script>
+</head>
+<body class="leccion-shell">
+<div class="leccion-wrap">
+
+<nav class="leccion-barra" aria-label="Navegación de lección" data-actual="12" data-total="33">
+  <div class="leccion-progreso" role="status">
+    <span class="progreso-texto"><strong>12</strong> de <strong>33</strong></span>
+    <div class="progreso-pista" aria-hidden="true"><div class="progreso-lleno" style="width:37.5%"></div></div>
+  </div>
+  <div class="leccion-atajos">
+    <a class="atajo atajo-prev" href="leccion-11-continuidad.html">← Anterior</a>
+    <a class="atajo atajo-next" href="leccion-13-derivadas-elementales.html">Siguiente →</a>
+  </div>
+</nav>
+
+<header class="leccion-top">
+  <a class="leccion-marca" href="../mates-ccs.html">Les <span>vencimos</span></a>
+  <p class="leccion-meta-top">Matemáticas Aplicadas a las Ciencias Sociales I · 1.º Bachillerato</p>
+</header>
+
+<header class="bloque-titulo">
+  <span class="eyebrow">Lección 12 · B.2 · Cambio</span>
+  <h1 class="titulo-leccion">La derivada como tasa de <em>variación</em></h1>
+  <p class="meta-leccion">Decreto 40/2022 CyL · primer curso · antes de segundo</p>
+</header>
+
+<aside class="bloque-curiosidad" aria-label="Para situarte">
+  <p class="etiqueta-bloque">Para situarte</p>
+  <h2 class="titulo-curiosidad">La derivada mide el cambio al momento</h2>
+  <p class="texto-curiosidad">Entre dos meses puedes calcular una tasa media. La derivada aprieta ese intervalo hasta dejarlo en un instante: es el límite del cociente incremental.</p>
+</aside>
+
+<section class="bloque-cuerpo">
+  <h2>Objetivos</h2>
+  <ul>
+    <li>Calcular una tasa de variación media entre dos valores de la variable.</li>
+    <li>Escribir el cociente incremental y reconocer la derivada como su límite cuando el incremento tiende a cero.</li>
+    <li>Interpretar el signo y la unidad de esa derivada en un contexto de beneficio, precio o población.</li>
+    <li>Distinguir la tasa media en un tramo de la tasa instantánea en un punto.</li>
+  </ul>
+
+  <h2>Del tramo al instante</h2>
+  <p>El bloque B.2 define la derivada a partir del cambio en contextos de las ciencias sociales. No empezamos por una tabla de reglas: empezamos por una pregunta. Si el beneficio, la población o el precio dependen de una variable, ¿cuánto cambian cuando esa variable da un paso, y qué pasa si el paso se hace minúsculo?</p>
+  <p>Entre dos valores x y x + h, con h ≠ 0, la tasa de variación media es el cambio de la función partido por el cambio de la variable. Es la pendiente de la recta que une los dos puntos de la gráfica. En un beneficio medido en euros y una producción medida en unidades, la unidad de esa tasa es euros por unidad.</p>
+  <p class="formula">TVM = [f(x + h) − f(x)] / h</p>
+  <p class="glosa">f es la magnitud que cambia (beneficio, población o precio); x es el valor de partida de la variable; h es el incremento, que puede ser positivo o negativo pero no cero; f(x + h) − f(x) es cuánto ha cambiado la magnitud; el cociente es el cambio medio por cada unidad de incremento.</p>
+  <p>Ese cociente todavía depende de h. Si al hacer h cada vez más pequeño el cociente se acerca a un número, ese número es la derivada de f en x. Se escribe f'(x). Es la tasa de variación instantánea.</p>
+  <p class="formula">f'(x) = lim (h → 0) [f(x + h) − f(x)] / h</p>
+  <p class="glosa">f'(x) es la derivada en el punto x; h es el incremento que se acerca a 0; el corchete es el mismo cociente incremental de la tasa media; el límite se queda con lo que ese cociente tiene de estable cuando el tramo desaparece.</p>
+  <p>El signo se lee en el contexto. Si f' es positiva, la magnitud crece en ese punto: un euro más de beneficio marginal, un habitante más por año. Si es negativa, decrece: el precio baja cuando sube la cantidad, por ejemplo. Si es cero, el cambio instantáneo es nulo; en un beneficio, suele ser un candidato a máximo o a mínimo, que se confirmará con más datos del alrededor. Cero no dice, por sí solo, si es cima o valle.</p>
+  <p>En una función lineal, la tasa media es la misma en todos los tramos y coincide con la derivada. En una cuadrática, la tasa media todavía depende de lo largo que sea h, y solo el límite la fija en el punto.</p>
+
+  <div class="figura-svg">
+    <svg viewBox="0 0 640 280" role="img" aria-label="Parábola de beneficio con una secante y la tangente en x = 6">
+      <title>Beneficio B(x) = 20x − x²: secante entre 6 y 8, y tangente en 6 de pendiente 8</title>
+      <rect width="640" height="280" fill="#161512"/>
+      <line x1="50" y1="240" x2="600" y2="240" stroke="#9A9488"/>
+      <line x1="50" y1="20" x2="50" y2="250" stroke="#9A9488"/>
+      <path d="M50 240 C 140 240 180 40 250 40 C 320 40 360 240 450 240" fill="none" stroke="#E6E1D6" stroke-width="2"/>
+      <line x1="170" y1="92" x2="250" y2="68" stroke="#8F9A72" stroke-width="2"/>
+      <line x1="130" y1="116" x2="250" y2="52" stroke="#C4A15A" stroke-width="2"/>
+      <circle cx="190" cy="80" r="4" fill="#C4A15A"/>
+      <text x="200" y="70" fill="#C4A15A" font-size="14" font-family="Segoe UI,sans-serif">tangente en x = 6</text>
+      <text x="300" y="78" fill="#8F9A72" font-size="14" font-family="Segoe UI,sans-serif">secante</text>
+      <text x="560" y="232" fill="#9A9488" font-size="13" font-family="Segoe UI,sans-serif">x</text>
+      <text x="58" y="34" fill="#9A9488" font-size="13" font-family="Segoe UI,sans-serif">B</text>
+    </svg>
+  </div>
+  <p>El esquema resume la parábola del beneficio, una secante verde (tasa media entre dos puntos) y la tangente ámbar (la derivada en el punto). Cuando el segundo punto de la secante se acerca al primero, la secante se echa encima de la tangente. El lienzo de más abajo repite esas tres piezas a escala.</p>
+
+  <h2>Ejemplo 1. Beneficio marginal en x = 6</h2>
+  <p>Una cooperativa estima el beneficio, en euros, al vender x unidades con B(x) = 20x − x<sup>2</sup>, para x entre 0 y 20. Queremos la tasa instantánea en x = 6, no la media de un mes entero.</p>
+  <ol class="pasos">
+    <li>B(6) = 20 · 6 − 36 = 120 − 36 = 84 euros.</li>
+    <li>B(6 + h) = 20(6 + h) − (6 + h)<sup>2</sup> = 120 + 20h − (36 + 12h + h<sup>2</sup>) = 84 + 8h − h<sup>2</sup>.</li>
+    <li>El incremento de beneficio es (84 + 8h − h<sup>2</sup>) − 84 = 8h − h<sup>2</sup>.</li>
+    <li>El cociente incremental es (8h − h<sup>2</sup>) / h = 8 − h, siempre que h ≠ 0.</li>
+    <li>Cuando h tiende a 0, 8 − h tiende a 8. Por tanto B'(6) = 8.</li>
+  </ol>
+  <p class="formula">[B(6 + h) − B(6)] / h = 8 − h &nbsp; y &nbsp; B'(6) = 8</p>
+  <p class="glosa">B es el beneficio en euros; 6 es el número de unidades en el que medimos; h es el incremento de unidades; 8 − h es la tasa media en ese tramo, en euros por unidad; 8 es la derivada, euros extra de beneficio por una unidad adicional en ese instante, antes de que la propia venta cambie la tasa.</p>
+  <p>Comprueba dos tramos. Si h = 0,1, la tasa media es 7,9. En efecto B(6,1) = 122 − 37,21 = 84,79 y (84,79 − 84) / 0,1 = 7,9. Si h = −0,1, la tasa media es 8,1: B(5,9) = 118 − 34,81 = 83,19 y (83,19 − 84) / (−0,1) = 8,1. Las dos se acercan a 8. Decir «el beneficio marginal es 8 euros por unidad» no promete que la unidad número 7 deje exactamente 8 euros: promete el ritmo en x = 6. Al vender más, la expresión 8 − h enseña que el ritmo medio ya baja.</p>
+
+  <h2>Ejemplo 2. Una población que crece a ritmo fijo</h2>
+  <p>Un barrio pequeño se modela con P(t) = 300 + 12t habitantes, siendo t el número de años desde el censo. No hay cuadrado: es lineal.</p>
+  <ol class="pasos">
+    <li>Tasa media entre t = 2 y t = 5: P(2) = 324 y P(5) = 360. El cambio es 36 habitantes en 3 años: 36 / 3 = 12 habitantes por año.</li>
+    <li>Cociente incremental en un t cualquiera: [P(t + h) − P(t)] / h = [300 + 12(t + h) − 300 − 12t] / h = 12h / h = 12.</li>
+    <li>No depende de h ni de t. El límite cuando h tiende a 0 sigue siendo 12. P'(t) = 12.</li>
+  </ol>
+  <p class="formula">P'(t) = 12</p>
+  <p class="glosa">P es la población en habitantes; t es el tiempo en años; 12 es tanto la tasa media de cualquier tramo como la derivada, en habitantes por año. El 300 del modelo es la población inicial y desaparece al restar, porque una constante no cambia.</p>
+  <p>En el beneficio del ejemplo 1 la derivada cambiaba con x (más adelante verás que B'(x) = 20 − 2x, y en x = 6 da 8). Aquí no cambia. Las dos situaciones usan la misma definición; el álgebra del cociente es lo que cambia.</p>
+
+  <h2>Marca la secante y el punto</h2>
+  <p>El lienzo dibuja B(x) = 20x − x<sup>2</sup> entre x = 0 y x = 12, la secante de x = 6 a x = 8 (pendiente media 6, porque B(8) = 96 y (96 − 84) / 2 = 6) y la tangente en x = 6 (pendiente 8). Marca el punto de tangencia. Restaurar redibuja las tres piezas.</p>
+  <canvas id="lienzo12" class="lienzo" width="900" height="240" aria-label="Lienzo con la parábola de beneficio, una secante y la tangente"></canvas>
+  <div class="fila"><button type="button" class="boton" id="blienzo12" data-clear>Restaurar gráfica</button></div>
+
+  <h2>Ejercicios</h2>
+  <article class="ej">
+    <h3>1. Coste lineal</h3>
+    <p>C(q) = 5q + 8 euros, con q en unidades. Calcula la tasa media entre q = 2 y q = 2 + h, y la derivada C'(2). Interpreta la unidad.</p>
+    <label for="e12-1">Tasa y derivada</label>
+    <textarea class="editor" id="e12-1"></textarea>
+    <details>
+      <summary>Corrección</summary>
+      <ol class="pasos">
+        <li>C(2 + h) = 5(2 + h) + 8 = 18 + 5h. C(2) = 18.</li>
+        <li>Cociente: 5h / h = 5, para cualquier h ≠ 0.</li>
+        <li>C'(2) = 5 euros por unidad. El 8 fijo no aporta cambio.</li>
+      </ol>
+      <p class="porque">En una recta, media e instantánea coinciden. El término independiente es un coste fijo: al restar C(q + h) − C(q) desaparece, igual que el 300 de la población.</p>
+    </details>
+  </article>
+  <article class="ej">
+    <h3>2. Otro beneficio, en x = 3</h3>
+    <p>B(x) = −x<sup>2</sup> + 8x. Halla el cociente incremental en x = 3, simplifícalo y calcula B'(3). Comprueba el caso h = 0,2.</p>
+    <label for="e12-2">Cociente y comprobación</label>
+    <textarea class="editor" id="e12-2"></textarea>
+    <details>
+      <summary>Corrección</summary>
+      <ol class="pasos">
+        <li>B(3) = −9 + 24 = 15.</li>
+        <li>B(3 + h) = −(9 + 6h + h<sup>2</sup>) + 8(3 + h) = 15 + 2h − h<sup>2</sup>.</li>
+        <li>Cociente: (2h − h<sup>2</sup>) / h = 2 − h. Límite: B'(3) = 2 euros por unidad.</li>
+        <li>Si h = 0,2, la tasa media es 1,8. B(3,2) = −10,24 + 25,6 = 15,36 y (15,36 − 15) / 0,2 = 1,8.</li>
+      </ol>
+      <p class="porque">El término −h es el rastro del tramo. Se va cuando h tiende a 0, y por eso la derivada es 2 y no 1,8. Usar la tasa de un tramo de 0,2 como si fuera la derivada sería quedarse a medio camino.</p>
+    </details>
+  </article>
+  <article class="ej">
+    <h3>3. Leer el signo</h3>
+    <p>El precio de un bien, en euros, cumple p'(q) = −4 en el nivel de producción que se estudia. q es la cantidad. Di si el precio sube o baja al aumentar un poco la cantidad, y en qué unidades está ese −4.</p>
+    <label for="e12-3">Lectura del signo</label>
+    <textarea class="editor" id="e12-3"></textarea>
+    <details>
+      <summary>Corrección</summary>
+      <ol class="pasos">
+        <li>El signo negativo dice que el precio disminuye cuando q aumenta.</li>
+        <li>La unidad es euros por unidad de producto.</li>
+        <li>−4 no dice que el precio sea 4 euros: dice que el ritmo de cambio es una bajada de 4 euros por cada unidad adicional, en ese nivel.</li>
+      </ol>
+      <p class="porque">La derivada no es el precio, es su cambio. Confundir p(q) con p'(q) mezcla el nivel de la variable con la pendiente. El signo solo informa de la dirección del cambio.</p>
+    </details>
+  </article>
+  <article class="ej">
+    <h3>4. Visitantes y el cuadrado del tiempo</h3>
+    <p>V(t) = t<sup>2</sup> modela, en algún recuento sencillo, un número de visitantes según la hora t. Calcula el cociente en t = 4 y la derivada V'(4). Comprueba h = 0,1.</p>
+    <label for="e12-4">Derivada en t = 4</label>
+    <textarea class="editor" id="e12-4"></textarea>
+    <details>
+      <summary>Corrección</summary>
+      <ol class="pasos">
+        <li>V(4) = 16. V(4 + h) = 16 + 8h + h<sup>2</sup>.</li>
+        <li>Cociente: (8h + h<sup>2</sup>) / h = 8 + h.</li>
+        <li>V'(4) = 8 visitantes por unidad de tiempo.</li>
+        <li>Con h = 0,1, V(4,1) = 16,81 y la tasa media es 0,81 / 0,1 = 8,1, que es 8 + 0,1.</li>
+      </ol>
+      <p class="porque">El cociente 8 + h enseña el límite sin ambigüedad: al quitar h queda 8. La comprobación con 0,1 no sustituye al límite; solo verifica que no te has equivocado al expandir (4 + h)<sup>2</sup>.</p>
+    </details>
+  </article>
+
+  <h2>Cierre</h2>
+  <p>La tasa media es un cociente con un h concreto. La derivada es el límite de ese cociente cuando h tiende a 0. En sociales, el número que sale lleva unidad: euros por unidad, habitantes por año. El signo dice si aquello crece o decrece en ese punto.</p>
+</section>
+
+<footer class="leccion-pie">
+  <strong>Les vencimos</strong> · Lección 12 de 33 · Matemáticas Aplicadas a las CCSS I · staging · sin publicar
+</footer>
+</div>
+<!-- saber: B.2 Cambio. Derivada de una función: definición a partir del estudio del cambio en contextos de las ciencias sociales. -->
+
+<script>
+(function(){
+  var c = document.getElementById("lienzo12");
+  if(!c) return;
+  var ctx = c.getContext("2d");
+  function B(x){ return 20 * x - x * x; }
+  function fondo(){
+    var w = c.width, h = c.height;
+    ctx.fillStyle = "#161512";
+    ctx.fillRect(0,0,w,h);
+    var ox = 42, oy = h - 28;
+    var sx = (w - 70) / 12;
+    var sy = (h - 52) / 120;
+    function X(x){ return ox + x * sx; }
+    function Y(y){ return oy - y * sy; }
+    ctx.strokeStyle = "#9A9488";
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(20, oy); ctx.lineTo(w - 10, oy);
+    ctx.moveTo(ox, 10); ctx.lineTo(ox, h - 8);
+    ctx.stroke();
+    ctx.fillStyle = "#9A9488";
+    ctx.font = "13px sans-serif";
+    ctx.fillText("x", w - 18, oy - 6);
+    ctx.fillText("B", ox + 6, 20);
+    ctx.fillText("6", X(6) - 4, oy + 14);
+    ctx.strokeStyle = "#E6E1D6";
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    for(var i = 0; i <= 120; i++){
+      var x = i / 10;
+      var px = X(x), py = Y(B(x));
+      if(i === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
+    }
+    ctx.stroke();
+    ctx.strokeStyle = "#8F9A72";
+    ctx.beginPath();
+    ctx.moveTo(X(6), Y(84));
+    ctx.lineTo(X(8), Y(96));
+    ctx.stroke();
+    ctx.strokeStyle = "#C4A15A";
+    ctx.beginPath();
+    ctx.moveTo(X(3), Y(8 * 3 + 36));
+    ctx.lineTo(X(9), Y(8 * 9 + 36));
+    ctx.stroke();
+    ctx.fillStyle = "#C4A15A";
+    ctx.beginPath();
+    ctx.arc(X(6), Y(84), 4.5, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = "#C4A15A";
+    ctx.fillText("B'(6) = 8", X(6) + 8, Y(84) - 10);
+  }
+  function fit(){
+    var r = c.getBoundingClientRect();
+    c.width = Math.max(320, Math.floor(r.width));
+    c.height = 240;
+    fondo();
+  }
+  var dib = false, last = null;
+  function pos(ev){
+    var r = c.getBoundingClientRect();
+    var src = ev.touches ? ev.touches[0] : ev;
+    return {x:(src.clientX - r.left) * c.width / r.width, y:(src.clientY - r.top) * c.height / r.height};
+  }
+  c.addEventListener("pointerdown", function(ev){ dib = true; last = pos(ev); ev.preventDefault(); });
+  c.addEventListener("pointermove", function(ev){
+    if(!dib) return;
+    var p = pos(ev);
+    ctx.strokeStyle = "#E6E1D6"; ctx.lineWidth = 2.2; ctx.lineCap = "round";
+    ctx.beginPath(); ctx.moveTo(last.x, last.y); ctx.lineTo(p.x, p.y); ctx.stroke();
+    last = p; ev.preventDefault();
+  });
+  c.addEventListener("pointerup", function(){ dib = false; });
+  c.addEventListener("pointerleave", function(){ dib = false; });
+  var b = document.getElementById("blienzo12");
+  if(b) b.addEventListener("click", fondo);
+  fit();
+  window.addEventListener("resize", fit);
+})();
+</script>
+
+</body>
+</html>

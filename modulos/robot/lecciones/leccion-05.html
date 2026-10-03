@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lección 5. La estructura sin torcerla · Robot humanoide · Les vencimos</title>
+<style>
+
+:root{--bg:#0E0E0C;--surf:#161512;--panel:#1C1A16;--ink:#E6E1D6;--mut:#9A9488;--acc:#C4A15A;--acc-ink:#1A160E;--danger:#C46A4A;--ok:#8F9A72;--line:#2A2720}
+*{box-sizing:border-box}
+html{color-scheme:dark}
+body{margin:0;background:var(--bg);color:var(--ink);font:400 17px/1.55 "Segoe UI",system-ui,sans-serif}
+h1,h2,h3{font-family:"Iowan Old Style",Palatino,Georgia,serif;font-weight:600;line-height:1.25;letter-spacing:0}
+h1{font-size:1.85rem;margin:.35rem 0 .4rem}
+h2{font-size:1.28rem;margin:1.6rem 0 .5rem}
+h3{font-size:1.05rem;margin:1.15rem 0 .35rem}
+a{color:var(--acc)}
+a:hover{color:var(--ink)}
+.wrap{max-width:46rem;margin:0 auto;padding:1.25rem 1.1rem 4rem}
+header.top{border-bottom:1px solid var(--line);padding-bottom:.85rem;margin-bottom:1.15rem}
+.marca{font-variant:small-caps;text-transform:lowercase;letter-spacing:.14em;color:var(--mut);margin:0;font-size:.78rem}
+.meta{color:var(--mut);margin:.45rem 0 0}
+nav.pasos{display:flex;flex-wrap:wrap;gap:.45rem;margin:1.2rem 0 0}
+nav.pasos a,button{min-height:44px;min-width:44px;padding:.45rem .85rem;border:1px solid var(--line);border-radius:2px;background:var(--surf);color:var(--ink);font:400 16px/1.3 "Segoe UI",system-ui,sans-serif;text-decoration:none;cursor:pointer}
+button.acc{background:var(--acc);color:var(--acc-ink);border-color:var(--acc);font-weight:600}
+button:focus-visible,a:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
+.maestro{background:var(--panel);border:1px solid var(--line);border-radius:2px;padding:1rem 1.05rem;margin:1rem 0 1.2rem}
+.maestro h2{margin:.1rem 0 .55rem;font-size:1.05rem;color:var(--acc)}
+.aviso{border-left:3px solid var(--danger);padding:.4rem 0 .4rem .85rem;margin:1rem 0}
+.aviso strong{color:var(--danger);font-weight:600}
+.puentes{background:var(--surf);border:1px solid var(--line);border-radius:2px;padding:.9rem 1rem;margin:1rem 0}
+.puentes h2{margin-top:0}
+ol.temario{padding-left:1.2rem}
+ol.temario li{margin:.4rem 0}
+li.pend{color:var(--mut)}
+.esquema{width:100%;height:auto;background:var(--surf);border:1px solid var(--line);border-radius:2px;margin:.7rem 0 1rem}
+.esquema text{font-family:"Segoe UI",system-ui,sans-serif}
+table{width:100%;border-collapse:collapse;margin:.7rem 0 1rem;font-size:.95rem}
+th,td{border-bottom:1px solid var(--line);text-align:left;padding:.45rem .35rem;vertical-align:top}
+th{color:var(--acc);font-weight:600}
+.practica{background:var(--panel);border:1px solid var(--line);border-radius:2px;padding:.95rem 1rem 1.05rem;margin:1.2rem 0}
+.practica h2{margin-top:0}
+ol.juego{list-style:none;padding:0;margin:.5rem 0}
+ol.juego li{display:flex;gap:.45rem;align-items:center;background:var(--surf);border:1px solid var(--line);border-radius:2px;padding:.35rem .45rem;margin:.4rem 0}
+ol.juego li span{flex:1}
+.opciones{display:flex;flex-direction:column;gap:.45rem;margin:.5rem 0}
+.opciones button{text-align:left}
+.resultado{margin:.7rem 0 0}
+.resultado.ok{color:var(--ok)}
+.resultado.mal{color:var(--danger)}
+.porque{margin:.7rem 0 0}
+.nota{color:var(--mut)}
+footer{margin-top:2rem;padding-top:.85rem;border-top:1px solid var(--line);color:var(--mut);font-size:.82rem}
+code{font-family:ui-monospace,"Cascadia Code",monospace;font-size:.92em}
+
+.cuaderno{background:var(--surf);border:1px solid var(--line);border-radius:2px;padding:.95rem 1rem 1.05rem;margin:1.2rem 0}
+.cuaderno h2{margin-top:0}
+.cuaderno textarea{display:block;width:100%;min-height:12rem;margin:.6rem 0 .4rem;padding:.7rem .75rem;border:1px solid var(--line);border-radius:2px;background:var(--bg);color:var(--ink);font:400 17px/1.45 "Segoe UI",system-ui,sans-serif;resize:vertical}
+.cuaderno textarea:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
+
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="top">
+<p class="marca">Les vencimos · Robot humanoide · Enseñanza</p>
+<p class="meta">Lección 05 de 10</p>
+<h1>Estructura: leer el esqueleto y el orden que no lo tuerce</h1>
+</header>
+<main>
+<section class="maestro">
+<h2>Versión corta</h2>
+<p class="maestro-texto">Leer el esqueleto no es contar barras ni servos. Una línea entre dos ejes es un eslabón. Un eje es un giro. El suelo también es un eslabón: las dos plantas, las dos piernas y la pelvis cierran un anillo con el banco. Si cierras ese anillo a la fuerza, el robot queda pretensado. Aunque en la mesa parezca firme, al soltarlo un pie no apoya y el centro se va. El orden es el contrario. Primero la planta ya aceptada por la masa. Luego una pierna, con los ejes paralelos y el cero mecánico marcado en frío. Luego la otra, medida con el mismo útil. Luego la pelvis, ofrecida: si los agujeros no coinciden, buscas la longitud, no alargas el taladro. Las dos plantas descansan en el plano sin gatos. Después colocas la masa donde decía la cuenta y vuelves al canto. Lo que no debe girar lo sujeta la estructura, no un servo. Lo que debe girar no se pega. Los servos siguen sin corriente.</p>
+<button type="button" class="escuchar acc">Escuchar</button>
+</section>
+<section>
+<h2>Tratado</h2>
+<p>Esta lección enseña a leer el conjunto y a montarlo sin dejarlo torcido. No enseña qué perfil comprar ni qué servo va en la rodilla. Ese catálogo, cuando exista, vive en Diseño. Si lo copiaras aquí, parecería que la marca del eslabón decide el orden. No lo decide. El orden lo decide el anillo que formas con el suelo, y el centro de masas que ya mediste o que vas a volver a medir en cuanto el anillo quede cerrado.</p>
+<p>Llegas con trabajo hecho. La masa está pesada, batería incluida o lastre anotado como lastre. La planta está aceptada con el 60 % de la semilongitud útil, no solo con el borde. El canto ya te ha dado un x, o te ha devuelto a corregir antes de cortar más piezas. Si alguna de esas tres cosas falta, no empieces por la pelvis porque las barras ya están en la mesa. Una estructura cerrada sobre una planta rechazada es desmontaje seguro.</p>
+
+<h3>Cómo se lee un esqueleto</h3>
+<p>En el esquema de esta lección hay tres clases de trazo, y conviene decirlas antes de tocar un tornillo. La línea gruesa entre dos articulaciones es un eslabón: tibia, muslo, pelvis. No es un servo, aunque más adelante un servo viva montado encima. El eje, dibujado como centro de la articulación, es el giro permitido. El punto o el bloque marcado como masa es el sitio del peso, no una pieza decorativa. El número en ámbar no es una referencia de catálogo: es el orden de montaje.</p>
+<p>El suelo no se dibuja como adorno. Mientras las dos plantas apoyan, el banco cierra la cadena: planta, tobillo, pierna, pelvis, otra pierna, otra planta, y el tablero entre las dos plantas. Eso es un anillo. Un anillo con una longitud de más o de menos no cierra en paz. Cierra con fuerza, o no cierra. Esa fuerza, si la metes apretando tornillos, se queda dentro. Se llama pretensión. No la ves en una foto frontal. La ves cuando quitas las bridas y un pie se levanta, o cuando el canto te da un x lateral que la cuenta no tenía.</p>
+<p>No hace falta saber cuántos servos pondrá Diseño en la cadera para entender esto. Puedes leer el anillo con un tobillo, una rodilla y una cadera por pierna, que es el gesto mínimo de una pierna que dobla. Si tu máquina tiene otra articulación, se lee igual: es un eje más en la cadena, con su cero mecánico, no una excusa para saltarte el orden. El número de motores no es el tratado. El tratado es no obligar al anillo.</p>
+<p>Tampoco leas el esquema como una persona pequeña. Las proporciones del dibujo de esta página no son cotas. No midas con la regla sobre la pantalla para cortar un muslo. Las cotas de tus barras salen de tu plano, y tu plano tiene que obedecer dos cosas que no están en un cuerpo humano: el eje del tobillo está donde la planta útil cumple el margen, y la masa está donde la báscula y el canto dicen. Un muslo «proporcionado» que te obliga a adelantar la batería invalida el x. Se cambia la barra o se cambia el sitio de la masa, y se vuelve a medir. No se conserva la proporción.</p>
+
+<h3>Qué sujeta la forma y qué tiene que girar</h3>
+<p>Hay uniones que no deben moverse nunca: un soporte, una escuadra, la unión entre la planta y la pieza que define el eje si esa unión no es el propio giro. Esas uniones las cierra la estructura. Tornillo bien medido, superficie que asienta, y un seguro que no sustituya al asiento: una tuerca que no afloje no corrige dos caras que no se tocan. Si necesitas el tornillo para obligar a dos piezas que no casan, ya estás pretensando.</p>
+<p>Hay uniones que sí deben girar: tobillo, rodilla, cadera, y lo que tu máquina añada. Esas no se pegan, no se dan de sellador y no se dejan «un poco duras para que se tenga». La dureza de un eje que debería girar libre se la acabará comiendo un servo, y el servo todavía no está autorizado a trabajar. El cero de esa unión, hoy, es una marca física: una raya de punta de trazar o de rotulador fino que coincide cuando el eslabón está en la postura quieta. No es un número en un programa. El programa, cuando exista, tendrá que obedecer esa raya, no al revés.</p>
+<p>Un servo no es un elemento estructural de montaje. Si el esqueleto solo se tiene en pie porque un motor empuja contra un error, el día que cortes corriente el error aparece de golpe, y el par que habías encargado en la lección 2 estaba calculado para la gravedad, no para pelear con tu propio tornillo. Por eso esta lección se hace en frío. Los topes mecánicos, si ya están en la pieza, se respetan y se comprueban con la mano: el eslabón llega al tope y se para, sin que el tope sea un cable pillado. Si los topes no existen todavía, no adelantes la corriente «con cuidado». El cuidado no es un tope. La electrónica y la parada son la lección 6, sin escribir. Aquí el gesto acaba antes del enchufe.</p>
+
+<h3>El orden que no tuerce</h3>
+<p>Primero la planta, ya aceptada. El eje del tobillo está marcado en ella. La semilongitud útil por delante cumple el 60 % con el x que tienes, o la planta vuelve atrás y no se monta la pierna encima de una pieza condenada. Compruebas con una hoja de papel que el borde que contaste es el que apoya. Una planta que solo apoya en tres puntos minúsculos no es la superficie que usaste en la cuenta: el contacto real es más pequeño y el margen se ha encogido. Si el papel entra por zonas que dabas por apoyadas, paras y reparas el contacto antes de subir eslabones.</p>
+<p>Segundo, una sola pierna, en el banco, con esa planta apoyada sin empotrar. Montas tobillo, pierna y rodilla —o los ejes que tengas— de manera que cada eje quede paralelo al del tobillo. El útil es la escuadra y el mismo tablero. Colocas una varilla que represente el eje del tobillo, o usas el propio eje si ya es una barra visible. La escuadra contra la planta y contra esa varilla dice si el eje está como creías. Repites en la rodilla: los dos extremos de ese eje a la misma altura respecto del tablero cuando la planta apoya plana. El calibre es la misma hoja o la misma galga que uses en los dos extremos. Si un extremo admite la hoja y el otro no, el eje no está paralelo. Una rodilla torcida en planta hace que el pie quiera girar cuando subes el muslo. Eso, al cerrar las dos piernas, es pretensión o un pie que no asienta.</p>
+<p>El cero mecánico de cada eje se marca ahora, en esta postura, no después de haber forzado la pelvis. Si lo marcas después, estás canonizando el error: la raya dirá «quieto» en una pose que ya nació torcida, y la lección 4 medirá un centro de esa pose creyendo que es la de diseño.</p>
+<p>Tercero, la otra pierna. No se copia a ojo ni se da la vuelta «más o menos simétrica». Se copian longitudes con el mismo pie de rey, la misma cinta o la misma varilla de referencia: altura del eje del tobillo al plano de la planta, distancia entre eje de tobillo y eje de rodilla, distancia entre rodilla y el eje de la cadera. Izquierda y derecha se leen las dos. Una diferencia que tu útil ve es una diferencia, aunque la pierna en la mano parezca la misma. No promedies las dos longitudes y cortes una tercera: igualas a la que corresponde al plano, o corriges el plano y la cuenta si el plano era el que estaba mal. Inventar un término medio fabrica dos piernas que no son ni el plano ni la primera.</p>
+<p>Cuarto, la pelvis, o la pieza que une las dos caderas. Se ofrece. Se presenta a los agujeros sin gatos y sin un tornillo que haga de palanca. Si los agujeros coinciden y las caras asientan, se cierra. Si no coinciden, no se alarga el taladro «un poco», no se lima el tornillo y no se abre un coliso para absorber el error. El coliso traga la diferencia hoy y la devuelve como juego mañana, o como un pie que puede irse hacia delante bajo carga y cambiar x justo en el sentido que tumba. Buscas qué longitud no coincide: una tibia, un separador, una escuadra dada la vuelta. La encuentras porque mediste la primera pierna y puedes comparar.</p>
+<p>Quinto, las dos plantas en el plano, a la vez, sin empotrar y sin un gato que las baje. El banco hace de referencia. Las plantas descansan. Recorres el contorno con la hoja de papel. Si una esquina cojea, el anillo está torcido o una planta es más gruesa. No se aplasta con una brida para que la hoja deje de entrar. Se suelta la pelvis si hace falta y se repite el cuarto paso. Un pie que solo apoya entero cuando está atornillado al tablero no apoya.</p>
+<p>Sexto, la masa del torso en el sitio que la cuenta usó. La batería no se «acerca un poco» para que entre un tornillo y se da por buena. Si el sitio real no es el de la hoja, la hoja se rehace: otra vez peso, otra vez canto, otra vez 60 %. Colocar la masa antes de tener las dos plantas en paz mezcla los problemas. No sabrás si el centro se fue por la batería o por la pierna larga. Por eso la masa del torso espera a que el anillo cierre sin fuerza.</p>
+<p>Séptimo, el canto de la lección 4, otra vez, con la postura quieta y sin corriente. El x de antes de cerrar la estructura era un aviso. El x de ahora es el de la máquina. Si has pasado de 0,02 m a 0,04 m con los 3,0 kg del ejemplo, el par ya no es 0,59 N·m: es 29,4 · 0,04 = 1,176 N·m, y una planta mínima de 3,3 cm ni siquiera contiene la vertical. No sigas hacia los brazos para «completar el aspecto» dejando ese número viejo en la hoja.</p>
+<p>Los brazos y la cabeza, cuando existan, son masa. Se montan en la postura que vas a llamar quieto, no estirados al azar, y se repite el canto. Un brazo adelantado aumenta x hacia las punteras. No es un accesorio que se añade cuando el robot «ya está equilibrado». Si todavía no los tienes, la hoja dice que faltan, y el x no se da por final.</p>
+
+<figure>
+<svg class="esquema" viewBox="0 0 680 420" role="img" aria-labelledby="t5svg">
+<title id="t5svg">Esqueleto de lado con el orden de montaje, del pie a la pelvis y a la masa</title>
+<rect width="680" height="420" fill="#161512"/>
+<text x="24" y="28" fill="#E6E1D6" font-size="15">Orden de montaje · los números no son referencias de pieza</text>
+<line x1="36" y1="360" x2="640" y2="360" stroke="#2A2720" stroke-width="2"/>
+<rect x="70" y="346" width="200" height="14" fill="#1C1A16" stroke="#C4A15A" stroke-width="2"/>
+<circle cx="130" cy="340" r="13" fill="#1A160E" stroke="#C4A15A" stroke-width="2"/>
+<text x="125" y="345" fill="#C4A15A" font-size="14">1</text>
+<line x1="150" y1="346" x2="150" y2="300" stroke="#C4A15A" stroke-width="2"/>
+<circle cx="150" cy="286" r="13" fill="#1A160E" stroke="#C4A15A" stroke-width="2"/>
+<text x="145" y="291" fill="#C4A15A" font-size="14">2</text>
+<line x1="150" y1="273" x2="210" y2="200" stroke="#E6E1D6" stroke-width="4"/>
+<circle cx="222" cy="188" r="13" fill="#1A160E" stroke="#C4A15A" stroke-width="2"/>
+<text x="217" y="193" fill="#C4A15A" font-size="14">3</text>
+<line x1="234" y1="180" x2="300" y2="120" stroke="#E6E1D6" stroke-width="4"/>
+<circle cx="312" cy="112" r="13" fill="#1A160E" stroke="#C4A15A" stroke-width="2"/>
+<text x="307" y="117" fill="#C4A15A" font-size="14">4</text>
+<line x1="325" y1="112" x2="430" y2="112" stroke="#E6E1D6" stroke-width="4"/>
+<circle cx="448" cy="112" r="13" fill="#1A160E" stroke="#C4A15A" stroke-width="2"/>
+<text x="443" y="117" fill="#C4A15A" font-size="14">5</text>
+<rect x="400" y="70" width="70" height="28" fill="#1C1A16" stroke="#9A9488" stroke-width="1.5"/>
+<circle cx="470" cy="64" r="13" fill="#1A160E" stroke="#C4A15A" stroke-width="2"/>
+<text x="465" y="69" fill="#C4A15A" font-size="14">6</text>
+<text x="24" y="60" fill="#9A9488" font-size="13">1 planta ya aceptada</text>
+<text x="24" y="80" fill="#9A9488" font-size="13">2 eje del tobillo, marcado</text>
+<text x="24" y="100" fill="#9A9488" font-size="13">3 rodilla, eje paralelo al 2</text>
+<text x="24" y="120" fill="#9A9488" font-size="13">4 cadera de esta pierna</text>
+<text x="250" y="60" fill="#9A9488" font-size="13">5 pelvis, se ofrece; no se fuerza</text>
+<text x="250" y="80" fill="#9A9488" font-size="13">6 masa del torso, después del anillo</text>
+<text x="250" y="200" fill="#9A9488" font-size="13">La otra pierna es la copia medida,</text>
+<text x="250" y="218" fill="#9A9488" font-size="13">no un segundo dibujo a ojo.</text>
+<path d="M150 346 C 150 390, 448 390, 448 125" fill="none" stroke="#C46A4A" stroke-width="1.5" stroke-dasharray="5 4"/>
+<text x="250" y="400" fill="#C46A4A" font-size="13">El anillo se cierra con el suelo. No lo obligues.</text>
+</svg>
+<figcaption class="nota">Conjunto de lado, en orden. El trazado teja recuerda que la pelvis y las dos plantas forman un anillo con el banco. Las longitudes del dibujo no se copian: no son cotas.</figcaption>
+</figure>
+
+<h3>Errores típicos de taller</h3>
+<p>Cortar todas las barras el primer día, a partir de una foto, y dejar la masa para cuando esté «armado». El orden real es el contrario. Una barra de más es masa y es longitud. Las dos cosas empujan el anillo y el centro.</p>
+<p>Montar las dos piernas a la vez, cada una en una mano, y encontrar la simetría por el aspecto. El útil se usa en las dos. El aspecto de una carcasa simétrica esconde un separador distinto.</p>
+<p>Alargar un agujero para que el tornillo entre. Es el error que esta lección existe para impedir. El agujero alargado no dice qué pieza está mal, así que la próxima vez repetirás el mismo parche.</p>
+<p>Bajar las plantas con gatos o con tornillos al tablero para que «asienten mientras aprieto la pelvis». El asiento lo paga la pretensión. Cuando quites el gato, el pie cojea o el eje queda con momento aunque el centro geométrico parezca bien.</p>
+<p>Marcar el cero mecánico después de forzar, porque «así al menos las rayas coinciden». Coinciden en la pose torcida. El canto medirá esa pose y tú archivarás el x como si fuera el de diseño.</p>
+<p>Dejar que un servo, ya con corriente, lleve la pierna al cero del programa y apretar entonces los tornillos. Además de saltarte los topes y la lección 6, estás definiendo la estructura desde un ángulo eléctrico que puede no ser el de la raya. Primero la raya y la estructura en frío. El programa, mucho después, se entera de dónde está la raya.</p>
+<p>Añadir los brazos al final sin repetir el canto, porque el equilibrio «ya se había mirado». El brazo es masa. Sin el canto nuevo no sabes si sigues dentro del 60 %.</p>
+<p>Elegir el servo de la rodilla en esta lección porque ya se ve el hueco. El hueco no es un par. El par sigue siendo el de la hoja, el del apoyo simple, entero. En el ejemplo de mesa, con 3,0 kg y 0,02 m, sigue siendo 0,59 N·m solo si el canto confirma ese x después del montaje. Si el montaje lo ha movido, el número se rehace y se le pide a Diseño. Aquí no aparece la referencia.</p>
+
+<h3>Qué haces en el banco</h3>
+<p>Dejas la hoja de masa, de planta y de x a la vista. Compruebas que la planta que vas a montar es la aceptada, no un recorte anterior de 3 cm guardado en el cajón. Si es el recorte de 3 cm y el x previsto es 0,02 m, no lo montas: el 60 % de 3 cm son 1,8 cm.</p>
+<p>Montas una pierna. Paralelo de ejes con la escuadra y la hoja en los dos extremos. Rayas el cero. Mides y anotas las tres distancias que luego exigirás a la otra pierna.</p>
+<p>Montas la segunda con el mismo útil. Ofreces la pelvis. Si no entra, paras. No limas. Encuentras la longitud.</p>
+<p>Apoyas las dos plantas. Recorres el contacto con papel. Si cojea, deshaces el cierre y no añades lastre encima para disimularlo: el lastre escondería el cojeo y movería el centro.</p>
+<p>Colocas la batería o el lastre en su sitio. Repites el canto, sin corriente, con topes blandos, sin pie empotrado. Escribes el x nuevo y el par nuevo. Decides si la planta sigue cumpliendo el 60 %. Si no lo cumple, no pasas a cablear.</p>
+<p>La lista de esta tarde cabe en el margen de la hoja: planta aceptada, una pierna, copia medida, pelvis sin coliso, dos plantas en el plano, masa en su sitio, canto rehecho. Lo que no esté tachado con una medida al lado no está hecho. Un tic sin cifra es el aspecto otra vez, y el aspecto no cierra el anillo.</p>
+</section>
+
+<section class="practica orden" data-solucion="planta,pierna,copia,pelvis,plano,masa,canto">
+<h2>Práctica</h2>
+<p>Ordena el montaje que no tuerce el anillo. Los servos no entran: siguen sin corriente.</p>
+<ol class="juego">
+<li data-k="pelvis"><span>Ofrecer la pelvis y no alargar agujeros</span><button type="button" class="subir">Subir</button><button type="button" class="bajar">Bajar</button></li>
+<li data-k="canto"><span>Repetir el canto y rehacer el par</span><button type="button" class="subir">Subir</button><button type="button" class="bajar">Bajar</button></li>
+<li data-k="planta"><span>Partir de la planta ya aceptada, con el eje marcado</span><button type="button" class="subir">Subir</button><button type="button" class="bajar">Bajar</button></li>
+<li data-k="masa"><span>Colocar la masa del torso en el sitio de la cuenta</span><button type="button" class="subir">Subir</button><button type="button" class="bajar">Bajar</button></li>
+<li data-k="copia"><span>Copiar la segunda pierna con el mismo útil</span><button type="button" class="subir">Subir</button><button type="button" class="bajar">Bajar</button></li>
+<li data-k="plano"><span>Apoyar las dos plantas en el plano, sin gatos</span><button type="button" class="subir">Subir</button><button type="button" class="bajar">Bajar</button></li>
+<li data-k="pierna"><span>Montar una pierna, ejes paralelos, cero marcado en frío</span><button type="button" class="subir">Subir</button><button type="button" class="bajar">Bajar</button></li>
+</ol>
+<button type="button" class="comprobar acc">Comprobar</button>
+<p class="resultado" hidden></p>
+<div class="porque" hidden>
+<p>La planta aceptada va primero: si no, construyes el anillo sobre un pie que la cuenta ya rechazó. Una pierna se deja bien, con ejes paralelos y la raya del cero, antes de copiarla. La copia usa el mismo útil, no el ojo. La pelvis se ofrece después; el coliso no es una herramienta. Las dos plantas tienen que descansar en el plano sin que un gato las obligue, y solo entonces se pone la masa del torso, para no mezclar un pie cojo con una batería movida. El canto cierra la tarde: el x de la máquina montada manda sobre el x de antes de cerrar, y el par se rehace entero. Andar no está en la lista. Cablear, tampoco.</p>
+</div>
+</section>
+
+<section class="puentes">
+<h2>Puente</h2>
+<p>El catálogo de barras, plantas y servos, cuando exista, está en Diseño: las masas en <a href="../robot-diseno.html#masa">Diseño · masa</a> y las plantas en <a href="../robot-diseno.html#pies">Diseño · pies</a>. Esos archivos no están en esta pasada. El gesto de leer el anillo y de no cerrarlo a la fuerza no se busca allí. El par que el canto rehecho te deje se le pide a Diseño; la reductora no se elige en esta lección.</p>
+</section>
+
+<section class="cuaderno">
+<h2>Cuaderno</h2>
+<p>Anota las distancias de la primera pierna, si la pelvis entró sin forzar los agujeros y el x del canto al cerrar.</p>
+<textarea id="cuaderno" rows="8" data-clave="lv-robot-ens-l05" placeholder="distancias, pelvis sin coliso, x nuevo"></textarea>
+<p class="nota">Se guarda en este aparato si el navegador lo permite.</p>
+</section>
+
+<nav class="pasos" aria-label="Entre lecciones">
+<a href="leccion-04.html">Anterior</a>
+<a href="../robot-ensenanza.html">Índice</a>
+<a href="leccion-06.html">Siguiente: electrónica en el banco</a>
+</nav>
+</main>
+<footer>
+<p>Les vencimos · Robot humanoide · Enseñanza. Lección 5. El anillo con el suelo no se obliga. La lección 6 no está escrita.</p>
+</footer>
+
+</div>
+<script>
+
+function hablar(texto){
+  if(window.LesVencimosMaestro && typeof window.LesVencimosMaestro.decir==="function"){
+    window.LesVencimosMaestro.decir(texto);
+    return;
+  }
+  if(!window.speechSynthesis || typeof SpeechSynthesisUtterance!=="function") return;
+  window.speechSynthesis.cancel();
+  var u=new SpeechSynthesisUtterance(texto);
+  u.lang="es-ES";
+  u.rate=0.95;
+  window.speechSynthesis.speak(u);
+}
+document.querySelectorAll("button.escuchar").forEach(function(b){
+  b.addEventListener("click", function(){
+    var t=b.parentElement.querySelector(".maestro-texto");
+    if(t) hablar(t.textContent);
+  });
+});
+function marca(box, ok, bien, mal){
+  var p=box.querySelector(".resultado");
+  p.hidden=false;
+  p.className="resultado "+(ok?"ok":"mal");
+  p.textContent=ok?bien:mal;
+}
+document.querySelectorAll(".practica.orden").forEach(function(box){
+  function mover(li, dir){
+    var lista=li.parentElement;
+    if(dir<0 && li.previousElementSibling) lista.insertBefore(li, li.previousElementSibling);
+    if(dir>0 && li.nextElementSibling) lista.insertBefore(li.nextElementSibling, li);
+  }
+  box.querySelectorAll("button.subir").forEach(function(b){
+    b.addEventListener("click", function(){ mover(b.closest("li"), -1); });
+  });
+  box.querySelectorAll("button.bajar").forEach(function(b){
+    b.addEventListener("click", function(){ mover(b.closest("li"), 1); });
+  });
+  box.querySelector("button.comprobar").addEventListener("click", function(){
+    var got=[].map.call(box.querySelectorAll("li"), function(li){ return li.dataset.k; }).join(",");
+    var ok=got===box.dataset.solucion;
+    marca(box, ok, "Ese es el orden.", "Todavía no. Lee el mecanismo y mueve las piezas.");
+    var w=box.querySelector(".porque");
+    if(w) w.hidden=!ok;
+  });
+});
+document.querySelectorAll(".practica.eleccion").forEach(function(box){
+  box.querySelectorAll("button.opcion").forEach(function(b){
+    b.addEventListener("click", function(){
+      var ok=b.dataset.k===box.dataset.bien;
+      marca(box, ok, b.dataset.porque||"Correcto.", b.dataset.porque||"Esa no es la lectura.");
+    });
+  });
+});
+
+(function(){
+  var ta=document.getElementById("cuaderno");
+  if(!ta) return;
+  var clave=ta.getAttribute("data-clave");
+  try{
+    var guardado=localStorage.getItem(clave);
+    if(guardado!==null) ta.value=guardado;
+  }catch(e){}
+  ta.addEventListener("input", function(){
+    try{ localStorage.setItem(clave, ta.value); }catch(e){}
+  });
+})();
+
+</script>
+</body>
+</html>

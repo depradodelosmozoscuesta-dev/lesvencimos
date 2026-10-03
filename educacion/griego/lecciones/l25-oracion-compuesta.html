@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Laboratorio · Lección 25 · Oración compuesta</title>
+<style>
+  :root { --fondo:#FAF7F0; --carbon:#2A2620; --negro:#0E0E0C; --ambar:#C4A15A; }
+  * { box-sizing: border-box; }
+  body { margin:0; background:var(--fondo); color:var(--carbon); font-family: Palatino, "Palatino Linotype", "Times New Roman", serif; line-height:1.45; }
+  header, main, footer { padding: 1rem 1.25rem; }
+  header { background: var(--negro); color: var(--fondo); }
+  header p { margin: 0.25rem 0 0; color: var(--ambar); }
+  h1, h2 { font-weight: 600; line-height: 1.2; }
+  h1 { font-size: 1.5rem; margin: 0; }
+  .stage { background: var(--fondo); border: 2px solid var(--negro); margin: 0.75rem 0; }
+  .stage svg { display:block; width:100%; height:auto; }
+  .pregunta { font-size: 1.15rem; }
+  .opciones { display:grid; gap:0.5rem; margin: 0.75rem 0; }
+  button.op, button.navb { font: inherit; text-align:left; background: var(--fondo); color: var(--negro); border: 2px solid var(--negro); padding: 0.65rem 0.8rem; cursor: pointer; }
+  button.op[lang=grc] { font-size: 1.25rem; }
+  button.op:hover, button.navb:hover { border-color: var(--ambar); }
+  button.op[disabled] { cursor: default; opacity: 0.85; }
+  button.op.bien { background: var(--ambar); }
+  button.op.mal { background: #e4d7c3; }
+  .why { border-left: 4px solid var(--ambar); padding: 0.4rem 0.8rem; min-height: 3.2rem; }
+  footer { border-top: 2px solid var(--negro); }
+  dt { font-weight: 700; margin-top: 0.6rem; }
+  dd { margin: 0.15rem 0 0; }
+  [lang=grc] { font-family: Palatino, "Palatino Linotype", "Times New Roman", serif; }
+</style>
+</head>
+<body>
+<header>
+  <h1>Laboratorio · Oración compuesta</h1>
+  <p>Lección 25 · Griego I · sin red</p>
+</header>
+<main>
+  <p id="estado">Ronda 1 de 6</p>
+  <div class="stage" id="stage"></div>
+  <p class="pregunta" id="pregunta"></p>
+  <div class="opciones" id="opciones"></div>
+  <p class="why" id="why" aria-live="polite"></p>
+  <p><button type="button" class="navb" id="siguiente" hidden>Siguiente</button></p>
+  <p id="resumen" hidden></p>
+</main>
+<footer>
+  <h2>Glosario de la lección</h2>
+  <dl>
+    <dt>Coordinación</dt><dd><span lang="grc">καί</span> «y», <span lang="grc">ἀλλά</span> «pero», <span lang="grc">δέ</span> «y / pero», <span lang="grc">γάρ</span> «pues», <span lang="grc">οὖν</span> «así pues», <span lang="grc">μέν…δέ</span>.</dd>
+    <dt>Postpuesta</dt><dd><span lang="grc">δέ</span>, <span lang="grc">γάρ</span>, <span lang="grc">οὖν</span> y <span lang="grc">μέν</span> van detrás de la primera palabra.</dd>
+    <dt><span lang="grc">ὅτι</span> y <span lang="grc">ὡς</span></dt><dd>Aquí las dos «que», con indicativo.</dd>
+    <dt>Relativo</dt><dd><span lang="grc">ὅς ἥ ὅ</span>. Género y número del antecedente. Caso de dentro. No es <span lang="grc">ὁ ἡ τό</span>.</dd>
+    <dt><span lang="grc">εἰ</span></dt><dd>«Si» de un hecho real. Indicativo en las dos partes.</dd>
+    <dt>Agudo final</dt><dd>Pasa a grave si sigue palabra acentuada: <span lang="grc">καὶ</span>, <span lang="grc">ἀλλὰ</span>, <span lang="grc">δὲ</span>, <span lang="grc">γὰρ</span>, <span lang="grc">μὲν</span>, <span lang="grc">ὃν</span>.</dd>
+  </dl>
+</footer>
+<script>
+(function () {
+  "use strict";
+  var escenas = {"coord": "<svg role=\"img\" viewBox=\"0 0 640 200\" xmlns=\"http://www.w3.org/2000/svg\"><title>Dos bloques al mismo nivel unidos por kai</title><rect width=\"640\" height=\"200\" fill=\"#FAF7F0\"/><rect x=\"40\" y=\"50\" width=\"220\" height=\"90\" fill=\"#0E0E0C\"/><rect x=\"380\" y=\"50\" width=\"220\" height=\"90\" fill=\"#0E0E0C\"/><text x=\"150\" y=\"105\" text-anchor=\"middle\" fill=\"#FAF7F0\" font-size=\"28\" font-family=\"Palatino, Times New Roman, serif\">γράφει</text><text x=\"490\" y=\"105\" text-anchor=\"middle\" fill=\"#FAF7F0\" font-size=\"28\" font-family=\"Palatino, Times New Roman, serif\">λύει</text><text x=\"320\" y=\"108\" text-anchor=\"middle\" fill=\"#C4A15A\" font-size=\"32\" font-family=\"Palatino, Times New Roman, serif\">καὶ</text></svg>", "de": "<svg role=\"img\" viewBox=\"0 0 640 200\" xmlns=\"http://www.w3.org/2000/svg\"><title>De ocupa el segundo hueco, no el primero</title><rect width=\"640\" height=\"200\" fill=\"#FAF7F0\"/><rect x=\"40\" y=\"55\" width=\"120\" height=\"90\" fill=\"#2A2620\"/><rect x=\"180\" y=\"55\" width=\"140\" height=\"90\" fill=\"#C4A15A\"/><rect x=\"340\" y=\"55\" width=\"260\" height=\"90\" fill=\"#2A2620\"/><text x=\"100\" y=\"110\" text-anchor=\"middle\" fill=\"#FAF7F0\" font-size=\"32\" font-family=\"Palatino, Times New Roman, serif\">ὁ</text><text x=\"250\" y=\"110\" text-anchor=\"middle\" fill=\"#0E0E0C\" font-size=\"32\" font-family=\"Palatino, Times New Roman, serif\">δὲ</text><text x=\"470\" y=\"110\" text-anchor=\"middle\" fill=\"#FAF7F0\" font-size=\"28\" font-family=\"Palatino, Times New Roman, serif\">φίλος</text></svg>", "gar": "<svg role=\"img\" viewBox=\"0 0 640 200\" xmlns=\"http://www.w3.org/2000/svg\"><title>Gar en segundo lugar, con valor de pues</title><rect width=\"640\" height=\"200\" fill=\"#FAF7F0\"/><rect x=\"40\" y=\"55\" width=\"120\" height=\"90\" fill=\"#0E0E0C\"/><rect x=\"180\" y=\"55\" width=\"140\" height=\"90\" fill=\"#C4A15A\"/><rect x=\"340\" y=\"55\" width=\"260\" height=\"90\" fill=\"#2A2620\"/><text x=\"100\" y=\"110\" text-anchor=\"middle\" fill=\"#C4A15A\" font-size=\"32\" font-family=\"Palatino, Times New Roman, serif\">ὁ</text><text x=\"250\" y=\"110\" text-anchor=\"middle\" fill=\"#0E0E0C\" font-size=\"32\" font-family=\"Palatino, Times New Roman, serif\">γὰρ</text><text x=\"470\" y=\"110\" text-anchor=\"middle\" fill=\"#FAF7F0\" font-size=\"28\" font-family=\"Palatino, Times New Roman, serif\">παῖς</text></svg>", "hoti": "<svg role=\"img\" viewBox=\"0 0 640 200\" xmlns=\"http://www.w3.org/2000/svg\"><title>Hoti cuelga una oración con indicativo del verbo principal</title><rect width=\"640\" height=\"200\" fill=\"#FAF7F0\"/><rect x=\"30\" y=\"40\" width=\"250\" height=\"120\" fill=\"#0E0E0C\"/><rect x=\"320\" y=\"55\" width=\"290\" height=\"90\" fill=\"#C4A15A\"/><text x=\"155\" y=\"108\" text-anchor=\"middle\" fill=\"#FAF7F0\" font-size=\"26\" font-family=\"Palatino, Times New Roman, serif\">ἀκούει</text><text x=\"465\" y=\"110\" text-anchor=\"middle\" fill=\"#0E0E0C\" font-size=\"26\" font-family=\"Palatino, Times New Roman, serif\">ὅτι λύει</text></svg>", "rel": "<svg role=\"img\" viewBox=\"0 0 640 200\" xmlns=\"http://www.w3.org/2000/svg\"><title>El relativo on es acusativo dentro, aunque el nombre vaya en nominativo</title><rect width=\"640\" height=\"200\" fill=\"#FAF7F0\"/><rect x=\"30\" y=\"50\" width=\"160\" height=\"100\" fill=\"#2A2620\"/><rect x=\"210\" y=\"50\" width=\"200\" height=\"100\" fill=\"#C4A15A\"/><rect x=\"430\" y=\"50\" width=\"180\" height=\"100\" fill=\"#0E0E0C\"/><text x=\"110\" y=\"108\" text-anchor=\"middle\" fill=\"#FAF7F0\" font-size=\"26\" font-family=\"Palatino, Times New Roman, serif\">φίλος</text><text x=\"310\" y=\"108\" text-anchor=\"middle\" fill=\"#0E0E0C\" font-size=\"26\" font-family=\"Palatino, Times New Roman, serif\">ὃν τιμᾷ</text><text x=\"520\" y=\"108\" text-anchor=\"middle\" fill=\"#FAF7F0\" font-size=\"26\" font-family=\"Palatino, Times New Roman, serif\">γράφει</text></svg>", "ei": "<svg role=\"img\" viewBox=\"0 0 640 200\" xmlns=\"http://www.w3.org/2000/svg\"><title>Ei abre un si de hecho real, con indicativo a los dos lados</title><rect width=\"640\" height=\"200\" fill=\"#FAF7F0\"/><rect x=\"30\" y=\"50\" width=\"270\" height=\"100\" fill=\"#C4A15A\"/><rect x=\"340\" y=\"50\" width=\"270\" height=\"100\" fill=\"#0E0E0C\"/><text x=\"165\" y=\"108\" text-anchor=\"middle\" fill=\"#0E0E0C\" font-size=\"28\" font-family=\"Palatino, Times New Roman, serif\">εἰ γράφει</text><text x=\"475\" y=\"108\" text-anchor=\"middle\" fill=\"#FAF7F0\" font-size=\"28\" font-family=\"Palatino, Times New Roman, serif\">λύει</text></svg>", "men": "<svg role=\"img\" viewBox=\"0 0 640 200\" xmlns=\"http://www.w3.org/2000/svg\"><title>Men en el primer miembro y de en el segundo, los dos en segundo lugar</title><rect width=\"640\" height=\"200\" fill=\"#FAF7F0\"/><rect x=\"30\" y=\"45\" width=\"280\" height=\"110\" fill=\"#2A2620\"/><rect x=\"330\" y=\"45\" width=\"280\" height=\"110\" fill=\"#0E0E0C\"/><text x=\"170\" y=\"108\" text-anchor=\"middle\" fill=\"#C4A15A\" font-size=\"28\" font-family=\"Palatino, Times New Roman, serif\">ὁ μὲν</text><text x=\"470\" y=\"108\" text-anchor=\"middle\" fill=\"#C4A15A\" font-size=\"28\" font-family=\"Palatino, Times New Roman, serif\">ὁ δὲ</text></svg>", "hos": "<svg role=\"img\" viewBox=\"0 0 640 200\" xmlns=\"http://www.w3.org/2000/svg\"><title>Hos, en esta lección, también vale que, igual que hoti</title><rect width=\"640\" height=\"200\" fill=\"#FAF7F0\"/><rect x=\"40\" y=\"50\" width=\"250\" height=\"100\" fill=\"#C4A15A\"/><rect x=\"350\" y=\"50\" width=\"250\" height=\"100\" fill=\"#2A2620\"/><text x=\"165\" y=\"110\" text-anchor=\"middle\" fill=\"#0E0E0C\" font-size=\"36\" font-family=\"Palatino, Times New Roman, serif\">ὅτι</text><text x=\"475\" y=\"110\" text-anchor=\"middle\" fill=\"#FAF7F0\" font-size=\"36\" font-family=\"Palatino, Times New Roman, serif\">ὡς</text></svg>", "oun": "<svg role=\"img\" viewBox=\"0 0 640 200\" xmlns=\"http://www.w3.org/2000/svg\"><title>Oun en el segundo hueco, así pues</title><rect width=\"640\" height=\"200\" fill=\"#FAF7F0\"/><rect x=\"40\" y=\"55\" width=\"120\" height=\"90\" fill=\"#0E0E0C\"/><rect x=\"180\" y=\"55\" width=\"160\" height=\"90\" fill=\"#C4A15A\"/><rect x=\"360\" y=\"55\" width=\"240\" height=\"90\" fill=\"#2A2620\"/><text x=\"100\" y=\"110\" text-anchor=\"middle\" fill=\"#C4A15A\" font-size=\"32\" font-family=\"Palatino, Times New Roman, serif\">ὁ</text><text x=\"260\" y=\"110\" text-anchor=\"middle\" fill=\"#0E0E0C\" font-size=\"32\" font-family=\"Palatino, Times New Roman, serif\">οὖν</text><text x=\"480\" y=\"110\" text-anchor=\"middle\" fill=\"#FAF7F0\" font-size=\"28\" font-family=\"Palatino, Times New Roman, serif\">φίλος</text></svg>", "neut": "<svg role=\"img\" viewBox=\"0 0 640 200\" xmlns=\"http://www.w3.org/2000/svg\"><title>El relativo neutro ho vale para nominativo y para acusativo</title><rect width=\"640\" height=\"200\" fill=\"#FAF7F0\"/><rect x=\"40\" y=\"50\" width=\"250\" height=\"100\" fill=\"#2A2620\"/><rect x=\"350\" y=\"50\" width=\"250\" height=\"100\" fill=\"#C4A15A\"/><text x=\"165\" y=\"110\" text-anchor=\"middle\" fill=\"#FAF7F0\" font-size=\"36\" font-family=\"Palatino, Times New Roman, serif\">τό</text><text x=\"475\" y=\"110\" text-anchor=\"middle\" fill=\"#0E0E0C\" font-size=\"36\" font-family=\"Palatino, Times New Roman, serif\">ὃ</text></svg>", "art": "<svg role=\"img\" viewBox=\"0 0 640 200\" xmlns=\"http://www.w3.org/2000/svg\"><title>El articulo ho no es el relativo hos</title><rect width=\"640\" height=\"200\" fill=\"#FAF7F0\"/><rect x=\"40\" y=\"50\" width=\"250\" height=\"100\" fill=\"#0E0E0C\"/><rect x=\"350\" y=\"50\" width=\"250\" height=\"100\" fill=\"#C4A15A\"/><text x=\"165\" y=\"110\" text-anchor=\"middle\" fill=\"#FAF7F0\" font-size=\"40\" font-family=\"Palatino, Times New Roman, serif\">ὁ</text><text x=\"475\" y=\"110\" text-anchor=\"middle\" fill=\"#0E0E0C\" font-size=\"40\" font-family=\"Palatino, Times New Roman, serif\">ὅς</text></svg>"};
+  var rondas = [{"escena": "de", "pregunta": "En ὁ παῖς γράφει, ὁ δὲ φίλος λύει τὸ δῶρον, ¿qué sitio ocupa δέ?", "opciones": [{"t": "El segundo del segundo miembro. No abre la frase.", "ok": true, "why": "Delante va ὁ. Cumple la regla del enunciado y se confunde con «La primera palabra, igual que ἀλλά.», que parece cercana pero rompe el criterio de esta pregunta y de la lección."}, {"t": "La primera palabra, igual que ἀλλά.", "ok": false, "why": "ἀλλά sí puede abrir: ἀλλὰ ὁ φίλος. Ahí falla la regla del enunciado, y el contraste lo da la opción buena «El segundo del segundo miembro, No abre la frase,», que sí aplica el criterio correcto en esta pregunta."}, {"t": "Siempre detrás del verbo.", "ok": false, "why": "No va pegada al verbo. Ahí falla la regla del enunciado, y el contraste lo da la opción buena «El segundo del segundo miembro, No abre la frase,», que sí aplica el criterio correcto en esta pregunta."}, {"t": "Solo al final de la frase.", "ok": false, "why": "Al final no enlaza nada. Ahí falla la regla del enunciado, y el contraste lo da la opción buena «El segundo del segundo miembro, No abre la frase,», que sí aplica el criterio correcto en esta pregunta."}]}, {"escena": "gar", "pregunta": "¿Qué partícula explica, «pues», y no puede ir la primera?", "opciones": [{"t": "γάρ", "ok": true, "why": "γάρ es «pues» o «porque». Cumple la regla del enunciado y se confunde con «καί», que parece cercana pero rompe el criterio de esta pregunta y de la lección, Revisa el contraste con la opción correcta de esta misma pregunta y no mezcles funciones."}, {"t": "καί", "ok": false, "why": "καί une con «y» y puede abrir su miembro. Ahí falla la regla del enunciado, y el contraste lo da la opción buena «γάρ», que sí aplica el criterio correcto en esta pregunta."}, {"t": "ὅτι", "ok": false, "why": "ὅτι es «que» y abre una oración subordinada. Ahí falla la regla del enunciado, y el contraste lo da la opción buena «γάρ», que sí aplica el criterio correcto en esta pregunta."}, {"t": "εἰ", "ok": false, "why": "εἰ es «si» de un hecho real. Esa lectura rompe la regla que pide el enunciado y se aparta del contraste con la opción buena «γάρ», que sí cumple el criterio de esta pregunta."}]}, {"escena": "hoti", "pregunta": "ὁ παῖς ἀκούει ὅτι ὁ φίλος λύει τὸ δῶρον. ¿Cómo se traduce ὅτι?", "opciones": [{"t": "«Que», y λύει está en indicativo.", "ok": true, "why": "ἀκούει es el verbo principal. Cumple la regla del enunciado y se confunde con ««Y», como καί.», que parece cercana pero rompe el criterio de esta pregunta y de la lección."}, {"t": "«Y», como καί.", "ok": false, "why": "«Y» es καί. Ahí falla la regla del enunciado, y el contraste lo da la opción buena ««Que», y λύει está en indicativo.», que sí aplica el criterio correcto en esta pregunta."}, {"t": "«Si».", "ok": false, "why": "«Si» de hecho real es εἰ. Ahí falla la regla del enunciado, y el contraste lo da la opción buena ««Que», y λύει está en indicativo.», que sí aplica el criterio correcto en esta pregunta."}, {"t": "«Cuyo».", "ok": false, "why": "«Cuyo» es el genitivo del relativo, οὗ. Ahí falla la regla del enunciado, y el contraste lo da la opción buena ««Que», y λύει está en indicativo.», que sí aplica el criterio correcto en esta pregunta."}]}, {"escena": "rel", "pregunta": "En ὁ φίλος ὃν τιμᾷ ὁ παῖς γράφει τὸν λόγον, ¿por qué ὃν y no ὅς?", "opciones": [{"t": "Porque dentro el amigo es objeto de τιμᾷ.", "ok": true, "why": "φίλος es nominativo, sujeto de γράφει. Cumple la regla pedida y se confunde a menudo con «Porque el antecedente ya está en acusativo.», que no aplica el mismo criterio en esta pregunta."}, {"t": "Porque el antecedente ya está en acusativo.", "ok": false, "why": "El antecedente φίλος es nominativo. Ahí falla la regla del enunciado, y el contraste lo da la opción buena «Porque dentro el amigo es objeto de τιμᾷ.», que sí aplica el criterio correcto en esta pregunta."}, {"t": "Porque ὃν es el artículo.", "ok": false, "why": "El artículo masculino acusativo es τόν, en la frase τὸν. Ahí falla la regla del enunciado, y el contraste lo da la opción buena «Porque dentro el amigo es objeto de τιμᾷ.», que sí aplica el criterio correcto en esta pregunta."}, {"t": "Porque ὃν es plural.", "ok": false, "why": "El plural acusativo masculino es οὕς, en la frase οὓς. Ahí falla la regla del enunciado, y el contraste lo da la opción buena «Porque dentro el amigo es objeto de τιμᾷ.», que sí aplica el criterio correcto en esta pregunta."}]}, {"escena": "ei", "pregunta": "εἰ ὁ παῖς γράφει τὸν λόγον, ὁ φίλος λύει τὸ δῶρον es…", "opciones": [{"t": "Un «si» de hecho real: indicativo en las dos partes.", "ok": true, "why": "εἰ no cambia la forma de γράφει. Cumple la regla del enunciado y se confunde con «Una orden.», que parece cercana pero rompe el criterio de esta pregunta y de la lección."}, {"t": "Una orden.", "ok": false, "why": "No hay una orden. Ahí falla la regla del enunciado, y el contraste lo da la opción buena «Un «si» de hecho real: indicativo en las dos partes.», que sí aplica el criterio correcto en esta pregunta."}, {"t": "Una relativa.", "ok": false, "why": "La relativa llevaría ὅς ἥ ὅ, con caso. Ahí falla la regla del enunciado, y el contraste lo da la opción buena «Un «si» de hecho real: indicativo en las dos partes.», que sí aplica el criterio correcto en esta pregunta."}, {"t": "Una explicación con γάρ.", "ok": false, "why": "γάρ significa «pues» y va en segundo lugar. Ahí falla la regla del enunciado, y el contraste lo da la opción buena «Un «si» de hecho real: indicativo en las dos partes.», que sí aplica el criterio correcto en esta pregunta."}]}, {"escena": "men", "pregunta": "ὁ μὲν φίλος λύει τὸ δῶρον, ὁ δὲ παῖς γράφει τὸν λόγον. ¿Qué hace μέν…δέ?", "opciones": [{"t": "Reparte los dos miembros. μέν en el primero, δέ en el segundo, los dos en segundo lugar.", "ok": true, "why": "μὲν va detrás de ὁ, y δὲ también. Cumple la regla del enunciado y se confunde con «Significa «que».», que parece cercana pero rompe el criterio de esta pregunta y de la lección."}, {"t": "Significa «que».", "ok": false, "why": "«Que» aquí es ὅτι o ὡς, o el relativo. Ahí falla la regla del enunciado, y el contraste lo da la opción buena «Reparte los dos miembros, μέν en el primero, δέ en el segundo, los dos en seg,», que sí aplica el criterio correcto en esta pregunta."}, {"t": "Pone μέν al final de la frase.", "ok": false, "why": "μέν va en el primer miembro, en segundo lugar. Ahí falla la regla del enunciado, y el contraste lo da la opción buena «Reparte los dos miembros, μέν en el primero, δέ en el segundo, los dos en seg,», que sí aplica el criterio correcto en esta pregunta."}, {"t": "Es el relativo masculino.", "ok": false, "why": "El relativo masculino nominativo es ὅς. Ahí falla la regla del enunciado, y el contraste lo da la opción buena «Reparte los dos miembros, μέν en el primero, δέ en el segundo, los dos en seg,», que sí aplica el criterio correcto en esta pregunta."}]}];
+  var checks = [{"escena": "hos", "pregunta": "ὁ παῖς ἀκούει ὡς ὁ φίλος λύει τὸ δῶρον. ¿Qué vale ὡς aquí?", "opciones": [{"t": "También «que», con indicativo. En esta lección no tiene otro valor.", "ok": true, "why": "ὅτι y ὡς, en este curso, abren la misma construcción. Cumple la regla pedida y se confunde a menudo con ««Hacia», como una preposición.», que no aplica el mismo criterio en esta pregunta."}, {"t": "«Hacia», como una preposición.", "ok": false, "why": "«Hacia» con acusativo, en la lección de preposiciones, es πρός. Ahí falla la regla del enunciado, y el contraste lo da la opción buena «También «que», con indicativo, En esta lección no tiene otro valor,», que sí aplica el criterio correcto en esta pregunta."}, {"t": "Es el artículo femenino.", "ok": false, "why": "El artículo femenino nominativo es ἡ. Ahí falla la regla del enunciado, y el contraste lo da la opción buena «También «que», con indicativo, En esta lección no tiene otro valor,», que sí aplica el criterio correcto en esta pregunta."}, {"t": "Abre una relativa con caso.", "ok": false, "why": "La relativa es ὅς ἥ ὅ. Ahí falla la regla del enunciado, y el contraste lo da la opción buena «También «que», con indicativo, En esta lección no tiene otro valor,», que sí aplica el criterio correcto en esta pregunta."}]}, {"escena": "oun", "pregunta": "En ὁ οὖν φίλος τιμᾷ τὸν παῖδα, οὖν…", "opciones": [{"t": "Va en segundo lugar y vale «así pues».", "ok": true, "why": "οὖν no abre. Cumple la regla del enunciado y se confunde con «Abre la frase y vale «pero».», que parece cercana pero rompe el criterio de esta pregunta y de la lección."}, {"t": "Abre la frase y vale «pero».", "ok": false, "why": "«Pero» que puede abrir es ἀλλά. Ahí falla la regla del enunciado, y el contraste lo da la opción buena «Va en segundo lugar y vale «así pues».», que sí aplica el criterio correcto en esta pregunta."}, {"t": "Es el relativo dativo.", "ok": false, "why": "El dativo singular del relativo es ᾧ. Ahí falla la regla del enunciado, y el contraste lo da la opción buena «Va en segundo lugar y vale «así pues».», que sí aplica el criterio correcto en esta pregunta."}, {"t": "Vale «y», como καί.", "ok": false, "why": "«Y» es καί. Ahí falla la regla del enunciado, y el contraste lo da la opción buena «Va en segundo lugar y vale «así pues».», que sí aplica el criterio correcto en esta pregunta."}]}, {"escena": "neut", "pregunta": "En ὁ παῖς τιμᾷ τὸ ἔργον ὃ ποιεῖ ὁ φίλος, ¿qué es ὃ?", "opciones": [{"t": "El relativo neutro. La forma vale para nominativo y acusativo; aquí es objeto de ποιεῖ.", "ok": true, "why": "ἔργον es neutro. Cumple la regla del enunciado y se confunde con «El artículo τό,», que parece cercana pero rompe el criterio de esta pregunta y de la lección, Revisa el contraste con la opción correcta de esta misma pregunta y no mezcles funciones."}, {"t": "El artículo τό.", "ok": false, "why": "El artículo es τό, en la frase τὸ ἔργον. Ahí falla la regla del enunciado, y el contraste lo da la opción buena «El relativo neutro, La forma vale para nominativo y acusativo; aquí es objeto,», que sí aplica el criterio correcto en esta pregunta."}, {"t": "Un relativo femenino.", "ok": false, "why": "El femenino acusativo es ἥν, en la frase ἣν. Ahí falla la regla del enunciado, y el contraste lo da la opción buena «El relativo neutro, La forma vale para nominativo y acusativo; aquí es objeto,», que sí aplica el criterio correcto en esta pregunta."}, {"t": "Un dativo.", "ok": false, "why": "El dativo singular neutro del relativo es ᾧ. Ahí falla la regla del enunciado, y el contraste lo da la opción buena «El relativo neutro, La forma vale para nominativo y acusativo; aquí es objeto,», que sí aplica el criterio correcto en esta pregunta."}]}, {"escena": "art", "pregunta": "¿Qué separa ὅς de ὁ?", "opciones": [{"t": "ὅς es el relativo, «que, el cual». ὁ es el artículo, «el».", "ok": true, "why": "No los intercambies. Cumple la regla del enunciado y se confunde con «Son la misma palabra.», que parece cercana pero rompe el criterio de esta pregunta y de la lección."}, {"t": "Son la misma palabra.", "ok": false, "why": "ὁ no lleva sigma. Ahí falla la regla del enunciado, y el contraste lo da la opción buena «ὅς es el relativo, «que, el cual», ὁ es el artículo, «el»,», que sí aplica el criterio correcto en esta pregunta."}, {"t": "ὅς significa «pero».", "ok": false, "why": "«Pero» es ἀλλά, o el enlace más suave δέ. Ahí falla la regla del enunciado, y el contraste lo da la opción buena «ὅς es el relativo, «que, el cual», ὁ es el artículo, «el»,», que sí aplica el criterio correcto en esta pregunta."}, {"t": "ὁ es el relativo neutro.", "ok": false, "why": "El relativo neutro es ὅ. Ahí falla la regla del enunciado, y el contraste lo da la opción buena «ὅς es el relativo, «que, el cual», ὁ es el artículo, «el»,», que sí aplica el criterio correcto en esta pregunta."}]}];
+
+  var fase = "ronda";
+  var i = 0;
+  var aciertos = 0;
+  var rondaAciertos = 0;
+  var bloqueada = false;
+  var estado = document.getElementById("estado");
+  var stage = document.getElementById("stage");
+  var pregunta = document.getElementById("pregunta");
+  var caja = document.getElementById("opciones");
+  var why = document.getElementById("why");
+  var siguiente = document.getElementById("siguiente");
+  var resumen = document.getElementById("resumen");
+  function listaActual() { return fase === "ronda" ? rondas : checks; }
+  function pintar() {
+    var item = listaActual()[i];
+    var total = fase === "ronda" ? 6 : 4;
+    var nombre = fase === "ronda" ? "Ronda" : "Mini-check";
+    estado.textContent = nombre + " " + (i + 1) + " de " + total;
+    stage.innerHTML = escenas[item.escena];
+    pregunta.innerHTML = item.pregunta.replace(/([\u0370-\u03FF\u1F00-\u1FFF]+)/g, '<span lang="grc">$1</span>');
+    why.textContent = "";
+    siguiente.hidden = true;
+    bloqueada = false;
+    caja.innerHTML = "";
+    item.opciones.forEach(function (op, n) {
+      var b = document.createElement("button");
+      b.type = "button";
+      b.className = "op";
+      b.innerHTML = op.t.replace(/([\u0370-\u03FF\u1F00-\u1FFF]+)/g, '<span lang="grc">$1</span>');
+      b.addEventListener("click", function () { elegir(n); });
+      caja.appendChild(b);
+    });
+  }
+  function elegir(n) {
+    if (bloqueada) return;
+    bloqueada = true;
+    var item = listaActual()[i];
+    var op = item.opciones[n];
+    var botones = caja.querySelectorAll("button");
+    botones.forEach(function (b, k) {
+      b.disabled = true;
+      if (item.opciones[k].ok) b.classList.add("bien");
+      else if (k === n) b.classList.add("mal");
+    });
+    if (op.ok) aciertos += 1;
+    var correcta = item.opciones.filter(function (x) { return x.ok; })[0];
+    why.innerHTML = op.why.replace(/([\u0370-\u03FF\u1F00-\u1FFF]+)/g, '<span lang="grc">$1</span>') + (op.ok ? "" : " La opción que sí cuadra: " + correcta.t.replace(/([\u0370-\u03FF\u1F00-\u1FFF]+)/g, '<span lang="grc">$1</span>') + ".");
+    siguiente.hidden = false;
+    siguiente.textContent = (fase === "ronda" && i === 5) ? "Pasar al mini-check" : (fase === "check" && i === 3) ? "Ver el resultado" : "Siguiente";
+  }
+  siguiente.addEventListener("click", function () {
+    var lista = listaActual();
+    if (i < lista.length - 1) { i += 1; pintar(); return; }
+    if (fase === "ronda") {
+      fase = "check";
+      rondaAciertos = aciertos;
+      i = 0;
+      aciertos = 0;
+      pintar();
+      return;
+    }
+    resumen.hidden = false;
+    resumen.textContent = "Rondas: " + rondaAciertos + " de 6. Mini-check: " + aciertos + " de 4. Recarga la página si quieres repetir.";
+    siguiente.hidden = true;
+    estado.textContent = "Hecho";
+  });
+  pintar();
+
+})();
+</script>
+</body>
+</html>

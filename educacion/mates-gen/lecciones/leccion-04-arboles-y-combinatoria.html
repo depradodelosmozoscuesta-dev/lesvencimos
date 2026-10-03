@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<meta name="theme-color" content="#0E0E0C"/>
+<title>Lección 04 · Árboles y combinatoria · Les vencimos</title>
+<link rel="icon" href="../icons/favicon.svg" type="image/svg+xml"/>
+<link rel="manifest" href="../manifest.webmanifest"/>
+<link rel="stylesheet" href="../leccion-shell.css"/>
+<style>
+.pasos{list-style:none;margin:0 0 1rem;padding:0;counter-reset:paso}
+.pasos li{position:relative;margin:0 0 .7rem;padding:.7rem .8rem .7rem 3.1rem;background:var(--lv-panel);border:1px solid var(--lv-linea);border-radius:10px}
+.pasos li::before{counter-increment:paso;content:counter(paso);position:absolute;left:.65rem;top:.7rem;width:1.7rem;height:1.7rem;border-radius:50%;background:#C4A15A;color:#1A160E;font-weight:700;font-size:.9rem;display:flex;align-items:center;justify-content:center}
+.figura-svg{background:#161512;border:1px solid var(--lv-linea);border-radius:10px;padding:.5rem;margin:.5rem 0 1.1rem}
+.figura-svg svg{width:100%;height:auto;display:block}
+.ej{margin:0 0 1rem;padding:.85rem .95rem;background:var(--lv-panel);border:1px solid var(--lv-linea);border-left:3px solid #C4A15A;border-radius:10px}
+.ej h3{margin:0 0 .35rem;font-family:var(--lv-serif);font-size:1.05rem;color:var(--lv-titulo)}
+.editor,textarea.editor{width:100%;min-height:5.5rem;font-family:ui-monospace,monospace;font-size:.95rem;line-height:1.45;padding:.55rem .65rem;border:1px solid rgba(196,161,90,.45);border-radius:8px;background:#161512;color:#E6E1D6;resize:vertical}
+.lienzo{display:block;width:100%;height:280px;background:#161512;border:1px solid #C4A15A;border-radius:8px;touch-action:none;cursor:crosshair}
+.fila{display:flex;flex-wrap:wrap;gap:.4rem;margin:.45rem 0}
+.boton{font:inherit;font-weight:700;font-size:.85rem;padding:.4rem .8rem;border-radius:999px;border:1px solid #C4A15A;background:transparent;color:#E6E1D6;cursor:pointer}
+.porque{margin-top:.55rem;padding:.65rem .75rem;background:#1a2218;border-radius:8px;color:#E6E1D6}
+.dato{font-size:.95rem;color:var(--lv-suave)}
+.glosa{display:block;font-size:.9rem;color:#9A9488;margin:.25rem 0 .5rem;line-height:1.4}
+.lab-box{margin:1rem 0;padding:.85rem;border:1px dashed rgba(196,161,90,.5);border-radius:10px;background:#141210}
+.lab-box iframe{width:100%;min-height:320px;border:1px solid #C4A15A;border-radius:8px;background:#0E0E0C}
+table.datos{width:100%;border-collapse:collapse;margin:.45rem 0 1rem;font-size:.98rem}
+table.datos th,table.datos td{border:1px solid var(--lv-linea);padding:.4rem .55rem;text-align:left}
+table.datos th{background:#161512;color:#C4A15A}
+</style>
+<script src="../leccion-shell-nav.js" defer></script>
+</head>
+<body class="leccion-shell" data-maestro-json="maestro-04.json">
+<div class="leccion-wrap">
+<nav class="leccion-barra" aria-label="Navegación de lección" data-actual="4" data-total="38">
+  <div class="leccion-progreso" role="status">
+    <span class="progreso-texto"><strong>4</strong> de <strong>38</strong></span>
+    <div class="progreso-pista" aria-hidden="true"><div class="progreso-lleno" style="width:10.53%"></div></div>
+  </div>
+  <div class="leccion-atajos">
+    <a class="atajo atajo-calc" href="../../../../modulos/calculadora.html" title="Calculadora offline">Calculadora</a>
+    <a class="atajo atajo-prev" href="leccion-03-palomar-e-inclusion-exclusion.html">← Anterior</a>
+    <a class="atajo atajo-next" href="leccion-05-documentos-numericos-cotidianos.html">Siguiente →</a>
+  </div>
+</nav>
+<header class="leccion-top">
+  <a class="leccion-marca" href="../../../../index.html">Les <span>vencimos</span></a>
+  <p class="leccion-meta-top">Matemáticas Generales · 1º Bachillerato</p>
+</header>
+<header class="bloque-titulo">
+  <span class="eyebrow">Lección 04 · A · Numérico</span>
+  <h1 class="titulo-leccion">Árboles y <em>combinatoria</em></h1>
+  <p class="meta-leccion">1º Bach Matemáticas Generales · CyL Decreto 40/2022 · A.1 Árboles y combinatoria</p>
+</header>
+<aside class="bloque-curiosidad" aria-label="Para situarte">
+  <p class="etiqueta-bloque">Para situarte</p>
+  <h2 class="titulo-curiosidad">El árbol ordena el conteo</h2>
+  <p class="texto-curiosidad">CyL pide diagramas de árbol y técnicas de combinatoria: variaciones si el orden importa; combinaciones si no.</p>
+</aside>
+<section class="bloque-cuerpo">
+  <h2>Objetivos</h2>
+  <ul><li>Dibujar un árbol y leer el producto.</li><li>Calcular V(n,k) y C(n,k).</li><li>Justificar el cociente k!.</li></ul>
+</section>
+<section class="bloque-cuerpo">
+  <h2>Árbol, variaciones, combinaciones</h2>
+  <p>Cada nivel del árbol es una decisión. <strong>Variaciones</strong> V(n,k)=n·(n−1)·…·(n−k+1) cuando el orden importa. <strong>Combinaciones</strong> C(n,k)=V(n,k)/k! cuando no importa: cada grupo se había contado k! veces.</p>
+  <div class="figura-svg"><svg viewBox="0 0 720 280" role="img" aria-label="Árbol binario de profundidad 2"><title>Árbol binario de profundidad 2</title><rect width="720" height="280" fill="#161512"/>
+  <circle cx="360" cy="40" r="14" fill="#1C1A16" stroke="#C4A15A" stroke-width="2"/>
+  <line x1="360" y1="54" x2="200" y2="110" stroke="#C4A15A" stroke-width="2"/>
+  <line x1="360" y1="54" x2="520" y2="110" stroke="#C4A15A" stroke-width="2"/>
+  <circle cx="200" cy="120" r="14" fill="#1C1A16" stroke="#8F9A72" stroke-width="2"/><text x="200" y="125" text-anchor="middle" fill="#E6E1D6" font-size="12">C</text>
+  <circle cx="520" cy="120" r="14" fill="#1C1A16" stroke="#8F9A72" stroke-width="2"/><text x="520" y="125" text-anchor="middle" fill="#E6E1D6" font-size="12">X</text>
+  <line x1="200" y1="134" x2="120" y2="190" stroke="#C4A15A"/><line x1="200" y1="134" x2="280" y2="190" stroke="#C4A15A"/>
+  <line x1="520" y1="134" x2="440" y2="190" stroke="#C4A15A"/><line x1="520" y1="134" x2="600" y2="190" stroke="#C4A15A"/>
+  <circle cx="120" cy="200" r="10" fill="#C4A15A"/><circle cx="280" cy="200" r="10" fill="#C4A15A"/>
+  <circle cx="440" cy="200" r="10" fill="#C4A15A"/><circle cx="600" cy="200" r="10" fill="#C4A15A"/>
+  <text x="360" y="250" text-anchor="middle" fill="#9A9488" font-size="14">2×2=4 secuencias de longitud 2</text>
+  </svg></div>
+  <h2>Ejemplo 1 — monedas</h2>
+  <p>Tienes 1 €, 2 € y 5 € (una moneda de cada). ¿De cuántas formas distintas puedes ordenarlas en fila? Usa un árbol: en la raíz aún no has elegido; cada nivel fija la siguiente moneda.</p>
+  <ol class="pasos">
+<li>Nivel 1: 3 elecciones (cualquiera de las tres monedas puede ir primero). <span class="glosa">Glosa: son objetos distintos, no solo valores; «primero el 1 €» no es lo mismo que «primero el 2 €».</span></li>
+<li>Nivel 2: quedan 2 monedas → 2 ramas bajo cada vértice del nivel 1. <span class="glosa">Glosa: sin repetición: al usar una moneda, esa rama ya no la ofrece otra vez.</span></li>
+<li>Nivel 3: queda 1 moneda → 1 hoja por camino. Total de caminos: 3·2·1 = 6. <span class="glosa">Glosa: es P(3,3)=3! = 6, el número de permutaciones de tres elementos distintos.</span></li>
+<li>Lista de comprobación: 125, 152, 215, 251, 512, 521 (abreviado por valor). Son exactamente 6. <span class="glosa">Glosa: si contaras combinaciones C(3,3)=1 estarías ignorando el orden; aquí el orden de la fila importa.</span></li>
+</ol>
+<h2>Ejemplo 2 — PIN</h2>
+  <p>Un cajero pide un PIN de 4 dígitos. El primero no puede ser 0; en el resto sí. Se permiten repeticiones. ¿Cuántos PIN distintos hay? Dibújalo como un árbol de cuatro niveles.</p>
+  <ol class="pasos">
+<li>Nivel 1 (primer dígito): opciones 1–9 → 9 ramas. <span class="glosa">Glosa: el 0 queda fuera solo en la primera posición; si el árbol empezara en 0–9 tendrías 10 y estarías contando PIN ilegales.</span></li>
+<li>Niveles 2, 3 y 4: cada uno admite 0–9 → 10 ramas por vértice. <span class="glosa">Glosa: las repeticiones están permitidas, así que el número de hijos no baja al usar un dígito: cada nivel vuelve a tener 10.</span></li>
+<li>Regla del producto sobre el árbol: 9·10·10·10 = 9000. <span class="glosa">Glosa: cada camino raíz→hoja es un PIN. Multiplicas porque eliges «y luego» en cada nivel, no alternativas excluyentes.</span></li>
+<li>Comprobación rápida: sin la restricción del primer dígito serían 10⁴=10000; al quitar los que empiezan por 0 quedan 10000−1000=9000. Coincide. <span class="glosa">Glosa: restar los ilegales es otra lectura del mismo árbol: 1·10·10·10 = 1000 ramas prohibidas.</span></li>
+</ol>
+<h2>Ejemplo 3 — comité vs podio</h2>
+  <p>De 5 personas hay que (a) elegir un comité de 3 sin cargos y (b) elegir presidente, secretario y vocal (orden). Compara ambos números con el mismo árbol mental.</p>
+  <ol class="pasos">
+<li>Podio (con orden): 5·4·3 = 60. <span class="glosa">Glosa: variaciones V(5,3): el árbol tiene 5 ramas, luego 4, luego 3; cada camino es una terna ordenada de cargos.</span></li>
+<li>Comité (sin orden): las 3! = 6 permutaciones de las mismas tres personas son el mismo comité. <span class="glosa">Glosa: en el árbol del podio, esas 6 hojas corresponden a un único conjunto {A,B,C}.</span></li>
+<li>Por tanto C(5,3) = 60 / 6 = 10. <span class="glosa">Glosa: fórmula C(n,k)=V(n,k)/k!. Divides porque el orden sobra cuando solo importa el conjunto.</span></li>
+<li>Comprueba: C(5,3)=5!/(3!2!)=10. Coincide. Error típico: dejar el 60 como respuesta del comité. <span class="glosa">Glosa: si el enunciado no nombra cargos ni ranking, no uses el producto crudo del árbol ordenado.</span></li>
+</ol>
+<h2>Ejercicios</h2>
+  <article class="ej"><h3>1. C(5,2)</h3><p>Calcula C(5,2) y explica el /2 con una frase.</p><label for="e4a">Tu resolución</label><textarea class="editor" id="e4a" placeholder="Escribe aquí el razonamiento completo…"></textarea><details class="porque"><summary>Por qué (abre cuando hayas escrito)</summary><p>C(5,2)=5·4/2=10. Dividimos por 2! porque el par {{A,B}} es el mismo que {{B,A}}: en combinaciones el orden no crea un objeto nuevo. Si no dividieras, contarías cada comité dos veces.</p></details></article>
+  <article class="ej"><h3>2. Matrícula</h3><p>3 letras (26) y 4 dígitos, con repetición. Escribe el producto y justifica.</p><label for="e4b">Tu resolución</label><textarea class="editor" id="e4b" placeholder="Escribe aquí el razonamiento completo…"></textarea><details class="porque"><summary>Por qué (abre cuando hayas escrito)</summary><p>26³·10⁴. Cada posición elige con independencia y puede repetir símbolo; la regla del producto multiplica las opciones de cada casilla. Usar variaciones sin repetición sería otro enunciado.</p></details></article>
+  <article class="ej"><h3>3. Error típico</h3><p>Usas V cuando el problema pedía C. ¿Qué hinchas y cómo lo corriges?</p><label for="e4c">Tu resolución</label><textarea class="editor" id="e4c" placeholder="Escribe aquí el razonamiento completo…"></textarea><details class="porque"><summary>Por qué (abre cuando hayas escrito)</summary><p>Hinchas el conteo exactamente k! veces: cada grupo se cuenta una vez por cada permutación interna. Se corrige dividiendo por k! (pasar de variaciones a combinaciones). Lee si el enunciado distingue cargos u orden.</p></details></article>
+  <canvas id="lienzo04" class="lienzo" width="900" height="280"></canvas><div class="fila"><button type="button" class="boton" data-clear="lienzo04">Borrar lienzo</button></div>
+  </section>
+<div class="lab-box"><p><strong>Laboratorio</strong> — Árbol de posibilidades. Si el marco no carga, abre el hermano: <a href="l04-arboles-y-combinatoria.html">l04-arboles-y-combinatoria.html</a>.</p><iframe src="l04-arboles-y-combinatoria.html" title="Árbol de posibilidades" loading="lazy"></iframe></div>
+<section class="bloque-cuerpo">
+  <h2>Comprueba</h2>
+  <p class="dato">Tres preguntas. Responde mentalmente antes de abrir el porqué.</p>
+  <details class="porque"><summary>2³ secuencias de moneda justa</summary><p>Hay 8 secuencias distintas (CCC…XXX). El exponente 3 es la profundidad del árbol; la base 2 es el número de ramas por nodo. Si la moneda es justa, cada hoja pesa 1/8.</p></details>
+<details class="porque"><summary>¿Orden en un comité sin cargos?</summary><p>No importa: usas combinaciones. Distinto del podio, donde oro y plata son roles distintos y entonces usas variaciones. La clave está en si el enunciado distingue posiciones.</p></details>
+<details class="porque"><summary>Relación C y V</summary><p>El paso es pasar de combinaciones a variaciones multiplicando por el orden. V(n,k) = C(n,k)·k!: cada combinación de k elementos se puede ordenar de k! formas, y cada ordenación es una variación distinta. Si el orden no importa y tú has calculado V, divides entre k! para volver a C. No restes k ni lo cambies de sitio: el factor es el número de permutaciones del grupo elegido.</p></details>
+</section>
+<section class="bloque-reto">
+  <span class="etiqueta-reto">Reto Profesor</span>
+  <h2 class="titulo-reto">Árbol del día</h2>
+  <p>Dibuja un árbol de 2–3 decisiones reales y calcula el producto.</p>
+  <p class="reto-id">reto_id: bach1-mates-gen-L04</p>
+</section>
+<footer class="leccion-pie"><strong>Les vencimos</strong> · L04 de 38 · Matemáticas Generales · staging · file:// · sin publicar</footer>
+</div>
+<script type="application/json" data-maestro="guion">{"curso": "bach1-mates-gen", "leccion": 4, "titulo": "Árboles y combinatoria", "url": "leccion-04-arboles-y-combinatoria.html", "musica": false, "pasos": [{"id": "abrir", "dicho": "Lección 04: Árboles y combinatoria. El árbol ordena el conteo.", "hacer": "Leer situarte y los objetivos en voz alta."}, {"id": "idea", "dicho": "Hoy trabajamos: A.1 Árboles y combinatoria. Mira el gráfico SVG antes de los números.", "hacer": "Observar la figura y nombrar qué representa cada símbolo."}, {"id": "ej1", "dicho": "Primer ejemplo resuelto: sigue cada paso y la glosa debajo.", "hacer": "Recalcular el ejemplo 1 en papel o en el editor."}, {"id": "ej2", "dicho": "Segundo ejemplo: cambia el contexto pero no la herramienta.", "hacer": "Recalcular el ejemplo 2 y comparar con el 1."}, {"id": "practica", "dicho": "Ahora los ejercicios: escribe el razonamiento completo, no solo el número.", "hacer": "Resolver al menos dos ejercicios; dibujar en el lienzo si pide figura."}, {"id": "lab", "dicho": "Si hay laboratorio, ábrelo y prueba un caso distinto al del texto.", "hacer": "Usar el lab o el iframe embebido."}, {"id": "comprueba", "dicho": "Comprueba: responde mentalmente antes de abrir el porqué.", "hacer": "Hacer las tres preguntas del bloque Comprueba."}, {"id": "reto", "dicho": "Cierra con el reto Profesor: deja constancia escrita.", "hacer": "Escribir el reto en el editor o en el portfolio."}]}</script>
+<script>(function(){function liga(c){var ctx=c.getContext('2d');function fondo(){ctx.fillStyle='#161512';ctx.fillRect(0,0,c.width,c.height);ctx.strokeStyle='#C4A15A';ctx.strokeRect(.5,.5,c.width-1,c.height-1);}function fit(){var r=c.getBoundingClientRect();var w=Math.max(320,Math.floor(r.width));if(c.width!==w){c.width=w;c.height=280;fondo();}}var dib=false,last=null;function pos(ev){var r=c.getBoundingClientRect();var s=ev.touches?ev.touches[0]:ev;return{x:(s.clientX-r.left)*c.width/r.width,y:(s.clientY-r.top)*c.height/r.height};}c.addEventListener('pointerdown',function(ev){dib=true;last=pos(ev);ev.preventDefault();});c.addEventListener('pointermove',function(ev){if(!dib)return;var p=pos(ev);ctx.strokeStyle='#E6E1D6';ctx.lineWidth=2.2;ctx.lineCap='round';ctx.beginPath();ctx.moveTo(last.x,last.y);ctx.lineTo(p.x,p.y);ctx.stroke();last=p;ev.preventDefault();});function up(){dib=false;}c.addEventListener('pointerup',up);c.addEventListener('pointerleave',up);var b=document.querySelector('[data-clear="'+c.id+'"]');if(b)b.addEventListener('click',fondo);fit();window.addEventListener('resize',fit);}document.querySelectorAll('canvas.lienzo').forEach(liga);})();</script>
+</body>
+</html>

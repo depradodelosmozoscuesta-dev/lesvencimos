@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<meta name="theme-color" content="#0E0E0C"/>
+<title>Lección 03 · Palomar e inclusión-exclusión · Les vencimos</title>
+<link rel="icon" href="../icons/favicon.svg" type="image/svg+xml"/>
+<link rel="manifest" href="../manifest.webmanifest"/>
+<link rel="stylesheet" href="../leccion-shell.css"/>
+<style>
+.pasos{list-style:none;margin:0 0 1rem;padding:0;counter-reset:paso}
+.pasos li{position:relative;margin:0 0 .7rem;padding:.7rem .8rem .7rem 3.1rem;background:var(--lv-panel);border:1px solid var(--lv-linea);border-radius:10px}
+.pasos li::before{counter-increment:paso;content:counter(paso);position:absolute;left:.65rem;top:.7rem;width:1.7rem;height:1.7rem;border-radius:50%;background:#C4A15A;color:#1A160E;font-weight:700;font-size:.9rem;display:flex;align-items:center;justify-content:center}
+.figura-svg{background:#161512;border:1px solid var(--lv-linea);border-radius:10px;padding:.5rem;margin:.5rem 0 1.1rem}
+.figura-svg svg{width:100%;height:auto;display:block}
+.ej{margin:0 0 1rem;padding:.85rem .95rem;background:var(--lv-panel);border:1px solid var(--lv-linea);border-left:3px solid #C4A15A;border-radius:10px}
+.ej h3{margin:0 0 .35rem;font-family:var(--lv-serif);font-size:1.05rem;color:var(--lv-titulo)}
+.editor,textarea.editor{width:100%;min-height:5.5rem;font-family:ui-monospace,monospace;font-size:.95rem;line-height:1.45;padding:.55rem .65rem;border:1px solid rgba(196,161,90,.45);border-radius:8px;background:#161512;color:#E6E1D6;resize:vertical}
+.lienzo{display:block;width:100%;height:280px;background:#161512;border:1px solid #C4A15A;border-radius:8px;touch-action:none;cursor:crosshair}
+.fila{display:flex;flex-wrap:wrap;gap:.4rem;margin:.45rem 0}
+.boton{font:inherit;font-weight:700;font-size:.85rem;padding:.4rem .8rem;border-radius:999px;border:1px solid #C4A15A;background:transparent;color:#E6E1D6;cursor:pointer}
+.porque{margin-top:.55rem;padding:.65rem .75rem;background:#1a2218;border-radius:8px;color:#E6E1D6}
+.dato{font-size:.95rem;color:var(--lv-suave)}
+.glosa{display:block;font-size:.9rem;color:#9A9488;margin:.25rem 0 .5rem;line-height:1.4}
+.lab-box{margin:1rem 0;padding:.85rem;border:1px dashed rgba(196,161,90,.5);border-radius:10px;background:#141210}
+.lab-box iframe{width:100%;min-height:320px;border:1px solid #C4A15A;border-radius:8px;background:#0E0E0C}
+table.datos{width:100%;border-collapse:collapse;margin:.45rem 0 1rem;font-size:.98rem}
+table.datos th,table.datos td{border:1px solid var(--lv-linea);padding:.4rem .55rem;text-align:left}
+table.datos th{background:#161512;color:#C4A15A}
+</style>
+<script src="../leccion-shell-nav.js" defer></script>
+</head>
+<body class="leccion-shell" data-maestro-json="maestro-03.json">
+<div class="leccion-wrap">
+<nav class="leccion-barra" aria-label="Navegación de lección" data-actual="3" data-total="38">
+  <div class="leccion-progreso" role="status">
+    <span class="progreso-texto"><strong>3</strong> de <strong>38</strong></span>
+    <div class="progreso-pista" aria-hidden="true"><div class="progreso-lleno" style="width:7.89%"></div></div>
+  </div>
+  <div class="leccion-atajos">
+    <a class="atajo atajo-calc" href="../../../../modulos/calculadora.html" title="Calculadora offline">Calculadora</a>
+    <a class="atajo atajo-prev" href="leccion-02-conteo-principios-basicos.html">← Anterior</a>
+    <a class="atajo atajo-next" href="leccion-04-arboles-y-combinatoria.html">Siguiente →</a>
+  </div>
+</nav>
+<header class="leccion-top">
+  <a class="leccion-marca" href="../../../../index.html">Les <span>vencimos</span></a>
+  <p class="leccion-meta-top">Matemáticas Generales · 1º Bachillerato</p>
+</header>
+<header class="bloque-titulo">
+  <span class="eyebrow">Lección 03 · A · Numérico</span>
+  <h1 class="titulo-leccion">Palomar e inclusión-<em>exclusión</em></h1>
+  <p class="meta-leccion">1º Bach Matemáticas Generales · CyL Decreto 40/2022 · A.1 Palomar</p>
+</header>
+<aside class="bloque-curiosidad" aria-label="Para situarte">
+  <p class="etiqueta-bloque">Para situarte</p>
+  <h2 class="titulo-curiosidad">Cuando sobran palomas</h2>
+  <p class="texto-curiosidad">CyL incluye el principio del palomar y la inclusión-exclusión. El palomar garantiza existencia («alguna caja…») sin decir cuál. La inclusión-exclusión corrige el doble conteo cuando los conjuntos se solapan.</p>
+</aside>
+<section class="bloque-cuerpo">
+  <h2>Objetivos</h2>
+  <ul><li>Enunciar el palomar simple y la forma k·n+1.</li><li>Aplicarlo a un caso numérico con peor caso.</li><li>Calcular uniones con inclusión-exclusión y justificar cada resto.</li></ul>
+</section>
+<section class="bloque-cuerpo">
+<h2>Palomar</h2>
+<p>Si colocas n+1 objetos en n cajas, <strong>alguna caja tiene al menos 2</strong>. Más general: si hay más de k·n objetos en n cajas, alguna tiene al menos k+1. La prueba es por contradicción: si todas las cajas tuvieran ≤k, el total sería ≤k·n.</p>
+<div class="figura-svg"><svg viewBox="0 0 720 300" role="img" aria-label="4 palomas y 3 nidos: alguna nido con ≥2"><title>4 palomas y 3 nidos: alguna nido con ≥2</title><rect width="720" height="300" fill="#161512"/>
+<rect x="70" y="170" width="140" height="90" rx="10" fill="#1C1A16" stroke="#C4A15A" stroke-width="2"/>
+<rect x="290" y="170" width="140" height="90" rx="10" fill="#1C1A16" stroke="#C4A15A" stroke-width="2"/>
+<rect x="510" y="170" width="140" height="90" rx="10" fill="#1C1A16" stroke="#C4A15A" stroke-width="2"/>
+<circle cx="110" cy="130" r="16" fill="#C4A15A"/><circle cx="160" cy="130" r="16" fill="#C4A15A"/>
+<circle cx="360" cy="130" r="16" fill="#8F9A72"/>
+<circle cx="580" cy="130" r="16" fill="#E6E1D6"/>
+<line x1="110" y1="146" x2="120" y2="170" stroke="#9A9488"/><line x1="160" y1="146" x2="150" y2="170" stroke="#9A9488"/>
+<text x="360" y="40" text-anchor="middle" fill="#E6E1D6" font-size="16">4 &gt; 3 ⇒ existe un nido con al menos 2</text>
+<text x="360" y="70" text-anchor="middle" fill="#9A9488" font-size="14">no dice cuál: solo existencia</text>
+</svg></div>
+<h2>Ejemplo resuelto 1 — meses</h2>
+<p>En un grupo de 13 personas, ¿se puede asegurar que al menos dos cumplen años el mismo mes?</p>
+<ol class="pasos">
+<li>Hay 12 meses = 12 «cajas».<span class="glosa">Glosa: cada mes es un nido del palomar.</span></li>
+<li>13 personas = 13 «palomas». Como 13 = 12+1, el palomar simple aplica.<span class="glosa">Glosa: n=12, n+1=13.</span></li>
+<li>Conclusión: algún mes contiene al menos dos cumpleaños.<span class="glosa">Glosa: no identificamos el mes; solo garantizamos que existe.</span></li>
+<li>Si fueran 12 personas, podría haber una por mes y no forzaríamos el doble.<span class="glosa">Glosa: el +1 es esencial.</span></li>
+</ol>
+<h2>Ejemplo resuelto 2 — inclusión-exclusión</h2>
+<p>En un grupo, 20 personas hablan inglés (A), 15 hablan francés (B) y 6 hablan los dos. Halla cuántas hablan al menos un idioma, es decir |A∪B|.</p>
+<ol class="pasos">
+<li>Si sumas |A| + |B| = 20 + 15 = 35, las 6 personas de la intersección entran dos veces: una por inglés y otra por francés.<span class="glosa">Glosa: el síntoma del doble conteo es que la suma de los dos conjuntos supera a la unión; 35 no es el número de personas.</span></li>
+<li>La inclusión-exclusión resta una sola vez lo que sobra: |A∪B| = |A| + |B| − |A∩B| = 20 + 15 − 6 = 29.<span class="glosa">Glosa: restar |A∩B| exactamente una vez deja a cada persona contada una sola vez, ni cero ni dos.</span></li>
+<li>Comprueba por regiones del diagrama. Solo A: 20 − 6 = 14. Solo B: 15 − 6 = 9. Ambos: 6. La suma 14 + 9 + 6 = 29 coincide con la fórmula.<span class="glosa">Glosa: el desglose no es otro resultado; es la misma unión partida en tres trozos disjuntos.</span></li>
+<li>Si no restaras, dirías 35 y contarías a las bilingües como dos personas. Si restaras dos veces, 20 + 15 − 12 = 23, las habrías borrado del todo.<span class="glosa">Glosa: las dos desviaciones (no restar, o restar de más) se cazan comparando con las tres regiones.</span></li>
+</ol>
+<h2>Ejemplo resuelto 3 — calcetines (peor caso)</h2>
+<p>En un cajón hay calcetines de 3 colores, muchos de cada uno. ¿Cuántos debes sacar a ciegas para garantizar al menos 3 del mismo color?</p>
+<ol class="pasos">
+<li>El palomar, en la forma «al menos k+1 en alguna casilla», mira el peor reparto, no un caso favorable. Quieres 3 iguales, así que el peor caso es quedarte en 2 por color.<span class="glosa">Glosa: garantizar significa que ya no exista ningún reparto que se escape; no basta con que «pueda ocurrir».</span></li>
+<li>Con n = 3 colores y k = 2 calcetines por color, ese peor caso tiene k·n = 2·3 = 6 calcetines y todavía ningún color llega a 3.<span class="glosa">Glosa: k es uno menos que la cantidad que quieres forzar; n es el número de casillas, aquí los colores.</span></li>
+<li>El calcetín siguiente, el 7º, cae en un color que ya tiene 2 y ese color pasa a 3. La cuenta es k·n + 1 = 6 + 1 = 7.<span class="glosa">Glosa: el +1 rompe el empate del peor caso; sin él solo has descrito una situación que aún no garantiza nada.</span></li>
+<li>Con 3 no basta: podrías sacar uno de cada color. Con 6 tampoco, por el paso 2. Siete es el primer número que cierra todas las escapatorias.<span class="glosa">Glosa: no confundas «el mínimo que garantiza» con «el mínimo con el que a veces ya lo consigues».</span></li>
+</ol>
+<h2>Ejercicios</h2>
+<article class="ej"><h3>1. Días de la semana</h3><p>En una clase de 25, ¿se puede asegurar que al menos 3 nacieron el mismo día de la semana? Justifica con k·n+1.</p><label for="e3a">Tu resolución</label><textarea class="editor" id="e3a" placeholder="Escribe aquí el razonamiento completo…"></textarea><details class="porque"><summary>Por qué (abre cuando hayas escrito)</summary><p>Hay n=7 días. Para forzar al menos 3 en un día usas k=2: el peor caso es 2 por día = 14 personas; la persona 15ª fuerza un tercero en algún día. Como 25&gt;14, sí se asegura. El principio da existencia, no el día concreto. Si la clase tuviera solo 14, aún podrías tener exactamente 2 por día y no garantizar 3.</p></details></article>
+<article class="ej"><h3>2. Unión</h3><p>|A|=12, |B|=9, |A∩B|=4. Calcula |A∪B| y explica qué representa cada sumando y el resto.</p><label for="e3b">Tu resolución</label><textarea class="editor" id="e3b" placeholder="Escribe aquí el razonamiento completo…"></textarea><details class="porque"><summary>Por qué (abre cuando hayas escrito)</summary><p>|A∪B|=12+9−4=17. El 12 cuenta a todos los de A; el 9 a todos los de B; al sumar, los 4 de la intersección van dos veces, así que restas 4 una vez. Equivalente: solo A = 8, solo B = 5, ambos = 4; 8+5+4=17. Sin restar obtendrías 21, hinchado.</p></details></article>
+<article class="ej"><h3>3. Calcetines 4 colores</h3><p>Misma lógica: garantizar 3 del mismo color con 4 colores. ¿Cuántos sacas? Explica el peor caso.</p><label for="e3c">Tu resolución</label><textarea class="editor" id="e3c" placeholder="Escribe aquí el razonamiento completo…"></textarea><details class="porque"><summary>Por qué (abre cuando hayas escrito)</summary><p>Peor caso: 2 de cada color = 8; el 9º fuerza un tercero de algún color. Es k·n+1 con k=2, n=4. Sacar 3 no garantiza nada (podrían ser tres colores distintos). «Garantizar» mira el escenario adversario, no el afortunado.</p></details></article>
+<canvas id="lienzo03" class="lienzo" width="900" height="280"></canvas><div class="fila"><button type="button" class="boton" data-clear="lienzo03">Borrar lienzo</button></div>
+</section>
+
+<section class="bloque-cuerpo">
+  <h2>Comprueba</h2>
+  <p class="dato">Tres preguntas. Responde mentalmente antes de abrir el porqué.</p>
+  <details class="porque"><summary>¿El palomar dice qué caja tiene el mínimo?</summary><p>No. Solo garantiza que existe al menos una caja con el número anunciado. La prueba supone lo contrario (todas por debajo del umbral) y obtiene que el total sería demasiado pequeño. Por eso el enunciado correcto dice «alguna» o «al menos una», nunca «la caja número 3».</p></details>
+<details class="porque"><summary>¿Por qué restar la intersección en la unión?</summary><p>Porque |A|+|B| cuenta dos veces cada elemento de A∩B. Restar |A∩B| una vez deja cada elemento de la unión contado exactamente una vez. Es la versión de dos conjuntos de la inclusión-exclusión; sin ese resto el cardinal queda sistemáticamente hinchado.</p></details>
+<details class="porque"><summary>Fórmula para garantizar k+1 en n cajas</summary><p>Sacas k·n+1 objetos. El peor caso llena cada caja con exactamente k; el objeto siguiente rompe ese equilibrio y alguna caja pasa a k+1. Por eso 3 colores y garantizar 3 iguales pide 2·3+1=7, no 3.</p></details>
+</section>
+<section class="bloque-reto">
+  <span class="etiqueta-reto">Reto Profesor</span>
+  <h2 class="titulo-reto">Palomar real</h2>
+  <p>Inventa un palomar con taquillas o filas del aula; escribe n, k y el número que garantiza el forzamiento.</p>
+  <p class="reto-id">reto_id: bach1-mates-gen-L03</p>
+</section>
+<footer class="leccion-pie"><strong>Les vencimos</strong> · L03 de 38 · Matemáticas Generales · staging · file:// · sin publicar</footer>
+</div>
+<script type="application/json" data-maestro="guion">{"curso": "bach1-mates-gen", "leccion": 3, "titulo": "Palomar e inclusión-exclusión", "url": "leccion-03-palomar-e-inclusion-exclusion.html", "musica": false, "pasos": [{"id": "abrir", "dicho": "Lección 03: Palomar e inclusión-exclusión. Cuando sobran palomas.", "hacer": "Leer situarte y los objetivos en voz alta."}, {"id": "idea", "dicho": "Hoy trabajamos: A.1 Palomar. Mira el gráfico SVG antes de los números.", "hacer": "Observar la figura y nombrar qué representa cada símbolo."}, {"id": "ej1", "dicho": "Primer ejemplo resuelto: sigue cada paso y la glosa debajo.", "hacer": "Recalcular el ejemplo 1 en papel o en el editor."}, {"id": "ej2", "dicho": "Segundo ejemplo: cambia el contexto pero no la herramienta.", "hacer": "Recalcular el ejemplo 2 y comparar con el 1."}, {"id": "practica", "dicho": "Ahora los ejercicios: escribe el razonamiento completo, no solo el número.", "hacer": "Resolver al menos dos ejercicios; dibujar en el lienzo si pide figura."}, {"id": "lab", "dicho": "Si hay laboratorio, ábrelo y prueba un caso distinto al del texto.", "hacer": "Usar el lab o el iframe embebido."}, {"id": "comprueba", "dicho": "Comprueba: responde mentalmente antes de abrir el porqué.", "hacer": "Hacer las tres preguntas del bloque Comprueba."}, {"id": "reto", "dicho": "Cierra con el reto Profesor: deja constancia escrita.", "hacer": "Escribir el reto en el editor o en el portfolio."}]}</script>
+<script>(function(){function liga(c){var ctx=c.getContext('2d');function fondo(){ctx.fillStyle='#161512';ctx.fillRect(0,0,c.width,c.height);ctx.strokeStyle='#C4A15A';ctx.strokeRect(.5,.5,c.width-1,c.height-1);}function fit(){var r=c.getBoundingClientRect();var w=Math.max(320,Math.floor(r.width));if(c.width!==w){c.width=w;c.height=280;fondo();}}var dib=false,last=null;function pos(ev){var r=c.getBoundingClientRect();var s=ev.touches?ev.touches[0]:ev;return{x:(s.clientX-r.left)*c.width/r.width,y:(s.clientY-r.top)*c.height/r.height};}c.addEventListener('pointerdown',function(ev){dib=true;last=pos(ev);ev.preventDefault();});c.addEventListener('pointermove',function(ev){if(!dib)return;var p=pos(ev);ctx.strokeStyle='#E6E1D6';ctx.lineWidth=2.2;ctx.lineCap='round';ctx.beginPath();ctx.moveTo(last.x,last.y);ctx.lineTo(p.x,p.y);ctx.stroke();last=p;ev.preventDefault();});function up(){dib=false;}c.addEventListener('pointerup',up);c.addEventListener('pointerleave',up);var b=document.querySelector('[data-clear="'+c.id+'"]');if(b)b.addEventListener('click',fondo);fit();window.addEventListener('resize',fit);}document.querySelectorAll('canvas.lienzo').forEach(liga);})();</script>
+</body>
+</html>

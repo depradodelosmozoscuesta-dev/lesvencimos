@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="color-scheme" content="dark">
+<title>L30 · Una pantalla o un módulo, sin memorizar registros · les vencimos</title>
+<style>
+:root{--bg:#0E0E0C;--surf:#161512;--panel:#1C1A16;--ink:#E6E1D6;--mut:#9A9488;--acc:#C4A15A;--acc-ink:#1A160E;--danger:#C46A4A;--ok:#8F9A72;--line:#2A2720}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:400 17px/1.55 "Segoe UI",system-ui,sans-serif}
+h1,h2,h3{font-family:"Iowan Old Style",Palatino,Georgia,serif;font-weight:600;line-height:1.25}
+a{color:var(--acc)}
+.wrap{max-width:42rem;margin:0 auto;padding:1.25rem 1.1rem 3.5rem}
+header.top{border-bottom:1px solid var(--line);padding-bottom:.8rem;margin-bottom:1.2rem}
+.marca{font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;color:var(--mut);margin:0}
+h1{font-size:1.7rem;margin:.35rem 0 .2rem}
+.meta{color:var(--mut);margin:0 0 .8rem;font-size:.92rem}
+nav.pasos{display:flex;flex-wrap:wrap;gap:.5rem;margin:.4rem 0 0}
+nav.pasos a,button{min-height:44px;padding:.45rem .8rem;border:1px solid var(--line);border-radius:2px;background:var(--surf);color:var(--ink);font:inherit;text-decoration:none;cursor:pointer}
+button.acc{background:var(--acc);color:var(--acc-ink);border-color:var(--acc);font-weight:600}
+.maestro{background:var(--panel);border:1px solid var(--line);padding:1rem 1.05rem;margin:1.1rem 0}
+.maestro h2{margin:.1rem 0 .6rem;font-size:1.05rem;color:var(--acc)}
+pre{background:var(--surf);border:1px solid var(--line);padding:.9rem 1rem;overflow:auto;font-size:.88rem;line-height:1.45}
+.warn{border-left:3px solid var(--danger);padding:.2rem 0 .2rem .8rem;color:var(--ink)}
+.quiz{margin-top:1.2rem}
+figure{margin:1rem 0;background:#161512;border:1px solid var(--line);padding:.55rem .7rem}
+figure svg{width:100%;height:auto;display:block}
+figcaption{color:var(--mut);font-size:.9rem;margin:.45rem 0 0}
+.ejemplo{background:#161512;border:1px solid var(--line);padding:.8rem .95rem;margin:.7rem 0}
+.ejemplo h3{margin:.1rem 0 .4rem;font-size:1.05rem}
+
+.pregunta{background:var(--surf);border:1px solid var(--line);padding:.8rem 1rem;margin:.7rem 0}
+.respuesta{color:var(--ok);margin:.55rem 0 0}
+footer{margin-top:2.2rem;padding-top:.8rem;border-top:1px solid var(--line);color:var(--mut);font-size:.82rem}
+.pend{color:var(--mut)}
+ol.temario{padding-left:1.2rem}
+ol.temario li{margin:.28rem 0}
+
+.sim,.anota{margin:1rem 0;background:#161512;border:1px solid var(--line);padding:.8rem .9rem}
+.sim h2,.anota h2{margin:.1rem 0 .4rem;font-size:1.15rem}
+.sim-canvas{width:100%;height:auto;background:#1C1A16;border:1px solid var(--line);margin:.6rem 0;display:block}
+.sim-lab{display:flex;align-items:center;gap:.6rem;margin:.4rem 0;color:var(--ink)}
+.sim-range{flex:1;min-height:44px}
+.sim-out{min-width:3rem;color:var(--acc)}
+.sim-dedo{margin-top:.4rem}
+textarea.nota-montaje{width:100%;min-height:8rem;background:#1C1A16;color:var(--ink);border:1px solid var(--line);padding:.7rem;font:inherit;line-height:1.45}
+
+</style>
+</head>
+<body>
+<article class="wrap" id="ens-pantalla-modulo" data-ens="ens-pantalla-modulo">
+<header class="top">
+<p class="marca">les vencimos · offline</p>
+<h1>L30. Una pantalla o un módulo, sin memorizar registros</h1>
+<p class="meta">Hablar con otros (84–92%)</p>
+<nav class="pasos"><a href="../arduino-ensenanza.html">Al curso</a><a href="leccion-29.html">Anterior</a><a href="leccion-31.html">Siguiente</a></nav>
+</header>
+<section class="maestro" id="maestro">
+<h2>Maestro</h2>
+<p id="maestro-texto">Una pantalla pequeña no se controla encendiendo píxeles con digitalWrite. Habla por un bus y una biblioteca traduce tus frases a los registros del controlador. Tú llamas a una función con sentido, por ejemplo poner el cursor y escribir una palabra. Los números de registro se quedan dentro de la biblioteca.</p>
+<button type="button" class="acc" id="escuchar">Escuchar</button>
+</section>
+<section class="lectura">
+<p>El patrón, sea una pantalla de dos líneas o un sensor con nombre raro, es el mismo. Incluyes la biblioteca. En setup arrancas el módulo. En loop le pides gestos: borra, escribe, mide. Si la biblioteca no está en el entorno, el sketch no compila, y el remedio no es copiar registros de un foro. El remedio es instalar esa biblioteca, y ese paso vive en Software.</p>
+<p>Antes de escribir, cuatro cables bien dichos: 5V o 3,3 según la serigrafía, GND común, y los dos del bus al pin que toca. Una pantalla de 5 voltios en un Uno va a 5V. La misma pantalla en una placa de 3,3 no se alimenta a 5. Si el módulo trae un regulador propio, lo dice el catálogo Hardware, no una suposición.</p>
+<p>Cuando compile y la pantalla siga en blanco, no añadas código. Bajas el brillo o el contraste si tiene un tornillo, revisas la dirección I2C si el módulo lo permite, y solo entonces vuelves al programa. Muchas pantallas mudas están vivas con el contraste al mínimo.</p>
+<p>Esta lección no trae un sketch único a propósito. Pegar uno de una pantalla concreta y no tener esa pantalla enseña poco. El ejercicio es leer qué función de la biblioteca hace el gesto, y negarte a copiar un registro suelto.</p>
+</section>
+<h2>Montaje</h2>
+<figure><svg viewBox="0 0 640 170" aria-label="Pantalla como módulo"><rect x="16" y="30" width="180" height="110" rx="6" fill="#1C1A16" stroke="#C4A15A"/><text x="106.0" y="48" text-anchor="middle" fill="#E6E1D6" font-size="13">Antes</text><text x="26" y="68" fill="#9A9488" font-size="11">LED 13 dice sí o no</text><text x="26" y="84" fill="#9A9488" font-size="11">el número no se ve</text><rect x="280" y="36" width="220" height="90" rx="6" fill="#161512" stroke="#C4A15A"/><text x="390" y="88" text-anchor="middle" fill="#C4A15A" font-size="22">512</text><rect x="520" y="30" width="100" height="110" rx="6" fill="#1C1A16" stroke="#C4A15A"/><text x="570.0" y="48" text-anchor="middle" fill="#E6E1D6" font-size="13">Ojo</text><text x="530" y="68" fill="#9A9488" font-size="11">5 V o 3,3</text><text x="530" y="84" fill="#9A9488" font-size="11">mira la seda</text></svg><figcaption>La pantalla I2C muestra el número que antes solo iba al monitor. Sigue en A4 y A5. Si tu módulo es de 3,3 V, no lo fuerces.</figcaption></figure>
+<h2>Pines de esta lección</h2>
+<figure><svg viewBox="0 0 340 118" aria-label="Pines de la lección"><rect x="6" y="16" width="328" height="86" rx="8" fill="#1C1A16" stroke="#C4A15A"/><text x="16" y="14" fill="#9A9488" font-size="11">Uno R3 · 5 V · mira la serigrafía, no la memoria</text><rect x="16" y="32" width="68" height="32" rx="4" fill="#161512" stroke="#C4A15A"/><text x="50" y="53" text-anchor="middle" fill="#E6E1D6" font-size="13">A4</text><text x="50" y="84" text-anchor="middle" fill="#9A9488" font-size="10">SDA</text><rect x="94" y="32" width="68" height="32" rx="4" fill="#161512" stroke="#9A9488"/><text x="128" y="53" text-anchor="middle" fill="#E6E1D6" font-size="13">A5</text><text x="128" y="84" text-anchor="middle" fill="#9A9488" font-size="10">SCL</text><rect x="172" y="32" width="68" height="32" rx="4" fill="#161512" stroke="#9A9488"/><text x="206" y="53" text-anchor="middle" fill="#E6E1D6" font-size="13">5 V</text><text x="206" y="84" text-anchor="middle" fill="#9A9488" font-size="10">si el módulo lo dice</text><rect x="250" y="32" width="68" height="32" rx="4" fill="#161512" stroke="#9A9488"/><text x="284" y="53" text-anchor="middle" fill="#E6E1D6" font-size="13">GND</text><text x="284" y="84" text-anchor="middle" fill="#9A9488" font-size="10">común</text></svg><figcaption>Misma masa, alimentación correcta, y el potenciómetro o el LDR que quieras mostrar se queda en A0, no en A4.</figcaption></figure>
+<h2>Por qué</h2>
+<p>Una pantalla no es un pin más brillante. Es un módulo con dirección, librería y bus. El curso no copia aquí el manual de todas las librerías: eso vive en Software. Aquí se entiende el sitio: el número que analogRead devuelve puede pintarse, y deja de hacer falta el portátil para verlo. El portátil sigue haciendo falta para cargar el programa.</p><p>El fallo típico es la dirección. Muchas pantallas pequeñas de 16 por 2 por I2C escuchan en una de dos direcciones habituales. Si la librería usa la otra, la pantalla enciende luz de fondo y no escribe. No está desconectada SDA: está sorda a ese nombre. Prueba la otra dirección que documente tu módulo antes de recablear.</p><p>Contraste. Hay un potenciómetro minúsculo en la trasera de algunas placas. Al extremo, los caracteres existen y no se ven, o se ven cuadros negros. Un cuarto de vuelta distingue un fallo de bus de un fallo de vista.</p><p>No alimentes la luz de fondo y el módulo desde un pin digital. VCC al 5 V de la placa si el módulo es de 5 V. El pin de datos no da la corriente de la luz.</p><h2>Práctica</h2>
+<ol><li>Cablea como en la lección del bus, solo si el voltaje coincide.</li><li>Deja A0 con el potenciómetro o el LDR para tener un número que merezca verse.</li><li>Carga un ejemplo mínimo de tu librería, el de poner una letra, no un proyecto entero.</li><li>Si hay luz y no hay letra, gira el contraste un pelo.</li><li>Si no hay nada, invierte SDA y SCL una vez, prueba, y déjalos como la seda si no era eso.</li><li>Escribe en la pantalla el valor de A0 solo cuando hayas visto una letra fija. Primero la letra, luego el sensor.</li><li>Quita el módulo si la siguiente lección no lo usa, para liberar A4 y A5.</li></ol><section class="anota"><h2>Anota el montaje</h2><p>Escribe qué cable va a qué pin, o qué has entendido del paso. Se guarda en este aparato.</p><textarea class="nota-montaje" rows="6" placeholder="Pin, color del cable, a qué agujero."></textarea></section><h2>Ejemplos resueltos</h2>
+<div class="ejemplo"><h3>Luz de fondo sí, texto no</h3><p>El bus está alimentado y el contraste está al extremo. O la dirección es la otra. Las dos cosas parecen el mismo síntoma.</p><p>Primero un cuarto de vuelta al contraste. Si aparecen cuadros, el bus habla y solo faltaba verlo. Si no aparece nada, se prueba la otra dirección del módulo. No se cambian las dos a la vez.</p></div><div class="ejemplo"><h3>El número de A0 no cambia en la pantalla</h3><p>Se pinta el número una vez en setup. loop no vuelve a leer. La pantalla muestra el valor del arranque para siempre.</p><p>La lectura y el pintado van en loop, con una espera corta o con millis, para que el ojo pueda seguir el giro.</p></div><h2>En la mesa</h2>
+<p>Primero consigue una letra fija, la que sea, antes de pintar el sensor. Una letra demuestra bus, dirección, contraste y alimentación de un golpe. El sensor, si falla después, ya no puede culpar a la pantalla. Si inviertes el orden y no se ve el número, son cinco causas a la vez.</p>
+<p>Gira el contraste un cuarto de vuelta con un destornillador pequeño, no con una llave grande que patine y rompa el tornillo. Si aparecen cuadros negros, date la vuelta un poco hasta ver huecos. Si no aparece ni el cuadro, deja el tornillo y prueba la otra dirección. Una cosa cada vez.</p>
+<p>Cuando el número de A0 cambie en la pantalla al girar, desenchufa y vuelve a enchufar. Tiene que reaparecer solo, sin el ordenador, si la alimentación de la pantalla sale de la placa. Si solo vive con el monitor abierto, estás leyendo el ordenador y creyendo que es la pantalla. Mira la pantalla, no el monitor, para el examen.</p>
+
+<h2>Ejercicio</h2>
+<p>Si tienes una pantalla o un módulo con biblioteca, localiza en el ejemplo oficial tres funciones: la que arranca, la que limpia y la que escribe o mide. Anótalas con tus palabras. Si no tienes pieza, anota el bus y la tensión que exigirías ver en la serigrafía antes de cablear.</p>
+<section class="quiz">
+<h2>Autoevaluación</h2>
+<div class="pregunta"><p><strong>1.</strong> ¿Quién traduce una palabra a los registros de la pantalla?</p><button type="button" class="ver">ver respuesta</button><p class="respuesta" hidden>La biblioteca. No tu memoria.</p></div><div class="pregunta"><p><strong>2.</strong> Si el sketch no compila porque falta la biblioteca, ¿se copian registros a mano?</p><button type="button" class="ver">ver respuesta</button><p class="respuesta" hidden>No. Se instala la biblioteca. Ese paso es de Software.</p></div><div class="pregunta"><p><strong>3.</strong> Una pantalla en blanco y el programa ya subido, ¿qué miras antes de reescribir?</p><button type="button" class="ver">ver respuesta</button><p class="respuesta" hidden>Contraste, alimentación, masa y dirección. Luego el código.</p></div>
+</section>
+<footer>les vencimos · Arduino Enseñanza · offline</footer>
+</article>
+<script>
+document.querySelectorAll("button.ver").forEach(function(b){
+  b.addEventListener("click", function(){
+    var r = b.parentElement.querySelector(".respuesta");
+    if(!r) return;
+    r.hidden = !r.hidden;
+    b.textContent = r.hidden ? "ver respuesta" : "ocultar respuesta";
+  });
+});
+var btn = document.getElementById("escuchar");
+if(btn){
+  btn.addEventListener("click", function(){
+    var el = document.getElementById("maestro-texto");
+    var texto = el ? el.textContent : "";
+    if(window.LesVencimosMaestro && typeof window.LesVencimosMaestro.decir === "function"){
+      window.LesVencimosMaestro.decir(texto);
+      return;
+    }
+    if(!window.speechSynthesis || typeof window.SpeechSynthesisUtterance !== "function") return;
+    window.speechSynthesis.cancel();
+    var u = new SpeechSynthesisUtterance(texto);
+    u.lang = "es-ES";
+    u.rate = 0.95;
+    window.speechSynthesis.speak(u);
+  });
+}
+
+document.querySelectorAll("textarea.nota-montaje").forEach(function(ta){
+  var art = document.querySelector("[data-ens]");
+  var key = "lv-ens-nota-" + (art ? art.getAttribute("data-ens") : "leccion");
+  try {
+    var prev = localStorage.getItem(key);
+    if(prev) ta.value = prev;
+    ta.addEventListener("input", function(){ localStorage.setItem(key, ta.value); });
+  } catch (e) {}
+});
+var sim = document.querySelector("section.sim");
+if(sim){
+  var canvas = sim.querySelector("canvas.sim-canvas");
+  var ctx = canvas.getContext("2d");
+  var kind = sim.getAttribute("data-sim");
+  var da = sim.getAttribute("data-a") || "";
+  var db = sim.getAttribute("data-b") || "";
+  var toggle = sim.querySelector(".sim-toggle");
+  var range = sim.querySelector(".sim-range");
+  var out = sim.querySelector(".sim-out");
+  var dedo = sim.querySelector(".sim-dedo");
+  var vivo = true;
+  var pulsado = false;
+  var permiso = true;
+  var ledOn = false;
+  var ultimoFlanco = 0;
+  var t0 = Date.now();
+  function num(el, fallo){ return el ? parseInt(el.value, 10) : fallo; }
+  if(dedo && kind !== "noche"){
+    dedo.addEventListener("pointerdown", function(ev){
+      pulsado = true;
+      if(kind === "flanco"){
+        var ahora = Date.now();
+        if(ahora - ultimoFlanco > 30){
+          ledOn = !ledOn;
+          ultimoFlanco = ahora;
+        }
+      }
+      ev.preventDefault();
+    });
+    window.addEventListener("pointerup", function(){ pulsado = false; });
+  }
+  if(dedo && kind === "noche"){
+    dedo.addEventListener("click", function(){
+      permiso = !permiso;
+      dedo.setAttribute("aria-pressed", permiso ? "true" : "false");
+      dedo.textContent = permiso ? "Permiso dado" : "Sin permiso";
+    });
+  }
+  if(toggle){
+    toggle.addEventListener("click", function(){
+      vivo = !vivo;
+      toggle.setAttribute("aria-pressed", vivo ? "true" : "false");
+      toggle.textContent = vivo ? "Parar simulación" : "Encender simulación";
+    });
+  }
+  function circulo(x, y, r, on, nivel){
+    ctx.beginPath();
+    ctx.arc(x, y, r, 0, Math.PI * 2);
+    if(on){
+      var a = nivel == null ? 1 : nivel;
+      ctx.fillStyle = "rgba(196,161,90," + (0.25 + 0.75 * a) + ")";
+      ctx.shadowColor = "#C4A15A";
+      ctx.shadowBlur = 16 * a;
+    } else {
+      ctx.fillStyle = "#2A2720";
+      ctx.shadowBlur = 0;
+    }
+    ctx.fill();
+    ctx.shadowBlur = 0;
+    ctx.lineWidth = 2;
+    ctx.strokeStyle = on ? "#C4A15A" : "#9A9488";
+    ctx.stroke();
+  }
+  function caja(x, y, w, h, titulo){
+    ctx.fillStyle = "#161512";
+    ctx.strokeStyle = "#C4A15A";
+    ctx.lineWidth = 2;
+    ctx.fillRect(x, y, w, h);
+    ctx.strokeRect(x, y, w, h);
+    ctx.fillStyle = "#E6E1D6";
+    ctx.font = "14px sans-serif";
+    ctx.fillText(titulo, x + 10, y + 22);
+  }
+  function texto(x, y, s, col){
+    ctx.fillStyle = col || "#E6E1D6";
+    ctx.font = "13px sans-serif";
+    ctx.fillText(s, x, y);
+  }
+  function frame(){
+    var ahora = Date.now();
+    var lectura = num(range, 0);
+    var enciende = false;
+    var nivel = 1;
+    var etiqueta = "";
+    if(kind === "blink"){
+      var hi = parseInt(da, 10) || 500;
+      var lo = parseInt(db, 10) || 500;
+      var ciclo = hi + lo;
+      var fase = vivo ? ((ahora - t0) % ciclo) : 0;
+      enciende = vivo && fase < hi;
+      etiqueta = enciende ? "HIGH" : "LOW";
+    } else if(kind === "hold"){
+      enciende = vivo && pulsado;
+      etiqueta = pulsado ? "LOW, pulsado" : "HIGH, suelto";
+    } else if(kind === "nivel"){
+      enciende = vivo && pulsado;
+      etiqueta = pulsado ? "lectura LOW" : "lectura HIGH";
+    } else if(kind === "flanco"){
+      enciende = vivo && ledOn;
+      etiqueta = enciende ? "LED encendido" : "LED apagado";
+    } else if(kind === "umbral"){
+      var umbral = parseInt(da, 10);
+      enciende = vivo && (db === "lt" ? lectura < umbral && lectura > 0 : lectura > umbral);
+      if(sim.getAttribute("data-sim") === "umbral" && da === "20"){
+        enciende = vivo && lectura > 0 && lectura < umbral;
+      }
+      etiqueta = String(lectura);
+      nivel = 1;
+    } else if(kind === "pwm"){
+      nivel = vivo ? lectura / 255 : 0;
+      enciende = vivo && lectura > 0;
+      etiqueta = String(lectura);
+    } else if(kind === "servo"){
+      var span = 140;
+      var pos = vivo ? ((ahora - t0) % 2800) / 2800 : 0.5;
+      var tri = pos < 0.5 ? pos * 2 : (1 - pos) * 2;
+      var grados = Math.round(20 + tri * span);
+      if(range) range.value = String(grados);
+      lectura = grados;
+      enciende = vivo;
+      etiqueta = grados + " grados";
+    } else if(kind === "buzz"){
+      var fb = vivo ? ((ahora - t0) % 1000) : 500;
+      etiqueta = fb < 300 ? "440" : (fb < 600 ? "880" : "silencio");
+      enciende = vivo && fb < 600;
+    } else if(kind === "carga"){
+      var fc = vivo ? ((ahora - t0) % 4000) : 2000;
+      enciende = vivo && fc < 2000;
+      etiqueta = enciende ? "pin en HIGH" : "pin en LOW";
+    } else if(kind === "semi"){
+      var fs = vivo ? ((ahora - t0) % 3500) : 0;
+      etiqueta = fs < 1500 ? "rojo" : (fs < 2000 ? "ambar" : "verde");
+      enciende = vivo;
+    } else if(kind === "alarma"){
+      enciende = vivo && lectura > 0 && lectura < 20;
+      etiqueta = lectura + " cm";
+    } else if(kind === "noche"){
+      var noche = lectura < 400 && permiso;
+      enciende = vivo && noche;
+      nivel = enciende ? 180/255 : 0;
+      etiqueta = (permiso ? "con permiso" : "sin permiso") + " · " + lectura;
+    }
+    if(out) out.textContent = etiqueta;
+    ctx.clearRect(0, 0, 320, 160);
+    ctx.fillStyle = "#1C1A16";
+    ctx.fillRect(0, 0, 320, 160);
+    caja(12, 28, 90, 100, "Uno");
+    if(kind === "semi"){
+      var fs2 = vivo ? ((ahora - t0) % 3500) : 0;
+      circulo(160, 48, 14, vivo && fs2 < 1500, 1);
+      circulo(210, 48, 14, vivo && fs2 >= 1500 && fs2 < 2000, 1);
+      circulo(260, 48, 14, vivo && fs2 >= 2000, 1);
+      texto(150, 78, "10 rojo");
+      texto(198, 78, "11");
+      texto(248, 78, "12 verde");
+      texto(16, 150, vivo ? "ciclo en marcha" : "simulación parada", "#9A9488");
+    } else if(kind === "servo"){
+      var rad = (180 - lectura) * Math.PI / 180;
+      ctx.strokeStyle = "#C4A15A";
+      ctx.lineWidth = 4;
+      ctx.beginPath();
+      ctx.moveTo(200, 110);
+      ctx.lineTo(200 + Math.cos(rad) * 70, 110 - Math.sin(rad) * 50);
+      ctx.stroke();
+      circulo(200, 110, 8, true, 1);
+      texto(120, 150, etiqueta);
+    } else if(kind === "buzz" || kind === "alarma"){
+      circulo(150, 80, 18, kind === "alarma" ? enciende : false, 1);
+      texto(176, 76, kind === "alarma" ? "LED 13" : "");
+      ctx.beginPath();
+      ctx.arc(250, 80, 22, 0, Math.PI * 2);
+      ctx.strokeStyle = enciende ? "#C4A15A" : "#9A9488";
+      ctx.lineWidth = 3;
+      ctx.stroke();
+      if(enciende){
+        ctx.beginPath();
+        ctx.arc(250, 80, 32, 0, Math.PI * 2);
+        ctx.stroke();
+      }
+      texto(120, 140, etiqueta);
+    } else if(kind === "carga"){
+      circulo(170, 70, 16, enciende, 1);
+      texto(196, 66, "orden");
+      ctx.strokeStyle = enciende ? "#8F9A72" : "#9A9488";
+      ctx.strokeRect(230, 48, 70, 44);
+      texto(242, 74, enciende ? "carga" : "quieta", enciende ? "#8F9A72" : "#9A9488");
+      texto(16, 150, etiqueta, "#9A9488");
+    } else {
+      circulo(200, 78, 18, enciende, nivel);
+      texto(230, 74, "LED");
+      texto(16, 150, etiqueta, "#9A9488");
+    }
+    if(!vivo){
+      texto(230, 150, "parada", "#9A9488");
+    }
+    requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+}
+
+</script>
+</body>
+</html>

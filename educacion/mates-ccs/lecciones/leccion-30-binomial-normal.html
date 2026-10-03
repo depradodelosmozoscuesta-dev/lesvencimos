@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<meta name="theme-color" content="#0E0E0C"/>
+<title>Lección 30 · Binomial y normal · Les vencimos</title>
+<link rel="icon" href="../icons/favicon.svg" type="image/svg+xml"/>
+<link rel="stylesheet" href="../leccion-shell.css"/>
+<style>
+  .pasos{list-style:none;margin:0 0 1rem;padding:0;counter-reset:paso}
+  .pasos li{position:relative;margin:0 0 .7rem;padding:.7rem .8rem .7rem 3.1rem;background:var(--lv-panel);border:1px solid var(--lv-linea);border-radius:10px}
+  .pasos li::before{counter-increment:paso;content:counter(paso);position:absolute;left:.65rem;top:.7rem;width:1.7rem;height:1.7rem;border-radius:50%;background:#C4A15A;color:#1A160E;font-weight:700;font-size:.9rem;display:flex;align-items:center;justify-content:center}
+  .figura-svg{background:var(--lv-panel);border:1px solid var(--lv-linea);border-radius:10px;padding:.4rem;margin:.4rem 0 1rem}
+  .figura-svg svg{width:100%;height:auto;display:block}
+  .ej{margin:0 0 1rem;padding:.85rem .95rem;background:var(--lv-panel);border:1px solid var(--lv-linea);border-left:3px solid #C4A15A;border-radius:10px}
+  .ej h3{margin:0 0 .35rem;font-family:var(--lv-serif);font-size:1.05rem;color:var(--lv-titulo)}
+  .editor,textarea.editor{width:100%;min-height:5.2rem;font-family:ui-monospace,monospace;font-size:.95rem;line-height:1.4;padding:.55rem .65rem;border:1px solid rgba(196,161,90,.45);border-radius:8px;background:#161512;color:#E6E1D6;resize:vertical;box-sizing:border-box}
+  .lienzo{display:block;width:100%;max-width:640px;height:280px;background:#161512;border:1px solid #C4A15A;border-radius:8px;touch-action:none;cursor:crosshair}
+  .fila{display:flex;flex-wrap:wrap;gap:.4rem;margin:.45rem 0;align-items:center}
+  .boton{font:inherit;font-weight:700;font-size:.85rem;padding:.35rem .75rem;border-radius:999px;border:1px solid #C4A15A;background:transparent;color:#E6E1D6;cursor:pointer}
+  .porque{margin-top:.5rem;padding:.6rem .7rem;background:#1a2218;border-radius:8px;color:#E6E1D6}
+  .dato{font-size:.95rem;color:var(--lv-suave)}
+  table.datos{width:100%;border-collapse:collapse;margin:.4rem 0 1rem;font-size:.98rem}
+  table.datos th,table.datos td{border:1px solid var(--lv-linea);padding:.35rem .5rem;text-align:left}
+  table.datos th{background:#161512;color:#C4A15A}
+  .glosa{display:block;font-size:.9rem;color:#9A9488;margin:.15rem 0 .7rem}
+  .formula{display:block;margin:.35rem 0 .15rem;padding:.45rem .7rem;background:#161512;border-left:3px solid #C4A15A;overflow-x:auto}
+  input.campo{background:#161512;color:#E6E1D6;border:1px solid #C4A15A;border-radius:6px;padding:.3rem .45rem;width:5.5rem}
+  .salida{font-family:ui-monospace,monospace;color:#C4A15A}
+</style>
+<script src="../leccion-shell-nav.js" defer></script>
+</head>
+<body class="leccion-shell">
+<div class="leccion-wrap">
+<nav class="leccion-barra" aria-label="Navegación de lección" data-actual="30" data-total="33">
+  <div class="leccion-progreso" role="status">
+    <span class="progreso-texto"><strong>30</strong> de <strong>33</strong></span>
+    <div class="progreso-pista" aria-hidden="true"><div class="progreso-lleno" style="width:93.75%"></div></div>
+  </div>
+  <div class="leccion-atajos">
+    <a class="atajo atajo-prev" href="leccion-29-probabilidad.html">← Anterior</a>
+    <a class="atajo atajo-next" href="leccion-31-inferencia.html">Siguiente →</a>
+  </div>
+</nav>
+<header class="leccion-top">
+  <p class="leccion-marca">Les <span>vencimos</span></p>
+  <p class="leccion-meta-top">Matemáticas Aplicadas a las CCSS I · 1º Bachillerato</p>
+</header>
+<header class="bloque-titulo">
+  <span class="eyebrow">Lección 30 · D.3 · Distribuciones</span>
+  <h1 class="titulo-leccion">Binomial, normal y <em>aproximación</em></h1>
+  <p class="meta-leccion">1º Bach CCSS · CyL Decreto 40/2022 · D.3 Distribuciones binomial y normal</p>
+</header>
+
+<aside class="bloque-curiosidad"><p class="etiqueta-bloque">Para situarte</p>
+<h2 class="titulo-curiosidad">Contar éxitos, o medir una variable que no da saltos</h2>
+<p class="texto-curiosidad">La binomial cuenta éxitos en n pruebas idénticas e independientes. La normal modela una continua en forma de campana. Con n grande y np y n(1−p) holgados, la binomial se aproxima por la normal, con corrección de continuidad. La tabla de esta página es corta y redondeada, no la tabla completa.</p></aside>
+<section class="bloque-cuerpo">
+<h2>Objetivos</h2>
+<ul>
+<li>Distinguir variable aleatoria discreta y continua, y citar media y desviación típica como parámetros.</li>
+<li>Calcular a mano una binomial con n pequeño.</li>
+<li>Leer una probabilidad normal con la tabla corta de abajo y aproximar una binomial cuando se cumplen las condiciones.</li>
+</ul>
+<h2>Discreta y continua</h2>
+<p>Discreta: número de clientes que entran en una hora, número de respuestas «sí». Solo toma valores aislados. Continua: tiempo de espera, ingreso medido con toda la precisión que se quiera; la probabilidad de un punto exacto es cero y se calculan intervalos. Parámetros que usaremos: media μ y desviación típica σ. En una binomial, μ = np y σ = √(np(1−p)).</p>
+<p class="formula">P(X = k) = C(n, k) · p<sup>k</sup> · (1 − p)<sup>n − k</sup>.</p>
+<span class="glosa">n es el número de pruebas; k es el número de éxitos; p es la probabilidad de éxito en cada prueba, constante; C(n, k) cuenta de cuántas maneras se colocan esos k éxitos; 1 − p es la probabilidad de fracaso.</span>
+<h2>Tabla corta de la normal estándar</h2>
+<p>Φ(z) = P(Z ≤ z) para Z normal de media 0 y desviación típica 1. Los cuatro valores son redondeos habituales de la tabla estándar, no una tabla completa. No se deben inventar los z que faltan.</p>
+<table class="datos">
+<thead><tr><th>z</th><th>Φ(z) ≈</th></tr></thead>
+<tbody>
+<tr><td>0</td><td>0,5 exacto</td></tr>
+<tr><td>1</td><td>0,8413</td></tr>
+<tr><td>1,96</td><td>0,975</td></tr>
+<tr><td>2</td><td>0,9772</td></tr>
+</tbody>
+</table>
+<p class="formula">Φ(−z) = 1 − Φ(z).</p>
+<span class="glosa">z es una de las filas de la tabla; Φ(z) es la probabilidad acumulada por la izquierda; el complementario da la cola derecha y, por simetría, la acumulada de −z.</span>
+<div class="figura-svg"><svg viewBox="0 0 460 160" role="img">
+<title>Campana normal esquemática con marcas en 0, 1 y 2 desviaciones</title>
+<rect width="460" height="160" fill="#161512"/>
+<path d="M30 130 C 90 130, 120 130, 160 110 C 200 40, 260 40, 300 110 C 340 130, 370 130, 430 130" fill="none" stroke="#C4A15A" stroke-width="2"/>
+<line x1="230" y1="36" x2="230" y2="130" stroke="#E6E1D6"/>
+<line x1="290" y1="80" x2="290" y2="130" stroke="#9A9488"/>
+<line x1="350" y1="120" x2="350" y2="130" stroke="#9A9488"/>
+<text x="222" y="148" fill="#E6E1D6" font-size="12">0</text>
+<text x="282" y="148" fill="#E6E1D6" font-size="12">1</text>
+<text x="342" y="148" fill="#E6E1D6" font-size="12">2</text>
+</svg></div>
+<h2>Ejemplo 1. Binomial pequeña, fracciones exactas</h2>
+<p>Tres personas, cada una llega tarde con probabilidad p = 1/5, de forma independiente. X = número de personas que llegan tarde. n = 3.</p>
+<ol class="pasos">
+<li>P(X = 0) = (4/5)³ = 64/125.</li>
+<li>P(X = 1) = C(3,1)·(1/5)·(4/5)² = 3·(1/5)·(16/25) = 48/125.</li>
+<li>P(X = 2) = C(3,2)·(1/5)²·(4/5) = 3·(1/25)·(4/5) = 12/125.</li>
+<li>P(X = 3) = (1/5)³ = 1/125.</li>
+<li>Suma: 64+48+12+1 = 125, sobre 125. Cuadra.</li>
+<li>μ = np = 3/5 = 0,6. σ² = np(1−p) = (3/5)·(4/5) = 12/25 = 0,48. σ = √(12/25) = √12 / 5.</li>
+</ol>
+<p>Dejamos σ como √(0,48) o √12 / 5. No hace falta un decimal inventado.</p>
+<h2>Ejemplo 2. Normal con la tabla corta</h2>
+<p>Una puntuación de una prueba se modela como normal de media 70 y desviación típica 10.</p>
+<ol class="pasos">
+<li>P(X ≤ 80) = P(Z ≤ (80−70)/10) = P(Z ≤ 1) ≈ 0,8413.</li>
+<li>P(X ≥ 90) = P(Z ≥ 2) = 1 − 0,9772 = 0,0228.</li>
+<li>P(50 ≤ X ≤ 90) = P(−2 ≤ Z ≤ 2) = 0,9772 − (1 − 0,9772) = 0,9772 − 0,0228 = 0,9544, operando con los redondeos de la tabla.</li>
+</ol>
+<p class="formula">Z = (X − μ) / σ.</p>
+<span class="glosa">X es la puntuación; μ = 70 es la media del modelo; σ = 10 es la desviación típica; Z es la misma posición medida en número de desviaciones típicas, que es lo que entra en la tabla.</span>
+<p>Estas cifras son probabilidades del modelo normal. No son un intervalo de confianza ni un contraste: no hay aquí una muestra de la que estemos infiriendo μ.</p>
+<h2>Aproximar la binomial</h2>
+<p>Se usa cuando n es grande y tanto np como n(1−p) son holgados (una regla práctica pide al menos 10 en los dos). Entonces X, discreta, se aproxima por Y normal de media np y varianza np(1−p). Como la normal es continua, P(X ≤ k) se cambia por P(Y ≤ k + 0,5), la corrección de continuidad. P(X ≥ k) se cambia por P(Y ≥ k − 0,5).</p>
+<p>Caso que cae en la tabla: n = 25, p = 1/2. Entonces np = 12,5 y n(1−p) = 12,5, justo en la zona donde la regla de 10 empieza a cumplirse. μ = 12,5, σ = √(25/4) = 2,5. Es un n moderado, aceptable como primera aproximación y mejor cerca del centro que en una cola muy fina; con n mucho mayor la aproximación mejora.</p>
+<ol class="pasos">
+<li>P(X ≤ 17) ≈ P(Y ≤ 17,5).</li>
+<li>Z = (17,5 − 12,5) / 2,5 = 5 / 2,5 = 2.</li>
+<li>Φ(2) ≈ 0,9772.</li>
+<li>El complementario P(X ≥ 18) ≈ P(Y ≥ 17,5) = 1 − 0,9772 = 0,0228. Las dos aproximaciones suman 1, como las probabilidades exactas de «≤ 17» y «≥ 18».</li>
+</ol>
+<p class="formula">Z = (k + 0,5 − np) / √(np(1−p)).</p>
+<span class="glosa">k es el entero hasta el que se acumula la binomial; 0,5 es la corrección de continuidad; np es la media; la raíz es σ. Aquí k = 17, np = 12,5 y σ = 2,5.</span>
+<h2>Botón para n ≤ 20</h2>
+<p>Calcula C(n, k)·p<sup>k</sup>·(1−p)<sup>n−k</sup> en esta página. El coeficiente se muestra como entero. La probabilidad en decimal puede ir redondeada a seis cifras.</p>
+<div class="fila">
+<label>n <input class="campo" id="bn" value="4" inputmode="numeric"/></label>
+<label>k <input class="campo" id="bk" value="2" inputmode="numeric"/></label>
+<label>p <input class="campo" id="bp" value="0.5" inputmode="decimal"/></label>
+<button type="button" class="boton" id="b30">Calcular</button>
+</div>
+<p id="bout" class="salida">Pulsa calcular. Prueba de control: n = 4, k = 2, p = 0,5 debe dar C = 6 y probabilidad 0,375000.</p>
+<h2>Ejercicios</h2>
+<article class="ej">
+<h3>1. Clasifica</h3>
+<p>Di si es discreta o continua: número de hijos, tiempo de espera en una ventanilla, número de respuestas sí en una encuesta.</p>
+<label for="e30a">Tu razonamiento</label>
+<textarea class="editor" id="e30a"></textarea>
+<details class="porque"><summary>Corrección</summary>
+<ol class="pasos"><li>Número de hijos: discreta. Solo enteros.</li><li>Tiempo de espera: continua. Se mide en un intervalo.</li><li>Número de síes: discreta. Es un conteo, candidata a binomial si cada persona es una prueba idéntica e independiente.</li><li>La media y la desviación típica existen en los tres modelos, pero la binomial tiene además n y p.</li></ol>
+<p class="porque">Que el tiempo se anote en minutos enteros no lo vuelve discreto en el modelo: el redondeo es del registro. El número de hijos no tiene valores entre 1 y 2.</p>
+</details>
+</article>
+<article class="ej">
+<h3>2. Binomial a mano</h3>
+<p>n = 3, p = 1/2. Calcula P(X = 2), la media y la varianza.</p>
+<label for="e30b">Tu razonamiento</label>
+<textarea class="editor" id="e30b"></textarea>
+<details class="porque"><summary>Corrección</summary>
+<ol class="pasos"><li>C(3, 2) = 3.</li><li>P(X = 2) = 3 · (1/2)² · (1/2) = 3/8.</li><li>μ = np = 3/2 = 1,5.</li><li>σ² = np(1−p) = 3/2 · 1/2 = 3/4.</li></ol>
+<p class="porque">Con p = 1/2 cada una de las 8 ternas de sí/no pesa 1/8, y hay 3 ternas con exactamente dos éxitos. 3/8 coincide con la fórmula. No hace falta el botón.</p>
+</details>
+</article>
+<article class="ej">
+<h3>3. Tabla corta</h3>
+<p>X normal de media 100 y desviación típica 15. Calcula P(X ≤ 115) y P(X ≥ 130) con la tabla de la lección.</p>
+<label for="e30c">Tu razonamiento</label>
+<textarea class="editor" id="e30c"></textarea>
+<details class="porque"><summary>Corrección</summary>
+<ol class="pasos"><li>(115 − 100)/15 = 15/15 = 1. P ≈ 0,8413.</li><li>(130 − 100)/15 = 30/15 = 2.</li><li>P(X ≥ 130) = 1 − 0,9772 = 0,0228.</li><li>No hay fila para otros z: no se interpola a ojo un valor que la tabla no da.</li></ol>
+<p class="porque">115 está exactamente a una desviación de 100, y 130 a dos. Por eso estos dos enunciados se pueden cerrar con la tabla corta. Un 110 no cae en ninguna fila.</p>
+</details>
+</article>
+<article class="ej">
+<h3>4. Corrección de continuidad</h3>
+<p>n = 25, p = 1/2. Aproxima P(X ≥ 18).</p>
+<label for="e30d">Tu razonamiento</label>
+<textarea class="editor" id="e30d"></textarea>
+<details class="porque"><summary>Corrección</summary>
+<ol class="pasos"><li>μ = 12,5, σ = 2,5. np y n(1−p) valen 12,5, así que la regla práctica de 10 se cumple, con n solo moderado.</li><li>P(X ≥ 18) ≈ P(Y ≥ 17,5).</li><li>Z = (17,5 − 12,5)/2,5 = 2.</li><li>Probabilidad aproximada 1 − 0,9772 = 0,0228.</li></ol>
+<p class="porque">El 0,5 se resta porque la desigualdad es «mayor o igual que 18»: el bloque del entero 18 empieza en 17,5. Sin la corrección, Z = (18 − 12,5)/2,5 = 2,2, y 2,2 no está en la tabla corta; además sería una aproximación peor.</p>
+</details>
+</article>
+
+<h2>Cierre</h2>
+<p>Binomial a mano solo con n pequeño y la suma de probabilidades igual a 1 como control. Normal solo con los z de la tabla corta, diciendo que son redondeos. La aproximación exige n grande y np y n(1−p) holgados, y la corrección de continuidad mueve el borde medio unidad.</p>
+</section>
+
+<footer class="leccion-pie"><strong>Les vencimos</strong> · L30 de 33 · Matemáticas Aplicadas a las CCSS I · sin publicar</footer>
+</div>
+<script type="application/json" data-maestro="guion">{"curso": "bach1-mates-ccs", "leccion": 30, "titulo": "Binomial y normal", "url": "leccion-30-binomial-normal.html", "musica": false}</script>
+
+<script>
+(function(){
+  function comb(n,k){
+    if(k<0||k>n) return 0;
+    k = Math.min(k, n-k);
+    var c = 1;
+    for(var i=1;i<=k;i++){ c = c * (n-k+i) / i; }
+    return Math.round(c);
+  }
+  var b = document.getElementById('b30');
+  if(!b) return;
+  b.onclick = function(){
+    var n = parseInt(document.getElementById('bn').value, 10);
+    var k = parseInt(document.getElementById('bk').value, 10);
+    var p = parseFloat(String(document.getElementById('bp').value).replace(',', '.'));
+    var out = document.getElementById('bout');
+    if(!isFinite(n)||!isFinite(k)||!isFinite(p) || n<0 || n>20 || k<0 || k>n || p<0 || p>1){
+      out.textContent = 'Hace falta n entero entre 0 y 20, k entero entre 0 y n, y p entre 0 y 1.';
+      return;
+    }
+    var c = comb(n,k);
+    var prob = c * Math.pow(p,k) * Math.pow(1-p, n-k);
+    out.textContent = 'C('+n+','+k+') = '+c+'.  P(X='+k+') ≈ '+prob.toFixed(6)+' (el decimal de la probabilidad puede estar redondeado; el coeficiente es entero exacto).';
+  };
+})();
+</script>
+
+<!-- saber: D.3 -->
+</body>
+</html>

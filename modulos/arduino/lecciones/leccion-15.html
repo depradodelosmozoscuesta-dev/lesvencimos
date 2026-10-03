@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="color-scheme" content="dark">
+<title>L15 · Digital y analógico · les vencimos</title>
+<style>
+:root{--bg:#0E0E0C;--surf:#161512;--panel:#1C1A16;--ink:#E6E1D6;--mut:#9A9488;--acc:#C4A15A;--acc-ink:#1A160E;--danger:#C46A4A;--ok:#8F9A72;--line:#2A2720}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:400 17px/1.55 "Segoe UI",system-ui,sans-serif}
+h1,h2,h3{font-family:"Iowan Old Style",Palatino,Georgia,serif;font-weight:600;line-height:1.25}
+a{color:var(--acc)}
+.wrap{max-width:42rem;margin:0 auto;padding:1.25rem 1.1rem 3.5rem}
+header.top{border-bottom:1px solid var(--line);padding-bottom:.8rem;margin-bottom:1.2rem}
+.marca{font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;color:var(--mut);margin:0}
+h1{font-size:1.7rem;margin:.35rem 0 .2rem}
+.meta{color:var(--mut);margin:0 0 .8rem;font-size:.92rem}
+nav.pasos{display:flex;flex-wrap:wrap;gap:.5rem;margin:.4rem 0 0}
+nav.pasos a,button{min-height:44px;padding:.45rem .8rem;border:1px solid var(--line);border-radius:2px;background:var(--surf);color:var(--ink);font:inherit;text-decoration:none;cursor:pointer}
+button.acc{background:var(--acc);color:var(--acc-ink);border-color:var(--acc);font-weight:600}
+.maestro{background:var(--panel);border:1px solid var(--line);padding:1rem 1.05rem;margin:1.1rem 0}
+.maestro h2{margin:.1rem 0 .6rem;font-size:1.05rem;color:var(--acc)}
+pre{background:var(--surf);border:1px solid var(--line);padding:.9rem 1rem;overflow:auto;font-size:.88rem;line-height:1.45}
+.warn{border-left:3px solid var(--danger);padding:.2rem 0 .2rem .8rem;color:var(--ink)}
+.quiz{margin-top:1.2rem}
+figure{margin:1rem 0;background:#161512;border:1px solid var(--line);padding:.55rem .7rem}
+figure svg{width:100%;height:auto;display:block}
+figcaption{color:var(--mut);font-size:.9rem;margin:.45rem 0 0}
+.ejemplo{background:#161512;border:1px solid var(--line);padding:.8rem .95rem;margin:.7rem 0}
+.ejemplo h3{margin:.1rem 0 .4rem;font-size:1.05rem}
+
+.pregunta{background:var(--surf);border:1px solid var(--line);padding:.8rem 1rem;margin:.7rem 0}
+.respuesta{color:var(--ok);margin:.55rem 0 0}
+footer{margin-top:2.2rem;padding-top:.8rem;border-top:1px solid var(--line);color:var(--mut);font-size:.82rem}
+.pend{color:var(--mut)}
+ol.temario{padding-left:1.2rem}
+ol.temario li{margin:.28rem 0}
+
+.sim,.anota{margin:1rem 0;background:#161512;border:1px solid var(--line);padding:.8rem .9rem}
+.sim h2,.anota h2{margin:.1rem 0 .4rem;font-size:1.15rem}
+.sim-canvas{width:100%;height:auto;background:#1C1A16;border:1px solid var(--line);margin:.6rem 0;display:block}
+.sim-lab{display:flex;align-items:center;gap:.6rem;margin:.4rem 0;color:var(--ink)}
+.sim-range{flex:1;min-height:44px}
+.sim-out{min-width:3rem;color:var(--acc)}
+.sim-dedo{margin-top:.4rem}
+textarea.nota-montaje{width:100%;min-height:8rem;background:#1C1A16;color:var(--ink);border:1px solid var(--line);padding:.7rem;font:inherit;line-height:1.45}
+
+</style>
+</head>
+<body>
+<article class="wrap" id="ens-digital-y-analogico" data-ens="ens-digital-y-analogico">
+<header class="top">
+<p class="marca">les vencimos · offline</p>
+<h1>L15. Digital y analógico</h1>
+<p class="meta">Sensores (38–54%)</p>
+<nav class="pasos"><a href="../arduino-ensenanza.html">Al curso</a><a href="leccion-14.html">Anterior</a><a href="leccion-16.html">Siguiente</a></nav>
+</header>
+<section class="maestro" id="maestro">
+<h2>Maestro</h2>
+<p id="maestro-texto">Digital es sí o no. Analógico, en el Uno, es un número de 0 a 1023. Ese número no es «más calidad de vida». Es una medida: el chip parte el rango entre 0 voltios y la referencia, casi siempre 5, en 1024 escalones. 10 bits son eso, 2 elevado a 10. Hoy no se cablea. Hoy se sabe qué significa el número antes de creerlo.</p>
+<button type="button" class="acc" id="escuchar">Escuchar</button>
+</section>
+<section class="lectura">
+<p>digitalRead devuelve HIGH o LOW. Sirve para un botón, un final de carrera, un módulo que ya decidió. analogRead devuelve un entero de 0 a 1023 en el Uno. Cero es la masa. 1023 es la referencia, normalmente los 5 voltios del Uno. 512 es la mitad de la escala, unos 2,5 voltios. No es la mitad por poesía: 1023 partido por dos, y el entero se queda en 511 o 512 según cómo redondees. En el curso, el umbral de en medio será 512, holgado y fácil de leer.</p>
+<p>Esos pines son A0, A1, A2, A3, A4 y A5. Se llaman analógicos porque miden, no porque saquen una tensión analógica ellos solos. Sacar un valor intermedio de verdad, un voltaje a medias, no es analogWrite en el sentido que la gente cree: eso será el PWM, más adelante, y es un parpadeo rápido, no una tensión limpia. No los mezcles hoy.</p>
+<p>La cuenta inversa también ayuda. Si lees 200, estás cerca de masa, no a media escala. Si lees 900, estás cerca de 5 voltios. Sin esa traducción, un sensor «da números» y no sabes si sube la luz o el cable suelto.</p>
+<p>Placa de 3,3 voltios: el 1023 sería 3,3, no 5, y además no le metas un divisor pensado para 5. El curso mide con el Uno.</p>
+</section>
+<h2>Montaje</h2>
+<figure><svg viewBox="0 0 640 150" aria-label="Digital frente a analógico"><text x="20" y="28" fill="#E6E1D6" font-size="13">digital: solo dos</text><rect x="20" y="44" width="80" height="36" fill="#C46A4A"/><rect x="110" y="44" width="80" height="36" fill="#8F9A72"/><text x="20" y="110" fill="#E6E1D6" font-size="13">analógico en el Uno: 1024 escalones, de 0 a 1023</text><rect x="20" y="120" width="560" height="14" fill="#161512" stroke="#C4A15A"/><rect x="22" y="122" width="30" height="10" fill="#C4A15A" opacity="0.15"/><rect x="57" y="122" width="30" height="10" fill="#C4A15A" opacity="0.20"/><rect x="92" y="122" width="30" height="10" fill="#C4A15A" opacity="0.25"/><rect x="127" y="122" width="30" height="10" fill="#C4A15A" opacity="0.30"/><rect x="162" y="122" width="30" height="10" fill="#C4A15A" opacity="0.35"/><rect x="197" y="122" width="30" height="10" fill="#C4A15A" opacity="0.40"/><rect x="232" y="122" width="30" height="10" fill="#C4A15A" opacity="0.45"/><rect x="267" y="122" width="30" height="10" fill="#C4A15A" opacity="0.50"/><rect x="302" y="122" width="30" height="10" fill="#C4A15A" opacity="0.55"/><rect x="337" y="122" width="30" height="10" fill="#C4A15A" opacity="0.60"/><rect x="372" y="122" width="30" height="10" fill="#C4A15A" opacity="0.65"/><rect x="407" y="122" width="30" height="10" fill="#C4A15A" opacity="0.70"/><rect x="442" y="122" width="30" height="10" fill="#C4A15A" opacity="0.75"/><rect x="477" y="122" width="30" height="10" fill="#C4A15A" opacity="0.80"/><rect x="512" y="122" width="30" height="10" fill="#C4A15A" opacity="0.85"/><rect x="547" y="122" width="30" height="10" fill="#C4A15A" opacity="0.90"/></svg><figcaption>Abajo, muchos escalones. Arriba, solo dos cajas. El pin 13 no se vuelve analógico por desearlo.</figcaption></figure>
+<h2>Pines de esta lección</h2>
+<figure><svg viewBox="0 0 340 118" aria-label="Pines de la lección"><rect x="6" y="16" width="328" height="86" rx="8" fill="#1C1A16" stroke="#C4A15A"/><text x="16" y="14" fill="#9A9488" font-size="11">Uno R3 · 5 V · mira la serigrafía, no la memoria</text><rect x="16" y="32" width="68" height="32" rx="4" fill="#161512" stroke="#C4A15A"/><text x="50" y="53" text-anchor="middle" fill="#E6E1D6" font-size="13">A0</text><text x="50" y="84" text-anchor="middle" fill="#9A9488" font-size="10">0 a 1023</text><rect x="94" y="32" width="68" height="32" rx="4" fill="#161512" stroke="#9A9488"/><text x="128" y="53" text-anchor="middle" fill="#E6E1D6" font-size="13">13</text><text x="128" y="84" text-anchor="middle" fill="#9A9488" font-size="10">sigue sí o no</text><rect x="172" y="32" width="68" height="32" rx="4" fill="#161512" stroke="#9A9488"/><text x="206" y="53" text-anchor="middle" fill="#E6E1D6" font-size="13">5 V</text><text x="206" y="84" text-anchor="middle" fill="#9A9488" font-size="10">techo</text><rect x="250" y="32" width="68" height="32" rx="4" fill="#161512" stroke="#9A9488"/><text x="284" y="53" text-anchor="middle" fill="#E6E1D6" font-size="13">GND</text><text x="284" y="84" text-anchor="middle" fill="#9A9488" font-size="10">suelo</text></svg><figcaption>A0 se lee. El 13 se escribe. No son el mismo tipo de número.</figcaption></figure>
+<h2>Por qué</h2>
+<p>Una entrada digital distingue dos zonas: cerca de 0 V y cerca de 5 V. Una entrada analógica del Uno, A0 a A5, mide y devuelve un entero de 0 a 1023. 0 es masa. 1023 es cerca de 5 V. 512 está a mitad, unos 2,5 V. No hay decimales. No hay voltios en el número hasta que tú los calculas.</p><p>analogRead no enciende nada. Solo pregunta. El LED sigue siendo digital hasta la lección de PWM. Si escribes analogRead(13) no estás midiendo el LED: el 13 no es un canal analógico. Los canales son A0, A1, A2, A3, A4 y A5.</p><p>El conversor necesita un voltaje quieto un instante. Un pin flotando, sin potenciómetro ni divisor, da números que bailan. No está roto el chip. Está midiendo el aire. Hasta que no haya un circuito en A0, no interpretes el baile.</p><p>A4 y A5 son a la vez analógicos y, más adelante, el bus I2C. Si un día cuelgas ahí una pantalla, deja de usarlos como potenciómetro. Hoy están libres.</p><h2>Práctica</h2>
+<ol><li>Sin cablear aún, escribe en el papel la escala: 0 masa, 1023 los 5 V, 512 el medio.</li><li>Señala A0 en la placa. Comprueba que no es el pin 0 de RX.</li><li>Calcula qué número sería 1 V aproximado: 1023 por 1 entre 5, cerca de 205. No hace falta el decimal.</li><li>Di qué función lee y qué función escribe: analogRead lee, digitalWrite escribe.</li><li>Explica por qué un LED en el 13 no puede mostrar 512 niveles con digitalWrite. Solo tiene dos.</li><li>Deja A0 sin tocar hasta la lección del potenciómetro. Un dedo en el pin solo mete ruido.</li><li>Anota que el resultado se verá en el LED 13 con un umbral, no en el monitor. El monitor llega en la lección de Serial.</li></ol><section class="anota"><h2>Anota el montaje</h2><p>Escribe qué cable va a qué pin, o qué has entendido del paso. Se guarda en este aparato.</p><textarea class="nota-montaje" rows="6" placeholder="Pin, color del cable, a qué agujero."></textarea></section><h2>Ejemplos resueltos</h2>
+<div class="ejemplo"><h3>Se espera un 2,5 en la variable</h3><p>Alguien compara analogRead con 2, creyendo que son voltios. Casi cualquier luz o posición supera 2, y la condición está siempre cumplida.</p><p>El número va de 0 a 1023. Medio camino es 512, no 2,5. Si quieres voltios, los calculas aparte; la comparación del curso usa el entero.</p></div><div class="ejemplo"><h3>Se lee el pin 13</h3><p>El LED está en el 13 y se pide analogRead(13). Eso no devuelve el brillo. En el Uno, analogRead quiere A0 y sus vecinos.</p><p>Se mide A0. Se actúa sobre el 13. Una patilla pregunta y otra contesta.</p></div><h2>En la mesa</h2>
+<p>Sin potenciómetro todavía, escribe en una línea la escala y tres marcas: cero, quinientos doce, mil veintitrés. Debajo, en voltios aproximados: cero, dos y medio, cinco. No hace falta más precisión. Si alguien te dice que analogRead devuelve voltios, corrígelo con esta línea. El entero es lo que el if va a comparar. Los voltios son una traducción para ti.</p>
+<p>Señala A0 y el pin 0 con las dos manos a la vez, para sentir que están en lados distintos de la placa. El día que el monitor serie entre, el pin 0 se ocupa solo. A0 sigue libre. Confundirlos es el fallo de una letra, y cuesta una tarde. Dilo: A cero mide, cero a secas habla con el USB.</p>
+<p>Cierra la lección sin cablear el dedo en A0. Un dedo no es un sensor: es una antena húmeda. La tentación de ver números moviéndose es fuerte y enseña lo contrario de un circuito. Espera al potenciómetro, que sí tiene dos extremos y un cursor.</p>
+
+<h2>Ejercicio</h2>
+<p>Sin placa, completa tres huecos: lectura 0 significa …, lectura 512 significa …, lectura 1023 significa …. En voltios, para un Uno a 5 V.</p>
+<section class="quiz">
+<h2>Autoevaluación</h2>
+<div class="pregunta"><p><strong>1.</strong> ¿Qué rango da analogRead en el Uno?</p><button type="button" class="ver">ver respuesta</button><p class="respuesta" hidden>De 0 a 1023.</p></div><div class="pregunta"><p><strong>2.</strong> ¿Qué tensión representa, más o menos, el valor 512?</p><button type="button" class="ver">ver respuesta</button><p class="respuesta" hidden>La mitad de la referencia: unos 2,5 voltios si la referencia son 5.</p></div><div class="pregunta"><p><strong>3.</strong> ¿analogRead saca una tensión por el pin?</p><button type="button" class="ver">ver respuesta</button><p class="respuesta" hidden>No. Mide. Sacar un valor intermedio, el PWM, es otra lección.</p></div>
+</section>
+<footer>les vencimos · Arduino Enseñanza · offline</footer>
+</article>
+<script>
+document.querySelectorAll("button.ver").forEach(function(b){
+  b.addEventListener("click", function(){
+    var r = b.parentElement.querySelector(".respuesta");
+    if(!r) return;
+    r.hidden = !r.hidden;
+    b.textContent = r.hidden ? "ver respuesta" : "ocultar respuesta";
+  });
+});
+var btn = document.getElementById("escuchar");
+if(btn){
+  btn.addEventListener("click", function(){
+    var el = document.getElementById("maestro-texto");
+    var texto = el ? el.textContent : "";
+    if(window.LesVencimosMaestro && typeof window.LesVencimosMaestro.decir === "function"){
+      window.LesVencimosMaestro.decir(texto);
+      return;
+    }
+    if(!window.speechSynthesis || typeof window.SpeechSynthesisUtterance !== "function") return;
+    window.speechSynthesis.cancel();
+    var u = new SpeechSynthesisUtterance(texto);
+    u.lang = "es-ES";
+    u.rate = 0.95;
+    window.speechSynthesis.speak(u);
+  });
+}
+
+document.querySelectorAll("textarea.nota-montaje").forEach(function(ta){
+  var art = document.querySelector("[data-ens]");
+  var key = "lv-ens-nota-" + (art ? art.getAttribute("data-ens") : "leccion");
+  try {
+    var prev = localStorage.getItem(key);
+    if(prev) ta.value = prev;
+    ta.addEventListener("input", function(){ localStorage.setItem(key, ta.value); });
+  } catch (e) {}
+});
+var sim = document.querySelector("section.sim");
+if(sim){
+  var canvas = sim.querySelector("canvas.sim-canvas");
+  var ctx = canvas.getContext("2d");
+  var kind = sim.getAttribute("data-sim");
+  var da = sim.getAttribute("data-a") || "";
+  var db = sim.getAttribute("data-b") || "";
+  var toggle = sim.querySelector(".sim-toggle");
+  var range = sim.querySelector(".sim-range");
+  var out = sim.querySelector(".sim-out");
+  var dedo = sim.querySelector(".sim-dedo");
+  var vivo = true;
+  var pulsado = false;
+  var permiso = true;
+  var ledOn = false;
+  var ultimoFlanco = 0;
+  var t0 = Date.now();
+  function num(el, fallo){ return el ? parseInt(el.value, 10) : fallo; }
+  if(dedo && kind !== "noche"){
+    dedo.addEventListener("pointerdown", function(ev){
+      pulsado = true;
+      if(kind === "flanco"){
+        var ahora = Date.now();
+        if(ahora - ultimoFlanco > 30){
+          ledOn = !ledOn;
+          ultimoFlanco = ahora;
+        }
+      }
+      ev.preventDefault();
+    });
+    window.addEventListener("pointerup", function(){ pulsado = false; });
+  }
+  if(dedo && kind === "noche"){
+    dedo.addEventListener("click", function(){
+      permiso = !permiso;
+      dedo.setAttribute("aria-pressed", permiso ? "true" : "false");
+      dedo.textContent = permiso ? "Permiso dado" : "Sin permiso";
+    });
+  }
+  if(toggle){
+    toggle.addEventListener("click", function(){
+      vivo = !vivo;
+      toggle.setAttribute("aria-pressed", vivo ? "true" : "false");
+      toggle.textContent = vivo ? "Parar simulación" : "Encender simulación";
+    });
+  }
+  function circulo(x, y, r, on, nivel){
+    ctx.beginPath();
+    ctx.arc(x, y, r, 0, Math.PI * 2);
+    if(on){
+      var a = nivel == null ? 1 : nivel;
+      ctx.fillStyle = "rgba(196,161,90," + (0.25 + 0.75 * a) + ")";
+      ctx.shadowColor = "#C4A15A";
+      ctx.shadowBlur = 16 * a;
+    } else {
+      ctx.fillStyle = "#2A2720";
+      ctx.shadowBlur = 0;
+    }
+    ctx.fill();
+    ctx.shadowBlur = 0;
+    ctx.lineWidth = 2;
+    ctx.strokeStyle = on ? "#C4A15A" : "#9A9488";
+    ctx.stroke();
+  }
+  function caja(x, y, w, h, titulo){
+    ctx.fillStyle = "#161512";
+    ctx.strokeStyle = "#C4A15A";
+    ctx.lineWidth = 2;
+    ctx.fillRect(x, y, w, h);
+    ctx.strokeRect(x, y, w, h);
+    ctx.fillStyle = "#E6E1D6";
+    ctx.font = "14px sans-serif";
+    ctx.fillText(titulo, x + 10, y + 22);
+  }
+  function texto(x, y, s, col){
+    ctx.fillStyle = col || "#E6E1D6";
+    ctx.font = "13px sans-serif";
+    ctx.fillText(s, x, y);
+  }
+  function frame(){
+    var ahora = Date.now();
+    var lectura = num(range, 0);
+    var enciende = false;
+    var nivel = 1;
+    var etiqueta = "";
+    if(kind === "blink"){
+      var hi = parseInt(da, 10) || 500;
+      var lo = parseInt(db, 10) || 500;
+      var ciclo = hi + lo;
+      var fase = vivo ? ((ahora - t0) % ciclo) : 0;
+      enciende = vivo && fase < hi;
+      etiqueta = enciende ? "HIGH" : "LOW";
+    } else if(kind === "hold"){
+      enciende = vivo && pulsado;
+      etiqueta = pulsado ? "LOW, pulsado" : "HIGH, suelto";
+    } else if(kind === "nivel"){
+      enciende = vivo && pulsado;
+      etiqueta = pulsado ? "lectura LOW" : "lectura HIGH";
+    } else if(kind === "flanco"){
+      enciende = vivo && ledOn;
+      etiqueta = enciende ? "LED encendido" : "LED apagado";
+    } else if(kind === "umbral"){
+      var umbral = parseInt(da, 10);
+      enciende = vivo && (db === "lt" ? lectura < umbral && lectura > 0 : lectura > umbral);
+      if(sim.getAttribute("data-sim") === "umbral" && da === "20"){
+        enciende = vivo && lectura > 0 && lectura < umbral;
+      }
+      etiqueta = String(lectura);
+      nivel = 1;
+    } else if(kind === "pwm"){
+      nivel = vivo ? lectura / 255 : 0;
+      enciende = vivo && lectura > 0;
+      etiqueta = String(lectura);
+    } else if(kind === "servo"){
+      var span = 140;
+      var pos = vivo ? ((ahora - t0) % 2800) / 2800 : 0.5;
+      var tri = pos < 0.5 ? pos * 2 : (1 - pos) * 2;
+      var grados = Math.round(20 + tri * span);
+      if(range) range.value = String(grados);
+      lectura = grados;
+      enciende = vivo;
+      etiqueta = grados + " grados";
+    } else if(kind === "buzz"){
+      var fb = vivo ? ((ahora - t0) % 1000) : 500;
+      etiqueta = fb < 300 ? "440" : (fb < 600 ? "880" : "silencio");
+      enciende = vivo && fb < 600;
+    } else if(kind === "carga"){
+      var fc = vivo ? ((ahora - t0) % 4000) : 2000;
+      enciende = vivo && fc < 2000;
+      etiqueta = enciende ? "pin en HIGH" : "pin en LOW";
+    } else if(kind === "semi"){
+      var fs = vivo ? ((ahora - t0) % 3500) : 0;
+      etiqueta = fs < 1500 ? "rojo" : (fs < 2000 ? "ambar" : "verde");
+      enciende = vivo;
+    } else if(kind === "alarma"){
+      enciende = vivo && lectura > 0 && lectura < 20;
+      etiqueta = lectura + " cm";
+    } else if(kind === "noche"){
+      var noche = lectura < 400 && permiso;
+      enciende = vivo && noche;
+      nivel = enciende ? 180/255 : 0;
+      etiqueta = (permiso ? "con permiso" : "sin permiso") + " · " + lectura;
+    }
+    if(out) out.textContent = etiqueta;
+    ctx.clearRect(0, 0, 320, 160);
+    ctx.fillStyle = "#1C1A16";
+    ctx.fillRect(0, 0, 320, 160);
+    caja(12, 28, 90, 100, "Uno");
+    if(kind === "semi"){
+      var fs2 = vivo ? ((ahora - t0) % 3500) : 0;
+      circulo(160, 48, 14, vivo && fs2 < 1500, 1);
+      circulo(210, 48, 14, vivo && fs2 >= 1500 && fs2 < 2000, 1);
+      circulo(260, 48, 14, vivo && fs2 >= 2000, 1);
+      texto(150, 78, "10 rojo");
+      texto(198, 78, "11");
+      texto(248, 78, "12 verde");
+      texto(16, 150, vivo ? "ciclo en marcha" : "simulación parada", "#9A9488");
+    } else if(kind === "servo"){
+      var rad = (180 - lectura) * Math.PI / 180;
+      ctx.strokeStyle = "#C4A15A";
+      ctx.lineWidth = 4;
+      ctx.beginPath();
+      ctx.moveTo(200, 110);
+      ctx.lineTo(200 + Math.cos(rad) * 70, 110 - Math.sin(rad) * 50);
+      ctx.stroke();
+      circulo(200, 110, 8, true, 1);
+      texto(120, 150, etiqueta);
+    } else if(kind === "buzz" || kind === "alarma"){
+      circulo(150, 80, 18, kind === "alarma" ? enciende : false, 1);
+      texto(176, 76, kind === "alarma" ? "LED 13" : "");
+      ctx.beginPath();
+      ctx.arc(250, 80, 22, 0, Math.PI * 2);
+      ctx.strokeStyle = enciende ? "#C4A15A" : "#9A9488";
+      ctx.lineWidth = 3;
+      ctx.stroke();
+      if(enciende){
+        ctx.beginPath();
+        ctx.arc(250, 80, 32, 0, Math.PI * 2);
+        ctx.stroke();
+      }
+      texto(120, 140, etiqueta);
+    } else if(kind === "carga"){
+      circulo(170, 70, 16, enciende, 1);
+      texto(196, 66, "orden");
+      ctx.strokeStyle = enciende ? "#8F9A72" : "#9A9488";
+      ctx.strokeRect(230, 48, 70, 44);
+      texto(242, 74, enciende ? "carga" : "quieta", enciende ? "#8F9A72" : "#9A9488");
+      texto(16, 150, etiqueta, "#9A9488");
+    } else {
+      circulo(200, 78, 18, enciende, nivel);
+      texto(230, 74, "LED");
+      texto(16, 150, etiqueta, "#9A9488");
+    }
+    if(!vivo){
+      texto(230, 150, "parada", "#9A9488");
+    }
+    requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+}
+
+</script>
+</body>
+</html>

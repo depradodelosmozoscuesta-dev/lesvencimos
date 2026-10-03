@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<meta name="theme-color" content="#0E0E0C"/>
+<title>Lección 26 · Dos algoritmos para el mismo problema · Les vencimos</title>
+<link rel="icon" href="../icons/favicon.svg" type="image/svg+xml"/>
+<link rel="stylesheet" href="../leccion-shell.css"/>
+<style>
+  .pasos{list-style:none;margin:0 0 1rem;padding:0;counter-reset:paso}
+  .pasos li{position:relative;margin:0 0 .7rem;padding:.7rem .8rem .7rem 3.1rem;background:var(--lv-panel);border:1px solid var(--lv-linea);border-radius:10px}
+  .pasos li::before{counter-increment:paso;content:counter(paso);position:absolute;left:.65rem;top:.7rem;width:1.7rem;height:1.7rem;border-radius:50%;background:#C4A15A;color:#1A160E;font-weight:700;font-size:.9rem;display:flex;align-items:center;justify-content:center}
+  .figura-svg{background:var(--lv-panel);border:1px solid var(--lv-linea);border-radius:10px;padding:.4rem;margin:.4rem 0 1rem}
+  .figura-svg svg{width:100%;height:auto;display:block}
+  .ej{margin:0 0 1rem;padding:.85rem .95rem;background:var(--lv-panel);border:1px solid var(--lv-linea);border-left:3px solid #C4A15A;border-radius:10px}
+  .ej h3{margin:0 0 .35rem;font-family:var(--lv-serif);font-size:1.05rem;color:var(--lv-titulo)}
+  .editor,textarea.editor{width:100%;min-height:5.2rem;font-family:ui-monospace,monospace;font-size:.95rem;line-height:1.4;padding:.55rem .65rem;border:1px solid rgba(196,161,90,.45);border-radius:8px;background:#161512;color:#E6E1D6;resize:vertical;box-sizing:border-box}
+  .lienzo{display:block;width:100%;max-width:640px;height:280px;background:#161512;border:1px solid #C4A15A;border-radius:8px;touch-action:none;cursor:crosshair}
+  .fila{display:flex;flex-wrap:wrap;gap:.4rem;margin:.45rem 0;align-items:center}
+  .boton{font:inherit;font-weight:700;font-size:.85rem;padding:.35rem .75rem;border-radius:999px;border:1px solid #C4A15A;background:transparent;color:#E6E1D6;cursor:pointer}
+  .porque{margin-top:.5rem;padding:.6rem .7rem;background:#1a2218;border-radius:8px;color:#E6E1D6}
+  .dato{font-size:.95rem;color:var(--lv-suave)}
+  table.datos{width:100%;border-collapse:collapse;margin:.4rem 0 1rem;font-size:.98rem}
+  table.datos th,table.datos td{border:1px solid var(--lv-linea);padding:.35rem .5rem;text-align:left}
+  table.datos th{background:#161512;color:#C4A15A}
+  .glosa{display:block;font-size:.9rem;color:#9A9488;margin:.15rem 0 .7rem}
+  .formula{display:block;margin:.35rem 0 .15rem;padding:.45rem .7rem;background:#161512;border-left:3px solid #C4A15A;overflow-x:auto}
+  input.campo{background:#161512;color:#E6E1D6;border:1px solid #C4A15A;border-radius:6px;padding:.3rem .45rem;width:5.5rem}
+  .salida{font-family:ui-monospace,monospace;color:#C4A15A}
+</style>
+<script src="../leccion-shell-nav.js" defer></script>
+</head>
+<body class="leccion-shell">
+<div class="leccion-wrap">
+<nav class="leccion-barra" aria-label="Navegación de lección" data-actual="26" data-total="33">
+  <div class="leccion-progreso" role="status">
+    <span class="progreso-texto"><strong>26</strong> de <strong>33</strong></span>
+    <div class="progreso-pista" aria-hidden="true"><div class="progreso-lleno" style="width:81.25%"></div></div>
+  </div>
+  <div class="leccion-atajos">
+    <a class="atajo atajo-prev" href="leccion-25-interpolacion.html">← Anterior</a>
+    <a class="atajo atajo-next" href="leccion-27-estadistica-1d.html">Siguiente →</a>
+  </div>
+</nav>
+<header class="leccion-top">
+  <p class="leccion-marca">Les <span>vencimos</span></p>
+  <p class="leccion-meta-top">Matemáticas Aplicadas a las CCSS I · 1º Bachillerato</p>
+</header>
+<header class="bloque-titulo">
+  <span class="eyebrow">Lección 26 · C.5 · Pensamiento computacional</span>
+  <h1 class="titulo-leccion">Formular y comparar <em>algoritmos</em></h1>
+  <p class="meta-leccion">1º Bach CCSS · CyL Decreto 40/2022 · C.5 Comparación de algoritmos</p>
+</header>
+
+<aside class="bloque-curiosidad"><p class="etiqueta-bloque">Para situarte</p>
+<h2 class="titulo-curiosidad">Dos recetas, un mismo número</h2>
+<p class="texto-curiosidad">El decreto pide formular algoritmos y compararlos. Aquí los dos calculan un interés compuesto. Uno recorre los años; el otro usa la fórmula cerrada. El ejecutor de pasos vive en esta página: no sale a otra.</p></aside>
+<section class="bloque-cuerpo">
+<h2>Objetivos</h2>
+<ul>
+<li>Escribir con claridad los pasos de dos algoritmos que resuelven el mismo problema.</li>
+<li>Comprobar que llegan al mismo número cuando las hipótesis coinciden.</li>
+<li>Decir en qué cambia el número de operaciones y cuándo uno de los dos deja de ser válido.</li>
+</ul>
+<h2>El problema</h2>
+<p>Se depositan 1000 € al 5&nbsp;% anual compuesto, durante 3 años, sin aportaciones nuevas. Se quiere el capital final.</p>
+<p class="formula">C<sub>k</sub> = C<sub>k−1</sub> · (1 + r), con C₀ = 1000, r = 0,05, k = 1, 2, 3.</p>
+<span class="glosa">Cₖ es el capital al acabar el año k; r es el tipo anual en tanto por uno; 1 + r es el factor de un año; C₀ es el capital inicial.</span>
+<p class="formula">Cₙ = C₀ · (1 + r)ⁿ, aquí C₃ = 1000 · (1,05)³.</p>
+<span class="glosa">n es el número de años, aquí 3; la fórmula cerrada exige que r sea el mismo todos los años. (1,05)³ es el factor acumulado, no la suma 1,05 · 3.</span>
+<h2>Ejecutor de pasos</h2>
+<p>Usa Anterior y Siguiente. No hay datos que vengan de fuera de la página.</p>
+<p class="salida" id="alg-cnt">1 / 6</p>
+<h3 id="alg-tit">Datos comunes</h3>
+<p id="alg-txt"></p>
+<div class="fila">
+<button type="button" class="boton" id="alg-prev">Anterior</button>
+<button type="button" class="boton" id="alg-next">Siguiente</button>
+</div>
+<div class="figura-svg"><svg viewBox="0 0 520 120" role="img">
+<title>Tres multiplicaciones encadenadas frente a una potencia</title>
+<rect width="520" height="120" fill="#161512"/>
+<text x="24" y="36" fill="#C4A15A" font-size="14">A: 1000 → 1050 → 1102,50 → 1157,625</text>
+<text x="24" y="78" fill="#E6E1D6" font-size="14">B: 1000 · (1,05)³ = 1157,625</text>
+</svg></div>
+<h2>Ejemplo 1. Las cuentas, escritas</h2>
+<ol class="pasos">
+<li>Año 1: 1000 · 1,05 = 1050.</li>
+<li>Año 2: 1050 · 1,05 = 1102,50.</li>
+<li>Año 3: 1102,50 · 1,05 = 1157,625.</li>
+<li>Cerrada: (1,05)² = 1,1025; 1,1025 · 1,05 = 1,157625; ·1000 = 1157,625. Mismo capital.</li>
+</ol>
+<h2>Ejemplo 2. Otro problema, dos recorridos</h2>
+<p>Hallar el máximo de 12, 7, 19, 15.</p>
+<ol class="pasos">
+<li>Recorrido lineal: máximo provisional 12. 7 no lo supera. 19 sí: provisional 19. 15 no. Máximo 19. Comparaciones: 3, que es n − 1 con n = 4.</li>
+<li>Por parejas: max(12, 7) = 12; max(19, 15) = 19; max(12, 19) = 19. También 3 comparaciones y el mismo 19.</li>
+<li>Ordenar la lista entera de mayor a menor y quedarse con la primera también da 19, pero ordenar hace más trabajo del necesario si solo se pide el máximo.</li>
+</ol>
+<p class="formula">Comparaciones del recorrido lineal = n − 1.</p>
+<span class="glosa">n es el número de datos, aquí 4; se compara cada dato nuevo con el provisional, y el primero no se compara contra nadie.</span>
+<h2>Ejercicios</h2>
+<article class="ej">
+<h3>1. Dos años al 10 %</h3>
+<p>Capital 2000 € al 10 % anual compuesto, 2 años. Calcula el final con los dos algoritmos.</p>
+<label for="e26a">Tu razonamiento</label>
+<textarea class="editor" id="e26a"></textarea>
+<details class="porque"><summary>Corrección</summary>
+<ol class="pasos"><li>Año 1: 2000 · 1,10 = 2200.</li><li>Año 2: 2200 · 1,10 = 2420.</li><li>Fórmula: (1,10)² = 1,21; 2000 · 1,21 = 2420.</li><li>Coinciden.</li></ol>
+<p class="porque">1,10 · 1,10 es 1,21, no 1,20. El céntimo que falta en 1,20 sería olvidar el interés del interés. Por eso 2000 · 1,20 = 2400 no es el capital compuesto.</p>
+</details>
+</article>
+<article class="ej">
+<h3>2. Tipo que cambia</h3>
+<p>El primer año el tipo es 5 % y el segundo es 10 %, capital inicial 1000. ¿Sirve (1,05)²? Calcula el capital correcto.</p>
+<label for="e26b">Tu razonamiento</label>
+<textarea class="editor" id="e26b"></textarea>
+<details class="porque"><summary>Corrección</summary>
+<ol class="pasos"><li>(1,05)² supone dos años al 5 %. No sirve.</li><li>Año 1: 1000 · 1,05 = 1050.</li><li>Año 2: 1050 · 1,10 = 1155.</li><li>El algoritmo paso a paso admite un factor distinto cada año; la potencia de un solo factor, no.</li></ol>
+<p class="porque">1155 no es ni 1000 · 1,05² = 1102,50 ni 1000 · 1,10² = 1210. Cada año aporta su propio factor, y el orden aquí da 1,05 · 1,10 = 1,155.</p>
+</details>
+</article>
+<article class="ej">
+<h3>3. Máximo repetido</h3>
+<p>Aplica el recorrido lineal a 3, 8, 5, 8. ¿Cuál es el máximo y cuántas comparaciones haces?</p>
+<label for="e26c">Tu razonamiento</label>
+<textarea class="editor" id="e26c"></textarea>
+<details class="porque"><summary>Corrección</summary>
+<ol class="pasos"><li>Provisional 3.</li><li>8 lo supera: provisional 8.</li><li>5 no. El segundo 8 tampoco supera al provisional.</li><li>Máximo 8, con 3 comparaciones. Que el 8 aparezca dos veces no cambia el máximo.</li></ol>
+<p class="porque">El algoritmo no cuenta frecuencias: solo retiene el mayor valor visto. Para la moda haría falta otro algoritmo, que cuente repeticiones.</p>
+</details>
+</article>
+<article class="ej">
+<h3>4. No generalices un atajo</h3>
+<p>Alguien calcula el 10 % de 80 como 80/10 = 8. Otro hace 80 · 0,10 = 8. Calcula el 7,5 % de 80 y di qué atajo se rompe.</p>
+<label for="e26d">Tu razonamiento</label>
+<textarea class="editor" id="e26d"></textarea>
+<details class="porque"><summary>Corrección</summary>
+<ol class="pasos"><li>80 · 0,075 = 6. También 80 · 7,5 / 100 = 600 / 100 = 6.</li><li>Dividir entre 10 solo corresponde al 10 %, no al 7,5 %.</li><li>80/10 = 8 no es el 7,5 % de 80.</li><li>Los dos algoritmos del 10 % coincidían; el primero no se exporta a otro porcentaje.</li></ol>
+<p class="porque">Un algoritmo lleva sus hipótesis escritas. «Mover la coma» o dividir entre 10 es el algoritmo del 10 %, no el del porcentaje general. El producto por el tanto por uno sí se exporta.</p>
+</details>
+</article>
+
+<h2>Cierre</h2>
+<p>Comparar algoritmos es decir qué hipótesis usa cada uno, cuántos pasos crecen con el tamaño del problema y en qué caso uno deja de valer. Mismo resultado no significa misma receta.</p>
+</section>
+
+<footer class="leccion-pie"><strong>Les vencimos</strong> · L26 de 33 · Matemáticas Aplicadas a las CCSS I · sin publicar</footer>
+</div>
+<script type="application/json" data-maestro="guion">{"curso": "bach1-mates-ccs", "leccion": 26, "titulo": "Dos algoritmos para el mismo problema", "url": "leccion-26-algoritmos.html", "musica": false}</script>
+
+<script>
+(function(){
+  var pasos = [
+    {t:"Datos comunes", d:"Capital C₀ = 1000 €. Tipo anual constante r = 0,05. Horizonte n = 3 años. Los dos algoritmos responden a la misma pregunta: ¿cuánto hay al final?"},
+    {t:"Algoritmo A, año 1", d:"Regla: cada año se multiplica el capital vigente por 1,05. C₁ = 1000 · 1,05 = 1050. Operaciones de este paso: una multiplicación."},
+    {t:"Algoritmo A, año 2", d:"C₂ = 1050 · 1,05. 1050 · 1 = 1050; 1050 · 0,05 = 52,50; suma 1102,50. Otra multiplicación, encadenada a la anterior."},
+    {t:"Algoritmo A, año 3", d:"C₃ = 1102,50 · 1,05 = 1102,50 + 55,125 = 1157,625 €. El algoritmo A ha hecho 3 multiplicaciones, una por año."},
+    {t:"Algoritmo B, potencia", d:"Fórmula cerrada C = 1000 · (1,05)³. Primero (1,05)² = 1,1025. Luego 1,1025 · 1,05 = 1,157625. Por último 1000 · 1,157625 = 1157,625 €."},
+    {t:"Comparación", d:"Los dos dan 1157,625 €. A enseña el saldo de cada año y sigue sirviendo si un año el tipo cambia: se cambia el factor de ese paso. B, con tipo constante, resume el mismo trabajo; si el tipo no es constante, (1,05)³ ya no vale. A crece con el número de años (una multiplicación por año). B no depende de recorrer los años uno a uno, siempre que se pueda calcular la potencia."}
+  ];
+  var i = 0;
+  var tit = document.getElementById('alg-tit');
+  var txt = document.getElementById('alg-txt');
+  var cnt = document.getElementById('alg-cnt');
+  function pinta(){
+    tit.textContent = pasos[i].t;
+    txt.textContent = pasos[i].d;
+    cnt.textContent = (i+1)+" / "+pasos.length;
+  }
+  document.getElementById('alg-prev').onclick = function(){ if(i>0){ i--; pinta(); } };
+  document.getElementById('alg-next').onclick = function(){ if(i<pasos.length-1){ i++; pinta(); } };
+  pinta();
+})();
+</script>
+
+<!-- saber: C.5 -->
+</body>
+</html>

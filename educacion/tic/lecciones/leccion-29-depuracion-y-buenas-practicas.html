@@ -1,0 +1,938 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<meta name="theme-color" content="#FAF7F0"/>
+<title>Lección 29 · Depuración y buenas prácticas · TIC I · Les vencimos</title>
+<link rel="icon" href="../icons/favicon.svg" type="image/svg+xml"/>
+<link rel="icon" href="../icons/favicon-32.png" sizes="32x32" type="image/png"/>
+<link rel="apple-touch-icon" href="../icons/apple-touch-icon.png"/>
+<link rel="stylesheet" href="../leccion-shell.css"/>
+<script src="../leccion-shell-nav.js" defer></script>
+<style>
+.bloque-cuerpo table{width:100%;border-collapse:collapse;font-size:.92rem;margin:0 0 1rem}
+.bloque-cuerpo th,.bloque-cuerpo td{border:1px solid rgba(14,14,12,.12);padding:.45rem .55rem;vertical-align:top;text-align:left}
+.bloque-cuerpo th{background:#F0EBE0;font-weight:650}
+.bloque-cuerpo pre{background:#0E0E0C;color:#FAF7F0;padding:.9rem 1rem;border-radius:8px;overflow:auto;font-size:.82rem;line-height:1.45}
+.bloque-cuerpo pre code{color:inherit;font-size:inherit}
+.bloque-cuerpo code{font-family:ui-monospace,"Cascadia Code","Segoe UI Mono",monospace}
+.figura-svg{margin:1rem 0 1.15rem;background:#fff;border:1px solid rgba(14,14,12,.12);border-radius:10px;padding:.6rem .6rem .35rem}
+.figura-svg svg{width:100%;height:auto;display:block}
+.figura-svg figcaption{font-size:.82rem;color:#5C564C;padding:.35rem .2rem 0}
+details.comprueba{margin:.55rem 0;background:#fff;border:1px solid rgba(14,14,12,.12);border-left:3px solid #C4A15A;border-radius:8px;padding:.55rem .85rem}
+details.comprueba summary{cursor:pointer;font-weight:650;color:#0E0E0C}
+.lab-embed{background:#FAF7F0;border:1px solid rgba(14,14,12,.12);border-radius:8px;padding:.75rem}
+.lab-embed label{display:block;font-size:.78rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:#5C564C;margin:.4rem 0 .2rem}
+.lab-embed textarea,.lab-embed input[type=text],.lab-embed input[type=number],.lab-embed select{width:100%;font-family:ui-monospace,monospace;font-size:.82rem;border:1px solid rgba(14,14,12,.2);border-radius:6px;padding:.4rem .5rem;background:#fff;color:#0E0E0C}
+.lab-embed textarea{min-height:9rem;resize:vertical}
+.lab-row{display:flex;flex-wrap:wrap;gap:.4rem;margin:.45rem 0}
+.lab-embed button,.lab-embed .btn{background:#C4A15A;color:#1A160E;border:0;border-radius:4px;padding:.4rem .7rem;font-weight:700;cursor:pointer}
+.lab-embed button.sec{background:#fff;border:1px solid rgba(14,14,12,.2)}
+.lab-out{font-size:.88rem;background:#fff;border:1px solid rgba(14,14,12,.12);border-radius:6px;padding:.5rem .65rem;margin-top:.4rem}
+.lab-out .ok{color:#3D6B4F;font-weight:650}
+.lab-out .bad{color:#A85A3C;font-weight:650}
+.lab-preview{width:100%;min-height:220px;border:1px solid rgba(14,14,12,.15);border-radius:6px;background:#fff}
+.lab-canvas{width:100%;height:auto;background:#fff;border:1px solid rgba(14,14,12,.15);border-radius:6px;display:block}
+.nota{font-size:.9rem;color:#5C564C}
+.gpio-sim{display:grid;grid-template-columns:7.5rem 1fr;gap:.8rem;align-items:center;background:#0E0E0C;color:#FAF7F0;border-radius:10px;padding:.85rem 1rem;margin:.4rem 0 .8rem}
+.gpio-sim p{margin:.2rem 0;color:#FAF7F0;font-size:.92rem}
+.gpio-sim .pin{font-family:ui-monospace,monospace;color:#C4A15A}
+button.sw{width:4.2rem;height:2rem;min-height:2rem;border-radius:999px;border:1px solid #C4A15A;background:#2A2620;color:#FAF7F0;position:relative;cursor:pointer;padding:0;font-weight:700}
+button.sw[aria-pressed="true"]{background:#C4A15A;color:#1A160E}
+button.sw i{position:absolute;top:2px;left:2px;width:1.6rem;height:1.6rem;border-radius:50%;background:#FAF7F0;display:block;transition:left .15s}
+button.sw[aria-pressed="true"] i{left:2.2rem;background:#fff}
+</style>
+</head>
+<body class="leccion-shell">
+<div class="leccion-wrap">
+  <nav class="leccion-barra" aria-label="Navegación de lección" data-actual="29" data-total="32">
+    <div class="leccion-progreso" role="status">
+      <span class="progreso-texto"><strong>29</strong> de <strong>32</strong></span>
+      <div class="progreso-pista" aria-hidden="true"><div class="progreso-lleno" style="width:91%"></div></div>
+    </div>
+    <div class="leccion-atajos">
+      <a class="atajo atajo-calc" href="../../../../modulos/calculadora.html" title="Calculadora offline">Calculadora</a>
+      <a class="atajo atajo-prev" href="leccion-28-objetos-e-imagenes-multimedia.html" title="Lección 28">← Anterior</a>
+      <a class="atajo atajo-next" href="leccion-30-aplicacion-interactiva-ludica.html" title="Lección 30">Siguiente →</a>
+    </div>
+  </nav>
+  <header class="leccion-top">
+    <a class="leccion-marca" href="../../../../index.html">Les <span>vencimos</span></a>
+    <p class="leccion-meta-top">1º Bachillerato · TIC I</p>
+  </header>
+  <header class="bloque-titulo">
+    <span class="eyebrow">Lección 29 · C · Programación</span>
+    <h1 class="titulo-leccion">Depuración y buenas <em>prácticas</em></h1>
+    <p class="meta-leccion">1º Bachillerato · TIC I · Decreto 40/2022 CyL</p>
+  </header>
+  <aside class="bloque-curiosidad" aria-label="Curiosidad">
+    <p class="etiqueta-bloque">Curiosidad</p>
+    <h2 class="titulo-curiosidad">El programa que no grita</h2>
+    <p class="texto-curiosidad">Un error de sintaxis detiene al compilador o al intérprete. Un error de lógica enciende el LED en la hora equivocada y no escribe ninguna queja. Los dos se llaman bug. No se cazan igual.</p>
+    <div class="ilustracion-slot"><svg viewBox="0 0 96 96" width="96" height="96" aria-hidden="true"><rect x="10" y="18" width="76" height="60" rx="4" fill="none" stroke="#2F5D7A" stroke-width="3"/><path d="M22 40h52M22 52h36M22 64h44" stroke="#C4A15A" stroke-width="3"/></svg></div>
+  </aside>
+  <section class="bloque-cuerpo">
+    <h2 id="maestro-objetivos">Objetivos</h2>
+    <ol><li>Clasificar errores de sintaxis, de ejecución y de lógica.</li><li>Leer un mensaje de error por la línea y la causa, no por el susto.</li><li>Corregir el índice fuera de rango y un = colado en una condición.</li><li>Decir qué hace un compilador y qué hace un intérprete cuando el texto está mal.</li><li>Elegir una licencia de código y no confundirla con una licencia de un texto o una foto.</li></ol>
+    <h2 id="maestro-explicacion">Explicación</h2>
+    <p>Depurar es buscar la distancia entre lo que el programa hace y lo que querías que hiciera, y cerrarla cambiando el texto, no cambiando el deseo en la memoria. El bloque C pide depuración junto a la sintaxis. No es un trámite final: es la mitad del trabajo en cuanto el avisador se sale del ejemplo de cuatro líneas.</p><h3>Tres familias</h3><p>El error de sintaxis es una frase que el lenguaje no reconoce: falta un fin, sobra un carácter, una cadena sin cerrar. No hay ejecución útil. El compilador de Arduino se para antes de grabar; el intérprete de esta página se para en esa línea. El error de ejecución ocurre con un texto legal que pide un imposible: dividir por cero, leer lecturas[3] cuando solo hay índices 0, 1 y 2. El mensaje existe, y nombra la línea. El error de lógica no tiene mensaje. suma acaba en 6 y tú querías 10; el LED se enciende con 500 porque escribiste &lt;= en vez de &lt;. El programa está «bien» para el intérprete y mal para el patio.</p><p>Por eso la traza no es opcional en los errores de lógica. No hay un subrayado rojo. Tienes la tabla del cuaderno y el entorno del laboratorio. Si no coinciden, el fallo está en uno de los dos, y los dos se pueden releer. Sospechar del sensor, de la placa que no está conectada o del «canvas que va mal» es la última hipótesis, no la primera. En esta página no hay sensor.</p><h3>Cómo se lee un mensaje</h3><p>«Línea 4: índice 3 fuera del vector (longitud 3)» dice dónde y qué. No dice «fracaso». La línea 4 es la del acceso, aunque la causa sea el hasta de la línea 3. Se lee el hasta, se cuenta 0, 1, 2 y se ve que la tercera vuelta, i = 3, no cabe. Se corrige una cosa cada vez y se vuelve a ejecutar. Corregir tres cosas a la vez también «arregla» el ejemplo y te deja sin saber cuál era la causa. Eso no es depurar: es barajar.</p><h3>Compilador e intérprete, otra vez</h3><p>El IDE de Arduino compila: analiza todo el sketch y, si la sintaxis falla, no graba. Un warning a veces no detiene, y por eso se leen y no se esconden. El navegador interpreta JavaScript cuando la página corre: un fallo de sintaxis en un script impide ese script; un fallo de ejecución salta en el momento de la línea. El pseudocódigo de aquí lo interpreta el botón Ejecutar, que es un programa escrito para el aula, no el compilador de la UNO. Un sketch correcto compilado puede seguir teniendo un error de lógica: la placa hará exactamente el if equivocado, a toda velocidad y sin consola, salvo que tú hayas puesto un Serial.print. En el aula, la consola es esta caja de salida.</p><h3>Licencia del código</h3><p>El código también tiene autor y condiciones. No es el mismo papel que la foto o el texto del bloque B. Una licencia de software dice qué puede hacer otra persona con el programa: copiarlo, modificarlo, vender un aparato que lo incluye, y si debe publicar los cambios. MIT es corta y permite casi todo a cambio de mantener el aviso de autor. Apache-2.0 se parece en el permiso y añade cláusulas de patentes. GPL exige que, si distribuyes el programa modificado, entregues también el código bajo la misma licencia: el famoso copyleft. Un programa propietario no concede esos permisos. «Está en internet» no es una licencia. «Creative Commons» vale para textos, fotos y vídeos; no es la forma habitual de licenciar un sketch, y mezclarlas sin leerlas produce atribuciones falsas.</p><p>En una memoria de bachillerato basta con tres cosas honestas: qué código es tuyo, qué código has copiado y bajo qué licencia está lo copiado, y que el ejemplo de esta página es material de aula para aprender, no una librería que publiques como tuya. El micromecenazgo y las licencias de contenidos se trabajaron en el bloque B. Aquí no se reabre una campaña: solo se evita regalar o apropiarse de un programa por no mirar el archivo LICENSE.</p><h3>El interruptor como oráculo falso</h3><p>Puedes dejar el LED simulado en ON con la mano mientras el programa calcula LOW. Las dos cosas se ven a la vez: el rótulo HIGH del interruptor y el valor de la variable. Depurar es explicar la diferencia, no mover el interruptor hasta que «quede como la demo». Si los dos coinciden y el patio real no, entonces sí toca hablar del sensor, y esa frase solo es creíble después de la traza.</p>
+    <figure class="figura-svg"><svg viewBox="0 0 640 300" width="640" height="300" role="img" aria-label="Una secuencia de pasos con el erróneo tachado y una traza corta al lado."><title>Fallo marcado y traza</title><rect width="640" height="300" fill="#FAF7F0"/>
+<text x="48" y="70" fill="#0E0E0C" font-size="16" font-family="sans-serif">1 leer</text>
+<text x="48" y="110" fill="#0E0E0C" font-size="16" font-family="sans-serif">2 sumar</text>
+<text x="48" y="150" fill="#C4A15A" font-size="16" font-family="sans-serif">3 índice 4</text>
+<line x1="40" y1="144" x2="170" y2="144" stroke="#C4A15A" stroke-width="3"/>
+<text x="48" y="190" fill="#5C564C" font-size="16" font-family="sans-serif">4 comparar</text>
+<rect x="280" y="50" width="310" height="180" fill="#0E0E0C"/>
+<text x="300" y="86" fill="#C4A15A" font-size="14" font-family="sans-serif">traza</text>
+<text x="300" y="118" fill="#FAF7F0" font-size="14" font-family="sans-serif">i = 0 suma = 100</text>
+<text x="300" y="146" fill="#FAF7F0" font-size="14" font-family="sans-serif">i = 1 suma = 240</text>
+<text x="300" y="174" fill="#FAF7F0" font-size="14" font-family="sans-serif">i = 2 suma = 360</text>
+<text x="300" y="204" fill="#C4A15A" font-size="14" font-family="sans-serif">i = 3 fuera</text>
+</svg><figcaption>Solo los dos primeros paran con mensaje. El de lógica exige traza. La licencia no arregla el índice, pero evita otro problema distinto.</figcaption></figure>
+    <h2 id="maestro-glosas">Glosas de esta lección</h2>
+    <p class="glosa-simbolo"><strong>Sintaxis.</strong> El texto no pertenece al lenguaje. No llega a hacer el algoritmo.</p>
+<p class="glosa-simbolo"><strong>Ejecución.</strong> El texto es legal y la orden es imposible en ese momento.</p>
+<p class="glosa-simbolo"><strong>Lógica.</strong> Hace otra cosa de la que querías, sin quejarse.</p>
+<p class="glosa-simbolo"><strong>Línea.</strong> El número del mensaje. Se mira esa y la anterior, no el archivo entero al azar.</p>
+<p class="glosa-simbolo"><strong>Traza.</strong> La herramienta de los errores que no se subrayan.</p>
+<p class="glosa-simbolo"><strong>Compilador.</strong> Traduce antes de ejecutar. El IDE de Arduino. Si la sintaxis falla, no graba.</p>
+<p class="glosa-simbolo"><strong>Intérprete.</strong> Ejecuta el texto. El navegador con JavaScript; esta página con el pseudocódigo.</p>
+<p class="glosa-simbolo"><strong>MIT.</strong> Licencia permisiva: se puede reutilizar conservando el aviso de autoría.</p>
+<p class="glosa-simbolo"><strong>GPL.</strong> Copyleft: al distribuir modificaciones hay que ofrecer el código bajo GPL.</p>
+<p class="glosa-simbolo"><strong>CC.</strong> Familia de licencias de contenidos, vista en el bloque B. No sustituye a MIT o GPL para un programa.</p>
+    <h2 id="maestro-ejemplos">Ejemplos resueltos</h2>
+    <h3>Ejemplo 1 — Índice de más</h3><p>El ejemplo inicial usa hasta lecturas.longitud con tres casillas. Ejecutar señala el índice 3. Se cambia a longitud - 1. La suma pasa a 1320 y la media a 440. 440 no se escribe a mano.</p>
+<h3>Ejemplo 2 — Un igual</h3><p>si s = 1320 dentro de la condición. La pista pide una comparación. Se usa ==. Hasta que no se cambia, no hay un «sí» fiable.</p>
+<h3>Ejemplo 3 — Lógica del umbral</h3><p>El programa compila, la media es 440 y el LED enciende porque alguien escribió &lt;= 440 para el ensayo y el umbral acordado era 500. No hay mensaje. La tabla de la lección 25 lo caza.</p>
+    <h2>Decisiones de aula</h2><p>Cada caso es una entrega del avisador del patio del IES Duero (Aranda de Duero). Lee la situación antes de la decisión.</p>
+<h3>1. Arreglar de tres en tres</h3><p><strong>Situación.</strong> Se cambia el hasta, el umbral y el nombre a la vez, y «ya funciona».</p><p><strong>No conviene.</strong> Porque hay prisa por la demo.</p><p><strong>Decisión.</strong> Un cambio, una ejecución, una frase de qué ha cambiado en la salida.</p><p><strong>Por qué:</strong> Cambiar a la vez el hasta, el umbral y el nombre, y decir que ya funciona, impide saber cuál de los tres era el fallo. La próxima vez repetirás los otros dos por superstición. Un cambio, una prueba, y se anota qué se tocó.</p>
+<h3>2. Esconder el warning</h3><p><strong>Situación.</strong> El IDE avisa y se baja el nivel de avisos a cero.</p><p><strong>No conviene.</strong> Para ver el panel limpio.</p><p><strong>Decisión.</strong> Leer el aviso. Muchos son índices y variables que no se usan, precisamente temas de esta lección.</p><p><strong>Por qué:</strong> Bajar los avisos a cero deja el panel limpio y el programa silenciado, no correcto. Muchos avisos son un índice fuera de rango o una variable sin uso que mañana será el bug. Se lee el aviso antes de esconderlo.</p>
+<h3>3. Código de un foro</h3><p><strong>Situación.</strong> Se pega una función de media sin autor ni licencia.</p><p><strong>No conviene.</strong> Porque funciona y «está publicada».</p><p><strong>Decisión.</strong> Reescribir la media, que ya sabes hacer, o copiarla citando autor y licencia si de verdad es una librería.</p><p><strong>Por qué:</strong> Pegar una función de media de un foro porque «está publicada» no regala la licencia, y una función de cuatro líneas no merece un plagio. Publicado no significa regalado. Se reescribe la media, que ya sabes hacer, y se cita si de verdad usas obra ajena.</p>
+<h3>4. Echarle la culpa al GPIO</h3><p><strong>Situación.</strong> El LED simulado no coincide y se concluye que la página está rota.</p><p><strong>No conviene.</strong> Porque el dibujo es más visible que la variable.</p><p><strong>Decisión.</strong> Comparar la variable pin o estado con el interruptor y decir cuál manda.</p><p><strong>Por qué:</strong> Si el LED simulado no coincide, concluir que la página está rota confunde la mano con el programa. El interruptor es la mano; la variable es lo que el código decidió. Depurar empieza por no mezclarlos y por leer la traza antes de tocar el dibujo.</p>
+    <h2>El mismo avisador, en tres lenguajes</h2>
+    <p>El problema no cambia: si la luz del patio del IES Duero baja de 500, hay que avisar. Cambia quién ejecuta. El pseudocódigo lo ejecuta el laboratorio de esta página. El sketch lo compilaría el IDE de Arduino hacia la UNO. El fragmento de Python lo ejecutaría una Raspberry Pi con gpiozero, si hubiera placa. Aquí no hay placa.</p>
+    <h3>Mal a propósito</h3><p>Con tres casillas, i llega a 3 y el laboratorio se para. El arreglo es hasta lecturas.longitud - 1.</p><pre><code>para i = 0 hasta lecturas.longitud
+  s = s + lecturas[i]
+fin
+</code></pre><h3>Lo que un compilador ve</h3><p>i &lt;= 3 visita cuatro índices. El compilador a veces ni avisa. Es un error de lógica o de ejecución según el entorno, y en la placa es peligroso. La condición segura es i &lt; 3.</p><pre><code>int lecturas[3] = {420, 510, 390};
+int s = 0;
+for (int i = 0; i &lt;= 3; i++) {   // i == 3 se sale
+  s = s + lecturas[i];
+}
+</code></pre><h3>Licencia en la cabecera</h3><p>Tres líneas. No convierten el trabajo en un producto, pero impiden que alguien lo publique como anónimo o que tú pegues el de otra persona sin mirar.</p><pre><code>// Avisador de patio, departamento de Tecnología.
+// Autor: grupo de 1º, IES Duero, 2026.
+// Licencia: MIT. Ver LICENSE si el archivo se publica.
+</code></pre>
+    <h2>El mismo síntoma, tres causas</h2><div class='tarjeta' style='overflow-x:auto'><table><thead><tr><th>Qué ves</th><th>Familia</th><th>Mensaje</th><th>Qué se toca</th></tr></thead><tbody><tr><td>Falta un fin</td><td>sintaxis</td><td>sí</td><td>el texto, antes de fiarte de la media</td></tr><tr><td>Índice 3 de 3 casillas</td><td>ejecución</td><td>sí, con línea</td><td>el hasta, a longitud-1</td></tr><tr><td>LED encendido en el empate</td><td>lógica</td><td>no</td><td>la condición, con la traza del 500</td></tr><tr><td>Código de un foro firmado por ti</td><td>licencia</td><td>no</td><td>la cabecera o reescribir</td></tr></tbody></table></div><p>La cuarta fila no se arregla ejecutando otra vez. Se arregla diciendo de quién es el programa. Confundirla con un bug de índice es una manera de no mirarla.</p>
+    <h2>Lectura guiada</h2><p>Corrige el ejemplo y anota la media que sale (440 para 420, 510 y 390). Luego mete un cuarto valor y predice la media antes de ejecutar. Si fallas, no es el intérprete: es la división o el índice. Vuelve a la tabla de la lección 27.</p><p>Añade un si s = 0 a propósito, ejecuta, lee la pista y quítalo. Querer ver el error una vez es mejor que tenerle miedo. El mensaje es parte del material, no una reprimenda.</p><p>Escribe las tres líneas de licencia en el cuaderno, con tu nombre o el del grupo. Si usas solo código tuyo, dilo. Si un día añades una librería, su LICENSE manda en ese archivo y no se pisa con el tuyo.</p>
+    <h2>Errores que se repiten</h2><ul><li><strong>Leer solo la primera palabra del mensaje.</strong> La línea y la causa están más abajo o más a la derecha.</li><li><strong>Cambiar el ejemplo para que el error desaparezca sin entenderlo.</strong> Borrar el para «arregla» el índice y mata el programa.</li><li><strong>Creer que compila implica que está bien.</strong> Compilar filtra sintaxis, no el umbral equivocado.</li><li><strong>Tapar la salida con un escribe del resultado deseado.</strong> Es falsificar la traza.</li><li><strong>CC-BY en un sketch como si fuera lo mismo que MIT.</strong> Se parecen en «cita al autor» y no se parecen en lo que se puede hacer con el código.</li><li><strong>Publicar el programa del foro como propio.</strong> Es un problema de licencia y de honradez, anterior a que el LED encienda.</li></ul>
+    <h2>Rúbrica de esta lección</h2><div class="tarjeta" style="overflow-x:auto"><table><thead><tr><th>Criterio</th><th>Aún no</th><th>En proceso</th><th>Conseguido</th><th>Notable</th></tr></thead><tbody><tr><td>Clasificar</td><td>«No va»</td><td>Todo es sintaxis</td><td>Distingue las tres familias</td><td>Sabe cuál no da mensaje</td></tr><tr><td>Mensaje</td><td>No lo lee</td><td>Lee y no toca esa línea</td><td>Corrige la causa</td><td>Un cambio cada vez</td></tr><tr><td>Lógica</td><td>No hay traza</td><td>Traza decorativa</td><td>La tabla caza el &lt;=</td><td>No culpa al GPIO simulado</td></tr><tr><td>Compilar</td><td>Se confunde con ejecutar</td><td>Lo nombra</td><td>IDE frente a botón Ejecutar</td><td>Un sketch compilado puede estar mal</td></tr><tr><td>Licencia</td><td>Copia sin mirar</td><td>Dice «de internet»</td><td>Separa código propio y ajeno</td><td>Nombra MIT o GPL y no la confunde con CC</td></tr></tbody></table></div>
+    <h2 id="maestro-cierre">Mini cierre</h2>
+    <p>Sintaxis y ejecución hablan. La lógica no. Se depura con la línea, con una traza y con un cambio cada vez. La licencia se escribe aunque el programa sea de aula.</p>
+    <h2 id="maestro-comprueba">Comprueba</h2>
+    <p>Abre cada pregunta, responde en el cuaderno y después mira la solución. El párrafo «Por qué» es la parte que se estudia.</p>
+<details class="comprueba">
+<summary>1. El laboratorio dice que el índice 3 no existe y hay tres lecturas. ¿Cuál es la corrección, y por qué no vale borrar el vector?</summary>
+<p><strong>Respuesta.</strong> El para debe llegar hasta longitud - 1. Borrar el vector esconde el síntoma y elimina los datos.</p>
+<p><strong>Por qué:</strong> Con tres lecturas, el índice 3 no existe: las casillas son 0, 1 y 2. El para debe llegar hasta longitud menos uno, que es lo que el mensaje ya está diciendo. Borrar el vector esconde el síntoma y elimina los datos que había que promediar.</p>
+</details>
+<details class="comprueba">
+<summary>2. ¿Por qué un sketch que compila puede encender el LED al revés?</summary>
+<p><strong>Respuesta.</strong> Porque el compilador no conoce el umbral acordado en el patio. Solo conoce la sintaxis.</p>
+<p><strong>Por qué:</strong> Un sketch que compila puede encender el LED al revés porque el compilador no conoce el umbral acordado en el patio. Solo conoce la sintaxis. Un if con la comparación cambiada es un programa legal, y hace falta la traza del caso 500 para verlo.</p>
+</details>
+<details class="comprueba">
+<summary>3. Un compañero pega una librería con un archivo LICENSE que dice GPL. ¿Puede entregarla como si el grupo la hubiera escrito?</summary>
+<p><strong>Respuesta.</strong> No. Puede usarla si cumple la GPL, y tiene que decir que no es suya.</p>
+<p><strong>Por qué:</strong> La licencia no es un pie de página decorativo: es la condición del autor. Borrar el aviso y firmar encima es quedarse el programa. Escribir la media uno mismo, en este tema, es además más corto que entender una librería ajena.</p>
+</details>
+  </section>
+  <section id="maestro-vida" class="bloque-vida-real">
+    <div class="contenido-vida">
+      <p class="etiqueta-bloque">En la vida real</p>
+      <h2 class="titulo-vida">Castilla y León, sin servidor</h2>
+      <ul><li>El parte de avería del aula de tecnología separa «no enciende» de «enciende cuando no toca». Es la misma frontera entre fallo visible y fallo de lógica.</li><li>En un instituto de Segovia, reutilizar el sketch del año pasado sin mirar la cabecera es cómo se heredan umbrales y nombres de pin que ya no corresponden.</li><li>Una calculadora que da 640 en vez de 480 no está «estropeada» si el programa sumó tres casillas. Se revisa la cuenta, no el aparato.</li><li>Elegir MIT para un trabajo de clase que se va a leer en voz alta es suficiente. No hace falta una fundación. Hace falta no poner «todos los derechos reservados» en un código que en realidad copiaste.</li></ul>
+    </div>
+  </section>
+
+  <section id="maestro-interactivo" class="bloque-interactivo" aria-label="Laboratorio">
+    <div class="marco-interactivo-cabecera">
+      <span class="etiqueta-interactivo">Laboratorio · en esta página</span>
+      <a class="enlace-abrir" href="l29-depuracion-y-buenas-practicas.html">Abrir en pestaña →</a>
+    </div>
+    <div class="lab-embed" id="lab-inline">
+<p class="nota">El ejemplo del editor está roto a propósito: el para llega hasta longitud y se sale del vector. Ejecutar debe mostrar el error, no una media. Corrige a longitud - 1. Las pistas aparecen bajo la traza. Sigue siendo local.</p>
+
+<div class="gpio-sim" id="gpioL29">
+  <svg viewBox="0 0 120 140" width="120" height="140" role="img" aria-label="LED simulado en el pin GPIO 18">
+    <rect x="34" y="78" width="52" height="18" rx="3" fill="#5C564C"/>
+    <rect x="54" y="48" width="12" height="34" fill="#8A8175"/>
+    <circle id="gpioL29-glow" cx="60" cy="36" r="30" fill="#E24B2A" opacity="0"/>
+    <circle id="gpioL29-bulb" cx="60" cy="36" r="22" fill="#3A3530" stroke="#C4A15A" stroke-width="3"/>
+    <text x="60" y="118" text-anchor="middle" fill="#C4A15A" font-size="11" font-family="ui-monospace,monospace">GPIO 18</text>
+  </svg>
+  <div>
+    <p style="letter-spacing:.08em;text-transform:uppercase;font-size:.72rem;color:#C4A15A">Simulación local · sin hardware</p>
+    <p><strong>Raspberry Pi (BCM) · paralelo didáctico Arduino UNO D13</strong> · pin <span class="pin">GPIO 18</span></p>
+    <p>Estado del pin: <strong id="gpioL29-state">LOW</strong> · LED <strong id="gpioL29-led">apagado</strong></p>
+    <p><button type="button" class="sw" id="gpioL29-btn" aria-pressed="false" aria-label="Interruptor ON/OFF del LED en GPIO 18"><i></i></button>
+    <span id="gpioL29-sw">OFF</span></p>
+    <p style="color:#C8C0B4;font-size:.82rem">Si el programa está mal, el LED puede quedarse apagado con el pin que tú crees en HIGH. El interruptor enseña el estado que la mano pide; la traza enseña el estado que el código pide. Si no coinciden, se depura el código.  HIGH enciende el LED (en la Pi, 3,3 V; en Arduino UNO el paralelo didáctico es digitalWrite HIGH en D13). No se envía nada fuera de esta página.</p>
+  </div>
+</div>
+<script>
+(function(){
+  var uid = "gpioL29";
+  var on = false;
+  var btn = document.getElementById(uid+"-btn");
+  var bulb = document.getElementById(uid+"-bulb");
+  var glow = document.getElementById(uid+"-glow");
+  var st = document.getElementById(uid+"-state");
+  var led = document.getElementById(uid+"-led");
+  var sw = document.getElementById(uid+"-sw");
+  function paint(){
+    btn.setAttribute("aria-pressed", on ? "true" : "false");
+    sw.textContent = on ? "ON" : "OFF";
+    bulb.setAttribute("fill", on ? "#E24B2A" : "#3A3530");
+    glow.setAttribute("opacity", on ? "0.35" : "0");
+    st.textContent = on ? "HIGH" : "LOW";
+    led.textContent = on ? "encendido" : "apagado";
+    window.__pinAlto = on;
+    var ev = document.createEvent("Event");
+    ev.initEvent("gpio-cambio", true, true);
+    document.dispatchEvent(ev);
+  }
+  btn.addEventListener("click", function(){ on = !on; paint(); });
+  paint();
+})();
+</script>
+
+
+<label for="src">Editor · pseudocódigo de esta página</label>
+<textarea id="src" spellcheck="false"></textarea>
+<div class="lab-row">
+  <button type="button" id="bRun">Ejecutar</button>
+  <button type="button" id="bFlow" class="sec">Dibujar diagrama</button>
+  
+  <button type="button" id="bRes" class="sec">Restaurar ejemplo</button>
+</div>
+
+<canvas id="cv" class="lab-canvas" width="640" height="280" aria-label="Lienzo de la lección 29"></canvas>
+<div id="out" class="lab-out">Pulsa Ejecutar. El resultado se queda en esta página.</div>
+<script>
+/* Intérprete de un subconjunto de pseudocódigo. Sin eval. */
+function interpret(src) {
+  var rawLines = String(src).replace(/\r/g, "").split("\n");
+  var lines = [];
+  for (var li = 0; li < rawLines.length; li++) {
+    lines.push({ t: rawLines[li].replace(/\s+$/, ""), n: li + 1 });
+  }
+  var env = {};
+  var trace = [];
+  var steps = 0;
+  var MAX = 500;
+  var out = [];
+
+  function err(n, msg) { var e = new Error("Línea " + n + ": " + msg); e.line = n; throw e; }
+  function bump(n) { steps++; if (steps > MAX) err(n, "demasiados pasos (¿bucle sin salida?)"); }
+
+  function tokenize(s) {
+    var t = [], i = 0;
+    while (i < s.length) {
+      var c = s.charAt(i);
+      if (c === " " || c === "\t") { i++; continue; }
+      if (c === '"' || c === "'") {
+        var q = c, j = i + 1, str = "";
+        while (j < s.length && s.charAt(j) !== q) {
+          if (s.charAt(j) === "\\") { j++; str += s.charAt(j); j++; continue; }
+          str += s.charAt(j); j++;
+        }
+        if (j >= s.length) throw new Error("cadena sin cerrar");
+        t.push({ k: "str", v: str }); i = j + 1; continue;
+      }
+      if (/[0-9]/.test(c) || (c === "." && /[0-9]/.test(s.charAt(i + 1)))) {
+        var j2 = i + 1;
+        while (j2 < s.length && /[0-9.]/.test(s.charAt(j2))) j2++;
+        t.push({ k: "num", v: parseFloat(s.slice(i, j2)) }); i = j2; continue;
+      }
+      if (/[A-Za-z_áéíóúñÁÉÍÓÚÑ]/.test(c)) {
+        var j3 = i + 1;
+        while (j3 < s.length && /[A-Za-z0-9_áéíóúñÁÉÍÓÚÑ]/.test(s.charAt(j3))) j3++;
+        t.push({ k: "id", v: s.slice(i, j3) }); i = j3; continue;
+      }
+      var two = s.slice(i, i + 3);
+      var ops3 = ["===", "!==", "<=", ">="];
+      var ops2 = ["==", "!=", "<=", ">=", "&&", "||"];
+      if (ops3.indexOf(s.slice(i, i + 3)) >= 0) { t.push({ k: "op", v: s.slice(i, i + 3) }); i += 3; continue; }
+      if (ops2.indexOf(s.slice(i, i + 2)) >= 0) { t.push({ k: "op", v: s.slice(i, i + 2) }); i += 2; continue; }
+      if ("+-*/%<>!()[],.".indexOf(c) >= 0) { t.push({ k: "op", v: c }); i++; continue; }
+      throw new Error("carácter no admitido «" + c + "»");
+    }
+    return t;
+  }
+
+  function Parser(tokens, n) {
+    this.tk = tokens; this.i = 0; this.n = n;
+  }
+  Parser.prototype.peek = function () { return this.tk[this.i] || null; };
+  Parser.prototype.pop = function () { return this.tk[this.i++] || null; };
+  Parser.prototype.fail = function (m) { err(this.n, m); };
+
+  function parseExpr(p) { return parseOr(p); }
+  function parseOr(p) {
+    var left = parseAnd(p);
+    while (p.peek() && p.peek().v === "||") { p.pop(); var r = parseAnd(p); left = !!(left || r); }
+    return left;
+  }
+  function parseAnd(p) {
+    var left = parseCmp(p);
+    while (p.peek() && p.peek().v === "&&") { p.pop(); var r = parseCmp(p); left = !!(left && r); }
+    return left;
+  }
+  function parseCmp(p) {
+    var left = parseSum(p);
+    var cmp = ["===", "!==", "==", "!=", "<", ">", "<=", ">="];
+    while (p.peek() && cmp.indexOf(p.peek().v) >= 0) {
+      var op = p.pop().v; var right = parseSum(p);
+      if (op === "===" || op === "==") left = left === right;
+      else if (op === "!==" || op === "!=") left = left !== right;
+      else if (op === "<") left = left < right;
+      else if (op === ">") left = left > right;
+      else if (op === "<=") left = left <= right;
+      else if (op === ">=") left = left >= right;
+    }
+    return left;
+  }
+  function parseSum(p) {
+    var left = parseProd(p);
+    while (p.peek() && (p.peek().v === "+" || p.peek().v === "-")) {
+      var op = p.pop().v; var right = parseProd(p);
+      if (typeof left === "string" || typeof right === "string") {
+        left = String(left) + String(right);
+      } else {
+        left = op === "+" ? left + right : left - right;
+      }
+    }
+    return left;
+  }
+  function parseProd(p) {
+    var left = parseUnary(p);
+    while (p.peek() && (p.peek().v === "*" || p.peek().v === "/" || p.peek().v === "%")) {
+      var op = p.pop().v; var right = parseUnary(p);
+      if (op === "*") left = left * right;
+      else if (op === "/") left = right === 0 ? err(p.n, "división por cero") : left / right;
+      else left = left % right;
+    }
+    return left;
+  }
+  function parseUnary(p) {
+    if (p.peek() && p.peek().v === "!") { p.pop(); return !parseUnary(p); }
+    if (p.peek() && p.peek().v === "-") { p.pop(); return -parseUnary(p); }
+    return parsePrimary(p);
+  }
+  function lookup(name, n) {
+    if (!Object.prototype.hasOwnProperty.call(env, name)) err(n, "«" + name + "» no tiene valor. Declárala con let.");
+    return env[name];
+  }
+  function parsePrimary(p) {
+    var tk = p.pop();
+    if (!tk) p.fail("falta una expresión");
+    if (tk.k === "num") return tk.v;
+    if (tk.k === "str") return tk.v;
+    if (tk.k === "id") {
+      if (tk.v === "verdadero" || tk.v === "true") return true;
+      if (tk.v === "falso" || tk.v === "false") return false;
+      if (tk.v === "nulo" || tk.v === "null") return null;
+      if (p.peek() && p.peek().v === "(") {
+        p.pop();
+        var args = [];
+        if (!(p.peek() && p.peek().v === ")")) {
+          args.push(parseExpr(p));
+          while (p.peek() && p.peek().v === ",") { p.pop(); args.push(parseExpr(p)); }
+        }
+        if (!p.peek() || p.peek().v !== ")") p.fail("falta ) en la llamada");
+        p.pop();
+        return callFn(tk.v, args, p.n);
+      }
+      var base = lookup(tk.v, p.n);
+      if (p.peek() && p.peek().v === "[") {
+        p.pop();
+        var ix = parseExpr(p);
+        if (!p.peek() || p.peek().v !== "]") p.fail("falta ]");
+        p.pop();
+        if (!Array.isArray(base)) err(p.n, "«" + tk.v + "» no es un vector");
+        if (ix < 0 || ix >= base.length || ix !== Math.floor(ix)) err(p.n, "índice " + ix + " fuera del vector (longitud " + base.length + ")");
+        return base[ix];
+      }
+      if (p.peek() && p.peek().v === ".") {
+        p.pop();
+        var prop = p.pop();
+        if (!prop || prop.k !== "id") p.fail("falta la propiedad");
+        if (prop.v === "longitud" && Array.isArray(base)) return base.length;
+        if (base && typeof base === "object" && Object.prototype.hasOwnProperty.call(base, prop.v)) return base[prop.v];
+        err(p.n, "«" + tk.v + "» no tiene «" + prop.v + "»");
+      }
+      return base;
+    }
+    if (tk.v === "(") {
+      var v = parseExpr(p);
+      if (!p.peek() || p.peek().v !== ")") p.fail("falta )");
+      p.pop(); return v;
+    }
+    if (tk.v === "[") {
+      var arr = [];
+      if (!(p.peek() && p.peek().v === "]")) {
+        arr.push(parseExpr(p));
+        while (p.peek() && p.peek().v === ",") { p.pop(); arr.push(parseExpr(p)); }
+      }
+      if (!p.peek() || p.peek().v !== "]") p.fail("falta ] del vector");
+      p.pop(); return arr;
+    }
+    p.fail("no sé leer «" + (tk.v || "") + "»");
+  }
+  function evalExpr(s, n) {
+    var tokens;
+    try { tokens = tokenize(s); } catch (e) { err(n, e.message); }
+    var p = new Parser(tokens, n);
+    var v = parseExpr(p);
+    if (p.peek()) err(n, "sobra «" + p.peek().v + "» en la expresión");
+    return v;
+  }
+
+  var functions = {};
+  function callFn(name, args, n) {
+    if (name === "longitud") return Array.isArray(args[0]) ? args[0].length : String(args[0]).length;
+    if (name === "absoluto") return Math.abs(Number(args[0]));
+    if (name === "redondeo") return Math.round(Number(args[0]));
+    if (name === "texto") return String(args[0]);
+    if (!functions[name]) err(n, "no existe la función «" + name + "»");
+    var fn = functions[name];
+    if (args.length !== fn.params.length) err(n, "«" + name + "» espera " + fn.params.length + " parámetros");
+    var saved = {};
+    for (var k in env) saved[k] = env[k];
+    for (var a = 0; a < fn.params.length; a++) env[fn.params[a]] = args[a];
+    var ret = execBlock(fn.body, (function(){var e=findEnd(fn.body); return e<0?lines.length:e;})(), true);
+    env = saved;
+    return ret.value;
+  }
+
+  function findEnd(from, openKw) {
+    var depth = 0;
+    for (var i = from; i < lines.length; i++) {
+      var t = lines[i].t.trim();
+      if (/^(mientras|para|funcion|repetir)\b/.test(t) || (/^si\b/.test(t) && !/^si no\b/.test(t) && t !== "sino")) depth++;
+      if (t === "fin" || t === "end" || t === "fin si" || t === "fin mientras" || t === "fin para" || t === "fin funcion") {
+        if (depth === 0) return i;
+        depth--;
+      }
+    }
+    return -1;
+  }
+
+  function execBlock(start, end, stopOnReturn) {
+    if (end == null) end = lines.length;
+    var i = start;
+    while (i < end) {
+      var line = lines[i].t.trim();
+      var n = lines[i].n;
+      if (line === "fin" || line === "end" || line === "fin si" || line === "fin mientras" || line === "fin para" || line === "fin funcion") {
+        return { i: i, value: null, returned: false };
+      }
+      if (line === "" || line.charAt(0) === "#") { i++; continue; }
+      bump(n);
+      var m;
+      if ((m = line.match(/^funcion\s+([A-Za-z_][\w]*)\s*\(([^)]*)\)\s*$/))) {
+        var endFn = findEnd(i + 1);
+        if (endFn < 0) err(n, "función sin fin");
+        var params = m[2].trim() ? m[2].split(",").map(function (s) { return s.trim(); }) : [];
+        functions[m[1]] = { params: params, body: i + 1 };
+        i = endFn + 1; continue;
+      }
+      if ((m = line.match(/^(?:let|const|var)\s+([A-Za-z_][\w]*)\s*=\s*(.+)$/)) || (m = line.match(/^([A-Za-z_][\w]*)\s*=\s*(.+)$/))) {
+        var name = m[1];
+        var isDecl = /^(let|const|var)\b/.test(line);
+        if (!isDecl && !Object.prototype.hasOwnProperty.call(env, name)) err(n, "«" + name + "» no está declarada");
+        var rhs = m[2];
+        var value;
+        var ixm = rhs.match(/^(.+)\[(.+)\]$/);
+        if (!isDecl && ixm && Array.isArray(env[name])) {
+          var arr = env[name].slice();
+          var ix = evalExpr(ixm[2], n);
+          arr[ix] = evalExpr(ixm[1], n);
+          value = arr;
+        } else {
+          value = evalExpr(rhs, n);
+        }
+        env[name] = value;
+        trace.push({ n: n, name: name, value: value });
+        i++; continue;
+      }
+      if ((m = line.match(/^escribe\s+(.+)$/i)) || (m = line.match(/^mostrar\s+(.+)$/i))) {
+        out.push(evalExpr(m[1], n));
+        trace.push({ n: n, name: "escribe", value: out[out.length - 1] });
+        i++; continue;
+      }
+      if ((m = line.match(/^si\s+(.+)$/i)) || (m = line.match(/^if\s+(.+)$/i))) {
+        var cond = evalExpr(m[1], n);
+        var endIf = findEnd(i + 1);
+        if (endIf < 0) err(n, "si sin fin");
+        var elseAt = -1, depth = 0;
+        for (var j = i + 1; j < endIf; j++) {
+          var tj = lines[j].t.trim();
+          if (/^(mientras|para|funcion)\b/.test(tj) || (/^si\b/.test(tj) && !/^si no\b/.test(tj) && tj !== "sino")) depth++;
+          else if (tj === "fin" || tj === "end" || /^fin /.test(tj)) depth--;
+          else if (depth === 0 && (tj === "si no" || tj === "sino" || tj === "else")) { elseAt = j; break; }
+        }
+        if (cond) {
+          var r1 = execBlock(i + 1, elseAt < 0 ? endIf : elseAt, true);
+          if (r1.returned) return r1;
+        } else if (elseAt >= 0) {
+          var r2 = execBlock(elseAt + 1, endIf, true);
+          if (r2.returned) return r2;
+        }
+        i = endIf + 1; continue;
+      }
+      if ((m = line.match(/^mientras\s+(.+)$/i)) || (m = line.match(/^while\s+(.+)$/i))) {
+        var endW = findEnd(i + 1);
+        if (endW < 0) err(n, "mientras sin fin");
+        var guard = 0;
+        while (evalExpr(m[1], n)) {
+          guard++; if (guard > 200) err(n, "el mientras no termina");
+          var rw = execBlock(i + 1, endW, true);
+          if (rw.returned) return rw;
+        }
+        i = endW + 1; continue;
+      }
+      if ((m = line.match(/^para\s+([A-Za-z_][\w]*)\s*=\s*(.+)\s+hasta\s+(.+)$/i))) {
+        var endF = findEnd(i + 1);
+        if (endF < 0) err(n, "para sin fin");
+        var vname = m[1];
+        var from = evalExpr(m[2], n);
+        var to = evalExpr(m[3], n);
+        if (typeof from !== "number" || typeof to !== "number") err(n, "el para necesita números");
+        var step = from <= to ? 1 : -1;
+        for (var v = from; step > 0 ? v <= to : v >= to; v += step) {
+          env[vname] = v;
+          trace.push({ n: n, name: vname, value: v });
+          var rf = execBlock(i + 1, endF, true);
+          if (rf.returned) return rf;
+        }
+        i = endF + 1; continue;
+      }
+      if ((m = line.match(/^devolver\s+(.+)$/i))) {
+        if (!stopOnReturn) err(n, "devolver fuera de una función");
+        return { i: i, value: evalExpr(m[1], n), returned: true };
+      }
+      if (line === "si no" || line === "sino" || line === "else") {
+        return { i: i, value: null, returned: false };
+      }
+      err(n, "no reconozco la orden. ¿Falta un fin?");
+    }
+    return { i: i, value: null, returned: false };
+  }
+
+
+  execBlock(0, lines.length, false);
+  return { env: env, trace: trace, out: out, steps: steps };
+}
+
+
+function fmt(v){
+  if (v === true) return "verdadero";
+  if (v === false) return "falso";
+  if (v === null) return "nulo";
+  if (typeof v === "string") return "«" + v + "»";
+  if (Array.isArray(v)) return "[" + v.map(fmt).join(", ") + "]";
+  if (typeof v === "number") return String(Math.round(v * 1000) / 1000);
+  return String(v);
+}
+function tipo(v){
+  if (Array.isArray(v)) return "vector";
+  if (v === true || v === false) return "booleano";
+  if (v === null) return "nulo";
+  if (typeof v === "number") return "número";
+  if (typeof v === "string") return "cadena";
+  return typeof v;
+}
+function prep(cv, ratio){
+  var w = cv.clientWidth || 0;
+  if (w < 280) w = 640;
+  cv.width = Math.round(w);
+  cv.height = Math.max(210, Math.round(w * (ratio || 0.42)));
+  return cv.getContext("2d");
+}
+function classify(line){
+  if (/^(inicio|fin)$/i.test(line)) return "term";
+  if (/^(si no|sino|else)$/i.test(line)) return "join";
+  if (/^(fin|end)\b/i.test(line)) return "join";
+  if (/^(si|if|mientras|while|para)\b/i.test(line)) return "dec";
+  if (/^(escribe|mostrar|lee)\b/i.test(line)) return "io";
+  if (/^funcion\b/i.test(line) || /^devolver\b/i.test(line)) return "fn";
+  return "proc";
+}
+function drawFlow(cv, src){
+  var g = prep(cv, 0.55);
+  var w = cv.width, h = cv.height;
+  g.fillStyle = "#FAF7F0";
+  g.fillRect(0, 0, w, h);
+  var lines = String(src).split("\n").map(function(s){return s.trim();}).filter(function(s){return s && s.charAt(0) !== "#";});
+  if (!lines.length){
+    g.fillStyle = "#5C564C";
+    g.font = "16px sans-serif";
+    g.fillText("Escribe el pseudocódigo: el diagrama se dibuja aquí.", 24, 40);
+    return;
+  }
+  var gap = Math.min(78, Math.max(52, (h - 24) / lines.length));
+  var cx = w * 0.5;
+  var y = 18;
+  function box(kind, text, y0){
+    g.font = "13px sans-serif";
+    var label = text.length > 42 ? text.slice(0, 40) + "…" : text;
+    var bw = Math.min(w - 48, Math.max(160, g.measureText(label).width + 36));
+    var bh = kind === "dec" ? 54 : 36;
+    var x = cx - bw / 2;
+    g.beginPath();
+    if (kind === "term"){
+      g.fillStyle = "#0E0E0C";
+      roundRect(g, x, y0, bw, bh, 18);
+      g.fill();
+      g.fillStyle = "#C4A15A";
+    } else if (kind === "dec"){
+      g.fillStyle = "#fff";
+      g.strokeStyle = "#C4A15A";
+      g.lineWidth = 2;
+      g.moveTo(cx, y0);
+      g.lineTo(x + bw, y0 + bh / 2);
+      g.lineTo(cx, y0 + bh);
+      g.lineTo(x, y0 + bh / 2);
+      g.closePath();
+      g.fill();
+      g.stroke();
+      g.fillStyle = "#0E0E0C";
+    } else if (kind === "io"){
+      g.fillStyle = "#fff";
+      g.strokeStyle = "#2F5D7A";
+      g.lineWidth = 2;
+      g.moveTo(x + 16, y0);
+      g.lineTo(x + bw, y0);
+      g.lineTo(x + bw - 16, y0 + bh);
+      g.lineTo(x, y0 + bh);
+      g.closePath();
+      g.fill();
+      g.stroke();
+      g.fillStyle = "#0E0E0C";
+    } else if (kind === "fn"){
+      g.fillStyle = "#2F5D7A";
+      roundRect(g, x, y0, bw, bh, 6);
+      g.fill();
+      g.fillStyle = "#FAF7F0";
+    } else if (kind === "join"){
+      g.fillStyle = "#C4A15A";
+      g.beginPath();
+      g.arc(cx, y0 + 12, 8, 0, Math.PI * 2);
+      g.fill();
+      return 28;
+    } else {
+      g.fillStyle = "#fff";
+      g.strokeStyle = "#0E0E0C";
+      g.lineWidth = 1.5;
+      roundRect(g, x, y0, bw, bh, 4);
+      g.fill();
+      g.stroke();
+      g.fillStyle = "#0E0E0C";
+    }
+    g.font = "13px sans-serif";
+    g.textAlign = "center";
+    g.fillText(label, cx, y0 + (kind === "dec" ? 32 : 23));
+    g.textAlign = "left";
+    return bh;
+  }
+  for (var i = 0; i < lines.length; i++){
+    var kind = classify(lines[i]);
+    var bh = box(kind, lines[i], y);
+    var ny = y + bh + 16;
+    if (i < lines.length - 1 && ny < h - 8){
+      g.strokeStyle = "#5C564C";
+      g.lineWidth = 1.4;
+      g.beginPath();
+      g.moveTo(cx, y + bh);
+      g.lineTo(cx, ny - 6);
+      g.stroke();
+      g.fillStyle = "#5C564C";
+      g.beginPath();
+      g.moveTo(cx - 4, ny - 10);
+      g.lineTo(cx + 4, ny - 10);
+      g.lineTo(cx, ny - 4);
+      g.fill();
+    }
+    y = ny;
+    if (y > h - 10) break;
+  }
+}
+function roundRect(g, x, y, w, h, r){
+  g.beginPath();
+  g.moveTo(x + r, y);
+  g.arcTo(x + w, y, x + w, y + h, r);
+  g.arcTo(x + w, y + h, x, y + h, r);
+  g.arcTo(x, y + h, x, y, r);
+  g.arcTo(x, y, x + w, y, r);
+  g.closePath();
+}
+function drawEnv(cv, env, trace){
+  var g = prep(cv, 0.46);
+  var w = cv.width, h = cv.height;
+  g.fillStyle = "#FAF7F0";
+  g.fillRect(0, 0, w, h);
+  g.fillStyle = "#0E0E0C";
+  g.font = "14px Georgia, serif";
+  g.fillText("Estado y traza (canvas local)", 16, 24);
+  var keys = Object.keys(env);
+  var y = 48;
+  g.font = "13px sans-serif";
+  if (!keys.length){
+    g.fillStyle = "#5C564C";
+    g.fillText("Todavía no hay variables. Ejecuta el editor.", 16, y);
+  }
+  var nums = [];
+  keys.forEach(function(k){ if (typeof env[k] === "number") nums.push(env[k]); });
+  var max = 1;
+  nums.forEach(function(n){ if (Math.abs(n) > max) max = Math.abs(n); });
+  keys.slice(0, 8).forEach(function(k){
+    var v = env[k];
+    g.fillStyle = "#5C564C";
+    g.fillText(k + " · " + tipo(v), 16, y);
+    if (typeof v === "number"){
+      var bw = (w - 220) * (Math.abs(v) / max);
+      g.fillStyle = "#C4A15A";
+      g.fillRect(200, y - 12, Math.max(2, bw), 14);
+      g.fillStyle = "#0E0E0C";
+      g.fillText(fmt(v), 206 + bw, y);
+    } else {
+      g.fillStyle = "#2F5D7A";
+      g.fillText(fmt(v), 200, y);
+    }
+    y += 26;
+  });
+  if (Array.isArray(env.lecturas) || Array.isArray(env.datos) || Array.isArray(env.v)){
+    var arr = env.lecturas || env.datos || env.v;
+    var base = h - 70;
+    var slot = (w - 40) / arr.length;
+    var m2 = 1;
+    arr.forEach(function(n){ if (typeof n === "number" && Math.abs(n) > m2) m2 = Math.abs(n); });
+    arr.forEach(function(n, i){
+      var bh = 50 * (Math.abs(Number(n) || 0) / m2);
+      g.fillStyle = "#2F5D7A";
+      g.fillRect(20 + i * slot, base - bh, Math.max(8, slot - 8), bh);
+    });
+  }
+  drawLed(g, w - 36, 28, window.__pinAlto);
+}
+function drawLed(g, x, y, on){
+  g.beginPath();
+  g.fillStyle = on ? "rgba(226,75,42,.35)" : "rgba(0,0,0,0)";
+  g.arc(x, y, 16, 0, Math.PI * 2);
+  g.fill();
+  g.beginPath();
+  g.fillStyle = on ? "#E24B2A" : "#3A3530";
+  g.strokeStyle = "#C4A15A";
+  g.lineWidth = 2;
+  g.arc(x, y, 10, 0, Math.PI * 2);
+  g.fill();
+  g.stroke();
+}
+function pistas(src){
+  var tips = [];
+  String(src).split("\n").forEach(function(line, i){
+    var t = line.trim();
+    if (/^(si|mientras|while|if)\b/i.test(t) && /=/.test(t) && !/==/.test(t) && !/<=|>=|!=/.test(t)){
+      tips.push("Línea " + (i + 1) + ": en una condición, un solo = no compara. Usa <, > o ==.");
+    }
+    if (/hasta\s+[A-Za-z_][\w]*\.longitud\s*$/.test(t)){
+      tips.push("Línea " + (i + 1) + ": el índice longitud se sale. El último es longitud - 1.");
+    }
+    if (/\b(var|let)\b/.test(t) && (t.match(/=/g) || []).length > 1 && !/==/.test(t)){
+      tips.push("Línea " + (i + 1) + ": hay más de un igual. Revisa si querías comparar dentro del valor.");
+    }
+  });
+  var opens = (src.match(/^(si|mientras|para|funcion)\b/gim) || []).length;
+  var closes = (src.match(/^\s*fin\b/gim) || []).length;
+  if (opens !== closes) tips.push("Hay " + opens + " bloques que se abren y " + closes + " «fin». Deben coincidir.");
+  return tips;
+}
+function preprocess(src){
+  var on = window.__pinAlto ? 1 : 0;
+  return String(src).replace(/^lee\s+([A-Za-z_][\w]*)\s*$/gim, function(_, name){
+    if (name === "pulsador" || name === "pin" || name === "boton") return "let " + name + " = " + on;
+    if (name === "luz") return "let luz = 420";
+    return "let " + name + " = 0";
+  });
+}
+function report(r){
+  var keys = Object.keys(r.env);
+  var html = "<div class='ok'>Ejecución terminada en " + r.steps + " pasos. Nada ha salido de esta página.</div>";
+  if (!keys.length) html += "<div>No quedan variables.</div>";
+  keys.forEach(function(k){
+    html += "<div><strong>" + k + "</strong> = " + fmt(r.env[k]) + " <span class='nota'>(" + tipo(r.env[k]) + ")</span></div>";
+  });
+  if (r.out && r.out.length){
+    html += "<div><strong>Salida:</strong> " + r.out.map(fmt).join(" · ") + "</div>";
+  }
+  if (r.trace && r.trace.length){
+    var last = r.trace.slice(-6);
+    html += "<div class='nota'>Últimas asignaciones: " + last.map(function(t){return "L" + t.n + " " + t.name + "=" + fmt(t.value);}).join("; ") + "</div>";
+  }
+  return html;
+}
+function bootLab(modo, starter){
+  var src = document.getElementById("src");
+  var out = document.getElementById("out");
+  var cv = document.getElementById("cv");
+  function say(h){ out.innerHTML = h; }
+  function redrawIdle(){
+    if (modo === "flujo") drawFlow(cv, src.value);
+    else if (modo === "juego") drawGame(cv, game, false);
+    else drawEnv(cv, {}, []);
+  }
+  src.value = starter;
+  var game = {x: 40, y: 90, vx: 2.2, score: 0, vidas: 3, cesta: 180, luz: 420, umbral: 500, meta: 5, on: false, id: 0};
+  function readRules(){
+    try {
+      var r = interpret(preprocess(src.value));
+      if (typeof r.env.umbral === "number") game.umbral = r.env.umbral;
+      if (typeof r.env.velocidad === "number") game.vx = r.env.velocidad;
+      if (typeof r.env.meta === "number") game.meta = r.env.meta;
+      return r;
+    } catch (e) { return null; }
+  }
+  function drawGame(canvas, gm, running){
+    var g = prep(canvas, 0.48);
+    var w = canvas.width, h = canvas.height;
+    g.fillStyle = "#0E0E0C";
+    g.fillRect(0, 0, w, h);
+    g.fillStyle = "#C4A15A";
+    g.font = "14px sans-serif";
+    g.fillText("Caza la lectura  ·  " + gm.score + " / " + gm.meta + "  ·  luz " + Math.round(gm.luz), 16, 24);
+    g.fillStyle = gm.luz < gm.umbral ? "#E24B2A" : "#C4A15A";
+    g.beginPath();
+    g.arc(gm.x, gm.y, 14, 0, Math.PI * 2);
+    g.fill();
+    g.fillStyle = "#FAF7F0";
+    g.fillRect(gm.cesta, h - 36, 70, 12);
+    drawLed(g, w - 28, 24, gm.luz < gm.umbral);
+    if (!running){
+      g.fillStyle = "#FAF7F0";
+      g.fillText("Pulsa «Jugar». Flechas o botones mueven la cesta. El punto es una lectura.", 16, h / 2);
+    }
+  }
+  function stepGame(){
+    var w = cv.width, h = cv.height;
+    game.x += game.vx;
+    game.luz = 300 + Math.abs((game.x * 3) % 700);
+    if (game.x > w - 16 || game.x < 16) game.vx *= -1;
+    game.y += 1.4;
+    if (game.y > h - 40){
+      if (game.x > game.cesta && game.x < game.cesta + 70){
+        if (game.luz < game.umbral) game.score += 1;
+      } else {
+        game.vidas -= 1;
+      }
+      game.y = 40;
+      game.x = 30 + (game.score * 37) % (w - 60);
+    }
+    drawGame(cv, game, true);
+    if (game.score >= game.meta || game.vidas <= 0){
+      cancelAnimationFrame(game.id);
+      game.on = false;
+      say(game.score >= game.meta
+        ? "<span class='ok'>Meta cumplida. Cada captura con luz &lt; umbral es un acierto. El LED del canvas se enciende cuando la lectura simulada está bajo el umbral: es la misma idea que GPIO 18 en HIGH.</span>"
+        : "<span class='bad'>Se acabaron los intentos. Baja la velocidad en el editor o amplía la práctica. No se ha enviado la puntuación a ningún sitio.</span>");
+      return;
+    }
+    game.id = requestAnimationFrame(stepGame);
+  }
+  document.getElementById("bRun").onclick = function(){
+    var tips = pistas(src.value);
+    try {
+      var r = interpret(preprocess(src.value));
+      var html = report(r);
+      if (tips.length) html += "<div class='bad'>" + tips.join("<br/>") + "</div>";
+      say(html);
+      if (modo === "flujo") drawFlow(cv, src.value);
+      else if (modo === "juego") { readRules(); drawGame(cv, game, game.on); }
+      else drawEnv(cv, r.env, r.trace);
+    } catch (e) {
+      var msg = "<span class='bad'>" + String(e.message) + "</span>";
+      if (tips.length) msg += "<div>" + tips.join("<br/>") + "</div>";
+      say(msg);
+      if (modo === "flujo") drawFlow(cv, src.value);
+      else drawEnv(cv, {}, []);
+    }
+  };
+  document.getElementById("bFlow").onclick = function(){ drawFlow(cv, src.value); say("<span class='ok'>Diagrama dibujado en el canvas de esta página. Óvalo: inicio/fin. Rectángulo: proceso. Rombo: decisión. Paralelogramo: entrada o salida.</span>"); };
+  document.getElementById("bRes").onclick = function(){ src.value = starter; say("Ejemplo restaurado."); redrawIdle(); };
+  var bPlay = document.getElementById("bPlay");
+  if (bPlay) bPlay.onclick = function(){
+    readRules();
+    game.score = 0; game.vidas = 3; game.y = 40; game.x = 40; game.on = true;
+    cancelAnimationFrame(game.id);
+    say("Partida local. La cesta no usa red.");
+    game.id = requestAnimationFrame(stepGame);
+  };
+  var bL = document.getElementById("bLeft");
+  var bR = document.getElementById("bRight");
+  function move(dx){ game.cesta += dx; if (game.cesta < 0) game.cesta = 0; }
+  if (bL) bL.onclick = function(){ move(-28); if (!game.on) drawGame(cv, game, false); };
+  if (bR) bR.onclick = function(){ move(28); if (!game.on) drawGame(cv, game, false); };
+  document.addEventListener("keydown", function(ev){
+    if (ev.key === "ArrowLeft") move(-24);
+    if (ev.key === "ArrowRight") move(24);
+  });
+  document.addEventListener("gpio-cambio", function(){
+    if (modo === "flujo" || modo === "traza") document.getElementById("bRun").click();
+  });
+  var bScore = document.getElementById("bScore");
+  if (bScore) bScore.onclick = function(){
+    var ids = ["s11","s12","s13","s14","s21","s22","s23","s31"];
+    var labels = ["1.1","1.2","1.3","1.4","2.1","2.2","2.3","3.1"];
+    var vals = ids.map(function(id){ return Number(document.getElementById(id).value) || 0; });
+    var g = prep(cv, 0.5);
+    var w = cv.width, h = cv.height;
+    g.fillStyle = "#FAF7F0"; g.fillRect(0,0,w,h);
+    var slot = (w - 30) / vals.length;
+    vals.forEach(function(v, i){
+      var bh = (h - 50) * (v / 4);
+      g.fillStyle = v >= 3 ? "#3D6B4F" : "#C4A15A";
+      g.fillRect(16 + i * slot, h - 28 - bh, slot - 12, bh);
+      g.fillStyle = "#0E0E0C";
+      g.font = "12px sans-serif";
+      g.fillText(labels[i], 16 + i * slot, h - 12);
+    });
+    var lines = src.value.split("\n").map(function(s){return s.trim();}).filter(Boolean);
+    var has = labels.filter(function(lb){ return src.value.indexOf(lb) >= 0; });
+    say("<span class='ok'>Gráfico local de autoevaluación.</span> Criterios nombrados en el editor: " + (has.join(", ") || "ninguno todavía") + ". Líneas de evidencia: " + lines.length + ".");
+  };
+  redrawIdle();
+}
+
+bootLab("traza", "let lecturas = [420, 510, 390]\nlet s = 0\npara i = 0 hasta lecturas.longitud\n  s = s + lecturas[i]\nfin\nlet media = s / lecturas.longitud\nescribe media\n");
+</script>
+
+    </div>
+    <p class="fallback-enlace">Escribes y dibujas aquí mismo: no hay salto a otro módulo. La misma herramienta, a pantalla completa, está en <a href="l29-depuracion-y-buenas-practicas.html">l29-depuracion-y-buenas-practicas.html</a> y en el marco (útil si el navegador permite <code>file://</code> en iframes).</p>
+    <div class="marco-interactivo">
+      <iframe title="Laboratorio L29" src="l29-depuracion-y-buenas-practicas.html" loading="lazy"></iframe>
+    </div>
+  </section>
+  <section id="maestro-reto" class="bloque-reto" aria-label="Reto Profesor">
+    <span class="etiqueta-reto">Reto Profesor</span>
+    <h2 class="titulo-reto">Un bug, una corrección</h2>
+    <p>Ejecuta el ejemplo roto, copia el mensaje en el cuaderno y corrige solo el hasta. Vuelve a ejecutar y anota la media. Después provoca un error de sintaxis (quita un fin) y un error de lógica (cambia el umbral de una comparación) y clasifícalos. Cierra con tres líneas de licencia de un código que sea tuyo. Una buena entrega no atribuye el primer fallo al interruptor.</p>
+    <p class="reto-id">reto_id: bach1-tic-L29</p>
+  </section>
+  <footer class="leccion-pie">
+    <strong>Les vencimos</strong> · L29 de 32 · bloque C · offline / file:// · sin CDN · bloque C · Programación
+  </footer>
+</div>
+</body>
+</html>

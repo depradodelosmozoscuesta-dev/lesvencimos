@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<meta name="theme-color" content="#0E0E0C"/>
+<title>Lección 35 · Muestreo e inferencia · Les vencimos</title>
+<link rel="icon" href="../icons/favicon.svg" type="image/svg+xml"/>
+<link rel="manifest" href="../manifest.webmanifest"/>
+<link rel="stylesheet" href="../leccion-shell.css"/>
+<style>
+.pasos{list-style:none;margin:0 0 1rem;padding:0;counter-reset:paso}
+.pasos li{position:relative;margin:0 0 .7rem;padding:.7rem .8rem .7rem 3.1rem;background:var(--lv-panel);border:1px solid var(--lv-linea);border-radius:10px}
+.pasos li::before{counter-increment:paso;content:counter(paso);position:absolute;left:.65rem;top:.7rem;width:1.7rem;height:1.7rem;border-radius:50%;background:#C4A15A;color:#1A160E;font-weight:700;font-size:.9rem;display:flex;align-items:center;justify-content:center}
+.figura-svg{background:#161512;border:1px solid var(--lv-linea);border-radius:10px;padding:.5rem;margin:.5rem 0 1.1rem}
+.figura-svg svg{width:100%;height:auto;display:block}
+.ej{margin:0 0 1rem;padding:.85rem .95rem;background:var(--lv-panel);border:1px solid var(--lv-linea);border-left:3px solid #C4A15A;border-radius:10px}
+.ej h3{margin:0 0 .35rem;font-family:var(--lv-serif);font-size:1.05rem;color:var(--lv-titulo)}
+.editor,textarea.editor{width:100%;min-height:5.5rem;font-family:ui-monospace,monospace;font-size:.95rem;line-height:1.45;padding:.55rem .65rem;border:1px solid rgba(196,161,90,.45);border-radius:8px;background:#161512;color:#E6E1D6;resize:vertical}
+.lienzo{display:block;width:100%;height:280px;background:#161512;border:1px solid #C4A15A;border-radius:8px;touch-action:none;cursor:crosshair}
+.fila{display:flex;flex-wrap:wrap;gap:.4rem;margin:.45rem 0}
+.boton{font:inherit;font-weight:700;font-size:.85rem;padding:.4rem .8rem;border-radius:999px;border:1px solid #C4A15A;background:transparent;color:#E6E1D6;cursor:pointer}
+.porque{margin-top:.55rem;padding:.65rem .75rem;background:#1a2218;border-radius:8px;color:#E6E1D6}
+.dato{font-size:.95rem;color:var(--lv-suave)}
+.glosa{display:block;font-size:.9rem;color:#9A9488;margin:.25rem 0 .5rem;line-height:1.4}
+.lab-box{margin:1rem 0;padding:.85rem;border:1px dashed rgba(196,161,90,.5);border-radius:10px;background:#141210}
+.lab-box iframe{width:100%;min-height:320px;border:1px solid #C4A15A;border-radius:8px;background:#0E0E0C}
+table.datos{width:100%;border-collapse:collapse;margin:.45rem 0 1rem;font-size:.98rem}
+table.datos th,table.datos td{border:1px solid var(--lv-linea);padding:.4rem .55rem;text-align:left}
+table.datos th{background:#161512;color:#C4A15A}
+</style>
+<script src="../leccion-shell-nav.js" defer></script>
+</head>
+<body class="leccion-shell" data-maestro-json="maestro-35.json">
+<div class="leccion-wrap">
+<nav class="leccion-barra" aria-label="Navegación de lección" data-actual="35" data-total="38">
+  <div class="leccion-progreso" role="status">
+    <span class="progreso-texto"><strong>35</strong> de <strong>38</strong></span>
+    <div class="progreso-pista" aria-hidden="true"><div class="progreso-lleno" style="width:92.11%"></div></div>
+  </div>
+  <div class="leccion-atajos">
+    <a class="atajo atajo-calc" href="../../../../modulos/calculadora.html" title="Calculadora offline">Calculadora</a>
+    <a class="atajo atajo-prev" href="leccion-34-uniforme-binomial-normal.html">← Anterior</a>
+    <a class="atajo atajo-next" href="leccion-36-emociones-error-y-equipo.html">Siguiente →</a>
+  </div>
+</nav>
+<header class="leccion-top">
+  <a class="leccion-marca" href="../../../../index.html">Les <span>vencimos</span></a>
+  <p class="leccion-meta-top">Matemáticas Generales · 1º Bachillerato</p>
+</header>
+<header class="bloque-titulo">
+  <span class="eyebrow">Lección 35 · E · Estocástico</span>
+  <h1 class="titulo-leccion">Muestreo e <em>inferencia</em></h1>
+  <p class="meta-leccion">1º Bach Matemáticas Generales · CyL Decreto 40/2022 · E.4 Muestras, representatividad, validez y diseño</p>
+</header>
+<aside class="bloque-curiosidad" aria-label="Para situarte">
+  <p class="etiqueta-bloque">Para situarte</p>
+  <h2 class="titulo-curiosidad">A quién preguntas forma parte del resultado</h2>
+  <p class="texto-curiosidad">Un instituto de 240 alumnos de Bachillerato: 120 de Ciencias, 72 de Humanidades y 48 de General. Se quiere una muestra de 40. El diseño proporcional reparte 20, 12 y 8, la misma fracción 1/6 en cada modalidad. Preguntar solo en la biblioteca no se arregla preguntando a más voluntarios.</p>
+</aside>
+<section class="bloque-cuerpo">
+  <h2>Objetivos</h2>
+  <ul><li>Diseñar una muestra estratificada proporcional y comprobar que los cupos suman el tamaño previsto.</li><li>Distinguir un sesgo de marco (a quién se puede llegar) de un problema de tamaño.</li><li>Juzgar si la pregunta mide el constructo que se dice estudiar.</li></ul>
+</section>
+<section class="bloque-cuerpo">
+<h2>Marco, azar y la pregunta que de verdad se hace</h2>
+<p>Inferir del instituto entero a partir de unos pocos exige que esos pocos puedan estar en el lugar de cualquiera. Hace falta un marco (la lista de los 240), un procedimiento de azar dentro de ese marco y una pregunta que signifique lo que el estudio dice querer saber. El tamaño importa, pero un marco torcido no se cura añadiendo gente del mismo sitio equivocado.</p>
+<p><span class="glosa">población = 240 · estrato = modalidad · fracción de muestreo = 40/240 = 1/6 · cupo = fracción por tamaño del estrato · sesgo de selección = la muestra no puede representar a quien el marco nunca incluye · validez = la pregunta corresponde al constructo</span></p>
+<p>Ciencias recibe 120 · (1/6) = 20; Humanidades, 72 · (1/6) = 12; General, 48 · (1/6) = 8. Los cupos suman 40. En la figura, la altura entera es la población del estrato y el tramo ámbar es la muestra: en los tres la altura ámbar es un sexto de la barra. Dentro de cada estrato los 20, los 12 o los 8 se eligen al azar sobre el censo, no entre quienes levantan la mano.</p>
+<p>Una muestra voluntaria de 25 personas en la biblioteca, aunque 20 digan que estudian tres horas o más (20/25 = 0,80), describe a quien estaba allí. Ampliarla a 50 voluntarios repite el mismo marco. Y una pregunta distinta de la que se cree hacer —«¿estudias lo suficiente?» frente a las horas de una semana— puede ser válida como opinión e inválida como medida del hábito.</p>
+<h2>Gráfico del ejemplo</h2>
+<p class="dato">La figura no es decoración: los trazos corresponden a los números del ejemplo 1.</p>
+<div class="figura-svg"><svg viewBox="0 0 720 320" role="img" aria-label="Estratos 120, 72 y 48 con la muestra proporcional 20, 12 y 8 marcada en ámbar"><title>Estratos 120, 72 y 48 con la muestra proporcional 20, 12 y 8 marcada en ámbar</title><rect width="720" height="320" fill="#161512"/>
+<line x1="60" y1="260" x2="680" y2="260" stroke="#9A9488" stroke-width="1.6"/>
+<line x1="60" y1="260" x2="60" y2="30" stroke="#9A9488" stroke-width="1.6"/>
+<polygon points="110,260 210,260 210,92 110,92" fill="#2a261c" stroke="#9A9488" stroke-width="1.4"/>
+<polygon points="110,260 210,260 210,232 110,232" fill="#C4A15A" stroke="#E6E1D6" stroke-width="1.2"/>
+<polygon points="280,260 380,260 380,159 280,159" fill="#2a261c" stroke="#9A9488" stroke-width="1.4"/>
+<polygon points="280,260 380,260 380,243 280,243" fill="#C4A15A" stroke="#E6E1D6" stroke-width="1.2"/>
+<polygon points="450,260 550,260 550,193 450,193" fill="#2a261c" stroke="#9A9488" stroke-width="1.4"/>
+<polygon points="450,260 550,260 550,249 450,249" fill="#C4A15A" stroke="#E6E1D6" stroke-width="1.2"/>
+<circle cx="160" cy="246" r="6" fill="#1C1A16" stroke="#C4A15A" stroke-width="2"/>
+<circle cx="330" cy="251" r="6" fill="#1C1A16" stroke="#C4A15A" stroke-width="2"/>
+<circle cx="500" cy="254" r="6" fill="#1C1A16" stroke="#C4A15A" stroke-width="2"/>
+<line x1="60" y1="92" x2="70" y2="92" stroke="#9A9488" stroke-width="1.2"/>
+<line x1="60" y1="176" x2="70" y2="176" stroke="#9A9488" stroke-width="1.2"/>
+<text x="28" y="96" fill="#9A9488" font-size="12">120</text>
+<text x="36" y="180" fill="#9A9488" font-size="12">60</text>
+<text x="145" y="282" fill="#E6E1D6" font-size="13">Ciencias</text>
+<text x="300" y="282" fill="#E6E1D6" font-size="13">Humanidades</text>
+<text x="475" y="282" fill="#E6E1D6" font-size="13">General</text>
+<text x="118" y="84" fill="#E6E1D6" font-size="13">120</text>
+<text x="292" y="150" fill="#E6E1D6" font-size="13">72</text>
+<text x="468" y="184" fill="#E6E1D6" font-size="13">48</text>
+<text x="118" y="226" fill="#1C1A16" font-size="13">muestra 20</text>
+<text x="288" y="238" fill="#1C1A16" font-size="12">12</text>
+<text x="462" y="246" fill="#1C1A16" font-size="11">8</text>
+<text x="80" y="24" fill="#C4A15A" font-size="14">240 alumnos · muestra proporcional 40 · fracción 1/6 en ámbar</text>
+</svg></div>
+<h2>Ejemplo resuelto 1 — Los tres cupos</h2><p>Reparte una muestra de 40 sobre 120, 72 y 48 de modo proporcional. Comprueba la suma y la fracción común.</p><ol class="pasos">
+<li>Fracción: 40/240 = 1/6. Se usa la misma en los tres estratos precisamente porque el diseño es proporcional, no porque los estratos sean iguales.<span class="glosa">Glosa: 120 + 72 + 48 = 240. Si la población estuviera mal sumada, la fracción ya no sería 1/6.</span></li>
+<li>Cupos: 120/6 = 20, 72/6 = 12 y 48/6 = 8. En la figura son las alturas ámbar.<span class="glosa">Glosa: 72 no es divisible entre 10, pero sí entre 6. El tamaño 40 está elegido para que los cupos salgan enteros.</span></li>
+<li>Suma: 20 + 12 + 8 = 40. Si saliera 39 o 41, sobraría o faltaría una persona y el redondeo habría que decidirlo a propósito, no dejarlo caer.<span class="glosa">Glosa: en este diseño no hay resto. La comprobación es inmediata.</span></li>
+<li>Dentro de cada cupo el azar actúa sobre el censo del estrato. El número 20 no dice todavía qué personas: dice cuántas.<span class="glosa">Glosa: proporcional fija el tamaño; el sorteo fija los nombres. Las dos piezas son el diseño.</span></li>
+</ol>
+<h2>Ejemplo resuelto 2 — Cincuenta voluntarios siguen sesgados</h2><p>En la biblioteca, 20 de 25 voluntarios dicen estudiar al menos tres horas. Alguien propone preguntar a otros 25 voluntarios del mismo sitio para «corregir el sesgo». ¿Qué se corrige y qué no?</p><ol class="pasos">
+<li>La proporción observada es 20/25 = 0,80. Describe a esos 25, no a los 240. El marco es «quien está en la biblioteca y acepta», no el censo.<span class="glosa">Glosa: el denominador 25 no es una muestra aleatoria de 240. No se le aplica la lectura de los cupos.</span></li>
+<li>Otros 25 voluntarios del mismo sitio agrandan el mismo marco. Si el hábito de la biblioteca no es el del instituto, el error se estima con más precisión y no desaparece.<span class="glosa">Glosa: el sesgo de selección no es varianza. Más datos del mismo sesgo aprietan alrededor del valor equivocado.</span></li>
+<li>Para representar a Ciencias, Humanidades y General haría falta volver a la lista de 240 y sortear, por ejemplo, los cupos 20, 12 y 8.<span class="glosa">Glosa: cambiar de marco es cambiar de diseño. No es un ajuste del porcentaje 0,80.</span></li>
+<li>El 0,80 puede ser verdad dentro de la biblioteca y ser inútil para el claustro si la decisión afecta a quien no pisa esa sala. La frase del estudio tiene que nombrar la población.<span class="glosa">Glosa: inferir es decir a quién se extiende el número. Sin esa frase, el número no sale del pasillo.</span></li>
+</ol>
+<h2>Ejemplo resuelto 3 — La pregunta y el hábito</h2><p>Se quiere el hábito de estudio. Un alumno declara 0 horas ayer. Su semana fue 0, 2, 1, 0, 5, 1 y 0. Compara las dos medidas y di cuál se acerca al constructo.</p><ol class="pasos">
+<li>Ayer: 0 horas. Como retrato de un día, puede ser exacto. Como retrato del hábito, usa un solo día que además fue un cero.<span class="glosa">Glosa: un día es una observación. El hábito es una regularidad, y una observación no la fija.</span></li>
+<li>Semana: 0 + 2 + 1 + 0 + 5 + 1 + 0 = 9 horas en 7 días. Media diaria 9/7 ≈ 1,29 horas, no 0.<span class="glosa">Glosa: el 5 del quinto día tira de la media. Un único cero la habría dejado en el suelo.</span></li>
+<li>«¿Estudias lo suficiente?» ni siquiera produce estas cifras: produce un juicio. Puede ser válida como opinión y no mide el hábito en horas.<span class="glosa">Glosa: validez es ajuste entre la pregunta y el constructo declarado, no entre la pregunta y lo que sea fácil de responder.</span></li>
+<li>Un buen diseño de este estudio une las tres piezas: marco de 240, cupos proporcionales y una pregunta de horas en varios días. Fallar una de las tres no se compensa adornando las otras.<span class="glosa">Glosa: muestreo sin validez mide con precisión otra cosa. Validez sin marco mide bien a quien no es la población.</span></li>
+</ol>
+<h2>Ejercicios</h2>
+<p class="dato">Escribe el razonamiento completo en el editor, no solo la cifra. Si el enunciado pide figura, dibújala en el lienzo de esta misma página.</p>
+<article class="ej"><h3>1. Otra población, la misma fracción</h3><p>Población de 180 alumnos en tres grupos de 90, 60 y 30. Diseña una muestra proporcional de 30. Escribe los cupos y su suma.</p><label for="e35a">Tu resolución</label><textarea class="editor" id="e35a" placeholder="Escribe aquí el razonamiento completo…"></textarea><details class="porque"><summary>Por qué (abre cuando hayas escrito)</summary><p>El paso es calcular la fracción 30/180 = 1/6 y multiplicarla por cada grupo, no repartir 10, 10 y 10 como si los grupos fueran iguales. Los cupos son 90/6 = 15, 60/6 = 10 y 30/6 = 5. Suman 30, que es el tamaño pedido, y cada grupo aporta la misma fracción que en el instituto de 240. Un reparto igualitario de 10 por grupo sobrerrepresentaría al de 30 (10/30) y infrarrepresentaría al de 90 (10/90). Solo sería correcto si el diseño, dicho de antemano, fuera de cupos iguales y no proporcional. Aquí el enunciado pide proporcionalidad, así que el tamaño del estrato entra en la multiplicación.</p></details></article>
+<article class="ej"><h3>2. Precisión no es ausencia de sesgo</h3><p>Explica, con el ejemplo de la biblioteca, la diferencia entre ampliar la muestra voluntaria y cambiar el marco a los 240 del censo.</p><label for="e35b">Tu resolución</label><textarea class="editor" id="e35b" placeholder="Escribe aquí el razonamiento completo…"></textarea><details class="porque"><summary>Por qué (abre cuando hayas escrito)</summary><p>El paso es separar el error de quién puede entrar en la muestra del error de cuántos entran. Los 25 voluntarios, y también 50, solo incluyen a quien está en la biblioteca y acepta hablar. Si esa gente estudia más que el instituto, todas las estimaciones quedan desplazadas hacia arriba, y ampliar el número aprieta el resultado alrededor de ese valor desplazado: baja la oscilación y no baja el sesgo. Pasar al censo de 240, con un sorteo dentro de los estratos, cambia quién puede ser elegido. Esa es la corrección del marco. Mientras el procedimiento siga siendo «quien pasa por delante», el tamaño es un detalle y el sesgo es la estructura.</p></details></article>
+<article class="ej"><h3>3. Redactar la pregunta</h3><p>El claustro quiere saber el hábito de estudio, no la opinión sobre uno mismo. Escribe una pregunta más válida que «¿estudias lo suficiente?» y di qué dato de la semana de 9 horas en 7 días usarías.</p><label for="e35c">Tu resolución</label><textarea class="editor" id="e35c" placeholder="Escribe aquí el razonamiento completo…"></textarea><details class="porque"><summary>Por qué (abre cuando hayas escrito)</summary><p>El paso es pedir un comportamiento contable en un periodo, no un adjetivo. Una redacción válida sería: «¿cuántas horas estudiaste cada uno de los últimos siete días, sin contar el tiempo en el instituto?». El dato que resume el hábito en el ejemplo es la media 9/7 ≈ 1,29 horas al día, no el 0 de ayer ni la palabra «suficiente», que cada alumno corta en un sitio distinto. Hace falta, además, hacer esa pregunta sobre la muestra diseñada, no solo sobre un alumno. Validez de la pregunta y representatividad de la muestra se exigen juntas: una semana bien medida en la biblioteca seguiría sin describir a los 240.</p></details></article>
+<h2>Dibuja en el lienzo</h2>
+<p>Reproduce a mano el gráfico del ejemplo: ejes o nodos, los datos numéricos y una frase con la conclusión. El botón borra el lienzo sin salir de la lección.</p>
+<canvas id="lienzo35" class="lienzo" width="900" height="280"></canvas><div class="fila"><button type="button" class="boton" data-clear="lienzo35">Borrar lienzo</button></div>
+</section>
+
+<section class="bloque-cuerpo">
+  <h2>Comprueba</h2>
+  <p class="dato">Tres preguntas. Responde mentalmente antes de abrir el porqué.</p>
+  <details class="porque"><summary>¿Qué cupos corresponden a 120, 72 y 48 si la muestra es de 40?</summary><p>20, 12 y 8. Por qué: la fracción es 40/240 = 1/6, y 120/6 = 20, 72/6 = 12, 48/6 = 8. Suman 40. En la figura el ámbar es ese sexto de cada barra, no una altura caprichosa.</p></details>
+<details class="porque"><summary>¿Por qué otros 25 voluntarios de la biblioteca no quitan el sesgo?</summary><p>Porque siguen dejando fuera a quien no está allí. Por qué: el marco no es el censo de 240. Más voluntarios del mismo sitio estiman mejor el comportamiento de la biblioteca y siguen sin estimar el del instituto. El sesgo de selección no se promedia al subir n.</p></details>
+<details class="porque"><summary>¿Qué medida se acerca más al hábito, el 0 de ayer o la semana?</summary><p>La media de la semana, 9/7 ≈ 1,29 horas. Por qué: el hábito es una regularidad de varios días y ayer fue un cero suelto. La pregunta «¿estudias lo suficiente?» ni siquiera da horas: da un juicio, y no es válida para el constructo «horas de estudio».</p></details>
+</section>
+<section class="bloque-reto">
+  <span class="etiqueta-reto">Reto Profesor</span>
+  <h2 class="titulo-reto">Cupos antes que opiniones</h2>
+  <p>Dibuja en el lienzo tres barras con los tamaños 120, 72 y 48, marca el sexto de cada una y escribe 20, 12 y 8. Añade una frase con la población a la que sí se podría extender el resultado.</p>
+  <p class="reto-id">reto_id: bach1-mates-gen-L35</p>
+</section>
+<footer class="leccion-pie"><strong>Les vencimos</strong> · L35 de 38 · Matemáticas Generales · staging · file:// · sin publicar</footer>
+</div>
+<script type="application/json" data-maestro="guion">{"curso": "bach1-mates-gen", "leccion": 35, "titulo": "Muestreo e inferencia", "url": "leccion-35-muestreo-e-inferencia.html", "musica": false, "pasos": [{"id": "abrir", "dicho": "Tres estratos, alturas 120, 72 y 48. El ámbar es la muestra: 20, 12 y 8.", "hacer": "Leer en voz alta el apartado Para situarte y los objetivos."}, {"id": "figura", "dicho": "La fracción común es 1/6 porque 40/240 = 1/6.", "hacer": "Mirar el SVG y decir qué dato numérico marca cada trazo."}, {"id": "ej1", "dicho": "Ejemplo 1: los cupos suman 40 y el sorteo todavía tiene que elegir los nombres.", "hacer": "Rehacer el ejemplo 1, glosa a glosa, sin mirar el resultado final."}, {"id": "ej2", "dicho": "Ejemplo 2: 20/25 = 0,80 en la biblioteca no se cura con más voluntarios.", "hacer": "Rehacer el ejemplo 2 y contrastarlo con el 1."}, {"id": "ej3", "dicho": "Ejemplo 3: la semana suma 9 horas y la media es 9/7, no el cero de ayer.", "hacer": "Rehacer el ejemplo 3 y anotar la comprobación."}, {"id": "practica", "dicho": "Marco, azar y pregunta son las tres piezas. Falta una y el estudio cojea.", "hacer": "Escribir el razonamiento de al menos dos ejercicios y usar el lienzo."}, {"id": "cierre", "dicho": "El tamaño afina. El marco equivocado desplaza.", "hacer": "Contestar Comprueba antes de abrir y dejar el reto por escrito."}]}</script>
+<script>(function(){function liga(c){var ctx=c.getContext('2d');function fondo(){ctx.fillStyle='#161512';ctx.fillRect(0,0,c.width,c.height);ctx.strokeStyle='#C4A15A';ctx.strokeRect(.5,.5,c.width-1,c.height-1);}function fit(){var r=c.getBoundingClientRect();var w=Math.max(320,Math.floor(r.width));if(c.width!==w){c.width=w;c.height=280;fondo();}}var dib=false,last=null;function pos(ev){var r=c.getBoundingClientRect();var s=ev.touches?ev.touches[0]:ev;return{x:(s.clientX-r.left)*c.width/r.width,y:(s.clientY-r.top)*c.height/r.height};}c.addEventListener('pointerdown',function(ev){dib=true;last=pos(ev);ev.preventDefault();});c.addEventListener('pointermove',function(ev){if(!dib)return;var p=pos(ev);ctx.strokeStyle='#E6E1D6';ctx.lineWidth=2.2;ctx.lineCap='round';ctx.beginPath();ctx.moveTo(last.x,last.y);ctx.lineTo(p.x,p.y);ctx.stroke();last=p;ev.preventDefault();});function up(){dib=false;}c.addEventListener('pointerup',up);c.addEventListener('pointerleave',up);var b=document.querySelector('[data-clear="'+c.id+'"]');if(b)b.addEventListener('click',fondo);fit();window.addEventListener('resize',fit);}document.querySelectorAll('canvas.lienzo').forEach(liga);})();</script>
+</body>
+</html>

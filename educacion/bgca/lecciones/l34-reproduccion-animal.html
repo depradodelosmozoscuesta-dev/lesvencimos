@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
+<title>L34 · Laboratorio · Estrategia, gameto y despensa</title>
+<style>
+:root{--bg:#FAF7F0;--ink:#2A2620;--muted:#5C564C;--card:#fff;--gold:#C4A15A;--gold-soft:#F5EDD8;--gold-deep:#8A6B2F;--green:#3D6B4F;--green-soft:#E4F0E8;--blue:#2F5D7A;--blue-soft:#E3EEF4;--rose:#9B3A4A;--rose-soft:#F8E8EB;--shadow:0 10px 32px rgba(42,38,32,.09);--radius:18px}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{min-height:100%;background:var(--bg);color:var(--ink);font-family:"Segoe UI",system-ui,-apple-system,sans-serif}
+body{padding:14px 10px 36px}
+.wrap{width:100%;max-width:920px;margin:0 auto}
+header{text-align:center;margin-bottom:12px}
+.badge{display:inline-block;font-size:.75rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--gold-deep);background:var(--gold-soft);padding:4px 12px;border-radius:999px;margin-bottom:8px}
+h1{font-size:clamp(1.25rem,4vw,1.7rem);line-height:1.25;font-weight:800}
+.subtitle{margin-top:6px;color:var(--muted);font-size:.98rem}
+.card{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);padding:16px 14px 18px;margin-bottom:14px}
+.card h2{font-size:1.15rem;margin-bottom:8px}
+.hint{color:var(--muted);font-size:.92rem;line-height:1.45;margin-bottom:10px}
+.q{border:2px solid #E0D0A8;border-radius:14px;padding:12px;margin:10px 0;background:#FFFcf5}
+.q h3{font-size:1rem;margin-bottom:8px;line-height:1.35}
+.opt{display:block;width:100%;text-align:left;padding:10px 12px;margin:6px 0;border:2px solid #D9D0C0;border-radius:12px;background:#fff;font-weight:650;cursor:pointer;font-family:inherit;font-size:.95rem;line-height:1.35;color:var(--ink)}
+.opt:hover{border-color:var(--gold)}
+.opt.ok{border-color:var(--green);background:var(--green-soft)}
+.opt.bad{border-color:var(--rose);background:var(--rose-soft)}
+.why{display:none;margin-top:8px;padding:8px 10px;border-radius:10px;background:var(--blue-soft);font-size:.92rem;line-height:1.4}
+.why.show{display:block}
+.score{font-weight:800;color:var(--gold-deep);margin-top:8px}
+button.action{appearance:none;border:none;border-radius:999px;padding:10px 16px;font-weight:800;cursor:pointer;background:var(--gold);color:#1A160E;margin:4px 6px 4px 0;font-family:inherit}
+button.action.secondary{background:#fff;color:var(--gold-deep);border:2px solid var(--gold)}
+.topbar{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:8px}
+footer{text-align:center;font-size:.8rem;color:var(--muted);margin-top:8px}
+</style>
+</head>
+<body>
+<div class="wrap" id="lab">
+  <header>
+    <div class="badge">Lección 34 · bloque E · sin red</div>
+    <h1>Estrategia, gameto y despensa</h1>
+    <p class="subtitle">Interna no es vivípara. Nacer vivo no basta. El ovocito no es un embrión.</p>
+  </header>
+  <section class="card">
+    <div class="topbar">
+      <h2>Laboratorio · 7 preguntas</h2>
+      <div>
+        <button type="button" class="action secondary" id="btnFs">Pantalla completa</button>
+        <button type="button" class="action secondary" id="btnReset">Reiniciar</button>
+      </div>
+    </div>
+    <p class="hint">Corrección inmediata. Si una pregunta cita números, son datos de ejemplo, no un informe oficial.</p>
+    <div id="quiz"></div>
+    <p class="score" id="score" aria-live="polite">Aciertos: 0 / 7</p>
+  </section>
+  <footer>1º Bachillerato · Biología, Geología y Ciencias Ambientales · Castilla y León · Decreto 40/2022 · Offline file:// · sin red</footer>
+</div>
+<script>
+(function(){
+  const ITEMS = [{"q": "Gemación de un pólipo. ¿Qué tipo de reproducción es y qué diversidad produce?", "opts": ["Sexual, porque el pólipo es un animal.", "Asexual: copias, salvo mutación. No hay meiosis ni fusión de gametos.", "Ovovivípara.", "Fecundación externa."], "ok": 1, "why": "El criterio es meiosis y gametos, no el reino animal. La fase medusa del mismo ciclo puede ser la sexual."}, {"q": "¿Qué coste tiene la reproducción sexual que la asexual no paga?", "opts": ["Ninguno: por eso es superior siempre.", "Pareja, y cada hijo recibe solo la mitad del genoma de cada parental. A cambio hay recombinación.", "Perder la capacidad de mutar.", "Tener que poner huevos amniotas."], "ok": 1, "why": "Sin el coste, no se entiende que tantos linajes conserven la asexual o la alternen."}, {"q": "Tiburón con fecundación interna. ¿Queda decidido que es vivíparo?", "opts": ["Sí: interna y vivíparo son sinónimos.", "No. Puede ser ovíparo, ovovivíparo o vivíparo según la especie. La interna solo dice dónde se encuentran los gametos.", "Sí, y además pone el huevo en la arena como única opción.", "No, porque todos los tiburones son externos."], "ok": 1, "why": "Lugar del gameto y despensa del embrión son ejes distintos."}, {"q": "Gallina. Fecundación y despensa.", "opts": ["Externa y vivípara, porque el pollito sale vivo.", "Interna y ovípara: vitelo, huevo fuera. La cáscara no prueba que esté fecundado.", "Ovovivípara, porque incuba.", "Asexual por partenogénesis obligatoria."], "ok": 1, "why": "Incubar no es retener un huevo que come de la madre. Y sin macho no hay embrión, haya cáscara o no."}, {"q": "¿Qué separa ovovivíparo de vivíparo si los dos nacen como cría libre?", "opts": ["Nada.", "La despensa: vitelo retenido frente a nutrición materna, por ejemplo placentaria.", "El ovovivíparo es externo.", "El vivíparo pone un huevo amniota."], "ok": 1, "why": "Nacer vivo es común a los dos. El alimento es la diferencia."}, {"q": "Partenogénesis de un pulgón. ¿Hay fecundación?", "opts": ["Sí, interna, aunque no se vea.", "No. El óvulo se desarrolla sin espermatozoide: es asexual.", "Sí, externa, en la savia.", "Es un reflejo, no una reproducción."], "ok": 1, "why": "Que otra generación del mismo animal tenga sexo no convierte esta en fecundación."}, {"q": "Especie humana, recorrido normal.", "opts": ["Ovula un embrión, se fecunda en el útero y se implanta en el ovario.", "Ovula un ovocito, la fecundación habitual es en la trompa y la implantación en el endometrio.", "Ovula un espermatozoide.", "No hay placenta: las sangres se mezclan en un solo circuito."], "ok": 1, "why": "Implantar en la trompa es una excepción patológica, no el mapa. Las sangres materna y fetal se intercambian sin fusionarse."}];
+  const quiz = document.getElementById('quiz');
+  const scoreEl = document.getElementById('score');
+  let aciertos = 0;
+  function render(){
+    aciertos = 0;
+    quiz.innerHTML = '';
+    ITEMS.forEach((it, i) => {
+      const box = document.createElement('div');
+      box.className = 'q';
+      const h = document.createElement('h3');
+      h.textContent = (i+1) + '. ' + it.q;
+      box.appendChild(h);
+      const why = document.createElement('p');
+      why.className = 'why';
+      let locked = false;
+      it.opts.forEach((t, j) => {
+        const b = document.createElement('button');
+        b.type = 'button';
+        b.className = 'opt';
+        b.textContent = t;
+        b.addEventListener('click', () => {
+          if (locked) return;
+          locked = true;
+          const buttons = box.querySelectorAll('.opt');
+          buttons.forEach((bb, k) => {
+            bb.disabled = true;
+            if (k === it.ok) bb.classList.add('ok');
+          });
+          if (j === it.ok) aciertos += 1; else b.classList.add('bad');
+          why.textContent = (j === it.ok ? 'Correcto. ' : 'No es la mejor opción. ') + it.why;
+          why.classList.add('show');
+          scoreEl.textContent = 'Aciertos: ' + aciertos + ' / ' + ITEMS.length;
+        });
+        box.appendChild(b);
+      });
+      box.appendChild(why);
+      quiz.appendChild(box);
+    });
+    scoreEl.textContent = 'Aciertos: 0 / ' + ITEMS.length;
+  }
+  document.getElementById('btnReset').addEventListener('click', render);
+  document.getElementById('btnFs').addEventListener('click', () => {
+    const el = document.documentElement;
+    if (!document.fullscreenElement) { if (el.requestFullscreen) el.requestFullscreen(); }
+    else if (document.exitFullscreen) document.exitFullscreen();
+  });
+  window.addEventListener('message', (ev) => {
+    const d = ev.data || {};
+    if (d.type === 'maestro:reset') render();
+  });
+  render();
+})();
+</script>
+</body>
+</html>

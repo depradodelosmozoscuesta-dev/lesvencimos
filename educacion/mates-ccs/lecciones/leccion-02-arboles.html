@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<meta name="theme-color" content="#0E0E0C"/>
+<title>Lección 02 · Diagramas de árbol · Les vencimos</title>
+<link rel="icon" href="../icons/favicon.svg" type="image/svg+xml"/>
+<link rel="stylesheet" href="../leccion-shell.css"/>
+<style>
+  .pasos{list-style:none;margin:0 0 1rem;padding:0;counter-reset:paso}
+  .pasos li{position:relative;margin:0 0 .7rem;padding:.7rem .8rem .7rem 3.1rem;background:var(--lv-panel);border:1px solid var(--lv-linea);border-radius:10px}
+  .pasos li::before{counter-increment:paso;content:counter(paso);position:absolute;left:.65rem;top:.7rem;width:1.7rem;height:1.7rem;border-radius:50%;background:#C4A15A;color:#1A160E;font-weight:700;font-size:.9rem;display:flex;align-items:center;justify-content:center}
+  .figura-svg{background:var(--lv-panel);border:1px solid var(--lv-linea);border-radius:10px;padding:.4rem;margin:.4rem 0 1rem}
+  .figura-svg svg{width:100%;height:auto;display:block}
+  .ej{margin:0 0 1rem;padding:.85rem .95rem;background:var(--lv-panel);border:1px solid var(--lv-linea);border-left:3px solid #C4A15A;border-radius:10px}
+  .ej h3{margin:0 0 .35rem;font-family:var(--lv-serif);font-size:1.05rem;color:var(--lv-titulo)}
+  .editor,textarea.editor{width:100%;min-height:5.2rem;font-family:ui-monospace,monospace;font-size:.95rem;line-height:1.4;padding:.55rem .65rem;border:1px solid rgba(196,161,90,.45);border-radius:8px;background:#161512;color:#E6E1D6;resize:vertical}
+  .porque{margin-top:.5rem}
+  .formula{margin:0 0 .35rem;padding:.45rem .7rem;background:#161512;border-left:3px solid #C4A15A;overflow-x:auto;font-family:ui-monospace,monospace}
+  .glosa{font-size:.98rem;color:#d9d0bc}
+  table.datos{width:100%;border-collapse:collapse;margin:.4rem 0 1rem;font-size:.98rem}
+  table.datos th,table.datos td{border:1px solid var(--lv-linea);padding:.35rem .5rem;text-align:left;vertical-align:top}
+  table.datos th{background:#161512;color:#C4A15A}
+  details.correccion{margin:.4rem 0 0;padding:.35rem .6rem;background:#141410;border-radius:8px}
+  details.correccion summary{cursor:pointer;color:#C4A15A;font-weight:650}
+</style>
+<script src="../leccion-shell-nav.js" defer></script>
+</head>
+<body class="leccion-shell">
+<div class="leccion-wrap">
+<nav class="leccion-barra" aria-label="Navegación de lección" data-actual="2" data-total="33">
+  <div class="leccion-progreso" role="status">
+    <span class="progreso-texto"><strong>2</strong> de <strong>33</strong></span>
+    <div class="progreso-pista" aria-hidden="true"><div class="progreso-lleno" style="width:6.25%"></div></div>
+  </div>
+  <div class="leccion-atajos">
+    <a class="atajo atajo-prev" href="leccion-01-metodo.html">← Anterior</a>
+    <a class="atajo atajo-next" href="leccion-03-combinatoria.html">Siguiente →</a>
+  </div>
+</nav>
+<header class="leccion-top">
+  <a class="leccion-marca" href="../mates-ccs.html">Les <span>vencimos</span></a>
+  <p class="leccion-meta-top">Matemáticas Aplicadas a las CCSS I · 1º Bachillerato</p>
+</header>
+<header class="bloque-titulo">
+  <span class="eyebrow">Lección 02 · A.1 Conteo</span>
+  <h1 class="titulo-leccion">Diagramas de árbol y <em>recuento sistemático</em></h1>
+  <p class="meta-leccion">Decreto 40/2022 CyL · primer curso · sentido numérico A.1</p>
+</header>
+
+<aside class="bloque-curiosidad" aria-label="Para situarte">
+  <p class="etiqueta-bloque">Para situarte</p>
+  <h2 class="titulo-curiosidad">Contar sin dejar huecos ni repetir</h2>
+  <p class="texto-curiosidad">El sentido numérico A.1 del primer curso pide estrategias de recuento sistemático: diagramas de árbol y, en la lección siguiente, las técnicas de combinatoria. El árbol no decora el producto: obliga a ver cada etapa y, cuando las ramas no son iguales, a sumar en lugar de multiplicar un número que no existe.</p>
+</aside>
+
+<section class="bloque-cuerpo">
+  <h2>Objetivos</h2>
+  <ul>
+    <li>Construir un diagrama de árbol con una etapa por nivel y resultados excluyentes en cada nudo.</li>
+    <li>Aplicar el principio del producto cuando cada nudo tiene el mismo número de salidas.</li>
+    <li>Sumar ramas de distinto tamaño cuando el número de opciones depende de la elección anterior.</li>
+    <li>Comprobar el árbol con un listado sistemático que no repita ni omita casos.</li>
+    <li>Escribir la frase final con la unidad contada: menús, itinerarios, caminos, hojas de respuesta.</li>
+  </ul>
+
+  <h2>Cuándo se multiplica</h2>
+  <p>Un recuento por etapas sirve si el proceso se parte en decisiones sucesivas y cada resultado final es una secuencia de una decisión por etapa. Si la etapa 1 admite a resultados y, sea cual sea el elegido, la etapa 2 admite b resultados, el total es a × b. La razón no es «siempre se multiplica»: es que de cada una de las a ramas cuelgan exactamente b ramas nuevas, así que hay a grupos de b.</p>
+  <p class="formula">N = a × b</p>
+  <p class="glosa">En el menú de esta lección, a = 2 es el número de primeros (sopa o ensalada), b = 3 es el número de segundos (pescado, carne o pasta) y el producto parcial 6 cuenta los pares primer-segundo. Falta el postre: hay 2 postres en cada uno de esos 6 pares, así que el total de menús es 6 × 2 = 12. La letra N es ese total, en menús, no en platos sueltos.</p>
+  <p>Tres etapas con 2, 3 y 2 opciones constantes se escriben de una vez:</p>
+  <p class="formula">N = 2 × 3 × 2 = 12</p>
+  <p class="glosa">El primer 2 son los primeros platos, el 3 son los segundos, el segundo 2 son los postres (fruta o flan) y 12 es el número de menús completos. Ningún factor es «el número de comensales»: cada factor es una etapa del mismo menú.</p>
+  <p>La comprobación del producto uniforme es el listado. Se fija un orden de etapas y se recorre sin saltar: primero todos los menús que empiezan por sopa, luego todos los que empiezan por ensalada. Si el listado tiene 12 líneas distintas y no se puede formar otro menú con esos platos, el 12 queda comprobado.</p>
+
+  <h2>Cuándo el árbol manda y el producto único no</h2>
+  <p>Si la segunda etapa no tiene el mismo número de opciones en todas las ramas, no existe un único b. Multiplicar «número de primeras elecciones × algo» inventa un factor. Se dibuja el árbol y se cuenta cada hoja, o se suman los tamaños de las ramas.</p>
+  <p class="formula">N = b₁ + b₂</p>
+  <p class="glosa">En el itinerario de optativas, b₁ = 3 es el número de optativas del turno de mañana y b₂ = 2 es el número de optativas del turno de tarde. N = 5 itinerarios. No hay un tercer factor: cada itinerario es un turno y una sola optativa de ese turno.</p>
+
+  <h2>El árbol del turno y la optativa</h2>
+  <p>Un estudiante elige turno y, según el turno, una optativa. Mañana ofrece Historia del arte, Economía y Latín. Tarde ofrece Tecnología y Música. No se pueden cursar las de otro turno.</p>
+  <div class="figura-svg">
+    <svg viewBox="0 0 720 300" role="img">
+      <title>Diagrama de árbol: turno de mañana con tres optativas y turno de tarde con dos</title>
+      <rect width="720" height="300" fill="#161512"/>
+      <g font-family="Segoe UI, sans-serif" font-size="14" fill="#E6E1D6">
+        <circle cx="70" cy="150" r="28" fill="#1C1A16" stroke="#C4A15A" stroke-width="2"/>
+        <text x="70" y="154" text-anchor="middle" fill="#C4A15A" font-size="12">turno</text>
+        <line x1="98" y1="140" x2="210" y2="70" stroke="#C4A15A" stroke-width="1.6"/>
+        <line x1="98" y1="160" x2="210" y2="230" stroke="#C4A15A" stroke-width="1.6"/>
+        <rect x="210" y="48" width="110" height="40" rx="8" fill="#1C1A16" stroke="#C4A15A"/>
+        <text x="265" y="73" text-anchor="middle">Mañana</text>
+        <rect x="210" y="210" width="110" height="40" rx="8" fill="#1C1A16" stroke="#C4A15A"/>
+        <text x="265" y="235" text-anchor="middle">Tarde</text>
+        <line x1="320" y1="60" x2="430" y2="36" stroke="#9A9488"/>
+        <line x1="320" y1="68" x2="430" y2="78" stroke="#9A9488"/>
+        <line x1="320" y1="76" x2="430" y2="120" stroke="#9A9488"/>
+        <line x1="320" y1="222" x2="430" y2="200" stroke="#9A9488"/>
+        <line x1="320" y1="234" x2="430" y2="250" stroke="#9A9488"/>
+        <g fill="#1C1A16" stroke="#C4A15A">
+          <rect x="430" y="16" width="250" height="32" rx="6"/>
+          <rect x="430" y="60" width="250" height="32" rx="6"/>
+          <rect x="430" y="104" width="250" height="32" rx="6"/>
+          <rect x="430" y="184" width="250" height="32" rx="6"/>
+          <rect x="430" y="234" width="250" height="32" rx="6"/>
+        </g>
+        <g fill="#E6E1D6">
+          <text x="444" y="37">1 · Historia del arte</text>
+          <text x="444" y="81">2 · Economía</text>
+          <text x="444" y="125">3 · Latín</text>
+          <text x="444" y="205">4 · Tecnología</text>
+          <text x="444" y="255">5 · Música</text>
+        </g>
+        <text x="360" y="288" text-anchor="middle" fill="#9A9488" font-size="13">Cinco hojas: 3 de mañana + 2 de tarde. No es 2 × 3.</text>
+      </g>
+    </svg>
+  </div>
+  <p>Las cinco hojas son los cinco itinerarios. Un producto 2 × 3 = 6 contaría una optativa de mañana colocada también por la tarde, y el enunciado lo prohíbe. El árbol es aquí la técnica, no un dibujo opcional del producto.</p>
+
+  <h2>Ejemplo resuelto 1. Menú de tres etapas iguales en cada nudo</h2>
+  <p>El comedor ofrece sopa o ensalada; después pescado, carne o pasta; después fruta o flan. Hay que elegir uno de cada etapa. ¿Cuántos menús distintos hay?</p>
+  <ol class="pasos">
+    <li>Dato: etapa 1 con 2 primeros, etapa 2 con 3 segundos, etapa 3 con 2 postres. En cada nudo el número de salidas no depende de lo elegido antes.</li>
+    <li>Modelo: N = 2 × 3 × 2.</li>
+    <li>Cálculo: 2 × 3 = 6 pares primer-segundo; 6 × 2 = 12 menús.</li>
+    <li>Comprobación por listado, con los segundos en el orden pescado, carne, pasta y los postres en el orden fruta, flan.
+      <br/>Sopa: sopa-pescado-fruta, sopa-pescado-flan, sopa-carne-fruta, sopa-carne-flan, sopa-pasta-fruta, sopa-pasta-flan (6).
+      <br/>Ensalada: ensalada-pescado-fruta, ensalada-pescado-flan, ensalada-carne-fruta, ensalada-carne-flan, ensalada-pasta-fruta, ensalada-pasta-flan (6).
+      <br/>Total 6 + 6 = 12. No aparece un decimotercero: solo hay esos platos.</li>
+    <li>Frase: se pueden formar 12 menús distintos.</li>
+  </ol>
+  <p class="formula">12 = 2 × 3 × 2</p>
+  <p class="glosa">2 es el número de primeros, 3 el de segundos, 2 el de postres y 12 el de menús. El listado tiene doce líneas, una por cada producto de opciones, así que el cálculo y el recuento sistemático coinciden.</p>
+
+  <h2>Ejemplo resuelto 2. Optativas que no se multiplican</h2>
+  <p>Con los turnos del árbol: mañana con 3 optativas y tarde con 2. Cada estudiante elige un turno y una optativa de ese turno. ¿Cuántos itinerarios hay?</p>
+  <ol class="pasos">
+    <li>Dato: 2 turnos, pero la segunda etapa vale 3 solo si el turno es mañana y vale 2 solo si es tarde.</li>
+    <li>Modelo: suma de hojas, N = 3 + 2. Rechazo del modelo 2 × 3, que exigiría 3 optativas también por la tarde.</li>
+    <li>Cálculo: 3 + 2 = 5.</li>
+    <li>Comprobación: listado M-Historia, M-Economía, M-Latín, T-Tecnología, T-Música. Cinco secuencias, ninguna repetida, ninguna más permitida por el enunciado.</li>
+    <li>Frase: hay 5 itinerarios de turno y optativa.</li>
+  </ol>
+  <p class="formula">5 = 3 + 2</p>
+  <p class="glosa">3 es el número de optativas de mañana, 2 el de tarde y 5 el de itinerarios. El 2 de «dos turnos» no entra como factor: ya está representado al separar las dos ramas que se suman.</p>
+
+  <h2>Escribe el razonamiento</h2>
+  <p>Dibuja en palabras el árbol del ejercicio que elijas: etapa, ramas y si al final multiplicas o sumas. Luego haz la cuenta.</p>
+  <label for="razonamiento">Razonamiento en esta página</label>
+  <textarea class="editor" id="razonamiento" placeholder="Etapas… ¿ramas iguales?… producto o suma… listado de comprobación…"></textarea>
+
+  <h2>Ejercicios</h2>
+  <article class="ej">
+    <h3>1. Camisetas y pantalones</h3>
+    <p>Hay 3 camisetas (roja, azul, verde) y 2 pantalones (vaquero, negro). Un conjunto es una camiseta y un pantalón. ¿Cuántos conjuntos hay? Comprueba listándolos.</p>
+    <label for="e1">Tu desarrollo</label>
+    <textarea class="editor" id="e1"></textarea>
+    <details class="correccion"><summary>Corrección</summary>
+      <ol class="pasos">
+        <li>Etapa 1: 3 camisetas. Etapa 2: 2 pantalones, los mismos para cualquier camiseta.</li>
+        <li>N = 3 × 2 = 6.</li>
+        <li>Listado: roja-vaquero, roja-negro, azul-vaquero, azul-negro, verde-vaquero, verde-negro.</li>
+      </ol>
+      <p class="porque">Son 6 conjuntos. El listado tiene seis líneas y cada camiseta aparece emparejada con los dos pantalones: el factor 2 no depende de la rama, así que el producto es el modelo correcto.</p>
+    </details>
+  </article>
+  <article class="ej">
+    <h3>2. Caminos de longitud distinta</h3>
+    <p>Desde la plaza se puede ir al instituto en autobús o a pie. El autobús tiene 2 líneas (L1 y L2). A pie solo hay 1 recorrido. ¿Cuántos caminos distintos hay?</p>
+    <label for="e2">Tu desarrollo</label>
+    <textarea class="editor" id="e2"></textarea>
+    <details class="correccion"><summary>Corrección</summary>
+      <ol class="pasos">
+        <li>La segunda etapa no es constante: 2 líneas si se elige autobús, 1 recorrido si se va a pie.</li>
+        <li>N = 2 + 1 = 3.</li>
+        <li>Listado: autobús-L1, autobús-L2, a pie. No hay un segundo camino a pie que el enunciado no da.</li>
+      </ol>
+      <p class="porque">Hay 3 caminos. Multiplicar 2 × 2 = 4 inventaría una línea o un segundo recorrido a pie. El árbol desigual se suma; no se le busca un factor común que el enunciado no tiene.</p>
+    </details>
+  </article>
+  <article class="ej">
+    <h3>3. Moneda y dado</h3>
+    <p>Se lanza una moneda (cara o cruz) y después un dado de seis caras (1, 2, 3, 4, 5, 6). ¿Cuántos resultados distintos hay en el par (moneda, dado)?</p>
+    <label for="e3">Tu desarrollo</label>
+    <textarea class="editor" id="e3"></textarea>
+    <details class="correccion"><summary>Corrección</summary>
+      <ol class="pasos">
+        <li>Etapa moneda: 2 resultados. Etapa dado: 6, los mismos tras cara y tras cruz.</li>
+        <li>N = 2 × 6 = 12.</li>
+        <li>Comprobación: tras cara están (cara,1) … (cara,6), seis pares; tras cruz, otros seis. 6 + 6 = 12.</li>
+      </ol>
+      <p class="porque">Hay 12 resultados. Esta lección cuenta casos, no asigna probabilidades: cada par es una hoja del árbol, y las doce hojas existen aunque más adelante no resulten equiprobables en otro experimento. Aquí el dado es de seis caras distintas y la moneda de dos, así que el recuento es 12.</p>
+    </details>
+  </article>
+  <article class="ej">
+    <h3>4. Tres preguntas de sí o no</h3>
+    <p>Una hoja tiene 3 preguntas y cada una se contesta sí o no. ¿Cuántas hojas distintas de respuestas hay? Lista las que empiezan por sí y comprueba que son la mitad.</p>
+    <label for="e4">Tu desarrollo</label>
+    <textarea class="editor" id="e4"></textarea>
+    <details class="correccion"><summary>Corrección</summary>
+      <ol class="pasos">
+        <li>Tres etapas, cada una con 2 opciones fijas.</li>
+        <li>N = 2 × 2 × 2 = 8.</li>
+        <li>Empiezan por sí: SSS, SSN, SNS, SNN. Son 4.</li>
+        <li>Empiezan por no: NSS, NSN, NNS, NNN. Otras 4. Total 8.</li>
+      </ol>
+      <p class="porque">Hay 8 hojas. Fijar la primera respuesta parte el árbol en dos ramas del mismo tamaño, 4 y 4, y 4 + 4 recupera el producto. Si las preguntas fueran de tres opciones, el 2 dejaría de servir: el factor es el número de respuestas de esa pregunta, no el número de preguntas.</p>
+    </details>
+  </article>
+
+  <h2>Cierre</h2>
+  <p>El diagrama de árbol organiza el recuento por etapas. Si cada nudo tiene las mismas salidas, las hojas son el producto de esos números. Si no, se cuentan las hojas o se suman ramas. El listado sistemático es la comprobación: mismas secuencias, ni una de más ni una de menos. La lección siguiente pone nombre a tres recuentos en los que ya no se listan todas las hojas.</p>
+</section>
+
+<footer class="leccion-pie">
+  <strong>Les vencimos</strong> · Lección 02 de 33 · Matemáticas Aplicadas a las CCSS I · staging · sin publicar
+</footer>
+</div>
+</body>
+</html>
+<!-- saber: A.1 -->

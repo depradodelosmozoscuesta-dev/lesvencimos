@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#FAF7F0">
+<title>L32 · Metalenguaje</title>
+<style>
+
+:root{--bg:#FAF7F0;--ink:#2A2620;--muted:#5C564C;--card:#fff;--gold:#C4A15A;--gold-soft:#F5EDD8;--gold-deep:#8A6B2F;--green:#3D6B4F;--green-soft:#E4F0E8;--blue:#2F5D7A;--blue-soft:#E3EEF4;--rose:#9B3A4A;--rose-soft:#F8E8EB;--shadow:0 10px 32px rgba(42,38,32,.09);--radius:18px;--carbon:#0E0E0C}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{min-height:100%;background:var(--bg);color:var(--ink);font-family:"Segoe UI",system-ui,-apple-system,sans-serif;-webkit-font-smoothing:antialiased}
+body{display:flex;flex-direction:column;align-items:center;padding:14px 10px 36px}
+.wrap{width:100%;max-width:1040px}
+header{text-align:center;margin-bottom:12px}
+.badge{display:inline-block;font-size:.78rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--gold-deep);background:var(--gold-soft);padding:4px 12px;border-radius:999px;margin-bottom:8px}
+h1{font-size:clamp(1.25rem,4.5vw,1.85rem);line-height:1.2;font-weight:800;color:#0E0E0C}
+.subtitle{margin-top:6px;font-size:clamp(.9rem,2.8vw,1.05rem);color:var(--muted);font-weight:500}
+.story{background:linear-gradient(135deg,#F5EDD8,#E3EEF4 55%,#E4F0E8);border:2px solid #E0D0A8;border-radius:var(--radius);padding:12px 14px;margin-bottom:14px;font-size:clamp(.9rem,2.5vw,1.02rem);line-height:1.45;display:flex;gap:14px;align-items:center}
+.story-avatar{flex:0 0 auto;width:72px;height:72px}
+.story-avatar svg{width:72px;height:72px;display:block}
+.story strong{color:var(--gold-deep)}
+.card{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);padding:16px 14px 18px;margin-bottom:14px}
+.card h2{font-size:clamp(1.05rem,3vw,1.25rem);font-weight:800;margin-bottom:8px;color:#0E0E0C}
+.hint{font-size:clamp(.88rem,2.4vw,1rem);color:var(--muted);line-height:1.45;margin-bottom:10px}
+.btn-row{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px;justify-content:center}
+button.action{appearance:none;border:none;border-radius:999px;padding:10px 18px;font-weight:800;font-size:.95rem;cursor:pointer;background:#C4A15A;color:#0E0E0C}
+button.action.secondary{background:#fff;color:#8A6B2F;border:2px solid #C4A15A}
+button.action:disabled{opacity:.55;cursor:default}
+.stage{position:relative;width:100%;min-height:220px;background:linear-gradient(#E7E1D6 0%,#FAF7F0 72%);border-radius:14px;overflow:hidden;border:2px solid #2A2620;margin-bottom:12px;display:flex;align-items:center;justify-content:center}
+.stage svg{width:100%;height:100%;max-height:320px;display:block}
+.verdict{text-align:center;font-size:1.02rem;font-weight:800;padding:12px;border-radius:14px;margin:10px 0;display:none;border:2px solid #E0D0A8;line-height:1.4}
+.verdict.show{display:block}.verdict.ok{background:var(--green-soft);color:#2A5238;border-color:#9BC4A8}.verdict.bad{background:var(--rose-soft);color:#7A2A36;border-color:#E8A8B0}
+.opts{display:grid;gap:8px;margin:10px 0}
+.opt{padding:12px 14px;border:2px solid #D9D0C0;border-radius:12px;background:#fff;cursor:pointer;font-weight:700;text-align:left;font-size:.95rem;color:#2A2620;line-height:1.35}
+.opt:hover{border-color:#C4A15A}.opt.ok{border-color:#3D6B4F;background:#E4F0E8}.opt.bad{border-color:#9B3A4A;background:#F8E8EB}
+.opt:disabled{cursor:default}
+.prompt{font-weight:800;text-align:center;margin:8px 0;font-size:clamp(1rem,2.6vw,1.15rem);line-height:1.35;color:#0E0E0C}
+.counter{text-align:center;font-size:.8rem;font-weight:800;color:#2F5D7A;letter-spacing:.04em;text-transform:uppercase}
+.glossary{display:grid;gap:.35rem;margin:0;padding:12px 14px;background:#FFFcf5;border-radius:12px;border:2px solid #E0D0A8;font-size:.95rem;line-height:1.45}
+.glossary strong{color:#8A6B2F}
+footer{text-align:center;font-size:.8rem;color:#5C564C;margin-top:4px}
+body.preview-mode .story,body.preview-mode footer,body.preview-mode .hide-preview{display:none}
+@media (max-width:640px){.story{flex-direction:column;text-align:center}}
+
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="badge">Lección 32 · B · Plurilingüismo · CyL Decreto 40/2022</div>
+    <h1>Ponle nombre a la pieza</h1>
+    <p class="subtitle">Noun, verb, adjective, tense, clause, collocation, register, false friend</p>
+  </header>
+  <div class="story">
+    <div class="story-avatar"><svg viewBox="0 0 80 80" aria-hidden="true"><circle cx="40" cy="40" r="38" fill="#F5EDD8"/><path d="M22 72 Q40 52 58 72" fill="#3D6B4F"/><ellipse cx="40" cy="38" rx="18" ry="20" fill="#E8C4A0"/><path d="M22 34 Q24 12 40 10 Q56 12 58 34 Q52 22 40 20 Q28 22 22 34Z" fill="#1E1A16"/><ellipse cx="33" cy="40" rx="2.2" ry="2.6" fill="#2A2620"/><ellipse cx="47" cy="40" rx="2.2" ry="2.6" fill="#2A2620"/><path d="M36 48 Q40 52 44 48" fill="none" stroke="#C4785A" stroke-width="1.5" stroke-linecap="round"/></svg></div>
+    <div><p>En <strong>Valladolid</strong> paras el borrador y dices la etiqueta: <strong>collocation</strong>, <strong>register</strong> o <strong>false friend</strong>. Luego reescribes una sola frase.</p></div>
+  </div>
+  <div class="card">
+    <h2>¿Qué etiqueta es?</h2>
+    <p class="hint">Una etiqueta corta. No analices la frase entera.</p>
+    <div class="stage" id="stage"></div>
+    <p class="counter" id="rcounter"></p>
+    <p class="prompt" id="rprompt"></p>
+    <div class="opts" id="ropts"></div>
+    <div class="verdict" id="rverdict"></div>
+    <div class="btn-row"><button class="action secondary" id="nextRound" type="button">Otro caso</button></div>
+  </div>
+  <div class="card hide-preview" id="quizCard">
+    <h2>Mini-check</h2>
+    <p class="hint">Actually, make a decision, y qué es una clause.</p>
+    <p class="counter" id="qcounter"></p>
+    <p class="prompt" id="qprompt"></p>
+    <div class="opts" id="qopts"></div>
+    <div class="verdict" id="qverdict"></div>
+    <div class="btn-row"><button class="action secondary" id="nextQuiz" type="button">Otra pregunta</button></div>
+  </div>
+  <div class="card glossary hide-preview">
+    <strong>Noun / verb / adjective</strong> — nombre, verbo, adjetivo. · <strong>Tense</strong> — tiempo del verbo. · <strong>Clause</strong> — grupo con verbo. · <strong>Collocation</strong> — pareja hecha, como make a decision. · <strong>Register</strong> — tono según quién lee. · <strong>False friend</strong> — actually no es actualmente.
+  </div>
+  <footer>1º Bachillerato Inglés I · CyL Decreto 40/2022 · offline file://</footer>
+</div>
+<script>
+window.LESSON = {"visual":"cards","rounds":[{"q":"Do a decision. ¿Qué está mal?","opts":[{"t":"La collocation: en inglés es make a decision.","ok":true,"why":"Esta es la opción que hay que elegir, «La collocation: en inglés es make a decision.». Do a decision traduce pieza a pieza. La pareja es make. Encaja con lo que pregunta el ítem. El metalenguaje de hoy nombra una pieza con un ejemplo corto: nombre, verbo, adjetivo, tiempo, clause, colocación, registro o falso amigo, y luego se para."},{"t":"Decision es un verb.","ok":false,"why":"Esta opción no se elige, «Decision es un verb.». Decision es noun. El verb sería decide. No responde a lo que el ítem pregunta. El metalenguaje de hoy nombra una pieza con un ejemplo corto: nombre, verbo, adjetivo, tiempo, clause, colocación, registro o falso amigo, y luego se para."},{"t":"Falta un tense futuro obligatorio.","ok":false,"why":"Esta opción no se elige, «Falta un tense futuro obligatorio.». La frase puede ir en varios tiempos. El fallo es la pareja. No responde a lo que el ítem pregunta. El metalenguaje de hoy nombra una pieza con un ejemplo corto: nombre, verbo, adjetivo, tiempo, clause, colocación, registro o falso amigo, y luego se para."},{"t":"Actually significa actualmente y por eso do.","ok":false,"why":"Esta opción no se elige, «Actually significa actualmente y por eso do.». Actually no entra en esta frase, y no significa actualmente. No responde a lo que el ítem pregunta. El metalenguaje de hoy nombra una pieza con un ejemplo corto: nombre, verbo, adjetivo, tiempo, clause, colocación, registro o falso amigo, y luego se para."}],"mode":"cards","a":"noun","b":"make","c":"do"},{"q":"She went home early. ¿Qué es went?","opts":[{"t":"Un verb en tense pasado.","ok":true,"why":"Esta es la opción que hay que elegir, «Un verb en tense pasado.». Went es el pasado de go. No es un nombre. Encaja con lo que pregunta el ítem. El metalenguaje de hoy nombra una pieza con un ejemplo corto: nombre, verbo, adjetivo, tiempo, clause, colocación, registro o falso amigo, y luego se para."},{"t":"Un noun de movimiento.","ok":false,"why":"Esta opción no se elige, «Un noun de movimiento.». El noun sería, por ejemplo, trip. Went no. No responde a lo que el ítem pregunta. El metalenguaje de hoy nombra una pieza con un ejemplo corto: nombre, verbo, adjetivo, tiempo, clause, colocación, registro o falso amigo, y luego se para."},{"t":"Un adjective.","ok":false,"why":"Esta opción no se elige, «Un adjective.». No describe a un nombre: es el verbo. No responde a lo que el ítem pregunta. El metalenguaje de hoy nombra una pieza con un ejemplo corto: nombre, verbo, adjetivo, tiempo, clause, colocación, registro o falso amigo, y luego se para."},{"t":"Una clause completa.","ok":false,"why":"Esta opción no se elige, «Una clause completa.». Went es una palabra. La clause es she went home early, o al menos lleva sujeto y verbo según qué recortes; went solo no es la clause. No responde a lo que el ítem pregunta. El metalenguaje de hoy nombra una pieza con un ejemplo corto: nombre, verbo, adjetivo, tiempo, clause, colocación, registro o falso amigo, y luego se para."}],"mode":"list","a":"verb","b":"pasado","c":"no noun"},{"q":"Borrador a secretaría: Send me the date now.","opts":[{"t":"El register es demasiado seco. Could you send me the date? encaja mejor.","ok":true,"why":"Esta es la opción que hay que elegir, «El register es demasiado seco. Could you send me the date? encaja mejor.». Mismo contenido, tono de correo al centro. Encaja con lo que pregunta el ítem. El metalenguaje de hoy nombra una pieza con un ejemplo corto: nombre, verbo, adjetivo, tiempo, clause, colocación, registro o falso amigo, y luego se para."},{"t":"Date es un false friend de dato.","ok":false,"why":"Esta opción no se elige, «Date es un false friend de dato.». Aquí date es la fecha. No es el problema. No responde a lo que el ítem pregunta. El metalenguaje de hoy nombra una pieza con un ejemplo corto: nombre, verbo, adjetivo, tiempo, clause, colocación, registro o falso amigo, y luego se para."},{"t":"Hay que analizar las cuatro clauses del párrafo.","ok":false,"why":"Esta opción no se elige, «Hay que analizar las cuatro clauses del párrafo.». Es una sola frase. Esta lección no analiza párrafos. No responde a lo que el ítem pregunta. El metalenguaje de hoy nombra una pieza con un ejemplo corto: nombre, verbo, adjetivo, tiempo, clause, colocación, registro o falso amigo, y luego se para."},{"t":"Now es un noun.","ok":false,"why":"Esta opción no se elige, «Now es un noun.». Now no es el nombre de la frase. No responde a lo que el ítem pregunta. El metalenguaje de hoy nombra una pieza con un ejemplo corto: nombre, verbo, adjetivo, tiempo, clause, colocación, registro o falso amigo, y luego se para."}],"mode":"split","a":"Send me","b":"Could you","c":"registro"},{"q":"People think I live in Burgos, but ___ I live in Soria.","opts":[{"t":"actually","ok":true,"why":"Esta es la opción que hay que elegir, «actually». En realidad. Contrasta con lo que la gente cree. Encaja con lo que pregunta el ítem. El metalenguaje de hoy nombra una pieza con un ejemplo corto: nombre, verbo, adjetivo, tiempo, clause, colocación, registro o falso amigo, y luego se para."},{"t":"actually para decir actualmente, y sobra but","ok":false,"why":"Esta opción no se elige, «actually para decir actualmente, y sobra but». Ese actually no significa actualmente, y but sí contrasta. No responde a lo que el ítem pregunta. El metalenguaje de hoy nombra una pieza con un ejemplo corto: nombre, verbo, adjetivo, tiempo, clause, colocación, registro o falso amigo, y luego se para."},{"t":"decision","ok":false,"why":"Esta opción no se elige, «decision». No es la colocación que toca. No responde a lo que el ítem pregunta. El metalenguaje de hoy nombra una pieza con un ejemplo corto: nombre, verbo, adjetivo, tiempo, clause, colocación, registro o falso amigo, y luego se para."},{"t":"tense","ok":false,"why":"Esta opción no se elige, «tense». Tense es la etiqueta, no la palabra que falta. No responde a lo que el ítem pregunta. El metalenguaje de hoy nombra una pieza con un ejemplo corto: nombre, verbo, adjetivo, tiempo, clause, colocación, registro o falso amigo, y luego se para."}],"mode":"bubbles","a":"actually","b":"en realidad","c":"no ahora"},{"q":"When I arrived, the room was quiet. ¿Cuántas clauses ves, sin analizar más?","opts":[{"t":"Dos: when I arrived y the room was quiet. Cada una tiene un verbo.","ok":true,"why":"Esta es la opción que hay que elegir, «Dos: when I arrived y the room was quiet. Cada una tiene un verbo.». Arrived y was. Con eso basta. Encaja con lo que pregunta el ítem. El metalenguaje de hoy nombra una pieza con un ejemplo corto: nombre, verbo, adjetivo, tiempo, clause, colocación, registro o falso amigo, y luego se para."},{"t":"Ocho, una por palabra.","ok":false,"why":"Esta opción no se elige, «Ocho, una por palabra.». Una palabra no es una clause. No responde a lo que el ítem pregunta. El metalenguaje de hoy nombra una pieza con un ejemplo corto: nombre, verbo, adjetivo, tiempo, clause, colocación, registro o falso amigo, y luego se para."},{"t":"Ninguna, porque no hay coma en español.","ok":false,"why":"Esta opción no se elige, «Ninguna, porque no hay coma en español.». La coma no decide. Los verbos sí. No responde a lo que el ítem pregunta. El metalenguaje de hoy nombra una pieza con un ejemplo corto: nombre, verbo, adjetivo, tiempo, clause, colocación, registro o falso amigo, y luego se para."},{"t":"Una, porque when no cuenta como verbo.","ok":false,"why":"Esta opción no se elige, «Una, porque when no cuenta como verbo.». When introduce la clause; el verbo es arrived. No responde a lo que el ítem pregunta. El metalenguaje de hoy nombra una pieza con un ejemplo corto: nombre, verbo, adjetivo, tiempo, clause, colocación, registro o falso amigo, y luego se para."}],"mode":"path","a":"when I arrived","b":"the room was quiet","c":"dos"},{"q":"Strong coffee. Un compañero escribe powerful coffee.","opts":[{"t":"Señala la collocation: el café de cada día es strong, no powerful.","ok":true,"why":"Esta es la opción que hay que elegir, «Señala la collocation: el café de cada día es strong, no powerful.». Pareja hecha. No hace falta más teoría. Encaja con lo que pregunta el ítem. El metalenguaje de hoy nombra una pieza con un ejemplo corto: nombre, verbo, adjetivo, tiempo, clause, colocación, registro o falso amigo, y luego se para."},{"t":"Powerful es un noun.","ok":false,"why":"Esta opción no se elige, «Powerful es un noun.». Powerful es adjective, igual que strong. El fallo es cuál. No responde a lo que el ítem pregunta. El metalenguaje de hoy nombra una pieza con un ejemplo corto: nombre, verbo, adjetivo, tiempo, clause, colocación, registro o falso amigo, y luego se para."},{"t":"Coffee es un false friend de cofre.","ok":false,"why":"Esta opción no se elige, «Coffee es un false friend de cofre.». No es ese parecido ni ese sentido. No responde a lo que el ítem pregunta. El metalenguaje de hoy nombra una pieza con un ejemplo corto: nombre, verbo, adjetivo, tiempo, clause, colocación, registro o falso amigo, y luego se para."},{"t":"Hay que pasar la frase a pasado.","ok":false,"why":"Esta opción no se elige, «Hay que pasar la frase a pasado.». El tense no es el problema. No responde a lo que el ítem pregunta. El metalenguaje de hoy nombra una pieza con un ejemplo corto: nombre, verbo, adjetivo, tiempo, clause, colocación, registro o falso amigo, y luego se para."}],"mode":"split","a":"strong","b":"powerful","c":"café"},{"q":"¿Para qué usas hoy estas etiquetas?","opts":[{"t":"Para decir qué pieza te falla al aprender, con un ejemplo corto.","ok":true,"why":"Esta es la opción que hay que elegir, «Para decir qué pieza te falla al aprender, con un ejemplo corto.». Metalenguaje de aprendiz, no de análisis largo. Encaja con lo que pregunta el ítem. El metalenguaje de hoy nombra una pieza con un ejemplo corto: nombre, verbo, adjetivo, tiempo, clause, colocación, registro o falso amigo, y luego se para."},{"t":"Para etiquetar todas las palabras de un texto de una página.","ok":false,"why":"Esta opción no se elige, «Para etiquetar todas las palabras de un texto de una página.». Eso es justo lo que esta lección no pide. No responde a lo que el ítem pregunta. El metalenguaje de hoy nombra una pieza con un ejemplo corto: nombre, verbo, adjetivo, tiempo, clause, colocación, registro o falso amigo, y luego se para."},{"t":"Para sustituir el diccionario y no mirar el sentido.","ok":false,"why":"Esta opción no se elige, «Para sustituir el diccionario y no mirar el sentido.». La etiqueta no borra el sentido. No responde a lo que el ítem pregunta. El metalenguaje de hoy nombra una pieza con un ejemplo corto: nombre, verbo, adjetivo, tiempo, clause, colocación, registro o falso amigo, y luego se para."},{"t":"Para poner una nota al compañero.","ok":false,"why":"Esta opción no se elige, «Para poner una nota al compañero.». Eso era la lección de coevaluación, y tampoco era una nota. No responde a lo que el ítem pregunta. El metalenguaje de hoy nombra una pieza con un ejemplo corto: nombre, verbo, adjetivo, tiempo, clause, colocación, registro o falso amigo, y luego se para."}],"mode":"list","a":"un ejemplo","b":"una etiqueta","c":"y paras"}],"order":null,"quiz":[{"q":"Actually, en esta lección, es…","opts":[{"t":"un false friend: en realidad, no actualmente","ok":true,"why":"Esta es la opción que hay que elegir, «un false friend: en realidad, no actualmente». El parecido con actual engaña. Encaja con lo que pregunta el ítem. El metalenguaje de hoy nombra una pieza con un ejemplo corto: nombre, verbo, adjetivo, tiempo, clause, colocación, registro o falso amigo, y luego se para."},{"t":"la collocation de decision","ok":false,"why":"Esta opción no se elige, «la collocation de decision». No forma pareja con decision. No responde a lo que el ítem pregunta. El metalenguaje de hoy nombra una pieza con un ejemplo corto: nombre, verbo, adjetivo, tiempo, clause, colocación, registro o falso amigo, y luego se para."},{"t":"un tense","ok":false,"why":"Esta opción no se elige, «un tense». El motivo, dicho del todo, es este: no es un tiempo verbal. Se aplica a «un tense» cuando la pregunta es «Actually, en esta lección, es…», y no sirve una etiqueta de una sola palabra. No responde a lo que el ítem pregunta. El metalenguaje de hoy nombra una pieza con un ejemplo corto: nombre, verbo, adjetivo, tiempo, clause, colocación, registro o falso amigo, y luego se para."},{"t":"un register formal obligatorio","ok":false,"why":"Esta opción no se elige, «un register formal obligatorio». Actually no formaliza un correo por sí solo. No responde a lo que el ítem pregunta. El metalenguaje de hoy nombra una pieza con un ejemplo corto: nombre, verbo, adjetivo, tiempo, clause, colocación, registro o falso amigo, y luego se para."}],"mode":"bubbles","a":"en realidad","b":"no actualmente","c":""},{"q":"Make a decision es…","opts":[{"t":"una collocation","ok":true,"why":"Esta es la opción que hay que elegir, «una collocation». Pareja habitual verbo + nombre. Encaja con lo que pregunta el ítem. El metalenguaje de hoy nombra una pieza con un ejemplo corto: nombre, verbo, adjetivo, tiempo, clause, colocación, registro o falso amigo, y luego se para."},{"t":"un false friend de hacer","ok":false,"why":"Esta opción no se elige, «un false friend de hacer». No se parece a una palabra española única: es una pareja. No responde a lo que el ítem pregunta. El metalenguaje de hoy nombra una pieza con un ejemplo corto: nombre, verbo, adjetivo, tiempo, clause, colocación, registro o falso amigo, y luego se para."},{"t":"un adjective","ok":false,"why":"Esta opción no se elige, «un adjective». Decision es noun; make es verb. No responde a lo que el ítem pregunta. El metalenguaje de hoy nombra una pieza con un ejemplo corto: nombre, verbo, adjetivo, tiempo, clause, colocación, registro o falso amigo, y luego se para."},{"t":"una clause de tres verbos","ok":false,"why":"Esta opción no se elige, «una clause de tres verbos». El motivo, dicho del todo, es este: hay un verbo, make. Se aplica a «una clause de tres verbos» cuando la pregunta es «Make a decision es…», y no sirve una etiqueta de una sola palabra. No responde a lo que el ítem pregunta. El metalenguaje de hoy nombra una pieza con un ejemplo corto: nombre, verbo, adjetivo, tiempo, clause, colocación, registro o falso amigo, y luego se para."}],"mode":"cards","a":"make","b":"decision","c":"pareja"},{"q":"Could you… frente a Send me… ahora mismo, en un correo al centro, es cuestión de…","opts":[{"t":"register","ok":true,"why":"Esta es la opción que hay que elegir, «register». El tono cambia con el lector. Encaja con lo que pregunta el ítem. El metalenguaje de hoy nombra una pieza con un ejemplo corto: nombre, verbo, adjetivo, tiempo, clause, colocación, registro o falso amigo, y luego se para."},{"t":"tense pasado","ok":false,"why":"Esta opción no se elige, «tense pasado». Los dos pueden ser peticiones de ahora. No responde a lo que el ítem pregunta. El metalenguaje de hoy nombra una pieza con un ejemplo corto: nombre, verbo, adjetivo, tiempo, clause, colocación, registro o falso amigo, y luego se para."},{"t":"noun","ok":false,"why":"Esta opción no se elige, «noun». No estás clasificando un nombre. No responde a lo que el ítem pregunta. El metalenguaje de hoy nombra una pieza con un ejemplo corto: nombre, verbo, adjetivo, tiempo, clause, colocación, registro o falso amigo, y luego se para."},{"t":"false friend","ok":false,"why":"Esta opción no se elige, «false friend». Ninguna de las dos fórmulas es un falso amigo. No responde a lo que el ítem pregunta. El metalenguaje de hoy nombra una pieza con un ejemplo corto: nombre, verbo, adjetivo, tiempo, clause, colocación, registro o falso amigo, y luego se para."}],"mode":"split","a":"Could you","b":"Send me","c":"register"},{"q":"Una clause, aquí, es…","opts":[{"t":"un grupo de palabras con un verbo","ok":true,"why":"Esta es la opción que hay que elegir, «un grupo de palabras con un verbo». When I arrived. No hace falta más. Encaja con lo que pregunta el ítem. El metalenguaje de hoy nombra una pieza con un ejemplo corto: nombre, verbo, adjetivo, tiempo, clause, colocación, registro o falso amigo, y luego se para."},{"t":"cualquier palabra larga","ok":false,"why":"Esta opción no se elige, «cualquier palabra larga». Larga no significa clause. No responde a lo que el ítem pregunta. El metalenguaje de hoy nombra una pieza con un ejemplo corto: nombre, verbo, adjetivo, tiempo, clause, colocación, registro o falso amigo, y luego se para."},{"t":"solo el adjective","ok":false,"why":"Esta opción no se elige, «solo el adjective». El adjetivo no trae el verbo. No responde a lo que el ítem pregunta. El metalenguaje de hoy nombra una pieza con un ejemplo corto: nombre, verbo, adjetivo, tiempo, clause, colocación, registro o falso amigo, y luego se para."},{"t":"la nota del texto","ok":false,"why":"Esta opción no se elige, «la nota del texto». Nota no es una pieza gramatical de esta lista. No responde a lo que el ítem pregunta. El metalenguaje de hoy nombra una pieza con un ejemplo corto: nombre, verbo, adjetivo, tiempo, clause, colocación, registro o falso amigo, y luego se para."}],"mode":"path","a":"grupo","b":"con verbo","c":"clause"}]};
+</script>
+<script>
+
+(function(){
+if(/[?&]preview=1\b/.test(location.search)) document.body.classList.add('preview-mode');
+var D = window.LESSON;
+var WORDS = ['uno','dos','tres','cuatro','cinco','seis','siete','ocho'];
+function el(id){return document.getElementById(id);}
+function esc(t){return String(t==null?'':t).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function drawVisual(kind, extra){
+  var s = el('stage');
+  if(!s) return;
+  extra = extra || {};
+  var mode = extra.mode || kind || 'cards';
+  var a = esc(extra.a||''), b = esc(extra.b||''), c = esc(extra.c||'');
+  function person(x, y, shirt){
+    return '<g transform="translate('+x+','+y+')">'+
+      '<circle cx="0" cy="0" r="13" fill="#F0D2B4" stroke="#2A2620" stroke-width="2"/>'+
+      '<path d="M-16 8 q16 10 32 0" fill="none" stroke="#2A2620" stroke-width="2"/>'+
+      '<rect x="-16" y="14" width="32" height="30" rx="8" fill="'+shirt+'" stroke="#2A2620" stroke-width="2"/>'+
+      '<path d="M-12 44 v18 M12 44 v18" stroke="#2A2620" stroke-width="3" stroke-linecap="round"/>'+
+      '</g>';
+  }
+  var ground = '<rect width="420" height="220" fill="#E7F0F6"/>'+
+    '<rect y="168" width="420" height="52" fill="#E4E0D4"/>'+
+    '<rect y="168" width="420" height="4" fill="#C4A15A"/>';
+  var scene = '';
+  var aria = 'Escena con personas';
+  if(mode==='queue'){
+    aria = 'Cuatro personas hacen cola y una intenta saltársela';
+    scene = '<rect x="36" y="150" width="250" height="8" rx="4" fill="#C4A15A"/>'+
+      person(70,78,'#2F5D7A')+person(130,78,'#3D6B4F')+person(190,78,'#8A6B2F')+person(250,78,'#5C564C')+
+      person(350,60,'#9B3A4A')+
+      '<path d="M332 96 l18 18 M350 96 l-18 18" stroke="#9B3A4A" stroke-width="4"/>';
+  } else if(mode==='bubbles'){
+    aria = 'Dos personas hablan; un globo es cortés y el otro queda tachado';
+    scene = person(70,90,'#2F5D7A')+person(300,90,'#3D6B4F')+
+      '<rect x="92" y="28" width="150" height="46" rx="14" fill="#fff" stroke="#C4A15A" stroke-width="3"/>'+
+      '<rect x="188" y="118" width="150" height="40" rx="12" fill="#F8E8EB" stroke="#9B3A4A" stroke-width="3"/>'+
+      '<path d="M200 128 l70 0" stroke="#9B3A4A" stroke-width="3"/>';
+  } else if(mode==='split'){
+    aria = 'Dos grupos de personas separados por una línea, cada uno con su objeto';
+    scene = '<rect width="210" height="168" fill="#F5EDD8"/>'+
+      '<rect x="210" width="210" height="168" fill="#E3EEF4"/>'+
+      '<line x1="210" y1="16" x2="210" y2="160" stroke="#0E0E0C" stroke-width="3"/>'+
+      person(80,78,'#8A6B2F')+person(300,78,'#2F5D7A')+
+      '<rect x="40" y="40" width="54" height="36" rx="6" fill="#fff" stroke="#2A2620" stroke-width="2"/>'+
+      '<rect x="300" y="40" width="54" height="36" rx="6" fill="#fff" stroke="#2A2620" stroke-width="2"/>';
+  } else if(mode==='path'){
+    aria = 'Una persona recorre tres losas en el suelo';
+    scene = person(70,70,'#2F5D7A')+
+      '<rect x="40" y="130" width="80" height="28" rx="8" fill="#E3EEF4" stroke="#2F5D7A" stroke-width="3"/>'+
+      '<rect x="160" y="130" width="80" height="28" rx="8" fill="#F5EDD8" stroke="#C4A15A" stroke-width="3"/>'+
+      '<rect x="280" y="130" width="80" height="28" rx="8" fill="#E4F0E8" stroke="#3D6B4F" stroke-width="3"/>'+
+      '<path d="M120 144 h40 M240 144 h40" stroke="#2A2620" stroke-width="3"/>';
+  } else if(mode==='list'){
+    aria = 'Una persona escribe en un cuaderno de tres columnas';
+    scene = person(78,80,'#3D6B4F')+
+      '<rect x="140" y="36" width="230" height="120" rx="8" fill="#fff" stroke="#2A2620" stroke-width="3"/>'+
+      '<path d="M210 48 v96 M290 48 v96" stroke="#C4A15A" stroke-width="3"/>'+
+      '<path d="M155 78 h40 M155 100 h40 M155 122 h40" stroke="#2A2620" stroke-width="2"/>';
+  } else if(mode==='map'){
+    aria = 'Dos personas clasifican objetos en dos cestas';
+    scene = person(120,78,'#8A6B2F')+person(300,78,'#2F5D7A')+
+      '<path d="M40 150 q40 -36 80 0 q-10 28 -40 28 q-30 0 -40 -28z" fill="#C4A15A" stroke="#2A2620" stroke-width="2"/>'+
+      '<path d="M300 150 q40 -36 80 0 q-10 28 -40 28 q-30 0 -40 -28z" fill="#E3EEF4" stroke="#2A2620" stroke-width="2"/>'+
+      '<circle cx="78" cy="132" r="8" fill="#2F5D7A"/>'+
+      '<rect x="330" y="120" width="22" height="16" fill="#3D6B4F"/>';
+  } else {
+    aria = 'Dos personas ante una mesa con tres objetos distintos';
+    scene = person(64,86,'#2F5D7A')+person(360,86,'#3D6B4F')+
+      '<rect x="110" y="108" width="200" height="16" rx="4" fill="#C4A15A"/>'+
+      '<rect x="130" y="62" width="46" height="46" rx="8" fill="#fff" stroke="#2A2620" stroke-width="3"/>'+
+      '<rect x="188" y="62" width="46" height="46" rx="8" fill="#F5EDD8" stroke="#8A6B2F" stroke-width="3"/>'+
+      '<rect x="246" y="62" width="46" height="46" rx="8" fill="#E4F0E8" stroke="#3D6B4F" stroke-width="3"/>';
+  }
+  var cap = function(t,x,y,fill){
+    return '<text x="'+x+'" y="'+y+'" text-anchor="middle" font-size="12" font-weight="800" fill="'+(fill||'#0E0E0C')+'">'+t+'</text>';
+  };
+  var svg = '<svg viewBox="0 0 420 220" role="img" aria-label="'+aria+'. '+a+' / '+b+' / '+c+'">'+
+    ground+scene+
+    cap(a,140,28)+cap(b,280,28,'#8A6B2F')+
+    (c?cap(c,210,208,'#5C564C'):'')+
+    '</svg>';
+  s.innerHTML = svg;
+}
+function label(i, n, prefix){
+  if(document.body.dataset.sinCifras==='si'){
+    return prefix+' '+WORDS[i]+' de '+WORDS[n-1];
+  }
+  return prefix+' '+(i+1)+' de '+n;
+}
+var ri = 0;
+function showRound(){
+  var rounds = D.rounds || [];
+  if(!rounds.length) return;
+  var r = rounds[ri];
+  el('rcounter').textContent = label(ri, rounds.length, 'Caso');
+  el('rprompt').textContent = r.q;
+  drawVisual(r.mode, r);
+  var box = el('ropts');
+  box.innerHTML = '';
+  r.opts.forEach(function(o){
+    var b = document.createElement('button');
+    b.className = 'opt';
+    b.type = 'button';
+    b.textContent = o.t;
+    b.addEventListener('click', function(){
+      box.querySelectorAll('.opt').forEach(function(x){x.disabled=true;});
+      b.classList.add(o.ok ? 'ok' : 'bad');
+      var v = el('rverdict');
+      v.className = 'verdict show '+(o.ok?'ok':'bad');
+      v.textContent = o.why;
+    });
+    box.appendChild(b);
+  });
+  var v = el('rverdict'); v.className='verdict'; v.textContent='';
+}
+var nextR = el('nextRound');
+if(nextR){
+  nextR.addEventListener('click', function(){
+    ri = (ri+1) % D.rounds.length;
+    showRound();
+  });
+  showRound();
+}
+var qi = 0;
+function showQuiz(){
+  var q = D.quiz[qi];
+  el('qcounter').textContent = label(qi, D.quiz.length, 'Pregunta');
+  el('qprompt').textContent = q.q;
+  var box = el('qopts');
+  box.innerHTML = '';
+  q.opts.forEach(function(o){
+    var b = document.createElement('button');
+    b.className = 'opt';
+    b.type = 'button';
+    b.textContent = o.t;
+    b.addEventListener('click', function(){
+      box.querySelectorAll('.opt').forEach(function(x){x.disabled=true;});
+      b.classList.add(o.ok?'ok':'bad');
+      var v = el('qverdict');
+      v.className = 'verdict show '+(o.ok?'ok':'bad');
+      v.textContent = o.why;
+    });
+    box.appendChild(b);
+  });
+  el('qverdict').className='verdict';
+}
+el('nextQuiz').addEventListener('click', function(){
+  qi = (qi+1) % D.quiz.length;
+  showQuiz();
+});
+showQuiz();
+})();
+
+</script>
+</body>
+</html>

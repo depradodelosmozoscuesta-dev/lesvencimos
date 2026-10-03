@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<meta name="theme-color" content="#0E0E0C"/>
+<title>Lección 31 · Muestreo y estimación puntual · Les vencimos</title>
+<link rel="icon" href="../icons/favicon.svg" type="image/svg+xml"/>
+<link rel="stylesheet" href="../leccion-shell.css"/>
+<style>
+  .pasos{list-style:none;margin:0 0 1rem;padding:0;counter-reset:paso}
+  .pasos li{position:relative;margin:0 0 .7rem;padding:.7rem .8rem .7rem 3.1rem;background:var(--lv-panel);border:1px solid var(--lv-linea);border-radius:10px}
+  .pasos li::before{counter-increment:paso;content:counter(paso);position:absolute;left:.65rem;top:.7rem;width:1.7rem;height:1.7rem;border-radius:50%;background:#C4A15A;color:#1A160E;font-weight:700;font-size:.9rem;display:flex;align-items:center;justify-content:center}
+  .figura-svg{background:var(--lv-panel);border:1px solid var(--lv-linea);border-radius:10px;padding:.4rem;margin:.4rem 0 1rem}
+  .figura-svg svg{width:100%;height:auto;display:block}
+  .ej{margin:0 0 1rem;padding:.85rem .95rem;background:var(--lv-panel);border:1px solid var(--lv-linea);border-left:3px solid #C4A15A;border-radius:10px}
+  .ej h3{margin:0 0 .35rem;font-family:var(--lv-serif);font-size:1.05rem;color:var(--lv-titulo)}
+  .editor,textarea.editor{width:100%;min-height:5.2rem;font-family:ui-monospace,monospace;font-size:.95rem;line-height:1.4;padding:.55rem .65rem;border:1px solid rgba(196,161,90,.45);border-radius:8px;background:#161512;color:#E6E1D6;resize:vertical;box-sizing:border-box}
+  .lienzo{display:block;width:100%;max-width:640px;height:280px;background:#161512;border:1px solid #C4A15A;border-radius:8px;touch-action:none;cursor:crosshair}
+  .fila{display:flex;flex-wrap:wrap;gap:.4rem;margin:.45rem 0;align-items:center}
+  .boton{font:inherit;font-weight:700;font-size:.85rem;padding:.35rem .75rem;border-radius:999px;border:1px solid #C4A15A;background:transparent;color:#E6E1D6;cursor:pointer}
+  .porque{margin-top:.5rem;padding:.6rem .7rem;background:#1a2218;border-radius:8px;color:#E6E1D6}
+  .dato{font-size:.95rem;color:var(--lv-suave)}
+  table.datos{width:100%;border-collapse:collapse;margin:.4rem 0 1rem;font-size:.98rem}
+  table.datos th,table.datos td{border:1px solid var(--lv-linea);padding:.35rem .5rem;text-align:left}
+  table.datos th{background:#161512;color:#C4A15A}
+  .glosa{display:block;font-size:.9rem;color:#9A9488;margin:.15rem 0 .7rem}
+  .formula{display:block;margin:.35rem 0 .15rem;padding:.45rem .7rem;background:#161512;border-left:3px solid #C4A15A;overflow-x:auto}
+  input.campo{background:#161512;color:#E6E1D6;border:1px solid #C4A15A;border-radius:6px;padding:.3rem .45rem;width:5.5rem}
+  .salida{font-family:ui-monospace,monospace;color:#C4A15A}
+</style>
+<script src="../leccion-shell-nav.js" defer></script>
+</head>
+<body class="leccion-shell">
+<div class="leccion-wrap">
+<nav class="leccion-barra" aria-label="Navegación de lección" data-actual="31" data-total="33">
+  <div class="leccion-progreso" role="status">
+    <span class="progreso-texto"><strong>31</strong> de <strong>33</strong></span>
+    <div class="progreso-pista" aria-hidden="true"><div class="progreso-lleno" style="width:96.88%"></div></div>
+  </div>
+  <div class="leccion-atajos">
+    <a class="atajo atajo-prev" href="leccion-30-binomial-normal.html">← Anterior</a>
+    <a class="atajo atajo-next" href="leccion-32-cierre.html">Siguiente →</a>
+  </div>
+</nav>
+<header class="leccion-top">
+  <p class="leccion-marca">Les <span>vencimos</span></p>
+  <p class="leccion-meta-top">Matemáticas Aplicadas a las CCSS I · 1º Bachillerato</p>
+</header>
+<header class="bloque-titulo">
+  <span class="eyebrow">Lección 31 · D.4 · Inferencia de 1.º</span>
+  <h1 class="titulo-leccion">Muestreo y estimación <em>puntual</em></h1>
+  <p class="meta-leccion">1º Bach CCSS · CyL Decreto 40/2022 · D.4 Muestreo sencillo y estimación puntual</p>
+</header>
+
+<aside class="bloque-curiosidad"><p class="etiqueta-bloque">Para situarte</p>
+<h2 class="titulo-curiosidad">Un número que resume la muestra, no un intervalo</h2>
+<p class="texto-curiosidad">En 1.º de CCSS la inferencia se queda en el diseño, el muestreo sencillo y la estimación puntual de una media o de una proporción. No se calculan intervalos de confianza ni contrastes.</p></aside>
+<section class="bloque-cuerpo">
+<h2>Objetivos</h2>
+<ul>
+<li>Diseñar un estudio pequeño de ciencias sociales: población, variable y forma de elegir la muestra.</li>
+<li>Usar el muestreo aleatorio simple y nombrar el sesgo si la muestra se elige mal.</li>
+<li>Dar la estimación puntual de una media y de una proporción, y decir qué población intenta representar.</li>
+</ul>
+<h2>Diseño mínimo</h2>
+<p>Hace falta decir quién es la población, qué se mide, cómo se elige a quien entra en la muestra y qué número se va a calcular. Un estudio de este curso puede preguntar, en un instituto de 800 estudiantes, si apoyan un cambio de horario.</p>
+<ol class="pasos">
+<li>Población: los 800 estudiantes matriculados. No «la juventud» en abstracto.</li>
+<li>Variable: apoyo sí/no. También se puede medir horas semanales de lectura, cuantitativa.</li>
+<li>Muestra aleatoria simple de n = 40: se numera el censo del 1 al 800 y se sortean 40 números distintos, la misma probabilidad para cada estudiante y sin reemplazo.</li>
+<li>Si en vez de eso se pregunta solo a los amigos, o solo a quien está en el patio a las 14:00, la muestra no es aleatoria simple. Hay sesgo de selección: quienes entran no representan a los 800.</li>
+</ol>
+<p class="formula">p̂ = x / n</p>
+<span class="glosa">x es el número de personas de la muestra que cumplen la característica; n es el tamaño de la muestra; p̂ es la proporción muestral, estimación puntual de la proporción en la población. No es un intervalo.</span>
+<p class="formula">x̄ = (Σ xᵢ) / n</p>
+<span class="glosa">xᵢ es el valor medido en cada individuo de la muestra; n es el tamaño muestral; x̄ es la media muestral, estimación puntual de la media poblacional.</span>
+<div class="figura-svg"><svg viewBox="0 0 460 150" role="img">
+<title>Censo de 800 y una muestra aleatoria simple de 40, frente a un grupo elegido a conveniencia</title>
+<rect width="460" height="150" fill="#161512"/>
+<rect x="20" y="30" width="200" height="90" fill="none" stroke="#9A9488"/>
+<text x="30" y="24" fill="#E6E1D6" font-size="13">Población 800</text>
+<circle cx="70" cy="70" r="16" fill="none" stroke="#C4A15A"/>
+<text x="48" y="74" fill="#C4A15A" font-size="12">n=40</text>
+<rect x="260" y="30" width="170" height="90" fill="none" stroke="#9A9488"/>
+<text x="270" y="24" fill="#E6E1D6" font-size="13">Solo el patio</text>
+<text x="278" y="80" fill="#C4A15A" font-size="13">sesgo de selección</text>
+</svg></div>
+<h2>Ejemplo 1. Proporción puntual</h2>
+<p>De los 40 sorteados, 18 apoyan el cambio.</p>
+<ol class="pasos">
+<li>p̂ = 18/40 = 0,45.</li>
+<li>La estimación puntual del porcentaje de apoyo en los 800 es el 45 %.</li>
+<li>Otra muestra de 40 daría otro numerador. Este curso no construye una franja alrededor del 45 %: se informa el valor puntual y se recuerda que depende de la muestra.</li>
+<li>Si los 18 salieran de un grupo de amigos, 0,45 describiría a ese grupo, no sería una estimación decente de los 800.</li>
+</ol>
+<h2>Ejemplo 2. Media puntual</h2>
+<p>Ocho estudiantes de una muestra aleatoria simple declaran estas horas semanales de lectura: 2, 4, 3, 5, 1, 3, 4, 2.</p>
+<ol class="pasos">
+<li>Suma: 2+4+3+5+1+3+4+2 = 24.</li>
+<li>x̄ = 24/8 = 3 horas.</li>
+<li>3 es la estimación puntual de la media de la población de la que se sorteó. No es la media de un individuo, ni un intervalo.</li>
+<li>Si la población era solo esa clase de 30 y se hubiera preguntado a los 30, el resultado sería un censo: la media sería exacta para la clase, no una estimación.</li>
+</ol>
+<p>Elegir mal la muestra no se arregla con una fórmula más fina. El defecto está antes del cálculo.</p>
+<h2>Ejercicios</h2>
+<article class="ej">
+<h3>1. Proporción</h3>
+<p>En una muestra aleatoria simple de 50 votantes de un censo, 32 se oponen a una medida. Da la estimación puntual.</p>
+<label for="e31a">Tu razonamiento</label>
+<textarea class="editor" id="e31a"></textarea>
+<details class="porque"><summary>Corrección</summary>
+<ol class="pasos"><li>p̂ = 32/50.</li><li>32/50 = 0,64.</li><li>El 64 % es la estimación puntual de la proporción de opositores en esa población.</li><li>No se añade un margen de error: este curso no calcula intervalos de confianza.</li></ol>
+<p class="porque">0,64 resume la muestra. Sirve como estimación de la población solo porque la muestra se declara aleatoria simple. El número no va acompañado de una prueba de aceptación o rechazo: en 1.º no se hace.</p>
+</details>
+</article>
+<article class="ej">
+<h3>2. Media de ingresos</h3>
+<p>Muestra: 1200, 1500, 900 y 1400 euros. Calcula la media muestral.</p>
+<label for="e31b">Tu razonamiento</label>
+<textarea class="editor" id="e31b"></textarea>
+<details class="porque"><summary>Corrección</summary>
+<ol class="pasos"><li>Suma: 1200+1500 = 2700; 2700+900 = 3600; 3600+1400 = 5000.</li><li>n = 4.</li><li>x̄ = 5000/4 = 1250 euros.</li><li>Es la estimación puntual de la media poblacional, si la muestra era aleatoria simple de esa población.</li></ol>
+<p class="porque">1250 no es ninguno de los cuatro ingresos. Es el reparto igualado de 5000 entre 4. Sin saber cómo se eligió a esas cuatro personas, no se debe proyectar 1250 a toda la ciudad.</p>
+</details>
+</article>
+<article class="ej">
+<h3>3. Muestra mala</h3>
+<p>Se entrevista a quien sale de una tienda de lujo para estimar el ingreso medio de la ciudad. ¿Qué falla?</p>
+<label for="e31c">Tu razonamiento</label>
+<textarea class="editor" id="e31c"></textarea>
+<details class="porque"><summary>Corrección</summary>
+<ol class="pasos"><li>Quien sale de esa tienda no es un sorteo del padrón.</li><li>Hay sesgo de selección: los ingresos de esa clientela tienden a estar por encima de los de la ciudad.</li><li>La media de esas entrevistas es un resumen de quienes pasaron por la puerta, no una estimación puntual fiable del ingreso ciudadano.</li><li>Arreglarlo exige cambiar el diseño, no poner más decimales.</li></ol>
+<p class="porque">El sesgo no se cancela al aumentar la muestra si se sigue preguntando en el mismo sitio: se estima cada vez mejor la población equivocada.</p>
+</details>
+</article>
+<article class="ej">
+<h3>4. Censo o muestra</h3>
+<p>Una clase tiene 30 estudiantes y se quiere la media de horas en redes de esa clase. Responden los 30. ¿Hay estimación?</p>
+<label for="e31d">Tu razonamiento</label>
+<textarea class="editor" id="e31d"></textarea>
+<details class="porque"><summary>Corrección</summary>
+<ol class="pasos"><li>La población declarada es la clase.</li><li>Se ha medido a toda la población: es un censo.</li><li>La media de los 30 es el valor poblacional de esa clase, no una estimación.</li><li>Si la población fuera la juventud de la ciudad, esa clase sería una muestra de conveniencia, sesgada, y su media no valdría como estimación seria.</li></ol>
+<p class="porque">Estimación puntual supone que no se ha visto a toda la población. Cuando se ha visto, el cálculo sigue siendo una media, pero cambia de categoría: ya no estima, describe.</p>
+</details>
+</article>
+
+<h2>Cierre</h2>
+<p>Población, modo de sortear, tamaño, y un solo número: media muestral o proporción muestral. Si el sorteo está sesgado, el número no representa a la población que decías estudiar. Aquí no se construye un intervalo ni se hace un contraste.</p>
+</section>
+
+<footer class="leccion-pie"><strong>Les vencimos</strong> · L31 de 33 · Matemáticas Aplicadas a las CCSS I · sin publicar</footer>
+</div>
+<script type="application/json" data-maestro="guion">{"curso": "bach1-mates-ccs", "leccion": 31, "titulo": "Muestreo y estimación puntual", "url": "leccion-31-inferencia.html", "musica": false}</script>
+
+<!-- saber: D.4 -->
+</body>
+</html>

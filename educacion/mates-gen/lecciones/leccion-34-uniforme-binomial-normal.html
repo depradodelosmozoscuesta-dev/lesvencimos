@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<meta name="theme-color" content="#0E0E0C"/>
+<title>Lección 34 · Uniforme, binomial y normal · Les vencimos</title>
+<link rel="icon" href="../icons/favicon.svg" type="image/svg+xml"/>
+<link rel="manifest" href="../manifest.webmanifest"/>
+<link rel="stylesheet" href="../leccion-shell.css"/>
+<style>
+.pasos{list-style:none;margin:0 0 1rem;padding:0;counter-reset:paso}
+.pasos li{position:relative;margin:0 0 .7rem;padding:.7rem .8rem .7rem 3.1rem;background:var(--lv-panel);border:1px solid var(--lv-linea);border-radius:10px}
+.pasos li::before{counter-increment:paso;content:counter(paso);position:absolute;left:.65rem;top:.7rem;width:1.7rem;height:1.7rem;border-radius:50%;background:#C4A15A;color:#1A160E;font-weight:700;font-size:.9rem;display:flex;align-items:center;justify-content:center}
+.figura-svg{background:#161512;border:1px solid var(--lv-linea);border-radius:10px;padding:.5rem;margin:.5rem 0 1.1rem}
+.figura-svg svg{width:100%;height:auto;display:block}
+.ej{margin:0 0 1rem;padding:.85rem .95rem;background:var(--lv-panel);border:1px solid var(--lv-linea);border-left:3px solid #C4A15A;border-radius:10px}
+.ej h3{margin:0 0 .35rem;font-family:var(--lv-serif);font-size:1.05rem;color:var(--lv-titulo)}
+.editor,textarea.editor{width:100%;min-height:5.5rem;font-family:ui-monospace,monospace;font-size:.95rem;line-height:1.45;padding:.55rem .65rem;border:1px solid rgba(196,161,90,.45);border-radius:8px;background:#161512;color:#E6E1D6;resize:vertical}
+.lienzo{display:block;width:100%;height:280px;background:#161512;border:1px solid #C4A15A;border-radius:8px;touch-action:none;cursor:crosshair}
+.fila{display:flex;flex-wrap:wrap;gap:.4rem;margin:.45rem 0}
+.boton{font:inherit;font-weight:700;font-size:.85rem;padding:.4rem .8rem;border-radius:999px;border:1px solid #C4A15A;background:transparent;color:#E6E1D6;cursor:pointer}
+.porque{margin-top:.55rem;padding:.65rem .75rem;background:#1a2218;border-radius:8px;color:#E6E1D6}
+.dato{font-size:.95rem;color:var(--lv-suave)}
+.glosa{display:block;font-size:.9rem;color:#9A9488;margin:.25rem 0 .5rem;line-height:1.4}
+.lab-box{margin:1rem 0;padding:.85rem;border:1px dashed rgba(196,161,90,.5);border-radius:10px;background:#141210}
+.lab-box iframe{width:100%;min-height:320px;border:1px solid #C4A15A;border-radius:8px;background:#0E0E0C}
+table.datos{width:100%;border-collapse:collapse;margin:.45rem 0 1rem;font-size:.98rem}
+table.datos th,table.datos td{border:1px solid var(--lv-linea);padding:.4rem .55rem;text-align:left}
+table.datos th{background:#161512;color:#C4A15A}
+</style>
+<script src="../leccion-shell-nav.js" defer></script>
+</head>
+<body class="leccion-shell" data-maestro-json="maestro-34.json">
+<div class="leccion-wrap">
+<nav class="leccion-barra" aria-label="Navegación de lección" data-actual="34" data-total="38">
+  <div class="leccion-progreso" role="status">
+    <span class="progreso-texto"><strong>34</strong> de <strong>38</strong></span>
+    <div class="progreso-pista" aria-hidden="true"><div class="progreso-lleno" style="width:89.47%"></div></div>
+  </div>
+  <div class="leccion-atajos">
+    <a class="atajo atajo-calc" href="../../../../modulos/calculadora.html" title="Calculadora offline">Calculadora</a>
+    <a class="atajo atajo-prev" href="leccion-33-probabilidad-total-y-bayes.html">← Anterior</a>
+    <a class="atajo atajo-next" href="leccion-35-muestreo-e-inferencia.html">Siguiente →</a>
+  </div>
+</nav>
+<header class="leccion-top">
+  <a class="leccion-marca" href="../../../../index.html">Les <span>vencimos</span></a>
+  <p class="leccion-meta-top">Matemáticas Generales · 1º Bachillerato</p>
+</header>
+<header class="bloque-titulo">
+  <span class="eyebrow">Lección 34 · E · Estocástico</span>
+  <h1 class="titulo-leccion">Uniforme, binomial y <em>normal</em></h1>
+  <p class="meta-leccion">1º Bach Matemáticas Generales · CyL Decreto 40/2022 · E.3 Uniforme discreta y continua, binomial y normal</p>
+</header>
+<aside class="bloque-curiosidad" aria-label="Para situarte">
+  <p class="etiqueta-bloque">Para situarte</p>
+  <h2 class="titulo-curiosidad">El modelo se elige antes de echar la cuenta</h2>
+  <p class="texto-curiosidad">Cuatro preguntas de verdadero o falso respondidas al azar siguen una binomial de n = 4 y p = 1/2. La barra clara es el ejemplo: tres aciertos, probabilidad 4/16. Al lado, una normal de media 170 cm y desviación 6 marca el intervalo de una desviación típica. El dado y la espera del autobús cubren las dos uniformes.</p>
+</aside>
+<section class="bloque-cuerpo">
+  <h2>Objetivos</h2>
+  <ul><li>Calcular probabilidades binomiales con n pequeño a partir del número de caminos.</li><li>Usar la longitud del intervalo en una uniforme continua y el recuento de caras en una discreta.</li><li>Tipificar antes de aplicar la regla empírica de la normal.</li></ul>
+</section>
+<section class="bloque-cuerpo">
+<h2>Tres modelos, tres maneras de contar</h2>
+<p>No toda probabilidad sale de listar el espacio a mano. Cuando los resultados son equiprobables y finitos, basta la uniforme discreta. Cuando lo equiprobable es un continuo, la probabilidad es longitud a favor entre longitud total. Cuando se repite n veces, en las mismas condiciones e independientes, un éxito de probabilidad p, aparece la binomial. La normal entra cuando los datos se acumulan en campana alrededor de una media, y entonces se trabaja en desviaciones típicas, no en centímetros crudos.</p>
+<p><span class="glosa">uniforme discreta: P = 1/n en cada caso · uniforme continua en [0, L]: P(a ≤ X ≤ b) = (b − a)/L · binomial: P(X = k) = C(n, k) p^k (1 − p)^(n − k) · en la normal, z = (x − μ) / σ · regla empírica aproximada: unos 68 % a menos de una σ, unos 95 % a menos de dos</span></p>
+<p>En la binomial del gráfico, p = 1/2 y (1/2)^4 = 1/16, así que cada secuencia concreta de cuatro respuestas vale 1/16. Tres aciertos son las secuencias con exactamente tres sí: hay C(4, 3) = 4, luego P(X = 3) = 4/16 = 1/4. Esa es la barra clara. La barra central, seis dieciseisavos, es el caso de dos aciertos, el más frecuente, y no hay que confundirlo con el ejemplo solo porque sea más alta.</p>
+<p>La campana de la derecha no está en la misma escala: es otra variable, la estatura, con μ = 170 y σ = 6. Las rectas verdes marcan 164 y 176, es decir μ ± σ. La regla empírica dice que alrededor del 68 % de una normal cae entre ellas. No es una barra de la binomial ni un porcentaje leído del eje de los aciertos.</p>
+<h2>Gráfico del ejemplo</h2>
+<p class="dato">La figura no es decoración: los trazos corresponden a los números del ejemplo 1.</p>
+<div class="figura-svg"><svg viewBox="0 0 720 320" role="img" aria-label="Barras binomiales 1, 4, 6, 4 y 1 sobre 16, con P(X=3) marcada, y campana normal entre 164 y 176"><title>Barras binomiales 1, 4, 6, 4 y 1 sobre 16, con P(X=3) marcada, y campana normal entre 164 y 176</title><rect width="720" height="320" fill="#161512"/><line x1="40" y1="250" x2="430" y2="250" stroke="#9A9488" stroke-width="1.6"/>
+<line x1="50" y1="250" x2="50" y2="40" stroke="#9A9488" stroke-width="1.6"/>
+<polygon points="70,250 116,250 116,226 70,226" fill="#C4A15A" stroke="#E6E1D6" stroke-width="1"/>
+<text x="93" y="268" text-anchor="middle" fill="#E6E1D6" font-size="13">0</text>
+<text x="93" y="218" text-anchor="middle" fill="#C4A15A" font-size="12">1/16</text>
+<polygon points="140,250 186,250 186,154 140,154" fill="#C4A15A" stroke="#E6E1D6" stroke-width="1"/>
+<text x="163" y="268" text-anchor="middle" fill="#E6E1D6" font-size="13">1</text>
+<text x="163" y="146" text-anchor="middle" fill="#C4A15A" font-size="12">4/16</text>
+<polygon points="210,250 256,250 256,106 210,106" fill="#C4A15A" stroke="#E6E1D6" stroke-width="1"/>
+<text x="233" y="268" text-anchor="middle" fill="#E6E1D6" font-size="13">2</text>
+<text x="233" y="98" text-anchor="middle" fill="#C4A15A" font-size="12">6/16</text>
+<polygon points="280,250 326,250 326,154 280,154" fill="#E6E1D6" stroke="#E6E1D6" stroke-width="1"/>
+<text x="303" y="268" text-anchor="middle" fill="#E6E1D6" font-size="13">3</text>
+<text x="303" y="146" text-anchor="middle" fill="#C4A15A" font-size="12">4/16</text>
+<polygon points="350,250 396,250 396,226 350,226" fill="#C4A15A" stroke="#E6E1D6" stroke-width="1"/>
+<text x="373" y="268" text-anchor="middle" fill="#E6E1D6" font-size="13">4</text>
+<text x="373" y="218" text-anchor="middle" fill="#C4A15A" font-size="12">1/16</text>
+<circle cx="303" cy="70" r="14" fill="none" stroke="#E6E1D6" stroke-width="2"/>
+<text x="40" y="24" fill="#C4A15A" font-size="14">binomial n=4, p=1/2 · barra clara: ejemplo P(X=3)=4/16</text>
+<line x1="470" y1="200" x2="700" y2="200" stroke="#9A9488" stroke-width="1.4"/>
+<path d="M 526.0,198.8 L 531.2,197.9 L 536.5,196.5 L 541.8,194.4 L 547.0,191.2 L 552.2,186.9 L 557.5,181.0 L 562.8,173.5 L 568.0,164.3 L 573.2,153.5 L 578.5,141.6 L 583.8,129.1 L 589.0,117.0 L 594.2,106.1 L 599.5,97.5 L 604.8,91.9 L 610.0,90.0 L 615.2,91.9 L 620.5,97.5 L 625.8,106.1 L 631.0,117.0 L 636.2,129.1 L 641.5,141.6 L 646.8,153.5 L 652.0,164.3 L 657.2,173.5 L 662.5,181.0 L 667.8,186.9 L 673.0,191.2 L 678.2,194.4 L 683.5,196.5 L 688.8,197.9 L 694.0,198.8" fill="none" stroke="#C4A15A" stroke-width="2.2"/>
+<line x1="582" y1="200" x2="582" y2="133" stroke="#8F9A72" stroke-width="2"/>
+<line x1="638" y1="200" x2="638" y2="133" stroke="#8F9A72" stroke-width="2"/>
+<text x="560" y="220" fill="#8F9A72" font-size="12">164</text>
+<text x="626" y="220" fill="#8F9A72" font-size="12">176</text>
+<text x="590" y="248" fill="#9A9488" font-size="12">normal 170, σ=6</text>
+</svg></div>
+<h2>Ejemplo resuelto 1 — Tres aciertos al azar</h2><p>En cuatro preguntas justo al azar, calcula P(X = 3) y explica de dónde sale el 4 del numerador.</p><ol class="pasos">
+<li>Cada secuencia de cuatro respuestas tiene probabilidad (1/2)^4 = 1/16. Acertar o fallar una concreta no cambia el peso de las demás.<span class="glosa">Glosa: p = 1 − p = 1/2, así que no hace falta separar p^k y (1 − p)^(n − k): todo es 1/16.</span></li>
+<li>Las secuencias con exactamente tres aciertos son cuatro: falla solo la primera, o solo la segunda, o solo la tercera, o solo la cuarta.<span class="glosa">Glosa: C(4, 3) = 4. También C(4, 1) = 4, porque elegir qué pregunta se falla es lo mismo.</span></li>
+<li>P(X = 3) = 4/16 = 1/4. En la figura es la barra clara, no la más alta.<span class="glosa">Glosa: la más alta es k = 2, con 6/16. El ejemplo pide tres aciertos, no «el caso típico».</span></li>
+<li>Comprobación de todo el modelo: 1 + 4 + 6 + 4 + 1 = 16, y 16/16 = 1. Si la barra del 3 se leyera como 3/16, la suma ya no cerraría.<span class="glosa">Glosa: el numerador es el número de caminos, no el valor k.</span></li>
+</ol>
+<h2>Ejemplo resuelto 2 — Dos uniformes distintas</h2><p>Un dado justo: probabilidad de sacar 1 o 2. Una espera al autobús, uniforme entre 0 y 30 minutos: probabilidad de esperar menos de 10. Compara las dos cuentas.</p><ol class="pasos">
+<li>Dado: seis caras equiprobables, P(cada cara) = 1/6. Sacar 1 o 2 son dos caras, 2/6 = 1/3.<span class="glosa">Glosa: uniforme discreta cuenta casos favorables entre casos posibles. El 6 es el número de caras, no un minuto.</span></li>
+<li>Autobús: cualquier instante entre 0 y 30 es igual de plausible. La probabilidad es longitud, 10/30 = 1/3.<span class="glosa">Glosa: uniforme continua no tiene «caras». El 30 es la longitud del intervalo total.</span></li>
+<li>Los dos resultados valen 1/3 y no son el mismo modelo. Uno cuenta 2 de 6; el otro mide 10 de 30.<span class="glosa">Glosa: que el número coincida es casual. La unidad de la cuenta es lo que distingue los modelos.</span></li>
+<li>Si el autobús solo pudiera llegar en el minuto 0, 10, 20 o 30, ya no sería continua. El enunciado de «en cualquier momento» es lo que autoriza a dividir longitudes.<span class="glosa">Glosa: elegir el modelo es leer cómo se genera el azar, antes de operar.</span></li>
+</ol>
+<h2>Ejemplo resuelto 3 — Estatura a dos desviaciones</h2><p>Estaturas normales de media 170 cm y desviación típica 6 cm. Un alumno mide 182 cm. Tipifica y sitúalo con la regla empírica.</p><ol class="pasos">
+<li>Puntuación z: (182 − 170) / 6 = 12/6 = 2. Está exactamente dos desviaciones típicas por encima de la media.<span class="glosa">Glosa: sin dividir entre σ, 12 cm no se sabe si es mucho. Con σ = 6, 12 cm son dos unidades estándar.</span></li>
+<li>La regla empírica coloca alrededor del 95 % entre μ − 2σ y μ + 2σ, esto es entre 158 y 182.<span class="glosa">Glosa: 170 − 12 = 158 y 170 + 12 = 182. El 182 es el borde superior de ese intervalo.</span></li>
+<li>Por encima de dos desviaciones, en un solo lado, queda alrededor de la mitad del 5 % exterior, cerca del 2,5 %.<span class="glosa">Glosa: la campana es simétrica. El 5 % de fuera se reparte en dos colas de unos 2,5 %.</span></li>
+<li>No se dice «182 está cerca de 170 porque solo hay 12 cm». Doce centímetros son muchos cuando σ vale 6. La figura marca solo ±1σ, de 164 a 176; 182 cae fuera de esas dos rectas verdes.<span class="glosa">Glosa: primero z, después la regla. El centímetro crudo no es la unidad del modelo.</span></li>
+</ol>
+<h2>Ejercicios</h2>
+<p class="dato">Escribe el razonamiento completo en el editor, no solo la cifra. Si el enunciado pide figura, dibújala en el lienzo de esta misma página.</p>
+<article class="ej"><h3>1. Al menos tres aciertos</h3><p>Con la misma binomial de la figura, calcula P(X ≥ 3). Explica por qué no basta la barra clara.</p><label for="e34a">Tu resolución</label><textarea class="editor" id="e34a" placeholder="Escribe aquí el razonamiento completo…"></textarea><details class="porque"><summary>Por qué (abre cuando hayas escrito)</summary><p>El paso es sumar las barras que cumplen la desigualdad, no leer solo la que el ejemplo había marcado. X ≥ 3 incluye k = 3 y k = 4, con numeradores 4 y 1. La probabilidad es 4/16 + 1/16 = 5/16. La barra clara, 4/16, es exactamente tres aciertos; dejar fuera el 1/16 sería contestar P(X = 3) a un enunciado que dice «al menos». Las barras de 0, 1 y 2 no entran. Comprobación por el complementario: P(X ≤ 2) = (1 + 4 + 6)/16 = 11/16, y 1 − 11/16 = 5/16. El valor k no se suma: se suman las probabilidades de los k favorables.</p></details></article>
+<article class="ej"><h3>2. Espera entre 10 y 20</h3><p>El autobús llega al azar uniforme entre el minuto 0 y el 30. ¿Qué probabilidad hay de esperar entre 10 y 20 minutos, incluidos?</p><label for="e34b">Tu resolución</label><textarea class="editor" id="e34b" placeholder="Escribe aquí el razonamiento completo…"></textarea><details class="porque"><summary>Por qué (abre cuando hayas escrito)</summary><p>El paso es restar los extremos del tramo favorable y dividir entre la longitud total, no contar minutos como si fueran caras de un dado discreto mal definido. El tramo mide 20 − 10 = 10 minutos y el total mide 30, luego 10/30 = 1/3. Incluir o no los extremos no cambia la probabilidad en una continua, porque un instante suelto tiene longitud cero. No es 11/31 ni un conteo de enteros: el modelo del enunciado es la uniforme continua, la misma en la que esperar menos de 10 ya valía 10/30. Dos tramos de la misma longitud tienen la misma probabilidad, y por eso este tercio coincide con el de los diez primeros minutos.</p></details></article>
+<article class="ej"><h3>3. Dentro de una desviación</h3><p>Con media 170 y σ = 6, ¿entre qué estaturas cae, aproximadamente, el 68 % central? ¿182 entra en ese intervalo?</p><label for="e34c">Tu resolución</label><textarea class="editor" id="e34c" placeholder="Escribe aquí el razonamiento completo…"></textarea><details class="porque"><summary>Por qué (abre cuando hayas escrito)</summary><p>El paso es sumar y restar una sola desviación típica a la media, no dos, porque el 68 % de la regla empírica es el intervalo μ ± σ. 170 − 6 = 164 y 170 + 6 = 176. Esas son las rectas verdes de la figura. El 182 está en z = 2, fuera de ese intervalo: entra en el del 95 %, que llega hasta 182, y no en el del 68 %. Confundir «una desviación» con «dos» cambiaría las marcas a 158 y 182 y metería al alumno dentro del porcentaje equivocado. La regla es aproximada y solo se aplica cuando el enunciado sostiene que la variable es normal; no es una propiedad de cualquier lista de estaturas.</p></details></article>
+<h2>Dibuja en el lienzo</h2>
+<p>Reproduce a mano el gráfico del ejemplo: ejes o nodos, los datos numéricos y una frase con la conclusión. El botón borra el lienzo sin salir de la lección.</p>
+<canvas id="lienzo34" class="lienzo" width="900" height="280"></canvas><div class="fila"><button type="button" class="boton" data-clear="lienzo34">Borrar lienzo</button></div>
+</section>
+<div class="lab-box"><p><strong>Laboratorio</strong> — Binomial n=4 y la barra del ejemplo. Si el marco no carga, abre el hermano: <a href="l34-uniforme-binomial-normal.html">l34-uniforme-binomial-normal.html</a>.</p><iframe src="l34-uniforme-binomial-normal.html" title="Binomial n=4 y la barra del ejemplo" loading="lazy"></iframe></div>
+<section class="bloque-cuerpo">
+  <h2>Comprueba</h2>
+  <p class="dato">Tres preguntas. Responde mentalmente antes de abrir el porqué.</p>
+  <details class="porque"><summary>¿Cuánto vale P(X = 3) en la binomial de la figura y por qué el numerador es 4?</summary><p>Vale 4/16 = 1/4. Por qué: cada una de las 16 secuencias pesa lo mismo y hay exactamente 4 con tres aciertos, una por cada pregunta que se falla. La barra clara marca ese caso. No es 3/16: el 3 es el número de aciertos, no el número de caminos.</p></details>
+<details class="porque"><summary>¿Por qué 2/6 en el dado y 10/30 en el autobús pueden coincidir y no ser el mismo modelo?</summary><p>Porque uno cuenta caras y el otro mide minutos. Por qué: los dos cocientes valen 1/3, pero la uniforme discreta parte de 6 resultados y la continua parte de un intervalo de longitud 30. Elegir mal la unidad cambia el denominador en el siguiente problema.</p></details>
+<details class="porque"><summary>¿Dónde está 182 cm si μ = 170 y σ = 6?</summary><p>En z = 2, el borde del intervalo del 95 % aproximado, y fuera del intervalo 164 a 176. Por qué: (182 − 170)/6 = 2. La figura marca solo una desviación típica. Doce centímetros no se interpretan sin dividir entre σ.</p></details>
+</section>
+<section class="bloque-reto">
+  <span class="etiqueta-reto">Reto Profesor</span>
+  <h2 class="titulo-reto">Marca la barra del tres</h2>
+  <p>Copia en el lienzo las cinco barras con sus numeradores 1, 4, 6, 4 y 1, destaca la de tres aciertos y anota 4/16. Al lado, marca 164 y 176 alrededor de 170.</p>
+  <p class="reto-id">reto_id: bach1-mates-gen-L34</p>
+</section>
+<footer class="leccion-pie"><strong>Les vencimos</strong> · L34 de 38 · Matemáticas Generales · staging · file:// · sin publicar</footer>
+</div>
+<script type="application/json" data-maestro="guion">{"curso": "bach1-mates-gen", "leccion": 34, "titulo": "Uniforme, binomial y normal", "url": "leccion-34-uniforme-binomial-normal.html", "musica": false, "pasos": [{"id": "abrir", "dicho": "La barra clara es k = 3, numerador 4, no la barra más alta.", "hacer": "Leer en voz alta el apartado Para situarte y los objetivos."}, {"id": "figura", "dicho": "Los cinco numeradores suman 16. El modelo cierra.", "hacer": "Mirar el SVG y decir qué dato numérico marca cada trazo."}, {"id": "ej1", "dicho": "Ejemplo 1: P(X = 3) = 4/16 porque hay cuatro secuencias.", "hacer": "Rehacer el ejemplo 1, glosa a glosa, sin mirar el resultado final."}, {"id": "ej2", "dicho": "Ejemplo 2: el dado da 2/6 y el autobús da 10/30. Misma cifra, distinta unidad.", "hacer": "Rehacer el ejemplo 2 y contrastarlo con el 1."}, {"id": "ej3", "dicho": "Ejemplo 3: 182 cm está a z = 2. La campana verde marca solo ±1σ.", "hacer": "Rehacer el ejemplo 3 y anotar la comprobación."}, {"id": "practica", "dicho": "El laboratorio cambia k y repinta la barra ámbar de la binomial.", "hacer": "Escribir el razonamiento de al menos dos ejercicios y usar el lienzo."}, {"id": "cierre", "dicho": "Primero el modelo, después la cuenta. No al revés.", "hacer": "Contestar Comprueba antes de abrir y dejar el reto por escrito."}]}</script>
+<script>(function(){function liga(c){var ctx=c.getContext('2d');function fondo(){ctx.fillStyle='#161512';ctx.fillRect(0,0,c.width,c.height);ctx.strokeStyle='#C4A15A';ctx.strokeRect(.5,.5,c.width-1,c.height-1);}function fit(){var r=c.getBoundingClientRect();var w=Math.max(320,Math.floor(r.width));if(c.width!==w){c.width=w;c.height=280;fondo();}}var dib=false,last=null;function pos(ev){var r=c.getBoundingClientRect();var s=ev.touches?ev.touches[0]:ev;return{x:(s.clientX-r.left)*c.width/r.width,y:(s.clientY-r.top)*c.height/r.height};}c.addEventListener('pointerdown',function(ev){dib=true;last=pos(ev);ev.preventDefault();});c.addEventListener('pointermove',function(ev){if(!dib)return;var p=pos(ev);ctx.strokeStyle='#E6E1D6';ctx.lineWidth=2.2;ctx.lineCap='round';ctx.beginPath();ctx.moveTo(last.x,last.y);ctx.lineTo(p.x,p.y);ctx.stroke();last=p;ev.preventDefault();});function up(){dib=false;}c.addEventListener('pointerup',up);c.addEventListener('pointerleave',up);var b=document.querySelector('[data-clear="'+c.id+'"]');if(b)b.addEventListener('click',fondo);fit();window.addEventListener('resize',fit);}document.querySelectorAll('canvas.lienzo').forEach(liga);})();</script>
+</body>
+</html>

@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Lección 16 · Tiro parabólico</title>
+<link rel="stylesheet" href="leccion-shell.css"/>
+<script src="leccion-shell-nav.js" defer></script>
+<style>
+  .pasos{list-style:none;margin:0 0 1rem;padding:0;counter-reset:paso}
+  .pasos li{position:relative;margin:0 0 .7rem;padding:.7rem .8rem .7rem 3.1rem;background:#fff;border:1px solid rgba(14,14,12,.12);border-radius:10px}
+  .pasos li::before{counter-increment:paso;content:counter(paso);position:absolute;left:.65rem;top:.7rem;width:1.7rem;height:1.7rem;border-radius:50%;background:#2F5D7A;color:#fff;font-weight:700;font-size:.9rem;display:flex;align-items:center;justify-content:center}
+  .figura-svg{background:#fff;border:1px solid rgba(14,14,12,.12);border-radius:10px;padding:.4rem;margin:.4rem 0 1rem}
+  .figura-svg svg{width:100%;height:auto;display:block}
+  .ej{margin:0 0 1rem;padding:.85rem .95rem;background:#fff;border:1px solid rgba(14,14,12,.12);border-left:3px solid #C4A15A;border-radius:10px}
+  .ej h3{margin:0 0 .35rem;font-family:var(--lv-serif);font-size:1.05rem;color:#2A2620}
+  textarea.editor{width:100%;min-height:4.2rem;font-family:ui-monospace,"Cascadia Code","Segoe UI Mono",monospace;font-size:.95rem;padding:.55rem .65rem;border:1px solid rgba(14,14,12,.22);border-radius:8px;background:#FFFCF5;color:#2A2620}
+  .lienzo{display:block;width:100%;height:250px;background:#fff;border:1px solid #2F5D7A;border-radius:8px;touch-action:none}
+  .fila{display:flex;flex-wrap:wrap;gap:.4rem;margin:.45rem 0}
+  .boton{font:inherit;font-weight:700;font-size:.85rem;padding:.35rem .75rem;border-radius:999px;border:1px solid #C4A15A;background:#fff;color:#2A2620;cursor:pointer}
+  .porque{margin-top:.5rem;padding:.6rem .7rem;background:#E4F0E8;border-radius:8px}
+  .panel-int{padding:.75rem}
+  .panel-int label{display:block;font-weight:650;margin:.35rem 0 .1rem}
+  .panel-int input[type="range"]{width:100%;accent-color:#C4A15A}
+  .ok{color:#3D6B4F}.mal{color:#A85A3C}
+</style>
+</head>
+<body class="leccion-shell">
+<div class="leccion-wrap">
+
+<nav class="leccion-barra" aria-label="Navegación de lección" data-actual="16" data-total="23">
+  <div class="leccion-progreso" role="status">
+    <span class="progreso-texto"><strong>16</strong> de <strong>23</strong></span>
+    <div class="progreso-pista" aria-hidden="true"><div class="progreso-lleno" style="width:69.57%"></div></div>
+  </div>
+  <div class="leccion-atajos">
+    <a class="atajo atajo-calc" href="../../../modulos/calculadora.html" title="Calculadora offline">Calculadora</a>
+    <a class="atajo atajo-prev" href="leccion-15-mrua-mcu.html">← Anterior</a>
+    <a class="atajo atajo-next" href="leccion-17-fuerzas.html">Siguiente →</a>
+  </div>
+</nav>
+
+<header class="leccion-top">
+  <a class="leccion-marca" href="../../index.html">Les <span>vencimos</span></a>
+  <p class="leccion-meta-top">Física y Química · 1º Bachillerato</p>
+</header>
+
+<header class="bloque-titulo" id="maestro-titulo">
+  <span class="eyebrow">Lección 16 · Bloque D · Movimiento compuesto</span>
+  <h1 class="titulo-leccion">La parábola: en horizontal no hay <em>g</em></h1>
+  <p class="meta-leccion">1º Bachillerato Física y Química · Ciencias · Decreto 40/2022 CyL</p>
+</header>
+
+<aside class="bloque-curiosidad" id="maestro-curiosidad">
+  <p class="etiqueta-bloque">Curiosidad histórica</p>
+  <h2 class="titulo-curiosidad">Galileo y la curva ideal</h2>
+  <p class="texto-curiosidad">Galileo, en los <em>Discursos</em> sobre dos ciencias nuevas (1638), argumenta que la trayectoria de un proyectil, sin resistencia del aire, es una parábola: la composición de un movimiento horizontal uniforme y uno vertical uniformemente acelerado. Esta lección es ese modelo, no el tiro de un balón de verdad. g vale 9,8 m/s² y no hay rozamiento.</p>
+</aside>
+
+<section class="bloque-cuerpo" id="maestro-objetivos">
+  <h2>Objetivos</h2>
+  <ul>
+    <li>Separar el tiro en MRU horizontal y MRUA vertical, con el eje y hacia arriba.</li>
+    <li>Calcular posición, velocidad y alcance con g = 9,8 m/s².</li>
+    <li>Ver que en la cima la velocidad no es cero: queda la componente horizontal.</li>
+  </ul>
+</section>
+
+<section class="bloque-cuerpo" id="maestro-explicacion">
+  <h2>El modelo, símbolo a símbolo</h2>
+  <p>Origen en el punto de lanzamiento. x horizontal, y vertical hacia arriba. y<sub>0</sub> = 0 y el suelo está en y = 0. Sin rozamiento.</p>
+  <p class="glosa-simbolo"><strong>v<sub>0</sub></strong> módulo de la velocidad inicial, m/s. <strong>θ</strong> ángulo con la horizontal. En el ejemplo no hace falta el grado entero: se dan sen θ = 0,60 y cos θ = 0,80. Comprueba 0,60² + 0,80² = 0,36 + 0,64 = 1.</p>
+  <p class="glosa-simbolo"><strong>v<sub>x</sub></strong> = v<sub>0</sub> cos θ, constante, porque a<sub>x</sub> = 0. <strong>v<sub>y</sub></strong> = v<sub>0</sub> sen θ − g t. <strong>g</strong> = 9,8 m/s², así que a<sub>y</sub> = −9,8 m/s².</p>
+  <p class="glosa-simbolo"><strong>x</strong> = v<sub>x</sub> t. <strong>y</strong> = (v<sub>0</sub> sen θ) t − ½ g t². El ½ g es 4,9 m/s² cuando g = 9,8.</p>
+  <p>Altura máxima cuando v<sub>y</sub> = 0: t<sub>sub</sub> = (v<sub>0</sub> sen θ) / g. H = (v<sub>0</sub> sen θ)² / (2 g). Si sales y vuelves a y = 0, el tiempo de vuelo es el doble y el alcance R = v<sub>x</sub> · t<sub>vuelo</sub> = v<sub>0</sub>² sen(2θ) / g, con sen(2θ) = 2 sen θ cos θ.</p>
+
+  <div class="figura-svg">
+    <svg viewBox="0 0 760 250" role="img" aria-labelledby="t16">
+      <title id="t16">Parábola del ejemplo: vx constante 16 m/s y vy que pasa de 12 a cero y a negativo</title>
+      <rect width="760" height="250" fill="#FAF7F0"/>
+      <line x1="50" y1="200" x2="700" y2="200" stroke="#2A2620" stroke-width="2"/>
+      <line x1="50" y1="200" x2="50" y2="30" stroke="#2A2620" stroke-width="2"/>
+      <path d="M50 200 Q250 40 470 200" fill="none" stroke="#2F5D7A" stroke-width="3"/>
+      <circle cx="50" cy="200" r="5" fill="#C4A15A"/>
+      <circle cx="260" cy="78" r="5" fill="#3D6B4F"/>
+      <line x1="260" y1="78" x2="330" y2="78" stroke="#C4A15A" stroke-width="3"/>
+      <text x="336" y="82" font-size="13" fill="#8A6B2F" font-weight="700">vx = 16 m/s</text>
+      <text x="60" y="24" font-size="14" font-weight="700" fill="#2A2620">sen θ = 0,60 · cos θ = 0,80 · v0 = 20 m/s · g = 9,8</text>
+      <text x="200" y="230" font-size="13" fill="#3D6B4F">cima: vy = 0, pero v = vx ≠ 0 · H = 144/19,6 m · R = 384/9,8 m</text>
+    </svg>
+  </div>
+
+  <h2>Ejemplo resuelto, paso a paso</h2>
+  <p>v<sub>0</sub> = 20 m/s, sen θ = 0,60, cos θ = 0,80, g = 9,8 m/s², y<sub>0</sub> = 0. No llames al ángulo 37°: no hace falta y no es exacto.</p>
+  <ol class="pasos">
+    <li>Componentes iniciales. v<sub>x</sub> = 20 · 0,80 = 16 m/s, y no cambia. v<sub>y0</sub> = 20 · 0,60 = 12 m/s. a<sub>x</sub> = 0, a<sub>y</sub> = −9,8 m/s².</li>
+    <li>En t = 1,00 s: x = 16 · 1 = 16 m. y = 12 · 1 − ½ · 9,8 · 1² = 12 − 4,9 = 7,1 m. v<sub>y</sub> = 12 − 9,8 = 2,2 m/s. La rapidez es √(16² + 2,2²) = √(256 + 4,84) = √260,84. Como 16,15² = 260,8225, la rapidez es 16,15 m/s al redondear a la centésima.</li>
+    <li>Cima: v<sub>y</sub> = 0 → t<sub>sub</sub> = 12 / 9,8 s. 9,8 · 1,224 = 9,8 · 1,2 + 9,8 · 0,024 = 11,76 + 0,2352 = 11,9952, casi 12. Te quedas con t<sub>sub</sub> = 12/9,8 s (1,224 s si cortas a milésimas: el siguiente dígito es 4).</li>
+    <li>H = v<sub>y0</sub>² / (2 g) = 144 / 19,6 m. 19,6 · 7,347 = 19,6 · 7 + 19,6 · 0,3 + 19,6 · 0,047 = 137,2 + 5,88 + 0,9212 = 144,0012. Así H = 7,347 m a la milésima. No es 12 m: eso sería olvidar el ½ o tratar la subida como MRU.</li>
+    <li>Vuelta a y = 0: t<sub>vuelo</sub> = 2 · 12/9,8 = 24/9,8 s. R = 16 · (24/9,8) = 384/9,8 m. 9,8 · 39,18 = 9,8 · 39 + 9,8 · 0,18 = 382,2 + 1,764 = 383,964. Falta 0,036, así que R = 39,184 m a la milésima. Por la otra vía: sen(2θ) = 2 · 0,60 · 0,80 = 0,96 y R = 400 · 0,96 / 9,8 = 384/9,8 m. Cuadra.</li>
+    <li>En la cima v<sub>y</sub> = 0 pero v = v<sub>x</sub> = 16 m/s. El vector es horizontal. Si dijeras que se para, estarías anulando también v<sub>x</sub>, y el alcance saldría mal.</li>
+  </ol>
+
+  <h2>Ejercicios</h2>
+  <article class="ej">
+    <h3>1. El segundo t = 1 del ejemplo</h3>
+    <p>Con los datos del ejemplo, escribe x, y y v<sub>y</sub> en t = 1,00 s, y la rapidez a la centésima.</p>
+    <textarea class="editor" aria-label="Ejercicio 1"></textarea>
+    <details class="porque"><summary>Porqué</summary>
+      <p>x = 16 m porque v<sub>x</sub> no cambia. y = 7,1 m = 12 − 4,9. v<sub>y</sub> = 2,2 m/s, todavía hacia arriba. Rapidez 16,15 m/s. Si sumas 16 + 2,2 = 18,2 no estás calculando el módulo: las componentes son perpendiculares y van dentro de una raíz de suma de cuadrados.</p>
+    </details>
+  </article>
+  <article class="ej">
+    <h3>2. Cima</h3>
+    <p>Halla t<sub>sub</sub> y H del ejemplo. ¿Cuánto vale v en ese instante?</p>
+    <textarea class="editor" aria-label="Ejercicio 2"></textarea>
+    <details class="porque"><summary>Porqué</summary>
+      <p>t<sub>sub</sub> = 12/9,8 s ≈ 1,224 s. H = 144/19,6 m ≈ 7,347 m. v = 16 m/s, horizontal. La aceleración sigue siendo −9,8 m/s²: por eso no se queda arriba. v<sub>y</sub> = 0 no implica a = 0.</p>
+    </details>
+  </article>
+  <article class="ej">
+    <h3>3. El ángulo complementario no cambia el alcance</h3>
+    <p>Mismos 20 m/s, pero sen θ = 0,80 y cos θ = 0,60. Calcula v<sub>x</sub>, v<sub>y0</sub>, H y R.</p>
+    <textarea class="editor" aria-label="Ejercicio 3"></textarea>
+    <details class="porque"><summary>Porqué</summary>
+      <p>v<sub>x</sub> = 12 m/s, v<sub>y0</sub> = 16 m/s. H = 256 / 19,6 m. 19,6 · 13,061 = 19,6 · 13 + 19,6 · 0,06 + 19,6 · 0,001 = 254,8 + 1,176 + 0,0196 = 255,9956, así que H = 13,061 m a la milésima. sen(2θ) = 2 · 0,80 · 0,60 = 0,96, el mismo que en el ejemplo, luego R = 384/9,8 m otra vez. Sube más y va más lento en horizontal: el alcance se compensa. No es el alcance máximo: el máximo de sen(2θ) es 1, y aquí vale 0,96.</p>
+    </details>
+  </article>
+  <article class="ej">
+    <h3>4. Lanzamiento horizontal</h3>
+    <p>Desde y<sub>0</sub> = 19,6 m, con v<sub>0</sub> = 10 m/s horizontal (sen θ = 0, cos θ = 1), eje y hacia arriba, g = 9,8. ¿Cuánto tarda en llegar a y = 0, dónde cae y con qué v<sub>y</sub>?</p>
+    <textarea class="editor" aria-label="Ejercicio 4"></textarea>
+    <details class="porque"><summary>Porqué</summary>
+      <p>v<sub>x</sub> = 10 m/s, v<sub>y0</sub> = 0. y = 19,6 − 4,9 t². y = 0 → 4,9 t² = 19,6 → t² = 4 → t = 2,00 s (el tiempo negativo se descarta). x = 10 · 2 = 20 m. v<sub>y</sub> = 0 − 9,8 · 2 = −19,6 m/s. El signo negativo es hacia abajo. Módulo de la velocidad: √(10² + 19,6²) = √(100 + 384,16) = √484,16. 22,00² = 484, así que a la centésima son 22,00 m/s (el resto 0,16 cambia el tercer decimal).</p>
+    </details>
+  </article>
+  <article class="ej">
+    <h3>5. Qué rompería la parábola</h3>
+    <p>Di qué término del modelo deja de ser cierto si el aire frena el proyectil, y por qué entonces a<sub>x</sub> ya no es 0.</p>
+    <textarea class="editor" aria-label="Ejercicio 5"></textarea>
+    <details class="porque"><summary>Porqué</summary>
+      <p>El rozamiento con el aire es una fuerza con componente horizontal, opuesta a la velocidad. Entonces a<sub>x</sub> deja de ser cero, v<sub>x</sub> deja de ser constante y x = v<sub>x</sub> t con v<sub>x</sub> fija ya no sirve. La trayectoria deja de ser la parábola de Galileo. En esta lección el modelo prohíbe ese término: por eso g solo entra en y.</p>
+    </details>
+  </article>
+
+  <h2>Dibuja las dos componentes en t = 1 s</h2>
+  <p>En el lienzo, un punto, una flecha horizontal de 16 m/s y otra vertical de 2,2 m/s. No hace falta la escala al milímetro; sí que la horizontal se vea más larga y que pongas las cifras.</p>
+  <canvas id="libre16" class="lienzo" width="900" height="220" aria-label="Componentes de la velocidad"></canvas>
+  <div class="fila"><button type="button" class="boton" id="bl">Borrar</button></div>
+</section>
+
+<section class="bloque-vida-real con-figura" id="maestro-vida">
+  <div class="figura" aria-hidden="true">
+    <svg viewBox="0 0 80 80"><rect width="80" height="80" fill="#F0EBE0"/>
+      <path d="M8 62 Q30 18 70 58" fill="none" stroke="#2F5D7A" stroke-width="3"/>
+    </svg>
+  </div>
+  <div class="contenido-vida">
+    <p class="etiqueta-bloque">En la vida real</p>
+    <h2 class="titulo-vida">Dónde el modelo se parece, y dónde no</h2>
+    <ul>
+      <li>Un chorro de manguera, de cerca y sin viento, se parece a la parábola. El aire lo acorta si el chorro es fino y largo.</li>
+      <li>En la canasta, el balón no cumple a<sub>x</sub> = 0 del todo. El problema de examen, si dice «sin rozamiento», sí.</li>
+      <li>g = 9,8 m/s² es el convenio de este curso. No lo cambies a 10 salvo que el enunciado lo diga, y aquí no lo dice.</li>
+    </ul>
+  </div>
+</section>
+
+<section class="bloque-interactivo" id="maestro-interactivo">
+  <div class="marco-interactivo-cabecera"><span class="etiqueta-interactivo">Problema · en esta página</span></div>
+  <div class="panel-int">
+    <p>g = 9,8 m/s² fijo, sin rozamiento, y<sub>0</sub> = 0. El lienzo traza la trayectoria hasta volver al suelo. Escribe el alcance en metros.</p>
+    <label>v<sub>0</sub> (m/s): <strong id="ov"></strong></label>
+    <input id="v0" type="range" min="10" max="30" value="20" step="1"/>
+    <label>Ángulo de trabajo (el seno y el coseno salen debajo): <strong id="oang"></strong></label>
+    <input id="ang" type="range" min="15" max="75" value="30" step="1"/>
+    <p id="trig"></p>
+    <div class="fila"><button type="button" class="boton" id="caso">Cargar el ejemplo (sen 0,60 y cos 0,80)</button></div>
+    <textarea class="editor" id="resp" placeholder="R = … m"></textarea>
+    <div class="fila"><button type="button" class="boton" id="chk">Comprobar alcance</button></div>
+    <p id="msg" aria-live="polite"></p>
+    <canvas id="cv" class="lienzo" width="900" height="250" aria-label="Trayectoria parabólica"></canvas>
+  </div>
+</section>
+
+<section class="bloque-reto" id="maestro-reto">
+  <span class="etiqueta-reto">Reto Profesor</span>
+  <h2 class="titulo-reto">Un t = 0,50 s tuyo</h2>
+  <p>Con el ejemplo (20 m/s, sen 0,60, cos 0,80, g = 9,8), calcula x, y, v<sub>x</sub> y v<sub>y</sub> en t = 0,50 s y comprueba que y sale menor que H. Dibuja el punto sobre una parábola en el lienzo.</p>
+  <textarea class="editor" id="reto"></textarea>
+  <canvas id="retoCv" class="lienzo" width="900" height="200" aria-label="Tu parábola"></canvas>
+  <div class="fila"><button type="button" class="boton" id="br">Borrar</button></div>
+  <p class="reto-id">reto_id: bach1-fyq-16-parabola</p>
+</section>
+
+<footer class="leccion-pie"><strong>Les vencimos</strong> · 1º Bachillerato Física y Química · Ciencias · Decreto 40/2022 CyL · sin CDN</footer>
+</div>
+<script>
+(function(){
+  function libre(id, btn, h){
+    var c=document.getElementById(id), ctx=c.getContext('2d'), dib=false, last=null;
+    function fondo(){
+      var w=Math.max(300, Math.floor(c.getBoundingClientRect().width));
+      c.width=w; c.height=h; ctx.fillStyle='#fff'; ctx.fillRect(0,0,w,h);
+    }
+    function pos(ev){
+      var r=c.getBoundingClientRect();
+      return {x:(ev.clientX-r.left)*c.width/r.width, y:(ev.clientY-r.top)*c.height/r.height};
+    }
+    c.addEventListener('pointerdown', function(ev){ dib=true; last=pos(ev); ev.preventDefault(); });
+    c.addEventListener('pointermove', function(ev){
+      if(!dib) return; var p=pos(ev);
+      ctx.strokeStyle='#2A2620'; ctx.lineWidth=2.2; ctx.lineCap='round';
+      ctx.beginPath(); ctx.moveTo(last.x,last.y); ctx.lineTo(p.x,p.y); ctx.stroke(); last=p; ev.preventDefault();
+    });
+    window.addEventListener('pointerup', function(){ dib=false; });
+    document.getElementById(btn).addEventListener('click', fondo);
+    fondo();
+  }
+  libre('libre16','bl',220);
+  libre('retoCv','br',200);
+
+  var g=9.8, modo='ang';
+  function estado(){
+    var v0=+document.getElementById('v0').value;
+    var s,c,eti;
+    if(modo==='ejemplo'){ s=0.6; c=0.8; eti='ejemplo: sen 0,60 · cos 0,80 (no es un grado entero)'; }
+    else {
+      var th=+document.getElementById('ang').value*Math.PI/180;
+      s=Math.sin(th); c=Math.cos(th);
+      eti='ángulo del deslizador: '+document.getElementById('ang').value+'°. sen = '+s.toFixed(3).replace('.',',')+' · cos = '+c.toFixed(3).replace('.',',');
+    }
+    var vx=v0*c, vy0=v0*s;
+    var T = vy0>0 ? 2*vy0/g : 0;
+    var R = vx*T;
+    var H = vy0*vy0/(2*g);
+    return {v0:v0,s:s,c:c,vx:vx,vy0:vy0,T:T,R:R,H:H,eti:eti};
+  }
+  function fmt(x){ return (Math.round(x*1000)/1000).toFixed(3).replace('.',','); }
+  function draw(){
+    var d=estado();
+    document.getElementById('ov').textContent=d.v0.toFixed(0);
+    document.getElementById('oang').textContent=modo==='ejemplo'?'ejemplo fijo':(document.getElementById('ang').value+'°');
+    document.getElementById('trig').textContent=d.eti+' · g = 9,8 m/s² · H = '+fmt(d.H)+' m · t_vuelo = '+fmt(d.T)+' s';
+    var cv=document.getElementById('cv'), ctx=cv.getContext('2d');
+    var w=Math.max(320, Math.floor(cv.getBoundingClientRect().width));
+    cv.width=w; cv.height=250;
+    ctx.fillStyle='#FAF7F0'; ctx.fillRect(0,0,w,250);
+    ctx.strokeStyle='#2A2620'; ctx.lineWidth=1.5;
+    ctx.beginPath(); ctx.moveTo(36,210); ctx.lineTo(w-16,210); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(36,210); ctx.lineTo(36,20); ctx.stroke();
+    if(d.T<=0){ ctx.fillStyle='#2A2620'; ctx.fillText('Sin alcance horizontal', 48, 40); return; }
+    var maxX=d.R*1.05, maxY=Math.max(d.H,0.1)*1.25;
+    function X(x){ return 36+(w-60)*(x/maxX); }
+    function Y(y){ return 210-(190)*(y/maxY); }
+    ctx.strokeStyle='#2F5D7A'; ctx.lineWidth=2.5; ctx.beginPath();
+    for(var i=0;i<=80;i++){
+      var t=d.T*i/80;
+      var x=d.vx*t;
+      var y=d.vy0*t-0.5*g*t*t;
+      if(i===0) ctx.moveTo(X(x),Y(y)); else ctx.lineTo(X(x),Y(y));
+    }
+    ctx.stroke();
+    ctx.fillStyle='#3D6B4F';
+    ctx.beginPath(); ctx.arc(X(d.R/2), Y(d.H), 5, 0, 6.3); ctx.fill();
+    ctx.fillStyle='#C4A15A';
+    ctx.beginPath(); ctx.arc(X(d.R), Y(0), 5, 0, 6.3); ctx.fill();
+    ctx.fillStyle='#2A2620'; ctx.font='14px Segoe UI,sans-serif';
+    ctx.fillText('R = '+fmt(d.R)+' m', 48, 36);
+  }
+  document.getElementById('v0').addEventListener('input', function(){ modo='ang'; draw(); });
+  document.getElementById('ang').addEventListener('input', function(){ modo='ang'; draw(); });
+  document.getElementById('caso').addEventListener('click', function(){
+    modo='ejemplo';
+    document.getElementById('v0').value='20';
+    draw();
+  });
+  document.getElementById('chk').addEventListener('click', function(){
+    var d=estado();
+    var nums=(document.getElementById('resp').value.replace(/,/g,'.').match(/-?\d+(?:\.\d+)?/g)||[]).map(Number);
+    var ok=nums.some(function(n){ return Math.abs(n-d.R)<0.03; });
+    var msg=document.getElementById('msg');
+    msg.className=ok?'ok':'mal';
+    msg.textContent=(ok?'Cuadra. ':'Todavía no. ')+'R = vx · 2 vy0 / g = '+fmt(d.R)+' m. vx = '+fmt(d.vx)+' m/s, vy0 = '+fmt(d.vy0)+' m/s.';
+  });
+  draw();
+  window.addEventListener('resize', draw);
+})();
+</script>
+</body>
+</html>

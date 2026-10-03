@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
+<title>L28 · Laboratorio · Textura, camino y patrimonio</title>
+<style>
+:root{--bg:#FAF7F0;--ink:#2A2620;--muted:#5C564C;--card:#fff;--gold:#C4A15A;--gold-soft:#F5EDD8;--gold-deep:#8A6B2F;--green:#3D6B4F;--green-soft:#E4F0E8;--blue:#2F5D7A;--blue-soft:#E3EEF4;--rose:#9B3A4A;--rose-soft:#F8E8EB;--shadow:0 10px 32px rgba(42,38,32,.09);--radius:18px}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{min-height:100%;background:var(--bg);color:var(--ink);font-family:"Segoe UI",system-ui,-apple-system,sans-serif}
+body{padding:14px 10px 36px}
+.wrap{width:100%;max-width:920px;margin:0 auto}
+header{text-align:center;margin-bottom:12px}
+.badge{display:inline-block;font-size:.75rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--gold-deep);background:var(--gold-soft);padding:4px 12px;border-radius:999px;margin-bottom:8px}
+h1{font-size:clamp(1.25rem,4vw,1.7rem);line-height:1.25;font-weight:800}
+.subtitle{margin-top:6px;color:var(--muted);font-size:.98rem}
+.card{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);padding:16px 14px 18px;margin-bottom:14px}
+.card h2{font-size:1.15rem;margin-bottom:8px}
+.hint{color:var(--muted);font-size:.92rem;line-height:1.45;margin-bottom:10px}
+.q{border:2px solid #E0D0A8;border-radius:14px;padding:12px;margin:10px 0;background:#FFFcf5}
+.q h3{font-size:1rem;margin-bottom:8px;line-height:1.35}
+.opt{display:block;width:100%;text-align:left;padding:10px 12px;margin:6px 0;border:2px solid #D9D0C0;border-radius:12px;background:#fff;font-weight:650;cursor:pointer;font-family:inherit;font-size:.95rem;line-height:1.35;color:var(--ink)}
+.opt:hover{border-color:var(--gold)}
+.opt.ok{border-color:var(--green);background:var(--green-soft)}
+.opt.bad{border-color:var(--rose);background:var(--rose-soft)}
+.why{display:none;margin-top:8px;padding:8px 10px;border-radius:10px;background:var(--blue-soft);font-size:.92rem;line-height:1.4}
+.why.show{display:block}
+.score{font-weight:800;color:var(--gold-deep);margin-top:8px}
+button.action{appearance:none;border:none;border-radius:999px;padding:10px 16px;font-weight:800;cursor:pointer;background:var(--gold);color:#1A160E;margin:4px 6px 4px 0;font-family:inherit}
+button.action.secondary{background:#fff;color:var(--gold-deep);border:2px solid var(--gold)}
+.topbar{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:8px}
+footer{text-align:center;font-size:.8rem;color:var(--muted);margin-top:8px}
+</style>
+</head>
+<body>
+<div class="wrap" id="lab">
+  <header>
+    <div class="badge">Lección 28 · bloque D · sin red</div>
+    <h1>Textura, camino y patrimonio</h1>
+    <p class="subtitle">Química no es textura. Foliación no es estrato. El ciclo tiene atajos.</p>
+  </header>
+  <section class="card">
+    <div class="topbar">
+      <h2>Laboratorio · 7 preguntas</h2>
+      <div>
+        <button type="button" class="action secondary" id="btnFs">Pantalla completa</button>
+        <button type="button" class="action secondary" id="btnReset">Reiniciar</button>
+      </div>
+    </div>
+    <p class="hint">Corrección inmediata. Si una pregunta cita números, son datos de ejemplo, no un informe oficial.</p>
+    <div id="quiz"></div>
+    <p class="score" id="score" aria-live="polite">Aciertos: 0 / 7</p>
+  </section>
+  <footer>1º Bachillerato · Biología, Geología y Ciencias Ambientales · Castilla y León · Decreto 40/2022 · Offline file:// · sin red</footer>
+</div>
+<script>
+(function(){
+  const ITEMS = [{"q": "Misma química félsica. Cristales de centímetros, encajados, en profundidad. ¿Qué roca encaja?", "opts": ["Basalto.", "Granito.", "Riolita.", "Mármol."], "ok": 1, "why": "Lento y félsico es granito. La riolita es el volcánico de química parecida, de pasta fina. El basalto es máfico."}, {"q": "¿Qué es un pórfido, en términos de historia de enfriamiento?", "opts": ["Una roca sedimentaria con fósiles grandes.", "Dos etapas: cristales ya crecidos y luego un enfriamiento rápido de la pasta.", "Un metamorfismo que funde.", "Una evaporita."], "ok": 1, "why": "La textura porfídica no es una química nueva. Cuenta dos velocidades."}, {"q": "Arenisca y granito pueden ser ricos en cuarzo. ¿Cómo no confundirlos?", "opts": ["Los dos tienen cristales encajados desde un fundido.", "La arenisca muestra granos y cemento, a menudo selección o redondez. El granito, cristales intercrecidos, sin fósiles ni estratos.", "La arenisca efervesce siempre.", "El granito es orgánico."], "ok": 1, "why": "El proceso deja textura. Detrítico no es plutónico aunque el mineral sea el mismo."}, {"q": "Mica alineada, rotura en planos, sin conchas. ¿Qué proceso y qué no es?", "opts": ["Sedimentario, y los planos son estratos de playa.", "Metamórfico, foliación en estado sólido. No es un estrato ni una ígnea fundida.", "Ígneo vítreo.", "Evaporítico."], "ok": 1, "why": "La foliación orienta minerales metamórficos. Si hubiera fundido, dejaría de ser esquisto."}, {"q": "¿De qué roca sale el mármol y qué pierde por el camino?", "opts": ["Del granito, y gana fósiles.", "De una caliza o dolomía. La recristalización puede borrar el fósil. No hace falta fundir.", "De un basalto, por exfoliación.", "Del carbón, por presión."], "ok": 1, "why": "Mármol es metamorfismo de carbonato, en general sin foliación. El fósil no sobrevive al recrecimiento de los cristales."}, {"q": "¿Qué camino es un atajo válido del ciclo?", "opts": ["Todo basalto debe ser esquisto antes de ser arena.", "Un basalto puede meteorizarse y dar sedimento sin metamorfizarse.", "Una caliza solo puede destruirse fundiendo.", "El magma se vuelve fósil sin sedimentar."], "ok": 1, "why": "El ciclo es un mapa. La noria obligatoria es falsa."}, {"q": "Un pliegue espectacular en un sitio protegido. ¿Qué conducta encaja con el patrimonio geológico?", "opts": ["Picar el núcleo del pliegue: así se estudia mejor.", "Leerlo in situ, no vaciarlo. Proteger no es prohibir entender.", "Ignorarlo porque solo cuenta el paisaje bonito.", "Convertirlo en árido y dar por documentado el proceso."], "ok": 1, "why": "El valor es el proceso que el corte conserva. La muestra de mano no sustituye al afloramiento."}];
+  const quiz = document.getElementById('quiz');
+  const scoreEl = document.getElementById('score');
+  let aciertos = 0;
+  function render(){
+    aciertos = 0;
+    quiz.innerHTML = '';
+    ITEMS.forEach((it, i) => {
+      const box = document.createElement('div');
+      box.className = 'q';
+      const h = document.createElement('h3');
+      h.textContent = (i+1) + '. ' + it.q;
+      box.appendChild(h);
+      const why = document.createElement('p');
+      why.className = 'why';
+      let locked = false;
+      it.opts.forEach((t, j) => {
+        const b = document.createElement('button');
+        b.type = 'button';
+        b.className = 'opt';
+        b.textContent = t;
+        b.addEventListener('click', () => {
+          if (locked) return;
+          locked = true;
+          const buttons = box.querySelectorAll('.opt');
+          buttons.forEach((bb, k) => {
+            bb.disabled = true;
+            if (k === it.ok) bb.classList.add('ok');
+          });
+          if (j === it.ok) aciertos += 1; else b.classList.add('bad');
+          why.textContent = (j === it.ok ? 'Correcto. ' : 'No es la mejor opción. ') + it.why;
+          why.classList.add('show');
+          scoreEl.textContent = 'Aciertos: ' + aciertos + ' / ' + ITEMS.length;
+        });
+        box.appendChild(b);
+      });
+      box.appendChild(why);
+      quiz.appendChild(box);
+    });
+    scoreEl.textContent = 'Aciertos: 0 / ' + ITEMS.length;
+  }
+  document.getElementById('btnReset').addEventListener('click', render);
+  document.getElementById('btnFs').addEventListener('click', () => {
+    const el = document.documentElement;
+    if (!document.fullscreenElement) { if (el.requestFullscreen) el.requestFullscreen(); }
+    else if (document.exitFullscreen) document.exitFullscreen();
+  });
+  window.addEventListener('message', (ev) => {
+    const d = ev.data || {};
+    if (d.type === 'maestro:reset') render();
+  });
+  render();
+})();
+</script>
+</body>
+</html>

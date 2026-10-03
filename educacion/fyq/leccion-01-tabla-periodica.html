@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Lección 01 · La tabla periódica como herramienta</title>
+<link rel="stylesheet" href="leccion-shell.css"/>
+<script src="leccion-shell-nav.js" defer></script>
+<style>
+  .pasos{list-style:none;margin:0 0 1rem;padding:0;counter-reset:paso}
+  .pasos li{position:relative;margin:0 0 .7rem;padding:.7rem .8rem .7rem 3.1rem;background:#fff;border:1px solid rgba(14,14,12,.12);border-radius:10px}
+  .pasos li::before{counter-increment:paso;content:counter(paso);position:absolute;left:.65rem;top:.7rem;width:1.7rem;height:1.7rem;border-radius:50%;background:#2F5D7A;color:#fff;font-weight:700;font-size:.9rem;display:flex;align-items:center;justify-content:center}
+  .figura-svg{background:#fff;border:1px solid rgba(14,14,12,.12);border-radius:10px;padding:.4rem;margin:.4rem 0 1rem}
+  .figura-svg svg{width:100%;height:auto;display:block}
+  .ej{margin:0 0 1rem;padding:.85rem .95rem;background:#fff;border:1px solid rgba(14,14,12,.12);border-left:3px solid #C4A15A;border-radius:10px}
+  .ej h3{margin:0 0 .35rem;font-family:var(--lv-serif);font-size:1.05rem;color:#2A2620}
+  .editor,textarea.editor{width:100%;min-height:5.2rem;font-family:ui-monospace,"Cascadia Code","Segoe UI Mono",monospace;font-size:.95rem;line-height:1.4;padding:.55rem .65rem;border:1px solid rgba(14,14,12,.22);border-radius:8px;background:#FFFCF5;color:#2A2620;resize:vertical}
+  .lienzo{display:block;width:100%;height:240px;background:#fff;border:1px solid #2F5D7A;border-radius:8px;touch-action:none;cursor:crosshair}
+  .fila{display:flex;flex-wrap:wrap;gap:.4rem;margin:.45rem 0}
+  .fila button,.boton{font:inherit;font-weight:700;font-size:.85rem;padding:.35rem .75rem;border-radius:999px;border:1px solid #C4A15A;background:#fff;color:#2A2620;cursor:pointer}
+  .boton.azul{border-color:#2F5D7A;background:#2F5D7A;color:#fff}
+  .boton.verde{border-color:#3D6B4F;background:#3D6B4F;color:#fff}
+  .porque{margin-top:.5rem;padding:.6rem .7rem;background:#E4F0E8;border-radius:8px;color:#2A2620}
+  .dato{font-size:.95rem;color:#5C564C}
+  .panel-int{padding:.75rem}
+  .panel-int label{display:block;font-weight:650;font-size:.92rem;margin:.35rem 0 .15rem}
+  .salida{font-variant-numeric:tabular-nums;font-weight:700;color:#2F5D7A}
+  .ok{color:#3D6B4F}.mal{color:#A85A3C}
+  table.masas{width:100%;border-collapse:collapse;margin:.4rem 0 1rem;font-size:.98rem}
+  table.masas th,table.masas td{border:1px solid rgba(14,14,12,.12);padding:.35rem .5rem;text-align:left}
+  table.masas th{background:#F0EBE0}
+  .opcion{display:block;margin:.25rem 0;padding:.45rem .6rem;border:1px solid rgba(14,14,12,.16);border-radius:8px;background:#fff;cursor:pointer}
+  .opcion.bien{border-color:#3D6B4F;background:#E4F0E8}
+  .opcion.mal{border-color:#A85A3C;background:#F8E6DE}
+</style>
+</head>
+<body class="leccion-shell">
+<div class="leccion-wrap">
+
+<nav class="leccion-barra" aria-label="Navegación de lección" data-actual="1" data-total="23">
+  <div class="leccion-progreso" role="status">
+    <span class="progreso-texto"><strong>1</strong> de <strong>23</strong></span>
+    <div class="progreso-pista" aria-hidden="true"><div class="progreso-lleno" style="width:4.35%"></div></div>
+  </div>
+  <div class="leccion-atajos">
+    <a class="atajo atajo-calc" href="../../../modulos/calculadora.html" title="Calculadora offline">Calculadora</a>
+    <span class="atajo atajo-prev is-disabled" aria-disabled="true">← Anterior</span>
+    <a class="atajo atajo-next" href="leccion-02-estructura-electronica.html">Siguiente →</a>
+  </div>
+</nav>
+
+<header class="leccion-top">
+  <a class="leccion-marca" href="../../index.html">Les <span>vencimos</span></a>
+  <p class="leccion-meta-top">Física y Química · 1º Bachillerato</p>
+</header>
+
+<header class="bloque-titulo" id="maestro-titulo">
+  <span class="eyebrow">Lección 01 · Bloque A · Tabla periódica</span>
+  <h1 class="titulo-leccion">Una tabla que <em>predice</em> lo que aún no se ha visto</h1>
+  <p class="meta-leccion">1º Bachillerato Física y Química · Ciencias · Decreto 40/2022 CyL</p>
+</header>
+
+<aside class="bloque-curiosidad" id="maestro-curiosidad" aria-label="Curiosidad histórica">
+  <p class="etiqueta-bloque">Curiosidad histórica</p>
+  <h2 class="titulo-curiosidad">El hueco valía más que el elemento</h2>
+  <p class="texto-curiosidad">En 1869 Mendeléiev ordenó los elementos conocidos por masa atómica creciente y dejó casillas vacías. No era descuido: si el patrón era real, esas casillas anunciaban elementos todavía no aislados, con una masa y un comportamiento aproximados. El galio (1875) y el germanio (1886) encajaron en dos de esos huecos. La tabla dejó de ser un catálogo y pasó a ser una herramienta de predicción.</p>
+</aside>
+
+<section class="bloque-cuerpo" id="maestro-objetivos">
+  <h2>Objetivos</h2>
+  <ul>
+    <li>Situar tres aportes que construyen la tabla: triadas, huecos de Mendeléiev y número atómico.</li>
+    <li>Calcular la masa que una triada asigna al elemento central y ver que es una aproximación.</li>
+    <li>Distinguir ordenar por masa atómica de ordenar por número atómico.</li>
+    <li>Usar la columna (el grupo) para predecir un comportamiento parecido, sin entrar aún en la configuración electrónica.</li>
+  </ul>
+</section>
+
+<section class="bloque-cuerpo" id="maestro-explicacion">
+  <h2>Tres pasos históricos, no una lista de nombres</h2>
+  <p>La tabla actual no la inventó una sola persona en un día. Para este curso bastan tres ideas, en este orden.</p>
+  <ol>
+    <li><strong>Triadas (Döbereiner, 1829).</strong> Algunos elementos se agrupaban de tres en tres. La masa del central se parecía a la media de los otros dos. Es un patrón, no una ley exacta.</li>
+    <li><strong>Tabla con huecos (Mendeléiev, 1869).</strong> Al ordenar por masa atómica creciente y alinear propiedades parecidas en columnas, sobraban y faltaban sitios. Los huecos eran predicciones.</li>
+    <li><strong>Número atómico (Moseley, 1913).</strong> El orden definitivo no es la masa. Es el número de protones del núcleo, Z. Por eso el argón va antes que el potasio aunque su masa sea mayor, y lo mismo pasa con cobalto y níquel, y con teluro y yodo.</li>
+  </ol>
+  <p class="dato">La configuración electrónica, que explica por qué un grupo se parece, es la lección 02. Aquí la tabla se usa como herramienta: la posición predice, aunque todavía no abras el átomo por dentro.</p>
+
+  <h2>Qué se predice, en la práctica</h2>
+  <p>Una <strong>columna</strong> (grupo) reúne elementos de comportamiento químico parecido. El sodio y el potasio están en la misma columna: los dos son metales que reaccionan con agua. El argón, al lado del potasio en la fila, no. Una <strong>fila</strong> (periodo) es el tramo en el que las propiedades van cambiando hasta que el patrón de la columna se repite.</p>
+  <p>Mendeléiev llamó eka-aluminio al hueco bajo el aluminio y le asignó una masa cercana a 68. El galio, aislado en 1875, tiene masa atómica 69,7. Al eka-silicio le asignó una masa cercana a 72. El germanio, aislado en 1886, tiene 72,6. No hace falta memorizar más cifras de aquellas predicciones: con la masa basta para ver que el hueco no era un adorno.</p>
+
+  <div class="figura-svg">
+    <svg viewBox="0 0 720 300" role="img" aria-labelledby="t01">
+      <title id="t01">Fragmento de tabla: el grupo 1 y el hueco que ocupó el germanio</title>
+      <rect width="720" height="300" fill="#FAF7F0"/>
+      <text x="24" y="32" font-size="16" font-weight="700" fill="#2A2620">Grupo 1, la triada que sí cuadra</text>
+      <g font-size="15" font-family="Segoe UI, sans-serif">
+        <rect x="24" y="48" width="120" height="54" rx="6" fill="#C4A15A" stroke="#2A2620"/>
+        <text x="84" y="72" text-anchor="middle" font-weight="700" fill="#1A160E">Li</text>
+        <text x="84" y="90" text-anchor="middle" font-size="12" fill="#1A160E">6,9</text>
+        <rect x="24" y="112" width="120" height="54" rx="6" fill="#fff" stroke="#2F5D7A" stroke-width="2.5"/>
+        <text x="84" y="136" text-anchor="middle" font-weight="700" fill="#2F5D7A">Na</text>
+        <text x="84" y="154" text-anchor="middle" font-size="12" fill="#2F5D7A">23,0</text>
+        <rect x="24" y="176" width="120" height="54" rx="6" fill="#C4A15A" stroke="#2A2620"/>
+        <text x="84" y="200" text-anchor="middle" font-weight="700" fill="#1A160E">K</text>
+        <text x="84" y="218" text-anchor="middle" font-size="12" fill="#1A160E">39,1</text>
+      </g>
+      <text x="160" y="150" font-size="15" fill="#2A2620">(6,9 + 39,1) / 2 = 23,0</text>
+      <text x="400" y="32" font-size="16" font-weight="700" fill="#2A2620">Un hueco que luego fue Ge</text>
+      <g font-size="14" font-family="Segoe UI, sans-serif">
+        <rect x="400" y="48" width="130" height="48" rx="6" fill="#fff" stroke="#2A2620"/>
+        <text x="465" y="78" text-anchor="middle" fill="#2A2620">Si · 28,1</text>
+        <rect x="400" y="108" width="130" height="48" rx="6" fill="#fff" stroke="#C4A15A" stroke-width="2.5" stroke-dasharray="6 4"/>
+        <text x="465" y="130" text-anchor="middle" fill="#C4A15A" font-weight="700">hueco</text>
+        <text x="465" y="146" text-anchor="middle" font-size="12" fill="#5C564C">masa ~ 72</text>
+        <rect x="400" y="168" width="130" height="48" rx="6" fill="#3D6B4F" stroke="#2A2620"/>
+        <text x="465" y="198" text-anchor="middle" fill="#fff" font-weight="700">Ge · 72,6</text>
+      </g>
+      <text x="24" y="268" font-size="13" fill="#5C564C">Masas de esta lección, a un decimal escolar: Li 6,9 · Na 23,0 · K 39,1 · Si 28,1 · Ge 72,6 · Ga 69,7 · Cl 35,5 · Br 79,9 · I 126,9.</text>
+      <text x="24" y="288" font-size="13" fill="#5C564C">El germanio no «sale» de la media del silicio y el arsénico. El hueco lo fijó el patrón de toda la tabla, no una triada suelta.</text>
+    </svg>
+  </div>
+
+  <h2>Ejemplo resuelto, paso a paso</h2>
+  <p>Comprueba la triada litio, sodio y potasio con las masas de arriba. El sodio es el central.</p>
+  <ol class="pasos">
+    <li>Paso de las masas. Anota solo los extremos: m(Li) = 6,9 y m(K) = 39,1. La unidad es la masa atómica relativa, sin gramos.</li>
+    <li>Suma los extremos: 6,9 + 39,1 = 46,0.</li>
+    <li>Divide entre dos, porque la predicción de la triada es la media aritmética: 46,0 / 2 = 23,0.</li>
+    <li>Compara con el valor medido del sodio, 23,0. En esta triada la media coincide con el decimal que estamos usando. No siempre pasa: la del cloro y el yodo se desvía, y eso también es parte del patrón.</li>
+  </ol>
+  <p>Glosa: la raya de fracción aquí es una división ordinaria. No hay moles ni constante R en esta lección. «Masa atómica 23,0» no significa 23,0 g salvo que digas «23,0 g/mol», y eso lo usaremos al llegar a la estequiometría.</p>
+
+  <h2>Ejercicios</h2>
+  <p class="dato">Escribe en el editor de cada ejercicio. Si un apartado pide un esquema, va en el lienzo de esta misma página. Luego abre el porqué y compara. No sales de la lección.</p>
+
+  <article class="ej">
+    <h3>1. La media del sodio</h3>
+    <p>Con Li 6,9 y K 39,1, escribe la operación completa y el resultado. Di si coincide con 23,0.</p>
+    <textarea class="editor" id="e1" placeholder="Operación y frase de cierre…"></textarea>
+    <details class="porque"><summary>Porqué</summary>
+      <p>6,9 + 39,1 = 46,0. 46,0 / 2 = 23,0. Coincide con la masa escolar del sodio. La triada, en este caso, acierta de lleno porque hemos redondeado a un decimal.</p>
+    </details>
+  </article>
+
+  <article class="ej">
+    <h3>2. Cloro, bromo y yodo: la media ya no es exacta</h3>
+    <p>Extremos: Cl 35,5 e I 126,9. Calcula la media y compárala con Br 79,9. ¿A cuánto asciende la diferencia?</p>
+    <textarea class="editor" id="e2"></textarea>
+    <details class="porque"><summary>Porqué</summary>
+      <p>35,5 + 126,9 = 162,4. 162,4 / 2 = 81,2. El bromo escolar es 79,9. Diferencia: 81,2 − 79,9 = 1,3. Döbereiner vio un parecido, no una igualdad. Por eso la triada sugirió la tabla, pero no bastó para construirla.</p>
+    </details>
+  </article>
+
+  <article class="ej">
+    <h3>3. Hueco, no error de imprenta</h3>
+    <p>Mendeléiev podría haber pegado el silicio con el elemento de debajo y olvidarse del sitio vacío. Escribe, en dos frases, qué se habría perdido y qué se ganó al dejar el hueco del germanio.</p>
+    <textarea class="editor" id="e3"></textarea>
+    <details class="porque"><summary>Porqué</summary>
+      <p>Se habría perdido una predicción comprobable: una masa cercana a 72 y un comportamiento de esa columna. Al dejar el hueco, la tabla anunció un elemento. Cuando Winkler aisló el germanio en 1886, con masa 72,6, el anuncio se pudo contrastar. Una tabla sin huecos solo describe lo ya visto.</p>
+    </details>
+  </article>
+
+  <article class="ej">
+    <h3>4. Argón y potasio, el orden que la masa no respeta</h3>
+    <p>La masa del argón es unos 40 y la del potasio unos 39. Si ordenas solo por masa, el potasio iría primero. En la tabla actual va primero el argón. ¿Qué criterio manda, y quién lo fijó con los rayos X?</p>
+    <textarea class="editor" id="e4"></textarea>
+    <details class="porque"><summary>Porqué</summary>
+      <p>Manda el número atómico Z (protones en el núcleo): el argón tiene Z = 18 y el potasio Z = 19. Moseley, en 1913, mostró que ese número sale de los espectros de rayos X y que ordena la tabla mejor que la masa. El mismo criterio coloca el cobalto (Z = 27) antes que el níquel (Z = 28) y el teluro antes que el yodo.</p>
+    </details>
+  </article>
+
+  <article class="ej">
+    <h3>5. Predecir sin haber visto el elemento</h3>
+    <p>El sodio reacciona con el agua y está en el grupo 1. Sin buscar el dato, ¿qué esperas del rubidio, que está en la misma columna, y qué no puedes afirmar todavía?</p>
+    <textarea class="editor" id="e5"></textarea>
+    <details class="porque"><summary>Porqué</summary>
+      <p>Esperas un metal que también reaccione con el agua, y de hecho con más viveza. Eso es una predicción de grupo. Lo que no puedes afirmar desde esta lección es el detalle electrónico (cuántos electrones de valencia): eso se justifica en la lección 02. La tabla predice el parecido; la estructura explica por qué.</p>
+    </details>
+  </article>
+
+  <h2>Dibuja la triada</h2>
+  <p>En el lienzo, tres cajas en columna: Li 6,9 arriba, Na 23,0 en el centro, K 39,1 abajo. Al lado, la división (6,9 + 39,1) / 2. No hace falta una tabla entera.</p>
+  <canvas id="lienzo01" class="lienzo" width="900" height="240" aria-label="Lienzo para dibujar la triada litio, sodio y potasio"></canvas>
+  <div class="fila">
+    <button type="button" class="boton" id="b01">Borrar lienzo</button>
+  </div>
+</section>
+
+<section class="bloque-vida-real con-figura" id="maestro-vida" aria-label="En la vida real">
+  <div class="figura" aria-hidden="true">
+    <svg viewBox="0 0 80 80">
+      <rect width="80" height="80" fill="#F0EBE0"/>
+      <rect x="14" y="16" width="22" height="22" fill="#C4A15A" stroke="#2A2620"/>
+      <rect x="14" y="42" width="22" height="22" fill="#fff" stroke="#2F5D7A" stroke-width="2"/>
+      <rect x="44" y="16" width="22" height="22" fill="#fff" stroke="#2A2620"/>
+      <rect x="44" y="42" width="22" height="22" fill="#3D6B4F" stroke="#2A2620"/>
+    </svg>
+  </div>
+  <div class="contenido-vida">
+    <p class="etiqueta-bloque">En la vida real</p>
+    <h2 class="titulo-vida">Para qué sirve predecir un elemento</h2>
+    <ul>
+      <li>Buscar un metal nuevo es caro. Saber en qué columna debe caer, y más o menos qué masa tendrá, acota el mineral y el ensayo.</li>
+      <li>En un laboratorio escolar no vas a aislar germanio, pero sí vas a decidir si un elemento desconocido «se parece al sodio» o «se parece al cloro» antes de hacer la prueba que corresponde.</li>
+      <li>El orden por Z, y no por masa, es el que usan hoy las fichas de seguridad y las tablas colgadas en el aula. Si ves Ar antes que K, no es una errata.</li>
+    </ul>
+  </div>
+</section>
+
+<section class="bloque-interactivo" id="maestro-interactivo" aria-label="Problema interactivo">
+  <div class="marco-interactivo-cabecera">
+    <span class="etiqueta-interactivo">Problema · en esta página</span>
+  </div>
+  <div class="panel-int">
+    <p>Elige los dos extremos. Escribe la media con un decimal y la coma de los decimales. El botón comprueba la división; no abre otra página.</p>
+    <label for="ext">Extremos de la triada</label>
+    <select id="ext">
+      <option value="li">Li 6,9 y K 39,1 (predice Na)</option>
+      <option value="cl">Cl 35,5 e I 126,9 (predice Br)</option>
+    </select>
+    <label for="media">Media que obtienes</label>
+    <textarea class="editor" id="media" placeholder="Ejemplo: (6,9 + 39,1) / 2 = 23,0"></textarea>
+    <div class="fila">
+      <button type="button" class="boton verde" id="chk01">Comprobar la media</button>
+    </div>
+    <p id="msg01" aria-live="polite"></p>
+    <p>Segunda pregunta, de grupo. ¿Cuál se parece al sodio en el modo de reaccionar?</p>
+    <button type="button" class="opcion" data-ok="0">El magnesio, porque está al lado en la misma fila</button>
+    <button type="button" class="opcion" data-ok="1">El potasio, porque está en la misma columna</button>
+    <button type="button" class="opcion" data-ok="0">El argón, porque su masa es cercana</button>
+    <p id="msgG" aria-live="polite"></p>
+  </div>
+</section>
+
+<section class="bloque-reto" id="maestro-reto" aria-label="Reto Profesor">
+  <span class="etiqueta-reto">Reto Profesor</span>
+  <h2 class="titulo-reto">Un hueco, con cifras tuyas</h2>
+  <p>Inventa un hueco de tabla con dos condiciones: una masa prevista que sea un número con un decimal, y una columna real (grupo 1, grupo 17 o gases nobles). En el editor justifica qué comportamiento esperarías y qué dato te faltaría para dar por cerrado el descubrimiento. En el lienzo, la casilla vacía y la casilla ya ocupada, con las dos masas escritas.</p>
+  <label for="reto01">Tu hueco</label>
+  <textarea class="editor" id="reto01"></textarea>
+  <canvas id="retoCv" class="lienzo" width="900" height="220" aria-label="Casilla vacía y casilla ocupada"></canvas>
+  <div class="fila"><button type="button" class="boton" id="bReto">Borrar lienzo del reto</button></div>
+  <ul>
+    <li>La predicción dice qué columna y una masa aproximada, no un experimento imaginario con cifras falsas.</li>
+    <li>Distingues «se parece a los de su grupo» de «ya conozco su configuración».</li>
+    <li>Si tu hueco es el del germanio, usas ~72 frente a 72,6, no una densidad que no hayamos calculado.</li>
+  </ul>
+  <p class="reto-id">reto_id: bach1-fyq-01-tabla</p>
+</section>
+
+<footer class="leccion-pie"><strong>Les vencimos</strong> · 1º Bachillerato Física y Química · Ciencias · Decreto 40/2022 CyL · sin CDN</footer>
+</div>
+<script>
+(function(){
+  function liga(id, btn){
+    var c = document.getElementById(id);
+    var ctx = c.getContext('2d');
+    function fit(){
+      var r = c.getBoundingClientRect();
+      var w = Math.max(300, Math.floor(r.width));
+      if (c.width !== w){ c.width = w; c.height = 240; pintaFondo(); }
+    }
+    function pintaFondo(){
+      ctx.fillStyle = '#fff';
+      ctx.fillRect(0,0,c.width,c.height);
+      ctx.strokeStyle = '#C4A15A';
+      ctx.strokeRect(0.5,0.5,c.width-1,c.height-1);
+    }
+    var dib = false, last = null;
+    function pos(ev){
+      var r = c.getBoundingClientRect();
+      var src = ev.touches ? ev.touches[0] : ev;
+      return {x:(src.clientX-r.left)*c.width/r.width, y:(src.clientY-r.top)*c.height/r.height};
+    }
+    function down(ev){ dib = true; last = pos(ev); ev.preventDefault(); }
+    function move(ev){
+      if(!dib) return;
+      var p = pos(ev);
+      ctx.strokeStyle = '#2A2620'; ctx.lineWidth = 2.2; ctx.lineCap = 'round';
+      ctx.beginPath(); ctx.moveTo(last.x,last.y); ctx.lineTo(p.x,p.y); ctx.stroke();
+      last = p; ev.preventDefault();
+    }
+    function up(){ dib = false; }
+    c.addEventListener('pointerdown', down);
+    c.addEventListener('pointermove', move);
+    window.addEventListener('pointerup', up);
+    c.addEventListener('pointerleave', up);
+    document.getElementById(btn).addEventListener('click', pintaFondo);
+    fit();
+    window.addEventListener('resize', fit);
+  }
+  liga('lienzo01','b01');
+  liga('retoCv','bReto');
+
+  var claves = {li:23.0, cl:81.2};
+  var nombres = {li:'sodio', cl:'bromo'};
+  document.getElementById('chk01').addEventListener('click', function(){
+    var k = document.getElementById('ext').value;
+    var bruto = document.getElementById('media').value.replace(/,/g,'.');
+    var nums = (bruto.match(/\d+(?:\.\d+)?/g) || []).map(Number);
+    var ok = nums.some(function(n){ return Math.abs(n - claves[k]) < 0.051; });
+    var msg = document.getElementById('msg01');
+    if(ok){
+      msg.className = 'ok';
+      msg.textContent = 'La media es ' + claves[k].toFixed(1).replace('.',',') + '. Esa es la predicción de triada para el ' + nombres[k] + '.';
+    }else{
+      msg.className = 'mal';
+      msg.textContent = 'Aún no veo ' + claves[k].toFixed(1).replace('.',',') + '. Suma los dos extremos y divide entre 2.';
+    }
+  });
+  document.querySelectorAll('.opcion').forEach(function(b){
+    b.addEventListener('click', function(){
+      document.querySelectorAll('.opcion').forEach(function(x){ x.classList.remove('bien','mal'); });
+      var msg = document.getElementById('msgG');
+      if(b.getAttribute('data-ok') === '1'){
+        b.classList.add('bien');
+        msg.className = 'ok';
+        msg.textContent = 'Sí. Misma columna: se espera un comportamiento parecido. La fila de al lado no basta, ni una masa cercana.';
+      }else{
+        b.classList.add('mal');
+        msg.className = 'mal';
+        msg.textContent = 'No. El parecido químico que usa esta lección va por la columna, no por ser vecinos de fila ni por tener masas próximas.';
+      }
+    });
+  });
+})();
+</script>
+</body>
+</html>

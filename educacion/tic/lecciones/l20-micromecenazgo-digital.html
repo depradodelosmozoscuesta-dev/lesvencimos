@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="es"><head><meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Laboratorio L20 · Micromecenazgo digital</title>
+<style>
+:root{--ink:#0E0E0C;--amber:#C4A15A;--paper:#FAF7F0;--line:rgba(14,14,12,.14)}
+*{box-sizing:border-box} body{margin:0;font-family:Segoe UI,system-ui,sans-serif;background:var(--paper);color:var(--ink);line-height:1.45}
+header{padding:.7rem 1rem;border-bottom:2px solid var(--amber);background:#fff} header h1{margin:0;font-size:1.05rem;font-family:Georgia,serif}
+header p{margin:.2rem 0 0;font-size:.8rem;color:#5C564C} main{padding:.75rem 1rem 2rem;max-width:62rem}
+label{display:block;font-size:.75rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:#5C564C;margin:.55rem 0 .2rem}
+textarea,input[type=text],input[type=number],select{width:100%;font:14px/1.4 ui-monospace,monospace;border:1px solid var(--line);border-radius:6px;padding:.4rem .5rem}
+.nota{font-size:.82rem;color:#5C564C}
+
+.bloque-cuerpo table{width:100%;border-collapse:collapse;font-size:.92rem;margin:0 0 1rem}
+.bloque-cuerpo th,.bloque-cuerpo td{border:1px solid rgba(14,14,12,.12);padding:.45rem .55rem;vertical-align:top;text-align:left}
+.bloque-cuerpo th{background:#F0EBE0;font-weight:650}
+.bloque-cuerpo pre{background:#0E0E0C;color:#FAF7F0;padding:.9rem 1rem;border-radius:8px;overflow:auto;font-size:.82rem;line-height:1.45}
+.bloque-cuerpo pre code{color:inherit;font-size:inherit}
+.bloque-cuerpo code{font-family:ui-monospace,"Cascadia Code","Segoe UI Mono",monospace}
+.figura-svg{margin:1rem 0 1.15rem;background:#fff;border:1px solid rgba(14,14,12,.12);border-radius:10px;padding:.6rem .6rem .35rem}
+.figura-svg svg{width:100%;height:auto;display:block}
+.figura-svg figcaption{font-size:.82rem;color:#5C564C;padding:.35rem .2rem 0}
+details.comprueba{margin:.55rem 0;background:#fff;border:1px solid rgba(14,14,12,.12);border-left:3px solid #C4A15A;border-radius:8px;padding:.55rem .85rem}
+details.comprueba summary{cursor:pointer;font-weight:650;color:#0E0E0C}
+.lab-embed{background:#FAF7F0;border:1px solid rgba(14,14,12,.12);border-radius:8px;padding:.75rem}
+.lab-embed label{display:block;font-size:.78rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:#5C564C;margin:.4rem 0 .2rem}
+.lab-embed textarea,.lab-embed input[type=text],.lab-embed input[type=number],.lab-embed select{width:100%;font-family:ui-monospace,monospace;font-size:.82rem;border:1px solid rgba(14,14,12,.2);border-radius:6px;padding:.4rem .5rem;background:#fff;color:#0E0E0C}
+.lab-embed textarea{min-height:7rem;resize:vertical}
+.lab-row{display:flex;flex-wrap:wrap;gap:.4rem;margin:.45rem 0}
+.lab-embed button{background:#C4A15A;color:#1A160E;border:0;border-radius:4px;padding:.4rem .7rem;font-weight:700;cursor:pointer}
+.lab-embed button.sec{background:#fff;border:1px solid rgba(14,14,12,.2)}
+.lab-out{font-size:.88rem;background:#fff;border:1px solid rgba(14,14,12,.12);border-radius:6px;padding:.5rem .65rem;margin-top:.4rem}
+.lab-out .ok{color:#3D6B4F;font-weight:650}
+.lab-out .bad{color:#A85A3C;font-weight:650}
+.lab-canvas{width:100%;max-width:640px;background:#fff;border:1px solid rgba(14,14,12,.15);border-radius:6px;display:block;touch-action:none}
+.gpio-sim{display:grid;grid-template-columns:7.5rem 1fr;gap:.8rem;align-items:center;background:#0E0E0C;color:#FAF7F0;border-radius:10px;padding:.85rem 1rem;margin:.4rem 0 .6rem}
+.gpio-sim p{margin:.2rem 0;color:#FAF7F0}
+.gpio-sim .pin{font-family:ui-monospace,monospace;color:#C4A15A}
+button.sw{width:4.2rem;height:2rem;min-height:2rem;border-radius:999px;border:1px solid #C4A15A;background:#2A2620;color:#FAF7F0;position:relative;cursor:pointer;padding:0;font-weight:700}
+button.sw[aria-pressed="true"]{background:#C4A15A;color:#1A160E}
+button.sw i{position:absolute;top:2px;left:2px;width:1.6rem;height:1.6rem;border-radius:50%;background:#FAF7F0;display:block}
+button.sw[aria-pressed="true"] i{left:2.2rem;background:#fff}
+</style></head><body>
+<header><h1>Laboratorio · L20 · Micromecenazgo digital</h1>
+<p>Offline, en esta página. No se envía nada a un servidor.</p></header>
+<main><p class="nota">Ficha de campaña en local. No hay pago, ni plataforma, ni datos bancarios. El euro es la unidad del ejemplo.</p>
+<label for="tit">Título de la campaña</label><input id="tit" type="text" value="Exposición del aula taller"/>
+<label for="meta">Meta (€)</label><input id="meta" type="number" min="50" value="400"/>
+<label for="r1">Recompensa 1</label><input id="r1" type="text" value="5 € · agradecimiento en el folleto"/>
+<label for="r2">Recompensa 2</label><input id="r2" type="text" value="15 € · lámina impresa del proyecto"/>
+<label for="modo">Modelo</label>
+<select id="modo"><option value="todo">Todo o nada</option><option value="queda">Se queda lo recaudado</option></select>
+<div class="lab-row"><button type="button" id="bFicha">Redactar ficha</button></div>
+<div id="out" class="lab-out"></div>
+</main>
+<script>function byId(id){return document.getElementById(id);}
+function esc(s){return String(s).replace(/[&<>"]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;"}[c];});}
+byId("bFicha").onclick=function(){
+  var meta=parseInt(byId("meta").value,10);
+  if(!meta || meta<50){ byId("out").innerHTML="<span class='bad'>La meta tiene que ser un número realista, no un adorno. Por debajo de 50 € en este ejemplo ni cubre material.</span>"; return; }
+  var modo=byId("modo").value;
+  var aviso=modo==="todo"
+    ? "Si no se llega a la meta, no se cobra y no se promete la exposición."
+    : "Aunque no se llegue, habría que cumplir lo prometido con lo recibido, o devolver. Este modelo exige decirlo por escrito.";
+  byId("out").innerHTML="<h2 style='font-family:Georgia,serif;margin:.2rem 0'>"+esc(byId("tit").value)+"</h2>"
+    +"<p>Meta: <strong>"+meta+" €</strong>. Modelo: "+(modo==="todo"?"todo o nada":"se queda lo recaudado")+".</p>"
+    +"<ul><li>"+esc(byId("r1").value)+"</li><li>"+esc(byId("r2").value)+"</li></ul>"
+    +"<p>"+aviso+"</p>"
+    +"<p class='nota'>Fases: preparar (presupuesto) → publicar (esta ficha) → cerrar plazo → cumplir recompensas. Aquí no se publica en ninguna web.</p>";
+};
+</script>
+</body></html>

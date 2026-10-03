@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<meta name="theme-color" content="#0E0E0C"/>
+<title>Lección 16 · Euler y grafos planos · Les vencimos</title>
+<link rel="icon" href="../icons/favicon.svg" type="image/svg+xml"/>
+<link rel="manifest" href="../manifest.webmanifest"/>
+<link rel="stylesheet" href="../leccion-shell.css"/>
+<style>
+.pasos{list-style:none;margin:0 0 1rem;padding:0;counter-reset:paso}
+.pasos li{position:relative;margin:0 0 .7rem;padding:.7rem .8rem .7rem 3.1rem;background:var(--lv-panel);border:1px solid var(--lv-linea);border-radius:10px}
+.pasos li::before{counter-increment:paso;content:counter(paso);position:absolute;left:.65rem;top:.7rem;width:1.7rem;height:1.7rem;border-radius:50%;background:#C4A15A;color:#1A160E;font-weight:700;font-size:.9rem;display:flex;align-items:center;justify-content:center}
+.figura-svg{background:#161512;border:1px solid var(--lv-linea);border-radius:10px;padding:.5rem;margin:.5rem 0 1.1rem}
+.figura-svg svg{width:100%;height:auto;display:block}
+.ej{margin:0 0 1rem;padding:.85rem .95rem;background:var(--lv-panel);border:1px solid var(--lv-linea);border-left:3px solid #C4A15A;border-radius:10px}
+.ej h3{margin:0 0 .35rem;font-family:var(--lv-serif);font-size:1.05rem;color:var(--lv-titulo)}
+.editor,textarea.editor{width:100%;min-height:5.5rem;font-family:ui-monospace,monospace;font-size:.95rem;line-height:1.45;padding:.55rem .65rem;border:1px solid rgba(196,161,90,.45);border-radius:8px;background:#161512;color:#E6E1D6;resize:vertical}
+.lienzo{display:block;width:100%;height:280px;background:#161512;border:1px solid #C4A15A;border-radius:8px;touch-action:none;cursor:crosshair}
+.fila{display:flex;flex-wrap:wrap;gap:.4rem;margin:.45rem 0}
+.boton{font:inherit;font-weight:700;font-size:.85rem;padding:.4rem .8rem;border-radius:999px;border:1px solid #C4A15A;background:transparent;color:#E6E1D6;cursor:pointer}
+.porque{margin-top:.55rem;padding:.65rem .75rem;background:#1a2218;border-radius:8px;color:#E6E1D6}
+.dato{font-size:.95rem;color:var(--lv-suave)}
+.glosa{display:block;font-size:.9rem;color:#9A9488;margin:.25rem 0 .5rem;line-height:1.4}
+.lab-box{margin:1rem 0;padding:.85rem;border:1px dashed rgba(196,161,90,.5);border-radius:10px;background:#141210}
+.lab-box iframe{width:100%;min-height:320px;border:1px solid #C4A15A;border-radius:8px;background:#0E0E0C}
+table.datos{width:100%;border-collapse:collapse;margin:.45rem 0 1rem;font-size:.98rem}
+table.datos th,table.datos td{border:1px solid var(--lv-linea);padding:.4rem .55rem;text-align:left}
+table.datos th{background:#161512;color:#C4A15A}
+</style>
+<script src="../leccion-shell-nav.js" defer></script>
+</head>
+<body class="leccion-shell" data-maestro-json="maestro-16.json">
+<div class="leccion-wrap">
+<nav class="leccion-barra" aria-label="Navegación de lección" data-actual="16" data-total="38">
+  <div class="leccion-progreso" role="status">
+    <span class="progreso-texto"><strong>16</strong> de <strong>38</strong></span>
+    <div class="progreso-pista" aria-hidden="true"><div class="progreso-lleno" style="width:42.11%"></div></div>
+  </div>
+  <div class="leccion-atajos">
+    <a class="atajo atajo-calc" href="../../../../modulos/calculadora.html" title="Calculadora offline">Calculadora</a>
+    <a class="atajo atajo-prev" href="leccion-15-grafos-tipos-y-representacion.html">← Anterior</a>
+    <a class="atajo atajo-next" href="leccion-17-eulerianos-hamiltonianos-coloracion.html">Siguiente →</a>
+  </div>
+</nav>
+<header class="leccion-top">
+  <a class="leccion-marca" href="../../../../index.html">Les <span>vencimos</span></a>
+  <p class="leccion-meta-top">Matemáticas Generales · 1º Bachillerato</p>
+</header>
+<header class="bloque-titulo">
+  <span class="eyebrow">Lección 16 · C · Espacial</span>
+  <h1 class="titulo-leccion">Euler y grafos <em>planos</em></h1>
+  <p class="meta-leccion">1º Bach Matemáticas Generales · CyL Decreto 40/2022 · C.1 Fórmula de Euler y grafos planos</p>
+</header>
+<aside class="bloque-curiosidad" aria-label="Para situarte">
+  <p class="etiqueta-bloque">Para situarte</p>
+  <h2 class="titulo-curiosidad">Diez aristas donde solo cabían nueve</h2>
+  <p class="texto-curiosidad">Un grafo plano y conexo cumple V − E + F = 2, contando la cara exterior. De ahí sale, para un grafo simple con V ≥ 3, la cota E ≤ 3V − 6. K5 tiene V = 5 y E = 10, y 10 > 9 = 3·5 − 6, así que no es plano.</p>
+</aside>
+<section class="bloque-cuerpo">
+  <h2>Objetivos</h2>
+  <ul><li>Contar V, E y F en un grafo plano pequeño y contrastar Euler.</li><li>Aplicar la cota E ≤ 3V − 6.</li><li>Concluir que K5 no es plano porque 10 > 9.</li></ul>
+</section>
+<section class="bloque-cuerpo">
+<h2>Planar no es «me ha salido un cruce»: es que todo dibujo se cruza</h2>
+<p>Un grafo es plano si existe algún dibujo en el papel en el que las aristas solo se encuentren en los vértices. Que un dibujo concreto tenga un cruce no demuestra que el grafo sea no plano: a lo mejor otro dibujo lo evita. Hace falta un argumento que valga para todos los dibujos.</p>
+<p><span class="glosa">V = vértices · E = aristas · F = caras, incluida la cara infinita de fuera · K5 = cinco vértices, todos unidos con todos · 3V − 6 = cota superior de aristas de un grafo simple, conexo y plano con V ≥ 3</span></p>
+<p>En un grafo simple plano cada cara queda limitada por al menos 3 aristas y cada arista separa a lo sumo 2 caras, así que 2E ≥ 3F. Con Euler, V − E + F = 2, se despeja F = E − V + 2 y al sustituir sale E ≤ 3V − 6. Es una condición necesaria: si un grafo simple tiene más aristas, no puede ser plano.</p>
+<p>K5, dibujado al lado, une cada pareja de entre 5 vértices. El número de aristas es C(5, 2) = 10. La cota permite como mucho 3·5 − 6 = 9. Como 10 > 9, ningún reordenado de los vértices eliminará todos los cruces. El dibujo enseña uno de esos cruces inevitables; la desigualdad demuestra que no es un descuido.</p>
+<table class="datos"><thead><tr><th>Grafo</th><th>V</th><th>E</th><th>3V − 6</th><th>¿Puede ser plano?</th></tr></thead>
+<tbody>
+<tr><td>Triángulo</td><td>3</td><td>3</td><td>3</td><td>sí, 3 ≤ 3, y se dibuja sin cruces</td></tr>
+<tr><td>K5</td><td>5</td><td>10</td><td>9</td><td>no, porque 10 > 9</td></tr>
+</tbody></table>
+<h2>Gráfico del ejemplo</h2>
+<p class="dato">La figura no es decoración: los trazos corresponden a los números del ejemplo 1.</p>
+<div class="figura-svg"><svg viewBox="0 0 720 320" role="img" aria-label="K5 con 5 vértices y las 10 aristas; la desigualdad 10 &gt; 9"><title>K5 con 5 vértices y las 10 aristas; la desigualdad 10 &gt; 9</title><rect width="720" height="320" fill="#161512"/><line x1="210.0" y1="48.0" x2="324.1" y2="130.9" stroke="#C4A15A" stroke-width="1.7"/><line x1="210.0" y1="48.0" x2="280.5" y2="265.1" stroke="#C4A15A" stroke-width="1.7"/><line x1="210.0" y1="48.0" x2="139.5" y2="265.1" stroke="#C4A15A" stroke-width="1.7"/><line x1="210.0" y1="48.0" x2="95.9" y2="130.9" stroke="#C4A15A" stroke-width="1.7"/><line x1="324.1" y1="130.9" x2="280.5" y2="265.1" stroke="#C4A15A" stroke-width="1.7"/><line x1="324.1" y1="130.9" x2="139.5" y2="265.1" stroke="#C4A15A" stroke-width="1.7"/><line x1="324.1" y1="130.9" x2="95.9" y2="130.9" stroke="#C4A15A" stroke-width="1.7"/><line x1="280.5" y1="265.1" x2="139.5" y2="265.1" stroke="#C4A15A" stroke-width="1.7"/><line x1="280.5" y1="265.1" x2="95.9" y2="130.9" stroke="#C4A15A" stroke-width="1.7"/><line x1="139.5" y1="265.1" x2="95.9" y2="130.9" stroke="#C4A15A" stroke-width="1.7"/><circle cx="210.0" cy="48.0" r="15" fill="#1C1A16" stroke="#E6E1D6" stroke-width="2"/><text x="210.0" y="53.0" text-anchor="middle" fill="#E6E1D6" font-size="14">1</text><circle cx="324.1" cy="130.9" r="15" fill="#1C1A16" stroke="#E6E1D6" stroke-width="2"/><text x="324.1" y="135.9" text-anchor="middle" fill="#E6E1D6" font-size="14">2</text><circle cx="280.5" cy="265.1" r="15" fill="#1C1A16" stroke="#E6E1D6" stroke-width="2"/><text x="280.5" y="270.1" text-anchor="middle" fill="#E6E1D6" font-size="14">3</text><circle cx="139.5" cy="265.1" r="15" fill="#1C1A16" stroke="#E6E1D6" stroke-width="2"/><text x="139.5" y="270.1" text-anchor="middle" fill="#E6E1D6" font-size="14">4</text><circle cx="95.9" cy="130.9" r="15" fill="#1C1A16" stroke="#E6E1D6" stroke-width="2"/><text x="95.9" y="135.9" text-anchor="middle" fill="#E6E1D6" font-size="14">5</text>
+<text x="400" y="70" fill="#E6E1D6" font-size="16">K5: V = 5, E = 10</text>
+<text x="400" y="110" fill="#C4A15A" font-size="16">3V − 6 = 9</text>
+<text x="400" y="150" fill="#E6E1D6" font-size="16">10 &gt; 9</text>
+<text x="400" y="200" fill="#9A9488" font-size="14">Si fuera plano, E ≤ 3V − 6.</text>
+<text x="400" y="224" fill="#9A9488" font-size="14">Como 10 &gt; 9, K5 no es plano.</text>
+</svg></div>
+<h2>Ejemplo resuelto 1 — Contar K5</h2><p>Cuenta vértices y aristas de K5 y comprueba que las aristas son todas las parejas.</p><ol class="pasos">
+<li>Hay 5 vértices, uno por cada círculo numerado del gráfico.<span class="glosa">Glosa: V = 5 es el primer dato de la cota; no cuentes un cruce como vértice.</span></li>
+<li>Cada vértice se une a los otros 4, pero así contarías cada arista dos veces: (5·4)/2 = 10.<span class="glosa">Glosa: la división entre 2 es el mismo doble conteo de siempre. C(5, 2) = 10.</span></li>
+<li>También puedes enumerar: desde 1 salen 4 aristas nuevas, desde 2 salen 3 que no repiten la anterior, luego 2 y luego 1. Suma 4+3+2+1 = 10.<span class="glosa">Glosa: ese recuento ordenado evita contar dos veces la arista 1-2.</span></li>
+<li>E = 10 y V = 5. Esos son los números que entran en la desigualdad, no el número de cruces que veas en este dibujo.<span class="glosa">Glosa: los cruces dependen del dibujo; V y E, no.</span></li>
+</ol>
+<h2>Ejemplo resuelto 2 — La cota que no cumple</h2><p>Aplica E ≤ 3V − 6 a K5 y redacta la contradicción con la planaridad.</p><ol class="pasos">
+<li>Sustituye V = 5: 3·5 − 6 = 15 − 6 = 9. Un grafo simple plano con 5 vértices tiene como mucho 9 aristas.<span class="glosa">Glosa: la cota no dice que 9 aristas garanticen que es plano; dice que más de 9 lo impiden.</span></li>
+<li>K5 tiene 10 aristas. Compara: 10 > 9.<span class="glosa">Glosa: el exceso es una sola arista, y con eso basta para la contradicción.</span></li>
+<li>Si K5 fuera plano, cumpliría la cota. No la cumple. Luego no es plano.<span class="glosa">Glosa: es una prueba por contradicción, no una impresión sobre este dibujo concreto.</span></li>
+<li>Por tanto no existe ningún dibujo de K5 sin cruces. Mover los círculos puede cambiar qué aristas se cruzan, no el hecho de que alguna se cruce.<span class="glosa">Glosa: por eso el SVG puede enseñar un cruce y la desigualdad cierra el argumento.</span></li>
+</ol>
+<h2>Ejemplo resuelto 3 — Euler en un plano que sí lo es</h2><p>Un triángulo tiene V = 3, E = 3 y dos caras (interior y exterior). Comprueba V − E + F = 2 y la cota.</p><ol class="pasos">
+<li>F = 2: la región de dentro del triángulo y la región infinita de fuera.<span class="glosa">Glosa: olvidar la cara exterior es el error típico; sin ella, 3 − 3 + 1 = 1, que no es 2.</span></li>
+<li>V − E + F = 3 − 3 + 2 = 2. Euler se cumple.<span class="glosa">Glosa: el 2 es de un grafo conexo plano, contando la cara de fuera.</span></li>
+<li>Cota: 3V − 6 = 3. Y E = 3, así que 3 ≤ 3. La cota no prohíbe este grafo.<span class="glosa">Glosa: estar en la frontera de la cota es compatible con ser plano, y el triángulo lo es.</span></li>
+<li>Contraste: el triángulo satura la cota y es plano; K5 se pasa en una arista y no lo es.<span class="glosa">Glosa: la misma fórmula, dos conclusiones distintas según los números.</span></li>
+</ol>
+<h2>Ejercicios</h2>
+<p class="dato">Escribe el razonamiento completo en el editor, no solo la cifra. Si el enunciado pide figura, dibújala en el lienzo de esta misma página.</p>
+<article class="ej"><h3>1. Un cruce no basta</h3><p>Dibujas un cuadrado con las dos diagonales y las diagonales se cruzan en el papel. ¿Has demostrado que ese grafo no es plano?</p><label for="e16a">Tu resolución</label><textarea class="editor" id="e16a" placeholder="Escribe aquí el razonamiento completo…"></textarea><details class="porque"><summary>Por qué (abre cuando hayas escrito)</summary><p>No. Has demostrado que ese dibujo tiene un cruce, no que todos los dibujos lo tengan. El paso que falta es intentar otro dibujo: saca un vértice fuera y traza una diagonal por el exterior; el grafo del cuadrado con diagonales (K4) sí es plano. V = 4, E = 6 y 3V − 6 = 6, así que la cota no lo prohíbe. Con K5 la cota sí prohíbe cualquier intento: 10 > 9. No confundas «este dibujo se cruza» con «el grafo no es plano».</p></details></article>
+<article class="ej"><h3>2. Cara exterior</h3><p>En el triángulo, alguien dice F = 1 porque «solo se ve un hueco». ¿Qué le hace Euler?</p><label for="e16b">Tu resolución</label><textarea class="editor" id="e16b" placeholder="Escribe aquí el razonamiento completo…"></textarea><details class="porque"><summary>Por qué (abre cuando hayas escrito)</summary><p>Le descuadra la fórmula: 3 − 3 + 1 = 1, que no es 2. El hueco interior es una cara y el resto del plano es otra. El paso es contar la cara no acotada. Cuando se añade, F = 2 y 3 − 3 + 2 = 2. Este cuidado importa antes de usar 2E ≥ 3F para llegar a la cota, porque F entra en la demostración. En K5 ni siquiera llegamos a contar caras de un dibujo plano, porque ese dibujo no existe.</p></details></article>
+<article class="ej"><h3>3. Otra cota numérica</h3><p>Un grafo simple tiene V = 6. ¿Cuántas aristas puede tener, como máximo, si es plano? ¿Puede ser K6?</p><label for="e16c">Tu resolución</label><textarea class="editor" id="e16c" placeholder="Escribe aquí el razonamiento completo…"></textarea><details class="porque"><summary>Por qué (abre cuando hayas escrito)</summary><p>3V − 6 = 18 − 6 = 12. Si es plano y simple, E ≤ 12. K6 une todas las parejas: C(6, 2) = 15, y 15 > 12, luego K6 tampoco es plano. El paso es calcular la cota antes de discutir el dibujo. K5 ya no lo era con 10 > 9; K6 se pasa todavía más. Que la cota falle prueba que no es plano. Que la cota se cumpla, en cambio, no prueba que lo sea: es necesaria, no suficiente.</p></details></article>
+<h2>Dibuja en el lienzo</h2>
+<p>Reproduce a mano el gráfico del ejemplo: ejes o nodos, los datos numéricos y una frase con la conclusión. El botón borra el lienzo sin salir de la lección.</p>
+<canvas id="lienzo16" class="lienzo" width="900" height="280"></canvas><div class="fila"><button type="button" class="boton" data-clear="lienzo16">Borrar lienzo</button></div>
+</section>
+
+<section class="bloque-cuerpo">
+  <h2>Comprueba</h2>
+  <p class="dato">Tres preguntas. Responde mentalmente antes de abrir el porqué.</p>
+  <details class="porque"><summary>¿Cuántas aristas tiene K5 y cuántas le permitiría ser plano?</summary><p>Tiene 10 y la cota permite como mucho 9. Por qué: C(5, 2) = 10 y 3·5 − 6 = 9. La comparación 10 > 9 es la prueba. No hace falta contar los cruces del dibujo para concluir.</p></details>
+<details class="porque"><summary>¿Por qué no contamos el cruce del dibujo como un sexto vértice?</summary><p>Porque no es un vértice del grafo: es un accidente del dibujo. Por qué: K5 tiene solo los cinco vértices que elegimos, todos unidos entre sí. Si convirtieras el cruce en vértice estarías mirando otro grafo, con más vértices y aristas partidas.</p></details>
+<details class="porque"><summary>En el triángulo, ¿cuánto da V − E + F?</summary><p>Da 2, porque 3 − 3 + 2 = 2. El paso que suele saltarse es contar la cara exterior: el triángulo tiene 3 vértices y 3 aristas, y además de la cara de dentro está la región de fuera, así que F = 2 y no F = 1. Sin esa cara Euler no cierra (saldría 1) y tampoco se sostiene la cota E ≤ 3V − 6, que parte de V − E + F = 2 con todas las caras, incluida la exterior.</p></details>
+</section>
+<section class="bloque-reto">
+  <span class="etiqueta-reto">Reto Profesor</span>
+  <h2 class="titulo-reto">Dibuja y contradice</h2>
+  <p>Dibuja K5 en el lienzo intentando evitar cruces. Escribe al lado V = 5, E = 10, 3V − 6 = 9 y la frase «10 > 9, no es plano».</p>
+  <p class="reto-id">reto_id: bach1-mates-gen-L16</p>
+</section>
+<footer class="leccion-pie"><strong>Les vencimos</strong> · L16 de 38 · Matemáticas Generales · staging · file:// · sin publicar</footer>
+</div>
+<script type="application/json" data-maestro="guion">{"curso": "bach1-mates-gen", "leccion": 16, "titulo": "Euler y grafos planos", "url": "leccion-16-euler-y-grafos-planos.html", "musica": false, "pasos": [{"id": "abrir", "dicho": "El SVG es K5: cinco círculos y las diez aristas, con la cuenta 10 > 9 al lado.", "hacer": "Leer en voz alta el apartado Para situarte y los objetivos."}, {"id": "figura", "dicho": "Los cruces del dibujo ilustran; la prueba es la cota.", "hacer": "Mirar el SVG y decir qué dato numérico marca cada trazo."}, {"id": "ej1", "dicho": "Ejemplo 1: (5·4)/2 = 10 aristas.", "hacer": "Rehacer el ejemplo 1, glosa a glosa, sin mirar el resultado final."}, {"id": "ej2", "dicho": "Ejemplo 2: si fuera plano, E ≤ 9. No lo es.", "hacer": "Rehacer el ejemplo 2 y contrastarlo con el 1."}, {"id": "ej3", "dicho": "Ejemplo 3: el triángulo sí cumple Euler, 3 − 3 + 2 = 2, y satura la cota con E = 3.", "hacer": "Rehacer el ejemplo 3 y anotar la comprobación."}, {"id": "practica", "dicho": "No declares no plano un grafo solo porque tu primer dibujo se cruce.", "hacer": "Escribir el razonamiento de al menos dos ejercicios y usar el lienzo."}, {"id": "cierre", "dicho": "K5 queda fuera por una arista de más sobre la cota.", "hacer": "Contestar Comprueba antes de abrir y dejar el reto por escrito."}]}</script>
+<script>(function(){function liga(c){var ctx=c.getContext('2d');function fondo(){ctx.fillStyle='#161512';ctx.fillRect(0,0,c.width,c.height);ctx.strokeStyle='#C4A15A';ctx.strokeRect(.5,.5,c.width-1,c.height-1);}function fit(){var r=c.getBoundingClientRect();var w=Math.max(320,Math.floor(r.width));if(c.width!==w){c.width=w;c.height=280;fondo();}}var dib=false,last=null;function pos(ev){var r=c.getBoundingClientRect();var s=ev.touches?ev.touches[0]:ev;return{x:(s.clientX-r.left)*c.width/r.width,y:(s.clientY-r.top)*c.height/r.height};}c.addEventListener('pointerdown',function(ev){dib=true;last=pos(ev);ev.preventDefault();});c.addEventListener('pointermove',function(ev){if(!dib)return;var p=pos(ev);ctx.strokeStyle='#E6E1D6';ctx.lineWidth=2.2;ctx.lineCap='round';ctx.beginPath();ctx.moveTo(last.x,last.y);ctx.lineTo(p.x,p.y);ctx.stroke();last=p;ev.preventDefault();});function up(){dib=false;}c.addEventListener('pointerup',up);c.addEventListener('pointerleave',up);var b=document.querySelector('[data-clear="'+c.id+'"]');if(b)b.addEventListener('click',fondo);fit();window.addEventListener('resize',fit);}document.querySelectorAll('canvas.lienzo').forEach(liga);})();</script>
+</body>
+</html>

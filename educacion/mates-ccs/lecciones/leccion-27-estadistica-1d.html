@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<meta name="theme-color" content="#0E0E0C"/>
+<title>Lección 27 · Estadística unidimensional · Les vencimos</title>
+<link rel="icon" href="../icons/favicon.svg" type="image/svg+xml"/>
+<link rel="stylesheet" href="../leccion-shell.css"/>
+<style>
+  .pasos{list-style:none;margin:0 0 1rem;padding:0;counter-reset:paso}
+  .pasos li{position:relative;margin:0 0 .7rem;padding:.7rem .8rem .7rem 3.1rem;background:var(--lv-panel);border:1px solid var(--lv-linea);border-radius:10px}
+  .pasos li::before{counter-increment:paso;content:counter(paso);position:absolute;left:.65rem;top:.7rem;width:1.7rem;height:1.7rem;border-radius:50%;background:#C4A15A;color:#1A160E;font-weight:700;font-size:.9rem;display:flex;align-items:center;justify-content:center}
+  .figura-svg{background:var(--lv-panel);border:1px solid var(--lv-linea);border-radius:10px;padding:.4rem;margin:.4rem 0 1rem}
+  .figura-svg svg{width:100%;height:auto;display:block}
+  .ej{margin:0 0 1rem;padding:.85rem .95rem;background:var(--lv-panel);border:1px solid var(--lv-linea);border-left:3px solid #C4A15A;border-radius:10px}
+  .ej h3{margin:0 0 .35rem;font-family:var(--lv-serif);font-size:1.05rem;color:var(--lv-titulo)}
+  .editor,textarea.editor{width:100%;min-height:5.2rem;font-family:ui-monospace,monospace;font-size:.95rem;line-height:1.4;padding:.55rem .65rem;border:1px solid rgba(196,161,90,.45);border-radius:8px;background:#161512;color:#E6E1D6;resize:vertical;box-sizing:border-box}
+  .lienzo{display:block;width:100%;max-width:640px;height:280px;background:#161512;border:1px solid #C4A15A;border-radius:8px;touch-action:none;cursor:crosshair}
+  .fila{display:flex;flex-wrap:wrap;gap:.4rem;margin:.45rem 0;align-items:center}
+  .boton{font:inherit;font-weight:700;font-size:.85rem;padding:.35rem .75rem;border-radius:999px;border:1px solid #C4A15A;background:transparent;color:#E6E1D6;cursor:pointer}
+  .porque{margin-top:.5rem;padding:.6rem .7rem;background:#1a2218;border-radius:8px;color:#E6E1D6}
+  .dato{font-size:.95rem;color:var(--lv-suave)}
+  table.datos{width:100%;border-collapse:collapse;margin:.4rem 0 1rem;font-size:.98rem}
+  table.datos th,table.datos td{border:1px solid var(--lv-linea);padding:.35rem .5rem;text-align:left}
+  table.datos th{background:#161512;color:#C4A15A}
+  .glosa{display:block;font-size:.9rem;color:#9A9488;margin:.15rem 0 .7rem}
+  .formula{display:block;margin:.35rem 0 .15rem;padding:.45rem .7rem;background:#161512;border-left:3px solid #C4A15A;overflow-x:auto}
+  input.campo{background:#161512;color:#E6E1D6;border:1px solid #C4A15A;border-radius:6px;padding:.3rem .45rem;width:5.5rem}
+  .salida{font-family:ui-monospace,monospace;color:#C4A15A}
+</style>
+<script src="../leccion-shell-nav.js" defer></script>
+</head>
+<body class="leccion-shell">
+<div class="leccion-wrap">
+<nav class="leccion-barra" aria-label="Navegación de lección" data-actual="27" data-total="33">
+  <div class="leccion-progreso" role="status">
+    <span class="progreso-texto"><strong>27</strong> de <strong>33</strong></span>
+    <div class="progreso-pista" aria-hidden="true"><div class="progreso-lleno" style="width:84.38%"></div></div>
+  </div>
+  <div class="leccion-atajos">
+    <a class="atajo atajo-prev" href="leccion-26-algoritmos.html">← Anterior</a>
+    <a class="atajo atajo-next" href="leccion-28-regresion.html">Siguiente →</a>
+  </div>
+</nav>
+<header class="leccion-top">
+  <p class="leccion-marca">Les <span>vencimos</span></p>
+  <p class="leccion-meta-top">Matemáticas Aplicadas a las CCSS I · 1º Bachillerato</p>
+</header>
+<header class="bloque-titulo">
+  <span class="eyebrow">Lección 27 · D.1 · Una variable</span>
+  <h1 class="titulo-leccion">Variable unidimensional: resumir e <em>interpretar</em></h1>
+  <p class="meta-leccion">1º Bach CCSS · CyL Decreto 40/2022 · D.1 Organización y análisis de datos</p>
+</header>
+
+<aside class="bloque-curiosidad"><p class="etiqueta-bloque">Para situarte</p>
+<h2 class="titulo-curiosidad">La distribución no es un individuo</h2>
+<p class="texto-curiosidad">Una variable estadística unidimensional resume a un grupo. La media, la mediana y la moda no sustituyen a la persona que está en el extremo: dicen cosas distintas del grupo.</p></aside>
+<section class="bloque-cuerpo">
+<h2>Objetivos</h2>
+<ul>
+<li>Clasificar una variable y separar el valor de un individuo de la distribución del grupo.</li>
+<li>Calcular media, mediana, moda, recorrido, varianza y desviación típica dividiendo por n.</li>
+<li>Interpretar el número, no solo dejarlo escrito.</li>
+</ul>
+<h2>Tipos y medidas</h2>
+<p>Cualitativa nominal: el distrito, sin orden. Cualitativa ordinal: el nivel de acuerdo, con orden y sin distancia fija. Cuantitativa discreta: número de hermanos. Cuantitativa continua: horas, que en la práctica se registran redondeadas pero pueden tomar cualquier valor de un intervalo.</p>
+<p>Tratamos el grupo observado como la población que describimos y dividimos por n, no por n − 1. No estamos estimando una varianza de una población mayor: estamos midiendo la dispersión de estos datos.</p>
+<p class="formula">x̄ = (Σ xᵢ) / n</p>
+<span class="glosa">xᵢ es cada dato; n es cuántos hay; x̄ es la media aritmética del grupo, un valor por individuo solo si todos fueran iguales.</span>
+<p class="formula">σ² = Σ (xᵢ − x̄)² / n , &nbsp; σ = √σ² , &nbsp; recorrido = máximo − mínimo.</p>
+<span class="glosa">σ² es la varianza de esta distribución; σ es la desviación típica, en las mismas unidades que x; el recorrido solo mira los dos extremos e ignora el resto.</span>
+<div class="figura-svg"><svg viewBox="0 0 460 200" role="img">
+<title>Barras de las horas de estudio: 2 una vez, 3 dos veces, 4 una, 5 tres, 9 una</title>
+<rect width="460" height="200" fill="#161512"/>
+<line x1="40" y1="160" x2="430" y2="160" stroke="#9A9488"/>
+<rect x="60" y="130" width="40" height="30" fill="#C4A15A"/><text x="72" y="180" fill="#E6E1D6" font-size="12">2</text>
+<rect x="120" y="100" width="40" height="60" fill="#C4A15A"/><text x="132" y="180" fill="#E6E1D6" font-size="12">3</text>
+<rect x="180" y="130" width="40" height="30" fill="#C4A15A"/><text x="192" y="180" fill="#E6E1D6" font-size="12">4</text>
+<rect x="240" y="70" width="40" height="90" fill="#C4A15A"/><text x="252" y="180" fill="#E6E1D6" font-size="12">5</text>
+<rect x="300" y="130" width="40" height="30" fill="#C4A15A"/><text x="312" y="180" fill="#E6E1D6" font-size="12">9</text>
+</svg></div>
+<h2>Ejemplo 1. Ocho estudiantes, horas de estudio</h2>
+<p>Datos ya ordenados: 2, 3, 3, 4, 5, 5, 5, 9. n = 8.</p>
+<ol class="pasos">
+<li>Suma: 2+3+3+4+5+5+5+9 = 36. Media x̄ = 36/8 = 4,5 horas.</li>
+<li>Mediana: con n par, media de los puestos 4.º y 5.º, que son 4 y 5. Mediana = 4,5.</li>
+<li>Moda: 5, que aparece tres veces. Es el único valor modal.</li>
+<li>Recorrido: 9 − 2 = 7 horas.</li>
+<li>Desviaciones respecto de 4,5: −2,5, −1,5, −1,5, −0,5, 0,5, 0,5, 0,5, 4,5. Cuadrados: 6,25; 2,25; 2,25; 0,25; 0,25; 0,25; 0,25; 20,25. Suma de cuadrados = 32.</li>
+<li>σ² = 32/8 = 4. σ = 2 horas.</li>
+</ol>
+<p>La media 4,5 no es el expediente de nadie en particular: es el reparto igualado del total de 36 horas. La moda 5 dice qué horario se repite. El estudiante de 9 horas está a (9 − 4,5)/2 = 2,25 desviaciones típicas por encima de la media: tira de la suma de cuadrados (aporta 20,25 de los 32) y por eso la dispersión no es pequeña aunque cinco de los ocho datos estén entre 3 y 5.</p>
+<p class="formula">σ² = 32/8 = 4.</p>
+<span class="glosa">32 es la suma de los ocho cuadrados de las desviaciones; 8 es n; 4 es la varianza en horas al cuadrado; la desviación típica es √4 = 2 horas.</span>
+<h2>Ejemplo 2. Dos grupos, media en tierra de nadie</h2>
+<p>Datos: 3, 3, 3, 6, 6, 6. n = 6. Suma 27. Media 27/6 = 4,5.</p>
+<ol class="pasos">
+<li>Ordenados, puestos 3.º y 4.º: 3 y 6. Mediana (3+6)/2 = 4,5.</li>
+<li>Dos modas: 3 y 6, cada una con frecuencia 3. Distribución bimodal.</li>
+<li>Recorrido 6 − 3 = 3.</li>
+<li>Cada dato dista 1,5 de la media. Cuadrado 2,25. Seis veces: 13,5. σ² = 13,5/6 = 2,25. σ = 1,5.</li>
+</ol>
+<p>Nadie del grupo estudia 4,5 horas, y sin embargo media y mediana valen 4,5. Leer solo la media esconde que hay dos bloques. El individuo de la distribución no es «una persona de 4,5»: no existe en la lista.</p>
+<h2>Ejercicios</h2>
+<article class="ej">
+<h3>1. Sin dispersión</h3>
+<p>Datos: 4, 4, 4, 4. Calcula media, mediana, moda, recorrido y varianza. Interpreta.</p>
+<label for="e27a">Tu razonamiento</label>
+<textarea class="editor" id="e27a"></textarea>
+<details class="porque"><summary>Corrección</summary>
+<ol class="pasos"><li>Suma 16, n = 4, media 4.</li><li>Mediana 4. Moda 4.</li><li>Recorrido 0. Todas las desviaciones son 0, varianza 0, desviación típica 0.</li><li>Distribución e individuos coinciden: los cuatro valen lo mismo.</li></ol>
+<p class="porque">Varianza 0 no es un fallo de la fórmula. Es la descripción correcta de un grupo sin diferencias. Cualquier individuo representa aquí a la distribución entera.</p>
+</details>
+</article>
+<article class="ej">
+<h3>2. La media se va</h3>
+<p>Datos: 1, 2, 9. Calcula media y mediana. ¿Cuál describe mejor a un valor típico del grupo?</p>
+<label for="e27b">Tu razonamiento</label>
+<textarea class="editor" id="e27b"></textarea>
+<details class="porque"><summary>Corrección</summary>
+<ol class="pasos"><li>Suma 12, media 12/3 = 4.</li><li>Ordenados, el puesto central es el 2.º: mediana 2.</li><li>No hay moda: los tres valores aparecen una vez.</li><li>Dos de los tres datos son 1 y 2. La media 4 queda por encima de ambos porque 9 tira de la suma. Para «un valor típico», la mediana 2 engaña menos.</li></ol>
+<p class="porque">Con n = 3 la media no está obligada a parecerse a la mayoría. 4 no es ninguno de los datos. Decir que el grupo «está en 4» borra que dos observaciones son pequeñas y una es extrema.</p>
+</details>
+</article>
+<article class="ej">
+<h3>3. Dos bloques pequeños</h3>
+<p>Datos: 6, 6, 9, 9. Calcula media, mediana, moda y desviación típica.</p>
+<label for="e27c">Tu razonamiento</label>
+<textarea class="editor" id="e27c"></textarea>
+<details class="porque"><summary>Corrección</summary>
+<ol class="pasos"><li>Suma 30, n = 4, media 7,5.</li><li>Puestos 2.º y 3.º: 6 y 9. Mediana (6+9)/2 = 7,5.</li><li>Dos modas, 6 y 9.</li><li>Desviaciones ±1,5. Cuadrado 2,25, cuatro veces, suma 9. σ² = 9/4 = 2,25. σ = 1,5.</li></ol>
+<p class="porque">Otra vez la media 7,5 cae entre los dos bloques y no es un dato. La desviación típica 1,5 es exactamente la distancia de cada dato a esa media: en un grupo tan simétrico, σ describe a todos por igual.</p>
+</details>
+</article>
+<article class="ej">
+<h3>4. Leer sin calcular de más</h3>
+<p>En una empresa la media de salarios es 2000 € y la mediana es 1400 €. ¿Qué está pasando? No inventes otro número.</p>
+<label for="e27d">Tu razonamiento</label>
+<textarea class="editor" id="e27d"></textarea>
+<details class="porque"><summary>Corrección</summary>
+<ol class="pasos"><li>La media supera a la mediana.</li><li>Eso encaja con una cola alta: pocos salarios muy grandes aumentan la suma y casi no mueven el centro de la lista ordenada.</li><li>El salario típico, en el sentido de «la mitad está por debajo», es la mediana, 1400 €.</li><li>2000 € no es lo que cobra una persona representativa del centro.</li></ol>
+<p class="porque">No hace falta la desviación típica para esta lectura. La diferencia de sentido entre media y mediana ya dice que la distribución no es simétrica y que un extremo alto está empujando la media.</p>
+</details>
+</article>
+
+<h2>Cierre</h2>
+<p>Calcula, y en la frase siguiente di qué le ocurre a una persona del grupo. Si la media no coincide con ningún dato, dilo. Si un solo valor se come la suma de cuadrados, dilo también.</p>
+</section>
+
+<footer class="leccion-pie"><strong>Les vencimos</strong> · L27 de 33 · Matemáticas Aplicadas a las CCSS I · sin publicar</footer>
+</div>
+<script type="application/json" data-maestro="guion">{"curso": "bach1-mates-ccs", "leccion": 27, "titulo": "Estadística unidimensional", "url": "leccion-27-estadistica-1d.html", "musica": false}</script>
+
+<!-- saber: D.1 -->
+</body>
+</html>

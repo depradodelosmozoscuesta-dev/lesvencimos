@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="color-scheme" content="dark">
+<title>L24 · Transistor y relé, solo lo seguro · les vencimos</title>
+<style>
+:root{--bg:#0E0E0C;--surf:#161512;--panel:#1C1A16;--ink:#E6E1D6;--mut:#9A9488;--acc:#C4A15A;--acc-ink:#1A160E;--danger:#C46A4A;--ok:#8F9A72;--line:#2A2720}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:400 17px/1.55 "Segoe UI",system-ui,sans-serif}
+h1,h2,h3{font-family:"Iowan Old Style",Palatino,Georgia,serif;font-weight:600;line-height:1.25}
+a{color:var(--acc)}
+.wrap{max-width:42rem;margin:0 auto;padding:1.25rem 1.1rem 3.5rem}
+header.top{border-bottom:1px solid var(--line);padding-bottom:.8rem;margin-bottom:1.2rem}
+.marca{font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;color:var(--mut);margin:0}
+h1{font-size:1.7rem;margin:.35rem 0 .2rem}
+.meta{color:var(--mut);margin:0 0 .8rem;font-size:.92rem}
+nav.pasos{display:flex;flex-wrap:wrap;gap:.5rem;margin:.4rem 0 0}
+nav.pasos a,button{min-height:44px;padding:.45rem .8rem;border:1px solid var(--line);border-radius:2px;background:var(--surf);color:var(--ink);font:inherit;text-decoration:none;cursor:pointer}
+button.acc{background:var(--acc);color:var(--acc-ink);border-color:var(--acc);font-weight:600}
+.maestro{background:var(--panel);border:1px solid var(--line);padding:1rem 1.05rem;margin:1.1rem 0}
+.maestro h2{margin:.1rem 0 .6rem;font-size:1.05rem;color:var(--acc)}
+pre{background:var(--surf);border:1px solid var(--line);padding:.9rem 1rem;overflow:auto;font-size:.88rem;line-height:1.45}
+.warn{border-left:3px solid var(--danger);padding:.2rem 0 .2rem .8rem;color:var(--ink)}
+.quiz{margin-top:1.2rem}
+figure{margin:1rem 0;background:#161512;border:1px solid var(--line);padding:.55rem .7rem}
+figure svg{width:100%;height:auto;display:block}
+figcaption{color:var(--mut);font-size:.9rem;margin:.45rem 0 0}
+.ejemplo{background:#161512;border:1px solid var(--line);padding:.8rem .95rem;margin:.7rem 0}
+.ejemplo h3{margin:.1rem 0 .4rem;font-size:1.05rem}
+
+.pregunta{background:var(--surf);border:1px solid var(--line);padding:.8rem 1rem;margin:.7rem 0}
+.respuesta{color:var(--ok);margin:.55rem 0 0}
+footer{margin-top:2.2rem;padding-top:.8rem;border-top:1px solid var(--line);color:var(--mut);font-size:.82rem}
+.pend{color:var(--mut)}
+ol.temario{padding-left:1.2rem}
+ol.temario li{margin:.28rem 0}
+
+.sim,.anota{margin:1rem 0;background:#161512;border:1px solid var(--line);padding:.8rem .9rem}
+.sim h2,.anota h2{margin:.1rem 0 .4rem;font-size:1.15rem}
+.sim-canvas{width:100%;height:auto;background:#1C1A16;border:1px solid var(--line);margin:.6rem 0;display:block}
+.sim-lab{display:flex;align-items:center;gap:.6rem;margin:.4rem 0;color:var(--ink)}
+.sim-range{flex:1;min-height:44px}
+.sim-out{min-width:3rem;color:var(--acc)}
+.sim-dedo{margin-top:.4rem}
+textarea.nota-montaje{width:100%;min-height:8rem;background:#1C1A16;color:var(--ink);border:1px solid var(--line);padding:.7rem;font:inherit;line-height:1.45}
+
+</style>
+</head>
+<body>
+<article class="wrap" id="ens-transistor-rele" data-ens="ens-transistor-rele">
+<header class="top">
+<p class="marca">les vencimos · offline</p>
+<h1>L24. Transistor y relé, solo lo seguro</h1>
+<p class="meta">Actuadores (54–70%)</p>
+<nav class="pasos"><a href="../arduino-ensenanza.html">Al curso</a><a href="leccion-23.html">Anterior</a><a href="leccion-25.html">Siguiente</a></nav>
+</header>
+<section class="maestro" id="maestro">
+<h2>Maestro</h2>
+<p id="maestro-texto">Cuando la carga pide más de lo que da un pin, el pin solo da la orden y otro componente deja pasar la corriente. El transistor hace eso con corriente continua y cargas pequeñas. El relé es un interruptor movido por una bobina. La bobina puede ser de 5 voltios. Los contactos que conmutan la red de 230 no se tocan en este curso.</p>
+<button type="button" class="acc" id="escuchar">Escuchar</button>
+</section>
+<section class="lectura">
+<p>Un transistor NPN pequeño, el habitual de aprendizaje, se pone del lado de masa. Emisor a GND. Colector a la carga. La otra pata de la carga a 5V. La base no va directa al pin: una resistencia de 1 kiloohmio entre el pin 6 y la base limita la corriente de mando. Cuando el pin está HIGH, el transistor cierra el camino y la carga recibe corriente desde 5V, no desde el pin. Cuando está LOW, la carga se apaga.</p>
+<p>Si la carga es una bobina, un relé de 5 voltios o un motor pequeño, al cortar la corriente la bobina devuelve un pico. Un diodo en paralelo con la bobina, cátodo hacia 5V y ánodo hacia el colector, absorbe ese pico. Sin diodo, el transistor muere en silencio.</p>
+<p class="warn">Esto vale para un motor de juguete a 5 voltios, un relé cuya bobina es de 5 voltios, una lámpara LED de corriente continua. No vale para enchufar el contacto del relé a la pared. Aunque el módulo se venda como de Arduino, el tornillo de 230 voltios queda fuera. Si el proyecto de verdad necesita red, lo hace quien sepa electricidad de vivienda, no esta lección.</p>
+<p>Si la placa se reinicia al activar la carga, la alimentación no da abasto. No subas el pin. Separa la fuente de la carga y mantén la masa común.</p>
+</section>
+<h2>Montaje</h2>
+<figure><svg viewBox="0 0 680 210" aria-label="El pin no alimenta la carga"><rect x="12" y="40" width="120" height="130" rx="6" fill="#1C1A16" stroke="#C4A15A"/><text x="72.0" y="58" text-anchor="middle" fill="#E6E1D6" font-size="13">Uno</text><text x="22" y="78" fill="#9A9488" font-size="11">pin 6 señal</text><text x="22" y="94" fill="#9A9488" font-size="11">GND común</text><text x="22" y="110" fill="#9A9488" font-size="11">5 V de la placa</text><line x1="132" y1="80" x2="230" y2="80" stroke="#5B8FA8" stroke-width="3"/><path d="M230 80 L244 80 L250 68 L262 92 L274 68 L286 92 L292 80 L306 80" fill="none" stroke="#C4A15A" stroke-width="2"/><text x="230" y="64" fill="#C4A15A" font-size="11">1 k a la base</text><polygon points="320,50 360,100 320,150" fill="#1C1A16" stroke="#C4A15A" stroke-width="2"/><text x="300" y="104" fill="#E6E1D6" font-size="12">Q</text><line x1="360" y1="70" x2="470" y2="50" stroke="#C46A4A" stroke-width="3"/><text x="470" y="46" fill="#C46A4A" font-size="12">carga a su fuente</text><line x1="360" y1="130" x2="470" y2="160" stroke="#8F9A72" stroke-width="3"/><text x="470" y="176" fill="#8F9A72" font-size="12">emisor a GND común</text><text x="12" y="24" fill="#C46A4A" font-size="12">la bobina o el motor no salen del pin</text></svg><figcaption>El pin 6, a través de mil ohmios, toca la base del transistor. La carga cuelga de su propia alimentación. El emisor vuelve a la masa común. El pin no ve la corriente gorda.</figcaption></figure>
+<h2>Pines de esta lección</h2>
+<figure><svg viewBox="0 0 340 118" aria-label="Pines de la lección"><rect x="6" y="16" width="328" height="86" rx="8" fill="#1C1A16" stroke="#C4A15A"/><text x="16" y="14" fill="#9A9488" font-size="11">Uno R3 · 5 V · mira la serigrafía, no la memoria</text><rect x="16" y="32" width="68" height="32" rx="4" fill="#161512" stroke="#C4A15A"/><text x="50" y="53" text-anchor="middle" fill="#E6E1D6" font-size="13">6</text><text x="50" y="84" text-anchor="middle" fill="#9A9488" font-size="10">solo la orden</text><rect x="94" y="32" width="68" height="32" rx="4" fill="#161512" stroke="#9A9488"/><text x="128" y="53" text-anchor="middle" fill="#E6E1D6" font-size="13">base</text><text x="128" y="84" text-anchor="middle" fill="#9A9488" font-size="10">con 1 k</text><rect x="172" y="32" width="68" height="32" rx="4" fill="#161512" stroke="#9A9488"/><text x="206" y="53" text-anchor="middle" fill="#E6E1D6" font-size="13">GND</text><text x="206" y="84" text-anchor="middle" fill="#9A9488" font-size="10">común</text><rect x="250" y="32" width="68" height="32" rx="4" fill="#161512" stroke="#9A9488"/><text x="284" y="53" text-anchor="middle" fill="#E6E1D6" font-size="13">5 V</text><text x="284" y="84" text-anchor="middle" fill="#9A9488" font-size="10">de la carga</text></svg><figcaption>6 no va al motor. Va a la resistencia de la base. GND de la carga y GND de la placa son el mismo nodo.</figcaption></figure>
+<h2>Por qué</h2>
+<p>El transistor, en esta lección un NPN pequeño, es un grifo. Una corriente modesta en la base deja pasar una corriente mayor del colector al emisor. El pin solo tiene que empujar la base, y una resistencia de mil ohmios limita esa orden a unos pocos miliamperios. Sin esa resistencia, el pin ve la base casi en corto.</p><p>La carga, un motor pequeño de baja tensión o la bobina de un relé de 5 V, se alimenta de 5 V, no del pin. El transistor la pone a masa cuando el pin lo dice. Hace falta un diodo en antiparalelo con la bobina, cátodo hacia el positivo, para absorber el pico al cortar. Sin diodo, el pico busca el transistor y lo puede matar. El motor, según cuál sea, también agradece ese diodo.</p><p>La masa de la fuente de la carga y la masa del Uno se unen. Si no, el grifo no tiene referencia y el pin 6 habla solo. Varios servos y cualquier cosa que se reinicie la placa se van a fuente externa; el transistor no multiplica milagros si la fuente es el USB justo.</p><p>El contacto de un relé que conmuta 230 V no se cablea aquí. Puedes oír el clic de un relé de bobina a 5 V, con el contacto sin cables de red, y eso es todo. La red sigue fuera del curso.</p><h2>Práctica</h2>
+<ol><li>Dibuja en el papel: pin 6, resistencia de 1 k, base, emisor a GND, carga entre 5 V y colector.</li><li>Coloca el diodo en la bobina, raya del diodo hacia el lado de 5 V, antes de enchufar.</li><li>No conectes el motor directo al pin para comparar. Esa comparación ya está hecha en la lección de corriente.</li><li>Carga un sketch mínimo que ponga el 6 en HIGH dos segundos y en LOW dos segundos, con pinMode de salida.</li><li>La carga debe moverse o el relé debe clicar solo en el HIGH. Si está siempre, el transistor está puenteado o es otro patillaje.</li><li>Para y toca el transistor. Calor inmediato: para, revisa la resistencia de base y el patillaje.</li><li>Deja el contacto del relé sin nada enchufado a la pared.</li></ol><section class="sim" data-sim="carga" data-a="" data-b=""><h2>Práctica en la página</h2><p>Dos segundos la orden en alto y la carga trabaja. Dos segundos, no. La simulación arranca encendida.</p><button type="button" class="sim-toggle" aria-pressed="true">Parar simulación</button><canvas class="sim-canvas" width="320" height="160" aria-label="Simulación del circuito"></canvas></section><h2>Ejemplos resueltos</h2>
+<div class="ejemplo"><h3>El motor en el pin, el transistor de adorno</h3><p>El transistor está en la protoboard pero el motor sigue entre el pin 6 y GND. El transistor no participa. El pin aguanta el motor un instante y la placa se reinicia.</p><p>Se quita ese cable. El único camino desde el pin 6 es la resistencia de 1 k hacia la base. La corriente del motor entra por el colector.</p></div><div class="ejemplo"><h3>Sin diodo, el relé clic y luego silencio eterno</h3><p>La bobina clica una vez. Al soltar, el pico se lleva el transistor. Ya no vuelve a clicar. Parece un programa que se ejecutó una sola vez.</p><p>Se cambia el transistor, se pone el diodo bien orientado, y se prueba otra vez. No se insiste con el mismo transistor muerto.</p></div><h2>Soldadura y seguridad</h2>
+<div class="soldar"><p>Mira tres veces el patillaje del transistor antes de soldar nada. Emisor y colector cambiados parecen un fallo de programa. En protoboard, gira el componente; no lo sueldes hasta que el clic o el giro sean los del HIGH.</p><p>La bobina y el diodo, si pasan a una placa, se sueldan con la placa apagada. Un puente de estaño entre colector y base deja el pin unido a la carga. Ventana abierta. Nada de 230 V en el contacto, ni ahora ni cuando el estaño enfríe.</p></div><h2>En la mesa</h2>
+<p>Antes de enchufar, sigue con el dedo solo el camino de la corriente gorda: de 5 V a la carga, de la carga al colector, del emisor a GND. El pin 6 no está en ese camino. Si lo está, para. Luego sigue el camino de la orden: pin 6, resistencia de 1 k, base. Son dos paseos. Si se mezclan en un solo cable, el transistor no está haciendo de grifo.</p>
+<p>Enchufa y escucha el clic o mira el giro, dos segundos sí y dos no. Toca el transistor al tercer ciclo. Tiene que dejarse tocar. Si quema, corta el USB. Revisa patillaje y resistencia de base. Un transistor nuevo no se pone hasta entender por qué murió el primero, o moriréis los dos.</p>
+<p>El contacto del relé, si lo hay, se queda sin cables. Puedes acercar el oído al clic y nada más. Un destornillador en el contacto para ver qué pasa es la forma de saltarse la regla de los 230 V. No.</p>
+
+<h2>Ejercicio</h2>
+<p>Dibuja el NPN: pin 6, resistencia de 1 kΩ, base, emisor a GND, colector, carga, 5V. Si la carga es una bobina, dibuja también el diodo. No conectes nada a 230 voltios.</p>
+<section class="quiz">
+<h2>Autoevaluación</h2>
+<div class="pregunta"><p><strong>1.</strong> ¿La corriente de la carga sale del pin?</p><button type="button" class="ver">ver respuesta</button><p class="respuesta" hidden>No. Sale de 5V. El pin solo manda la base, a través de 1 kΩ.</p></div><div class="pregunta"><p><strong>2.</strong> ¿Para qué es el diodo en paralelo con una bobina?</p><button type="button" class="ver">ver respuesta</button><p class="respuesta" hidden>Para absorber el pico al cortar. Sin él, el transistor se estropea.</p></div><div class="pregunta"><p><strong>3.</strong> ¿El contacto de red de un relé entra en el curso?</p><button type="button" class="ver">ver respuesta</button><p class="respuesta" hidden>No. 230 voltios quedan fuera.</p></div>
+</section>
+<footer>les vencimos · Arduino Enseñanza · offline</footer>
+</article>
+<script>
+document.querySelectorAll("button.ver").forEach(function(b){
+  b.addEventListener("click", function(){
+    var r = b.parentElement.querySelector(".respuesta");
+    if(!r) return;
+    r.hidden = !r.hidden;
+    b.textContent = r.hidden ? "ver respuesta" : "ocultar respuesta";
+  });
+});
+var btn = document.getElementById("escuchar");
+if(btn){
+  btn.addEventListener("click", function(){
+    var el = document.getElementById("maestro-texto");
+    var texto = el ? el.textContent : "";
+    if(window.LesVencimosMaestro && typeof window.LesVencimosMaestro.decir === "function"){
+      window.LesVencimosMaestro.decir(texto);
+      return;
+    }
+    if(!window.speechSynthesis || typeof window.SpeechSynthesisUtterance !== "function") return;
+    window.speechSynthesis.cancel();
+    var u = new SpeechSynthesisUtterance(texto);
+    u.lang = "es-ES";
+    u.rate = 0.95;
+    window.speechSynthesis.speak(u);
+  });
+}
+
+document.querySelectorAll("textarea.nota-montaje").forEach(function(ta){
+  var art = document.querySelector("[data-ens]");
+  var key = "lv-ens-nota-" + (art ? art.getAttribute("data-ens") : "leccion");
+  try {
+    var prev = localStorage.getItem(key);
+    if(prev) ta.value = prev;
+    ta.addEventListener("input", function(){ localStorage.setItem(key, ta.value); });
+  } catch (e) {}
+});
+var sim = document.querySelector("section.sim");
+if(sim){
+  var canvas = sim.querySelector("canvas.sim-canvas");
+  var ctx = canvas.getContext("2d");
+  var kind = sim.getAttribute("data-sim");
+  var da = sim.getAttribute("data-a") || "";
+  var db = sim.getAttribute("data-b") || "";
+  var toggle = sim.querySelector(".sim-toggle");
+  var range = sim.querySelector(".sim-range");
+  var out = sim.querySelector(".sim-out");
+  var dedo = sim.querySelector(".sim-dedo");
+  var vivo = true;
+  var pulsado = false;
+  var permiso = true;
+  var ledOn = false;
+  var ultimoFlanco = 0;
+  var t0 = Date.now();
+  function num(el, fallo){ return el ? parseInt(el.value, 10) : fallo; }
+  if(dedo && kind !== "noche"){
+    dedo.addEventListener("pointerdown", function(ev){
+      pulsado = true;
+      if(kind === "flanco"){
+        var ahora = Date.now();
+        if(ahora - ultimoFlanco > 30){
+          ledOn = !ledOn;
+          ultimoFlanco = ahora;
+        }
+      }
+      ev.preventDefault();
+    });
+    window.addEventListener("pointerup", function(){ pulsado = false; });
+  }
+  if(dedo && kind === "noche"){
+    dedo.addEventListener("click", function(){
+      permiso = !permiso;
+      dedo.setAttribute("aria-pressed", permiso ? "true" : "false");
+      dedo.textContent = permiso ? "Permiso dado" : "Sin permiso";
+    });
+  }
+  if(toggle){
+    toggle.addEventListener("click", function(){
+      vivo = !vivo;
+      toggle.setAttribute("aria-pressed", vivo ? "true" : "false");
+      toggle.textContent = vivo ? "Parar simulación" : "Encender simulación";
+    });
+  }
+  function circulo(x, y, r, on, nivel){
+    ctx.beginPath();
+    ctx.arc(x, y, r, 0, Math.PI * 2);
+    if(on){
+      var a = nivel == null ? 1 : nivel;
+      ctx.fillStyle = "rgba(196,161,90," + (0.25 + 0.75 * a) + ")";
+      ctx.shadowColor = "#C4A15A";
+      ctx.shadowBlur = 16 * a;
+    } else {
+      ctx.fillStyle = "#2A2720";
+      ctx.shadowBlur = 0;
+    }
+    ctx.fill();
+    ctx.shadowBlur = 0;
+    ctx.lineWidth = 2;
+    ctx.strokeStyle = on ? "#C4A15A" : "#9A9488";
+    ctx.stroke();
+  }
+  function caja(x, y, w, h, titulo){
+    ctx.fillStyle = "#161512";
+    ctx.strokeStyle = "#C4A15A";
+    ctx.lineWidth = 2;
+    ctx.fillRect(x, y, w, h);
+    ctx.strokeRect(x, y, w, h);
+    ctx.fillStyle = "#E6E1D6";
+    ctx.font = "14px sans-serif";
+    ctx.fillText(titulo, x + 10, y + 22);
+  }
+  function texto(x, y, s, col){
+    ctx.fillStyle = col || "#E6E1D6";
+    ctx.font = "13px sans-serif";
+    ctx.fillText(s, x, y);
+  }
+  function frame(){
+    var ahora = Date.now();
+    var lectura = num(range, 0);
+    var enciende = false;
+    var nivel = 1;
+    var etiqueta = "";
+    if(kind === "blink"){
+      var hi = parseInt(da, 10) || 500;
+      var lo = parseInt(db, 10) || 500;
+      var ciclo = hi + lo;
+      var fase = vivo ? ((ahora - t0) % ciclo) : 0;
+      enciende = vivo && fase < hi;
+      etiqueta = enciende ? "HIGH" : "LOW";
+    } else if(kind === "hold"){
+      enciende = vivo && pulsado;
+      etiqueta = pulsado ? "LOW, pulsado" : "HIGH, suelto";
+    } else if(kind === "nivel"){
+      enciende = vivo && pulsado;
+      etiqueta = pulsado ? "lectura LOW" : "lectura HIGH";
+    } else if(kind === "flanco"){
+      enciende = vivo && ledOn;
+      etiqueta = enciende ? "LED encendido" : "LED apagado";
+    } else if(kind === "umbral"){
+      var umbral = parseInt(da, 10);
+      enciende = vivo && (db === "lt" ? lectura < umbral && lectura > 0 : lectura > umbral);
+      if(sim.getAttribute("data-sim") === "umbral" && da === "20"){
+        enciende = vivo && lectura > 0 && lectura < umbral;
+      }
+      etiqueta = String(lectura);
+      nivel = 1;
+    } else if(kind === "pwm"){
+      nivel = vivo ? lectura / 255 : 0;
+      enciende = vivo && lectura > 0;
+      etiqueta = String(lectura);
+    } else if(kind === "servo"){
+      var span = 140;
+      var pos = vivo ? ((ahora - t0) % 2800) / 2800 : 0.5;
+      var tri = pos < 0.5 ? pos * 2 : (1 - pos) * 2;
+      var grados = Math.round(20 + tri * span);
+      if(range) range.value = String(grados);
+      lectura = grados;
+      enciende = vivo;
+      etiqueta = grados + " grados";
+    } else if(kind === "buzz"){
+      var fb = vivo ? ((ahora - t0) % 1000) : 500;
+      etiqueta = fb < 300 ? "440" : (fb < 600 ? "880" : "silencio");
+      enciende = vivo && fb < 600;
+    } else if(kind === "carga"){
+      var fc = vivo ? ((ahora - t0) % 4000) : 2000;
+      enciende = vivo && fc < 2000;
+      etiqueta = enciende ? "pin en HIGH" : "pin en LOW";
+    } else if(kind === "semi"){
+      var fs = vivo ? ((ahora - t0) % 3500) : 0;
+      etiqueta = fs < 1500 ? "rojo" : (fs < 2000 ? "ambar" : "verde");
+      enciende = vivo;
+    } else if(kind === "alarma"){
+      enciende = vivo && lectura > 0 && lectura < 20;
+      etiqueta = lectura + " cm";
+    } else if(kind === "noche"){
+      var noche = lectura < 400 && permiso;
+      enciende = vivo && noche;
+      nivel = enciende ? 180/255 : 0;
+      etiqueta = (permiso ? "con permiso" : "sin permiso") + " · " + lectura;
+    }
+    if(out) out.textContent = etiqueta;
+    ctx.clearRect(0, 0, 320, 160);
+    ctx.fillStyle = "#1C1A16";
+    ctx.fillRect(0, 0, 320, 160);
+    caja(12, 28, 90, 100, "Uno");
+    if(kind === "semi"){
+      var fs2 = vivo ? ((ahora - t0) % 3500) : 0;
+      circulo(160, 48, 14, vivo && fs2 < 1500, 1);
+      circulo(210, 48, 14, vivo && fs2 >= 1500 && fs2 < 2000, 1);
+      circulo(260, 48, 14, vivo && fs2 >= 2000, 1);
+      texto(150, 78, "10 rojo");
+      texto(198, 78, "11");
+      texto(248, 78, "12 verde");
+      texto(16, 150, vivo ? "ciclo en marcha" : "simulación parada", "#9A9488");
+    } else if(kind === "servo"){
+      var rad = (180 - lectura) * Math.PI / 180;
+      ctx.strokeStyle = "#C4A15A";
+      ctx.lineWidth = 4;
+      ctx.beginPath();
+      ctx.moveTo(200, 110);
+      ctx.lineTo(200 + Math.cos(rad) * 70, 110 - Math.sin(rad) * 50);
+      ctx.stroke();
+      circulo(200, 110, 8, true, 1);
+      texto(120, 150, etiqueta);
+    } else if(kind === "buzz" || kind === "alarma"){
+      circulo(150, 80, 18, kind === "alarma" ? enciende : false, 1);
+      texto(176, 76, kind === "alarma" ? "LED 13" : "");
+      ctx.beginPath();
+      ctx.arc(250, 80, 22, 0, Math.PI * 2);
+      ctx.strokeStyle = enciende ? "#C4A15A" : "#9A9488";
+      ctx.lineWidth = 3;
+      ctx.stroke();
+      if(enciende){
+        ctx.beginPath();
+        ctx.arc(250, 80, 32, 0, Math.PI * 2);
+        ctx.stroke();
+      }
+      texto(120, 140, etiqueta);
+    } else if(kind === "carga"){
+      circulo(170, 70, 16, enciende, 1);
+      texto(196, 66, "orden");
+      ctx.strokeStyle = enciende ? "#8F9A72" : "#9A9488";
+      ctx.strokeRect(230, 48, 70, 44);
+      texto(242, 74, enciende ? "carga" : "quieta", enciende ? "#8F9A72" : "#9A9488");
+      texto(16, 150, etiqueta, "#9A9488");
+    } else {
+      circulo(200, 78, 18, enciende, nivel);
+      texto(230, 74, "LED");
+      texto(16, 150, etiqueta, "#9A9488");
+    }
+    if(!vivo){
+      texto(230, 150, "parada", "#9A9488");
+    }
+    requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+}
+
+</script>
+</body>
+</html>

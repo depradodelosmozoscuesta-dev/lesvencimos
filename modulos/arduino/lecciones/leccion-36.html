@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="color-scheme" content="dark">
+<title>L36 · Depurar: no enciende, pin mal, masa, USB · les vencimos</title>
+<style>
+:root{--bg:#0E0E0C;--surf:#161512;--panel:#1C1A16;--ink:#E6E1D6;--mut:#9A9488;--acc:#C4A15A;--acc-ink:#1A160E;--danger:#C46A4A;--ok:#8F9A72;--line:#2A2720}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:400 17px/1.55 "Segoe UI",system-ui,sans-serif}
+h1,h2,h3{font-family:"Iowan Old Style",Palatino,Georgia,serif;font-weight:600;line-height:1.25}
+a{color:var(--acc)}
+.wrap{max-width:42rem;margin:0 auto;padding:1.25rem 1.1rem 3.5rem}
+header.top{border-bottom:1px solid var(--line);padding-bottom:.8rem;margin-bottom:1.2rem}
+.marca{font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;color:var(--mut);margin:0}
+h1{font-size:1.7rem;margin:.35rem 0 .2rem}
+.meta{color:var(--mut);margin:0 0 .8rem;font-size:.92rem}
+nav.pasos{display:flex;flex-wrap:wrap;gap:.5rem;margin:.4rem 0 0}
+nav.pasos a,button{min-height:44px;padding:.45rem .8rem;border:1px solid var(--line);border-radius:2px;background:var(--surf);color:var(--ink);font:inherit;text-decoration:none;cursor:pointer}
+button.acc{background:var(--acc);color:var(--acc-ink);border-color:var(--acc);font-weight:600}
+.maestro{background:var(--panel);border:1px solid var(--line);padding:1rem 1.05rem;margin:1.1rem 0}
+.maestro h2{margin:.1rem 0 .6rem;font-size:1.05rem;color:var(--acc)}
+pre{background:var(--surf);border:1px solid var(--line);padding:.9rem 1rem;overflow:auto;font-size:.88rem;line-height:1.45}
+.warn{border-left:3px solid var(--danger);padding:.2rem 0 .2rem .8rem;color:var(--ink)}
+.quiz{margin-top:1.2rem}
+figure{margin:1rem 0;background:#161512;border:1px solid var(--line);padding:.55rem .7rem}
+figure svg{width:100%;height:auto;display:block}
+figcaption{color:var(--mut);font-size:.9rem;margin:.45rem 0 0}
+.ejemplo{background:#161512;border:1px solid var(--line);padding:.8rem .95rem;margin:.7rem 0}
+.ejemplo h3{margin:.1rem 0 .4rem;font-size:1.05rem}
+
+.pregunta{background:var(--surf);border:1px solid var(--line);padding:.8rem 1rem;margin:.7rem 0}
+.respuesta{color:var(--ok);margin:.55rem 0 0}
+footer{margin-top:2.2rem;padding-top:.8rem;border-top:1px solid var(--line);color:var(--mut);font-size:.82rem}
+.pend{color:var(--mut)}
+ol.temario{padding-left:1.2rem}
+ol.temario li{margin:.28rem 0}
+
+.sim,.anota{margin:1rem 0;background:#161512;border:1px solid var(--line);padding:.8rem .9rem}
+.sim h2,.anota h2{margin:.1rem 0 .4rem;font-size:1.15rem}
+.sim-canvas{width:100%;height:auto;background:#1C1A16;border:1px solid var(--line);margin:.6rem 0;display:block}
+.sim-lab{display:flex;align-items:center;gap:.6rem;margin:.4rem 0;color:var(--ink)}
+.sim-range{flex:1;min-height:44px}
+.sim-out{min-width:3rem;color:var(--acc)}
+.sim-dedo{margin-top:.4rem}
+textarea.nota-montaje{width:100%;min-height:8rem;background:#1C1A16;color:var(--ink);border:1px solid var(--line);padding:.7rem;font:inherit;line-height:1.45}
+
+</style>
+</head>
+<body>
+<article class="wrap" id="ens-depurar" data-ens="ens-depurar">
+<header class="top">
+<p class="marca">les vencimos · offline</p>
+<h1>L36. Depurar: no enciende, pin mal, masa, USB</h1>
+<p class="meta">Dominio (97–100%)</p>
+<nav class="pasos"><a href="../arduino-ensenanza.html">Al curso</a><a href="leccion-35.html">Anterior</a><a href="leccion-37.html">Siguiente</a></nav>
+</header>
+<section class="maestro" id="maestro">
+<h2>Maestro</h2>
+<p id="maestro-texto">Cuando no funciona, se mira en orden y se cambia una sola cosa. Casi nunca es la placa en abstracto. Es el pin que no es, la masa que no llega, el USB que no alimenta, la lógica al revés, o una placa de 3,3 tratada como si fuera un Uno.</p>
+<button type="button" class="acc" id="escuchar">Escuchar</button>
+</section>
+<section class="lectura">
+<p>No enciende nada, ni el LED del 13 con el parpadeo más simple. Mira el USB: hay alimentación, el entorno dice que subió. Prueba ese parpadeo antes de probar el proyecto entero. Si el 13 tampoco vive, no sigas con el sensor.</p>
+<p>Pin mal. El cable está en el 12 y el programa habla del 11. El pin 13 además lleva el LED de la placa: si esperabas ese agujero libre para otra señal, no lo está. Cuenta los agujeros en la serigrafía, no en la memoria.</p>
+<p>Masa. El LED, el botón y el sensor necesitan el mismo GND que la placa. Un circuito casi completo, sin masa, está apagado con razón. En pull-up, apretar es LOW. Si tu if espera HIGH, la luz irá al revés y te parecerá rota.</p>
+<p>Tensión. Uno y Nano clásico, 5 voltios. Nano 33, ESP, MKR y mucha placa nueva, 3,3. Un divisor o un eco pensado a 5 voltios no se condena por no funcionar en la otra familia: se aparta. Y si algo huele o quema, se desconecta. No se reintenta.</p>
+</section>
+<h2>Montaje</h2>
+<figure><svg viewBox="0 0 700 150" aria-label="Orden al depurar"><rect x="16" y="36" width="124" height="80" rx="6" fill="#1C1A16" stroke="#C4A15A"/><text x="78.0" y="54" text-anchor="middle" fill="#E6E1D6" font-size="13">1</text><text x="26" y="74" fill="#9A9488" font-size="11">alimentación</text><rect x="152" y="36" width="124" height="80" rx="6" fill="#1C1A16" stroke="#C4A15A"/><text x="214.0" y="54" text-anchor="middle" fill="#E6E1D6" font-size="13">2</text><text x="162" y="74" fill="#9A9488" font-size="11">masa común</text><rect x="288" y="36" width="124" height="80" rx="6" fill="#1C1A16" stroke="#C4A15A"/><text x="350.0" y="54" text-anchor="middle" fill="#E6E1D6" font-size="13">3</text><text x="298" y="74" fill="#9A9488" font-size="11">pin y modo</text><rect x="424" y="36" width="124" height="80" rx="6" fill="#1C1A16" stroke="#C4A15A"/><text x="486.0" y="54" text-anchor="middle" fill="#E6E1D6" font-size="13">4</text><text x="434" y="74" fill="#9A9488" font-size="11">sketch</text><rect x="560" y="36" width="124" height="80" rx="6" fill="#1C1A16" stroke="#C4A15A"/><text x="622.0" y="54" text-anchor="middle" fill="#E6E1D6" font-size="13">5</text><text x="570" y="74" fill="#9A9488" font-size="11">cable</text></svg><figcaption>Depurar es repetir el orden, con el pinout delante, cuando el proyecto ya es tuyo y no de una lección.</figcaption></figure>
+<h2>Pines de esta lección</h2>
+<figure><svg viewBox="0 0 340 118" aria-label="Pines de la lección"><rect x="6" y="16" width="328" height="86" rx="8" fill="#1C1A16" stroke="#C4A15A"/><text x="16" y="14" fill="#9A9488" font-size="11">Uno R3 · 5 V · mira la serigrafía, no la memoria</text><rect x="16" y="32" width="68" height="32" rx="4" fill="#161512" stroke="#C4A15A"/><text x="50" y="53" text-anchor="middle" fill="#E6E1D6" font-size="13">13</text><text x="50" y="84" text-anchor="middle" fill="#9A9488" font-size="10">¿parpadea solo?</text><rect x="94" y="32" width="68" height="32" rx="4" fill="#161512" stroke="#9A9488"/><text x="128" y="53" text-anchor="middle" fill="#E6E1D6" font-size="13">GND</text><text x="128" y="84" text-anchor="middle" fill="#9A9488" font-size="10">¿un solo cero?</text><rect x="172" y="32" width="68" height="32" rx="4" fill="#161512" stroke="#9A9488"/><text x="206" y="53" text-anchor="middle" fill="#E6E1D6" font-size="13">0</text><text x="206" y="84" text-anchor="middle" fill="#9A9488" font-size="10">vacío</text><rect x="250" y="32" width="68" height="32" rx="4" fill="#161512" stroke="#9A9488"/><text x="284" y="53" text-anchor="middle" fill="#E6E1D6" font-size="13">5 V</text><text x="284" y="84" text-anchor="middle" fill="#9A9488" font-size="10">¿de quién?</text></svg><figcaption>Mira el dibujo grande: 0 y 1 libres si hay USB, 5 V y GND de la placa, y el pin que el texto nombra de verdad.</figcaption></figure>
+<figure><svg class="board-svg" id="pinout-uno-estatico" viewBox="0 0 340 520" role="img" aria-label="Pinout interactivo Arduino Uno">
+<rect x="40" y="20" width="260" height="480" rx="8" fill="#1C1A16" stroke="#C4A15A" stroke-width="2"/>
+<rect x="120" y="8" width="70" height="28" rx="3" fill="#2A2720" stroke="#9A9488"/>
+<text x="155" y="27" text-anchor="middle" fill="#E6E1D6" font-size="10" font-family="Segoe UI,system-ui,sans-serif">USB</text>
+<rect x="210" y="30" width="55" height="40" rx="4" fill="#2A2720" stroke="#9A9488"/>
+<text x="237" y="55" text-anchor="middle" fill="#9A9488" font-size="9">DC</text>
+<text x="170" y="70" text-anchor="middle" fill="#C4A15A" font-size="12" font-family="Georgia,serif">Arduino Uno R3</text>
+<rect x="100" y="200" width="140" height="100" rx="4" fill="#161512" stroke="#2A2720"/>
+<text x="170" y="255" text-anchor="middle" fill="#9A9488" font-size="11">ATmega328P</text>
+<circle cx="200" cy="160" r="5" fill="#C46A4A" opacity=".7"/><text x="210" y="164" fill="#9A9488" font-size="8">L</text>
+<g class="ping" data-pin="scl">
+<circle class="pin other" id="pin-scl" data-pin="scl" data-board="uno" cx="55" cy="90" r="7" tabindex="0" role="button" aria-label="SCL"/>
+<text x="27" y="94" text-anchor="end" fill="#9A9488" font-size="9" font-family="Segoe UI,system-ui,sans-serif">SCL</text>
+</g>
+<g class="ping" data-pin="sda">
+<circle class="pin other" id="pin-sda" data-pin="sda" data-board="uno" cx="55" cy="112" r="7" tabindex="0" role="button" aria-label="SDA"/>
+<text x="27" y="116" text-anchor="end" fill="#9A9488" font-size="9" font-family="Segoe UI,system-ui,sans-serif">SDA</text>
+</g>
+<g class="ping" data-pin="aref">
+<circle class="pin other" id="pin-aref" data-pin="aref" data-board="uno" cx="55" cy="134" r="7" tabindex="0" role="button" aria-label="AREF"/>
+<text x="27" y="138" text-anchor="end" fill="#9A9488" font-size="9" font-family="Segoe UI,system-ui,sans-serif">AREF</text>
+</g>
+<g class="ping" data-pin="gndL">
+<circle class="pin gnd" id="pin-gndL" data-pin="gndL" data-board="uno" cx="55" cy="156" r="7" tabindex="0" role="button" aria-label="GND"/>
+<text x="27" y="160" text-anchor="end" fill="#9A9488" font-size="9" font-family="Segoe UI,system-ui,sans-serif">GND</text>
+</g>
+<g class="ping" data-pin="d13">
+<circle class="pin digital" id="pin-d13" data-pin="d13" data-board="uno" cx="55" cy="178" r="7" tabindex="0" role="button" aria-label="13"/>
+<text x="27" y="182" text-anchor="end" fill="#9A9488" font-size="9" font-family="Segoe UI,system-ui,sans-serif">13</text>
+</g>
+<g class="ping" data-pin="d12">
+<circle class="pin digital" id="pin-d12" data-pin="d12" data-board="uno" cx="55" cy="200" r="7" tabindex="0" role="button" aria-label="12"/>
+<text x="27" y="204" text-anchor="end" fill="#9A9488" font-size="9" font-family="Segoe UI,system-ui,sans-serif">12</text>
+</g>
+<g class="ping" data-pin="d11">
+<circle class="pin digital" id="pin-d11" data-pin="d11" data-board="uno" cx="55" cy="222" r="7" tabindex="0" role="button" aria-label="11~"/>
+<text x="27" y="226" text-anchor="end" fill="#9A9488" font-size="9" font-family="Segoe UI,system-ui,sans-serif">11~</text>
+</g>
+<g class="ping" data-pin="d10">
+<circle class="pin digital" id="pin-d10" data-pin="d10" data-board="uno" cx="55" cy="244" r="7" tabindex="0" role="button" aria-label="10~"/>
+<text x="27" y="248" text-anchor="end" fill="#9A9488" font-size="9" font-family="Segoe UI,system-ui,sans-serif">10~</text>
+</g>
+<g class="ping" data-pin="d9">
+<circle class="pin digital" id="pin-d9" data-pin="d9" data-board="uno" cx="55" cy="266" r="7" tabindex="0" role="button" aria-label="9~"/>
+<text x="27" y="270" text-anchor="end" fill="#9A9488" font-size="9" font-family="Segoe UI,system-ui,sans-serif">9~</text>
+</g>
+<g class="ping" data-pin="d8">
+<circle class="pin digital" id="pin-d8" data-pin="d8" data-board="uno" cx="55" cy="288" r="7" tabindex="0" role="button" aria-label="8"/>
+<text x="27" y="292" text-anchor="end" fill="#9A9488" font-size="9" font-family="Segoe UI,system-ui,sans-serif">8</text>
+</g>
+<g class="ping" data-pin="d7">
+<circle class="pin digital" id="pin-d7" data-pin="d7" data-board="uno" cx="55" cy="310" r="7" tabindex="0" role="button" aria-label="7"/>
+<text x="27" y="314" text-anchor="end" fill="#9A9488" font-size="9" font-family="Segoe UI,system-ui,sans-serif">7</text>
+</g>
+<g class="ping" data-pin="d6">
+<circle class="pin digital" id="pin-d6" data-pin="d6" data-board="uno" cx="55" cy="332" r="7" tabindex="0" role="button" aria-label="6~"/>
+<text x="27" y="336" text-anchor="end" fill="#9A9488" font-size="9" font-family="Segoe UI,system-ui,sans-serif">6~</text>
+</g>
+<g class="ping" data-pin="d5">
+<circle class="pin digital" id="pin-d5" data-pin="d5" data-board="uno" cx="55" cy="354" r="7" tabindex="0" role="button" aria-label="5~"/>
+<text x="27" y="358" text-anchor="end" fill="#9A9488" font-size="9" font-family="Segoe UI,system-ui,sans-serif">5~</text>
+</g>
+<g class="ping" data-pin="d4">
+<circle class="pin digital" id="pin-d4" data-pin="d4" data-board="uno" cx="55" cy="376" r="7" tabindex="0" role="button" aria-label="4"/>
+<text x="27" y="380" text-anchor="end" fill="#9A9488" font-size="9" font-family="Segoe UI,system-ui,sans-serif">4</text>
+</g>
+<g class="ping" data-pin="d3">
+<circle class="pin digital" id="pin-d3" data-pin="d3" data-board="uno" cx="55" cy="398" r="7" tabindex="0" role="button" aria-label="3~"/>
+<text x="27" y="402" text-anchor="end" fill="#9A9488" font-size="9" font-family="Segoe UI,system-ui,sans-serif">3~</text>
+</g>
+<g class="ping" data-pin="d2">
+<circle class="pin digital" id="pin-d2" data-pin="d2" data-board="uno" cx="55" cy="420" r="7" tabindex="0" role="button" aria-label="2"/>
+<text x="27" y="424" text-anchor="end" fill="#9A9488" font-size="9" font-family="Segoe UI,system-ui,sans-serif">2</text>
+</g>
+<g class="ping" data-pin="d1">
+<circle class="pin digital" id="pin-d1" data-pin="d1" data-board="uno" cx="55" cy="442" r="7" tabindex="0" role="button" aria-label="1 TX"/>
+<text x="27" y="446" text-anchor="end" fill="#9A9488" font-size="9" font-family="Segoe UI,system-ui,sans-serif">1 TX</text>
+</g>
+<g class="ping" data-pin="d0">
+<circle class="pin digital" id="pin-d0" data-pin="d0" data-board="uno" cx="55" cy="464" r="7" tabindex="0" role="button" aria-label="0 RX"/>
+<text x="27" y="468" text-anchor="end" fill="#9A9488" font-size="9" font-family="Segoe UI,system-ui,sans-serif">0 RX</text>
+</g>
+<g class="ping" data-pin="vin">
+<circle class="pin other" id="pin-vin" data-pin="vin" data-board="uno" cx="285" cy="100" r="7" tabindex="0" role="button" aria-label="VIN"/>
+<text x="299" y="104" text-anchor="start" fill="#9A9488" font-size="9" font-family="Segoe UI,system-ui,sans-serif">VIN</text>
+</g>
+<g class="ping" data-pin="gnd1">
+<circle class="pin gnd" id="pin-gnd1" data-pin="gnd1" data-board="uno" cx="285" cy="126" r="7" tabindex="0" role="button" aria-label="GND"/>
+<text x="299" y="130" text-anchor="start" fill="#9A9488" font-size="9" font-family="Segoe UI,system-ui,sans-serif">GND</text>
+</g>
+<g class="ping" data-pin="gnd2">
+<circle class="pin gnd" id="pin-gnd2" data-pin="gnd2" data-board="uno" cx="285" cy="152" r="7" tabindex="0" role="button" aria-label="GND"/>
+<text x="299" y="156" text-anchor="start" fill="#9A9488" font-size="9" font-family="Segoe UI,system-ui,sans-serif">GND</text>
+</g>
+<g class="ping" data-pin="v5">
+<circle class="pin power5" id="pin-v5" data-pin="v5" data-board="uno" cx="285" cy="178" r="7" tabindex="0" role="button" aria-label="5V"/>
+<text x="299" y="182" text-anchor="start" fill="#9A9488" font-size="9" font-family="Segoe UI,system-ui,sans-serif">5V</text>
+</g>
+<g class="ping" data-pin="v33">
+<circle class="pin power33" id="pin-v33" data-pin="v33" data-board="uno" cx="285" cy="204" r="7" tabindex="0" role="button" aria-label="3.3V"/>
+<text x="299" y="208" text-anchor="start" fill="#9A9488" font-size="9" font-family="Segoe UI,system-ui,sans-serif">3.3V</text>
+</g>
+<g class="ping" data-pin="reset">
+<circle class="pin other" id="pin-reset" data-pin="reset" data-board="uno" cx="285" cy="230" r="7" tabindex="0" role="button" aria-label="RESET"/>
+<text x="299" y="234" text-anchor="start" fill="#9A9488" font-size="9" font-family="Segoe UI,system-ui,sans-serif">RESET</text>
+</g>
+<g class="ping" data-pin="io">
+<circle class="pin other" id="pin-io" data-pin="io" data-board="uno" cx="285" cy="256" r="7" tabindex="0" role="button" aria-label="IOREF"/>
+<text x="299" y="260" text-anchor="start" fill="#9A9488" font-size="9" font-family="Segoe UI,system-ui,sans-serif">IOREF</text>
+</g>
+<g class="ping" data-pin="a0">
+<circle class="pin analog" id="pin-a0" data-pin="a0" data-board="uno" cx="285" cy="282" r="7" tabindex="0" role="button" aria-label="A0"/>
+<text x="299" y="286" text-anchor="start" fill="#9A9488" font-size="9" font-family="Segoe UI,system-ui,sans-serif">A0</text>
+</g>
+<g class="ping" data-pin="a1">
+<circle class="pin analog" id="pin-a1" data-pin="a1" data-board="uno" cx="285" cy="308" r="7" tabindex="0" role="button" aria-label="A1"/>
+<text x="299" y="312" text-anchor="start" fill="#9A9488" font-size="9" font-family="Segoe UI,system-ui,sans-serif">A1</text>
+</g>
+<g class="ping" data-pin="a2">
+<circle class="pin analog" id="pin-a2" data-pin="a2" data-board="uno" cx="285" cy="334" r="7" tabindex="0" role="button" aria-label="A2"/>
+<text x="299" y="338" text-anchor="start" fill="#9A9488" font-size="9" font-family="Segoe UI,system-ui,sans-serif">A2</text>
+</g>
+<g class="ping" data-pin="a3">
+<circle class="pin analog" id="pin-a3" data-pin="a3" data-board="uno" cx="285" cy="360" r="7" tabindex="0" role="button" aria-label="A3"/>
+<text x="299" y="364" text-anchor="start" fill="#9A9488" font-size="9" font-family="Segoe UI,system-ui,sans-serif">A3</text>
+</g>
+<g class="ping" data-pin="a4">
+<circle class="pin analog" id="pin-a4" data-pin="a4" data-board="uno" cx="285" cy="386" r="7" tabindex="0" role="button" aria-label="A4"/>
+<text x="299" y="390" text-anchor="start" fill="#9A9488" font-size="9" font-family="Segoe UI,system-ui,sans-serif">A4</text>
+</g>
+<g class="ping" data-pin="a5">
+<circle class="pin analog" id="pin-a5" data-pin="a5" data-board="uno" cx="285" cy="412" r="7" tabindex="0" role="button" aria-label="A5"/>
+<text x="299" y="416" text-anchor="start" fill="#9A9488" font-size="9" font-family="Segoe UI,system-ui,sans-serif">A5</text>
+</g>
+</svg><figcaption>Pinout del Uno R3, el mismo dibujo que en Hardware. Usa el dibujo para comprobar que el hilo que tienes en la mano es el número que el sketch escribe.</figcaption></figure><h2>Por qué</h2>
+<p>Un fallo en un proyecto propio da más vergüenza y es el mismo de siempre. Se vuelve al LED del 13 con un sketch de parpadeo que ya conoces. Si el 13 no parpadea, no mires el sensor nuevo: la placa, el cable USB o el puerto están mal. Si parpadea, la placa vive y el bicho está en lo que añadiste.</p><p>Se añade una pieza cada vez, con el parpadeo aún dentro, o con un println de setup. La pieza nueva que mata el parpadeo es la culpable: un servo que reinicia, un pin 0 ocupado, una masa que ya no es común. Se quita esa pieza y se confirma que el parpadeo vuelve.</p><p>Los números se anotan. Umbral, pin, velocidad del monitor. Dentro de una semana el sketch no recuerda por qué 400. Un comentario de una línea y el papel de la mesa sí. Depurar sin notas es repetir la noche.</p><p>Soldar viene después de depurar, no antes. Estaño sobre un circuito que no funciona es un fallo permanente. La protoboard es el lugar donde se permite el error.</p><h2>Práctica</h2>
+<ol><li>Carga el parpadeo simple del pin 13, sin el resto del proyecto conectado.</li><li>Si no parpadea, para aquí: cable, puerto, placa. Lista de la lección de cuando no responde.</li><li>Conecta solo la masa y la alimentación del sensor. RESET. ¿Sigue el parpadeo?</li><li>Conecta la señal. ¿Sigue? Si la placa se reinicia, esa señal o esa carga pide de más.</li><li>Anota en el papel la pieza que lo rompió.</li><li>Corrígela sola. No aproveches para cambiar el umbral.</li><li>Cuando el parpadeo sobreviva a todas las piezas, ya puedes quitarlo y dejar el programa de verdad.</li></ol><section class="anota"><h2>Anota el montaje</h2><p>Escribe qué cable va a qué pin, o qué has entendido del paso. Se guarda en este aparato.</p><textarea class="nota-montaje" rows="6" placeholder="Pin, color del cable, a qué agujero."></textarea></section><h2>Ejemplos resueltos</h2>
+<div class="ejemplo"><h3>Se depuró el sensor con la placa muerta</h3><p>El USB estaba en un puerto que no carga. Se recalibró el LDR una hora. El 13 nunca llegó a parpadear con el sketch de prueba, y nadie lo miró.</p><p>Primero el 13, siempre. Un minuto de parpadeo conocido ahorra la hora.</p></div><div class="ejemplo"><h3>Se soldó para que no se soltara el cable sospechoso</h3><p>El cable se soltaba y se llevó a estaño el circuito entero, incluido el error de pin. Ahora el pin equivocado está fijo.</p><p>Se prueba en protoboard hasta que sobrevive a un RESET y a un golpecito en la mesa. Luego se suelda, copiando, no inventando.</p></div><h2>Soldadura y seguridad</h2>
+<div class="soldar"><p>Regla de esta lección: no hay soldador hasta que el parpadeo testigo convive con el circuito. Si sueldas, placa apagada, una unión brillante, sin puentes, y sin ningún hilo hacia un enchufe de pared.</p><p>Un circuito soldado que no funciona se depura igual, con la lista, no con más estaño. Añadir estaño a una soldadura fría está bien; añadirlo a un pin equivocado lo empeora.</p></div><h2>En la mesa</h2>
+<p>Desmonta el proyecto hasta dejar solo el pin 13 y su parpadeo conocido. Es violento y es el método. Si no parpadea, no vuelvas a montar nada: arreglo de cable, puerto y placa. Si parpadea, añade la alimentación y la masa del sensor, sin la señal. RESET. Sigue. Añade la señal. RESET. El paso que mate el parpadeo es el culpable, y se anota con su nombre, no con la palabra raro.</p>
+<p>No soldarás en esta prueba. Si una mano sujeta un cable para que pase, ese cable es el fallo, no un asistente. Se cambia el cable. Cuando el parpadeo sobrevive a un golpecito en la mesa, puedes pensar en estaño, en otra sesión, con la placa apagada.</p>
+<p>Guarda el sketch del parpadeo testigo con un nombre claro en el ordenador. Va a ser la primera herramienta cada vez que un proyecto propio se calle. No lo mezcles con el proyecto hasta perderlo.</p>
+
+<h2>Ejercicio</h2>
+<p>Coge un fallo que ya tuviste, o el más probable. Escríbelo en cinco pasos: ¿sube el parpadeo del 13?, ¿el número de pin coincide?, ¿hay masa común?, ¿la lógica HIGH/LOW es la del montaje?, ¿la placa es de 5 voltios?</p>
+<section class="quiz">
+<h2>Autoevaluación</h2>
+<div class="pregunta"><p><strong>1.</strong> Si el proyecto no va, ¿qué sketch pruebas primero?</p><button type="button" class="ver">ver respuesta</button><p class="respuesta" hidden>El parpadeo del LED del pin 13. Si ese no vive, no sigas.</p></div><div class="pregunta"><p><strong>2.</strong> En el montaje del curso, apretar el botón a GND con pull-up, ¿qué valor es el dedo?</p><button type="button" class="ver">ver respuesta</button><p class="respuesta" hidden>LOW. Si el if espera HIGH, la luz va al revés.</p></div><div class="pregunta"><p><strong>3.</strong> ¿Qué haces si un chip quema?</p><button type="button" class="ver">ver respuesta</button><p class="respuesta" hidden>Desconectar. No insistir.</p></div>
+</section>
+<footer>les vencimos · Arduino Enseñanza · offline</footer>
+</article>
+<script>
+document.querySelectorAll("button.ver").forEach(function(b){
+  b.addEventListener("click", function(){
+    var r = b.parentElement.querySelector(".respuesta");
+    if(!r) return;
+    r.hidden = !r.hidden;
+    b.textContent = r.hidden ? "ver respuesta" : "ocultar respuesta";
+  });
+});
+var btn = document.getElementById("escuchar");
+if(btn){
+  btn.addEventListener("click", function(){
+    var el = document.getElementById("maestro-texto");
+    var texto = el ? el.textContent : "";
+    if(window.LesVencimosMaestro && typeof window.LesVencimosMaestro.decir === "function"){
+      window.LesVencimosMaestro.decir(texto);
+      return;
+    }
+    if(!window.speechSynthesis || typeof window.SpeechSynthesisUtterance !== "function") return;
+    window.speechSynthesis.cancel();
+    var u = new SpeechSynthesisUtterance(texto);
+    u.lang = "es-ES";
+    u.rate = 0.95;
+    window.speechSynthesis.speak(u);
+  });
+}
+
+document.querySelectorAll("textarea.nota-montaje").forEach(function(ta){
+  var art = document.querySelector("[data-ens]");
+  var key = "lv-ens-nota-" + (art ? art.getAttribute("data-ens") : "leccion");
+  try {
+    var prev = localStorage.getItem(key);
+    if(prev) ta.value = prev;
+    ta.addEventListener("input", function(){ localStorage.setItem(key, ta.value); });
+  } catch (e) {}
+});
+var sim = document.querySelector("section.sim");
+if(sim){
+  var canvas = sim.querySelector("canvas.sim-canvas");
+  var ctx = canvas.getContext("2d");
+  var kind = sim.getAttribute("data-sim");
+  var da = sim.getAttribute("data-a") || "";
+  var db = sim.getAttribute("data-b") || "";
+  var toggle = sim.querySelector(".sim-toggle");
+  var range = sim.querySelector(".sim-range");
+  var out = sim.querySelector(".sim-out");
+  var dedo = sim.querySelector(".sim-dedo");
+  var vivo = true;
+  var pulsado = false;
+  var permiso = true;
+  var ledOn = false;
+  var ultimoFlanco = 0;
+  var t0 = Date.now();
+  function num(el, fallo){ return el ? parseInt(el.value, 10) : fallo; }
+  if(dedo && kind !== "noche"){
+    dedo.addEventListener("pointerdown", function(ev){
+      pulsado = true;
+      if(kind === "flanco"){
+        var ahora = Date.now();
+        if(ahora - ultimoFlanco > 30){
+          ledOn = !ledOn;
+          ultimoFlanco = ahora;
+        }
+      }
+      ev.preventDefault();
+    });
+    window.addEventListener("pointerup", function(){ pulsado = false; });
+  }
+  if(dedo && kind === "noche"){
+    dedo.addEventListener("click", function(){
+      permiso = !permiso;
+      dedo.setAttribute("aria-pressed", permiso ? "true" : "false");
+      dedo.textContent = permiso ? "Permiso dado" : "Sin permiso";
+    });
+  }
+  if(toggle){
+    toggle.addEventListener("click", function(){
+      vivo = !vivo;
+      toggle.setAttribute("aria-pressed", vivo ? "true" : "false");
+      toggle.textContent = vivo ? "Parar simulación" : "Encender simulación";
+    });
+  }
+  function circulo(x, y, r, on, nivel){
+    ctx.beginPath();
+    ctx.arc(x, y, r, 0, Math.PI * 2);
+    if(on){
+      var a = nivel == null ? 1 : nivel;
+      ctx.fillStyle = "rgba(196,161,90," + (0.25 + 0.75 * a) + ")";
+      ctx.shadowColor = "#C4A15A";
+      ctx.shadowBlur = 16 * a;
+    } else {
+      ctx.fillStyle = "#2A2720";
+      ctx.shadowBlur = 0;
+    }
+    ctx.fill();
+    ctx.shadowBlur = 0;
+    ctx.lineWidth = 2;
+    ctx.strokeStyle = on ? "#C4A15A" : "#9A9488";
+    ctx.stroke();
+  }
+  function caja(x, y, w, h, titulo){
+    ctx.fillStyle = "#161512";
+    ctx.strokeStyle = "#C4A15A";
+    ctx.lineWidth = 2;
+    ctx.fillRect(x, y, w, h);
+    ctx.strokeRect(x, y, w, h);
+    ctx.fillStyle = "#E6E1D6";
+    ctx.font = "14px sans-serif";
+    ctx.fillText(titulo, x + 10, y + 22);
+  }
+  function texto(x, y, s, col){
+    ctx.fillStyle = col || "#E6E1D6";
+    ctx.font = "13px sans-serif";
+    ctx.fillText(s, x, y);
+  }
+  function frame(){
+    var ahora = Date.now();
+    var lectura = num(range, 0);
+    var enciende = false;
+    var nivel = 1;
+    var etiqueta = "";
+    if(kind === "blink"){
+      var hi = parseInt(da, 10) || 500;
+      var lo = parseInt(db, 10) || 500;
+      var ciclo = hi + lo;
+      var fase = vivo ? ((ahora - t0) % ciclo) : 0;
+      enciende = vivo && fase < hi;
+      etiqueta = enciende ? "HIGH" : "LOW";
+    } else if(kind === "hold"){
+      enciende = vivo && pulsado;
+      etiqueta = pulsado ? "LOW, pulsado" : "HIGH, suelto";
+    } else if(kind === "nivel"){
+      enciende = vivo && pulsado;
+      etiqueta = pulsado ? "lectura LOW" : "lectura HIGH";
+    } else if(kind === "flanco"){
+      enciende = vivo && ledOn;
+      etiqueta = enciende ? "LED encendido" : "LED apagado";
+    } else if(kind === "umbral"){
+      var umbral = parseInt(da, 10);
+      enciende = vivo && (db === "lt" ? lectura < umbral && lectura > 0 : lectura > umbral);
+      if(sim.getAttribute("data-sim") === "umbral" && da === "20"){
+        enciende = vivo && lectura > 0 && lectura < umbral;
+      }
+      etiqueta = String(lectura);
+      nivel = 1;
+    } else if(kind === "pwm"){
+      nivel = vivo ? lectura / 255 : 0;
+      enciende = vivo && lectura > 0;
+      etiqueta = String(lectura);
+    } else if(kind === "servo"){
+      var span = 140;
+      var pos = vivo ? ((ahora - t0) % 2800) / 2800 : 0.5;
+      var tri = pos < 0.5 ? pos * 2 : (1 - pos) * 2;
+      var grados = Math.round(20 + tri * span);
+      if(range) range.value = String(grados);
+      lectura = grados;
+      enciende = vivo;
+      etiqueta = grados + " grados";
+    } else if(kind === "buzz"){
+      var fb = vivo ? ((ahora - t0) % 1000) : 500;
+      etiqueta = fb < 300 ? "440" : (fb < 600 ? "880" : "silencio");
+      enciende = vivo && fb < 600;
+    } else if(kind === "carga"){
+      var fc = vivo ? ((ahora - t0) % 4000) : 2000;
+      enciende = vivo && fc < 2000;
+      etiqueta = enciende ? "pin en HIGH" : "pin en LOW";
+    } else if(kind === "semi"){
+      var fs = vivo ? ((ahora - t0) % 3500) : 0;
+      etiqueta = fs < 1500 ? "rojo" : (fs < 2000 ? "ambar" : "verde");
+      enciende = vivo;
+    } else if(kind === "alarma"){
+      enciende = vivo && lectura > 0 && lectura < 20;
+      etiqueta = lectura + " cm";
+    } else if(kind === "noche"){
+      var noche = lectura < 400 && permiso;
+      enciende = vivo && noche;
+      nivel = enciende ? 180/255 : 0;
+      etiqueta = (permiso ? "con permiso" : "sin permiso") + " · " + lectura;
+    }
+    if(out) out.textContent = etiqueta;
+    ctx.clearRect(0, 0, 320, 160);
+    ctx.fillStyle = "#1C1A16";
+    ctx.fillRect(0, 0, 320, 160);
+    caja(12, 28, 90, 100, "Uno");
+    if(kind === "semi"){
+      var fs2 = vivo ? ((ahora - t0) % 3500) : 0;
+      circulo(160, 48, 14, vivo && fs2 < 1500, 1);
+      circulo(210, 48, 14, vivo && fs2 >= 1500 && fs2 < 2000, 1);
+      circulo(260, 48, 14, vivo && fs2 >= 2000, 1);
+      texto(150, 78, "10 rojo");
+      texto(198, 78, "11");
+      texto(248, 78, "12 verde");
+      texto(16, 150, vivo ? "ciclo en marcha" : "simulación parada", "#9A9488");
+    } else if(kind === "servo"){
+      var rad = (180 - lectura) * Math.PI / 180;
+      ctx.strokeStyle = "#C4A15A";
+      ctx.lineWidth = 4;
+      ctx.beginPath();
+      ctx.moveTo(200, 110);
+      ctx.lineTo(200 + Math.cos(rad) * 70, 110 - Math.sin(rad) * 50);
+      ctx.stroke();
+      circulo(200, 110, 8, true, 1);
+      texto(120, 150, etiqueta);
+    } else if(kind === "buzz" || kind === "alarma"){
+      circulo(150, 80, 18, kind === "alarma" ? enciende : false, 1);
+      texto(176, 76, kind === "alarma" ? "LED 13" : "");
+      ctx.beginPath();
+      ctx.arc(250, 80, 22, 0, Math.PI * 2);
+      ctx.strokeStyle = enciende ? "#C4A15A" : "#9A9488";
+      ctx.lineWidth = 3;
+      ctx.stroke();
+      if(enciende){
+        ctx.beginPath();
+        ctx.arc(250, 80, 32, 0, Math.PI * 2);
+        ctx.stroke();
+      }
+      texto(120, 140, etiqueta);
+    } else if(kind === "carga"){
+      circulo(170, 70, 16, enciende, 1);
+      texto(196, 66, "orden");
+      ctx.strokeStyle = enciende ? "#8F9A72" : "#9A9488";
+      ctx.strokeRect(230, 48, 70, 44);
+      texto(242, 74, enciende ? "carga" : "quieta", enciende ? "#8F9A72" : "#9A9488");
+      texto(16, 150, etiqueta, "#9A9488");
+    } else {
+      circulo(200, 78, 18, enciende, nivel);
+      texto(230, 74, "LED");
+      texto(16, 150, etiqueta, "#9A9488");
+    }
+    if(!vivo){
+      texto(230, 150, "parada", "#9A9488");
+    }
+    requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+}
+
+</script>
+</body>
+</html>

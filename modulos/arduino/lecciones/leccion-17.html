@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="color-scheme" content="dark">
+<title>L17 · Luz (LDR) y umbral · les vencimos</title>
+<style>
+:root{--bg:#0E0E0C;--surf:#161512;--panel:#1C1A16;--ink:#E6E1D6;--mut:#9A9488;--acc:#C4A15A;--acc-ink:#1A160E;--danger:#C46A4A;--ok:#8F9A72;--line:#2A2720}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:400 17px/1.55 "Segoe UI",system-ui,sans-serif}
+h1,h2,h3{font-family:"Iowan Old Style",Palatino,Georgia,serif;font-weight:600;line-height:1.25}
+a{color:var(--acc)}
+.wrap{max-width:42rem;margin:0 auto;padding:1.25rem 1.1rem 3.5rem}
+header.top{border-bottom:1px solid var(--line);padding-bottom:.8rem;margin-bottom:1.2rem}
+.marca{font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;color:var(--mut);margin:0}
+h1{font-size:1.7rem;margin:.35rem 0 .2rem}
+.meta{color:var(--mut);margin:0 0 .8rem;font-size:.92rem}
+nav.pasos{display:flex;flex-wrap:wrap;gap:.5rem;margin:.4rem 0 0}
+nav.pasos a,button{min-height:44px;padding:.45rem .8rem;border:1px solid var(--line);border-radius:2px;background:var(--surf);color:var(--ink);font:inherit;text-decoration:none;cursor:pointer}
+button.acc{background:var(--acc);color:var(--acc-ink);border-color:var(--acc);font-weight:600}
+.maestro{background:var(--panel);border:1px solid var(--line);padding:1rem 1.05rem;margin:1.1rem 0}
+.maestro h2{margin:.1rem 0 .6rem;font-size:1.05rem;color:var(--acc)}
+pre{background:var(--surf);border:1px solid var(--line);padding:.9rem 1rem;overflow:auto;font-size:.88rem;line-height:1.45}
+.warn{border-left:3px solid var(--danger);padding:.2rem 0 .2rem .8rem;color:var(--ink)}
+.quiz{margin-top:1.2rem}
+figure{margin:1rem 0;background:#161512;border:1px solid var(--line);padding:.55rem .7rem}
+figure svg{width:100%;height:auto;display:block}
+figcaption{color:var(--mut);font-size:.9rem;margin:.45rem 0 0}
+.ejemplo{background:#161512;border:1px solid var(--line);padding:.8rem .95rem;margin:.7rem 0}
+.ejemplo h3{margin:.1rem 0 .4rem;font-size:1.05rem}
+
+.pregunta{background:var(--surf);border:1px solid var(--line);padding:.8rem 1rem;margin:.7rem 0}
+.respuesta{color:var(--ok);margin:.55rem 0 0}
+footer{margin-top:2.2rem;padding-top:.8rem;border-top:1px solid var(--line);color:var(--mut);font-size:.82rem}
+.pend{color:var(--mut)}
+ol.temario{padding-left:1.2rem}
+ol.temario li{margin:.28rem 0}
+
+.sim,.anota{margin:1rem 0;background:#161512;border:1px solid var(--line);padding:.8rem .9rem}
+.sim h2,.anota h2{margin:.1rem 0 .4rem;font-size:1.15rem}
+.sim-canvas{width:100%;height:auto;background:#1C1A16;border:1px solid var(--line);margin:.6rem 0;display:block}
+.sim-lab{display:flex;align-items:center;gap:.6rem;margin:.4rem 0;color:var(--ink)}
+.sim-range{flex:1;min-height:44px}
+.sim-out{min-width:3rem;color:var(--acc)}
+.sim-dedo{margin-top:.4rem}
+textarea.nota-montaje{width:100%;min-height:8rem;background:#1C1A16;color:var(--ink);border:1px solid var(--line);padding:.7rem;font:inherit;line-height:1.45}
+
+</style>
+</head>
+<body>
+<article class="wrap" id="ens-ldr-umbral" data-ens="ens-ldr-umbral" data-hw="sensor-ldr">
+<header class="top">
+<p class="marca">les vencimos · offline</p>
+<h1>L17. Luz (LDR) y umbral</h1>
+<p class="meta">Sensores (38–54%)</p>
+<nav class="pasos"><a href="../arduino-ensenanza.html">Al curso</a><a href="leccion-16.html">Anterior</a><a href="leccion-18.html">Siguiente</a></nav>
+</header>
+<section class="maestro" id="maestro">
+<h2>Maestro</h2>
+<p id="maestro-texto">Una LDR es una resistencia que baja cuando le da la luz. Sola no da voltios: hay que ponerla en un divisor, al lado de una resistencia fija, para que el pin vea una tensión. El LED se enciende cuando hay poca luz. El truco para no memorizar el sentido es tapar el sensor y ver hacia dónde se mueve el comportamiento.</p>
+<button type="button" class="acc" id="escuchar">Escuchar</button>
+</section>
+<section class="lectura">
+<p>Montaje del curso: LDR entre A0 y 5V. Resistencia fija de 10 kiloohmios entre A0 y GND. Así, a más luz, la LDR conduce mejor desde 5V, la tensión en A0 sube y analogRead sube. A oscuras, la fija tira de A0 hacia masa y el número baja. Si lo montas al revés, los números también, y no pasa nada grave: lo verás al tapar.</p>
+<p>Cómo saber el sentido sin Serial. Elige un umbral, por ejemplo 400, y enciende el LED 13 cuando la lectura esté por debajo, que en este montaje es oscuridad. Tapa la LDR con el dedo. Si el LED se enciende al tapar, el sentido es el que crees. Si se apaga al tapar, o no cambia nunca, o el umbral está fuera de la vida real de tu mesa. Prueba 200 y prueba 700 antes de dar la LDR por rota.</p>
+<p>La pieza en el catálogo Hardware se llama con el ancla sensor-ldr. Aquí no hay lista de modelos. Una LDR y 10 kΩ bastan. No la alimentes «con el pin». Va entre 5V, A0 y masa, como divisor. La corriente es minúscula.</p>
+<p>Umbral no es una propiedad del universo. Es tu decisión: a partir de esta luz, quiero aviso. La lección de calibrar lo dirá con las dos manos. Hoy basta con que al tapar cambie la luz del 13.</p>
+</section>
+<h2>Montaje</h2>
+<figure><svg viewBox="0 0 560 200">
+<rect x="10" y="40" width="100" height="120" rx="6" fill="#1C1A16" stroke="#C4A15A"/>
+<text x="60" y="90" text-anchor="middle" fill="#E6E1D6" font-size="12">Uno</text>
+<text x="60" y="108" text-anchor="middle" fill="#9A9488" font-size="10">5V · A0 · GND</text>
+<line x1="110" y1="70" x2="220" y2="70" stroke="#C46A4A" stroke-width="3"/>
+<text x="150" y="60" fill="#C46A4A" font-size="10">5V</text>
+<!-- LDR -->
+<path d="M220 70 L250 70" stroke="#C4A15A" stroke-width="2"/>
+<circle cx="270" cy="70" r="16" fill="none" stroke="#C4A15A" stroke-width="2"/>
+<text x="270" y="74" text-anchor="middle" fill="#C4A15A" font-size="9">LDR</text>
+<path d="M290 70 L320 70 L320 120" stroke="#C4A15A" stroke-width="2"/>
+<!-- node to A0 -->
+<line x1="320" y1="95" x2="200" y2="95" stroke="#8F9A72" stroke-width="3"/>
+<line x1="200" y1="95" x2="110" y2="95" stroke="#8F9A72" stroke-width="3"/>
+<text x="200" y="88" fill="#8F9A72" font-size="10">A0</text>
+<!-- 10k to GND -->
+<path d="M320 120 L320 140 L335 140 L340 125 L350 155 L360 125 L370 155 L380 140 L400 140" fill="none" stroke="#C4A15A" stroke-width="2"/>
+<text x="360" y="175" fill="#C4A15A" font-size="10">10 kΩ</text>
+<line x1="400" y1="140" x2="400" y2="155" stroke="#6B6560" stroke-width="3"/>
+<line x1="400" y1="155" x2="110" y2="155" stroke="#6B6560" stroke-width="3"/>
+</svg><figcaption>El LDR va de A0 a 5 V. La resistencia fija de 10 k va de A0 a GND. Cuando hay poca luz, la lectura baja y el LED se enciende.</figcaption></figure>
+<h2>Pines de esta lección</h2>
+<figure><svg viewBox="0 0 340 118" aria-label="Pines de la lección"><rect x="6" y="16" width="328" height="86" rx="8" fill="#1C1A16" stroke="#C4A15A"/><text x="16" y="14" fill="#9A9488" font-size="11">Uno R3 · 5 V · mira la serigrafía, no la memoria</text><rect x="16" y="32" width="68" height="32" rx="4" fill="#161512" stroke="#C4A15A"/><text x="50" y="53" text-anchor="middle" fill="#E6E1D6" font-size="13">A0</text><text x="50" y="84" text-anchor="middle" fill="#9A9488" font-size="10">punto medio</text><rect x="94" y="32" width="68" height="32" rx="4" fill="#161512" stroke="#9A9488"/><text x="128" y="53" text-anchor="middle" fill="#E6E1D6" font-size="13">5 V</text><text x="128" y="84" text-anchor="middle" fill="#9A9488" font-size="10">lado del LDR</text><rect x="172" y="32" width="68" height="32" rx="4" fill="#161512" stroke="#9A9488"/><text x="206" y="53" text-anchor="middle" fill="#E6E1D6" font-size="13">GND</text><text x="206" y="84" text-anchor="middle" fill="#9A9488" font-size="10">lado de 10 k</text><rect x="250" y="32" width="68" height="32" rx="4" fill="#161512" stroke="#9A9488"/><text x="284" y="53" text-anchor="middle" fill="#E6E1D6" font-size="13">13</text><text x="284" y="84" text-anchor="middle" fill="#9A9488" font-size="10">si hay poca luz</text></svg><figcaption>A0 es el nudo, no un extremo suelto. El 13 avisa. No mires un número: mira la luz.</figcaption></figure>
+<h2>Por qué</h2>
+<p>El LDR es una resistencia que baja cuando le da la luz y sube cuando está a oscuras. Solo no dice un voltaje: hay que ponerle una compañera fija y formar un divisor. En este curso el LDR queda arriba, hacia 5 V, y 10 kiloohmios quedan abajo, hacia GND. El nudo del medio es A0.</p><p>Con esa orientación, a oscuras el LDR es muy grande, se queda casi toda la tensión en él y en A0 hay poco voltaje: número bajo. A plena luz el LDR es pequeño y A0 sube. Por eso el sketch enciende el LED cuando la lectura es menor que 400, no cuando es mayor. Es fácil invertirlo por costumbre y construir una luz que se enciende de día.</p><p>400 no es una ley física. Es un umbral de partida para una mesa normal. Si tu cuarto es muy oscuro, 400 puede no llegar nunca. La lección de calibrar enseña a medirlo. Hoy basta tapar el LDR con la mano y ver el 13 encenderse, y destaparlo y verlo apagarse.</p><p>No pongas el LDR directo entre 5 V y A0 sin la resistencia a masa. A0 no tendría camino a un voltaje definido del modo que el sketch espera, o verías solo el otro extremo de la escala. Las dos piezas forman una sola medida.</p><h2>Práctica</h2>
+<ol><li>LDR entre 5 V y una fila que será A0. Respeta que no tiene polaridad: se puede girar.</li><li>Resistencia de 10 k entre esa misma fila de A0 y GND. No uses la de 220 del LED.</li><li>Cable de esa fila a A0.</li><li>LED del 13 como siempre, con sus 220 ohmios si es externo.</li><li>Carga el sketch del umbral 400.</li><li>Luz de la mesa: LED apagado o casi. Mano encima del LDR: LED encendido. Si sale al revés, el divisor está girado.</li><li>No tapes el LDR con un dedo húmedo que además toque el pin: tapas la luz, no añades un contacto.</li></ol><section class="sim" data-sim="umbral" data-a="400" data-b="lt"><h2>Práctica en la página</h2><p>Por debajo de 400, poca luz, el LED enciende. Arranca en 200. La simulación arranca encendida.</p><button type="button" class="sim-toggle" aria-pressed="true">Parar simulación</button><canvas class="sim-canvas" width="320" height="160" aria-label="Simulación del circuito"></canvas><label class="sim-lab">Lectura <input class="sim-range" type="range" min="0" max="1023" value="200"></label><output class="sim-out"></output></section><h2>Ejemplos resueltos</h2>
+<div class="ejemplo"><h3>Se enciende de día</h3><p>El LDR se puso entre A0 y GND, y la de 10 k entre A0 y 5 V. La escala se dio la vuelta. El if de menor que 400 ahora se cumple a plena luz.</p><p>Se vuelve al dibujo: LDR hacia 5 V, fija hacia GND. No se niega el if y se deja el cable mal, porque la siguiente lección calibrará esta orientación.</p></div><div class="ejemplo"><h3>Se usó 220 ohmios como compañera</h3><p>La única resistencia a mano era la del LED. 220 ohmios abajo aplasta la escala: el LDR tiene que bajar muchísimo para que A0 se mueva, y a veces no se mueve lo bastante para cruzar 400.</p><p>La compañera es de 10 k, del orden del LDR en luz de interior. La de 220 se queda en el LED.</p></div><h2>Soldadura y seguridad</h2>
+<div class="soldar"><p>El LDR se pincha en protoboard. Si lo sueldas a un cable para alejarlo de la sombra de la placa, suelda cada pata por separado, placa apagada. No tiene polaridad, pero un pegote entre las dos patas lo deja en corto y la lectura se clava.</p><p>No lo sueldes tan cerca de la punta que el calor le cambie la cara sensible. Un segundo o dos, y se aparta.</p></div><h2>En la mesa</h2>
+<p>Tapa y destapa tres veces, con la misma mano y la misma lámpara. Las tres tienen que coincidir. Si una falla, no es el umbral: es una sombra distinta o un cable. Iguala el gesto antes de cambiar el 400. Luego prueba la luz de la ventana y la de la mesa. Si con la ventana el LED ya nace encendido, tu claro es más oscuro que el del ejemplo, y la lección siguiente existe exactamente para eso. No lo arregles hoy bajando el número a ciegas más de una vez.</p>
+<p>Comprueba el sentido del divisor tapando: al tapar, enciende. Si al tapar se apaga, el LDR y la de 10 k están al revés. Se giran los componentes, no el if. Girar el if encima de un divisor al revés deja la lección de calibrar midiendo un circuito que no es el del curso.</p>
+<p>La resistencia de 220 no se queda al lado del LDR por si acaso. Vuelve al LED. Dos resistencias distintas, dos oficios. Si solo tienes una de 220, no simules el divisor: para y consigue una de 10 k, que es parte del material de la lección.</p>
+<h2>Sketch</h2>
+<pre><code>void setup() {
+  pinMode(13, OUTPUT);
+}
+
+void loop() {
+  int luz = analogRead(A0);
+  if (luz &lt; 400) {
+    digitalWrite(13, HIGH);
+  } else {
+    digitalWrite(13, LOW);
+  }
+}
+</code></pre>
+<h2>Ejercicio</h2>
+<p>Monta el divisor: LDR de A0 a 5V, 10 kΩ de A0 a GND. Tapa la LDR. El LED 13 debe encenderse a oscuras. Si va al revés, no desmontes aún: di si el número, a juzgar por la luz, sube o baja al tapar.</p>
+<section class="quiz">
+<h2>Autoevaluación</h2>
+<div class="pregunta"><p><strong>1.</strong> ¿La LDR sola, entre A0 y nada, mide luz?</p><button type="button" class="ver">ver respuesta</button><p class="respuesta" hidden>No. Hace falta el divisor con una resistencia fija.</p></div><div class="pregunta"><p><strong>2.</strong> En el montaje del curso, al tapar la LDR, ¿la lectura tiende a bajar o a subir?</p><button type="button" class="ver">ver respuesta</button><p class="respuesta" hidden>A bajar, porque la resistencia fija tira de A0 hacia masa.</p></div><div class="pregunta"><p><strong>3.</strong> ¿El umbral 400 es obligatorio?</p><button type="button" class="ver">ver respuesta</button><p class="respuesta" hidden>No. Es un punto de partida. Tiene que caer entre tu luz real y tu oscuridad real.</p></div>
+</section>
+<footer>les vencimos · Arduino Enseñanza · offline</footer>
+</article>
+<script>
+document.querySelectorAll("button.ver").forEach(function(b){
+  b.addEventListener("click", function(){
+    var r = b.parentElement.querySelector(".respuesta");
+    if(!r) return;
+    r.hidden = !r.hidden;
+    b.textContent = r.hidden ? "ver respuesta" : "ocultar respuesta";
+  });
+});
+var btn = document.getElementById("escuchar");
+if(btn){
+  btn.addEventListener("click", function(){
+    var el = document.getElementById("maestro-texto");
+    var texto = el ? el.textContent : "";
+    if(window.LesVencimosMaestro && typeof window.LesVencimosMaestro.decir === "function"){
+      window.LesVencimosMaestro.decir(texto);
+      return;
+    }
+    if(!window.speechSynthesis || typeof window.SpeechSynthesisUtterance !== "function") return;
+    window.speechSynthesis.cancel();
+    var u = new SpeechSynthesisUtterance(texto);
+    u.lang = "es-ES";
+    u.rate = 0.95;
+    window.speechSynthesis.speak(u);
+  });
+}
+
+document.querySelectorAll("textarea.nota-montaje").forEach(function(ta){
+  var art = document.querySelector("[data-ens]");
+  var key = "lv-ens-nota-" + (art ? art.getAttribute("data-ens") : "leccion");
+  try {
+    var prev = localStorage.getItem(key);
+    if(prev) ta.value = prev;
+    ta.addEventListener("input", function(){ localStorage.setItem(key, ta.value); });
+  } catch (e) {}
+});
+var sim = document.querySelector("section.sim");
+if(sim){
+  var canvas = sim.querySelector("canvas.sim-canvas");
+  var ctx = canvas.getContext("2d");
+  var kind = sim.getAttribute("data-sim");
+  var da = sim.getAttribute("data-a") || "";
+  var db = sim.getAttribute("data-b") || "";
+  var toggle = sim.querySelector(".sim-toggle");
+  var range = sim.querySelector(".sim-range");
+  var out = sim.querySelector(".sim-out");
+  var dedo = sim.querySelector(".sim-dedo");
+  var vivo = true;
+  var pulsado = false;
+  var permiso = true;
+  var ledOn = false;
+  var ultimoFlanco = 0;
+  var t0 = Date.now();
+  function num(el, fallo){ return el ? parseInt(el.value, 10) : fallo; }
+  if(dedo && kind !== "noche"){
+    dedo.addEventListener("pointerdown", function(ev){
+      pulsado = true;
+      if(kind === "flanco"){
+        var ahora = Date.now();
+        if(ahora - ultimoFlanco > 30){
+          ledOn = !ledOn;
+          ultimoFlanco = ahora;
+        }
+      }
+      ev.preventDefault();
+    });
+    window.addEventListener("pointerup", function(){ pulsado = false; });
+  }
+  if(dedo && kind === "noche"){
+    dedo.addEventListener("click", function(){
+      permiso = !permiso;
+      dedo.setAttribute("aria-pressed", permiso ? "true" : "false");
+      dedo.textContent = permiso ? "Permiso dado" : "Sin permiso";
+    });
+  }
+  if(toggle){
+    toggle.addEventListener("click", function(){
+      vivo = !vivo;
+      toggle.setAttribute("aria-pressed", vivo ? "true" : "false");
+      toggle.textContent = vivo ? "Parar simulación" : "Encender simulación";
+    });
+  }
+  function circulo(x, y, r, on, nivel){
+    ctx.beginPath();
+    ctx.arc(x, y, r, 0, Math.PI * 2);
+    if(on){
+      var a = nivel == null ? 1 : nivel;
+      ctx.fillStyle = "rgba(196,161,90," + (0.25 + 0.75 * a) + ")";
+      ctx.shadowColor = "#C4A15A";
+      ctx.shadowBlur = 16 * a;
+    } else {
+      ctx.fillStyle = "#2A2720";
+      ctx.shadowBlur = 0;
+    }
+    ctx.fill();
+    ctx.shadowBlur = 0;
+    ctx.lineWidth = 2;
+    ctx.strokeStyle = on ? "#C4A15A" : "#9A9488";
+    ctx.stroke();
+  }
+  function caja(x, y, w, h, titulo){
+    ctx.fillStyle = "#161512";
+    ctx.strokeStyle = "#C4A15A";
+    ctx.lineWidth = 2;
+    ctx.fillRect(x, y, w, h);
+    ctx.strokeRect(x, y, w, h);
+    ctx.fillStyle = "#E6E1D6";
+    ctx.font = "14px sans-serif";
+    ctx.fillText(titulo, x + 10, y + 22);
+  }
+  function texto(x, y, s, col){
+    ctx.fillStyle = col || "#E6E1D6";
+    ctx.font = "13px sans-serif";
+    ctx.fillText(s, x, y);
+  }
+  function frame(){
+    var ahora = Date.now();
+    var lectura = num(range, 0);
+    var enciende = false;
+    var nivel = 1;
+    var etiqueta = "";
+    if(kind === "blink"){
+      var hi = parseInt(da, 10) || 500;
+      var lo = parseInt(db, 10) || 500;
+      var ciclo = hi + lo;
+      var fase = vivo ? ((ahora - t0) % ciclo) : 0;
+      enciende = vivo && fase < hi;
+      etiqueta = enciende ? "HIGH" : "LOW";
+    } else if(kind === "hold"){
+      enciende = vivo && pulsado;
+      etiqueta = pulsado ? "LOW, pulsado" : "HIGH, suelto";
+    } else if(kind === "nivel"){
+      enciende = vivo && pulsado;
+      etiqueta = pulsado ? "lectura LOW" : "lectura HIGH";
+    } else if(kind === "flanco"){
+      enciende = vivo && ledOn;
+      etiqueta = enciende ? "LED encendido" : "LED apagado";
+    } else if(kind === "umbral"){
+      var umbral = parseInt(da, 10);
+      enciende = vivo && (db === "lt" ? lectura < umbral && lectura > 0 : lectura > umbral);
+      if(sim.getAttribute("data-sim") === "umbral" && da === "20"){
+        enciende = vivo && lectura > 0 && lectura < umbral;
+      }
+      etiqueta = String(lectura);
+      nivel = 1;
+    } else if(kind === "pwm"){
+      nivel = vivo ? lectura / 255 : 0;
+      enciende = vivo && lectura > 0;
+      etiqueta = String(lectura);
+    } else if(kind === "servo"){
+      var span = 140;
+      var pos = vivo ? ((ahora - t0) % 2800) / 2800 : 0.5;
+      var tri = pos < 0.5 ? pos * 2 : (1 - pos) * 2;
+      var grados = Math.round(20 + tri * span);
+      if(range) range.value = String(grados);
+      lectura = grados;
+      enciende = vivo;
+      etiqueta = grados + " grados";
+    } else if(kind === "buzz"){
+      var fb = vivo ? ((ahora - t0) % 1000) : 500;
+      etiqueta = fb < 300 ? "440" : (fb < 600 ? "880" : "silencio");
+      enciende = vivo && fb < 600;
+    } else if(kind === "carga"){
+      var fc = vivo ? ((ahora - t0) % 4000) : 2000;
+      enciende = vivo && fc < 2000;
+      etiqueta = enciende ? "pin en HIGH" : "pin en LOW";
+    } else if(kind === "semi"){
+      var fs = vivo ? ((ahora - t0) % 3500) : 0;
+      etiqueta = fs < 1500 ? "rojo" : (fs < 2000 ? "ambar" : "verde");
+      enciende = vivo;
+    } else if(kind === "alarma"){
+      enciende = vivo && lectura > 0 && lectura < 20;
+      etiqueta = lectura + " cm";
+    } else if(kind === "noche"){
+      var noche = lectura < 400 && permiso;
+      enciende = vivo && noche;
+      nivel = enciende ? 180/255 : 0;
+      etiqueta = (permiso ? "con permiso" : "sin permiso") + " · " + lectura;
+    }
+    if(out) out.textContent = etiqueta;
+    ctx.clearRect(0, 0, 320, 160);
+    ctx.fillStyle = "#1C1A16";
+    ctx.fillRect(0, 0, 320, 160);
+    caja(12, 28, 90, 100, "Uno");
+    if(kind === "semi"){
+      var fs2 = vivo ? ((ahora - t0) % 3500) : 0;
+      circulo(160, 48, 14, vivo && fs2 < 1500, 1);
+      circulo(210, 48, 14, vivo && fs2 >= 1500 && fs2 < 2000, 1);
+      circulo(260, 48, 14, vivo && fs2 >= 2000, 1);
+      texto(150, 78, "10 rojo");
+      texto(198, 78, "11");
+      texto(248, 78, "12 verde");
+      texto(16, 150, vivo ? "ciclo en marcha" : "simulación parada", "#9A9488");
+    } else if(kind === "servo"){
+      var rad = (180 - lectura) * Math.PI / 180;
+      ctx.strokeStyle = "#C4A15A";
+      ctx.lineWidth = 4;
+      ctx.beginPath();
+      ctx.moveTo(200, 110);
+      ctx.lineTo(200 + Math.cos(rad) * 70, 110 - Math.sin(rad) * 50);
+      ctx.stroke();
+      circulo(200, 110, 8, true, 1);
+      texto(120, 150, etiqueta);
+    } else if(kind === "buzz" || kind === "alarma"){
+      circulo(150, 80, 18, kind === "alarma" ? enciende : false, 1);
+      texto(176, 76, kind === "alarma" ? "LED 13" : "");
+      ctx.beginPath();
+      ctx.arc(250, 80, 22, 0, Math.PI * 2);
+      ctx.strokeStyle = enciende ? "#C4A15A" : "#9A9488";
+      ctx.lineWidth = 3;
+      ctx.stroke();
+      if(enciende){
+        ctx.beginPath();
+        ctx.arc(250, 80, 32, 0, Math.PI * 2);
+        ctx.stroke();
+      }
+      texto(120, 140, etiqueta);
+    } else if(kind === "carga"){
+      circulo(170, 70, 16, enciende, 1);
+      texto(196, 66, "orden");
+      ctx.strokeStyle = enciende ? "#8F9A72" : "#9A9488";
+      ctx.strokeRect(230, 48, 70, 44);
+      texto(242, 74, enciende ? "carga" : "quieta", enciende ? "#8F9A72" : "#9A9488");
+      texto(16, 150, etiqueta, "#9A9488");
+    } else {
+      circulo(200, 78, 18, enciende, nivel);
+      texto(230, 74, "LED");
+      texto(16, 150, etiqueta, "#9A9488");
+    }
+    if(!vivo){
+      texto(230, 150, "parada", "#9A9488");
+    }
+    requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+}
+
+</script>
+</body>
+</html>

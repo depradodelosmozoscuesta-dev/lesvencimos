@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<meta name="theme-color" content="#0E0E0C"/>
+<title>Lección 20 · Sistemas no lineales y regiones · Les vencimos</title>
+<link rel="icon" href="../icons/favicon.svg" type="image/svg+xml"/>
+<link rel="stylesheet" href="../leccion-shell.css"/>
+<style>
+  .pasos{list-style:none;margin:0 0 1rem;padding:0;counter-reset:paso}
+  .pasos li{position:relative;margin:0 0 .7rem;padding:.7rem .8rem .7rem 3.1rem;background:var(--lv-panel);border:1px solid var(--lv-linea);border-radius:10px}
+  .pasos li::before{counter-increment:paso;content:counter(paso);position:absolute;left:.65rem;top:.7rem;width:1.7rem;height:1.7rem;border-radius:50%;background:#C4A15A;color:#1A160E;font-weight:700;font-size:.9rem;display:flex;align-items:center;justify-content:center}
+  .figura-svg{background:var(--lv-panel);border:1px solid var(--lv-linea);border-radius:10px;padding:.4rem;margin:.4rem 0 1rem}
+  .figura-svg svg{width:100%;height:auto;display:block}
+  .ej{margin:0 0 1rem;padding:.85rem .95rem;background:var(--lv-panel);border:1px solid var(--lv-linea);border-left:3px solid #C4A15A;border-radius:10px}
+  .ej h3{margin:0 0 .35rem;font-family:var(--lv-serif);font-size:1.05rem;color:var(--lv-titulo)}
+  .editor,textarea.editor{width:100%;min-height:5.2rem;font-family:ui-monospace,monospace;font-size:.95rem;line-height:1.4;padding:.55rem .65rem;border:1px solid rgba(196,161,90,.45);border-radius:8px;background:#161512;color:#E6E1D6;resize:vertical;box-sizing:border-box}
+  .lienzo{display:block;width:100%;max-width:640px;height:280px;background:#161512;border:1px solid #C4A15A;border-radius:8px;touch-action:none;cursor:crosshair}
+  .fila{display:flex;flex-wrap:wrap;gap:.4rem;margin:.45rem 0;align-items:center}
+  .boton{font:inherit;font-weight:700;font-size:.85rem;padding:.35rem .75rem;border-radius:999px;border:1px solid #C4A15A;background:transparent;color:#E6E1D6;cursor:pointer}
+  .porque{margin-top:.5rem;padding:.6rem .7rem;background:#1a2218;border-radius:8px;color:#E6E1D6}
+  .dato{font-size:.95rem;color:var(--lv-suave)}
+  table.datos{width:100%;border-collapse:collapse;margin:.4rem 0 1rem;font-size:.98rem}
+  table.datos th,table.datos td{border:1px solid var(--lv-linea);padding:.35rem .5rem;text-align:left}
+  table.datos th{background:#161512;color:#C4A15A}
+  .glosa{display:block;font-size:.9rem;color:#9A9488;margin:.15rem 0 .7rem}
+  .formula{display:block;margin:.35rem 0 .15rem;padding:.45rem .7rem;background:#161512;border-left:3px solid #C4A15A;overflow-x:auto}
+  input.campo{background:#161512;color:#E6E1D6;border:1px solid #C4A15A;border-radius:6px;padding:.3rem .45rem;width:5.5rem}
+  .salida{font-family:ui-monospace,monospace;color:#C4A15A}
+</style>
+<script src="../leccion-shell-nav.js" defer></script>
+</head>
+<body class="leccion-shell">
+<div class="leccion-wrap">
+<nav class="leccion-barra" aria-label="Navegación de lección" data-actual="20" data-total="33">
+  <div class="leccion-progreso" role="status">
+    <span class="progreso-texto"><strong>20</strong> de <strong>33</strong></span>
+    <div class="progreso-pista" aria-hidden="true"><div class="progreso-lleno" style="width:62.5%"></div></div>
+  </div>
+  <div class="leccion-atajos">
+    <a class="atajo atajo-prev" href="leccion-19-sistemas-gauss.html">← Anterior</a>
+    <a class="atajo atajo-next" href="leccion-21-graficas.html">Siguiente →</a>
+  </div>
+</nav>
+<header class="leccion-top">
+  <p class="leccion-marca">Les <span>vencimos</span></p>
+  <p class="leccion-meta-top">Matemáticas Aplicadas a las CCSS I · 1º Bachillerato</p>
+</header>
+<header class="bloque-titulo">
+  <span class="eyebrow">Lección 20 · C.3 · No lineales</span>
+  <h1 class="titulo-leccion">Sistemas no lineales e <em>inecuaciones</em></h1>
+  <p class="meta-leccion">1º Bach CCSS · CyL Decreto 40/2022 · C.3 Sistemas no lineales e inecuaciones lineales</p>
+</header>
+
+<aside class="bloque-curiosidad"><p class="etiqueta-bloque">Para situarte</p>
+<h2 class="titulo-curiosidad">Una curva y una recta, o varias rectas a la vez</h2>
+<p class="texto-curiosidad">Los sistemas no lineales sencillos de este curso se reducen a una ecuación de segundo grado. Un sistema de inecuaciones lineales no da un punto: da una región del plano.</p></aside>
+<section class="bloque-cuerpo">
+<h2>Objetivos</h2>
+<ul>
+<li>Resolver sistemas no lineales sencillos por sustitución y quedarse solo con las parejas que cumplen todas las ecuaciones.</li>
+<li>Representar la región solución de un sistema de inecuaciones lineales y hallar sus vértices.</li>
+<li>Decidir si un punto concreto es interior, frontera o exterior.</li>
+</ul>
+<h2>Sustitución</h2>
+<p>Si una ecuación despeja y con facilidad, se lleva a la otra. Cada solución de la ecuación en una variable se devuelve a la despejada y se comprueba en las dos ecuaciones. Puede haber dos parejas, una, o ninguna.</p>
+<p class="formula">De x + y = s y xy = p sale t² − s t + p = 0.</p>
+<span class="glosa">s es la suma conocida; p es el producto conocido; t representa tanto a x como a y, que son las dos raíces de esa cuadrática.</span>
+<h2>Ejemplo 1. Suma 5 y producto 6</h2>
+<ol class="pasos">
+<li>y = 5 − x. Entonces x(5 − x) = 6.</li>
+<li>5x − x² = 6 → x² − 5x + 6 = 0 → (x − 2)(x − 3) = 0.</li>
+<li>x = 2 da y = 3. x = 3 da y = 2.</li>
+<li>Comprobación: 2+3=5 y 2·3=6; lo mismo al revés.</li>
+</ol>
+<p>Parejas: (2, 3) y (3, 2).</p>
+<h2>Ejemplo 2. Circunferencia y recta, enteros</h2>
+<p>x² + y² = 25, x + y = 7.</p>
+<ol class="pasos">
+<li>y = 7 − x. Sustitución: x² + (7 − x)² = 25.</li>
+<li>x² + 49 − 14x + x² = 25 → 2x² − 14x + 24 = 0 → x² − 7x + 12 = 0.</li>
+<li>(x − 3)(x − 4) = 0. Parejas: (3, 4) y (4, 3).</li>
+<li>3²+4²=9+16=25 y 3+4=7. Igual la otra pareja.</li>
+</ol>
+<p class="formula">x² + (7 − x)² = 25.</p>
+<span class="glosa">x es la abscisa; 7 − x es la ordenada que impone la recta; 25 es el cuadrado del radio, no el radio. El radio es 5.</span>
+<h2>Región plana</h2>
+<p>Sistema: x ≥ 0, y ≥ 0, x + y ≤ 4, y ≤ 2. Cada desigualdad es un semiplano. La solución es la intersección. Los vértices salen al cruzar las fronteras de dos en dos y comprobar que cumplen el resto.</p>
+<ul>
+<li>(0, 0): ejes. Cumple todo.</li>
+<li>(4, 0): x + y = 4 con y = 0. Además y = 0 ≤ 2.</li>
+<li>(2, 2): x + y = 4 con y = 2.</li>
+<li>(0, 2): x = 0 con y = 2. Y 0+2 ≤ 4.</li>
+</ul>
+<p>El punto (4, 2) no entra: 4+2=6 &gt; 4. El polígono es (0,0), (4,0), (2,2), (0,2).</p>
+<div class="figura-svg"><svg viewBox="0 0 360 240" role="img">
+<title>Región x mayor o igual que 0, y mayor o igual que 0, x más y menor o igual que 4, y menor o igual que 2</title>
+<rect width="360" height="240" fill="#161512"/>
+<line x1="40" y1="200" x2="320" y2="200" stroke="#9A9488"/>
+<line x1="40" y1="200" x2="40" y2="20" stroke="#9A9488"/>
+<polygon points="40,200 200,200 120,120 40,120" fill="rgba(196,161,90,0.35)" stroke="#C4A15A" stroke-width="2"/>
+<text x="28" y="216" fill="#E6E1D6" font-size="12">(0,0)</text>
+<text x="188" y="216" fill="#E6E1D6" font-size="12">(4,0)</text>
+<text x="124" y="112" fill="#C4A15A" font-size="12">(2,2)</text>
+<text x="44" y="114" fill="#E6E1D6" font-size="12">(0,2)</text>
+</svg></div>
+<p class="formula">x ≥ 0, y ≥ 0, x + y ≤ 4, y ≤ 2.</p>
+<span class="glosa">x e y son las coordenadas del plano; 4 es el tope de la suma; 2 es el tope de y; 0 es el borde de cada eje que se incluye.</span>
+<h2>Ejercicios</h2>
+<article class="ej">
+<h3>1. Suma y producto</h3>
+<p>Resuelve x + y = 6, xy = 8.</p>
+<label for="e20a">Tu razonamiento</label>
+<textarea class="editor" id="e20a"></textarea>
+<details class="porque"><summary>Corrección</summary>
+<ol class="pasos"><li>t² − 6t + 8 = 0.</li><li>(t − 2)(t − 4) = 0.</li><li>Parejas (2, 4) y (4, 2).</li><li>Comprobación: 2+4=6, 2·4=8.</li></ol>
+<p class="porque">Las dos parejas son distintas porque x e y intercambian papeles. Las dos cumplen las dos ecuaciones.</p>
+</details>
+</article>
+<article class="ej">
+<h3>2. Circunferencia y bisectriz</h3>
+<p>Resuelve x² + y² = 10, y = x. Deja el resultado exacto.</p>
+<label for="e20b">Tu razonamiento</label>
+<textarea class="editor" id="e20b"></textarea>
+<details class="porque"><summary>Corrección</summary>
+<ol class="pasos"><li>x² + x² = 10, 2x² = 10, x² = 5.</li><li>x = √5 o x = −√5, e y toma el mismo signo.</li><li>Parejas (√5, √5) y (−√5, −√5).</li><li>(√5)² + (√5)² = 5 + 5 = 10. No hace falta un decimal.</li></ol>
+<p class="porque">y = x obliga a que las dos coordenadas sean iguales. Las soluciones con signos opuestos cumplirían y = −x, que no es esta recta.</p>
+</details>
+</article>
+<article class="ej">
+<h3>3. Triángulo en el primer cuadrante</h3>
+<p>Describe la región x ≥ 0, y ≥ 0, 2x + y ≤ 4 y da sus vértices.</p>
+<label for="e20c">Tu razonamiento</label>
+<textarea class="editor" id="e20c"></textarea>
+<details class="porque"><summary>Corrección</summary>
+<ol class="pasos"><li>Cruce de x = 0 e y = 0: (0, 0), y 0 ≤ 4.</li><li>Cruce de y = 0 y 2x + y = 4: x = 2, vértice (2, 0).</li><li>Cruce de x = 0 y 2x + y = 4: y = 4, vértice (0, 4).</li><li>Región: triángulo de vértices (0,0), (2,0) y (0,4). El punto (1,1) cumple 2+1=3 ≤ 4.</li></ol>
+<p class="porque">Tres desigualdades de frontera dan como mucho un triángulo. (2, 2) no entra: 4 + 2 = 6 &gt; 4.</p>
+</details>
+</article>
+<article class="ej">
+<h3>4. Sin soluciones reales</h3>
+<p>Estudia x² + y² = 1, x + y = 3.</p>
+<label for="e20d">Tu razonamiento</label>
+<textarea class="editor" id="e20d"></textarea>
+<details class="porque"><summary>Corrección</summary>
+<ol class="pasos"><li>y = 3 − x.</li><li>x² + (3 − x)² = 1 → 2x² − 6x + 9 = 1 → 2x² − 6x + 8 = 0.</li><li>x² − 3x + 4 = 0. Discriminante 9 − 16 = −7 &lt; 0.</li><li>No hay soluciones reales. La recta no corta a la circunferencia de radio 1.</li></ol>
+<p class="porque">En la circunferencia unidad, el mayor valor de x + y es √2, aproximadamente 1,41, menor que 3. El discriminante negativo es la cuenta que lo demuestra sin aproximar.</p>
+</details>
+</article>
+
+<h2>Cierre</h2>
+<p>En un sistema no lineal, cada pareja se comprueba en todas las ecuaciones. En un sistema de inecuaciones, la respuesta es la región: vértices, lados incluidos o no, y un punto de prueba.</p>
+</section>
+
+<footer class="leccion-pie"><strong>Les vencimos</strong> · L20 de 33 · Matemáticas Aplicadas a las CCSS I · sin publicar</footer>
+</div>
+<script type="application/json" data-maestro="guion">{"curso": "bach1-mates-ccs", "leccion": 20, "titulo": "Sistemas no lineales y regiones", "url": "leccion-20-sistemas-no-lineales.html", "musica": false}</script>
+
+<!-- saber: C.3 -->
+</body>
+</html>

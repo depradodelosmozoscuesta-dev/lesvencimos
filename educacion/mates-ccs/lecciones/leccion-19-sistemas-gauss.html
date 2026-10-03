@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<meta name="theme-color" content="#0E0E0C"/>
+<title>Lección 19 · Sistemas lineales y método de Gauss · Les vencimos</title>
+<link rel="icon" href="../icons/favicon.svg" type="image/svg+xml"/>
+<link rel="stylesheet" href="../leccion-shell.css"/>
+<style>
+  .pasos{list-style:none;margin:0 0 1rem;padding:0;counter-reset:paso}
+  .pasos li{position:relative;margin:0 0 .7rem;padding:.7rem .8rem .7rem 3.1rem;background:var(--lv-panel);border:1px solid var(--lv-linea);border-radius:10px}
+  .pasos li::before{counter-increment:paso;content:counter(paso);position:absolute;left:.65rem;top:.7rem;width:1.7rem;height:1.7rem;border-radius:50%;background:#C4A15A;color:#1A160E;font-weight:700;font-size:.9rem;display:flex;align-items:center;justify-content:center}
+  .figura-svg{background:var(--lv-panel);border:1px solid var(--lv-linea);border-radius:10px;padding:.4rem;margin:.4rem 0 1rem}
+  .figura-svg svg{width:100%;height:auto;display:block}
+  .ej{margin:0 0 1rem;padding:.85rem .95rem;background:var(--lv-panel);border:1px solid var(--lv-linea);border-left:3px solid #C4A15A;border-radius:10px}
+  .ej h3{margin:0 0 .35rem;font-family:var(--lv-serif);font-size:1.05rem;color:var(--lv-titulo)}
+  .editor,textarea.editor{width:100%;min-height:5.2rem;font-family:ui-monospace,monospace;font-size:.95rem;line-height:1.4;padding:.55rem .65rem;border:1px solid rgba(196,161,90,.45);border-radius:8px;background:#161512;color:#E6E1D6;resize:vertical;box-sizing:border-box}
+  .lienzo{display:block;width:100%;max-width:640px;height:280px;background:#161512;border:1px solid #C4A15A;border-radius:8px;touch-action:none;cursor:crosshair}
+  .fila{display:flex;flex-wrap:wrap;gap:.4rem;margin:.45rem 0;align-items:center}
+  .boton{font:inherit;font-weight:700;font-size:.85rem;padding:.35rem .75rem;border-radius:999px;border:1px solid #C4A15A;background:transparent;color:#E6E1D6;cursor:pointer}
+  .porque{margin-top:.5rem;padding:.6rem .7rem;background:#1a2218;border-radius:8px;color:#E6E1D6}
+  .dato{font-size:.95rem;color:var(--lv-suave)}
+  table.datos{width:100%;border-collapse:collapse;margin:.4rem 0 1rem;font-size:.98rem}
+  table.datos th,table.datos td{border:1px solid var(--lv-linea);padding:.35rem .5rem;text-align:left}
+  table.datos th{background:#161512;color:#C4A15A}
+  .glosa{display:block;font-size:.9rem;color:#9A9488;margin:.15rem 0 .7rem}
+  .formula{display:block;margin:.35rem 0 .15rem;padding:.45rem .7rem;background:#161512;border-left:3px solid #C4A15A;overflow-x:auto}
+  input.campo{background:#161512;color:#E6E1D6;border:1px solid #C4A15A;border-radius:6px;padding:.3rem .45rem;width:5.5rem}
+  .salida{font-family:ui-monospace,monospace;color:#C4A15A}
+</style>
+<script src="../leccion-shell-nav.js" defer></script>
+</head>
+<body class="leccion-shell">
+<div class="leccion-wrap">
+<nav class="leccion-barra" aria-label="Navegación de lección" data-actual="19" data-total="33">
+  <div class="leccion-progreso" role="status">
+    <span class="progreso-texto"><strong>19</strong> de <strong>33</strong></span>
+    <div class="progreso-pista" aria-hidden="true"><div class="progreso-lleno" style="width:59.38%"></div></div>
+  </div>
+  <div class="leccion-atajos">
+    <a class="atajo atajo-prev" href="leccion-18-inecuaciones.html">← Anterior</a>
+    <a class="atajo atajo-next" href="leccion-20-sistemas-no-lineales.html">Siguiente →</a>
+  </div>
+</nav>
+<header class="leccion-top">
+  <p class="leccion-marca">Les <span>vencimos</span></p>
+  <p class="leccion-meta-top">Matemáticas Aplicadas a las CCSS I · 1º Bachillerato</p>
+</header>
+<header class="bloque-titulo">
+  <span class="eyebrow">Lección 19 · C.3 · Sistemas lineales</span>
+  <h1 class="titulo-leccion">Sistemas lineales y método de <em>Gauss</em></h1>
+  <p class="meta-leccion">1º Bach CCSS · CyL Decreto 40/2022 · C.3 Sistemas lineales con tres incógnitas</p>
+</header>
+
+<aside class="bloque-curiosidad"><p class="etiqueta-bloque">Para situarte</p>
+<h2 class="titulo-curiosidad">Gauss ordena, no adivina</h2>
+<p class="texto-curiosidad">Un sistema lineal con tres incógnitas se escribe como matriz ampliada y se triangulariza. Al final hay una solución, ninguna, o infinitas.</p></aside>
+<section class="bloque-cuerpo">
+<h2>Objetivos</h2>
+<ul>
+<li>Traducir un sistema lineal a matriz ampliada.</li>
+<li>Resolver un sistema 3×3 por Gauss, con solución entera, dejando cada fila escrita.</li>
+<li>Reconocer en pocas cuentas un sistema incompatible y uno indeterminado.</li>
+</ul>
+<h2>Operaciones permitidas</h2>
+<p>Se puede permutar filas, multiplicar una fila por un número distinto de cero y sumar a una fila un múltiplo de otra. El sistema nuevo tiene exactamente las mismas soluciones. Se busca un escalón: un 1 (o un pivote claro) y ceros debajo.</p>
+<p class="formula">Fila nueva = fila − k · otra fila.</p>
+<span class="glosa">k es el número que anula la entrada que quieres limpiar; se elige como «entrada a borrar dividida entre el pivote».</span>
+<div class="figura-svg"><svg viewBox="0 0 520 150" role="img">
+<title>Esquema de una matriz ampliada 3 por 4 ya escalonada</title>
+<rect width="520" height="150" fill="#161512"/>
+<text x="40" y="36" fill="#9A9488" font-size="14">Escalón al que se llega</text>
+<g font-family="ui-monospace,monospace" font-size="18" fill="#E6E1D6">
+<text x="70" y="72">1   *   *   |   *</text>
+<text x="70" y="100">0   1   *   |   *</text>
+<text x="70" y="128" fill="#C4A15A">0   0   ■   |   *</text>
+</g>
+</svg></div>
+<h2>Ejemplo 1. Un 3×3 con solución (1, 2, −1)</h2>
+<p>Sistema, ya comprobado al final:</p>
+<p class="formula">x + y + z = 2; &nbsp; 2x + y − z = 5; &nbsp; x − y + 2z = −3.</p>
+<span class="glosa">x, y, z son las tres incógnitas. Los coeficientes de la segunda ecuación son 2, 1 y −1; el término independiente es 5. En la tercera, el coeficiente de y es −1 y el de z es 2.</span>
+<ol class="pasos">
+<li>Matriz ampliada de partida:
+<pre>1   1   1  |  2
+2   1  −1  |  5
+1  −1   2  | −3</pre></li>
+<li>F2 ← F2 − 2·F1. Coeficientes: 2−2=0, 1−2=−1, −1−2=−3. Independiente: 5−4=1.
+F3 ← F3 − F1: 0, −1−1=−2, 2−1=1, −3−2=−5.
+<pre>1   1   1  |  2
+0  −1  −3  |  1
+0  −2   1  | −5</pre></li>
+<li>F2 ← −1·F2, para dejar pivote 1:
+<pre>1   1   1  |  2
+0   1   3  | −1
+0  −2   1  | −5</pre></li>
+<li>F3 ← F3 + 2·F2. Columna de y: −2+2=0. Columna de z: 1+6=7. Independiente: −5+2·(−1)=−7.
+<pre>1   1   1  |  2
+0   1   3  | −1
+0   0   7  | −7</pre></li>
+<li>7z = −7, así z = −1. Segunda fila: y + 3·(−1) = −1 → y − 3 = −1 → y = 2. Primera: x + 2 + (−1) = 2 → x + 1 = 2 → x = 1.</li>
+<li>Comprobación. Eq1: 1+2−1=2. Eq2: 2·1 + 2 − (−1) = 5. Eq3: 1 − 2 + 2·(−1) = −3.</li>
+</ol>
+<h2>Ejemplo 2. Sin solución, y otro con infinitas</h2>
+<p>Incompatible, en dos ecuaciones que ya delatan el caso:</p>
+<p class="formula">x + y = 3; &nbsp; 2x + 2y = 7.</p>
+<span class="glosa">x e y son incógnitas. La segunda fila es el doble de la primera en los coeficientes, pero 7 no es el doble de 3.</span>
+<ol class="pasos">
+<li>F2 ← F2 − 2·F1 deja 0x + 0y = 7 − 6 = 1.</li>
+<li>0 = 1 es imposible. No hay solución.</li>
+</ol>
+<p>Indeterminado, ahora con tres incógnitas y una fila que se anula:</p>
+<p class="formula">x + y + z = 3; &nbsp; 2x + 2y + 2z = 6; &nbsp; x + z = 2.</p>
+<span class="glosa">La segunda ecuación es el doble de la primera, término independiente incluido (6 = 2·3). No aporta información nueva.</span>
+<ol class="pasos">
+<li>F2 − 2·F1 es la fila cero, compatible.</li>
+<li>De la tercera, z = 2 − x. De la primera: x + y + (2 − x) = 3 → y = 1.</li>
+<li>x queda libre. Hay infinitas soluciones: (x, 1, 2 − x), con x real. Dos de ellas: (0, 1, 2) y (1, 1, 1).</li>
+</ol>
+<h2>Ejercicios</h2>
+<article class="ej">
+<h3>1. Suma y resta</h3>
+<p>Resuelve x + y = 7, x − y = 1.</p>
+<label for="e19a">Tu razonamiento</label>
+<textarea class="editor" id="e19a"></textarea>
+<details class="porque"><summary>Corrección</summary>
+<ol class="pasos"><li>Sumando las dos ecuaciones: 2x = 8, x = 4.</li><li>Restando: 2y = 6, y = 3. O bien y = 7 − x = 3.</li><li>Comprobación: 4 + 3 = 7 y 4 − 3 = 1.</li></ol>
+<p class="porque">Dos ecuaciones con dos incógnitas y coeficientes de y opuestos se resuelven sumando. No hace falta Gauss; el método es el mismo tipo de combinación de filas.</p>
+</details>
+</article>
+<article class="ej">
+<h3>2. Gauss corto</h3>
+<p>Resuelve por Gauss: x + z = 3, y + z = 1, x + y + z = 3.</p>
+<label for="e19b">Tu razonamiento</label>
+<textarea class="editor" id="e19b"></textarea>
+<details class="porque"><summary>Corrección</summary>
+<ol class="pasos"><li>Matriz: filas (1 0 1 | 3), (0 1 1 | 1), (1 1 1 | 3).</li><li>F3 ← F3 − F1 queda (0 1 0 | 0).</li><li>F3 ← F3 − F2 queda (0 0 −1 | −1), así z = 1.</li><li>y + 1 = 1 → y = 0. x + 1 = 3 → x = 2. Comprobación: 2+1=3, 0+1=1, 2+0+1=3.</li></ol>
+<p class="porque">El pivote de z salió −1, no 1. Se puede dividir la fila entre −1 o despejar directamente: −z = −1 da el mismo z = 1.</p>
+</details>
+</article>
+<article class="ej">
+<h3>3. Incompatible</h3>
+<p>Estudia x + 2y = 4, 2x + 4y = 5.</p>
+<label for="e19c">Tu razonamiento</label>
+<textarea class="editor" id="e19c"></textarea>
+<details class="porque"><summary>Corrección</summary>
+<ol class="pasos"><li>F2 − 2·F1: coeficientes 0 y 0.</li><li>Independiente: 5 − 8 = −3.</li><li>Queda 0 = −3. Ninguna solución.</li></ol>
+<p class="porque">Los coeficientes son proporcionales (razón 2) y los términos independientes no (5 no es 8). Esa es la señal de incompatibilidad, y la fila cero con independiente distinto de cero lo confirma.</p>
+</details>
+</article>
+<article class="ej">
+<h3>4. Una libre</h3>
+<p>Estudia x + 2y = 4, 2x + 4y = 8.</p>
+<label for="e19d">Tu razonamiento</label>
+<textarea class="editor" id="e19d"></textarea>
+<details class="porque"><summary>Corrección</summary>
+<ol class="pasos"><li>F2 − 2·F1 es 0 = 0, compatible y redundante.</li><li>Queda una sola condición: x + 2y = 4.</li><li>x = 4 − 2y, con y libre. Infinitas soluciones. Por ejemplo y = 0 da (4, 0); y = 1 da (2, 1).</li></ol>
+<p class="porque">Aquí el término independiente también se duplica (8 = 2·4), así que la segunda ecuación no añade nada. No hay una única pareja (x, y).</p>
+</details>
+</article>
+
+<h2>Cierre</h2>
+<p>Gauss termina en tres desenlaces: un pivote por incógnita (solución única), una fila 0 = c con c ≠ 0 (ninguna) o una fila 0 = 0 que deja una incógnita libre (infinitas). Sustituye la terna en las tres ecuaciones de partida antes de darla por buena.</p>
+</section>
+
+<footer class="leccion-pie"><strong>Les vencimos</strong> · L19 de 33 · Matemáticas Aplicadas a las CCSS I · sin publicar</footer>
+</div>
+<script type="application/json" data-maestro="guion">{"curso": "bach1-mates-ccs", "leccion": 19, "titulo": "Sistemas lineales y método de Gauss", "url": "leccion-19-sistemas-gauss.html", "musica": false}</script>
+
+<!-- saber: C.3 -->
+</body>
+</html>

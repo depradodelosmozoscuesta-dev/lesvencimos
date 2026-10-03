@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<meta name="theme-color" content="#0E0E0C"/>
+<title>Lección 28 · Estadística: leer sin deformar · Les vencimos</title>
+<link rel="icon" href="../icons/favicon.svg" type="image/svg+xml"/>
+<link rel="manifest" href="../manifest.webmanifest"/>
+<link rel="stylesheet" href="../leccion-shell.css"/>
+<style>
+.pasos{list-style:none;margin:0 0 1rem;padding:0;counter-reset:paso}
+.pasos li{position:relative;margin:0 0 .7rem;padding:.7rem .8rem .7rem 3.1rem;background:var(--lv-panel);border:1px solid var(--lv-linea);border-radius:10px}
+.pasos li::before{counter-increment:paso;content:counter(paso);position:absolute;left:.65rem;top:.7rem;width:1.7rem;height:1.7rem;border-radius:50%;background:#C4A15A;color:#1A160E;font-weight:700;font-size:.9rem;display:flex;align-items:center;justify-content:center}
+.figura-svg{background:#161512;border:1px solid var(--lv-linea);border-radius:10px;padding:.5rem;margin:.5rem 0 1.1rem}
+.figura-svg svg{width:100%;height:auto;display:block}
+.ej{margin:0 0 1rem;padding:.85rem .95rem;background:var(--lv-panel);border:1px solid var(--lv-linea);border-left:3px solid #C4A15A;border-radius:10px}
+.ej h3{margin:0 0 .35rem;font-family:var(--lv-serif);font-size:1.05rem;color:var(--lv-titulo)}
+.editor,textarea.editor{width:100%;min-height:5.5rem;font-family:ui-monospace,monospace;font-size:.95rem;line-height:1.45;padding:.55rem .65rem;border:1px solid rgba(196,161,90,.45);border-radius:8px;background:#161512;color:#E6E1D6;resize:vertical}
+.lienzo{display:block;width:100%;height:280px;background:#161512;border:1px solid #C4A15A;border-radius:8px;touch-action:none;cursor:crosshair}
+.fila{display:flex;flex-wrap:wrap;gap:.4rem;margin:.45rem 0}
+.boton{font:inherit;font-weight:700;font-size:.85rem;padding:.4rem .8rem;border-radius:999px;border:1px solid #C4A15A;background:transparent;color:#E6E1D6;cursor:pointer}
+.porque{margin-top:.55rem;padding:.65rem .75rem;background:#1a2218;border-radius:8px;color:#E6E1D6}
+.dato{font-size:.95rem;color:var(--lv-suave)}
+.glosa{display:block;font-size:.9rem;color:#9A9488;margin:.25rem 0 .5rem;line-height:1.4}
+.lab-box{margin:1rem 0;padding:.85rem;border:1px dashed rgba(196,161,90,.5);border-radius:10px;background:#141210}
+.lab-box iframe{width:100%;min-height:320px;border:1px solid #C4A15A;border-radius:8px;background:#0E0E0C}
+table.datos{width:100%;border-collapse:collapse;margin:.45rem 0 1rem;font-size:.98rem}
+table.datos th,table.datos td{border:1px solid var(--lv-linea);padding:.4rem .55rem;text-align:left}
+table.datos th{background:#161512;color:#C4A15A}
+</style>
+<script src="../leccion-shell-nav.js" defer></script>
+</head>
+<body class="leccion-shell" data-maestro-json="maestro-28.json">
+<div class="leccion-wrap">
+<nav class="leccion-barra" aria-label="Navegación de lección" data-actual="28" data-total="38">
+  <div class="leccion-progreso" role="status">
+    <span class="progreso-texto"><strong>28</strong> de <strong>38</strong></span>
+    <div class="progreso-pista" aria-hidden="true"><div class="progreso-lleno" style="width:73.68%"></div></div>
+  </div>
+  <div class="leccion-atajos">
+    <a class="atajo atajo-calc" href="../../../../modulos/calculadora.html" title="Calculadora offline">Calculadora</a>
+    <a class="atajo atajo-prev" href="leccion-27-pensamiento-computacional.html">← Anterior</a>
+    <a class="atajo atajo-next" href="leccion-29-variables-bidimensionales.html">Siguiente →</a>
+  </div>
+</nav>
+<header class="leccion-top">
+  <a class="leccion-marca" href="../../../../index.html">Les <span>vencimos</span></a>
+  <p class="leccion-meta-top">Matemáticas Generales · 1º Bachillerato</p>
+</header>
+<header class="bloque-titulo">
+  <span class="eyebrow">Lección 28 · E · Estocástico</span>
+  <h1 class="titulo-leccion">Estadística: leer <em>sin deformar</em></h1>
+  <p class="meta-leccion">1º Bach Matemáticas Generales · CyL Decreto 40/2022 · E.1 Interpretación y análisis de información estadística</p>
+</header>
+<aside class="bloque-curiosidad" aria-label="Para situarte">
+  <p class="etiqueta-bloque">Para situarte</p>
+  <h2 class="titulo-curiosidad">La barra mide personas, no un adorno</h2>
+  <p class="texto-curiosidad">En un grupo de 20 alumnos se ha contado cuántos libros leyó cada uno en el trimestre: 0, 1, 2, 3 o 4. Las frecuencias son 2, 5, 7, 4 y 2. El gráfico pone escala desde cero para que la altura sea proporcional a esas frecuencias.</p>
+</aside>
+<section class="bloque-cuerpo">
+  <h2>Objetivos</h2>
+  <ul><li>Calcular media, mediana y moda de una distribución concreta y no confundirlas.</li><li>Comparar dos grupos por la media y no por el total, cuando los tamaños son distintos.</li><li>Explicar por qué un eje que no nace en cero deforma la comparación de barras.</li></ul>
+</section>
+<section class="bloque-cuerpo">
+<h2>Frecuencia, promedio y escala</h2>
+<p>Interpretar estadística no es repetir el número que destaca el titular. Hay que saber qué se ha contado, cuántos individuos hay y qué operación resume la distribución. En el gráfico cada barra es un número de alumnos, no un «nivel de lectura» inventado.</p>
+<p><span class="glosa">frecuencia = cuántos individuos caen en ese valor · media = suma de todos los valores dividida entre el número de individuos · mediana = valor central de la lista ordenada · moda = valor de mayor frecuencia · el eje vertical de un diagrama de barras de frecuencias empieza en 0</span></p>
+<p>Los 20 datos suman 0·2 + 1·5 + 2·7 + 3·4 + 4·2 = 39 libros. La media es 39/20 = 1,95. La lista ordenada tiene 20 puestos: los puestos 10 y 11 caen los dos en el valor 2 (la barra de 2 ocupa desde el puesto 8 hasta el 14), así que la mediana es 2. La moda también es 2, porque su frecuencia, 7, es la mayor. Media, mediana y moda no tienen por qué coincidir; aquí la media queda un poco por debajo porque los ceros tiran hacia abajo.</p>
+<p>Un segundo grupo de 10 alumnos suma 30 libros. Su total es menor (30 frente a 39), pero su media es 30/10 = 3, mayor que 1,95. Quien compare totales dirá que el primer grupo lee más; quien compare medias dirá que el alumno típico del segundo grupo lee más. Las dos frases hablan de cosas distintas y solo la segunda compara individuos.</p>
+<table class="datos"><thead><tr><th>Libros</th><th>Alumnos</th><th>Libros · alumnos</th><th>Acumulada</th></tr></thead>
+<tbody>
+<tr><td>0</td><td>2</td><td>0</td><td>2</td></tr>
+<tr><td>1</td><td>5</td><td>5</td><td>7</td></tr>
+<tr><td>2</td><td>7</td><td>14</td><td>14</td></tr>
+<tr><td>3</td><td>4</td><td>12</td><td>18</td></tr>
+<tr><td>4</td><td>2</td><td>8</td><td>20</td></tr>
+</tbody></table>
+<h2>Gráfico del ejemplo</h2>
+<p class="dato">La figura no es decoración: los trazos corresponden a los números del ejemplo 1.</p>
+<div class="figura-svg"><svg viewBox="0 0 720 320" role="img" aria-label="Barras de frecuencias 2, 5, 7, 4 y 2 con escala de 0 a 8"><title>Barras de frecuencias 2, 5, 7, 4 y 2 con escala de 0 a 8</title><rect width="720" height="320" fill="#161512"/><line x1="70" y1="270" x2="680" y2="270" stroke="#9A9488" stroke-width="1.6"/>
+<line x1="70" y1="270" x2="70" y2="36" stroke="#9A9488" stroke-width="1.6"/>
+<line x1="70" y1="270" x2="660" y2="270" stroke="#3a3428" stroke-width="1"/>
+<text x="40" y="274" fill="#9A9488" font-size="12">0</text>
+<line x1="70" y1="218" x2="660" y2="218" stroke="#3a3428" stroke-width="1"/>
+<text x="40" y="222" fill="#9A9488" font-size="12">2</text>
+<line x1="70" y1="166" x2="660" y2="166" stroke="#3a3428" stroke-width="1"/>
+<text x="40" y="170" fill="#9A9488" font-size="12">4</text>
+<line x1="70" y1="114" x2="660" y2="114" stroke="#3a3428" stroke-width="1"/>
+<text x="40" y="118" fill="#9A9488" font-size="12">6</text>
+<line x1="70" y1="62" x2="660" y2="62" stroke="#3a3428" stroke-width="1"/>
+<text x="40" y="66" fill="#9A9488" font-size="12">8</text>
+<polygon points="130,270 200,270 200,218 130,218" fill="#C4A15A" stroke="#E6E1D6" stroke-width="1"/>
+<text x="165" y="210" text-anchor="middle" fill="#C4A15A" font-size="14">2</text>
+<text x="165" y="292" text-anchor="middle" fill="#E6E1D6" font-size="14">0</text>
+<polygon points="240,270 310,270 310,140 240,140" fill="#C4A15A" stroke="#E6E1D6" stroke-width="1"/>
+<text x="275" y="132" text-anchor="middle" fill="#C4A15A" font-size="14">5</text>
+<text x="275" y="292" text-anchor="middle" fill="#E6E1D6" font-size="14">1</text>
+<polygon points="350,270 420,270 420,88 350,88" fill="#E6E1D6" stroke="#E6E1D6" stroke-width="1"/>
+<text x="385" y="80" text-anchor="middle" fill="#C4A15A" font-size="14">7</text>
+<text x="385" y="292" text-anchor="middle" fill="#E6E1D6" font-size="14">2</text>
+<polygon points="460,270 530,270 530,166 460,166" fill="#C4A15A" stroke="#E6E1D6" stroke-width="1"/>
+<text x="495" y="158" text-anchor="middle" fill="#C4A15A" font-size="14">4</text>
+<text x="495" y="292" text-anchor="middle" fill="#E6E1D6" font-size="14">3</text>
+<polygon points="570,270 640,270 640,218 570,218" fill="#C4A15A" stroke="#E6E1D6" stroke-width="1"/>
+<text x="605" y="210" text-anchor="middle" fill="#C4A15A" font-size="14">2</text>
+<text x="605" y="292" text-anchor="middle" fill="#E6E1D6" font-size="14">4</text>
+<text x="90" y="24" fill="#C4A15A" font-size="14">20 alumnos · libros en el trimestre · la barra clara es la moda</text></svg></div>
+<h2>Ejemplo resuelto 1 — Media, mediana y moda del gráfico</h2><p>Con las frecuencias de la figura, calcula la media, explica por qué la mediana es 2 y señala la moda. Redondea la media a dos decimales.</p><ol class="pasos">
+<li>La suma de libros es 0·2 + 1·5 + 2·7 + 3·4 + 4·2 = 5 + 14 + 12 + 8 = 39. Hay 20 alumnos, no 5 valores distintos.<span class="glosa">Glosa: el denominador de la media es el número de individuos, la suma de las frecuencias.</span></li>
+<li>Media = 39/20 = 1,95 libros por alumno. No se divide entre 4, que es solo el valor más alto de la tabla.<span class="glosa">Glosa: dividir entre el número de categorías es un error distinto de dividir entre n − 1.</span></li>
+<li>Ordenados, los puestos 10 y 11 están dentro de la acumulada 14, que corresponde al valor 2. Mediana = 2.<span class="glosa">Glosa: con n par se miran los dos puestos centrales; aquí los dos valen 2 y no hay que promediar valores distintos.</span></li>
+<li>La moda es 2 porque la frecuencia 7 es mayor que 5, 4 y 2. En la figura es la barra clara, y la escala permite ver que 7 no es el doble de 5.<span class="glosa">Glosa: 7/5 = 1,4. La barra de 7 es 1,4 veces la de 5, no «muchísimo mayor».</span></li>
+</ol>
+<h2>Ejemplo resuelto 2 — Dos grupos, dos preguntas</h2><p>El grupo A es el de la figura: 20 alumnos y 39 libros. El grupo B tiene 10 alumnos y 30 libros. ¿Qué grupo ha leído más libros en total? ¿En qué grupo lee más un alumno típico?</p><ol class="pasos">
+<li>Total de A: 39. Total de B: 30. En conjunto, A ha leído más libros. Esa frase no habla del alumno típico.<span class="glosa">Glosa: el total crece con el tamaño del grupo aunque cada persona lea poco.</span></li>
+<li>Media de A: 39/20 = 1,95. Media de B: 30/10 = 3. El alumno típico de B lee más.<span class="glosa">Glosa: para comparar individuos hay que usar el mismo tipo de promedio, aquí la media aritmética.</span></li>
+<li>Si alguien dice «A lee más porque 39 es mayor que 30», ha cambiado la pregunta sin avisar. El paso es escribir la pregunta antes de elegir el número.<span class="glosa">Glosa: total y media responden a decisiones distintas: comprar libros para el grupo, o describir un hábito individual.</span></li>
+<li>Comprobación de B: 3 · 10 = 30, cierra. No hace falta la lista de B para esta comparación, pero sí su tamaño. Sin el 10, el 30 no se interpreta.<span class="glosa">Glosa: un total sin n no permite calcular la media. Pedir n forma parte de leer la estadística.</span></li>
+</ol>
+<h2>Ejemplo resuelto 3 — El eje que empieza en 4</h2><p>Alguien redibuja las frecuencias 5 y 7 (un libro y dos libros) con el eje vertical empezando en 4. Las alturas visibles pasan a ser 1 y 3. Explica la deformación.</p><ol class="pasos">
+<li>Con el eje en cero, las alturas están en razón 7:5 = 1,4. La diferencia real es de 2 alumnos.<span class="glosa">Glosa: la proporción de las barras copia la proporción de las frecuencias solo si el cero está en el eje.</span></li>
+<li>Si el eje nace en 4, se ha borrado la misma cantidad en las dos barras. Queda 7 − 4 = 3 frente a 5 − 4 = 1. La razón visible es 3, más del doble.<span class="glosa">Glosa: restar 4 a los dos datos no conserva el cociente. Por eso el recorte del eje exagera.</span></li>
+<li>El gráfico recortado sirve para ver una diferencia pequeña en una escala fina, pero entonces hay que decirlo. Si se presenta como retrato de las frecuencias, engaña.<span class="glosa">Glosa: en esta lección el diagrama de barras de frecuencias lleva el cero. La figura del ejemplo lo cumple.</span></li>
+<li>La moda seguiría siendo 2, porque 7 sigue siendo mayor que 5, pero un lector que solo mira «cuánto más alta» sacaría una conclusión inflada. Interpretar incluye mirar el eje.<span class="glosa">Glosa: el título de la barra no basta; la unidad del eje es parte del dato.</span></li>
+</ol>
+<h2>Ejercicios</h2>
+<p class="dato">Escribe el razonamiento completo en el editor, no solo la cifra. Si el enunciado pide figura, dibújala en el lienzo de esta misma página.</p>
+<article class="ej"><h3>1. Otro recuento pequeño</h3><p>Cuatro datos: 3, 5, 5 y 7. Calcula media, mediana y moda, y di por qué el denominador es 4.</p><label for="e28a">Tu resolución</label><textarea class="editor" id="e28a" placeholder="Escribe aquí el razonamiento completo…"></textarea><details class="porque"><summary>Por qué (abre cuando hayas escrito)</summary><p>El paso es sumar los cuatro datos y dividir entre cuatro, porque cada dato es un individuo y no hay frecuencias agrupadas que recontar. La suma es 3 + 5 + 5 + 7 = 20 y la media es 20/4 = 5. Ordenados ya están 3, 5, 5, 7; con n = 4 los puestos centrales son el 2.º y el 3.º, los dos valen 5, y la mediana es 5. La moda es 5 porque se repite y los otros valores no. Dividir entre 3, que es la cantidad de números distintos, daría 20/3 y describiría otra cosa: no es la media de estos cuatro alumnos.</p></details></article>
+<article class="ej"><h3>2. Porcentaje sobre las barras</h3><p>En el gráfico, ¿qué porcentaje del grupo leyó al menos 2 libros? Explica qué frecuencias entran y cuál es el denominador.</p><label for="e28b">Tu resolución</label><textarea class="editor" id="e28b" placeholder="Escribe aquí el razonamiento completo…"></textarea><details class="porque"><summary>Por qué (abre cuando hayas escrito)</summary><p>El paso es sumar las frecuencias que cumplen la condición y dividir entre 20, no entre 5 categorías. Entran las barras de 2, 3 y 4 libros: 7 + 4 + 2 = 13 alumnos. El porcentaje es 13/20 = 0,65, es decir el 65 %. Dejar fuera la barra de 2 sería leer «más de 2» cuando el enunciado dice «al menos 2». El denominador no es 13: 13 es el numerador, los que cumplen. Si se usa como denominador la frecuencia de la moda, 7, se obtiene un cociente mayor que 1 y deja de ser una proporción del grupo.</p></details></article>
+<article class="ej"><h3>3. Titular con el total</h3><p>Un titular dice: «El grupo A lee más que el B» usando solo 39 y 30. Escribe la frase correcta según se hable del total o de la media, con los tamaños 20 y 10.</p><label for="e28c">Tu resolución</label><textarea class="editor" id="e28c" placeholder="Escribe aquí el razonamiento completo…"></textarea><details class="porque"><summary>Por qué (abre cuando hayas escrito)</summary><p>El paso es no aceptar un verbo («lee más») mientras no esté dicho el sujeto: el grupo entero o el alumno típico. Con los totales, A suma 39 libros y B suma 30, así que el grupo A, en conjunto, ha leído más. Con las medias, 39/20 = 1,95 y 30/10 = 3, así que un alumno de B lee más por término medio. Las dos frases pueden ser verdaderas a la vez porque comparan magnitudes distintas. El error del titular es presentar una de ellas como si fuera la otra, sin escribir n. En cuanto se recuperan los tamaños, la ambigüedad se deshace con una división.</p></details></article>
+<h2>Dibuja en el lienzo</h2>
+<p>Reproduce a mano el gráfico del ejemplo: ejes o nodos, los datos numéricos y una frase con la conclusión. El botón borra el lienzo sin salir de la lección.</p>
+<canvas id="lienzo28" class="lienzo" width="900" height="280"></canvas><div class="fila"><button type="button" class="boton" data-clear="lienzo28">Borrar lienzo</button></div>
+</section>
+
+<section class="bloque-cuerpo">
+  <h2>Comprueba</h2>
+  <p class="dato">Tres preguntas. Responde mentalmente antes de abrir el porqué.</p>
+  <details class="porque"><summary>¿Cuánto vale la media del gráfico y por qué el denominador es 20?</summary><p>Vale 1,95 porque 39/20 = 1,95. Por qué: 39 es la suma de libros de todos los alumnos y 20 es el número de alumnos, no el número de barras. Hay cinco barras, pero las frecuencias 2, 5, 7, 4 y 2 ya dicen cuántas personas hay detrás de cada una.</p></details>
+<details class="porque"><summary>¿Por qué la mediana no es 1,95?</summary><p>Porque la mediana no usa la suma: usa el centro de la lista ordenada. Por qué: los puestos 10 y 11, de 20, caen en el valor 2. La media se desplaza a 1,95 porque los dos ceros pesan en la suma y en la mediana solo ocupan los primeros puestos, lejos del centro.</p></details>
+<details class="porque"><summary>¿Qué le pasa a la comparación entre las frecuencias 5 y 7 si el eje empieza en 4?</summary><p>La razón de alturas pasa de 7/5 = 1,4 a 3/1 = 3, y la diferencia parece mucho mayor de lo que es. Por qué: se ha restado el mismo 4 a las dos frecuencias y el cociente no se conserva. El diagrama del ejemplo evita eso porque la escala nace en 0 y cada unidad vertical es un mismo número de alumnos.</p></details>
+</section>
+<section class="bloque-reto">
+  <span class="etiqueta-reto">Reto Profesor</span>
+  <h2 class="titulo-reto">Tu diagrama con cero</h2>
+  <p>Dibuja en el lienzo cinco barras con frecuencias distintas, escribe la escala desde 0 y calcula al lado la moda. No recortes el eje.</p>
+  <p class="reto-id">reto_id: bach1-mates-gen-L28</p>
+</section>
+<footer class="leccion-pie"><strong>Les vencimos</strong> · L28 de 38 · Matemáticas Generales · staging · file:// · sin publicar</footer>
+</div>
+<script type="application/json" data-maestro="guion">{"curso": "bach1-mates-gen", "leccion": 28, "titulo": "Estadística: leer sin deformar", "url": "leccion-28-estadistica-interpretacion.html", "musica": false, "pasos": [{"id": "abrir", "dicho": "Escala vertical de 0 a 8. Frecuencias escritas encima: 2, 5, 7, 4 y 2.", "hacer": "Leer en voz alta el apartado Para situarte y los objetivos."}, {"id": "figura", "dicho": "La barra clara es la de 2 libros, frecuencia 7, la moda.", "hacer": "Mirar el SVG y decir qué dato numérico marca cada trazo."}, {"id": "ej1", "dicho": "Ejemplo 1: suma 39, media 1,95, mediana 2, moda 2.", "hacer": "Rehacer el ejemplo 1, glosa a glosa, sin mirar el resultado final."}, {"id": "ej2", "dicho": "Ejemplo 2: el total 39 no se compara con el total 30 sin dividir entre 20 y entre 10.", "hacer": "Rehacer el ejemplo 2 y contrastarlo con el 1."}, {"id": "ej3", "dicho": "Ejemplo 3: recortar el eje en 4 cambia la razón 7:5 en la razón 3:1.", "hacer": "Rehacer el ejemplo 3 y anotar la comprobación."}, {"id": "practica", "dicho": "El porcentaje de quien leyó al menos 2 libros usa el denominador 20.", "hacer": "Escribir el razonamiento de al menos dos ejercicios y usar el lienzo."}, {"id": "cierre", "dicho": "Leer una barra incluye leer el cero del eje.", "hacer": "Contestar Comprueba antes de abrir y dejar el reto por escrito."}]}</script>
+<script>(function(){function liga(c){var ctx=c.getContext('2d');function fondo(){ctx.fillStyle='#161512';ctx.fillRect(0,0,c.width,c.height);ctx.strokeStyle='#C4A15A';ctx.strokeRect(.5,.5,c.width-1,c.height-1);}function fit(){var r=c.getBoundingClientRect();var w=Math.max(320,Math.floor(r.width));if(c.width!==w){c.width=w;c.height=280;fondo();}}var dib=false,last=null;function pos(ev){var r=c.getBoundingClientRect();var s=ev.touches?ev.touches[0]:ev;return{x:(s.clientX-r.left)*c.width/r.width,y:(s.clientY-r.top)*c.height/r.height};}c.addEventListener('pointerdown',function(ev){dib=true;last=pos(ev);ev.preventDefault();});c.addEventListener('pointermove',function(ev){if(!dib)return;var p=pos(ev);ctx.strokeStyle='#E6E1D6';ctx.lineWidth=2.2;ctx.lineCap='round';ctx.beginPath();ctx.moveTo(last.x,last.y);ctx.lineTo(p.x,p.y);ctx.stroke();last=p;ev.preventDefault();});function up(){dib=false;}c.addEventListener('pointerup',up);c.addEventListener('pointerleave',up);var b=document.querySelector('[data-clear="'+c.id+'"]');if(b)b.addEventListener('click',fondo);fit();window.addEventListener('resize',fit);}document.querySelectorAll('canvas.lienzo').forEach(liga);})();</script>
+</body>
+</html>

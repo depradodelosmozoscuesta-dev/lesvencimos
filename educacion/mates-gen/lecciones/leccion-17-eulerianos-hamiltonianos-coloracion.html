@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<meta name="theme-color" content="#0E0E0C"/>
+<title>Lección 17 · Eulerianos, hamiltonianos y coloración · Les vencimos</title>
+<link rel="icon" href="../icons/favicon.svg" type="image/svg+xml"/>
+<link rel="manifest" href="../manifest.webmanifest"/>
+<link rel="stylesheet" href="../leccion-shell.css"/>
+<style>
+.pasos{list-style:none;margin:0 0 1rem;padding:0;counter-reset:paso}
+.pasos li{position:relative;margin:0 0 .7rem;padding:.7rem .8rem .7rem 3.1rem;background:var(--lv-panel);border:1px solid var(--lv-linea);border-radius:10px}
+.pasos li::before{counter-increment:paso;content:counter(paso);position:absolute;left:.65rem;top:.7rem;width:1.7rem;height:1.7rem;border-radius:50%;background:#C4A15A;color:#1A160E;font-weight:700;font-size:.9rem;display:flex;align-items:center;justify-content:center}
+.figura-svg{background:#161512;border:1px solid var(--lv-linea);border-radius:10px;padding:.5rem;margin:.5rem 0 1.1rem}
+.figura-svg svg{width:100%;height:auto;display:block}
+.ej{margin:0 0 1rem;padding:.85rem .95rem;background:var(--lv-panel);border:1px solid var(--lv-linea);border-left:3px solid #C4A15A;border-radius:10px}
+.ej h3{margin:0 0 .35rem;font-family:var(--lv-serif);font-size:1.05rem;color:var(--lv-titulo)}
+.editor,textarea.editor{width:100%;min-height:5.5rem;font-family:ui-monospace,monospace;font-size:.95rem;line-height:1.45;padding:.55rem .65rem;border:1px solid rgba(196,161,90,.45);border-radius:8px;background:#161512;color:#E6E1D6;resize:vertical}
+.lienzo{display:block;width:100%;height:280px;background:#161512;border:1px solid #C4A15A;border-radius:8px;touch-action:none;cursor:crosshair}
+.fila{display:flex;flex-wrap:wrap;gap:.4rem;margin:.45rem 0}
+.boton{font:inherit;font-weight:700;font-size:.85rem;padding:.4rem .8rem;border-radius:999px;border:1px solid #C4A15A;background:transparent;color:#E6E1D6;cursor:pointer}
+.porque{margin-top:.55rem;padding:.65rem .75rem;background:#1a2218;border-radius:8px;color:#E6E1D6}
+.dato{font-size:.95rem;color:var(--lv-suave)}
+.glosa{display:block;font-size:.9rem;color:#9A9488;margin:.25rem 0 .5rem;line-height:1.4}
+.lab-box{margin:1rem 0;padding:.85rem;border:1px dashed rgba(196,161,90,.5);border-radius:10px;background:#141210}
+.lab-box iframe{width:100%;min-height:320px;border:1px solid #C4A15A;border-radius:8px;background:#0E0E0C}
+table.datos{width:100%;border-collapse:collapse;margin:.45rem 0 1rem;font-size:.98rem}
+table.datos th,table.datos td{border:1px solid var(--lv-linea);padding:.4rem .55rem;text-align:left}
+table.datos th{background:#161512;color:#C4A15A}
+</style>
+<script src="../leccion-shell-nav.js" defer></script>
+</head>
+<body class="leccion-shell" data-maestro-json="maestro-17.json">
+<div class="leccion-wrap">
+<nav class="leccion-barra" aria-label="Navegación de lección" data-actual="17" data-total="38">
+  <div class="leccion-progreso" role="status">
+    <span class="progreso-texto"><strong>17</strong> de <strong>38</strong></span>
+    <div class="progreso-pista" aria-hidden="true"><div class="progreso-lleno" style="width:44.74%"></div></div>
+  </div>
+  <div class="leccion-atajos">
+    <a class="atajo atajo-calc" href="../../../../modulos/calculadora.html" title="Calculadora offline">Calculadora</a>
+    <a class="atajo atajo-prev" href="leccion-16-euler-y-grafos-planos.html">← Anterior</a>
+    <a class="atajo atajo-next" href="leccion-18-camino-minimo.html">Siguiente →</a>
+  </div>
+</nav>
+<header class="leccion-top">
+  <a class="leccion-marca" href="../../../../index.html">Les <span>vencimos</span></a>
+  <p class="leccion-meta-top">Matemáticas Generales · 1º Bachillerato</p>
+</header>
+<header class="bloque-titulo">
+  <span class="eyebrow">Lección 17 · C · Espacial</span>
+  <h1 class="titulo-leccion">Eulerianos, hamiltonianos y <em>coloración</em></h1>
+  <p class="meta-leccion">1º Bach Matemáticas Generales · CyL Decreto 40/2022 · C.1 Circuitos eulerianos, hamiltonianos y coloración</p>
+</header>
+<aside class="bloque-curiosidad" aria-label="Para situarte">
+  <p class="etiqueta-bloque">Para situarte</p>
+  <h2 class="titulo-curiosidad">Recorrer aristas o vértices, y pintar sin choques</h2>
+  <p class="texto-curiosidad">A la izquierda, un ciclo de 4: todos los grados valen 2, así que el propio ciclo es un circuito euleriano, y dos colores bastan. A la derecha, un triángulo: también es circuito euleriano, pero es un ciclo impar y necesita tres colores.</p>
+</aside>
+<section class="bloque-cuerpo">
+  <h2>Objetivos</h2>
+  <ul><li>Decidir si hay circuito euleriano mirando los grados.</li><li>Distinguir ese recorrido de un ciclo hamiltoniano.</li><li>Colorear vértices adyacentes de distinto color y ver por qué un ciclo impar pide tres.</li></ul>
+</section>
+<section class="bloque-cuerpo">
+<h2>Dos recorridos y una pintura</h2>
+<p>Un circuito euleriano recorre cada arista exactamente una vez y vuelve al inicio. Existe en un grafo conexo si y solo si todos los grados son pares. Un ciclo hamiltoniano recorre cada vértice exactamente una vez y vuelve al inicio: le importan los vértices, no cubrir las aristas.</p>
+<p><span class="glosa">grado par = 0, 2, 4… · ciclo par = número par de vértices · ciclo impar = número impar · coloración propia = vértices unidos por una arista llevan colores distintos · número cromático = mínimo de colores que lo consiguen</span></p>
+<p>El cuadrado de la izquierda tiene cuatro vértices de grado 2. El circuito A-B-C-D-A usa las cuatro aristas, una vez cada una, y es a la vez hamiltoniano porque también visita cada vértice una vez. Se colorea alternando ámbar y verde: los adyacentes quedan distintos y hacen falta 2 colores.</p>
+<p>El triángulo de la derecha tiene grados 2, luego también admite circuito euleriano (y hamiltoniano): la vuelta al triángulo. Pero es un ciclo impar. Si intentas dos colores, el tercer vértice está unido a los otros dos, que ya llevan colores distintos, y no le queda ninguno. Hacen falta 3, como en el dibujo: ámbar, verde y claro.</p>
+<table class="datos"><thead><tr><th></th><th>Ciclo de 4</th><th>Triángulo</th></tr></thead>
+<tbody>
+<tr><td>Grados</td><td>2, 2, 2, 2</td><td>2, 2, 2</td></tr>
+<tr><td>¿Circuito euleriano?</td><td>sí</td><td>sí</td></tr>
+<tr><td>¿Ciclo hamiltoniano?</td><td>sí, el mismo</td><td>sí, el mismo</td></tr>
+<tr><td>Colores mínimos</td><td>2</td><td>3</td></tr>
+</tbody></table>
+<h2>Gráfico del ejemplo</h2>
+<p class="dato">La figura no es decoración: los trazos corresponden a los números del ejemplo 1.</p>
+<div class="figura-svg"><svg viewBox="0 0 720 320" role="img" aria-label="Ciclo de 4 coloreado con 2 colores y triángulo coloreado con 3, ambos con circuito"><title>Ciclo de 4 coloreado con 2 colores y triángulo coloreado con 3, ambos con circuito</title><rect width="720" height="320" fill="#161512"/>
+<line x1="80" y1="60" x2="230" y2="60" stroke="#C4A15A" stroke-width="3"/>
+<line x1="230" y1="60" x2="230" y2="210" stroke="#C4A15A" stroke-width="3"/>
+<line x1="230" y1="210" x2="80" y2="210" stroke="#C4A15A" stroke-width="3"/>
+<line x1="80" y1="210" x2="80" y2="60" stroke="#C4A15A" stroke-width="3"/>
+<circle cx="80" cy="60" r="16" fill="#C4A15A" stroke="#E6E1D6" stroke-width="2"/>
+<circle cx="230" cy="60" r="16" fill="#8F9A72" stroke="#E6E1D6" stroke-width="2"/>
+<circle cx="230" cy="210" r="16" fill="#C4A15A" stroke="#E6E1D6" stroke-width="2"/>
+<circle cx="80" cy="210" r="16" fill="#8F9A72" stroke="#E6E1D6" stroke-width="2"/>
+<text x="40" y="40" fill="#C4A15A" font-size="14">circuito A-B-C-D-A · grados 2</text>
+<text x="70" y="250" fill="#9A9488" font-size="13">2 colores bastan en el ciclo par</text>
+<polygon points="430,200 520,50 640,170" fill="none" stroke="#C4A15A" stroke-width="3"/>
+<circle cx="430" cy="200" r="16" fill="#C4A15A" stroke="#E6E1D6" stroke-width="2"/>
+<circle cx="520" cy="50" r="16" fill="#8F9A72" stroke="#E6E1D6" stroke-width="2"/>
+<circle cx="640" cy="170" r="16" fill="#E6E1D6" stroke="#C4A15A" stroke-width="2"/>
+<text x="400" y="30" fill="#E6E1D6" font-size="14">triángulo: 3 colores · circuito</text>
+<text x="400" y="250" fill="#9A9488" font-size="13">ciclo impar: no bastan 2 colores</text>
+</svg></div>
+<h2>Ejemplo resuelto 1 — El cuadrado es euleriano</h2><p>Comprueba los grados del ciclo de 4 y escribe un circuito euleriano.</p><ol class="pasos">
+<li>Cada vértice del cuadrado incide en dos lados. Grados: 2, 2, 2 y 2, todos pares, y el grafo es conexo.<span class="glosa">Glosa: grado 2 es par. No hace falta que todos valgan lo mismo, solo que ninguno sea impar.</span></li>
+<li>Un circuito: A-B-C-D-A, siguiendo el trazo ámbar. Usa las 4 aristas y no repite ninguna.<span class="glosa">Glosa: volver al inicio es lo que lo hace circuito; si paras en otro vértice sería un camino euleriano, que aquí no pedimos.</span></li>
+<li>También es hamiltoniano: A, B, C y D aparecen una sola vez antes de cerrar.<span class="glosa">Glosa: en un ciclo simple las dos nociones coinciden. No coincidirán cuando haya aristas extra.</span></li>
+<li>Comprueba que no queda ninguna arista fuera del recorrido. Si sobrara un lado, no sería euleriano.<span class="glosa">Glosa: euleriano habla de aristas; si olvidas una, el circuito no sirve.</span></li>
+</ol>
+<h2>Ejemplo resuelto 2 — El triángulo pide tres colores</h2><p>Intenta colorear el triángulo con dos colores y explica dónde se rompe. Da después una coloración con tres.</p><ol class="pasos">
+<li>Pinta el primer vértice de ámbar y el segundo, que es adyacente, de verde.<span class="glosa">Glosa: dos unidos no pueden compartir color. El segundo queda forzado si solo hay dos colores.</span></li>
+<li>El tercero está unido al primero y al segundo. Ámbar y verde están prohibidos. Con solo dos colores no hay salida.<span class="glosa">Glosa: el conflicto es local en ese vértice, pero demuestra que todo el grafo necesita otro color.</span></li>
+<li>Con un tercer color (el claro del gráfico) el tercero se pinta y los tres pares de vecinos quedan distintos.<span class="glosa">Glosa: tres colores bastan. No hacen falta más, porque solo hay tres vértices.</span></li>
+<li>El número cromático del triángulo es 3. Es el ciclo impar más pequeño; todo ciclo impar necesita 3.<span class="glosa">Glosa: el ciclo de 4, par, sí se pudo hacer con 2. La paridad cambia la coloración.</span></li>
+</ol>
+<h2>Ejemplo resuelto 3 — Cuando euleriano y hamiltoniano se separan</h2><p>Añade al cuadrado una diagonal. ¿Siguen siendo pares los grados? ¿Sigue habiendo ciclo hamiltoniano?</p><ol class="pasos">
+<li>La diagonal suma 1 al grado de dos vértices opuestos. Esos pasan de 2 a 3, que es impar. Los otros dos siguen en 2.<span class="glosa">Glosa: una arista nueva cambia dos grados, no uno.</span></li>
+<li>Hay grados impares, luego ya no existe circuito euleriano. No intentes recorrerlo: alguna arista se repetirá o alguna quedará fuera.<span class="glosa">Glosa: la condición de los grados es necesaria. Si falla, se acabó el circuito euleriano.</span></li>
+<li>Sigue habiendo ciclos hamiltonianos: el borde A-B-C-D-A visita cada vértice una vez. La diagonal no es obligatoria en ese recorrido.<span class="glosa">Glosa: hamiltoniano puede ignorar aristas; euleriano no.</span></li>
+<li>Conclusión: al añadir la diagonal se pierde el circuito euleriano y se conserva un ciclo hamiltoniano. Son propiedades distintas.<span class="glosa">Glosa: el cuadrado original las tenía las dos; el nuevo grafo solo conserva una.</span></li>
+</ol>
+<h2>Ejercicios</h2>
+<p class="dato">Escribe el razonamiento completo en el editor, no solo la cifra. Si el enunciado pide figura, dibújala en el lienzo de esta misma página.</p>
+<article class="ej"><h3>1. Un grado impar</h3><p>Un grafo conexo tiene grados 2, 2, 2 y 3. ¿Hay circuito euleriano?</p><label for="e17a">Tu resolución</label><textarea class="editor" id="e17a" placeholder="Escribe aquí el razonamiento completo…"></textarea><details class="porque"><summary>Por qué (abre cuando hayas escrito)</summary><p>No, porque el vértice de grado 3 tiene grado impar. La condición exige que todos sean pares, no que «la mayoría» lo sean. El paso es revisar la lista completa antes de buscar el recorrido: si hay un impar, puedes dejar de dibujar caminos. Con un solo impar el enunciado además sería imposible por el lema de los grados (la suma sería impar), así que en un grafo real los impares van de dos en dos; con uno o más impares el circuito euleriano ya está descartado.</p></details></article>
+<article class="ej"><h3>2. Colores del ciclo de 5</h3><p>Un ciclo de 5 vértices, sin diagonales. ¿Cuántos colores hacen falta como mínimo?</p><label for="e17b">Tu resolución</label><textarea class="editor" id="e17b" placeholder="Escribe aquí el razonamiento completo…"></textarea><details class="porque"><summary>Por qué (abre cuando hayas escrito)</summary><p>Es un ciclo impar, como el triángulo pero con cinco vértices. Con dos colores, al alternar, el quinto queda al lado del primero y ambos recibirían el mismo color si cierras el ciclo. Ese choque obliga a un tercer color. Tres bastan: repites una pauta ámbar, verde, ámbar, verde y el quinto en claro, cuidando sus dos vecinos. El paso es no fiarte de que «es un ciclo, como el cuadrado»: el cuadrado es par y con dos colores cierra; el de 5 no.</p></details></article>
+<article class="ej"><h3>3. Hamiltoniano que no cubre aristas</h3><p>En el cuadrado con una diagonal, da un ciclo hamiltoniano y señala una arista que ese ciclo no usa.</p><label for="e17c">Tu resolución</label><textarea class="editor" id="e17c" placeholder="Escribe aquí el razonamiento completo…"></textarea><details class="porque"><summary>Por qué (abre cuando hayas escrito)</summary><p>El borde A-B-C-D-A es un ciclo hamiltoniano: entra cada vértice una vez y vuelve. La diagonal no forma parte de ese ciclo, luego hay una arista sin recorrer. Por eso el ciclo es hamiltoniano pero el recorrido no es euleriano, cosa que ya sabíamos porque hay grados 3. El paso es separar las dos listas: vértices visitados y aristas usadas. Que la primera esté completa no dice nada de la segunda.</p></details></article>
+<h2>Dibuja en el lienzo</h2>
+<p>Reproduce a mano el gráfico del ejemplo: ejes o nodos, los datos numéricos y una frase con la conclusión. El botón borra el lienzo sin salir de la lección.</p>
+<canvas id="lienzo17" class="lienzo" width="900" height="280"></canvas><div class="fila"><button type="button" class="boton" data-clear="lienzo17">Borrar lienzo</button></div>
+</section>
+
+<section class="bloque-cuerpo">
+  <h2>Comprueba</h2>
+  <p class="dato">Tres preguntas. Responde mentalmente antes de abrir el porqué.</p>
+  <details class="porque"><summary>¿Por qué el cuadrado del gráfico tiene circuito euleriano?</summary><p>Porque es conexo y los cuatro grados valen 2, que es par. Por qué: esa es la condición. El circuito es el propio borde, y usa cada lado una vez. No depende de los colores, que responden a otra pregunta.</p></details>
+<details class="porque"><summary>¿Por qué el triángulo no se colorea con dos colores?</summary><p>Porque es un ciclo impar: el tercer vértice toca a los otros dos. Por qué: esos dos ya necesitan colores distintos, y al tercero no le queda ninguno de los dos. Con tres colores, como en el SVG, sí se puede.</p></details>
+<details class="porque"><summary>¿Todo circuito euleriano es hamiltoniano?</summary><p>No. Por qué: el euleriano controla aristas y el hamiltoniano, vértices. En el cuadrado simple coinciden. Si un vértice tuviera grado 4, un circuito euleriano pasaría por ese vértice más de una vez y dejaría de ser un ciclo hamiltoniano, aunque cubriera las aristas.</p></details>
+</section>
+<section class="bloque-reto">
+  <span class="etiqueta-reto">Reto Profesor</span>
+  <h2 class="titulo-reto">Pinta el circuito</h2>
+  <p>Dibuja en el lienzo el cuadrado, escribe el circuito A-B-C-D-A y coloréalo con dos colores. Al lado, un triángulo con tres colores.</p>
+  <p class="reto-id">reto_id: bach1-mates-gen-L17</p>
+</section>
+<footer class="leccion-pie"><strong>Les vencimos</strong> · L17 de 38 · Matemáticas Generales · staging · file:// · sin publicar</footer>
+</div>
+<script type="application/json" data-maestro="guion">{"curso": "bach1-mates-gen", "leccion": 17, "titulo": "Eulerianos, hamiltonianos y coloración", "url": "leccion-17-eulerianos-hamiltonianos-coloracion.html", "musica": false, "pasos": [{"id": "abrir", "dicho": "Izquierda: ciclo par, dos colores, circuito por el borde. Derecha: triángulo, tres colores.", "hacer": "Leer en voz alta el apartado Para situarte y los objetivos."}, {"id": "figura", "dicho": "Grados 2 en todos los vértices de las dos figuras: las dos son eulerianas.", "hacer": "Mirar el SVG y decir qué dato numérico marca cada trazo."}, {"id": "ej1", "dicho": "Ejemplo 1: A-B-C-D-A no deja ningún lado fuera.", "hacer": "Rehacer el ejemplo 1, glosa a glosa, sin mirar el resultado final."}, {"id": "ej2", "dicho": "Ejemplo 2: el tercer vértice del triángulo no cabe en dos colores.", "hacer": "Rehacer el ejemplo 2 y contrastarlo con el 1."}, {"id": "ej3", "dicho": "Ejemplo 3: una diagonal crea dos grados impares y mata el circuito euleriano, no el hamiltoniano del borde.", "hacer": "Rehacer el ejemplo 3 y anotar la comprobación."}, {"id": "practica", "dicho": "No uses el color para decidir si el recorrido es euleriano.", "hacer": "Escribir el razonamiento de al menos dos ejercicios y usar el lienzo."}, {"id": "cierre", "dicho": "Ciclo par, 2 colores; ciclo impar, 3.", "hacer": "Contestar Comprueba antes de abrir y dejar el reto por escrito."}]}</script>
+<script>(function(){function liga(c){var ctx=c.getContext('2d');function fondo(){ctx.fillStyle='#161512';ctx.fillRect(0,0,c.width,c.height);ctx.strokeStyle='#C4A15A';ctx.strokeRect(.5,.5,c.width-1,c.height-1);}function fit(){var r=c.getBoundingClientRect();var w=Math.max(320,Math.floor(r.width));if(c.width!==w){c.width=w;c.height=280;fondo();}}var dib=false,last=null;function pos(ev){var r=c.getBoundingClientRect();var s=ev.touches?ev.touches[0]:ev;return{x:(s.clientX-r.left)*c.width/r.width,y:(s.clientY-r.top)*c.height/r.height};}c.addEventListener('pointerdown',function(ev){dib=true;last=pos(ev);ev.preventDefault();});c.addEventListener('pointermove',function(ev){if(!dib)return;var p=pos(ev);ctx.strokeStyle='#E6E1D6';ctx.lineWidth=2.2;ctx.lineCap='round';ctx.beginPath();ctx.moveTo(last.x,last.y);ctx.lineTo(p.x,p.y);ctx.stroke();last=p;ev.preventDefault();});function up(){dib=false;}c.addEventListener('pointerup',up);c.addEventListener('pointerleave',up);var b=document.querySelector('[data-clear="'+c.id+'"]');if(b)b.addEventListener('click',fondo);fit();window.addEventListener('resize',fit);}document.querySelectorAll('canvas.lienzo').forEach(liga);})();</script>
+</body>
+</html>

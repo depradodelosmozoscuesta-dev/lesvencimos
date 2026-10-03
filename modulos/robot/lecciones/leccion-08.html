@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lección 8. IA offline · Robot humanoide · Les vencimos</title>
+<style>
+
+:root{--bg:#0E0E0C;--surf:#161512;--panel:#1C1A16;--ink:#E6E1D6;--mut:#9A9488;--acc:#C4A15A;--acc-ink:#1A160E;--danger:#C46A4A;--ok:#8F9A72;--line:#2A2720}
+*{box-sizing:border-box}
+html{color-scheme:dark}
+body{margin:0;background:var(--bg);color:var(--ink);font:400 17px/1.55 "Segoe UI",system-ui,sans-serif}
+h1,h2,h3{font-family:"Iowan Old Style",Palatino,Georgia,serif;font-weight:600;line-height:1.25;letter-spacing:0}
+h1{font-size:1.85rem;margin:.35rem 0 .4rem}
+h2{font-size:1.28rem;margin:1.6rem 0 .5rem}
+h3{font-size:1.05rem;margin:1.15rem 0 .35rem}
+a{color:var(--acc)}
+a:hover{color:var(--ink)}
+.wrap{max-width:46rem;margin:0 auto;padding:1.25rem 1.1rem 4rem}
+header.top{border-bottom:1px solid var(--line);padding-bottom:.85rem;margin-bottom:1.15rem}
+.marca{font-variant:small-caps;text-transform:lowercase;letter-spacing:.14em;color:var(--mut);margin:0;font-size:.78rem}
+.meta{color:var(--mut);margin:.45rem 0 0}
+nav.pasos{display:flex;flex-wrap:wrap;gap:.45rem;margin:1.2rem 0 0}
+nav.pasos a,button{min-height:44px;min-width:44px;padding:.45rem .85rem;border:1px solid var(--line);border-radius:2px;background:var(--surf);color:var(--ink);font:400 16px/1.3 "Segoe UI",system-ui,sans-serif;text-decoration:none;cursor:pointer}
+button.acc{background:var(--acc);color:var(--acc-ink);border-color:var(--acc);font-weight:600}
+button:focus-visible,a:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
+.maestro{background:var(--panel);border:1px solid var(--line);border-radius:2px;padding:1rem 1.05rem;margin:1rem 0 1.2rem}
+.maestro h2{margin:.1rem 0 .55rem;font-size:1.05rem;color:var(--acc)}
+.aviso{border-left:3px solid var(--danger);padding:.4rem 0 .4rem .85rem;margin:1rem 0}
+.aviso strong{color:var(--danger);font-weight:600}
+.puentes{background:var(--surf);border:1px solid var(--line);border-radius:2px;padding:.9rem 1rem;margin:1rem 0}
+.puentes h2{margin-top:0}
+ol.temario{padding-left:1.2rem}
+ol.temario li{margin:.4rem 0}
+li.pend{color:var(--mut)}
+.esquema{width:100%;height:auto;background:var(--surf);border:1px solid var(--line);border-radius:2px;margin:.7rem 0 1rem}
+.esquema text{font-family:"Segoe UI",system-ui,sans-serif}
+table{width:100%;border-collapse:collapse;margin:.7rem 0 1rem;font-size:.95rem}
+th,td{border-bottom:1px solid var(--line);text-align:left;padding:.45rem .35rem;vertical-align:top}
+th{color:var(--acc);font-weight:600}
+.practica{background:var(--panel);border:1px solid var(--line);border-radius:2px;padding:.95rem 1rem 1.05rem;margin:1.2rem 0}
+.practica h2{margin-top:0}
+ol.juego{list-style:none;padding:0;margin:.5rem 0}
+ol.juego li{display:flex;gap:.45rem;align-items:center;background:var(--surf);border:1px solid var(--line);border-radius:2px;padding:.35rem .45rem;margin:.4rem 0}
+ol.juego li span{flex:1}
+.opciones{display:flex;flex-direction:column;gap:.45rem;margin:.5rem 0}
+.opciones button{text-align:left}
+.resultado{margin:.7rem 0 0}
+.resultado.ok{color:var(--ok)}
+.resultado.mal{color:var(--danger)}
+.porque{margin:.7rem 0 0}
+.nota{color:var(--mut)}
+footer{margin-top:2rem;padding-top:.85rem;border-top:1px solid var(--line);color:var(--mut);font-size:.82rem}
+code{font-family:ui-monospace,"Cascadia Code",monospace;font-size:.92em}
+
+.cuaderno{background:var(--surf);border:1px solid var(--line);border-radius:2px;padding:.95rem 1rem 1.05rem;margin:1.2rem 0}
+.cuaderno h2{margin-top:0}
+.cuaderno textarea{display:block;width:100%;min-height:12rem;margin:.6rem 0 .4rem;padding:.7rem .75rem;border:1px solid var(--line);border-radius:2px;background:var(--bg);color:var(--ink);font:400 17px/1.45 "Segoe UI",system-ui,sans-serif;resize:vertical}
+.cuaderno textarea:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
+
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="top">
+<p class="marca">Les vencimos · Robot humanoide · Enseñanza</p>
+<p class="meta">Lección 08 de 10 · Después del cuerpo, no en su lugar</p>
+<h1>IA offline: cuándo entra y cuándo estorba</h1>
+</header>
+<main>
+<section class="maestro">
+<h2>Versión corta</h2>
+<p class="maestro-texto">La IA entra después de que el cuerpo se tenga en pie, atado y sin marcha, como en la lección anterior. No corrige un pie calculado con la masa equivocada ni una masa que no has pesado. No sustituye al programa que mantiene la vertical del peso dentro de la planta: ese programa sigue aunque el modelo tarde, se equivoque o no quepa. En el ordenador de a bordo cabe un modelo pequeño, sin nube y sin cuenta. Una etiqueta de este robot, no un chat. En un micro con 2 kilobytes de memoria, la red de 250 kilobytes del ejemplo de persona no entra. En el ejemplo que Control cita para un ESP32 a 240 megahercios, esa llamada tarda 380 milisegundos con los núcleos optimizados y 4084 sin ellos. Eso no es una tasa de fotogramas ni el periodo de la marcha. Una etiqueta que llega tarde no corrige la caída. En una Pi cabe voz corta: reconoce habla y no conversa. Si duda, no inventas la frase. El modelo grande, el que puede pedir hasta 16 gigabytes, no va a bordo. No prometes conversación. No prometes visión fiable de noche: Control no la deja escrita. Si la batería ya no da el par, paras. No le pides al modelo un paso más listo.</p>
+<button type="button" class="escuchar acc">Escuchar</button>
+</section>
+<section>
+<h2>Tratado</h2>
+<p>Esta lección dice cuándo un modelo ayuda y cuándo estorba. No copia la tabla de modelos ni los bancos de pruebas del tratado de Control. Esas cifras, cuando hagan falta para elegir una pieza de programa, se leen en el ancla de IA offline. Aquí se fijan los límites que ese ancla no deja suavizar, y el orden: el cuerpo primero. Si al terminar crees que un modelo puede sustituir la báscula, el pie o la prueba atada, no has hecho la lección.</p>
+<p>La tesis cabe en dos frases. El equilibrio y la caída de este taller se resuelven con la vertical dentro de la planta, un corte al alcance de la mano y la prueba de la lección 7. Un modelo pequeño, sin nube, puede poner una etiqueta encima de eso. No puede ser eso.</p>
+
+<h3>Antes del modelo, el cuerpo</h3>
+<p>Entra la IA cuando ya se cumple todo lo anterior. La masa está anotada con la batería, y si no es 3,0 kg no estás usando 29,4 N ni 0,59 N·m: rehiciste la cuenta. El pie es coherente con esa masa, con el desplazamiento orientado al 60 % de la semilongitud útil, no al borde. La estructura no está torcida. La electrónica se cableó con el pack fuera, y no hay servo de junta alimentado sin tope. La prueba atada, sin marcha, se quedó quieta: ni a punteras, ni a talón, ni con una oscilación que crece. Si falta uno de esos hechos, el modelo llega pronto y estorba. Estorba porque tapa el fallo con una palabra nueva. «Ya aprenderá a no caerse» no mete la vertical dentro de una planta que no la cubre.</p>
+<p>Un pie mal calculado sigue mal calculado con un modelo delante. Si dibujaste la planta para 3,0 kg y la báscula dice 5,0 kg, el peso es 49,05 N. Con el centro a 0,02 m por delante del eje, el par estático en ese tobillo, en apoyo simple, es 0,981 N·m, no 0,59. Ninguna etiqueta cambia esa multiplicación. Si además no mediste la x nueva, el modelo está aprendiendo un centro que ya no existe. Lo mismo si la planta solo sobresale 3 cm: el 60 % son 1,8 cm, y 2 cm ya incumplen el margen aunque el estático no vuelque. Entrenar una marcha encima de ese pie es pedir que el modelo camine fuera del margen. No lo hagas. Vuelves a la lección 2 y a la 3.</p>
+<p>Una masa no pesada es peor, porque ni siquiera tienes el número equivocado: tienes un hueco. El modelo no pesa por ti. Los ejemplos de otro robot tampoco. La holgura, el sentido de montaje del inclinómetro y el sitio de la batería son de esta máquina. Un vídeo de otra no los trae. Si entrenas con eso, el modelo acierta en el vídeo y el tuyo se va de punteras igual que antes.</p>
+
+<h3>Qué le puedes pedir, y qué sigue mandando el lazo</h3>
+<p>Lo que sí puede un modelo pequeño, sin nube y sin cuenta, es una etiqueta. La fase de un paso, cuando ya tengas pasos de este robot y no antes, o un sí o un no de «me caigo». Un árbol de decisión cabe donde una red no cabe, y se lee: si el ángulo pasa de esto y la carga del pie cae, entonces estás en otra fase. Una red diminuta hace el mismo trabajo solo si los ejemplos son de este robot y mides que la inferencia termina antes de la siguiente corrección del servo. Si no lo mides, no digas que termina a tiempo.</p>
+<p>El lazo de estar quieto no se apaga para dejar pensar al modelo. Siente, compara y actúa, como en la lección 7, aunque el modelo tarde, se equivoque o no quepa en la placa. La etiqueta es un dato de más. Si llega tarde, se ignora. Si contradice el corte —la vertical ya salió, o el mando físico está abierto—, gana el corte. No gana la etiqueta. Quitar el par o cortar sigue siendo la frase. «Sigue andando, que el modelo lo está viendo» no es una frase de este curso.</p>
+<p>La holgura mecánica no se entrena. Si el árbol dice «tobillo, tres grados» y el engranaje se come esos tres grados, el modelo tiene razón en el papel y el pie no se mueve. Lo ves porque la orden cambia y el tobillo no. Subir la etiqueta, o pedir una red más grande, no aprieta el tornillo. Se arregla en la junta, o se acepta que esa corrección no llega al suelo.</p>
+
+<figure>
+<svg class="esquema" viewBox="0 0 640 360" role="img" aria-labelledby="t8svg">
+<title id="t8svg">El cuerpo se tiene antes que la etiqueta; la etiqueta tardía no alcanza la caída</title>
+<rect x="0" y="0" width="640" height="360" fill="#161512"/>
+<rect x="36" y="36" width="150" height="70" fill="#1C1A16" stroke="#8F9A72" stroke-width="2"/>
+<text x="111" y="66" text-anchor="middle" fill="#E6E1D6" font-size="14">Cuerpo quieto</text>
+<text x="111" y="86" text-anchor="middle" fill="#8F9A72" font-size="12">lección 7 hecha</text>
+<line x1="186" y1="71" x2="230" y2="71" stroke="#C4A15A" stroke-width="2"/>
+<polygon points="238,71 228,66 228,76" fill="#C4A15A"/>
+<rect x="242" y="36" width="160" height="70" fill="#1C1A16" stroke="#C4A15A" stroke-width="2"/>
+<text x="322" y="66" text-anchor="middle" fill="#E6E1D6" font-size="14">Etiqueta, si cabe</text>
+<text x="322" y="86" text-anchor="middle" fill="#9A9488" font-size="12">de este robot, sin red</text>
+<rect x="450" y="36" width="150" height="70" fill="#1C1A16" stroke="#C46A4A" stroke-width="2"/>
+<text x="525" y="66" text-anchor="middle" fill="#C46A4A" font-size="14">Nube, no</text>
+<text x="525" y="86" text-anchor="middle" fill="#9A9488" font-size="12">sin cuenta y sin chat</text>
+<line x1="430" y1="120" x2="500" y2="70" stroke="#C46A4A" stroke-width="2"/>
+<text x="36" y="160" fill="#E6E1D6" font-size="14">Si la etiqueta llega tarde, el lazo no la espera.</text>
+<line x1="36" y1="200" x2="560" y2="200" stroke="#2A2720" stroke-width="2"/>
+<circle cx="80" cy="200" r="6" fill="#8F9A72"/>
+<text x="80" y="228" text-anchor="middle" fill="#8F9A72" font-size="12">servo corrige</text>
+<circle cx="300" cy="200" r="6" fill="#C46A4A"/>
+<text x="300" y="228" text-anchor="middle" fill="#C46A4A" font-size="12">el cuerpo ya se fue</text>
+<circle cx="460" cy="200" r="6" fill="#C4A15A"/>
+<text x="460" y="228" text-anchor="middle" fill="#C4A15A" font-size="12">llega la etiqueta</text>
+<text x="36" y="280" fill="#9A9488" font-size="13">380 ms en el ejemplo de ESP32 no es el periodo de tu marcha.</text>
+<text x="36" y="304" fill="#9A9488" font-size="13">4084 ms sin esos núcleos, menos todavía. No se suavizan.</text>
+<text x="36" y="336" fill="#E6E1D6" font-size="14">Por debajo de la puerta de batería no hay «un paso más listo».</text>
+</svg>
+<figcaption class="nota">Orden, no un catálogo de redes. La etiqueta que llega después del servo no corrige la caída. La nube no es un paso de este curso.</figcaption>
+</figure>
+
+<h3>Qué cabe en la placa, sin suavizar el límite</h3>
+<p>Sin nube quiere decir sin red, sin cuenta y sin servidor. Si la etiqueta solo existe porque alguien al otro lado responde, no es de esta lección y no es del ancla de Control. No se deja el equilibrio esperando una respuesta que puede no llegar. El corte físico sigue en la mesa, no en un menú remoto.</p>
+<p>Un chat no cabe. Un modelo grande de voz, del estilo de un modelo grande de transcripción, tampoco. Control no deja escrito un tamaño en megas de ese modelo grande, y esta lección no se lo inventa para parecer precisa. Lo que sí deja escrito es que no hace falta inventar un tamaño para negar el chat y ese modelo grande. No los prometas «en pequeño» ni «ya veremos con la nube».</p>
+<p>En un Uno o un Nano con el micro de 2 KB de memoria de datos, la red de 250 KB del ejemplo de persona, cuantizada a enteros de ocho bits, no entra. No digas que «la IA de microcontrolador», en abstracto, cabe o no cabe. El tamaño del ejemplo mínimo de ese entorno no está leído en Control, y aquí no se rellena con un número inventado. Lo que no entra, no entra: 250 KB no caben en 2 KB.</p>
+<p>En un ESP32, Control cita el mismo ejemplo de persona. La llamada, a 240 MHz, tarda 4084 ms sin los núcleos optimizados y 380 ms con ellos. Esas dos cifras son el tiempo de una llamada, no los fotogramas de una cámara y no el periodo de tu marcha. No las bajes de palabra porque «en la práctica va más fluido». Si tu placa no es esa, no copies el 380 y lo des por tuyo: lo mides. Si es esa y no has medido otra cosa, 380 ms es el límite que tienes escrito, y una etiqueta de caída que sale a los 380 ms sale cuando el servo ya tenía que haber actuado. Con 4084 ms ni siquiera es una etiqueta de esta prueba: es un dato de después del golpe.</p>
+<p>En un ESP32-S3, la misma nota deja 2300 ms sin esos núcleos y 54 ms con ellos, también a 240 MHz, también como tiempo de la llamada. 54 ms no es una tasa de fotogramas del robot andando. La cámara, el dibujo y el lazo de los servos van aparte, y se miden en tu robot. El tratado cita de uno a dos fotogramas por segundo solo para otro chip, el S2. No traspases esa cifra al S3 para hacerla sonar medida. No está medida ahí.</p>
+<p>En una Pi 4 o una Pi 5 cabe el modelo pequeño de voz, no un chat. El grande puede pedir hasta 16 GB de memoria. No lo subas al robot «a ver si entra»: si tu placa no tiene esa memoria, no entra, y si la tiene, sigue sin ser la pieza de esta página. Control se queda con el pequeño. Reconoce habla. No conversa. Órdenes cortas, del tipo «para» y «anda», pueden entrar en la máquina de estados, con las mismas prohibiciones que los botones. «Anda» cuando el robot está caído se rechaza igual que la orden de marcha. Si el reconocedor duda, no inventas la frase. Te quedas en el estado en el que estabas. No completes tú la palabra que no ha dicho.</p>
+<p>Un detector ligero en la Pi, persona o no persona, es eso: una etiqueta binaria. No entiende la escena, no nombra lo que pasa y no decide un plan. Control no cita fotogramas por segundo de ese detector en la Pi. Hay que medirlos en la tuya. Esta lección no añade un número para cerrar el hueco.</p>
+
+<h3>Qué no prometes</h3>
+<p>No prometes conversación. Ni amable, ni corta, ni «solo para emergencias». El modelo pequeño reconoce habla o no la reconoce. No mantiene un diálogo. Un diálogo inventado en el taller es una frase que tú quisiste oír. Si duda, ya está dicho: te quedas donde estabas.</p>
+<p>No prometes visión fiable de noche. Control no la deja escrita. No hay en ese tratado una cámara, una luz ni una cifra que diga que de noche el detector sigue valiendo. De día, además, el detector no es «ver». De noche no se vuelve ver por deseo. Si no está en el tratado, no lo añadas en la charla con quien mira el robot. La prueba de la lección 7 se hace con tus ojos, no con una cámara a la que le faltó la frase.</p>
+<p>No prometes que el modelo agarre la caída. La agarra el lazo, si la vertical sigue dentro y el servo llega a tiempo, o el corte, si ya no. Una etiqueta tardía es un comentario sobre un robot que ya se fue. No es una mano.</p>
+<p>No prometes que valga con la batería caída. Control no da un voltaje: dice que si la batería ya no entrega el par del servo, el cuerpo no se tiene, y que el umbral se mide en tu robot. Electrónica sí deja una puerta de marcha, orientativa, no una ficha: no ordenar un paso por debajo de unos 3,5 V por celda en reposo, unos 7,0 V en dos celdas y unos 10,5 V en tres. La IA no tiene una puerta más baja. Por debajo de eso no le pides al modelo un paso más listo. Paras. Un ordenador de a bordo que sigue infiriendo mientras la tensión se hunde gasta el mismo pack que tenía que empujar los servos, y el modelo no restituye el par que la celda ya no da. El corte de la protección, cerca de 3,0 V o más abajo, salva la celda de la muerte. No es un permiso para seguir pensando.</p>
+
+<h3>Cuándo estorba, con nombre</h3>
+<p>Estorba si la metes antes de la prueba atada. Todavía no sabes si el cuerpo se tiene, y ya estás juzgando el modelo. El fallo de masa o de pie queda escondido detrás de un acierto en un banco que no es el suelo.</p>
+<p>Estorba si la usas para no repetir el centro cuando mueves la batería. La masa puede ser la misma y la x no. El par τ = W · x cambia con el brazo. El modelo no ve ese brazo si tú no lo has medido.</p>
+<p>Estorba si su tiempo es el de la llamada de 380 ms, o el de 4084 ms, y tú la pones en serie con el servo. El lazo no espera. Si lo haces esperar, has roto el estar quieto para obtener una etiqueta que ya no sirve.</p>
+<p>Estorba si «anda» dicho en voz se obedece en caída, en parada, o sin haber sostenido el cuerpo. La voz no es un mando de más jerarquía. Es una transición, y las transiciones prohibidas siguen prohibidas. Estorba igual si, como dudó, tú decides que había dicho «anda».</p>
+<p>Estorba si la enciendes para la foto de noche y luego cuentas que el robot ve. No ve. No estaba escrito.</p>
+<p>Estorba si, con el signo del inclinómetro al revés, entrenas un corrector más fuerte en vez de cambiar el signo. La lección 7 ya lo dijo: inclinas a punteras y el tobillo empuja a punteras. Más modelo es más caída, más deprisa.</p>
+<p>Estorba si ocupa la batería de la prueba. La prueba atada es corta y con el corte en la mano. Un modelo que necesita minutos de arranque y un pack ya bajo no es parte de esa prueba. Se queda apagado hasta que el cuerpo se tenga sin él.</p>
+
+<h3>Errores típicos de taller</h3>
+<p>Entrenar con la masa del ejemplo, 3,0 kg, cuando la báscula dice otra cosa. El 0,59 N·m no es un dato de entrenamiento. Es un ejemplo de mesa. Tu hoja manda.</p>
+<p>Creer que doble apoyo parte el problema por la mitad y que el modelo solo tiene que aprender 0,295 N·m. No es la regla. El día del apoyo simple el tobillo ve el par entero.</p>
+<p>Dar por bueno un pie de 3 cm porque el modelo «compensa el margen». El 60 % de 3 cm son 1,8 cm. Compensar el margen con una red es no cumplir el margen.</p>
+<p>Pasar el ejemplo de persona a un micro de 2 KB porque «está cuantizado». La cuantización no convierte 250 KB en 2 KB.</p>
+<p>Llamar fluidez a 380 ms. Es el tiempo de una llamada en ese ejemplo, con los núcleos optimizados. Sin ellos, 4084 ms. Ninguno de los dos es un fotograma de cámara ni el periodo de tu marcha.</p>
+<p>Copiar uno o dos fotogramas por segundo del S2 y atribuirlos al S3. Control no los atribuye. Tú tampoco.</p>
+<p>Subir a bordo el modelo de voz grande porque la Pi «tiene bastante». Si puede pedir hasta 16 GB, tu placa o no llega o se queda sin sitio para el lazo. El pequeño reconoce habla y no conversa. Ese es el límite. No lo conviertas en un diálogo.</p>
+<p>Completar la orden cuando el reconocedor duda. Te quedas en el estado actual. Inventar la frase es mandar tú, sin decirlo.</p>
+<p>Prometer que de noche, con la misma cámara, el robot ve la sala. Control no lo dice. Esta lección no lo añade.</p>
+<p>Seguir infiriendo por debajo de unos 3,5 V por celda en reposo, porque el modelo «está a punto de sacar la etiqueta». La puerta de marcha no se abre para la IA. Se para.</p>
+<p>Apagar el lazo para que el modelo tenga toda la placa. Si el modelo se equivoca o no cabe, no queda nada sujetando la vertical. El lazo sigue.</p>
+
+<h3>Qué haces en el banco</h3>
+<p>No abres un modelo hasta que la lección 7 está hecha por escrito: tiempo de la prueba, qué hizo la vertical, margen del 60 % cumplido, masa real en la hoja. Si no está, el trabajo de hoy es ese, no este.</p>
+<p>Si está, escribes en una línea qué etiqueta quieres y por qué el lazo, solo, no la da. «Que no se caiga» no es una etiqueta: eso ya es el lazo y el corte. Una fase, o un sí o un no de caída, medidos en este robot, sí pueden serlo. Si no sabes escribir la línea, no hay modelo todavía.</p>
+<p>Miras si cabe sin red. Si la placa es de 2 KB, no cabe la red de 250 KB. Si vas a usar el ejemplo de persona en un ESP32, anotas 380 ms o 4084 ms según tengas o no esos núcleos, y no los llamas fotogramas. Si la llamada no termina antes de la corrección del servo, no entra en el lazo: el lazo no la espera. Si quieres voz en una Pi, es el modelo pequeño, órdenes cortas, sin diálogo, y el grande se queda fuera. Si duda, no hay orden.</p>
+<p>La batería se mira antes. Por debajo de la puerta de unos 3,5 V por celda en reposo, no hay sesión de modelo ni de marcha. El corte físico se prueba igual que el primer día. El modelo no lo sustituye.</p>
+</section>
+
+<section class="practica eleccion" data-bien="b">
+<h2>Práctica</h2>
+<p>La báscula, con la batería, marca 5,0 kg. El pie se cortó cuando creías que eran 3,0 kg, y la vertical se va de punteras en la prueba atada. Alguien propone entrenar un modelo para que camine igual. ¿Qué haces?</p>
+<div class="opciones">
+<button type="button" class="opcion" data-k="a" data-porque="El modelo no rehace el par. Con 5,0 kg el peso es 49,05 N. Si el centro sigue a 0,02 m, el par en ese tobillo en apoyo simple es 0,981 N·m, no 0,59. Y la x hay que medirla otra vez: no se presta del ejemplo. Caminar encima es esconder el fallo.">Lo entrenas: la IA está para corregir el pie y la masa</button>
+<button type="button" class="opcion" data-k="b" data-porque="Correcto. La IA entra después de que el cuerpo se tenga. Un pie de otra masa, y una vertical que se va, se arreglan en la cuenta y en la planta. El modelo no sustituye esa cuenta, y el lazo de estar quieto sigue siendo el que manda.">Paras el modelo. Rehaces peso y par, y no pides marcha</button>
+<button type="button" class="opcion" data-k="c" data-porque="Partir el par no es la regla, y además 0,59 N·m ya no corresponde a 5,0 kg. La mitad de un número muerto sigue muerta. El modelo no vive de esa mitad.">Como son dos pies, el modelo solo tiene que aprender la mitad de 0,59 N·m</button>
+</div>
+<p class="resultado" hidden></p>
+</section>
+
+<section class="puentes">
+<h2>Puente</h2>
+<p><a href="../robot-control.html#ia-offline">Control · IA offline</a> es donde están el modelo y las cifras leídas, no una charla. Esta lección no copia esa tabla: fija cuándo la etiqueta entra, cuándo estorba, y los límites que no se suavizan. Si abres el enlace, es para la cifra de la placa que ya tienes, no para saltarte el cuerpo.</p>
+</section>
+
+<section class="cuaderno">
+<h2>Cuaderno</h2>
+<p>Anota la etiqueta que quieres, si cabe en la placa sin red, y por qué el lazo no espera a esa llamada.</p>
+<textarea id="cuaderno" rows="8" data-clave="lv-robot-ens-l08" placeholder="etiqueta, si cabe, el lazo no espera"></textarea>
+<p class="nota">Se guarda en este aparato si el navegador lo permite.</p>
+</section>
+
+<nav class="pasos" aria-label="Entre lecciones">
+<a href="leccion-07.html">Anterior</a>
+<a href="../robot-ensenanza.html">Índice</a>
+<a href="leccion-09.html">Siguiente: el montaje completo</a>
+</nav>
+</main>
+<footer>
+<p>Les vencimos · Robot humanoide · Enseñanza. Lección 8. La IA va después del cuerpo. No corrige una masa sin pesar. 380 ms no es un fotograma. No hay visión de noche prometida.</p>
+</footer>
+
+</div>
+<script>
+
+function hablar(texto){
+  if(window.LesVencimosMaestro && typeof window.LesVencimosMaestro.decir==="function"){
+    window.LesVencimosMaestro.decir(texto);
+    return;
+  }
+  if(!window.speechSynthesis || typeof SpeechSynthesisUtterance!=="function") return;
+  window.speechSynthesis.cancel();
+  var u=new SpeechSynthesisUtterance(texto);
+  u.lang="es-ES";
+  u.rate=0.95;
+  window.speechSynthesis.speak(u);
+}
+document.querySelectorAll("button.escuchar").forEach(function(b){
+  b.addEventListener("click", function(){
+    var t=b.parentElement.querySelector(".maestro-texto");
+    if(t) hablar(t.textContent);
+  });
+});
+function marca(box, ok, bien, mal){
+  var p=box.querySelector(".resultado");
+  p.hidden=false;
+  p.className="resultado "+(ok?"ok":"mal");
+  p.textContent=ok?bien:mal;
+}
+document.querySelectorAll(".practica.orden").forEach(function(box){
+  function mover(li, dir){
+    var lista=li.parentElement;
+    if(dir<0 && li.previousElementSibling) lista.insertBefore(li, li.previousElementSibling);
+    if(dir>0 && li.nextElementSibling) lista.insertBefore(li.nextElementSibling, li);
+  }
+  box.querySelectorAll("button.subir").forEach(function(b){
+    b.addEventListener("click", function(){ mover(b.closest("li"), -1); });
+  });
+  box.querySelectorAll("button.bajar").forEach(function(b){
+    b.addEventListener("click", function(){ mover(b.closest("li"), 1); });
+  });
+  box.querySelector("button.comprobar").addEventListener("click", function(){
+    var got=[].map.call(box.querySelectorAll("li"), function(li){ return li.dataset.k; }).join(",");
+    var ok=got===box.dataset.solucion;
+    marca(box, ok, "Ese es el orden.", "Todavía no. Lee el mecanismo y mueve las piezas.");
+    var w=box.querySelector(".porque");
+    if(w) w.hidden=!ok;
+  });
+});
+document.querySelectorAll(".practica.eleccion").forEach(function(box){
+  box.querySelectorAll("button.opcion").forEach(function(b){
+    b.addEventListener("click", function(){
+      var ok=b.dataset.k===box.dataset.bien;
+      marca(box, ok, b.dataset.porque||"Correcto.", b.dataset.porque||"Esa no es la lectura.");
+    });
+  });
+});
+
+(function(){
+  var ta=document.getElementById("cuaderno");
+  if(!ta) return;
+  var clave=ta.getAttribute("data-clave");
+  try{
+    var guardado=localStorage.getItem(clave);
+    if(guardado!==null) ta.value=guardado;
+  }catch(e){}
+  ta.addEventListener("input", function(){
+    try{ localStorage.setItem(clave, ta.value); }catch(e){}
+  });
+})();
+
+</script>
+</body>
+</html>

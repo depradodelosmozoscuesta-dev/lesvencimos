@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<meta name="theme-color" content="#0E0E0C"/>
+<title>Lección 19 · Patrones y generalización · Les vencimos</title>
+<link rel="icon" href="../icons/favicon.svg" type="image/svg+xml"/>
+<link rel="manifest" href="../manifest.webmanifest"/>
+<link rel="stylesheet" href="../leccion-shell.css"/>
+<style>
+.pasos{list-style:none;margin:0 0 1rem;padding:0;counter-reset:paso}
+.pasos li{position:relative;margin:0 0 .7rem;padding:.7rem .8rem .7rem 3.1rem;background:var(--lv-panel);border:1px solid var(--lv-linea);border-radius:10px}
+.pasos li::before{counter-increment:paso;content:counter(paso);position:absolute;left:.65rem;top:.7rem;width:1.7rem;height:1.7rem;border-radius:50%;background:#C4A15A;color:#1A160E;font-weight:700;font-size:.9rem;display:flex;align-items:center;justify-content:center}
+.figura-svg{background:#161512;border:1px solid var(--lv-linea);border-radius:10px;padding:.5rem;margin:.5rem 0 1.1rem}
+.figura-svg svg{width:100%;height:auto;display:block}
+.ej{margin:0 0 1rem;padding:.85rem .95rem;background:var(--lv-panel);border:1px solid var(--lv-linea);border-left:3px solid #C4A15A;border-radius:10px}
+.ej h3{margin:0 0 .35rem;font-family:var(--lv-serif);font-size:1.05rem;color:var(--lv-titulo)}
+.editor,textarea.editor{width:100%;min-height:5.5rem;font-family:ui-monospace,monospace;font-size:.95rem;line-height:1.45;padding:.55rem .65rem;border:1px solid rgba(196,161,90,.45);border-radius:8px;background:#161512;color:#E6E1D6;resize:vertical}
+.lienzo{display:block;width:100%;height:280px;background:#161512;border:1px solid #C4A15A;border-radius:8px;touch-action:none;cursor:crosshair}
+.fila{display:flex;flex-wrap:wrap;gap:.4rem;margin:.45rem 0}
+.boton{font:inherit;font-weight:700;font-size:.85rem;padding:.4rem .8rem;border-radius:999px;border:1px solid #C4A15A;background:transparent;color:#E6E1D6;cursor:pointer}
+.porque{margin-top:.55rem;padding:.65rem .75rem;background:#1a2218;border-radius:8px;color:#E6E1D6}
+.dato{font-size:.95rem;color:var(--lv-suave)}
+.glosa{display:block;font-size:.9rem;color:#9A9488;margin:.25rem 0 .5rem;line-height:1.4}
+.lab-box{margin:1rem 0;padding:.85rem;border:1px dashed rgba(196,161,90,.5);border-radius:10px;background:#141210}
+.lab-box iframe{width:100%;min-height:320px;border:1px solid #C4A15A;border-radius:8px;background:#0E0E0C}
+table.datos{width:100%;border-collapse:collapse;margin:.45rem 0 1rem;font-size:.98rem}
+table.datos th,table.datos td{border:1px solid var(--lv-linea);padding:.4rem .55rem;text-align:left}
+table.datos th{background:#161512;color:#C4A15A}
+</style>
+<script src="../leccion-shell-nav.js" defer></script>
+</head>
+<body class="leccion-shell" data-maestro-json="maestro-19.json">
+<div class="leccion-wrap">
+<nav class="leccion-barra" aria-label="Navegación de lección" data-actual="19" data-total="38">
+  <div class="leccion-progreso" role="status">
+    <span class="progreso-texto"><strong>19</strong> de <strong>38</strong></span>
+    <div class="progreso-pista" aria-hidden="true"><div class="progreso-lleno" style="width:50%"></div></div>
+  </div>
+  <div class="leccion-atajos">
+    <a class="atajo atajo-calc" href="../../../../modulos/calculadora.html" title="Calculadora offline">Calculadora</a>
+    <a class="atajo atajo-prev" href="leccion-18-camino-minimo.html">← Anterior</a>
+    <a class="atajo atajo-next" href="leccion-20-funciones-afines.html">Siguiente →</a>
+  </div>
+</nav>
+<header class="leccion-top">
+  <a class="leccion-marca" href="../../../../index.html">Les <span>vencimos</span></a>
+  <p class="leccion-meta-top">Matemáticas Generales · 1º Bachillerato</p>
+</header>
+<header class="bloque-titulo">
+  <span class="eyebrow">Lección 19 · D · Algebraico</span>
+  <h1 class="titulo-leccion">Patrones y <em>generalización</em></h1>
+  <p class="meta-leccion">1º Bach Matemáticas Generales · CyL Decreto 40/2022 · D.1 Generalización de patrones</p>
+</header>
+<aside class="bloque-curiosidad" aria-label="Para situarte">
+  <p class="etiqueta-bloque">Para situarte</p>
+  <h2 class="titulo-curiosidad">Tres comprobaciones antes de la fórmula</h2>
+  <p class="texto-curiosidad">La sucesión 3, 7, 11, 15 sube de 4 en 4. La fórmula candidata es a(n) = 4n − 1. No se acepta hasta comprobar n = 1, n = 2 y n = 3, que son los tres primeros círculos del gráfico.</p>
+</aside>
+<section class="bloque-cuerpo">
+  <h2>Objetivos</h2>
+  <ul><li>Describir el patrón con una frase de cómo se pasa de un término al siguiente.</li><li>Proponer una fórmula y comprobarla en n = 1, 2 y 3.</li><li>Calcular un término lejano con la fórmula, no recorriendo toda la lista.</li></ul>
+</section>
+<section class="bloque-cuerpo">
+<h2>Del salto constante a la fórmula, con red de seguridad</h2>
+<p>Un patrón numérico se generaliza cuando puedes decir el término que ocupa el lugar n sin haber escrito todos los anteriores. En una sucesión aritmética el salto entre términos consecutivos es siempre el mismo. Ese salto es la diferencia, y entra en la fórmula como coeficiente de n.</p>
+<p><span class="glosa">a(n) = término que ocupa el lugar n, empezando en n = 1 · diferencia d = 4 en este ejemplo · a(n) = 4n − 1 · comprobar n = 1, 2 y 3 significa sustituir y ver si salen 3, 7 y 11, no mirar solo el dibujo</span></p>
+<p>Si el primero es 3 y cada vez se suman 4, el término n ha sufrido (n − 1) saltos. Entonces a(n) = 3 + (n − 1)·4 = 3 + 4n − 4 = 4n − 1. Las dos escrituras dicen lo mismo. El gráfico enseña los cuatro primeros: alturas 3, 7, 11 y 15, separadas por el mismo salto visual.</p>
+<p>Una fórmula que solo acierta el primer término no sirve. Por eso la comprobación pide tres valores, no uno. Si falla en n = 2 o en n = 3, se descarta aunque «se parezca» al principio.</p>
+<table class="datos"><thead><tr><th>n</th><th>4n − 1</th><th>Término de la lista</th><th>¿Cuadra?</th></tr></thead>
+<tbody>
+<tr><td>1</td><td>4·1 − 1 = 3</td><td>3</td><td>sí</td></tr>
+<tr><td>2</td><td>4·2 − 1 = 7</td><td>7</td><td>sí</td></tr>
+<tr><td>3</td><td>4·3 − 1 = 11</td><td>11</td><td>sí</td></tr>
+<tr><td>4</td><td>4·4 − 1 = 15</td><td>15</td><td>sí, predicción ya vista</td></tr>
+</tbody></table>
+<h2>Gráfico del ejemplo</h2>
+<p class="dato">La figura no es decoración: los trazos corresponden a los números del ejemplo 1.</p>
+<div class="figura-svg"><svg viewBox="0 0 720 320" role="img" aria-label="Cuatro puntos de la sucesión 3, 7, 11, 15 con la fórmula 4n − 1"><title>Cuatro puntos de la sucesión 3, 7, 11, 15 con la fórmula 4n − 1</title><rect width="720" height="320" fill="#161512"/>
+<line x1="60" y1="200" x2="680" y2="200" stroke="#9A9488" stroke-width="2"/>
+<line x1="120" y1="200" x2="120" y2="150" stroke="#C4A15A" stroke-width="3"/>
+<line x1="260" y1="200" x2="260" y2="110" stroke="#C4A15A" stroke-width="3"/>
+<line x1="400" y1="200" x2="400" y2="70" stroke="#C4A15A" stroke-width="3"/>
+<line x1="540" y1="200" x2="540" y2="30" stroke="#C4A15A" stroke-width="3"/>
+<circle cx="120" cy="150" r="8" fill="#E6E1D6"/>
+<circle cx="260" cy="110" r="8" fill="#E6E1D6"/>
+<circle cx="400" cy="70" r="8" fill="#E6E1D6"/>
+<circle cx="540" cy="30" r="8" fill="#E6E1D6"/>
+<text x="120" y="230" text-anchor="middle" fill="#E6E1D6" font-size="14">n=1 · 3</text>
+<text x="260" y="230" text-anchor="middle" fill="#E6E1D6" font-size="14">n=2 · 7</text>
+<text x="400" y="230" text-anchor="middle" fill="#E6E1D6" font-size="14">n=3 · 11</text>
+<text x="540" y="230" text-anchor="middle" fill="#E6E1D6" font-size="14">n=4 · 15</text>
+<text x="60" y="28" fill="#C4A15A" font-size="15">a(n) = 4n − 1. De un término al siguiente se suman 4.</text>
+</svg></div>
+<h2>Ejemplo resuelto 1 — Comprobar n = 1, 2 y 3</h2><p>La lista empieza 3, 7, 11. Alguien propone a(n) = 4n − 1. Sustituye n = 1, n = 2 y n = 3.</p><ol class="pasos">
+<li>n = 1: 4·1 − 1 = 3. Coincide con el primer círculo.<span class="glosa">Glosa: el primer término no es 4n; hay que restar 1. Sin esa resta saldría 4.</span></li>
+<li>n = 2: 4·2 − 1 = 7. Coincide con el segundo.<span class="glosa">Glosa: aquí se ve el salto: de 3 a 7 hay +4, que es el coeficiente.</span></li>
+<li>n = 3: 4·3 − 1 = 11. Coincide con el tercero.<span class="glosa">Glosa: tres aciertos seguidos no son una casualidad del primero. La fórmula supera la red.</span></li>
+<li>Como las tres comprobaciones cierran, se acepta a(n) = 4n − 1 para esta sucesión, y el cuarto término 15 queda predicho: 4·4 − 1 = 15.<span class="glosa">Glosa: predecir el cuarto ya no exige sumar 4 al 11, aunque esa suma sirve de comprobación extra.</span></li>
+</ol>
+<h2>Ejemplo resuelto 2 — De dónde sale el −1</h2><p>Escribe a(n) como «el primero más los saltos» y llega a 4n − 1.</p><ol class="pasos">
+<li>El primer término es 3 y cada salto suma 4.<span class="glosa">Glosa: 3 es a(1), no la diferencia. La diferencia es 4.</span></li>
+<li>Para llegar al lugar n haces (n − 1) saltos, no n. Del 1 al 2 hay un salto, no dos.<span class="glosa">Glosa: contar n saltos es el error que desplaza toda la fórmula.</span></li>
+<li>a(n) = 3 + (n − 1)·4 = 3 + 4n − 4 = 4n − 1.<span class="glosa">Glosa: el −1 es lo que queda de 3 − 4, no un ajuste misterioso.</span></li>
+<li>Comprueba de nuevo n = 1 en esta forma: 3 + (1 − 1)·4 = 3. Cero saltos, te quedas en el primero.<span class="glosa">Glosa: si en n = 1 no recuperas el primer término, has contado mal los saltos.</span></li>
+</ol>
+<h2>Ejemplo resuelto 3 — Un término lejano y una fórmula falsa</h2><p>Calcula a(20) con la fórmula buena. Después prueba b(n) = 4n + 3 y di en qué comprobación muere.</p><ol class="pasos">
+<li>a(20) = 4·20 − 1 = 80 − 1 = 79. No hace falta escribir los 19 términos intermedios.<span class="glosa">Glosa: para eso se generaliza: el lugar 20 está a 19 saltos de 4 desde el 3, y 3+76 = 79.</span></li>
+<li>b(1) = 4·1 + 3 = 7, que ya no es 3. Falla en la primera comprobación.<span class="glosa">Glosa: ni siquiera hace falta mirar n = 2. Una fórmula que no da el primer término está descartada.</span></li>
+<li>Aunque alguien dijera «también sube de 4 en 4», el nivel de partida es otro: 7, 11, 15… no es nuestra lista.<span class="glosa">Glosa: la diferencia no determina la sucesión sola; falta el primer término.</span></li>
+<li>Por eso pedimos tres comprobaciones cuando la fórmula es candidata seria, y basta una en contra para rechazarla.<span class="glosa">Glosa: n = 1, 2 y 3 son el mínimo de esta lección antes de fiarte de a(20).</span></li>
+</ol>
+<h2>Ejercicios</h2>
+<p class="dato">Escribe el razonamiento completo en el editor, no solo la cifra. Si el enunciado pide figura, dibújala en el lienzo de esta misma página.</p>
+<article class="ej"><h3>1. El término 10</h3><p>Con a(n) = 4n − 1, calcula a(10) y comprueba sumando saltos desde a(3) = 11.</p><label for="e19a">Tu resolución</label><textarea class="editor" id="e19a" placeholder="Escribe aquí el razonamiento completo…"></textarea><details class="porque"><summary>Por qué (abre cuando hayas escrito)</summary><p>Por la fórmula, a(10) = 40 − 1 = 39. Desde n = 3 hasta n = 10 hay 7 saltos de 4: 11 + 7·4 = 11 + 28 = 39. Las dos cuentas coinciden. El paso útil es no sumar de uno en uno los diez términos: o usas la fórmula cerrada o cuentas solo los saltos que faltan. Si te sale 40, te has dejado el −1 o has hecho 10·4 sin restar.</p></details></article>
+<article class="ej"><h3>2. Otra diferencia</h3><p>La lista 5, 8, 11, 14 tiene diferencia 3 y primer término 5. Escribe la fórmula y comprueba n = 1, 2 y 3.</p><label for="e19b">Tu resolución</label><textarea class="editor" id="e19b" placeholder="Escribe aquí el razonamiento completo…"></textarea><details class="porque"><summary>Por qué (abre cuando hayas escrito)</summary><p>a(n) = 5 + (n − 1)·3 = 3n + 2. Comprobación: n = 1 da 5; n = 2 da 8; n = 3 da 11. El paso delicado es el (n − 1): si escribes 5 + 3n, en n = 1 sale 8 y ya no es la lista. Desarrollar 5 + 3n − 3 = 3n + 2 permite comprobar más rápido, pero la forma con saltos explica de dónde sale. Las tres sustituciones son obligatorias antes de usar la fórmula para un n grande.</p></details></article>
+<article class="ej"><h3>3. Patrón que no es de salto constante</h3><p>Miras 2, 4, 8, 16. ¿Sirve una fórmula del tipo an + b? ¿Qué compruebas?</p><label for="e19c">Tu resolución</label><textarea class="editor" id="e19c" placeholder="Escribe aquí el razonamiento completo…"></textarea><details class="porque"><summary>Por qué (abre cuando hayas escrito)</summary><p>No es aritmética: los saltos son +2, +4 y +8, no son constantes. Una fórmula an + b produce saltos iguales, así que no puede generar esta lista. Se ve al comprobar: si fuerzas el primer salto, de 2 a 4, la diferencia sería 2 y el tercero tendría que ser 6, pero la lista dice 8. El paso es mirar si la diferencia se repite antes de copiar el método de 4n − 1. Aquí el patrón es multiplicar por 2: a(n) = 2ⁿ, y se comprueba 2¹ = 2, 2² = 4, 2³ = 8.</p></details></article>
+<h2>Dibuja en el lienzo</h2>
+<p>Reproduce a mano el gráfico del ejemplo: ejes o nodos, los datos numéricos y una frase con la conclusión. El botón borra el lienzo sin salir de la lección.</p>
+<canvas id="lienzo19" class="lienzo" width="900" height="280"></canvas><div class="fila"><button type="button" class="boton" data-clear="lienzo19">Borrar lienzo</button></div>
+</section>
+
+<section class="bloque-cuerpo">
+  <h2>Comprueba</h2>
+  <p class="dato">Tres preguntas. Responde mentalmente antes de abrir el porqué.</p>
+  <details class="porque"><summary>¿Qué da a(n) = 4n − 1 en n = 1, n = 2 y n = 3?</summary><p>Da 3, 7 y 11. Por qué: 4·1 − 1 = 3, 4·2 − 1 = 7 y 4·3 − 1 = 11, que son los tres primeros términos dibujados. Sin esas tres sustituciones la fórmula es solo una sospecha.</p></details>
+<details class="porque"><summary>¿Por qué el número de saltos hasta el lugar n es n − 1?</summary><p>Porque el primer término ya está puesto y no cuenta como salto. Por qué: del lugar 1 al lugar n hay n − 1 huecos. En n = 1 hay 0 saltos y la fórmula devuelve 3. Contar n saltos sumaría un 4 de más.</p></details>
+<details class="porque"><summary>¿Por qué b(n) = 4n + 3 no sirve para 3, 7, 11?</summary><p>Porque en n = 1 da 7, no 3. Por qué: comparte la diferencia 4, pero arranca en otro sitio. Una sola comprobación fallida basta para rechazarla; no se «arregla» mirando solo el dibujo del salto.</p></details>
+</section>
+<section class="bloque-reto">
+  <span class="etiqueta-reto">Reto Profesor</span>
+  <h2 class="titulo-reto">Tu sucesión</h2>
+  <p>Inventa una sucesión aritmética de cuatro términos, escribe la fórmula y comprueba n = 1, 2 y 3 en el editor. Dibuja los puntos en el lienzo.</p>
+  <p class="reto-id">reto_id: bach1-mates-gen-L19</p>
+</section>
+<footer class="leccion-pie"><strong>Les vencimos</strong> · L19 de 38 · Matemáticas Generales · staging · file:// · sin publicar</footer>
+</div>
+<script type="application/json" data-maestro="guion">{"curso": "bach1-mates-gen", "leccion": 19, "titulo": "Patrones y generalización", "url": "leccion-19-patrones-y-generalizacion.html", "musica": false, "pasos": [{"id": "abrir", "dicho": "Los círculos marcan 3, 7, 11 y 15. El salto vertical entre ellos es el +4.", "hacer": "Leer en voz alta el apartado Para situarte y los objetivos."}, {"id": "figura", "dicho": "La fórmula 4n − 1 sale de 3 + (n − 1)·4.", "hacer": "Mirar el SVG y decir qué dato numérico marca cada trazo."}, {"id": "ej1", "dicho": "Ejemplo 1: n = 1, 2 y 3 devuelven exactamente 3, 7 y 11.", "hacer": "Rehacer el ejemplo 1, glosa a glosa, sin mirar el resultado final."}, {"id": "ej2", "dicho": "Ejemplo 2: el −1 es 3 − 4, el ajuste de contar n − 1 saltos.", "hacer": "Rehacer el ejemplo 2 y contrastarlo con el 1."}, {"id": "ej3", "dicho": "Ejemplo 3: a(20) = 79, y 4n + 3 muere ya en n = 1.", "hacer": "Rehacer el ejemplo 3 y anotar la comprobación."}, {"id": "practica", "dicho": "No des por buena una fórmula que solo acierta el primer término.", "hacer": "Escribir el razonamiento de al menos dos ejercicios y usar el lienzo."}, {"id": "cierre", "dicho": "Si los saltos no son constantes, no uses este modelo.", "hacer": "Contestar Comprueba antes de abrir y dejar el reto por escrito."}]}</script>
+<script>(function(){function liga(c){var ctx=c.getContext('2d');function fondo(){ctx.fillStyle='#161512';ctx.fillRect(0,0,c.width,c.height);ctx.strokeStyle='#C4A15A';ctx.strokeRect(.5,.5,c.width-1,c.height-1);}function fit(){var r=c.getBoundingClientRect();var w=Math.max(320,Math.floor(r.width));if(c.width!==w){c.width=w;c.height=280;fondo();}}var dib=false,last=null;function pos(ev){var r=c.getBoundingClientRect();var s=ev.touches?ev.touches[0]:ev;return{x:(s.clientX-r.left)*c.width/r.width,y:(s.clientY-r.top)*c.height/r.height};}c.addEventListener('pointerdown',function(ev){dib=true;last=pos(ev);ev.preventDefault();});c.addEventListener('pointermove',function(ev){if(!dib)return;var p=pos(ev);ctx.strokeStyle='#E6E1D6';ctx.lineWidth=2.2;ctx.lineCap='round';ctx.beginPath();ctx.moveTo(last.x,last.y);ctx.lineTo(p.x,p.y);ctx.stroke();last=p;ev.preventDefault();});function up(){dib=false;}c.addEventListener('pointerup',up);c.addEventListener('pointerleave',up);var b=document.querySelector('[data-clear="'+c.id+'"]');if(b)b.addEventListener('click',fondo);fit();window.addEventListener('resize',fit);}document.querySelectorAll('canvas.lienzo').forEach(liga);})();</script>
+</body>
+</html>

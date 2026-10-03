@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
+<title>L13 · Laboratorio · Instrumento, escala e indicador</title>
+<style>
+:root{--bg:#FAF7F0;--ink:#2A2620;--muted:#5C564C;--card:#fff;--gold:#C4A15A;--gold-soft:#F5EDD8;--gold-deep:#8A6B2F;--green:#3D6B4F;--green-soft:#E4F0E8;--blue:#2F5D7A;--blue-soft:#E3EEF4;--rose:#9B3A4A;--rose-soft:#F8E8EB;--line:#E0D0A8}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--ink);font-family:"Segoe UI",system-ui,sans-serif;line-height:1.45}
+body{padding:14px 12px 32px}
+.wrap{max-width:860px;margin:0 auto}
+.badge{display:inline-block;font-size:.75rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--gold-deep);background:var(--gold-soft);padding:4px 10px;border-radius:999px}
+h1{font-size:1.45rem;line-height:1.25;margin:.4rem 0 .3rem}
+.lead{color:var(--muted);margin:0 0 12px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px;margin:0 0 12px}
+.q{font-weight:750;margin:0 0 8px}
+.opts{display:grid;gap:8px}
+button.opt,button.chip{font:inherit;text-align:left;background:#fff;border:2px solid #D9D0C0;border-radius:12px;padding:10px 12px;cursor:pointer;font-weight:650}
+button.opt:hover,button.chip:hover{border-color:var(--gold)}
+button.opt.ok,button.chip.ok{border-color:var(--green);background:var(--green-soft)}
+button.opt.bad{border-color:var(--rose);background:var(--rose-soft)}
+button.opt:disabled{cursor:default}
+.why{margin:8px 0 0;font-size:.95rem}
+.why strong{color:var(--gold-deep)}
+.row{display:flex;flex-wrap:wrap;gap:8px}
+.slot{min-height:42px;border:2px dashed #C4B8A0;border-radius:12px;padding:8px;display:flex;flex-wrap:wrap;gap:6px;background:#FFFcf5}
+.bar{display:flex;justify-content:space-between;gap:8px;align-items:center;margin:8px 0}
+.score{font-weight:800;color:var(--gold-deep)}
+button.action{font:inherit;font-weight:800;border:0;border-radius:999px;background:var(--gold);color:#1A160E;padding:8px 14px;cursor:pointer}
+footer{color:var(--muted);font-size:.8rem;text-align:center}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="badge">Lección 13 · bloque B · sin red</div>
+  <h1>Instrumento, escala e indicador</h1>
+  <p class="lead">Ocho decisiones breves. La corrección aparece al pulsar. No hay datos de aula presentados como medición oficial.</p>
+  <div class="bar"><span class="score" id="score">0</span><button type="button" class="action" id="reset">Reiniciar</button></div>
+  <div id="lab"></div>
+  <footer>Les vencimos · laboratorio autónomo · sin red · corrección inmediata</footer>
+</div>
+<script>
+
+function boot(ITEMS){
+  var root=document.getElementById("lab");
+  var score=0, done=0;
+  var sc=document.getElementById("score");
+  function paint(){ sc.textContent=score+" / "+ITEMS.length; }
+  ITEMS.forEach(function(it,i){
+    var card=document.createElement("section");
+    card.className="card";
+    var h=document.createElement("p");
+    h.className="q";
+    h.textContent=(i+1)+". "+it.q;
+    card.appendChild(h);
+    if(it.tipo==="orden"){
+      var slot=document.createElement("div");
+      slot.className="slot";
+      var pool=document.createElement("div");
+      pool.className="row";
+      var picked=[];
+      function judge(){
+        var ok=picked.length===it.correcto.length && picked.every(function(p,k){return p===it.correcto[k];});
+        done++; if(ok) score++;
+        paint();
+        var w=document.createElement("p");
+        w.className="why";
+        w.innerHTML=(ok?"<strong>Correcto.</strong> ":"<strong>No es esa secuencia.</strong> Orden: "+it.correcto.join(" → ")+". ")+it.porque;
+        card.appendChild(w);
+        pool.querySelectorAll("button").forEach(function(b){b.disabled=true;});
+      }
+      it.piezas.forEach(function(txt){
+        var b=document.createElement("button");
+        b.type="button"; b.className="chip"; b.textContent=txt;
+        b.addEventListener("click", function(){
+          if(b.disabled) return;
+          b.disabled=true; b.className="chip ok";
+          picked.push(txt); slot.appendChild(b);
+          if(picked.length===it.correcto.length) judge();
+        });
+        pool.appendChild(b);
+      });
+      var hint=document.createElement("p");
+      hint.className="why";
+      hint.textContent="Pulsa en orden, del primero al último.";
+      card.appendChild(hint); card.appendChild(slot); card.appendChild(pool);
+    } else {
+      var opts=document.createElement("div");
+      opts.className="opts";
+      it.opciones.forEach(function(op){
+        var b=document.createElement("button");
+        b.type="button"; b.className="opt"; b.textContent=op.t;
+        b.addEventListener("click", function(){
+          if(card.dataset.done) return;
+          card.dataset.done="1"; done++;
+          opts.querySelectorAll("button").forEach(function(x){x.disabled=true;});
+          if(op.ok){ b.classList.add("ok"); score++; }
+          else {
+            b.classList.add("bad");
+            opts.querySelectorAll("button").forEach(function(x,idx){ if(it.opciones[idx].ok) x.classList.add("ok"); });
+          }
+          paint();
+          var w=document.createElement("p");
+          w.className="why";
+          w.innerHTML=(op.ok?"<strong>Correcto.</strong> ":"<strong>No.</strong> ")+it.porque;
+          card.appendChild(w);
+        });
+        opts.appendChild(b);
+      });
+      card.appendChild(opts);
+    }
+    root.appendChild(card);
+  });
+  paint();
+  document.getElementById("reset").addEventListener("click", function(){ location.reload(); });
+  window.addEventListener("message", function(ev){
+    var d=ev.data||{};
+    if(d.type==="maestro:reset") location.reload();
+    if(d.type==="maestro:highlight"){
+      var c=root.querySelector(".card"); if(c) c.style.outline="3px solid #C4A15A";
+    }
+  });
+}
+
+boot([{"tipo": "test", "q": "¿Qué tipo de norma es el Acuerdo de París?", "opciones": [{"t": "Un tratado climático, dentro de la Convención Marco, en vigor desde 2016.", "ok": true}, {"t": "Una ordenanza municipal de residuos.", "ok": false}, {"t": "Una resolución sin ratificación que solo recomienda 17 objetivos.", "ok": false}, {"t": "Un reglamento europeo que fija por sí solo el presupuesto de cada ayuntamiento.", "ok": false}], "porque": "París se adopta y se ratifica como tratado. La Agenda 2030 es la resolución de los ODS. La ordenanza es otra escala."}, {"tipo": "test", "q": "La NDC de un país, o la NDC conjunta de la UE, es sobre todo…", "opciones": [{"t": "La contribución que esa parte determina, comunica y deberá actualizar.", "ok": true}, {"t": "Un cupo de toneladas idéntico para todos los Estados, escrito ya en el artículo 2.", "ok": false}, {"t": "El nombre de los 17 ODS.", "ok": false}, {"t": "Una medición de clase del dióxido de carbono del patio.", "ok": false}], "porque": "El tratado fija la meta global de temperatura y el deber de contribuir; el contenido cuantitativo de cada NDC lo propone la parte. La UE presenta una contribución conjunta."}, {"tipo": "test", "q": "¿Qué no hace el Acuerdo de París por el solo hecho de estar en vigor?", "opciones": [{"t": "Garantizar que el calentamiento se quedará en 1,5 °C y prohibir él mismo cada combustible.", "ok": true}, {"t": "Pedir a las partes que comuniquen una contribución y rindan cuentas.", "ok": false}, {"t": "Hablar de adaptación y de flujos financieros, además de la meta de temperatura.", "ok": false}, {"t": "Situarse dentro de la convención climática de la ONU.", "ok": false}], "porque": "El acuerdo abre un sistema de contribuciones y transparencia. No es un termostato que se cumpla solo ni un código penal de la energía."}, {"tipo": "test", "q": "La Agenda 2030…", "opciones": [{"t": "Es un compromiso político de la Asamblea General, sin tribunal propio.", "ok": true}, {"t": "Sustituye a la NDC europea.", "ok": false}, {"t": "Obliga a un ayuntamiento a alcanzar el ODS 13 con sanción internacional.", "ok": false}, {"t": "Es el anexo técnico que calcula la semivida del carbono-14.", "ok": false}], "porque": "Sirve de marco común. No ratifica un tratado ni inspecciona un compostador."}, {"tipo": "test", "q": "Desviar la fracción orgánica del vertedero, si de verdad reduce metano de ese vertedero, es…", "opciones": [{"t": "Mitigación local y parcial, no el cumplimiento de la NDC.", "ok": true}, {"t": "Adaptación, porque el metano es un impacto que ya no se puede evitar.", "ok": false}, {"t": "Prueba suficiente de que el municipio ha cerrado la meta de 1,5 °C.", "ok": false}, {"t": "Un indicador de biodiversidad de ribera.", "ok": false}], "porque": "Bajar un gas de efecto invernadero es mitigar. La escala sigue siendo el vertedero, no el balance europeo."}, {"tipo": "test", "q": "Restaurar dos kilómetros de ribera con sombra y sujeción del talud, sin balance de carbono, debe leerse como…", "opciones": [{"t": "Adaptación y mejora de hábitat; la mitigación no está demostrada.", "ok": true}, {"t": "La NDC de España, porque el río pertenece a la cuenca del Duero.", "ok": false}, {"t": "Un sustituto del balance mundial de París.", "ok": false}, {"t": "Mitigación automática: todo árbol cuenta como tratado.", "ok": false}], "porque": "El efecto local sobre calor y erosión no necesita llamarse sumidero. El sumidero exigiría un balance que el enunciado no da."}, {"tipo": "test", "q": "¿Cuál sería un indicador de que la ordenanza ocurrió?", "opciones": [{"t": "Toneladas de orgánica desviadas y metros de orilla que siguen vivos.", "ok": true}, {"t": "El número de veces que el cartel cita la Agenda 2030.", "ok": false}, {"t": "La sensación de que el pueblo está concienciado.", "ok": false}, {"t": "Que el tratado de París siga en vigor, que no depende de este ayuntamiento.", "ok": false}], "porque": "El indicador tiene que poder fallar. Un tratado internacional no mide el camión de la orgánica."}, {"tipo": "orden", "q": "Ordena cómo se lee la iniciativa, del primer paso al último.", "piezas": ["Qué no cubre (ni la NDC ni la Agenda)", "Medir toneladas y metros", "Decir si es mitigación, adaptación o ambas", "Nombrar el instrumento real"], "correcto": ["Nombrar el instrumento real", "Decir si es mitigación, adaptación o ambas", "Medir toneladas y metros", "Qué no cubre (ni la NDC ni la Agenda)"], "porque": "Sin instrumento no hay compromiso. Luego se separan los mecanismos. El número comprueba. Al final se dice qué queda fuera de escala."}]);
+</script>
+</body>
+</html>

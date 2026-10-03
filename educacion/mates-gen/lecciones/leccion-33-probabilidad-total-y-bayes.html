@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<meta name="theme-color" content="#0E0E0C"/>
+<title>Lección 33 · Probabilidad total y Bayes · Les vencimos</title>
+<link rel="icon" href="../icons/favicon.svg" type="image/svg+xml"/>
+<link rel="manifest" href="../manifest.webmanifest"/>
+<link rel="stylesheet" href="../leccion-shell.css"/>
+<style>
+.pasos{list-style:none;margin:0 0 1rem;padding:0;counter-reset:paso}
+.pasos li{position:relative;margin:0 0 .7rem;padding:.7rem .8rem .7rem 3.1rem;background:var(--lv-panel);border:1px solid var(--lv-linea);border-radius:10px}
+.pasos li::before{counter-increment:paso;content:counter(paso);position:absolute;left:.65rem;top:.7rem;width:1.7rem;height:1.7rem;border-radius:50%;background:#C4A15A;color:#1A160E;font-weight:700;font-size:.9rem;display:flex;align-items:center;justify-content:center}
+.figura-svg{background:#161512;border:1px solid var(--lv-linea);border-radius:10px;padding:.5rem;margin:.5rem 0 1.1rem}
+.figura-svg svg{width:100%;height:auto;display:block}
+.ej{margin:0 0 1rem;padding:.85rem .95rem;background:var(--lv-panel);border:1px solid var(--lv-linea);border-left:3px solid #C4A15A;border-radius:10px}
+.ej h3{margin:0 0 .35rem;font-family:var(--lv-serif);font-size:1.05rem;color:var(--lv-titulo)}
+.editor,textarea.editor{width:100%;min-height:5.5rem;font-family:ui-monospace,monospace;font-size:.95rem;line-height:1.45;padding:.55rem .65rem;border:1px solid rgba(196,161,90,.45);border-radius:8px;background:#161512;color:#E6E1D6;resize:vertical}
+.lienzo{display:block;width:100%;height:280px;background:#161512;border:1px solid #C4A15A;border-radius:8px;touch-action:none;cursor:crosshair}
+.fila{display:flex;flex-wrap:wrap;gap:.4rem;margin:.45rem 0}
+.boton{font:inherit;font-weight:700;font-size:.85rem;padding:.4rem .8rem;border-radius:999px;border:1px solid #C4A15A;background:transparent;color:#E6E1D6;cursor:pointer}
+.porque{margin-top:.55rem;padding:.65rem .75rem;background:#1a2218;border-radius:8px;color:#E6E1D6}
+.dato{font-size:.95rem;color:var(--lv-suave)}
+.glosa{display:block;font-size:.9rem;color:#9A9488;margin:.25rem 0 .5rem;line-height:1.4}
+.lab-box{margin:1rem 0;padding:.85rem;border:1px dashed rgba(196,161,90,.5);border-radius:10px;background:#141210}
+.lab-box iframe{width:100%;min-height:320px;border:1px solid #C4A15A;border-radius:8px;background:#0E0E0C}
+table.datos{width:100%;border-collapse:collapse;margin:.45rem 0 1rem;font-size:.98rem}
+table.datos th,table.datos td{border:1px solid var(--lv-linea);padding:.4rem .55rem;text-align:left}
+table.datos th{background:#161512;color:#C4A15A}
+</style>
+<script src="../leccion-shell-nav.js" defer></script>
+</head>
+<body class="leccion-shell" data-maestro-json="maestro-33.json">
+<div class="leccion-wrap">
+<nav class="leccion-barra" aria-label="Navegación de lección" data-actual="33" data-total="38">
+  <div class="leccion-progreso" role="status">
+    <span class="progreso-texto"><strong>33</strong> de <strong>38</strong></span>
+    <div class="progreso-pista" aria-hidden="true"><div class="progreso-lleno" style="width:86.84%"></div></div>
+  </div>
+  <div class="leccion-atajos">
+    <a class="atajo atajo-calc" href="../../../../modulos/calculadora.html" title="Calculadora offline">Calculadora</a>
+    <a class="atajo atajo-prev" href="leccion-32-probabilidad-compuesta-condicionada.html">← Anterior</a>
+    <a class="atajo atajo-next" href="leccion-34-uniforme-binomial-normal.html">Siguiente →</a>
+  </div>
+</nav>
+<header class="leccion-top">
+  <a class="leccion-marca" href="../../../../index.html">Les <span>vencimos</span></a>
+  <p class="leccion-meta-top">Matemáticas Generales · 1º Bachillerato</p>
+</header>
+<header class="bloque-titulo">
+  <span class="eyebrow">Lección 33 · E · Estocástico</span>
+  <h1 class="titulo-leccion">Probabilidad total y <em>Bayes</em></h1>
+  <p class="meta-leccion">1º Bach Matemáticas Generales · CyL Decreto 40/2022 · E.2 Teorema de la probabilidad total y teorema de Bayes</p>
+</header>
+<aside class="bloque-curiosidad" aria-label="Para situarte">
+  <p class="etiqueta-bloque">Para situarte</p>
+  <h2 class="titulo-curiosidad">El positivo no es la sensibilidad</h2>
+  <p class="texto-curiosidad">Sobre 1000 alumnos, un déficit vitamínico afecta a 100. La prueba detecta al 90 % de quienes lo tienen y da positivo falso al 20 % de quienes no. Los positivos no son 90: son 90 verdaderos más 180 falsos. Bayes es la fracción 90/270.</p>
+</aside>
+<section class="bloque-cuerpo">
+  <h2>Objetivos</h2>
+  <ul><li>Reconstruir verdaderos positivos y falsos positivos a partir de la prevalencia y de las tasas de la prueba.</li><li>Calcular la probabilidad total de dar positivo sumando los dos caminos.</li><li>Aplicar Bayes como el peso del camino buscado dentro de todos los positivos, y ver cómo cambia si cambia la prevalencia.</li></ul>
+</section>
+<section class="bloque-cuerpo">
+<h2>Primero las cuatro casillas, después el cociente</h2>
+<p>La probabilidad total descompone un suceso según una partición. Aquí la partición es «tiene el déficit» o «no lo tiene». Dar positivo puede ocurrir por los dos lados, y Bayes pregunta, ya visto el positivo, qué parte de esos positivos venía del lado del déficit. La sensibilidad no contesta esa pregunta: la sensibilidad solo mira a quienes sí tienen el déficit.</p>
+<p><span class="glosa">prevalencia = 100/1000 = 0,10 · sensibilidad = verdaderos positivos / enfermos = 90/100 · especificidad = verdaderos negativos / sanos = 720/900 · P(positivo) = 90/1000 + 180/1000 = 0,27 · P(déficit | positivo) = 90/270</span></p>
+<p>Con mil personas las cuentas se ven sin decimales escondidos. Enfermos: 100. La prueba acierta en el 90 %, luego 90 verdaderos positivos y 10 falsos negativos. Sanos: 900. Especificidad del 80 %, luego 720 verdaderos negativos y 180 falsos positivos. Positivos totales: 90 + 180 = 270. De ellos, solo 90 tienen el déficit: 90/270 = 1/3. Quien oiga «la prueba acierta el 90 %» y crea que un positivo significa un 90 % de déficit está leyendo la rama equivocada del árbol.</p>
+<p>La fórmula compacta dice lo mismo: P(D|+) = (0,90·0,10) / 0,27 = 0,09/0,27 = 1/3. El numerador 0,09 es el camino de los verdaderos positivos sobre las mil personas; el denominador es la probabilidad total de positivo. El segundo ejemplo cambia de contexto, a dos líneas de producción, y el tercero cambia solo la prevalencia para ver que el mismo test no arrastra el mismo posterior.</p>
+<h2>Gráfico del ejemplo</h2>
+<p class="dato">La figura no es decoración: los trazos corresponden a los números del ejemplo 1.</p>
+<div class="figura-svg"><svg viewBox="0 0 720 320" role="img" aria-label="Árbol de 1000 alumnos: 90 verdaderos positivos, 180 falsos positivos y cociente 90/270"><title>Árbol de 1000 alumnos: 90 verdaderos positivos, 180 falsos positivos y cociente 90/270</title><rect width="720" height="320" fill="#161512"/>
+<circle cx="60" cy="160" r="14" fill="#1C1A16" stroke="#E6E1D6" stroke-width="2"/>
+<line x1="74" y1="150" x2="180" y2="70" stroke="#C4A15A" stroke-width="2.2"/>
+<line x1="74" y1="170" x2="180" y2="250" stroke="#9A9488" stroke-width="2.2"/>
+<circle cx="196" cy="64" r="14" fill="#1C1A16" stroke="#C4A15A" stroke-width="2"/>
+<circle cx="196" cy="256" r="14" fill="#1C1A16" stroke="#9A9488" stroke-width="2"/>
+<line x1="210" y1="56" x2="340" y2="30" stroke="#C4A15A" stroke-width="2"/>
+<line x1="210" y1="74" x2="340" y2="110" stroke="#8F9A72" stroke-width="2"/>
+<line x1="210" y1="246" x2="340" y2="210" stroke="#C4A15A" stroke-width="2"/>
+<line x1="210" y1="266" x2="340" y2="300" stroke="#8F9A72" stroke-width="2"/>
+<circle cx="356" cy="28" r="7" fill="#C4A15A"/>
+<circle cx="356" cy="112" r="7" fill="#8F9A72"/>
+<circle cx="356" cy="208" r="7" fill="#C4A15A"/>
+<circle cx="356" cy="300" r="7" fill="#8F9A72"/>
+<text x="100" y="100" fill="#C4A15A" font-size="13">100 con déficit</text>
+<text x="100" y="230" fill="#9A9488" font-size="13">900 sin déficit</text>
+<text x="250" y="40" fill="#C4A15A" font-size="12">90 %</text>
+<text x="250" y="100" fill="#8F9A72" font-size="12">10 %</text>
+<text x="250" y="230" fill="#C4A15A" font-size="12">20 %</text>
+<text x="250" y="292" fill="#8F9A72" font-size="12">80 %</text>
+<text x="376" y="32" fill="#E6E1D6" font-size="14">VP 90</text>
+<text x="376" y="116" fill="#E6E1D6" font-size="14">FN 10</text>
+<text x="376" y="212" fill="#E6E1D6" font-size="14">FP 180</text>
+<text x="376" y="304" fill="#E6E1D6" font-size="14">VN 720</text>
+<text x="500" y="120" fill="#C4A15A" font-size="15">positivos</text>
+<text x="500" y="144" fill="#E6E1D6" font-size="15">90 + 180 = 270</text>
+<line x1="470" y1="28" x2="490" y2="120" stroke="#C4A15A" stroke-width="1.6"/>
+<line x1="470" y1="208" x2="490" y2="140" stroke="#C4A15A" stroke-width="1.6"/>
+<text x="500" y="180" fill="#C4A15A" font-size="16">90 / 270 = 1/3</text>
+</svg></div>
+<h2>Ejemplo resuelto 1 — Del árbol al tercio</h2><p>Con 1000 alumnos, prevalencia 10 %, sensibilidad 90 % y especificidad 80 %, calcula cuántos positivos hay y qué fracción de ellos tiene el déficit.</p><ol class="pasos">
+<li>Partición: 0,10 · 1000 = 100 con déficit y 900 sin él. Esta fila se escribe antes de tocar la prueba.<span class="glosa">Glosa: la prevalencia manda el tamaño de cada rama. Sin ella no hay falsos positivos que contar.</span></li>
+<li>En los 100, el 90 % da positivo: 90 verdaderos positivos y 10 falsos negativos. En los 900, el 20 % da positivo falso: 180. Los otros 720 son negativos verdaderos.<span class="glosa">Glosa: 0,20 · 900 = 180. La especificidad es el 80 % complementario, no un adorno.</span></li>
+<li>Probabilidad total de positivo, en personas: 90 + 180 = 270, es decir 270/1000 = 0,27. Son dos caminos, no uno.<span class="glosa">Glosa: olvidar los 180 deja el denominador en 90 y la probabilidad condicionada en 1, absurda.</span></li>
+<li>Bayes: 90/270 = 1/3 ≈ 0,333. Un positivo, en este grupo, deja el déficit en un tercio, no en el 90 % de la sensibilidad.<span class="glosa">Glosa: 90/270 = 1/3 exactamente. No hace falta redondear a 0,33 para verlo.</span></li>
+</ol>
+<h2>Ejemplo resuelto 2 — La pieza defectuosa y la línea</h2><p>La línea A fabrica el 60 % de las piezas y el 2 % de las suyas salen defectuosas. La línea B fabrica el 40 % y el 5 % de las suyas salen defectuosas. Una pieza es defectuosa: ¿qué probabilidad hay de que venga de B?</p><ol class="pasos">
+<li>Caminos hacia el defecto, en tanto por uno: A aporta 0,60 · 0,02 = 0,012. B aporta 0,40 · 0,05 = 0,020.<span class="glosa">Glosa: cada producto es producción por tasa. La tasa sola, 0,05, no es la probabilidad de venir de B.</span></li>
+<li>Probabilidad total de defecto: 0,012 + 0,020 = 0,032. El defecto es más frecuente por la rama B aunque A fabrique más piezas.<span class="glosa">Glosa: 0,020 es mayor que 0,012 porque la tasa de B compensa, y sobrepasa, su menor producción.</span></li>
+<li>Bayes hacia B: 0,020 / 0,032 = 20/32 = 5/8 = 0,625. Hacia A queda 0,012/0,032 = 3/8 = 0,375.<span class="glosa">Glosa: las dos posteriores suman 1. Si no sumaran, se habría perdido un camino.</span></li>
+<li>No vale quedarse en «B tiene más porcentaje de fallos, luego es B». Sin el 40 % de producción, el peso 0,020 no existiría. Las dos cifras de cada línea entran en el producto.<span class="glosa">Glosa: 0,05 / (0,05 + 0,02) = 5/7 ≈ 0,71 olvidaría cuánto fabrica cada línea y no es Bayes.</span></li>
+</ol>
+<h2>Ejemplo resuelto 3 — La misma prueba, otra prevalencia</h2><p>El mismo test (sensibilidad 90 %, falsos positivos 20 %) se usa en un grupo donde la mitad tiene el déficit, 500 de 1000. Recalcula P(déficit | positivo).</p><ol class="pasos">
+<li>Nuevas casillas de enfermos: 500. Verdaderos positivos: 0,90 · 500 = 450. Falsos negativos: 50.<span class="glosa">Glosa: se rehace la partición. No se reutiliza el 100 del ejemplo primero.</span></li>
+<li>Sanos: 500. Falsos positivos: 0,20 · 500 = 100. Verdaderos negativos: 400.<span class="glosa">Glosa: al haber menos sanos, los falsos positivos bajan de 180 a 100 aunque la tasa sea la misma.</span></li>
+<li>Positivos: 450 + 100 = 550. Bayes: 450/550 = 45/55 = 9/11 ≈ 0,818.<span class="glosa">Glosa: 450 ÷ 50 = 9 y 550 ÷ 50 = 11. El posterior ahora sí es alto, porque el déficit ya era frecuente.</span></li>
+<li>La sensibilidad no se ha movido del 90 % y el posterior ha pasado de 1/3 a 9/11. Bayes depende de la prevalencia. Memorizar el resultado del primer grupo y pegarlo en el segundo es el error.<span class="glosa">Glosa: un test no trae su posterior puesto. Lo fabrica junto con la frecuencia de partida.</span></li>
+</ol>
+<h2>Ejercicios</h2>
+<p class="dato">Escribe el razonamiento completo en el editor, no solo la cifra. Si el enunciado pide figura, dibújala en el lienzo de esta misma página.</p>
+<article class="ej"><h3>1. Sube la especificidad</h3><p>En el grupo de 1000 con 100 afectados, la sensibilidad sigue en el 90 % pero la especificidad pasa al 90 % (solo un 10 % de falsos positivos). Recalcula P(déficit | positivo).</p><label for="e33a">Tu resolución</label><textarea class="editor" id="e33a" placeholder="Escribe aquí el razonamiento completo…"></textarea><details class="porque"><summary>Por qué (abre cuando hayas escrito)</summary><p>El paso es volver a contar los falsos positivos desde los 900 sanos, no retocar el 180 a ojo. Con especificidad del 90 %, el falso positivo es el 10 % de 900, o sea 90. Los verdaderos positivos no cambian: siguen siendo 90. Los positivos totales pasan a 90 + 90 = 180. Bayes da 90/180 = 1/2. Antes, con 180 falsos, el posterior era 1/3; al reducir los falsos a la mitad, el positivo pesa más y el posterior sube a un medio. No sube hasta el 90 %, porque todavía hay tantos falsos positivos como verdaderos. La sensibilidad sola seguiría engañando.</p></details></article>
+<article class="ej"><h3>2. No olvides la producción</h3><p>En las líneas A y B del ejemplo, alguien dice que una defectuosa viene de B con probabilidad 0,05 / (0,05 + 0,02). Explica qué dato ha tirado y cuál es el posterior correcto.</p><label for="e33b">Tu resolución</label><textarea class="editor" id="e33b" placeholder="Escribe aquí el razonamiento completo…"></textarea><details class="porque"><summary>Por qué (abre cuando hayas escrito)</summary><p>El paso que falta es multiplicar cada tasa por la fracción de producción antes de comparar. 0,05 y 0,02 son probabilidades condicionadas a la línea, no pesos de las líneas. A fabrica el 60 % y B el 40 %, así que los caminos son 0,60·0,02 = 0,012 y 0,40·0,05 = 0,020. El posterior de B es 0,020/0,032 = 5/8 = 0,625, no 0,05/0,07 ≈ 0,714. La cuenta sin producción trataría a las dos líneas como si fabricaran lo mismo, y no es el caso. Bayes de una causa entre dos exige el producto de la previa por la verosimilitud, las dos cosas, y luego normalizar por la suma.</p></details></article>
+<article class="ej"><h3>3. Negativo no es imposible</h3><p>En el primer cribado, ¿qué probabilidad hay de tener el déficit habiendo dado negativo? Usa los 10 y los 720.</p><label for="e33c">Tu resolución</label><textarea class="editor" id="e33c" placeholder="Escribe aquí el razonamiento completo…"></textarea><details class="porque"><summary>Por qué (abre cuando hayas escrito)</summary><p>El paso es aplicar la misma lógica de Bayes al suceso «negativo», no concluir cero porque la prueba haya dicho que no. Los negativos son los 10 falsos negativos más los 720 verdaderos negativos: 730. De ellos, 10 sí tienen el déficit. El posterior es 10/730 = 1/73 ≈ 0,0137. Es pequeño, mucho menor que el tercio de un positivo, y no es cero: la sensibilidad del 90 % deja escapar a 10 personas de las 100. Decir «si sale negativo, seguro que no lo tiene» convierte un 10 % de fallos entre los enfermos en una imposibilidad. La probabilidad total de negativo es 730/1000 = 0,73, y Bayes se queda con la parte 10/730.</p></details></article>
+<h2>Dibuja en el lienzo</h2>
+<p>Reproduce a mano el gráfico del ejemplo: ejes o nodos, los datos numéricos y una frase con la conclusión. El botón borra el lienzo sin salir de la lección.</p>
+<canvas id="lienzo33" class="lienzo" width="900" height="280"></canvas><div class="fila"><button type="button" class="boton" data-clear="lienzo33">Borrar lienzo</button></div>
+</section>
+<div class="lab-box"><p><strong>Laboratorio</strong> — Bayes con mil personas. Si el marco no carga, abre el hermano: <a href="l33-probabilidad-total-y-bayes.html">l33-probabilidad-total-y-bayes.html</a>.</p><iframe src="l33-probabilidad-total-y-bayes.html" title="Bayes con mil personas" loading="lazy"></iframe></div>
+<section class="bloque-cuerpo">
+  <h2>Comprueba</h2>
+  <p class="dato">Tres preguntas. Responde mentalmente antes de abrir el porqué.</p>
+  <details class="porque"><summary>¿Por qué un positivo no significa un 90 % de déficit en el primer cribado?</summary><p>Porque el 90 % es la sensibilidad, calculada solo entre los 100 que sí tienen el déficit. Por qué: entre los positivos hay 90 verdaderos y 180 falsos, 270 en total, y 90/270 = 1/3. La mayoría de los positivos, en este grupo poco afectado, son falsos. El árbol lo separa antes de dividir.</p></details>
+<details class="porque"><summary>En las dos líneas, ¿por qué el posterior de B es 5/8 y no «la tasa más alta»?</summary><p>Porque hay que ponderar el 5 % por el 40 % de producción. Por qué: el camino de B es 0,020 y el total de defecto es 0,032, y 0,020/0,032 = 5/8. La tasa 0,05 sin el peso de la línea no es una probabilidad sobre las piezas defectuosas.</p></details>
+<details class="porque"><summary>¿Qué le pasa al posterior del déficit si la prevalencia pasa del 10 % al 50 %, con el mismo test?</summary><p>Sube de 1/3 a 9/11, unos 0,818. Por qué: ahora hay 450 verdaderos positivos y solo 100 falsos, 450/550 = 9/11. La sensibilidad sigue en el 90 %. Cambia el posterior porque cambia cuánta gente parte con el déficit, no porque la prueba se haya vuelto otra.</p></details>
+</section>
+<section class="bloque-reto">
+  <span class="etiqueta-reto">Reto Profesor</span>
+  <h2 class="titulo-reto">Las cuatro casillas primero</h2>
+  <p>En el lienzo dibuja el árbol con 100 y 900, escribe 90 y 180 en las hojas positivas y la división 90/270 al lado. No pongas 0,90 como respuesta final.</p>
+  <p class="reto-id">reto_id: bach1-mates-gen-L33</p>
+</section>
+<footer class="leccion-pie"><strong>Les vencimos</strong> · L33 de 38 · Matemáticas Generales · staging · file:// · sin publicar</footer>
+</div>
+<script type="application/json" data-maestro="guion">{"curso": "bach1-mates-gen", "leccion": 33, "titulo": "Probabilidad total y Bayes", "url": "leccion-33-probabilidad-total-y-bayes.html", "musica": false, "pasos": [{"id": "abrir", "dicho": "El árbol parte 1000 en 100 y 900. Las hojas positivas son 90 y 180.", "hacer": "Leer en voz alta el apartado Para situarte y los objetivos."}, {"id": "figura", "dicho": "270 es la suma de los dos caminos, la probabilidad total en personas.", "hacer": "Mirar el SVG y decir qué dato numérico marca cada trazo."}, {"id": "ej1", "dicho": "Ejemplo 1: Bayes da 90/270 = 1/3, no la sensibilidad 0,90.", "hacer": "Rehacer el ejemplo 1, glosa a glosa, sin mirar el resultado final."}, {"id": "ej2", "dicho": "Ejemplo 2: las líneas dan caminos 0,012 y 0,020, y B queda en 5/8.", "hacer": "Rehacer el ejemplo 2 y contrastarlo con el 1."}, {"id": "ej3", "dicho": "Ejemplo 3: con prevalencia 50 % el mismo test da 450/550 = 9/11.", "hacer": "Rehacer el ejemplo 3 y anotar la comprobación."}, {"id": "practica", "dicho": "El laboratorio rehace las cuatro casillas si cambias los porcentajes.", "hacer": "Escribir el razonamiento de al menos dos ejercicios y usar el lienzo."}, {"id": "cierre", "dicho": "Sin prevalencia no hay posterior. La prueba sola no lo trae.", "hacer": "Contestar Comprueba antes de abrir y dejar el reto por escrito."}]}</script>
+<script>(function(){function liga(c){var ctx=c.getContext('2d');function fondo(){ctx.fillStyle='#161512';ctx.fillRect(0,0,c.width,c.height);ctx.strokeStyle='#C4A15A';ctx.strokeRect(.5,.5,c.width-1,c.height-1);}function fit(){var r=c.getBoundingClientRect();var w=Math.max(320,Math.floor(r.width));if(c.width!==w){c.width=w;c.height=280;fondo();}}var dib=false,last=null;function pos(ev){var r=c.getBoundingClientRect();var s=ev.touches?ev.touches[0]:ev;return{x:(s.clientX-r.left)*c.width/r.width,y:(s.clientY-r.top)*c.height/r.height};}c.addEventListener('pointerdown',function(ev){dib=true;last=pos(ev);ev.preventDefault();});c.addEventListener('pointermove',function(ev){if(!dib)return;var p=pos(ev);ctx.strokeStyle='#E6E1D6';ctx.lineWidth=2.2;ctx.lineCap='round';ctx.beginPath();ctx.moveTo(last.x,last.y);ctx.lineTo(p.x,p.y);ctx.stroke();last=p;ev.preventDefault();});function up(){dib=false;}c.addEventListener('pointerup',up);c.addEventListener('pointerleave',up);var b=document.querySelector('[data-clear="'+c.id+'"]');if(b)b.addEventListener('click',fondo);fit();window.addEventListener('resize',fit);}document.querySelectorAll('canvas.lienzo').forEach(liga);})();</script>
+</body>
+</html>

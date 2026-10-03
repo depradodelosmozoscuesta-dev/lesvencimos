@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
+<title>L20 · Laboratorio · Almacén, ciclo y motor</title>
+<style>
+:root{--bg:#FAF7F0;--ink:#2A2620;--muted:#5C564C;--card:#fff;--gold:#C4A15A;--gold-soft:#F5EDD8;--gold-deep:#8A6B2F;--green:#3D6B4F;--green-soft:#E4F0E8;--blue:#2F5D7A;--blue-soft:#E3EEF4;--rose:#9B3A4A;--rose-soft:#F8E8EB;--line:#E0D0A8}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--ink);font-family:"Segoe UI",system-ui,sans-serif;line-height:1.45}
+body{padding:14px 12px 32px}
+.wrap{max-width:860px;margin:0 auto}
+.badge{display:inline-block;font-size:.75rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--gold-deep);background:var(--gold-soft);padding:4px 10px;border-radius:999px}
+h1{font-size:1.45rem;line-height:1.25;margin:.4rem 0 .3rem}
+.lead{color:var(--muted);margin:0 0 12px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px;margin:0 0 12px}
+.q{font-weight:750;margin:0 0 8px}
+.opts{display:grid;gap:8px}
+button.opt,button.chip{font:inherit;text-align:left;background:#fff;border:2px solid #D9D0C0;border-radius:12px;padding:10px 12px;cursor:pointer;font-weight:650}
+button.opt:hover,button.chip:hover{border-color:var(--gold)}
+button.opt.ok,button.chip.ok{border-color:var(--green);background:var(--green-soft)}
+button.opt.bad{border-color:var(--rose);background:var(--rose-soft)}
+button.opt:disabled{cursor:default}
+.why{margin:8px 0 0;font-size:.95rem}
+.why strong{color:var(--gold-deep)}
+.row{display:flex;flex-wrap:wrap;gap:8px}
+.slot{min-height:42px;border:2px dashed #C4B8A0;border-radius:12px;padding:8px;display:flex;flex-wrap:wrap;gap:6px;background:#FFFcf5}
+.bar{display:flex;justify-content:space-between;gap:8px;align-items:center;margin:8px 0}
+.score{font-weight:800;color:var(--gold-deep)}
+button.action{font:inherit;font-weight:800;border:0;border-radius:999px;background:var(--gold);color:#1A160E;padding:8px 14px;cursor:pointer}
+footer{color:var(--muted);font-size:.8rem;text-align:center}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="badge">Lección 20 · bloque D · sin red</div>
+  <h1>Almacén, ciclo y motor</h1>
+  <p class="lead">Cualitativo donde la lección no da la cifra. El pH sin calibrar no cuenta como medida.</p>
+  <div class="bar"><span class="score" id="score">0</span><button type="button" class="action" id="reset">Reiniciar</button></div>
+  <div id="lab"></div>
+  <footer>Les vencimos · laboratorio autónomo · sin red · corrección inmediata</footer>
+</div>
+<script>
+
+function boot(ITEMS){
+  var root=document.getElementById("lab");
+  var score=0, done=0;
+  var sc=document.getElementById("score");
+  function paint(){ sc.textContent=score+" / "+ITEMS.length; }
+  ITEMS.forEach(function(it,i){
+    var card=document.createElement("section");
+    card.className="card";
+    var h=document.createElement("p");
+    h.className="q";
+    h.textContent=(i+1)+". "+it.q;
+    card.appendChild(h);
+    if(it.tipo==="orden"){
+      var slot=document.createElement("div");
+      slot.className="slot";
+      var pool=document.createElement("div");
+      pool.className="row";
+      var picked=[];
+      function judge(){
+        var ok=picked.length===it.correcto.length && picked.every(function(p,k){return p===it.correcto[k];});
+        done++; if(ok) score++;
+        paint();
+        var w=document.createElement("p");
+        w.className="why";
+        w.innerHTML=(ok?"<strong>Correcto.</strong> ":"<strong>No es esa secuencia.</strong> Orden: "+it.correcto.join(" → ")+". ")+it.porque;
+        card.appendChild(w);
+        pool.querySelectorAll("button").forEach(function(b){b.disabled=true;});
+      }
+      it.piezas.forEach(function(txt){
+        var b=document.createElement("button");
+        b.type="button"; b.className="chip"; b.textContent=txt;
+        b.addEventListener("click", function(){
+          if(b.disabled) return;
+          b.disabled=true; b.className="chip ok";
+          picked.push(txt); slot.appendChild(b);
+          if(picked.length===it.correcto.length) judge();
+        });
+        pool.appendChild(b);
+      });
+      var hint=document.createElement("p");
+      hint.className="why";
+      hint.textContent="Pulsa en orden, del primero al último.";
+      card.appendChild(hint); card.appendChild(slot); card.appendChild(pool);
+    } else {
+      var opts=document.createElement("div");
+      opts.className="opts";
+      it.opciones.forEach(function(op){
+        var b=document.createElement("button");
+        b.type="button"; b.className="opt"; b.textContent=op.t;
+        b.addEventListener("click", function(){
+          if(card.dataset.done) return;
+          card.dataset.done="1"; done++;
+          opts.querySelectorAll("button").forEach(function(x){x.disabled=true;});
+          if(op.ok){ b.classList.add("ok"); score++; }
+          else {
+            b.classList.add("bad");
+            opts.querySelectorAll("button").forEach(function(x,idx){ if(it.opciones[idx].ok) x.classList.add("ok"); });
+          }
+          paint();
+          var w=document.createElement("p");
+          w.className="why";
+          w.innerHTML=(op.ok?"<strong>Correcto.</strong> ":"<strong>No.</strong> ")+it.porque;
+          card.appendChild(w);
+        });
+        opts.appendChild(b);
+      });
+      card.appendChild(opts);
+    }
+    root.appendChild(card);
+  });
+  paint();
+  document.getElementById("reset").addEventListener("click", function(){ location.reload(); });
+  window.addEventListener("message", function(ev){
+    var d=ev.data||{};
+    if(d.type==="maestro:reset") location.reload();
+    if(d.type==="maestro:highlight"){
+      var c=root.querySelector(".card"); if(c) c.style.outline="3px solid #C4A15A";
+    }
+  });
+}
+
+boot([{"tipo": "test", "q": "En un balance de manual, el mayor stock de agua es…", "opciones": [{"t": "El océano, del orden del 97 %.", "ok": true}, {"t": "Los ríos, porque se ven.", "ok": false}, {"t": "La atmósfera, porque llueve.", "ok": false}, {"t": "El agua de los seres vivos.", "ok": false}], "porque": "El océano domina el stock. Ríos y atmósfera dominan en renovación, no en volumen."}, {"tipo": "test", "q": "La mayor parte del agua dulce está en…", "opciones": [{"t": "Hielo, y después en agua subterránea; ríos y lagos son muy poco volumen.", "ok": true}, {"t": "Los grandes ríos, que por eso no se agotan.", "ok": false}, {"t": "La lluvia de un día.", "ok": false}, {"t": "El vapor de la troposfera.", "ok": false}], "porque": "Poco volumen y mucha renovación es la firma de los ríos, no la de los casquetes."}, {"tipo": "test", "q": "La evaporación en el ciclo la mueve…", "opciones": [{"t": "La energía solar. El retorno ladera abajo lo mueve la gravedad.", "ok": true}, {"t": "La circulación termohalina del grifo.", "ok": false}, {"t": "El giro horario de un anticiclón, que fabrica agua nueva.", "ok": false}, {"t": "La semivida del carbono-14.", "ok": false}], "porque": "El ciclo cambia de almacén. No crea agua. La sal se queda cuando el vapor se va."}, {"tipo": "test", "q": "Un giro subtropical superficial existe porque…", "opciones": [{"t": "El viento arrastra el agua, Coriolis la desvía y los continentes cierran el circuito.", "ok": true}, {"t": "El agua dulce de los ríos empuja el océano en círculo.", "ok": false}, {"t": "La densidad del hielo marino es el único motor.", "ok": false}, {"t": "La termosfera calienta el fondo.", "ok": false}], "porque": "Es circulación eólica de superficie. La termohalina es otro motor y otra profundidad."}, {"tipo": "test", "q": "El agua superficial se hunde en altas latitudes del Atlántico norte cuando…", "opciones": [{"t": "Se enfría y se vuelve más salada, por ejemplo al formarse hielo marino, y gana densidad.", "ok": true}, {"t": "El viento sopla siempre hacia el este, sin importar la densidad.", "ok": false}, {"t": "El DS18B20 marca 15 °C en un vaso.", "ok": false}, {"t": "Se evapora del todo y deja solo sal sólida.", "ok": false}], "porque": "Termo y halina: temperatura y sal. El hielo marino rechaza sal hacia el agua líquida. No es el motor del giro subtropical."}, {"tipo": "test", "q": "La cinta transportadora…", "opciones": [{"t": "Es un esquema, no una tubería con un caudal único, y es mucho más lenta que las corrientes de viento.", "ok": true}, {"t": "Es otro nombre de la corriente del Golfo, idéntica en motor y profundidad.", "ok": false}, {"t": "Recorre el circuito en un día.", "ok": false}, {"t": "Solo existe en el Duero.", "ok": false}], "porque": "Se conecta con la corriente superficial en el Atlántico norte, pero el hundimiento es por densidad y el retorno va a otra escala temporal."}, {"tipo": "test", "q": "Un pH de sonda barata…", "opciones": [{"t": "Hay que calibrarlo con tampones. Sin eso, la señal no es un pH.", "ok": true}, {"t": "Da el pH del océano global en cuanto se moja.", "ok": false}, {"t": "Sustituye al DS18B20 porque la temperatura no importa.", "ok": false}, {"t": "No deriva nunca.", "ok": false}], "porque": "Cada sonda tiene su pendiente, cambia con el tiempo y con la temperatura. No hay una fórmula universal en esta lección."}, {"tipo": "test", "q": "El Duero en la meseta ilustra sobre todo…", "opciones": [{"t": "Un flujo de poca reserva visible, recargado por el ciclo, distinto del stock oceánico y del acuífero que no se ve.", "ok": true}, {"t": "El 97 % del agua mundial.", "ok": false}, {"t": "La termohalina en miniatura, porque el agua va hacia el oeste.", "ok": false}, {"t": "Un caudal que esta lección fija en metros cúbicos por segundo.", "ok": false}], "porque": "No citamos el aforo. El argumento es de stock frente a renovación, y de no olvidar el agua subterránea de la cuenca."}]);
+</script>
+</body>
+</html>

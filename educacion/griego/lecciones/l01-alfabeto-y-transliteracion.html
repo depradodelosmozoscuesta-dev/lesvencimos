@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Laboratorio · Alfabeto y transliteración · Griego I</title>
+<style>
+  :root { --fondo:#FAF7F0; --tinta:#2A2620; --carbon:#0E0E0C; --ambar:#C4A15A; }
+  * { box-sizing: border-box; }
+  body { margin:0; background:var(--fondo); color:var(--tinta); font-family: Palatino, "Palatino Linotype", "Times New Roman", serif; line-height:1.45; }
+  [lang="grc"] { font-family: Palatino, "Palatino Linotype", "Times New Roman", serif; }
+  header, main, footer { padding: 1rem 1.25rem; max-width: 42rem; margin: 0 auto; }
+  header { background: var(--carbon); color: var(--fondo); border-bottom: 4px solid var(--ambar); }
+  header p { margin: 0.2rem 0; }
+  h1 { font-size: 1.4rem; margin: 0 0 0.3rem; }
+  h2 { font-size: 1.15rem; }
+  .stage { background: var(--carbon); min-height: 11rem; display:flex; align-items:center; justify-content:center; margin: 0.6rem 0 1rem; }
+  .stage svg { width: 100%; height: auto; display:block; }
+  button.op, button.navb { display:block; width:100%; text-align:left; margin: 0.4rem 0; padding: 0.7rem 0.9rem; background: var(--fondo); color: var(--tinta); border: 1px solid var(--carbon); font: inherit; cursor: pointer; }
+  button.navb { width: auto; background: var(--carbon); color: var(--fondo); border-color: var(--ambar); }
+  button.op.bien { background: var(--carbon); color: var(--fondo); border-color: var(--ambar); }
+  button.op.mal { text-decoration: line-through; }
+  button.op:disabled { cursor: default; }
+  #feedback { min-height: 3.2rem; font-weight: 600; }
+  #glosario { border-top: 2px solid var(--ambar); margin-top: 2rem; }
+  dt { font-weight: 700; margin-top: 0.6rem; }
+  .marca-curso { letter-spacing: 0.04em; color: var(--ambar); font-size: 0.85rem; }
+</style>
+</head>
+<body>
+<header>
+  <p class="marca-curso">Les vencimos · 1º Bachillerato · Griego I</p>
+  <h1>Laboratorio. Alfabeto y transliteración</h1>
+  <p>Seis rondas y un mini-check de cuatro. Sin red y sin librerías. El dibujo cambia con la ronda.</p>
+</header>
+<main>
+  <p id="etapa">Ronda 1 de 6</p>
+  <div class="stage" id="stage"></div>
+  <h2 id="pregunta"></h2>
+  <div id="opciones"></div>
+  <p id="feedback" role="status"></p>
+  <button type="button" class="navb" id="siguiente" hidden>Siguiente</button>
+  <section id="glosario">
+    <h2>Glosario de la lección</h2>
+    <dl>
+      <dt>Alfabeto de clase</dt><dd>Veinticuatro letras, de alfa a omega.</dd>
+      <dt>Sigma medial</dt><dd lang="grc">σ</dd>
+      <dt>Sigma final</dt><dd lang="grc">ς</dd>
+      <dt>Transcripción</dt><dd>Letra griega a letra latina de clase: a b g d e z ē th i k l m n x o p r s t y ph kh ps ō.</dd>
+      <dt>Grafía etimológica</dt><dd>ph, th, kh, y la y de ípsilon. No f, z, j ni i griega.</dd>
+      <dt>Dseta / zeta / eta</dt><dd><span lang="grc">ζ</span> dseta → z. <span lang="grc">θ</span> zeta → th. <span lang="grc">η</span> eta → ē.</dd>
+    </dl>
+  </section>
+</main>
+<script>
+(function () {
+  var rondas = [
+    {
+      gran: "λ", marca: "Λ", titulo: "Mayúscula de lambda sobre la tablilla de clase",
+      pregunta: "¿Cuál es la mayúscula de λ (lambda)?",
+      opciones: [
+        { t: "Λ", bien: true, why: "Cumple esta regla: lambda mayúscula es Λ, con el mismo trazo abierto; no se parece a la A latina. Con «A» te confundirías, y esa no vale porque a es alfa mayúscula, no lambda; lambda abre el ángulo hacia arriba: Λ." },
+        { t: "A", bien: false, why: "Falla esta regla: a es alfa mayúscula, no lambda; lambda abre el ángulo hacia arriba: Λ. La opción que sí cumple en esta pregunta es «Λ», porque lambda mayúscula es Λ, con el mismo trazo abierto; no se parece a la A latina." },
+        { t: "Δ", bien: false, why: "Falla esta regla: Δ es delta, un triángulo cerrado; lambda es Λ, abierto por abajo. La opción que sí cumple en esta pregunta es «Λ», porque lambda mayúscula es Λ, con el mismo trazo abierto; no se parece a la A latina." },
+        { t: "Γ", bien: false, why: "Falla esta regla: Γ es gamma; lambda tiene dos trazos que se juntan arriba: Λ. La opción que sí cumple en esta pregunta es «Λ», porque lambda mayúscula es Λ, con el mismo trazo abierto; no se parece a la A latina." }
+      ]
+    },
+    {
+      gran: "ς", marca: "σ", titulo: "Sigma final frente a sigma medial",
+      pregunta: "En κόσμος, la letra que cierra la palabra es…",
+      opciones: [
+        { t: "ς (sigma final)", bien: true, why: "Cumple esta regla: al final de palabra la sigma minúscula es ς; en medio de κόσμος va σ. Con «σ (sigma medial)» te confundirías, y esa no vale porque σ es la figura de en medio; al final no se deja la medial: por eso κόσμοσ está mal escrito." },
+        { t: "σ (sigma medial)", bien: false, why: "Falla esta regla: σ es la figura de en medio; al final no se deja la medial: por eso κόσμοσ está mal escrito. La opción que sí cumple en esta pregunta es «ς (sigma final)», porque al final de palabra la sigma minúscula es ς; en medio de κόσμος va σ." },
+        { t: "Σ", bien: false, why: "Falla esta regla: Σ es la mayúscula; no sustituye a la minúscula final dentro de una palabra en minúscula. La opción que sí cumple en esta pregunta es «ς (sigma final)», porque al final de palabra la sigma minúscula es ς; en medio de κόσμος va σ." },
+        { t: "ζ", bien: false, why: "Falla esta regla: ζ es dseta, otra letra, que se transcribe z; la sigma, medial o final, se transcribe s. La opción que sí cumple en esta pregunta es «ς (sigma final)», porque al final de palabra la sigma minúscula es ς; en medio de κόσμος va σ." }
+      ]
+    },
+    {
+      gran: "θ", marca: "th", titulo: "Zeta griega y su transcripción th",
+      pregunta: "¿Cómo se transcribe θ en este curso?",
+      opciones: [
+        { t: "th", bien: true, why: "Cumple esta regla: theta, de nombre de clase zeta, se transcribe th; la z latina queda para la dseta. Con «t» te confundirías, y esa no vale porque t sola es tau; theta guarda el soplo en la grafía: th." },
+        { t: "z", bien: false, why: "Falla esta regla: z es la transcripción de ζ (dseta), no de θ; el nombre «zeta» no te da una z. La opción que sí cumple en esta pregunta es «th», porque theta, de nombre de clase zeta, se transcribe th; la z latina queda para la dseta." },
+        { t: "t", bien: false, why: "Falla esta regla: t sola es tau; theta guarda el soplo en la grafía: th. La opción que sí cumple en esta pregunta es «th», porque theta, de nombre de clase zeta, se transcribe th; la z latina queda para la dseta." },
+        { t: "d", bien: false, why: "Falla esta regla: d es delta; theta no es una d. La opción que sí cumple en esta pregunta es «th», porque theta, de nombre de clase zeta, se transcribe th; la z latina queda para la dseta." }
+      ]
+    },
+    {
+      gran: "χ", marca: "kh", titulo: "Ji griega y su transcripción kh",
+      pregunta: "¿Cómo se transcribe χ?",
+      opciones: [
+        { t: "kh", bien: true, why: "Cumple esta regla: aunque la letra se llame ji, la grafía etimológica es kh, no j. Con «k» te confundirías, y esa no vale porque k sola es kappa; chi lleva el soplo escrito: kh." },
+        { t: "j", bien: false, why: "Falla esta regla: j es el nombre español hablado, no la transcripción; χρόνος no se transcribe jronos. La opción que sí cumple en esta pregunta es «kh», porque aunque la letra se llame ji, la grafía etimológica es kh, no j." },
+        { t: "k", bien: false, why: "Falla esta regla: k sola es kappa; chi lleva el soplo escrito: kh. La opción que sí cumple en esta pregunta es «kh», porque aunque la letra se llame ji, la grafía etimológica es kh, no j." },
+        { t: "x", bien: false, why: "Falla esta regla: x es la transcripción de ξ (xi); chi es kh. La opción que sí cumple en esta pregunta es «kh», porque aunque la letra se llame ji, la grafía etimológica es kh, no j." }
+      ]
+    },
+    {
+      gran: "υ", marca: "y", titulo: "Ípsilon transcrita con y, no con i griega",
+      pregunta: "¿Cómo se transcribe υ (ípsilon)?",
+      opciones: [
+        { t: "y", bien: true, why: "Cumple esta regla: ípsilon es y; no es la i griega del español ni la u de ou. Con «i» te confundirías, y esa no vale porque i es iota; si pones i, borras la diferencia entre ψυχή (psykhē) y una palabra con iota." },
+        { t: "i", bien: false, why: "Falla esta regla: i es iota; si pones i, borras la diferencia entre ψυχή (psykhē) y una palabra con iota. La opción que sí cumple en esta pregunta es «y», porque ípsilon es y; no es la i griega del español ni la u de ou." },
+        { t: "u", bien: false, why: "Falla esta regla: u no es la transcripción de ípsilon en este curso; la u del diptongo ου se verá al pronunciar, no hoy. La opción que sí cumple en esta pregunta es «y», porque ípsilon es y; no es la i griega del español ni la u de ou." },
+        { t: "v", bien: false, why: "Falla esta regla: v no es una letra de esta transcripción; ípsilon es y. La opción que sí cumple en esta pregunta es «y», porque ípsilon es y; no es la i griega del español ni la u de ou." }
+      ]
+    },
+    {
+      gran: "ω", marca: "ō", titulo: "Omega transcrita con o larga",
+      pregunta: "¿Cómo se transcribe ω (omega)?",
+      opciones: [
+        { t: "ō", bien: true, why: "Cumple esta regla: omega es o larga: ō; ómicron es o, sin raya. Con «o» te confundirías, y esa no vale porque o sin raya es ómicron; omega y ómicron no se transcriben igual." },
+        { t: "o", bien: false, why: "Falla esta regla: o sin raya es ómicron; omega y ómicron no se transcriben igual. La opción que sí cumple en esta pregunta es «ō», porque omega es o larga: ō; ómicron es o, sin raya." },
+        { t: "u", bien: false, why: "Falla esta regla: omega no es u; sigue siendo una o, larga. La opción que sí cumple en esta pregunta es «ō», porque omega es o larga: ō; ómicron es o, sin raya, y esa diferencia es la que decide esta pregunta." },
+        { t: "ē", bien: false, why: "Falla esta regla: ē es eta, la e larga; omega es la o larga, ō. La opción que sí cumple en esta pregunta es «ō», porque omega es o larga: ō; ómicron es o, sin raya." }
+      ]
+    }
+  ];
+  var checks = [
+    {
+      pregunta: "¿Cuántas letras tiene el alfabeto griego de clase?",
+      opciones: [
+        { t: "24", bien: true, why: "Cumple esta regla: de alfa a omega hay veinticuatro; las dos figuras de sigma cuentan como una. Con «26» te confundirías, y esa no vale porque veintiséis sale de contar σ y ς como dos letras; son una." },
+        { t: "26", bien: false, why: "Falla esta regla: veintiséis sale de contar σ y ς como dos letras; son una. La opción que sí cumple en esta pregunta es «24», porque de alfa a omega hay veinticuatro; las dos figuras de sigma cuentan como una." },
+        { t: "22", bien: false, why: "Falla esta regla: faltan letras: el inventario de la tabla llega a veinticuatro. La opción que sí cumple en esta pregunta es «24», porque de alfa a omega hay veinticuatro; las dos figuras de sigma cuentan como una." },
+        { t: "27", bien: false, why: "Falla esta regla: no hay veintisiete letras en este alfabeto de clase. La opción que sí cumple en esta pregunta es «24», porque de alfa a omega hay veinticuatro; las dos figuras de sigma cuentan como una." }
+      ]
+    },
+    {
+      pregunta: "φ se transcribe…",
+      opciones: [
+        { t: "ph", bien: true, why: "Cumple esta regla: fi se llama fi y se transcribe ph; filosofía en español ya ha perdido esa ph. Con «p» te confundirías, y esa no vale porque p sola es pi; fi es ph." },
+        { t: "f", bien: false, why: "Falla esta regla: f aplasta la grafía etimológica; en clase es ph. La opción que sí cumple en esta pregunta es «ph», porque fi se llama fi y se transcribe ph; filosofía en español ya ha perdido esa ph." },
+        { t: "p", bien: false, why: "Falla esta regla: p sola es pi; fi es ph. La opción que sí cumple en esta pregunta es «ph», porque fi se llama fi y se transcribe ph; filosofía en español ya ha perdido esa ph." },
+        { t: "b", bien: false, why: "Falla esta regla: b es beta, no fi. La opción que sí cumple en esta pregunta es «ph», porque fi se llama fi y se transcribe ph; filosofía en español ya ha perdido esa ph." }
+      ]
+    },
+    {
+      pregunta: "La sigma de en medio de una palabra es…",
+      opciones: [
+        { t: "σ", bien: true, why: "Cumple esta regla: medial: σ; final: ς; mayúscula: Σ. Con «ς» te confundirías, y esa no vale porque ς solo cierra la palabra; en medio va σ, como en φιλοσοφία, y esa diferencia es la que decide esta pregunta." },
+        { t: "ς", bien: false, why: "Falla esta regla: ς solo cierra la palabra; en medio va σ, como en φιλοσοφία. La opción que sí cumple en esta pregunta es «σ», porque medial: σ; final: ς; mayúscula: Σ." },
+        { t: "Σ", bien: false, why: "Falla esta regla: Σ es la mayúscula, no la figura medial minúscula. La opción que sí cumple en esta pregunta es «σ», porque medial: σ; final: ς; mayúscula: Σ, y esa diferencia es la que decide esta pregunta." },
+        { t: "ξ", bien: false, why: "Falla esta regla: ξ es xi y se transcribe x; no es una sigma. La opción que sí cumple en esta pregunta es «σ», porque medial: σ; final: ς; mayúscula: Σ, y esa diferencia es la que decide esta pregunta." }
+      ]
+    },
+    {
+      pregunta: "El alfabeto de estas veinticuatro letras…",
+      opciones: [
+        { t: "se adaptó del fenicio en torno al siglo VIII a.C.", bien: true, why: "Cumple esta regla: esa es la viñeta de origen; no nace del latino. Con «nació del alfabeto latino» te confundirías, y esa no vale porque al revés: el latino bebió del griego; el griego se adaptó del fenicio hacia el siglo VIII a.C.." },
+        { t: "nació del alfabeto latino", bien: false, why: "Falla esta regla: al revés: el latino bebió del griego; el griego se adaptó del fenicio hacia el siglo VIII a.C.. La opción que sí cumple en esta pregunta es «se adaptó del fenicio en torno al siglo VIII a.C. con punto», porque esa es la viñeta de origen; no nace del latino." },
+        { t: "es una copia del español", bien: false, why: "Falla esta regla: el español llega mucho después; la grafía etimológica ph, th, kh muestra el camino griego, no al revés. La opción que sí cumple en esta pregunta es «se adaptó del fenicio en torno al siglo VIII a.C. con punto», porque esa es la viñeta de origen; no nace del latino." },
+        { t: "tiene veintiséis letras, como el latino", bien: false, why: "Falla esta regla: el alfabeto de clase tiene veinticuatro, no veintiséis. La opción que sí cumple en esta pregunta es «se adaptó del fenicio en torno al siglo VIII a.C. con punto», porque esa es la viñeta de origen; no nace del latino." }
+      ]
+    }
+  ];
+  var i = 0, aciertos = 0, modo = "ronda", ci = 0, caciertos = 0, cerrado = false;
+
+  function svg(gran, marca, titulo) {
+    return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 200" role="img">'
+      + '<title>' + titulo + '</title>'
+      + '<rect width="640" height="200" fill="#0E0E0C"/>'
+      + '<rect x="28" y="28" width="160" height="144" fill="none" stroke="#C4A15A" stroke-width="2"/>'
+      + '<text x="108" y="58" text-anchor="middle" fill="#C4A15A" font-size="13" font-family="Palatino, Times New Roman, serif">fenicio → griego</text>'
+      + '<text x="108" y="118" text-anchor="middle" fill="#FAF7F0" font-size="40" font-family="Palatino, Times New Roman, serif">' + marca + '</text>'
+      + '<polygon points="210,96 250,96 250,86 278,108 250,130 250,120 210,120" fill="#C4A15A"/>'
+      + '<text x="450" y="132" text-anchor="middle" fill="#FAF7F0" font-size="96" font-family="Palatino, Times New Roman, serif">' + gran + '</text>'
+      + '</svg>';
+  }
+
+  function pintarLista(lista, tituloEtapa) {
+    cerrado = false;
+    document.getElementById("etapa").textContent = tituloEtapa;
+    document.getElementById("feedback").textContent = "";
+    document.getElementById("siguiente").hidden = true;
+    var caja = document.getElementById("opciones");
+    caja.innerHTML = "";
+    lista.opciones.forEach(function (op, n) {
+      var b = document.createElement("button");
+      b.type = "button";
+      b.className = "op";
+      b.textContent = op.t;
+      b.addEventListener("click", function () { elegir(lista, n); });
+      caja.appendChild(b);
+    });
+  }
+
+  function pintarRonda() {
+    var r = rondas[i];
+    document.getElementById("stage").innerHTML = svg(r.gran, r.marca, r.titulo);
+    document.getElementById("pregunta").textContent = r.pregunta;
+    pintarLista(r, "Ronda " + (i + 1) + " de 6");
+  }
+
+  function pintarCheck() {
+    var r = checks[ci];
+    document.getElementById("stage").innerHTML = svg(";", String(ci + 1), "Mini-check, pregunta " + (ci + 1));
+    document.getElementById("pregunta").textContent = r.pregunta;
+    pintarLista(r, "Mini-check " + (ci + 1) + " de 4");
+  }
+
+  function elegir(lista, n) {
+    if (cerrado) return;
+    cerrado = true;
+    var op = lista.opciones[n];
+    var botones = document.querySelectorAll("#opciones button");
+    botones.forEach(function (b, k) {
+      b.disabled = true;
+      if (lista.opciones[k].bien) b.classList.add("bien");
+      if (k === n && !op.bien) b.classList.add("mal");
+    });
+    if (op.bien) {
+      if (modo === "ronda") aciertos += 1; else caciertos += 1;
+      document.getElementById("feedback").textContent = "Correcto. " + op.why;
+    } else {
+      document.getElementById("feedback").textContent = "No. " + op.why;
+    }
+    var sig = document.getElementById("siguiente");
+    sig.hidden = false;
+    sig.textContent = (modo === "ronda" && i === rondas.length - 1) ? "Pasar al mini-check" : "Siguiente";
+    if (modo === "check" && ci === checks.length - 1) sig.textContent = "Ver el recuento";
+  }
+
+  document.getElementById("siguiente").addEventListener("click", function () {
+    if (modo === "ronda") {
+      if (i < rondas.length - 1) { i += 1; pintarRonda(); }
+      else { modo = "check"; pintarCheck(); }
+      return;
+    }
+    if (ci < checks.length - 1) { ci += 1; pintarCheck(); return; }
+    document.getElementById("etapa").textContent = "Hecho";
+    document.getElementById("pregunta").textContent = "Rondas: " + aciertos + " de 6. Mini-check: " + caciertos + " de 4.";
+    document.getElementById("opciones").innerHTML = "";
+    document.getElementById("feedback").textContent = "Puedes recargar la página para repetir. El glosario sigue debajo.";
+    document.getElementById("siguiente").hidden = true;
+    document.getElementById("stage").innerHTML = svg("Ω", "24", "Cierre del laboratorio: omega, última de las veinticuatro");
+  });
+
+  pintarRonda();
+})();
+</script>
+</body>
+</html>

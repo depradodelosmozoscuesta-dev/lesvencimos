@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Lección 09 · Estequiometría de un horno de cal</title>
+<link rel="stylesheet" href="leccion-shell.css"/>
+<script src="leccion-shell-nav.js" defer></script>
+<style>
+  .pasos{list-style:none;margin:0 0 1rem;padding:0;counter-reset:paso}
+  .pasos li{position:relative;margin:0 0 .7rem;padding:.7rem .8rem .7rem 3.1rem;background:#fff;border:1px solid rgba(14,14,12,.12);border-radius:10px}
+  .pasos li::before{counter-increment:paso;content:counter(paso);position:absolute;left:.65rem;top:.7rem;width:1.7rem;height:1.7rem;border-radius:50%;background:#2F5D7A;color:#fff;font-weight:700;font-size:.9rem;display:flex;align-items:center;justify-content:center}
+  .figura-svg{background:#fff;border:1px solid rgba(14,14,12,.12);border-radius:10px;padding:.4rem;margin:.4rem 0 1rem}
+  .figura-svg svg{width:100%;height:auto;display:block}
+  .ej{margin:0 0 1rem;padding:.85rem .95rem;background:#fff;border:1px solid rgba(14,14,12,.12);border-left:3px solid #C4A15A;border-radius:10px}
+  .ej h3{margin:0 0 .35rem;font-family:var(--lv-serif);font-size:1.05rem;color:#2A2620}
+  .editor,textarea.editor{width:100%;min-height:5.2rem;font-family:ui-monospace,"Cascadia Code","Segoe UI Mono",monospace;font-size:.95rem;line-height:1.4;padding:.55rem .65rem;border:1px solid rgba(14,14,12,.22);border-radius:8px;background:#FFFCF5;color:#2A2620;resize:vertical}
+  .lienzo{display:block;width:100%;height:240px;background:#fff;border:1px solid #2F5D7A;border-radius:8px;touch-action:none;cursor:crosshair}
+  .fila{display:flex;flex-wrap:wrap;gap:.4rem;margin:.45rem 0}
+  .fila button,.boton{font:inherit;font-weight:700;font-size:.85rem;padding:.35rem .75rem;border-radius:999px;border:1px solid #C4A15A;background:#fff;color:#2A2620;cursor:pointer}
+  .boton.azul{border-color:#2F5D7A;background:#2F5D7A;color:#fff}
+  .boton.verde{border-color:#3D6B4F;background:#3D6B4F;color:#fff}
+  .porque{margin-top:.5rem;padding:.6rem .7rem;background:#E4F0E8;border-radius:8px;color:#2A2620}
+  .dato{font-size:.95rem;color:#5C564C}
+  .panel-int{padding:.75rem}
+  .panel-int label{display:block;font-weight:650;font-size:.92rem;margin:.35rem 0 .15rem}
+  .panel-int input[type="range"]{width:100%;accent-color:#C4A15A}
+  .salida{font-variant-numeric:tabular-nums;font-weight:700;color:#2F5D7A}
+  .ok{color:#3D6B4F}.mal{color:#A85A3C}
+  table.masas{width:100%;border-collapse:collapse;margin:.4rem 0 1rem;font-size:.98rem}
+  table.masas th,table.masas td{border:1px solid rgba(14,14,12,.12);padding:.35rem .5rem;text-align:left}
+  table.masas th{background:#F0EBE0}
+</style>
+</head>
+<body class="leccion-shell">
+<div class="leccion-wrap">
+
+<nav class="leccion-barra" aria-label="Navegación de lección" data-actual="9" data-total="23">
+  <div class="leccion-progreso" role="status">
+    <span class="progreso-texto"><strong>9</strong> de <strong>23</strong></span>
+    <div class="progreso-pista" aria-hidden="true"><div class="progreso-lleno" style="width:39.13%"></div></div>
+  </div>
+  <div class="leccion-atajos">
+    <a class="atajo atajo-calc" href="../../../modulos/calculadora.html" title="Calculadora offline">Calculadora</a>
+    <a class="atajo atajo-prev" href="leccion-08-disoluciones.html">← Anterior</a>
+    <a class="atajo atajo-next" href="leccion-10-grupos-funcionales.html">Siguiente →</a>
+  </div>
+</nav>
+
+<header class="leccion-top">
+  <a class="leccion-marca" href="../../index.html">Les <span>vencimos</span></a>
+  <p class="leccion-meta-top">Física y Química · 1º Bachillerato</p>
+</header>
+
+<header class="bloque-titulo" id="maestro-titulo">
+  <span class="eyebrow">Lección 09 · Bloque B · Estequiometría industrial</span>
+  <h1 class="titulo-leccion">El horno de cal: masas que <em>cierran</em></h1>
+  <p class="meta-leccion">1º Bachillerato Física y Química · Ciencias · Decreto 40/2022 CyL</p>
+</header>
+
+<aside class="bloque-curiosidad" id="maestro-curiosidad" aria-label="Curiosidad histórica">
+  <p class="etiqueta-bloque">Curiosidad histórica</p>
+  <h2 class="titulo-curiosidad">Cal viva, un proceso viejo con balance moderno</h2>
+  <p class="texto-curiosidad">Calcinar caliza para obtener cal viva es un proceso industrial real, usado desde la construcción antigua hasta las cementeras de hoy. Aquí no hace falta la ficha de una fábrica: acotamos un solo horno, una sola reacción y un rendimiento que viene dado en el enunciado. Lo que no se negocia es el cierre de masa.</p>
+</aside>
+
+<section class="bloque-cuerpo" id="maestro-objetivos">
+  <h2>Objetivos</h2>
+  <ul>
+    <li>Ajustar CaCO<sub>3</sub> → CaO + CO<sub>2</sub> y comprobar el balance de átomos.</li>
+    <li>Pasar de masa a cantidad de sustancia con masas molares declaradas.</li>
+    <li>Aplicar un rendimiento y una pureza sin romper la conservación de la masa.</li>
+    <li>Detectar un reactivo limitante en un segundo proceso acotado (síntesis de amoniaco).</li>
+  </ul>
+</section>
+
+<section class="bloque-cuerpo" id="maestro-explicacion">
+  <h2>Masas de bachillerato que vas a usar</h2>
+  <p>Declaradas para toda la lección, a un decimal de tabla escolar: Ca 40,1; C 12,0; O 16,0; N 14,0; H 1,0 g/mol. No se usa la constante R.</p>
+  <table class="masas">
+    <thead><tr><th>Especie</th><th>Cómo se suma</th><th>M (g/mol)</th></tr></thead>
+    <tbody>
+      <tr><td>CaCO<sub>3</sub></td><td>40,1 + 12,0 + 3·16,0</td><td>100,1</td></tr>
+      <tr><td>CaO</td><td>40,1 + 16,0</td><td>56,1</td></tr>
+      <tr><td>CO<sub>2</sub></td><td>12,0 + 2·16,0</td><td>44,0</td></tr>
+      <tr><td>N<sub>2</sub></td><td>2·14,0</td><td>28,0</td></tr>
+      <tr><td>H<sub>2</sub></td><td>2·1,0</td><td>2,0</td></tr>
+      <tr><td>NH<sub>3</sub></td><td>14,0 + 3·1,0</td><td>17,0</td></tr>
+    </tbody>
+  </table>
+  <p>Comprueba el horno antes de empezar: 100,1 = 56,1 + 44,0. Un mol de caliza pura que reacciona del todo se reparte en un mol de cal y un mol de dióxido de carbono, y los gramos coinciden.</p>
+
+  <h2>Qué significa el rendimiento aquí</h2>
+  <p>El rendimiento en tanto por uno es la fracción de la cantidad estequiométrica que de verdad reacciona o se obtiene. En este horno lo aplicamos a la caliza que entra y es pura: si el rendimiento es 0,90, reaccionan 90 de cada 100 mol de CaCO<sub>3</sub>. El resto sale sin convertirse. No es una cifra de una planta real: es un dato del problema.</p>
+  <p>La pureza en masa es otra cosa: si la piedra trae inertes, solo la parte de CaCO<sub>3</sub> puede dar CaO. El inerte no desaparece; se queda en el sólido.</p>
+
+  <div class="figura-svg">
+    <svg viewBox="0 0 720 280" role="img" aria-labelledby="t09">
+      <title id="t09">Horno de cal: entra caliza y salen cal viva y dióxido de carbono</title>
+      <rect width="720" height="280" fill="#FAF7F0"/>
+      <polygon points="250,40 470,40 500,200 220,200" fill="#fff" stroke="#2A2620" stroke-width="2.5"/>
+      <polygon points="250,40 470,40 455,70 265,70" fill="#C4A15A" stroke="#2A2620" stroke-width="2"/>
+      <rect x="330" y="150" width="60" height="50" fill="#2F5D7A"/>
+      <text x="360" y="128" text-anchor="middle" font-size="18" font-weight="700" fill="#2A2620">horno</text>
+      <text x="360" y="230" text-anchor="middle" font-size="14" fill="#5C564C">1001 kg CaCO₃ · rendimiento 90 %</text>
+      <line x1="80" y1="90" x2="248" y2="90" stroke="#3D6B4F" stroke-width="3"/>
+      <polygon points="248,90 234,84 234,96" fill="#3D6B4F"/>
+      <text x="70" y="78" font-size="15" font-weight="700" fill="#3D6B4F">CaCO₃</text>
+      <line x1="500" y1="110" x2="640" y2="70" stroke="#C4A15A" stroke-width="3"/>
+      <polygon points="640,70 626,66 630,80" fill="#C4A15A"/>
+      <text x="648" y="68" font-size="15" font-weight="700" fill="#2A2620">CaO 504,9 kg</text>
+      <line x1="500" y1="160" x2="640" y2="190" stroke="#2F5D7A" stroke-width="3"/>
+      <polygon points="640,190 626,182 624,196" fill="#2F5D7A"/>
+      <text x="648" y="210" font-size="15" font-weight="700" fill="#2F5D7A">CO₂ 396,0 kg</text>
+      <text x="70" y="150" font-size="14" fill="#3D6B4F">quedan 100,1 kg</text>
+      <text x="70" y="170" font-size="14" fill="#3D6B4F">sin reaccionar</text>
+    </svg>
+  </div>
+
+  <h2>Ejemplo resuelto, paso a paso</h2>
+  <p>Cargas 1001 kg de CaCO<sub>3</sub> puro. El rendimiento del horno, dato del enunciado, es 90 %. Calcula la masa de CaO, la de CO<sub>2</sub> y la de caliza que no reacciona.</p>
+  <ol class="pasos">
+    <li>Reacción ajustada: CaCO<sub>3</sub> → CaO + CO<sub>2</sub>. Átomos: Ca 1 = 1, C 1 = 1, O 3 = 1 + 2.</li>
+    <li>Masas molares: 100,1; 56,1 y 44,0 g/mol. Cierre por mol que reacciona: 100,1 = 56,1 + 44,0.</li>
+    <li>Pasas la carga a gramos: 1001 kg = 1&nbsp;001&nbsp;000 g. Cantidad inicial n<sub>0</sub> = 1&nbsp;001&nbsp;000 / 100,1 = 10&nbsp;000 mol.</li>
+    <li>Con rendimiento 0,90 reaccionan 0,90 · 10&nbsp;000 = 9&nbsp;000 mol. Quedan sin reaccionar 1&nbsp;000 mol.</li>
+    <li>Productos, en proporción 1:1:1 con lo que reacciona. m(CaO) = 9&nbsp;000 · 56,1 = 504&nbsp;900 g = 504,9 kg. m(CO<sub>2</sub>) = 9&nbsp;000 · 44,0 = 396&nbsp;000 g = 396,0 kg.</li>
+    <li>Caliza restante: 1&nbsp;000 · 100,1 = 100&nbsp;100 g = 100,1 kg.</li>
+    <li>Cierre global: 100,1 + 504,9 + 396,0 = 1001,0 kg. Entra lo mismo que sale. El rendimiento no inventa masa: solo dice cuántos moles cruzan la flecha.</li>
+  </ol>
+
+  <h2>Ejercicios</h2>
+  <p class="dato">Escribe la resolución en el editor de cada ejercicio. El dibujo del balance, si se pide, va en el lienzo de esta misma página. Después abre el porqué y compara.</p>
+
+  <article class="ej">
+    <h3>1. Reacción completa, escala de laboratorio</h3>
+    <p>Reaccionan del todo 200,2 g de CaCO<sub>3</sub> puro. ¿Qué masa de CaO y qué masa de CO<sub>2</sub> obtienes?</p>
+    <label for="e1">Tu resolución</label>
+    <textarea class="editor" id="e1" placeholder="Moles, masas y cierre…"></textarea>
+    <details class="porque"><summary>Porqué</summary>
+      <p>200,2 / 100,1 = 2,000 mol. Proporción 1:1:1, así que 2 mol de CaO y 2 mol de CO<sub>2</sub>. m(CaO) = 2 · 56,1 = 112,2 g. m(CO<sub>2</sub>) = 2 · 44,0 = 88,0 g. Cierre: 112,2 + 88,0 = 200,2 g. Si te salen 200,2 g de cal, has igualado gramos con gramos y te has saltado la masa molar.</p>
+    </details>
+  </article>
+
+  <article class="ej">
+    <h3>2. El 80 % no cambia la masa molar</h3>
+    <p>500,5 kg de CaCO<sub>3</sub> puro, rendimiento 80 %. Masa de CaO.</p>
+    <label for="e2">Tu resolución</label>
+    <textarea class="editor" id="e2"></textarea>
+    <details class="porque"><summary>Porqué</summary>
+      <p>500,5 kg = 500&nbsp;500 g. n<sub>0</sub> = 500&nbsp;500 / 100,1 = 5&nbsp;000 mol. Reaccionan 0,80 · 5&nbsp;000 = 4&nbsp;000 mol. m(CaO) = 4&nbsp;000 · 56,1 = 224&nbsp;400 g = 224,4 kg. El 80 % multiplica a los moles que reaccionan, no a 56,1. Quedan 1&nbsp;000 mol de caliza: 100,1 kg. CO<sub>2</sub>: 4&nbsp;000 · 44,0 = 176&nbsp;000 g = 176,0 kg. Cierre: 100,1 + 224,4 + 176,0 = 500,5 kg.</p>
+    </details>
+  </article>
+
+  <article class="ej">
+    <h3>3. Limitante en un lote de amoniaco</h3>
+    <p>Proceso acotado, rendimiento 100 %: N<sub>2</sub> + 3 H<sub>2</sub> → 2 NH<sub>3</sub>. Alimentas 28,0 g de N<sub>2</sub> y 8,0 g de H<sub>2</sub>. ¿Cuál es el limitante y qué masa de NH<sub>3</sub> obtienes?</p>
+    <label for="e3">Tu resolución</label>
+    <textarea class="editor" id="e3"></textarea>
+    <details class="porque"><summary>Porqué</summary>
+      <p>n(N<sub>2</sub>) = 28,0 / 28,0 = 1,00 mol. n(H<sub>2</sub>) = 8,0 / 2,0 = 4,00 mol. La reacción pide 3 mol de H<sub>2</sub> por cada mol de N<sub>2</sub>. Hay 4 mol de H<sub>2</sub> y solo hace falta 3: el hidrógeno sobra y el nitrógeno se acaba antes. Limitante: N<sub>2</sub>. Se forman 2,00 mol de NH<sub>3</sub>: 2 · 17,0 = 34,0 g. Sobra 1,00 mol de H<sub>2</sub> = 2,0 g. Cierre: 28,0 + 8,0 = 36,0 g entran; 34,0 + 2,0 = 36,0 g salen.</p>
+    </details>
+  </article>
+
+  <article class="ej">
+    <h3>4. Un techo que no se puede saltar</h3>
+    <p>Alguien afirma que, partiendo de 28,0 g de N<sub>2</sub> y de hidrógeno en exceso, ha obtenido 40,0 g de NH<sub>3</sub>. ¿Es posible?</p>
+    <label for="e4">Tu resolución</label>
+    <textarea class="editor" id="e4"></textarea>
+    <details class="porque"><summary>Porqué</summary>
+      <p>No. Con 1,00 mol de N<sub>2</sub> el máximo, aunque el rendimiento sea 100 % y el H<sub>2</sub> sobre, es 2,00 mol de NH<sub>3</sub>, es decir 34,0 g. 40,0 es mayor que 34,0: faltaría nitrógeno. La estequiometría es un techo de átomos, no una meta orientativa.</p>
+    </details>
+  </article>
+
+  <article class="ej">
+    <h3>5. Pureza: el inerte no se convierte en cal</h3>
+    <p>250,25 g de caliza contienen 80 % en masa de CaCO<sub>3</sub>. El resto es inerte que no reacciona. El carbonato que hay reacciona por completo. Masas de CaO, de CO<sub>2</sub> y de sólido que recoges (cal + inerte).</p>
+    <label for="e5">Tu resolución</label>
+    <textarea class="editor" id="e5"></textarea>
+    <details class="porque"><summary>Porqué</summary>
+      <p>CaCO<sub>3</sub> útil = 0,80 · 250,25 = 200,2 g = 2,00 mol. Inerte = 250,25 − 200,2 = 50,05 g, y sigue ahí. CaO = 112,2 g. CO<sub>2</sub> = 88,0 g, que se va como gas. Sólido recogido = 112,2 + 50,05 = 162,25 g. Cierre: 112,2 + 88,0 + 50,05 = 250,25 g. Si aplicas el 80 % a los 112,2 g otra vez, estás contando la pureza dos veces.</p>
+    </details>
+  </article>
+
+  <h2>Dibuja el balance del ejemplo</h2>
+  <p>En el lienzo, tres barras o tres cajas: caliza que queda (100,1 kg), cal (504,9 kg) y CO<sub>2</sub> (396,0 kg). No hace falta escala perfecta; sí que la cal y el gas se vean mayores que el resto, y que anotes las tres cifras.</p>
+  <canvas id="lienzo09" class="lienzo" width="900" height="240" aria-label="Lienzo para dibujar el balance de masas del horno"></canvas>
+  <div class="fila">
+    <button type="button" class="boton" id="b09">Borrar lienzo</button>
+  </div>
+</section>
+
+<section class="bloque-vida-real con-figura" id="maestro-vida" aria-label="En la vida real">
+  <div class="figura" aria-hidden="true">
+    <svg viewBox="0 0 80 80">
+      <rect width="80" height="80" fill="#F0EBE0"/>
+      <polygon points="22,18 58,18 64,62 16,62" fill="#fff" stroke="#2A2620" stroke-width="2"/>
+      <rect x="34" y="46" width="12" height="16" fill="#2F5D7A"/>
+      <polygon points="22,18 58,18 54,28 26,28" fill="#C4A15A" stroke="#2A2620"/>
+    </svg>
+  </div>
+  <div class="contenido-vida">
+    <p class="etiqueta-bloque">En la vida real</p>
+    <h2 class="titulo-vida">Dónde cuadra este balance</h2>
+    <ul>
+      <li>Una cementera o un horno de cal no «pierde» piedra: lo que no es CaO es CO<sub>2</sub> o caliza sin convertir.</li>
+      <li>El CO<sub>2</sub> de la calcinación sale aunque el horno queme el combustible aparte. Por eso el proceso se cuenta en inventarios de emisiones.</li>
+      <li>El mismo esquema (limitante, rendimiento, pureza) vale para un lote de amoniaco o para un principio activo: cambia la reacción, no la lógica.</li>
+    </ul>
+  </div>
+</section>
+
+<section class="bloque-interactivo" id="maestro-interactivo" aria-label="Problema interactivo">
+  <div class="marco-interactivo-cabecera">
+    <span class="etiqueta-interactivo">Problema · en esta página</span>
+  </div>
+  <div class="panel-int">
+    <p>Mueve la carga y el rendimiento. Escribe en el editor las tres masas de salida, en kg, y comprueba. El lienzo de abajo dibuja el balance correcto cuando pulsas comprobar: no sales de la lección.</p>
+    <label for="carga">Carga de CaCO<sub>3</sub> puro: <span class="salida" id="outCarga">1001 kg</span></label>
+    <input type="range" id="carga" min="1001" max="5005" step="1001" value="1001"/>
+    <label for="rend">Rendimiento: <span class="salida" id="outRend">90 %</span></label>
+    <input type="range" id="rend" min="10" max="100" step="10" value="90"/>
+    <label for="resp09">Escribe m(resto), m(CaO) y m(CO<sub>2</sub>) en kg</label>
+    <textarea class="editor" id="resp09" placeholder="Ejemplo de formato: resto 100,1; CaO 504,9; CO2 396,0"></textarea>
+    <div class="fila">
+      <button type="button" class="boton verde" id="chk09">Comprobar</button>
+    </div>
+    <p id="msg09" aria-live="polite"></p>
+    <canvas id="cv09" class="lienzo" width="900" height="240" aria-label="Barras del balance de masas"></canvas>
+  </div>
+</section>
+
+<section class="bloque-reto" id="maestro-reto" aria-label="Reto Profesor">
+  <span class="etiqueta-reto">Reto Profesor</span>
+  <h2 class="titulo-reto">Cierra un lote distinto sin mirar el ejemplo</h2>
+  <p>Elige una carga de CaCO<sub>3</sub> puro que sea un múltiplo entero de 100,1 g y un rendimiento de una sola cifra (por ejemplo 70 %). En el editor de abajo deja la reacción, los moles que reaccionan, las tres masas y la suma que recupera la carga. En el lienzo, el esquema entrada → dos salidas.</p>
+  <label for="reto09">Tu lote</label>
+  <textarea class="editor" id="reto09"></textarea>
+  <canvas id="retoCv" class="lienzo" width="900" height="220" aria-label="Esquema del lote que propones"></canvas>
+  <div class="fila"><button type="button" class="boton" id="bReto">Borrar lienzo del reto</button></div>
+  <ul>
+    <li>La suma de salidas, incluido lo que no reacciona, coincide con la carga.</li>
+    <li>Usas 100,1; 56,1 y 44,0, no «unos 100 g».</li>
+    <li>El rendimiento multiplica moles, no la masa molar.</li>
+  </ul>
+  <p class="reto-id">reto_id: bach1-fyq-09-horno-cal</p>
+</section>
+
+<footer class="leccion-pie"><strong>Les vencimos</strong> · 1º Bachillerato Física y Química · Ciencias · Decreto 40/2022 CyL · sin CDN</footer>
+</div>
+<script>
+(function(){
+  function liga(id, btn){
+    var c = document.getElementById(id);
+    var ctx = c.getContext('2d');
+    function fit(){
+      var r = c.getBoundingClientRect();
+      var w = Math.max(300, Math.floor(r.width));
+      if (c.width !== w){ c.width = w; c.height = 240; pintaFondo(); }
+    }
+    function pintaFondo(){
+      ctx.fillStyle = '#fff';
+      ctx.fillRect(0,0,c.width,c.height);
+      ctx.strokeStyle = '#C4A15A';
+      ctx.strokeRect(0.5,0.5,c.width-1,c.height-1);
+    }
+    var dib = false, last = null;
+    function pos(ev){
+      var r = c.getBoundingClientRect();
+      var src = ev.touches ? ev.touches[0] : ev;
+      return {x:(src.clientX-r.left)*c.width/r.width, y:(src.clientY-r.top)*c.height/r.height};
+    }
+    function down(ev){ dib = true; last = pos(ev); ev.preventDefault(); }
+    function move(ev){
+      if(!dib) return;
+      var p = pos(ev);
+      ctx.strokeStyle = '#2A2620'; ctx.lineWidth = 2.2; ctx.lineCap = 'round';
+      ctx.beginPath(); ctx.moveTo(last.x,last.y); ctx.lineTo(p.x,p.y); ctx.stroke();
+      last = p; ev.preventDefault();
+    }
+    function up(){ dib = false; }
+    c.addEventListener('pointerdown', down);
+    c.addEventListener('pointermove', move);
+    c.addEventListener('pointerup', up);
+    c.addEventListener('pointerleave', up);
+    document.getElementById(btn).addEventListener('click', pintaFondo);
+    fit();
+    window.addEventListener('resize', fit);
+    return {ctx:ctx, fondo:pintaFondo, fit:fit};
+  }
+  liga('lienzo09','b09');
+  liga('retoCv','bReto');
+
+  var carga = document.getElementById('carga');
+  var rend = document.getElementById('rend');
+  var cv = document.getElementById('cv09');
+  var ctx = cv.getContext('2d');
+  function sol(){
+    var kg = +carga.value;
+    var n0 = Math.round(kg / 0.1001);
+    var f = +rend.value / 100;
+    var nr = n0 * f;
+    var nq = n0 - nr;
+    return {
+      n0:n0,
+      resto: nq * 100.1 / 1000,
+      cao: nr * 56.1 / 1000,
+      co2: nr * 44.0 / 1000
+    };
+  }
+  function fmt(x){
+    return x.toFixed(1).replace('.',',');
+  }
+  function barras(resaltar){
+    var r = cv.getBoundingClientRect();
+    cv.width = Math.max(300, Math.floor(r.width));
+    cv.height = 240;
+    var s = sol();
+    var datos = [
+      {n:'CaCO₃ queda', v:s.resto, col:'#3D6B4F'},
+      {n:'CaO', v:s.cao, col:'#C4A15A'},
+      {n:'CO₂', v:s.co2, col:'#2F5D7A'}
+    ];
+    var max = Math.max(s.resto, s.cao, s.co2, 0.1);
+    ctx.fillStyle = '#fff'; ctx.fillRect(0,0,cv.width,cv.height);
+    var base = 190, gap = cv.width/4;
+    datos.forEach(function(d,i){
+      var h = (d.v/max)*140;
+      var x = gap*(i+0.45);
+      ctx.fillStyle = d.col;
+      ctx.fillRect(x, base-h, Math.min(70, gap*0.55), h);
+      ctx.fillStyle = '#2A2620';
+      ctx.font = '14px Segoe UI, sans-serif';
+      ctx.fillText(d.n, x, 210);
+      ctx.fillText(fmt(d.v)+' kg', x, 228);
+    });
+    if(!resaltar){
+      ctx.fillStyle = '#5C564C';
+      ctx.fillText('Pulsa comprobar para fijar el balance', 12, 24);
+    }
+  }
+  function refresca(){
+    document.getElementById('outCarga').textContent = carga.value + ' kg';
+    document.getElementById('outRend').textContent = rend.value + ' %';
+    barras(false);
+  }
+  carga.addEventListener('input', refresca);
+  rend.addEventListener('input', refresca);
+  document.getElementById('chk09').addEventListener('click', function(){
+    var s = sol();
+    var bruto = document.getElementById('resp09').value.replace(/,/g,'.');
+    var nums = (bruto.match(/-?\d+(?:\.\d+)?/g) || []).map(Number);
+    function cerca(v){
+      return nums.some(function(n){ return Math.abs(n-v) < 0.051; });
+    }
+    var bien = cerca(s.resto) && cerca(s.cao) && cerca(s.co2);
+    var msg = document.getElementById('msg09');
+    barras(true);
+    if(bien){
+      msg.className = 'ok';
+      msg.textContent = 'Cuadra. n₀ = ' + s.n0 + ' mol. Restan ' + fmt(s.resto) + ' kg, CaO ' + fmt(s.cao) + ' kg, CO₂ ' + fmt(s.co2) + ' kg. Suma = carga.';
+    }else{
+      msg.className = 'mal';
+      msg.textContent = 'Todavía no. Con esta carga hay ' + s.n0 + ' mol. Reaccionan el ' + rend.value + ' %. Deben aparecer ' + fmt(s.resto) + ' kg, ' + fmt(s.cao) + ' kg y ' + fmt(s.co2) + ' kg. Mira las barras.';
+    }
+  });
+  refresca();
+})();
+</script>
+</body>
+</html>

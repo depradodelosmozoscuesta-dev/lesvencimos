@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<meta name="theme-color" content="#0E0E0C"/>
+<title>Lección 38 · Proyecto integrador de cierre · Les vencimos</title>
+<link rel="icon" href="../icons/favicon.svg" type="image/svg+xml"/>
+<link rel="manifest" href="../manifest.webmanifest"/>
+<link rel="stylesheet" href="../leccion-shell.css"/>
+<style>
+.pasos{list-style:none;margin:0 0 1rem;padding:0;counter-reset:paso}
+.pasos li{position:relative;margin:0 0 .7rem;padding:.7rem .8rem .7rem 3.1rem;background:var(--lv-panel);border:1px solid var(--lv-linea);border-radius:10px}
+.pasos li::before{counter-increment:paso;content:counter(paso);position:absolute;left:.65rem;top:.7rem;width:1.7rem;height:1.7rem;border-radius:50%;background:#C4A15A;color:#1A160E;font-weight:700;font-size:.9rem;display:flex;align-items:center;justify-content:center}
+.figura-svg{background:#161512;border:1px solid var(--lv-linea);border-radius:10px;padding:.5rem;margin:.5rem 0 1.1rem}
+.figura-svg svg{width:100%;height:auto;display:block}
+.ej{margin:0 0 1rem;padding:.85rem .95rem;background:var(--lv-panel);border:1px solid var(--lv-linea);border-left:3px solid #C4A15A;border-radius:10px}
+.ej h3{margin:0 0 .35rem;font-family:var(--lv-serif);font-size:1.05rem;color:var(--lv-titulo)}
+.editor,textarea.editor{width:100%;min-height:5.5rem;font-family:ui-monospace,monospace;font-size:.95rem;line-height:1.45;padding:.55rem .65rem;border:1px solid rgba(196,161,90,.45);border-radius:8px;background:#161512;color:#E6E1D6;resize:vertical}
+.lienzo{display:block;width:100%;height:280px;background:#161512;border:1px solid #C4A15A;border-radius:8px;touch-action:none;cursor:crosshair}
+.fila{display:flex;flex-wrap:wrap;gap:.4rem;margin:.45rem 0}
+.boton{font:inherit;font-weight:700;font-size:.85rem;padding:.4rem .8rem;border-radius:999px;border:1px solid #C4A15A;background:transparent;color:#E6E1D6;cursor:pointer}
+.porque{margin-top:.55rem;padding:.65rem .75rem;background:#1a2218;border-radius:8px;color:#E6E1D6}
+.dato{font-size:.95rem;color:var(--lv-suave)}
+.glosa{display:block;font-size:.9rem;color:#9A9488;margin:.25rem 0 .5rem;line-height:1.4}
+.lab-box{margin:1rem 0;padding:.85rem;border:1px dashed rgba(196,161,90,.5);border-radius:10px;background:#141210}
+.lab-box iframe{width:100%;min-height:320px;border:1px solid #C4A15A;border-radius:8px;background:#0E0E0C}
+table.datos{width:100%;border-collapse:collapse;margin:.45rem 0 1rem;font-size:.98rem}
+table.datos th,table.datos td{border:1px solid var(--lv-linea);padding:.4rem .55rem;text-align:left}
+table.datos th{background:#161512;color:#C4A15A}
+</style>
+<script src="../leccion-shell-nav.js" defer></script>
+</head>
+<body class="leccion-shell" data-maestro-json="maestro-38.json">
+<div class="leccion-wrap">
+<nav class="leccion-barra" aria-label="Navegación de lección" data-actual="38" data-total="38">
+  <div class="leccion-progreso" role="status">
+    <span class="progreso-texto"><strong>38</strong> de <strong>38</strong></span>
+    <div class="progreso-pista" aria-hidden="true"><div class="progreso-lleno" style="width:100%"></div></div>
+  </div>
+  <div class="leccion-atajos">
+    <a class="atajo atajo-calc" href="../../../../modulos/calculadora.html" title="Calculadora offline">Calculadora</a>
+    <a class="atajo atajo-prev" href="leccion-37-inclusion-historia-matematicas.html">← Anterior</a>
+    <a class="atajo atajo-next" href="../index.html">Siguiente →</a>
+  </div>
+</nav>
+<header class="leccion-top">
+  <a class="leccion-marca" href="../../../../index.html">Les <span>vencimos</span></a>
+  <p class="leccion-meta-top">Matemáticas Generales · 1º Bachillerato</p>
+</header>
+<header class="bloque-titulo">
+  <span class="eyebrow">Lección 38 · A–F · Cierre</span>
+  <h1 class="titulo-leccion">Proyecto integrador de <em>cierre</em></h1>
+  <p class="meta-leccion">1º Bach Matemáticas Generales · CyL Decreto 40/2022 · A–F Un problema con varios bloques del curso</p>
+</header>
+<aside class="bloque-curiosidad" aria-label="Para situarte">
+  <p class="etiqueta-bloque">Para situarte</p>
+  <h2 class="titulo-curiosidad">De la inscripción al pasillo, sin cambiar de historia</h2>
+  <p class="texto-curiosidad">Un solo caso: el IES de Soria abre las puertas. Hay 80 alumnos inscritos, cuatro talleres y cada alumno elige dos. La entrada son 12 euros, el alquiler 400 y el material 4 euros por persona. Los tres ejemplos recorren esa misma jornada: primero el dinero y el conteo, después el plano y la función de beneficio, al final la lluvia y la asistencia.</p>
+</aside>
+<section class="bloque-cuerpo">
+  <h2>Objetivos</h2>
+  <ul><li>Modelar el beneficio de la jornada como función afín y localizar el umbral de asistencia.</li><li>Leer el plano de pasillos como grafo ponderado y elegir el camino mínimo con las duraciones sumadas.</li><li>Incorporar la probabilidad de lluvia y la asistencia esperada sin confundir la media con el peor caso.</li></ul>
+</section>
+<section class="bloque-cuerpo">
+<h2>Una jornada, tres herramientas</h2>
+<p>El cierre no abre tres problemas pequeños. Abre uno y no lo suelta. El instituto tiene 80 alumnos inscritos en la jornada de puertas abiertas. Hay cuatro talleres, A, B, C y D. Cada alumno elige dos, sin que el orden importe. La entrada cuesta 12 euros. El alquiler de la mañana son 400 euros, se paguen o no se llenen las salas, y el material son 4 euros por alumno que asiste. En el edificio, la entrada E comunica con el hall H en 3 minutos, el hall con los talleres T en 5 y con el salón S en 7, los talleres con el salón en 4, y hay un patio directo de E a T de 9 minutos. La previsión de lluvia es 1/4. En jornadas anteriores ha asistido el 90 % de quienes se inscribieron.</p>
+<p><span class="glosa">itinerarios = C(4, 2) = 6 · ingreso I(x) = 12x · coste C(x) = 400 + 4x · beneficio B(x) = 8x − 400 · umbral: B(x) = 0 cuando x = 50 · camino mínimo E–H–S = 10 min · asistencia esperada = 0,90 · 80 = 72 · B(72) = 176</span></p>
+<p>Con los 80 inscritos, si vienen todos, el ingreso es 960 euros y el coste 720, así que el beneficio es 240. La función B(x) = 8x − 400 dice que cada persona de más, por encima del alquiler ya pagado, aporta 8 euros: los 12 de la entrada menos los 4 del material. Hacen falta 50 asistentes para no perder dinero. El grafo no cambia esas cifras: cambia cuánto se tarda en ir de la puerta al salón, y la lluvia no cambia el alquiler: cambia cuánta gente cabe y cuánta se espera.</p>
+<p>Nada de esto pide un bloque nuevo. Pide no abandonar los números al cambiar de herramienta. El conteo de parejas, la recta del beneficio, la arista del pasillo y el 0,25 de lluvia hablan de la misma mañana. Si un resultado intermedio no se reutiliza en el ejemplo siguiente, se ha roto el proyecto.</p>
+<table class="datos"><thead><tr><th>Pieza</th><th>Cifra de la jornada</th><th>Bloque</th></tr></thead>
+<tbody>
+<tr><td>Parejas de talleres</td><td>C(4, 2) = 6</td><td>conteo</td></tr>
+<tr><td>Beneficio si vienen 80</td><td>240 €</td><td>finanzas y función afín</td></tr>
+<tr><td>Puerta al salón</td><td>10 min</td><td>grafos</td></tr>
+<tr><td>Asistencia esperada</td><td>72 personas, beneficio 176 €</td><td>probabilidad</td></tr>
+</tbody></table>
+<h2>Gráfico del ejemplo</h2>
+<p class="dato">La figura no es decoración: los trazos corresponden a los números del ejemplo 1.</p>
+<div class="figura-svg"><svg viewBox="0 0 720 320" role="img" aria-label="Barras 960, 720 y 240 de la jornada, y los cuatro talleres con las seis parejas posibles"><title>Barras 960, 720 y 240 de la jornada, y los cuatro talleres con las seis parejas posibles</title><rect width="720" height="320" fill="#161512"/>
+<line x1="30" y1="200" x2="300" y2="200" stroke="#9A9488" stroke-width="1.5"/>
+<polygon points="40,200 100,200 100,20 40,20" fill="#C4A15A" stroke="#E6E1D6" stroke-width="1"/>
+<polygon points="120,200 180,200 180,65 120,65" fill="#8F9A72" stroke="#E6E1D6" stroke-width="1"/>
+<polygon points="200,200 260,200 260,155 200,155" fill="#E6E1D6" stroke="#C4A15A" stroke-width="1"/>
+<text x="70" y="16" text-anchor="middle" fill="#C4A15A" font-size="12">960</text>
+<text x="150" y="58" text-anchor="middle" fill="#E6E1D6" font-size="12">720</text>
+<text x="230" y="148" text-anchor="middle" fill="#1C1A16" font-size="12">240</text>
+<text x="70" y="218" text-anchor="middle" fill="#9A9488" font-size="12">ingreso</text>
+<text x="150" y="218" text-anchor="middle" fill="#9A9488" font-size="12">coste</text>
+<text x="230" y="218" text-anchor="middle" fill="#9A9488" font-size="12">beneficio</text>
+<circle cx="430" cy="50" r="16" fill="#1C1A16" stroke="#C4A15A" stroke-width="2"/>
+<circle cx="620" cy="50" r="16" fill="#1C1A16" stroke="#C4A15A" stroke-width="2"/>
+<circle cx="430" cy="190" r="16" fill="#1C1A16" stroke="#C4A15A" stroke-width="2"/>
+<circle cx="620" cy="190" r="16" fill="#1C1A16" stroke="#C4A15A" stroke-width="2"/>
+<line x1="446" y1="50" x2="604" y2="50" stroke="#C4A15A" stroke-width="2"/>
+<line x1="430" y1="66" x2="430" y2="174" stroke="#C4A15A" stroke-width="2"/>
+<line x1="620" y1="66" x2="620" y2="174" stroke="#C4A15A" stroke-width="2"/>
+<line x1="444" y1="62" x2="606" y2="178" stroke="#8F9A72" stroke-width="2"/>
+<line x1="444" y1="178" x2="606" y2="62" stroke="#8F9A72" stroke-width="2"/>
+<line x1="446" y1="190" x2="604" y2="190" stroke="#C4A15A" stroke-width="2"/>
+<text x="430" y="55" text-anchor="middle" fill="#E6E1D6" font-size="14">A</text>
+<text x="620" y="55" text-anchor="middle" fill="#E6E1D6" font-size="14">B</text>
+<text x="430" y="195" text-anchor="middle" fill="#E6E1D6" font-size="14">C</text>
+<text x="620" y="195" text-anchor="middle" fill="#E6E1D6" font-size="14">D</text>
+<text x="400" y="24" fill="#C4A15A" font-size="13">4 talleres, las 6 parejas</text>
+<text x="30" y="250" fill="#E6E1D6" font-size="14">80 inscritos · 12 € · coste 400 + 4·80 = 720 · beneficio 240</text>
+<text x="30" y="278" fill="#9A9488" font-size="13">el mismo problema sigue en el pasillo y en la lluvia: no son tres enunciados sueltos</text>
+</svg></div>
+<h2>Ejemplo resuelto 1 — Dinero y parejas de la misma lista</h2><p>Con 80 inscritos que vienen todos, cuatro talleres y entrada de 12 euros, halla el beneficio y el número de parejas de talleres. Deja escrita B(x).</p><ol class="pasos">
+<li>Parejas: C(4, 2) = 4·3/2 = 6. Son AB, AC, AD, BC, BD y CD, las seis aristas del grafo de la derecha. El orden no crea un itinerario nuevo.<span class="glosa">Glosa: si el orden importara serían 4·3 = 12. El enunciado dice que no importa.</span></li>
+<li>Ingreso: 80 · 12 = 960 euros. Coste: 400 + 80 · 4 = 400 + 320 = 720. Beneficio: 960 − 720 = 240 euros. Son las tres barras.<span class="glosa">Glosa: el 400 no se multiplica por 80. Es alquiler fijo de la mañana.</span></li>
+<li>En función del número que asiste, I(x) = 12x y C(x) = 400 + 4x, luego B(x) = 8x − 400. Con x = 80, 640 − 400 = 240, la misma barra.<span class="glosa">Glosa: 12 − 4 = 8 es lo que aporta cada asistente una vez pagado el alquiler.</span></li>
+<li>Umbral: 8x − 400 = 0 da x = 50. Por debajo se pierde dinero aunque la entrada sea de 12 euros, porque el alquiler no se encoge.<span class="glosa">Glosa: 8 · 50 = 400. Faltan 30 personas respecto de los 80 inscritos para estar justo en cero, no para el beneficio 240.</span></li>
+</ol>
+<h2>Ejemplo resuelto 2 — El plano no cambia el beneficio; cambia el minuto</h2><p>En el mismo edificio, ¿cuánto se tarda de la entrada E al salón S? Usa los pesos 3, 5, 7, 4 y 9, y relaciona la pendiente de B con los 8 euros.</p><ol class="pasos">
+<li>Tres caminos: E–H–S = 3 + 7 = 10; E–H–T–S = 3 + 5 + 4 = 12; E–T–S = 9 + 4 = 13. El mínimo es 10 minutos, por el hall.<span class="glosa">Glosa: se suman minutos de aristas, no se cuenta el número de pasillos. El camino de tres tramos dura más que el de dos.</span></li>
+<li>La matriz de pesos, con orden E, H, T, S, guarda los mismos números: la casilla H–S es 7, la E–T es 9 y no hay casilla directa E–S. El plano y la matriz son el mismo grafo.<span class="glosa">Glosa: un hueco en la matriz no es un cero de minutos. Es una arista que no existe.</span></li>
+<li>Nada de esto modifica los 240 euros. El beneficio depende de cuánta gente entra, no de si tarda 10 o 13 minutos, salvo que el retraso vaciara la sala, cosa que el enunciado no dice.<span class="glosa">Glosa: cambiar de bloque no es permiso para tirar la cifra anterior. Aquí simplemente no se usa.</span></li>
+<li>La pendiente de B es 8 euros por persona: es constante, como la derivada de una afín. Una persona más, si ya se ha superado el alquiler, no cambia el 400 y sí suma 8.<span class="glosa">Glosa: B(51) − B(50) = 8. Ese incremento es la pendiente, no un beneficio nuevo calculado desde cero.</span></li>
+</ol>
+<h2>Ejemplo resuelto 3 — Lluvia y asistencia, sobre el mismo B(x)</h2><p>Asiste, en media, el 90 % de los 80. La lluvia tiene probabilidad 1/4. Si llueve, 20 alumnos de huerto exterior pasan a un salón donde ya hay 40 y solo caben 50. Calcula el beneficio esperado y el peor caso de asientos.</p><ol class="pasos">
+<li>Asistencia esperada: 0,90 · 80 = 72 personas. No son los 80 de la barra, ni un sorteo que haya que simular para obtener la media.<span class="glosa">Glosa: 10 % de 80 son 8 ausencias. 80 − 8 = 72.</span></li>
+<li>Beneficio con esa media: B(72) = 8 · 72 − 400 = 576 − 400 = 176 euros. Son 64 euros menos que 240, y 64 = 8 · 8: las ocho ausencias valen ocho euros cada una.<span class="glosa">Glosa: se reutiliza B(x). No se reconstruye el alquiler desde el principio, aunque hacerlo daría lo mismo: 12·72 − (400 + 4·72) = 864 − 688 = 176.</span></li>
+<li>Si llueve, que ocurre con probabilidad 1/4, el salón recibe 40 + 20 = 60 personas y caben 50. Faltan 10 asientos. Si no llueve, el huerto no se mueve y esos 10 no faltan.<span class="glosa">Glosa: 60 − 50 = 10. El déficit es condicional a la lluvia, no un hecho seguro.</span></li>
+<li>La media de asistentes, 72, no evita el peor caso de la sala. 176 euros es una esperanza de beneficio, no una promesa, y los 10 asientos faltan precisamente cuando llueve, aunque la asistencia media quepa en otras cuentas.<span class="glosa">Glosa: esperanza y peor caso responden a preguntas distintas. El proyecto las deja escritas las dos.</span></li>
+</ol>
+<h2>Ejercicios</h2>
+<p class="dato">Escribe el razonamiento completo en el editor, no solo la cifra. Si el enunciado pide figura, dibújala en el lienzo de esta misma página.</p>
+<article class="ej"><h3>1. Vienen 60, no 80</h3><p>En la misma jornada, asisten 60 personas. Calcula el beneficio con B(x) = 8x − 400 y comprueba rehaciendo ingreso y coste. No cambies el alquiler.</p><label for="e38a">Tu resolución</label><textarea class="editor" id="e38a" placeholder="Escribe aquí el razonamiento completo…"></textarea><details class="porque"><summary>Por qué (abre cuando hayas escrito)</summary><p>El paso es evaluar la función ya obtenida, y usar la cuenta larga solo como comprobación, sin olvidar el fijo. B(60) = 8·60 − 400 = 480 − 400 = 80 euros. Por la definición: ingreso 12·60 = 720, coste 400 + 4·60 = 640, beneficio 720 − 640 = 80. Si alguien resta solo el material, 720 − 240 = 480, ha perdido el alquiler y presenta como beneficio un número que todavía debe 400 euros. El umbral seguía en 50: con 60 se está 10 personas por encima, y 10·8 = 80 cierra otra vez. Es la misma jornada; solo ha cambiado x.</p></details></article>
+<article class="ej"><h3>2. Cierran el patio</h3><p>El patio E–T de 9 minutos está cerrado. ¿Cuál es ahora el camino mínimo de E a S con los pesos que quedan? No uses el beneficio para contestar minutos.</p><label for="e38b">Tu resolución</label><textarea class="editor" id="e38b" placeholder="Escribe aquí el razonamiento completo…"></textarea><details class="porque"><summary>Por qué (abre cuando hayas escrito)</summary><p>El paso es tachar la arista que ya no existe y volver a sumar los caminos que quedan, no quedarse con el 13 que usaba el patio ni con el 10 sin mirar. Sin E–T desaparece el camino E–T–S de 13 minutos. Siguen E–H–S = 3 + 7 = 10 y E–H–T–S = 3 + 5 + 4 = 12. El mínimo continúa siendo 10, por el hall: cerrar el patio elimina un camino que ya era peor, no el mejor. Contar aristas en vez de minutos habría preferido cualquier camino de dos tramos sin sumar 3 y 7. El beneficio de 240 euros no entra en la respuesta: la pregunta es de tiempo. Mezclar las unidades es romper el proyecto, no enriquecerlo.</p></details></article>
+<article class="ej"><h3>3. Llueve más a menudo</h3><p>La probabilidad de lluvia pasa a 0,40 y siguen siendo 20 los del huerto. ¿Cuántos alumnos de huerto se espera que acaben en el salón? ¿Por qué esa esperanza no garantiza que quepan los 50 asientos el día que llueve?</p><label for="e38c">Tu resolución</label><textarea class="editor" id="e38c" placeholder="Escribe aquí el razonamiento completo…"></textarea><details class="porque"><summary>Por qué (abre cuando hayas escrito)</summary><p>El paso es multiplicar la probabilidad por los 20, y no usar ese producto como si fuera el aforo del día de lluvia. Esperanza de desplazados: 0,40 · 20 = 8. Sumados a los 40 de la charla dan 48, que en media caben en 50. El día que sí llueve, sin embargo, no se desplazan 8: se desplazan los 20, y 40 + 20 = 60, diez asientos por encima del aforo. La esperanza promedia los días de lluvia y los despejados; el aforo se sufre en un día concreto. Confundir 8 con 20 es tratar la media como si fuera el suceso condicionado. La probabilidad 0,40 cambia la previsión media respecto del 0,25 del ejemplo y no cambia la aritmética del peor caso, que sigue siendo 60 frente a 50.</p></details></article>
+<h2>Dibuja en el lienzo</h2>
+<p>Reproduce a mano el gráfico del ejemplo: ejes o nodos, los datos numéricos y una frase con la conclusión. El botón borra el lienzo sin salir de la lección.</p>
+<canvas id="lienzo38" class="lienzo" width="900" height="280"></canvas><div class="fila"><button type="button" class="boton" data-clear="lienzo38">Borrar lienzo</button></div>
+</section>
+
+<section class="bloque-cuerpo">
+  <h2>Comprueba</h2>
+  <p class="dato">Tres preguntas. Responde mentalmente antes de abrir el porqué.</p>
+  <details class="porque"><summary>Si vienen los 80, ¿cuánto beneficio queda y cuántas parejas de talleres hay?</summary><p>Beneficio 240 euros y 6 parejas. Por qué: ingreso 80·12 = 960, coste 400 + 320 = 720, diferencia 240. Las parejas son C(4, 2) = 6, las aristas del dibujo. El beneficio también es B(80) = 8·80 − 400 = 240. El alquiler no se multiplica por el número de talleres.</p></details>
+<details class="porque"><summary>¿Cuál es el camino mínimo de la entrada al salón y por qué no es el de tres tramos?</summary><p>10 minutos, E–H–S. Por qué: 3 + 7 = 10, mientras E–H–T–S suma 12 y E–T–S suma 13. Se suman los minutos de las aristas. El camino con más pasillos no es el más corto. No hay puerta directa de E a S: esa casilla no está en la matriz.</p></details>
+<details class="porque"><summary>Con un 90 % de asistencia, ¿qué beneficio se espera y qué no dice esa cifra sobre los asientos si llueve?</summary><p>Se esperan 72 personas y B(72) = 176 euros. Por qué: 0,90·80 = 72 y 8·72 − 400 = 176, sesenta y cuatro euros menos que si vinieran todos, justo 8 euros por cada una de las 8 ausencias. Si llueve, el salón junta 40 + 20 = 60 y caben 50: faltan 10 asientos. La esperanza no es el peor caso.</p></details>
+</section>
+<section class="bloque-reto">
+  <span class="etiqueta-reto">Reto Profesor</span>
+  <h2 class="titulo-reto">La misma mañana, en el lienzo</h2>
+  <p>Dibuja las tres barras 960, 720 y 240, el camino E–H–S de 10 minutos y escribe B(72) = 176. Tiene que reconocerse una sola jornada.</p>
+  <p class="reto-id">reto_id: bach1-mates-gen-L38</p>
+</section>
+<footer class="leccion-pie"><strong>Les vencimos</strong> · L38 de 38 · Matemáticas Generales · staging · file:// · sin publicar</footer>
+</div>
+<script type="application/json" data-maestro="guion">{"curso": "bach1-mates-gen", "leccion": 38, "titulo": "Proyecto integrador de cierre", "url": "leccion-38-proyecto-integrador-cierre.html", "musica": false, "pasos": [{"id": "abrir", "dicho": "Una sola historia: 80 inscritos, cuatro talleres, 12 euros, alquiler 400 y material 4.", "hacer": "Leer en voz alta el apartado Para situarte y los objetivos."}, {"id": "figura", "dicho": "Las barras son 960, 720 y 240. Las seis líneas de la derecha son las parejas de talleres.", "hacer": "Mirar el SVG y decir qué dato numérico marca cada trazo."}, {"id": "ej1", "dicho": "Ejemplo 1: B(x) = 8x − 400 y el umbral está en 50 asistentes.", "hacer": "Rehacer el ejemplo 1, glosa a glosa, sin mirar el resultado final."}, {"id": "ej2", "dicho": "Ejemplo 2: el salón se alcanza en 10 minutos por el hall. La pendiente del beneficio es 8 euros.", "hacer": "Rehacer el ejemplo 2 y contrastarlo con el 1."}, {"id": "ej3", "dicho": "Ejemplo 3: asistencia esperada 72, beneficio 176. Si llueve, faltan 10 asientos.", "hacer": "Rehacer el ejemplo 3 y anotar la comprobación."}, {"id": "practica", "dicho": "Cada cifra se reutiliza. Cambiar de bloque no borra el anterior.", "hacer": "Escribir el razonamiento de al menos dos ejercicios y usar el lienzo."}, {"id": "cierre", "dicho": "Esperanza y peor caso se escriben los dos, porque no son la misma pregunta.", "hacer": "Contestar Comprueba antes de abrir y dejar el reto por escrito."}]}</script>
+<script>(function(){function liga(c){var ctx=c.getContext('2d');function fondo(){ctx.fillStyle='#161512';ctx.fillRect(0,0,c.width,c.height);ctx.strokeStyle='#C4A15A';ctx.strokeRect(.5,.5,c.width-1,c.height-1);}function fit(){var r=c.getBoundingClientRect();var w=Math.max(320,Math.floor(r.width));if(c.width!==w){c.width=w;c.height=280;fondo();}}var dib=false,last=null;function pos(ev){var r=c.getBoundingClientRect();var s=ev.touches?ev.touches[0]:ev;return{x:(s.clientX-r.left)*c.width/r.width,y:(s.clientY-r.top)*c.height/r.height};}c.addEventListener('pointerdown',function(ev){dib=true;last=pos(ev);ev.preventDefault();});c.addEventListener('pointermove',function(ev){if(!dib)return;var p=pos(ev);ctx.strokeStyle='#E6E1D6';ctx.lineWidth=2.2;ctx.lineCap='round';ctx.beginPath();ctx.moveTo(last.x,last.y);ctx.lineTo(p.x,p.y);ctx.stroke();last=p;ev.preventDefault();});function up(){dib=false;}c.addEventListener('pointerup',up);c.addEventListener('pointerleave',up);var b=document.querySelector('[data-clear="'+c.id+'"]');if(b)b.addEventListener('click',fondo);fit();window.addEventListener('resize',fit);}document.querySelectorAll('canvas.lienzo').forEach(liga);})();</script>
+</body>
+</html>

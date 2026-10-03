@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<meta name="theme-color" content="#0E0E0C"/>
+<title>Lección 18 · Camino mínimo · Les vencimos</title>
+<link rel="icon" href="../icons/favicon.svg" type="image/svg+xml"/>
+<link rel="manifest" href="../manifest.webmanifest"/>
+<link rel="stylesheet" href="../leccion-shell.css"/>
+<style>
+.pasos{list-style:none;margin:0 0 1rem;padding:0;counter-reset:paso}
+.pasos li{position:relative;margin:0 0 .7rem;padding:.7rem .8rem .7rem 3.1rem;background:var(--lv-panel);border:1px solid var(--lv-linea);border-radius:10px}
+.pasos li::before{counter-increment:paso;content:counter(paso);position:absolute;left:.65rem;top:.7rem;width:1.7rem;height:1.7rem;border-radius:50%;background:#C4A15A;color:#1A160E;font-weight:700;font-size:.9rem;display:flex;align-items:center;justify-content:center}
+.figura-svg{background:#161512;border:1px solid var(--lv-linea);border-radius:10px;padding:.5rem;margin:.5rem 0 1.1rem}
+.figura-svg svg{width:100%;height:auto;display:block}
+.ej{margin:0 0 1rem;padding:.85rem .95rem;background:var(--lv-panel);border:1px solid var(--lv-linea);border-left:3px solid #C4A15A;border-radius:10px}
+.ej h3{margin:0 0 .35rem;font-family:var(--lv-serif);font-size:1.05rem;color:var(--lv-titulo)}
+.editor,textarea.editor{width:100%;min-height:5.5rem;font-family:ui-monospace,monospace;font-size:.95rem;line-height:1.45;padding:.55rem .65rem;border:1px solid rgba(196,161,90,.45);border-radius:8px;background:#161512;color:#E6E1D6;resize:vertical}
+.lienzo{display:block;width:100%;height:280px;background:#161512;border:1px solid #C4A15A;border-radius:8px;touch-action:none;cursor:crosshair}
+.fila{display:flex;flex-wrap:wrap;gap:.4rem;margin:.45rem 0}
+.boton{font:inherit;font-weight:700;font-size:.85rem;padding:.4rem .8rem;border-radius:999px;border:1px solid #C4A15A;background:transparent;color:#E6E1D6;cursor:pointer}
+.porque{margin-top:.55rem;padding:.65rem .75rem;background:#1a2218;border-radius:8px;color:#E6E1D6}
+.dato{font-size:.95rem;color:var(--lv-suave)}
+.glosa{display:block;font-size:.9rem;color:#9A9488;margin:.25rem 0 .5rem;line-height:1.4}
+.lab-box{margin:1rem 0;padding:.85rem;border:1px dashed rgba(196,161,90,.5);border-radius:10px;background:#141210}
+.lab-box iframe{width:100%;min-height:320px;border:1px solid #C4A15A;border-radius:8px;background:#0E0E0C}
+table.datos{width:100%;border-collapse:collapse;margin:.45rem 0 1rem;font-size:.98rem}
+table.datos th,table.datos td{border:1px solid var(--lv-linea);padding:.4rem .55rem;text-align:left}
+table.datos th{background:#161512;color:#C4A15A}
+</style>
+<script src="../leccion-shell-nav.js" defer></script>
+</head>
+<body class="leccion-shell" data-maestro-json="maestro-18.json">
+<div class="leccion-wrap">
+<nav class="leccion-barra" aria-label="Navegación de lección" data-actual="18" data-total="38">
+  <div class="leccion-progreso" role="status">
+    <span class="progreso-texto"><strong>18</strong> de <strong>38</strong></span>
+    <div class="progreso-pista" aria-hidden="true"><div class="progreso-lleno" style="width:47.37%"></div></div>
+  </div>
+  <div class="leccion-atajos">
+    <a class="atajo atajo-calc" href="../../../../modulos/calculadora.html" title="Calculadora offline">Calculadora</a>
+    <a class="atajo atajo-prev" href="leccion-17-eulerianos-hamiltonianos-coloracion.html">← Anterior</a>
+    <a class="atajo atajo-next" href="leccion-19-patrones-y-generalizacion.html">Siguiente →</a>
+  </div>
+</nav>
+<header class="leccion-top">
+  <a class="leccion-marca" href="../../../../index.html">Les <span>vencimos</span></a>
+  <p class="leccion-meta-top">Matemáticas Generales · 1º Bachillerato</p>
+</header>
+<header class="bloque-titulo">
+  <span class="eyebrow">Lección 18 · C · Espacial</span>
+  <h1 class="titulo-leccion">Camino <em>mínimo</em></h1>
+  <p class="meta-leccion">1º Bach Matemáticas Generales · CyL Decreto 40/2022 · C.1 Problema del camino mínimo</p>
+</header>
+<aside class="bloque-curiosidad" aria-label="Para situarte">
+  <p class="etiqueta-bloque">Para situarte</p>
+  <h2 class="titulo-curiosidad">Seis kilómetros, no siete</h2>
+  <p class="texto-curiosidad">En el grafo ponderado, A-B pesa 4, A-C pesa 2, C-B pesa 1, B-D pesa 3 y C-D pesa 5. El camino más corto de A a D no es el de menos aristas: es A-C-B-D, con longitud 6. Los otros dos caminos conocidos valen 7.</p>
+</aside>
+<section class="bloque-cuerpo">
+  <h2>Objetivos</h2>
+  <ul><li>Sumar los pesos de un camino, no contar aristas.</li><li>Comparar todos los caminos simples de A a D.</li><li>Elegir el mínimo y explicar por qué un atajo visual puede ser más largo.</li></ul>
+</section>
+<section class="bloque-cuerpo">
+<h2>El peso manda, no el número de saltos</h2>
+<p>En un grafo ponderado cada arista lleva un número: minutos, euros o kilómetros. La longitud de un camino es la suma de esos pesos. El camino mínimo entre dos vértices es el de menor suma. No tiene por qué ser el que tiene menos aristas.</p>
+<p><span class="glosa">peso = número de la arista · longitud de un camino = suma de pesos · camino simple = no repite vértices · en el dibujo el trazo ámbar es A-C-B-D y el gris son las aristas que no entran en ese mínimo</span></p>
+<p>De A a D hay tres caminos simples. A-B-D suma 4+3 = 7. A-C-D suma 2+5 = 7. A-C-B-D suma 2+1+3 = 6. El tercero usa tres aristas y aun así es más corto que los de dos, porque C-B pesa solo 1 y evita la arista C-D, que pesa 5.</p>
+<p>No hace falta un algoritmo con nombre para un grafo de cuatro vértices: se enumeran los caminos simples y se comparan. En un grafo grande esa enumeración se sustituye por un método ordenado (como el de Dijkstra si los pesos son positivos). La idea no cambia: no te detienes en el primer camino que llega.</p>
+<table class="datos"><thead><tr><th>Camino</th><th>Suma</th><th>¿Mínimo?</th></tr></thead>
+<tbody>
+<tr><td>A-B-D</td><td>4+3 = 7</td><td>no</td></tr>
+<tr><td>A-C-D</td><td>2+5 = 7</td><td>no</td></tr>
+<tr><td>A-C-B-D</td><td>2+1+3 = 6</td><td>sí</td></tr>
+</tbody></table>
+<h2>Gráfico del ejemplo</h2>
+<p class="dato">La figura no es decoración: los trazos corresponden a los números del ejemplo 1.</p>
+<div class="figura-svg"><svg viewBox="0 0 720 320" role="img" aria-label="Grafo ponderado con el camino mínimo A-C-B-D de longitud 6 resaltado"><title>Grafo ponderado con el camino mínimo A-C-B-D de longitud 6 resaltado</title><rect width="720" height="320" fill="#161512"/>
+<line x1="80" y1="160" x2="260" y2="70" stroke="#9A9488" stroke-width="2"/>
+<line x1="80" y1="160" x2="260" y2="250" stroke="#C4A15A" stroke-width="3"/>
+<line x1="260" y1="250" x2="260" y2="70" stroke="#C4A15A" stroke-width="3"/>
+<line x1="260" y1="70" x2="520" y2="160" stroke="#C4A15A" stroke-width="3"/>
+<line x1="260" y1="250" x2="520" y2="160" stroke="#9A9488" stroke-width="2"/>
+<circle cx="80" cy="160" r="18" fill="#1C1A16" stroke="#E6E1D6" stroke-width="2"/>
+<circle cx="260" cy="70" r="18" fill="#1C1A16" stroke="#E6E1D6" stroke-width="2"/>
+<circle cx="260" cy="250" r="18" fill="#1C1A16" stroke="#E6E1D6" stroke-width="2"/>
+<circle cx="520" cy="160" r="18" fill="#1C1A16" stroke="#C4A15A" stroke-width="3"/>
+<text x="80" y="165" text-anchor="middle" fill="#E6E1D6">A</text>
+<text x="260" y="75" text-anchor="middle" fill="#E6E1D6">B</text>
+<text x="260" y="255" text-anchor="middle" fill="#E6E1D6">C</text>
+<text x="520" y="165" text-anchor="middle" fill="#E6E1D6">D</text>
+<text x="150" y="100" fill="#9A9488" font-size="14">4</text>
+<text x="140" y="220" fill="#C4A15A" font-size="14">2</text>
+<text x="268" y="160" fill="#C4A15A" font-size="14">1</text>
+<text x="380" y="100" fill="#C4A15A" font-size="14">3</text>
+<text x="400" y="230" fill="#9A9488" font-size="14">5</text>
+<text x="80" y="30" fill="#E6E1D6" font-size="15">mínimo A-C-B-D = 2+1+3 = 6</text>
+</svg></div>
+<h2>Ejemplo resuelto 1 — Las tres sumas</h2><p>Con los pesos del gráfico, calcula la longitud de A-B-D, de A-C-D y de A-C-B-D.</p><ol class="pasos">
+<li>A-B-D usa las aristas de peso 4 y 3. Longitud 4+3 = 7.<span class="glosa">Glosa: no cuentes «dos aristas» como longitud 2; 2 sería un recuento, no una suma de pesos.</span></li>
+<li>A-C-D usa 2 y 5. Longitud 2+5 = 7. Llega en dos saltos, igual que el anterior, y cuesta lo mismo.<span class="glosa">Glosa: empate en 7 no significa que sean el mismo camino; solo que la suma coincide.</span></li>
+<li>A-C-B-D usa 2, 1 y 3. Longitud 2+1+3 = 6. Es el trazo ámbar del SVG.<span class="glosa">Glosa: tres aristas pueden sumar menos que dos si una de las cortas evita un peso grande.</span></li>
+<li>El mínimo de 7, 7 y 6 es 6. Cualquier otro recorrido que repita un vértice solo añadiría peso positivo y no mejoraría.<span class="glosa">Glosa: con pesos positivos, un rodeo no acorta. Por eso basta mirar caminos simples.</span></li>
+</ol>
+<h2>Ejemplo resuelto 2 — Por qué C-D no es un atajo</h2><p>Explica, con la resta de los números, por qué ir de C a D directo es peor que C-B-D.</p><ol class="pasos">
+<li>De C a D directo: peso 5.<span class="glosa">Glosa: es la arista gris inferior derecha.</span></li>
+<li>De C a D por B: C-B pesa 1 y B-D pesa 3, suma 4.<span class="glosa">Glosa: 1+3 = 4, que ya es menor que 5 antes de mirar el resto del viaje.</span></li>
+<li>Diferencia: 5 − 4 = 1. El rodeo por B ahorra 1 respecto del directo.<span class="glosa">Glosa: por eso el camino completo que usa C-D queda en 7 y el que usa C-B-D queda en 6.</span></li>
+<li>Conclusión local: entre C y D, con estos pesos, el mínimo no es la arista directa. Hay que comprobar los desvíos.<span class="glosa">Glosa: «directo» en el dibujo no es «mínimo» en la suma.</span></li>
+</ol>
+<h2>Ejemplo resuelto 3 — Cambia un peso</h2><p>Si el peso de C-B pasa de 1 a 4 y el resto no cambia, ¿cuál es el nuevo mínimo de A a D?</p><ol class="pasos">
+<li>A-B-D no usa C-B: sigue en 4+3 = 7.<span class="glosa">Glosa: un peso que no está en el camino no lo altera.</span></li>
+<li>A-C-D tampoco usa C-B: sigue en 2+5 = 7.<span class="glosa">Glosa: el empate anterior se mantiene.</span></li>
+<li>A-C-B-D pasa a 2+4+3 = 9, que ya es peor que 7.<span class="glosa">Glosa: el antiguo mínimo se rompe porque su arista barata ha dejado de serlo.</span></li>
+<li>El nuevo mínimo es 7, compartido por A-B-D y A-C-D. Ya no hay un único camino mínimo.<span class="glosa">Glosa: di los dos. Quedarte con el ámbar del gráfico, sin rehacer la suma, es el error.</span></li>
+</ol>
+<h2>Ejercicios</h2>
+<p class="dato">Escribe el razonamiento completo en el editor, no solo la cifra. Si el enunciado pide figura, dibújala en el lienzo de esta misma página.</p>
+<article class="ej"><h3>1. Un cuarto camino que no ayuda</h3><p>Alguien propone A-B-C-D. Con los pesos originales, ¿qué longitud tiene y por qué no mejora el 6?</p><label for="e18a">Tu resolución</label><textarea class="editor" id="e18a" placeholder="Escribe aquí el razonamiento completo…"></textarea><details class="porque"><summary>Por qué (abre cuando hayas escrito)</summary><p>A-B pesa 4, B-C es la misma arista que C-B y pesa 1, C-D pesa 5. Suma 4+1+5 = 10. Es mayor que 6 y también mayor que 7. El paso es sumar las tres aristas de verdad, no reutilizar el 6 del camino ámbar. Además A-B-C-D baja a C para luego pagar el 5 de C-D, justo la arista cara que el mínimo evitaba. Con pesos positivos, meter un vértice de más solo compensa si sustituye una arista cara por varias baratas; aquí no ocurre.</p></details></article>
+<article class="ej"><h3>2. Menos aristas no basta</h3><p>Sin calcular, ¿puedes afirmar que A-C-D es mínimo porque solo tiene dos aristas? Justifica con los números.</p><label for="e18b">Tu resolución</label><textarea class="editor" id="e18b" placeholder="Escribe aquí el razonamiento completo…"></textarea><details class="porque"><summary>Por qué (abre cuando hayas escrito)</summary><p>No. A-C-D suma 7 y A-C-B-D suma 6 teniendo una arista más. El criterio «menos aristas» sería válido si todos los pesos fueran 1. Aquí no lo son: C-D pesa 5 ella sola, más que C-B y B-D juntas (1+3 = 4). El paso es sustituir el recuento de aristas por la suma de pesos antes de declarar un mínimo. El gráfico lo separa con el color: el camino de tres tramos ámbar es el corto.</p></details></article>
+<article class="ej"><h3>3. Peso nuevo en A-B</h3><p>El peso de A-B baja a 1 y los demás siguen igual. Recalcula el mínimo de A a D.</p><label for="e18c">Tu resolución</label><textarea class="editor" id="e18c" placeholder="Escribe aquí el razonamiento completo…"></textarea><details class="porque"><summary>Por qué (abre cuando hayas escrito)</summary><p>A-B-D pasa a 1+3 = 4. A-C-D sigue en 7. A-C-B-D sigue en 6. El mínimo nuevo es 4, por A-B-D. El paso es no conservar el 6 como respuesta solo porque antes ganaba: ha cambiado una arista del camino que iba segundo. Comprueba que 4 es menor que 6 y que 7. El laboratorio sirve para ensayar el caso original; este cambio lo haces a mano y anotas las tres sumas otra vez.</p></details></article>
+<h2>Dibuja en el lienzo</h2>
+<p>Reproduce a mano el gráfico del ejemplo: ejes o nodos, los datos numéricos y una frase con la conclusión. El botón borra el lienzo sin salir de la lección.</p>
+<canvas id="lienzo18" class="lienzo" width="900" height="280"></canvas><div class="fila"><button type="button" class="boton" data-clear="lienzo18">Borrar lienzo</button></div>
+</section>
+<div class="lab-box"><p><strong>Laboratorio</strong> — Tres caminos y sus longitudes. Si el marco no carga, abre el hermano: <a href="l18-camino-minimo.html">l18-camino-minimo.html</a>.</p><iframe src="l18-camino-minimo.html" title="Tres caminos y sus longitudes" loading="lazy"></iframe></div>
+<section class="bloque-cuerpo">
+  <h2>Comprueba</h2>
+  <p class="dato">Tres preguntas. Responde mentalmente antes de abrir el porqué.</p>
+  <details class="porque"><summary>¿Cuál es la longitud mínima de A a D en el gráfico?</summary><p>6, por A-C-B-D. Por qué: las otras dos sumas simples valen 7 (4+3 y 2+5). 2+1+3 = 6 es la menor. No es el camino con menos aristas: tiene tres tramos y aun así gana, porque los pesos no valen 1.</p></details>
+<details class="porque"><summary>¿Por qué C-D, que se ve directa, no forma parte del mínimo?</summary><p>C-D no entra en el mínimo porque pesa 5, y el rodeo C-B-D pesa 1 + 3 = 4. El paso es comparar la arista directa con la suma del camino alternativo antes de aceptarla: 5 es mayor que 4, así que la directa no acorta. Metida en el viaje desde A, que ya cuesta 2 hasta C, da 2 + 5 = 7, un kilómetro más que el ámbar A-C-B-D, que suma 2 + 1 + 3 = 6.</p></details>
+<details class="porque"><summary>Si todos los pesos fueran 1, ¿cambiaría el criterio?</summary><p>Sí: entonces la longitud coincidiría con el número de aristas y ganaría un camino de dos aristas. Por qué: hoy los pesos no son iguales, así que la suma y el recuento ordenan los caminos de forma distinta. El 6 actual depende de que C-B pese 1.</p></details>
+</section>
+<section class="bloque-reto">
+  <span class="etiqueta-reto">Reto Profesor</span>
+  <h2 class="titulo-reto">Otro destino</h2>
+  <p>En el lienzo copia el grafo con sus pesos y marca el camino mínimo de A a D. Escribe las tres sumas al lado.</p>
+  <p class="reto-id">reto_id: bach1-mates-gen-L18</p>
+</section>
+<footer class="leccion-pie"><strong>Les vencimos</strong> · L18 de 38 · Matemáticas Generales · staging · file:// · sin publicar</footer>
+</div>
+<script type="application/json" data-maestro="guion">{"curso": "bach1-mates-gen", "leccion": 18, "titulo": "Camino mínimo", "url": "leccion-18-camino-minimo.html", "musica": false, "pasos": [{"id": "abrir", "dicho": "El ámbar del SVG es A-C-B-D y suma 6. Las aristas grises son las que quedan fuera de ese mínimo.", "hacer": "Leer en voz alta el apartado Para situarte y los objetivos."}, {"id": "figura", "dicho": "A-B-D = 7 y A-C-D = 7. Ninguno bate al 6.", "hacer": "Mirar el SVG y decir qué dato numérico marca cada trazo."}, {"id": "ej1", "dicho": "Ejemplo 1: se comparan las tres sumas, no el número de saltos.", "hacer": "Rehacer el ejemplo 1, glosa a glosa, sin mirar el resultado final."}, {"id": "ej2", "dicho": "Ejemplo 2: C-D pesa 5 y C-B-D pesa 4, por eso el directo no es atajo.", "hacer": "Rehacer el ejemplo 2 y contrastarlo con el 1."}, {"id": "ej3", "dicho": "Ejemplo 3: si C-B pasa a valer 4, el mínimo sube a 7 y hay empate.", "hacer": "Rehacer el ejemplo 3 y anotar la comprobación."}, {"id": "practica", "dicho": "En el laboratorio resalta cada camino antes de creerte el color.", "hacer": "Escribir el razonamiento de al menos dos ejercicios y usar el lienzo."}, {"id": "cierre", "dicho": "Con pesos positivos no mejores un camino repitiendo vértices.", "hacer": "Contestar Comprueba antes de abrir y dejar el reto por escrito."}]}</script>
+<script>(function(){function liga(c){var ctx=c.getContext('2d');function fondo(){ctx.fillStyle='#161512';ctx.fillRect(0,0,c.width,c.height);ctx.strokeStyle='#C4A15A';ctx.strokeRect(.5,.5,c.width-1,c.height-1);}function fit(){var r=c.getBoundingClientRect();var w=Math.max(320,Math.floor(r.width));if(c.width!==w){c.width=w;c.height=280;fondo();}}var dib=false,last=null;function pos(ev){var r=c.getBoundingClientRect();var s=ev.touches?ev.touches[0]:ev;return{x:(s.clientX-r.left)*c.width/r.width,y:(s.clientY-r.top)*c.height/r.height};}c.addEventListener('pointerdown',function(ev){dib=true;last=pos(ev);ev.preventDefault();});c.addEventListener('pointermove',function(ev){if(!dib)return;var p=pos(ev);ctx.strokeStyle='#E6E1D6';ctx.lineWidth=2.2;ctx.lineCap='round';ctx.beginPath();ctx.moveTo(last.x,last.y);ctx.lineTo(p.x,p.y);ctx.stroke();last=p;ev.preventDefault();});function up(){dib=false;}c.addEventListener('pointerup',up);c.addEventListener('pointerleave',up);var b=document.querySelector('[data-clear="'+c.id+'"]');if(b)b.addEventListener('click',fondo);fit();window.addEventListener('resize',fit);}document.querySelectorAll('canvas.lienzo').forEach(liga);})();</script>
+</body>
+</html>

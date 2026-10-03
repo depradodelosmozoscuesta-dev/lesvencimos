@@ -20,7 +20,7 @@ public final class PackExtractor {
     public static final String CONTENT_DIR = "completo";
     public static final String MARKER = ".lv-extracted";
     public static final String EXPECTED_VERSION = BuildConfig.FLACO_MODE
-            ? "v20261001k6" : "v20261001embed-k6";
+            ? "v20261001k6" : "v20261003embed";
 
     public interface Progress {
         void onProgress(int percent, String message);
@@ -58,7 +58,7 @@ public final class PackExtractor {
         }
         if (progress != null) progress.onProgress(1, "Preparando contenido…");
 
-        long totalHint = 34206487L;
+        long totalHint = 80000000L;
         long written = 0;
         byte[] buf = new byte[64 * 1024];
         try (InputStream raw = ctx.getAssets().open(ASSET_ZIP);
@@ -107,6 +107,61 @@ public final class PackExtractor {
         writeSmall(new File(root, MARKER), EXPECTED_VERSION + "\n");
         if (progress != null) progress.onProgress(100, "Contenido listo");
         Log.i(TAG, "Extracted to " + root.getAbsolutePath());
+    }
+
+    /**
+     * Resuelve /modulos/&lt;rel&gt; cuando la ruta directa no cae en modulos/ ni modules/.
+     * Solo devuelve un fichero dentro de root (sin ..).
+     */
+    public static File resolveModuloFile(File root, String rel) {
+        if (root == null || rel == null) return null;
+        String r = rel;
+        try {
+            r = java.net.URLDecoder.decode(r, java.nio.charset.StandardCharsets.UTF_8.name());
+        } catch (Exception ignored) {
+        }
+        while (r.startsWith("/")) r = r.substring(1);
+        if (r.isEmpty() || r.contains("..") || r.indexOf('\\') >= 0) return null;
+        String[] bases = new String[] {
+                "modulos/" + r,
+                "modules/" + r,
+                r
+        };
+        for (String base : bases) {
+            File hit = underRoot(root, base);
+            if (hit != null) return hit;
+            if (!base.endsWith(".html") && !base.endsWith(".htm")) {
+                File html = underRoot(root, base + ".html");
+                if (html != null) return html;
+            }
+        }
+        return null;
+    }
+
+    /** Idempotente. El ZIP ya trae modulos/ plano; no reescribe la estantería ni el TTS. */
+    public static void ensureModulosIndex(Context ctx) {
+        File mod = new File(contentRoot(ctx), "modulos");
+        if (!mod.isDirectory()) {
+            Log.w(TAG, "ensureModulosIndex: falta modulos/");
+            return;
+        }
+        File[] html = mod.listFiles((dir, name) -> name.endsWith(".html"));
+        int n = html == null ? 0 : html.length;
+        Log.i(TAG, "ensureModulosIndex: " + n + " html en modulos/");
+    }
+
+    private static File underRoot(File root, String rel) {
+        try {
+            File target = new File(root, rel);
+            String rootCanon = root.getCanonicalPath();
+            String fileCanon = target.getCanonicalPath();
+            if (!fileCanon.equals(rootCanon) && !fileCanon.startsWith(rootCanon + File.separator)) {
+                return null;
+            }
+            return target.isFile() ? target : null;
+        } catch (Exception e) {
+            return null;
+        }
     }
 
     private static void deleteRecursive(File f) {

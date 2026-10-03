@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<meta name="theme-color" content="#0E0E0C"/>
+<title>Lección 31 · Coeficientes y predicción · Les vencimos</title>
+<link rel="icon" href="../icons/favicon.svg" type="image/svg+xml"/>
+<link rel="manifest" href="../manifest.webmanifest"/>
+<link rel="stylesheet" href="../leccion-shell.css"/>
+<style>
+.pasos{list-style:none;margin:0 0 1rem;padding:0;counter-reset:paso}
+.pasos li{position:relative;margin:0 0 .7rem;padding:.7rem .8rem .7rem 3.1rem;background:var(--lv-panel);border:1px solid var(--lv-linea);border-radius:10px}
+.pasos li::before{counter-increment:paso;content:counter(paso);position:absolute;left:.65rem;top:.7rem;width:1.7rem;height:1.7rem;border-radius:50%;background:#C4A15A;color:#1A160E;font-weight:700;font-size:.9rem;display:flex;align-items:center;justify-content:center}
+.figura-svg{background:#161512;border:1px solid var(--lv-linea);border-radius:10px;padding:.5rem;margin:.5rem 0 1.1rem}
+.figura-svg svg{width:100%;height:auto;display:block}
+.ej{margin:0 0 1rem;padding:.85rem .95rem;background:var(--lv-panel);border:1px solid var(--lv-linea);border-left:3px solid #C4A15A;border-radius:10px}
+.ej h3{margin:0 0 .35rem;font-family:var(--lv-serif);font-size:1.05rem;color:var(--lv-titulo)}
+.editor,textarea.editor{width:100%;min-height:5.5rem;font-family:ui-monospace,monospace;font-size:.95rem;line-height:1.45;padding:.55rem .65rem;border:1px solid rgba(196,161,90,.45);border-radius:8px;background:#161512;color:#E6E1D6;resize:vertical}
+.lienzo{display:block;width:100%;height:280px;background:#161512;border:1px solid #C4A15A;border-radius:8px;touch-action:none;cursor:crosshair}
+.fila{display:flex;flex-wrap:wrap;gap:.4rem;margin:.45rem 0}
+.boton{font:inherit;font-weight:700;font-size:.85rem;padding:.4rem .8rem;border-radius:999px;border:1px solid #C4A15A;background:transparent;color:#E6E1D6;cursor:pointer}
+.porque{margin-top:.55rem;padding:.65rem .75rem;background:#1a2218;border-radius:8px;color:#E6E1D6}
+.dato{font-size:.95rem;color:var(--lv-suave)}
+.glosa{display:block;font-size:.9rem;color:#9A9488;margin:.25rem 0 .5rem;line-height:1.4}
+.lab-box{margin:1rem 0;padding:.85rem;border:1px dashed rgba(196,161,90,.5);border-radius:10px;background:#141210}
+.lab-box iframe{width:100%;min-height:320px;border:1px solid #C4A15A;border-radius:8px;background:#0E0E0C}
+table.datos{width:100%;border-collapse:collapse;margin:.45rem 0 1rem;font-size:.98rem}
+table.datos th,table.datos td{border:1px solid var(--lv-linea);padding:.4rem .55rem;text-align:left}
+table.datos th{background:#161512;color:#C4A15A}
+</style>
+<script src="../leccion-shell-nav.js" defer></script>
+</head>
+<body class="leccion-shell" data-maestro-json="maestro-31.json">
+<div class="leccion-wrap">
+<nav class="leccion-barra" aria-label="Navegación de lección" data-actual="31" data-total="38">
+  <div class="leccion-progreso" role="status">
+    <span class="progreso-texto"><strong>31</strong> de <strong>38</strong></span>
+    <div class="progreso-pista" aria-hidden="true"><div class="progreso-lleno" style="width:81.58%"></div></div>
+  </div>
+  <div class="leccion-atajos">
+    <a class="atajo atajo-calc" href="../../../../modulos/calculadora.html" title="Calculadora offline">Calculadora</a>
+    <a class="atajo atajo-prev" href="leccion-30-regresion-correlacion-causalidad.html">← Anterior</a>
+    <a class="atajo atajo-next" href="leccion-32-probabilidad-compuesta-condicionada.html">Siguiente →</a>
+  </div>
+</nav>
+<header class="leccion-top">
+  <a class="leccion-marca" href="../../../../index.html">Les <span>vencimos</span></a>
+  <p class="leccion-meta-top">Matemáticas Generales · 1º Bachillerato</p>
+</header>
+<header class="bloque-titulo">
+  <span class="eyebrow">Lección 31 · E · Estocástico</span>
+  <h1 class="titulo-leccion">Coeficientes y <em>predicción</em></h1>
+  <p class="meta-leccion">1º Bach Matemáticas Generales · CyL Decreto 40/2022 · E.1 r, R², residuo y fiabilidad de la predicción</p>
+</header>
+<aside class="bloque-curiosidad" aria-label="Para situarte">
+  <p class="etiqueta-bloque">Para situarte</p>
+  <h2 class="titulo-curiosidad">Lo que la recta no acierta también se mide</h2>
+  <p class="texto-curiosidad">Seguimos con las horas y las notas de la lección anterior: ŷ = 0,8 + 1,4x. En x = 2 la recta predice 3,6 y la nota real es 4, así que el residuo vertical es +0,4. R² vale 0,98. Predecir en x = 6 ya es salirse de los datos.</p>
+</aside>
+<section class="bloque-cuerpo">
+  <h2>Objetivos</h2>
+  <ul><li>Calcular un residuo como valor observado menos predicción, con su signo.</li><li>Interpretar R² como fracción de la suma de cuadrados, no como probabilidad de acertar.</li><li>Distinguir una predicción dentro del rango de una extrapolación.</li></ul>
+</section>
+<section class="bloque-cuerpo">
+<h2>Residuo, R² y el borde de los datos</h2>
+<p>La pendiente dice cuánto sube la recta. El residuo dice cuánto falla en un punto concreto: es vertical, porque la regresión minimiza errores en y, no distancias perpendiculares a la recta. R² dice qué parte de la variación de las notas queda recogida por esa recta. Ninguno de los tres convierte la predicción en un hecho cuando x se sale del intervalo observado.</p>
+<p><span class="glosa">ŷ = a + bx · residuo e = y − ŷ · signo positivo = el punto queda por encima de la recta · SCres = suma de e² · SCtot = Syy · R² = 1 − SCres/SCtot = r² en el ajuste lineal simple</span></p>
+<p>Con estos cinco puntos los residuos son −0,2, +0,4, 0, −0,4 y +0,2. Suman cero, como tiene que ocurrir en una recta con ordenada calculada a partir de las medias. Sus cuadrados suman 0,04 + 0,16 + 0 + 0,16 + 0,04 = 0,40. La suma de cuadrados de las notas respecto de su media es Syy = 20. Entonces R² = 1 − 0,40/20 = 0,98. También 196/200 = 0,98, porque R² = Sxy² / (Sxx Syy). El 2 % que falta es exactamente esos residuos: no es «un 2 % de probabilidad de equivocarse».</p>
+<p>Dentro del intervalo, x = 3,5 da ŷ = 0,8 + 1,4·3,5 = 5,7, una interpolación. En x = 6, fuera de 1 a 5, la fórmula da 9,2, pero ningún alumno de la muestra estudió 6 horas y la nota no puede leerse como si el modelo siguiera igual de fiable. Extrapolación es usar la recta donde no la hemos visto funcionar.</p>
+<h2>Gráfico del ejemplo</h2>
+<p class="dato">La figura no es decoración: los trazos corresponden a los números del ejemplo 1.</p>
+<div class="figura-svg"><svg viewBox="0 0 720 320" role="img" aria-label="Recta 0,8 + 1,4x, puntos del ejemplo y residuo vertical +0,4 en x = 2"><title>Recta 0,8 + 1,4x, puntos del ejemplo y residuo vertical +0,4 en x = 2</title><rect width="720" height="320" fill="#161512"/>
+<line x1="70" y1="280" x2="660" y2="280" stroke="#9A9488" stroke-width="1.6"/>
+<line x1="80" y1="290" x2="80" y2="30" stroke="#9A9488" stroke-width="1.6"/>
+<path d="M 170.0,227.2 L 215.0,210.4 L 260.0,193.6 L 305.0,176.8 L 350.0,160.0 L 395.0,143.2 L 440.0,126.4 L 485.0,109.6 L 530.0,92.8" fill="none" stroke="#C4A15A" stroke-width="2.5"/>
+<line x1="260" y1="194" x2="260" y2="184" stroke="#8F9A72" stroke-width="3"/>
+<circle cx="260" cy="184" r="6" fill="#8F9A72"/>
+<circle cx="260" cy="194" r="5" fill="none" stroke="#C4A15A" stroke-width="2"/>
+<circle cx="170" cy="232" r="6" fill="#E6E1D6"/><circle cx="260" cy="184" r="6" fill="#E6E1D6"/><circle cx="350" cy="160" r="6" fill="#E6E1D6"/><circle cx="440" cy="136" r="6" fill="#E6E1D6"/><circle cx="530" cy="88" r="6" fill="#E6E1D6"/>
+<text x="210" y="189" fill="#8F9A72" font-size="13">residuo +0,4</text>
+<text x="100" y="24" fill="#C4A15A" font-size="14">mismos datos · segmento verde = nota real menos predicción en x = 2</text>
+</svg></div>
+<h2>Ejemplo resuelto 1 — El residuo de dos horas</h2><p>Para el alumno de 2 horas y nota 4, calcula la predicción y el residuo. Di qué significa el signo.</p><ol class="pasos">
+<li>Predicción: ŷ = 0,8 + 1,4 · 2 = 0,8 + 2,8 = 3,6. Es el punto de la recta, no la nota real.<span class="glosa">Glosa: 1,4 · 2 se calcula antes de sumar la ordenada 0,8.</span></li>
+<li>Residuo: e = 4 − 3,6 = +0,4. Primero el observado, después la predicción. El orden cambia el signo.<span class="glosa">Glosa: si se resta al revés sale −0,4 y se invierte quién está encima.</span></li>
+<li>El signo positivo significa que la nota real queda 0,4 puntos por encima de la recta. En la figura es el segmento verde.<span class="glosa">Glosa: el segmento es vertical, a x constante. No es la distancia perpendicular a la recta.</span></li>
+<li>No es un error de redondeo ni un fallo del alumno. Es la parte de la nota que estas cinco x no recogen con una recta.<span class="glosa">Glosa: residuo pequeño no significa causa. Solo significa que el punto está cerca de la recta.</span></li>
+</ol>
+<h2>Ejemplo resuelto 2 — De los residuos a R²</h2><p>Comprueba que los cinco residuos cuadrados suman 0,40 y que R² = 0,98. Explica qué no significa ese 0,98.</p><ol class="pasos">
+<li>Residuos: en x = 1, 2 − 2,2 = −0,2; en x = 2, +0,4; en x = 3, 5 − 5 = 0; en x = 4, 6 − 6,4 = −0,4; en x = 5, 8 − 7,8 = +0,2.<span class="glosa">Glosa: 0,8 + 1,4·4 = 6,4 y 0,8 + 1,4·5 = 7,8. Conviene escribir ŷ antes de restar.</span></li>
+<li>Cuadrados: 0,04 + 0,16 + 0 + 0,16 + 0,04 = 0,40. Syy = 20. R² = 1 − 0,40/20 = 0,98.<span class="glosa">Glosa: se dividen sumas de cuadrados, no los residuos crudos. El signo desaparece al cuadrar.</span></li>
+<li>Atajo: Sxy² / (Sxx Syy) = 196 / 200 = 0,98. Las dos cuentas tienen que coincidir en la recta simple.<span class="glosa">Glosa: 14² = 196, Sxx = 10 y Syy = 20. Si no coincidiera, habría un residuo mal restado.</span></li>
+<li>0,98 no es la probabilidad de que la próxima nota sea la predicha. Es la fracción de la variación de y que la recta acompaña. Queda un 2 % en los residuos.<span class="glosa">Glosa: una predicción concreta sigue teniendo residuo. R² no lo anula en cada persona.</span></li>
+</ol>
+<h2>Ejemplo resuelto 3 — Dentro y fuera del intervalo</h2><p>Predice la nota para 3,5 horas y para 6 horas. Di cuál de las dos es una extrapolación y por qué es menos de fiar.</p><ol class="pasos">
+<li>x = 3,5 está entre 1 y 5. ŷ = 0,8 + 1,4 · 3,5 = 0,8 + 4,9 = 5,7. Es interpolación.<span class="glosa">Glosa: 1,4 · 3,5 = 1,4 · 3 + 1,4 · 0,5 = 4,2 + 0,7 = 4,9.</span></li>
+<li>x = 6 está fuera. La misma fórmula da 0,8 + 1,4 · 6 = 0,8 + 8,4 = 9,2. La aritmética funciona; la garantía, no.<span class="glosa">Glosa: no hay ningún punto de la muestra a la derecha de x = 5. La recta allí es una hipótesis.</span></li>
+<li>La fiabilidad se apoya en haber visto la nube en esa zona. En 3,5 hay puntos a los dos lados. En 6 no hay ninguno.<span class="glosa">Glosa: R² = 0,98 describe el ajuste donde están los datos, no un permiso para alargar la recta.</span></li>
+<li>Además la nota del centro, si el máximo es 10, aún cabría 9,2, pero ese techo no lo ha informado la muestra. Extrapolación suma riesgo de forma y riesgo de contexto.<span class="glosa">Glosa: salirse del rango de x es el criterio. No hace falta que la predicción sea absurda para desconfiar.</span></li>
+</ol>
+<h2>Ejercicios</h2>
+<p class="dato">Escribe el razonamiento completo en el editor, no solo la cifra. Si el enunciado pide figura, dibújala en el lienzo de esta misma página.</p>
+<article class="ej"><h3>1. Residuo en cinco horas</h3><p>El alumno de 5 horas sacó un 8. Calcula ŷ y el residuo, y explica el signo con una frase.</p><label for="e31a">Tu resolución</label><textarea class="editor" id="e31a" placeholder="Escribe aquí el razonamiento completo…"></textarea><details class="porque"><summary>Por qué (abre cuando hayas escrito)</summary><p>El paso es evaluar la recta en ese x y restar después, en el orden observado menos predicción. ŷ = 0,8 + 1,4·5 = 7,8. El residuo es 8 − 7,8 = +0,2. El signo positivo dice que la nota quedó dos décimas por encima de la recta, no que la recta «se haya pasado». Si alguien calcula 7,8 − 8 = −0,2 y lo llama residuo del mismo convenio, ha cambiado el criterio y ya no podrá sumar los residuos de la muestra y obtener cero. El segmento es vertical: se compara la nota con la altura de la recta en la misma hora, no con el punto de otro alumno.</p></details></article>
+<article class="ej"><h3>2. Qué no es R²</h3><p>Un compañero dice: «R² = 0,98, así que hay un 98 % de probabilidad de acertar la nota». Corrige la frase usando SCres = 0,40 y SCtot = 20.</p><label for="e31b">Tu resolución</label><textarea class="editor" id="e31b" placeholder="Escribe aquí el razonamiento completo…"></textarea><details class="porque"><summary>Por qué (abre cuando hayas escrito)</summary><p>El paso es recordar que R² es un cociente de sumas de cuadrados, no una probabilidad sobre la próxima persona. 0,40/20 = 0,02 y 1 − 0,02 = 0,98: el 98 % de la suma de cuadrados de las notas, respecto de su media, queda recogido por la recta, y el 2 % restante es la suma de los residuos al cuadrado. Ningún alumno tiene probabilidad 0,98 de obtener exactamente ŷ, porque el residuo de varios de ellos no es cero: en x = 2 vale +0,4. La frase del compañero convierte una medida de ajuste global en una garantía individual. Se corrige diciendo «la recta acompaña el 98 % de la variación cuadrática de estas cinco notas».</p></details></article>
+<article class="ej"><h3>3. Una x nueva</h3><p>¿La predicción en x = 4,5 es más defendible que la predicción en x = 0? Calcula las dos y justifica la diferencia.</p><label for="e31c">Tu resolución</label><textarea class="editor" id="e31c" placeholder="Escribe aquí el razonamiento completo…"></textarea><details class="porque"><summary>Por qué (abre cuando hayas escrito)</summary><p>El paso es situar cada x respecto del intervalo observado, que va de 1 a 5, antes de fiarse del número. En x = 4,5, ŷ = 0,8 + 1,4·4,5 = 0,8 + 6,3 = 7,1, y 4,5 cae entre dos horas que sí están en la muestra: es interpolación. En x = 0, ŷ = 0,8, pero nadie de los cinco tiene 0 horas y la ordenada es solo el cruce de la recta con el eje, no una nota vista. Las dos cuentas usan la misma fórmula y no tienen la misma fiabilidad. R² alto no arregla la segunda: el coeficiente resume el tramo donde había puntos. Predecir en el borde interior es razonable; predecir en cero es extrapolación.</p></details></article>
+<h2>Dibuja en el lienzo</h2>
+<p>Reproduce a mano el gráfico del ejemplo: ejes o nodos, los datos numéricos y una frase con la conclusión. El botón borra el lienzo sin salir de la lección.</p>
+<canvas id="lienzo31" class="lienzo" width="900" height="280"></canvas><div class="fila"><button type="button" class="boton" data-clear="lienzo31">Borrar lienzo</button></div>
+</section>
+
+<section class="bloque-cuerpo">
+  <h2>Comprueba</h2>
+  <p class="dato">Tres preguntas. Responde mentalmente antes de abrir el porqué.</p>
+  <details class="porque"><summary>¿Cuánto vale el residuo del punto (2, 4) y por qué es positivo?</summary><p>Vale +0,4 porque 4 − 3,6 = 0,4. Por qué: la recta en x = 2 da 0,8 + 2,8 = 3,6 y el residuo resta esa predicción de la nota real. Positivo significa que el punto queda por encima de la recta, que es el segmento verde de la figura.</p></details>
+<details class="porque"><summary>¿Qué cuenta produce R² = 0,98?</summary><p>1 − 0,40/20, o bien 196/200. Por qué: los residuos cuadrados suman 0,40 y la variación de las notas suma 20. No es una probabilidad de acierto. El 0,02 que falta está en los residuos, no en una moneda que se lanza a cada predicción.</p></details>
+<details class="porque"><summary>¿Por qué ŷ = 9,2 en x = 6 es menos de fiar que ŷ = 5,7 en x = 3,5?</summary><p>Porque 6 está fuera del intervalo de horas de la muestra y 3,5 está dentro. Por qué: la recta se estimó con x desde 1 hasta 5. Interpolación se apoya en puntos vecinos; extrapolación supone que la misma pendiente sigue valiendo donde no hemos visto a nadie. R² = 0,98 no se traslada solo al tramo nuevo.</p></details>
+</section>
+<section class="bloque-reto">
+  <span class="etiqueta-reto">Reto Profesor</span>
+  <h2 class="titulo-reto">El segmento que falta</h2>
+  <p>Dibuja en el lienzo la recta y el punto (2, 4), marca el residuo vertical y escribe si tu x elegida para una predicción nueva cae dentro o fuera de 1 a 5.</p>
+  <p class="reto-id">reto_id: bach1-mates-gen-L31</p>
+</section>
+<footer class="leccion-pie"><strong>Les vencimos</strong> · L31 de 38 · Matemáticas Generales · staging · file:// · sin publicar</footer>
+</div>
+<script type="application/json" data-maestro="guion">{"curso": "bach1-mates-gen", "leccion": 31, "titulo": "Coeficientes y predicción", "url": "leccion-31-coeficientes-prediccion.html", "musica": false, "pasos": [{"id": "abrir", "dicho": "La recta es la de siempre: 0,8 + 1,4x. El segmento verde mide +0,4 en x = 2.", "hacer": "Leer en voz alta el apartado Para situarte y los objetivos."}, {"id": "figura", "dicho": "Ese residuo es nota real menos predicción, no al revés.", "hacer": "Mirar el SVG y decir qué dato numérico marca cada trazo."}, {"id": "ej1", "dicho": "Ejemplo 1: 3,6 de predicción y residuo positivo porque 4 está por encima.", "hacer": "Rehacer el ejemplo 1, glosa a glosa, sin mirar el resultado final."}, {"id": "ej2", "dicho": "Ejemplo 2: los cuadrados suman 0,40 y R² = 1 − 0,40/20 = 0,98.", "hacer": "Rehacer el ejemplo 2 y contrastarlo con el 1."}, {"id": "ej3", "dicho": "Ejemplo 3: 5,7 es interpolación; 9,2 en x = 6 es extrapolación.", "hacer": "Rehacer el ejemplo 3 y anotar la comprobación."}, {"id": "practica", "dicho": "R² alto no es la probabilidad de acertar la nota de una persona.", "hacer": "Escribir el razonamiento de al menos dos ejercicios y usar el lienzo."}, {"id": "cierre", "dicho": "Fuera del rango de x, la fórmula sigue y la garantía no.", "hacer": "Contestar Comprueba antes de abrir y dejar el reto por escrito."}]}</script>
+<script>(function(){function liga(c){var ctx=c.getContext('2d');function fondo(){ctx.fillStyle='#161512';ctx.fillRect(0,0,c.width,c.height);ctx.strokeStyle='#C4A15A';ctx.strokeRect(.5,.5,c.width-1,c.height-1);}function fit(){var r=c.getBoundingClientRect();var w=Math.max(320,Math.floor(r.width));if(c.width!==w){c.width=w;c.height=280;fondo();}}var dib=false,last=null;function pos(ev){var r=c.getBoundingClientRect();var s=ev.touches?ev.touches[0]:ev;return{x:(s.clientX-r.left)*c.width/r.width,y:(s.clientY-r.top)*c.height/r.height};}c.addEventListener('pointerdown',function(ev){dib=true;last=pos(ev);ev.preventDefault();});c.addEventListener('pointermove',function(ev){if(!dib)return;var p=pos(ev);ctx.strokeStyle='#E6E1D6';ctx.lineWidth=2.2;ctx.lineCap='round';ctx.beginPath();ctx.moveTo(last.x,last.y);ctx.lineTo(p.x,p.y);ctx.stroke();last=p;ev.preventDefault();});function up(){dib=false;}c.addEventListener('pointerup',up);c.addEventListener('pointerleave',up);var b=document.querySelector('[data-clear="'+c.id+'"]');if(b)b.addEventListener('click',fondo);fit();window.addEventListener('resize',fit);}document.querySelectorAll('canvas.lienzo').forEach(liga);})();</script>
+</body>
+</html>

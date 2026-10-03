@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<meta name="theme-color" content="#0E0E0C"/>
+<title>Lección 28 · Tablas bidimensionales y regresión · Les vencimos</title>
+<link rel="icon" href="../icons/favicon.svg" type="image/svg+xml"/>
+<link rel="stylesheet" href="../leccion-shell.css"/>
+<style>
+  .pasos{list-style:none;margin:0 0 1rem;padding:0;counter-reset:paso}
+  .pasos li{position:relative;margin:0 0 .7rem;padding:.7rem .8rem .7rem 3.1rem;background:var(--lv-panel);border:1px solid var(--lv-linea);border-radius:10px}
+  .pasos li::before{counter-increment:paso;content:counter(paso);position:absolute;left:.65rem;top:.7rem;width:1.7rem;height:1.7rem;border-radius:50%;background:#C4A15A;color:#1A160E;font-weight:700;font-size:.9rem;display:flex;align-items:center;justify-content:center}
+  .figura-svg{background:var(--lv-panel);border:1px solid var(--lv-linea);border-radius:10px;padding:.4rem;margin:.4rem 0 1rem}
+  .figura-svg svg{width:100%;height:auto;display:block}
+  .ej{margin:0 0 1rem;padding:.85rem .95rem;background:var(--lv-panel);border:1px solid var(--lv-linea);border-left:3px solid #C4A15A;border-radius:10px}
+  .ej h3{margin:0 0 .35rem;font-family:var(--lv-serif);font-size:1.05rem;color:var(--lv-titulo)}
+  .editor,textarea.editor{width:100%;min-height:5.2rem;font-family:ui-monospace,monospace;font-size:.95rem;line-height:1.4;padding:.55rem .65rem;border:1px solid rgba(196,161,90,.45);border-radius:8px;background:#161512;color:#E6E1D6;resize:vertical;box-sizing:border-box}
+  .lienzo{display:block;width:100%;max-width:640px;height:280px;background:#161512;border:1px solid #C4A15A;border-radius:8px;touch-action:none;cursor:crosshair}
+  .fila{display:flex;flex-wrap:wrap;gap:.4rem;margin:.45rem 0;align-items:center}
+  .boton{font:inherit;font-weight:700;font-size:.85rem;padding:.35rem .75rem;border-radius:999px;border:1px solid #C4A15A;background:transparent;color:#E6E1D6;cursor:pointer}
+  .porque{margin-top:.5rem;padding:.6rem .7rem;background:#1a2218;border-radius:8px;color:#E6E1D6}
+  .dato{font-size:.95rem;color:var(--lv-suave)}
+  table.datos{width:100%;border-collapse:collapse;margin:.4rem 0 1rem;font-size:.98rem}
+  table.datos th,table.datos td{border:1px solid var(--lv-linea);padding:.35rem .5rem;text-align:left}
+  table.datos th{background:#161512;color:#C4A15A}
+  .glosa{display:block;font-size:.9rem;color:#9A9488;margin:.15rem 0 .7rem}
+  .formula{display:block;margin:.35rem 0 .15rem;padding:.45rem .7rem;background:#161512;border-left:3px solid #C4A15A;overflow-x:auto}
+  input.campo{background:#161512;color:#E6E1D6;border:1px solid #C4A15A;border-radius:6px;padding:.3rem .45rem;width:5.5rem}
+  .salida{font-family:ui-monospace,monospace;color:#C4A15A}
+</style>
+<script src="../leccion-shell-nav.js" defer></script>
+</head>
+<body class="leccion-shell">
+<div class="leccion-wrap">
+<nav class="leccion-barra" aria-label="Navegación de lección" data-actual="28" data-total="33">
+  <div class="leccion-progreso" role="status">
+    <span class="progreso-texto"><strong>28</strong> de <strong>33</strong></span>
+    <div class="progreso-pista" aria-hidden="true"><div class="progreso-lleno" style="width:87.5%"></div></div>
+  </div>
+  <div class="leccion-atajos">
+    <a class="atajo atajo-prev" href="leccion-27-estadistica-1d.html">← Anterior</a>
+    <a class="atajo atajo-next" href="leccion-29-probabilidad.html">Siguiente →</a>
+  </div>
+</nav>
+<header class="leccion-top">
+  <p class="leccion-marca">Les <span>vencimos</span></p>
+  <p class="leccion-meta-top">Matemáticas Aplicadas a las CCSS I · 1º Bachillerato</p>
+</header>
+<header class="bloque-titulo">
+  <span class="eyebrow">Lección 28 · D.1 · Dos variables</span>
+  <h1 class="titulo-leccion">Regresión, correlación y <em>causalidad</em></h1>
+  <p class="meta-leccion">1º Bach CCSS · CyL Decreto 40/2022 · D.1 Dependencia, regresión y correlación</p>
+</header>
+
+<aside class="bloque-curiosidad"><p class="etiqueta-bloque">Para situarte</p>
+<h2 class="titulo-curiosidad">Junta, al margen y «sabiendo que»</h2>
+<p class="texto-curiosidad">Una tabla bidimensional tiene distribución conjunta, marginales y condicionadas. La recta de regresión y una curva a ojo vienen después: la correlación lineal no es una causa.</p></aside>
+<section class="bloque-cuerpo">
+<h2>Objetivos</h2>
+<ul>
+<li>Leer frecuencias conjuntas, marginales y condicionadas, y decidir si hay dependencia.</li>
+<li>Calcular el coeficiente de correlación lineal r y el coeficiente de determinación R², predecir con la recta y decir si esa predicción es fiable.</li>
+<li>Juzgar a ojo si un ajuste lineal es razonable o si la nube pide una cuadrática. Separar correlación de causalidad.</li>
+</ul>
+<h2>Tabla conjunta</h2>
+<p>Veinte estudiantes. Filas: cursa el idioma de refuerzo o no. Columnas: aprueba o no.</p>
+<table class="datos">
+<thead><tr><th></th><th>Aprueba</th><th>No aprueba</th><th>Total</th></tr></thead>
+<tbody>
+<tr><td>Idioma sí</td><td>8</td><td>2</td><td>10</td></tr>
+<tr><td>Idioma no</td><td>3</td><td>7</td><td>10</td></tr>
+<tr><td>Total</td><td>11</td><td>9</td><td>20</td></tr>
+</tbody>
+</table>
+<p>La conjunta es la tabla interior (8, 2, 3, 7). La marginal del idioma es 10 y 10 sobre 20. La marginal de aprobar es 11/20 = 0,55. La condicionada de aprobar sabiendo que sí hay idioma es 8/10 = 0,8. Sabiendo que no hay idioma, 3/10 = 0,3. Como 0,8 y 0,3 no coinciden con 0,55 ni entre sí, las variables no son independientes en esta tabla. Eso no dice que el idioma cause el aprobado: puede que quien ya iba bien elija el refuerzo.</p>
+<p class="formula">P(aprueba | idioma sí) = 8/10 = 0,8.</p>
+<span class="glosa">8 es la frecuencia conjunta de «sí» y «aprueba»; 10 es la marginal de «idioma sí», el nuevo total; 0,8 es la proporción condicionada, no la conjunta 8/20.</span>
+<h2>Regresión lineal, cuentas revisadas</h2>
+<p>Horas de estudio x y nota y en cinco personas: (1, 2), (2, 3), (3, 5), (4, 4), (5, 6).</p>
+<table class="datos">
+<thead><tr><th>x</th><th>y</th><th>x−3</th><th>y−4</th><th>(x−3)(y−4)</th><th>(x−3)²</th><th>(y−4)²</th></tr></thead>
+<tbody>
+<tr><td>1</td><td>2</td><td>−2</td><td>−2</td><td>4</td><td>4</td><td>4</td></tr>
+<tr><td>2</td><td>3</td><td>−1</td><td>−1</td><td>1</td><td>1</td><td>1</td></tr>
+<tr><td>3</td><td>5</td><td>0</td><td>1</td><td>0</td><td>0</td><td>1</td></tr>
+<tr><td>4</td><td>4</td><td>1</td><td>0</td><td>0</td><td>1</td><td>0</td></tr>
+<tr><td>5</td><td>6</td><td>2</td><td>2</td><td>4</td><td>4</td><td>4</td></tr>
+<tr><td></td><td></td><td></td><td>Σ</td><td>9</td><td>10</td><td>10</td></tr>
+</tbody>
+</table>
+<p>Medias: x̄ = 15/5 = 3, ȳ = 20/5 = 4. Productos xy de control: 2+6+15+16+30 = 69.</p>
+<p class="formula">r = Σ(xᵢ−x̄)(yᵢ−ȳ) / √[ Σ(xᵢ−x̄)² · Σ(yᵢ−ȳ)² ]</p>
+<span class="glosa">El numerador es la suma de productos de desviaciones, aquí 9. Cada suma de cuadrados vale 10. r no tiene unidades. r² es la fracción de la variación de y asociada linealmente con x, aquí no una causa.</span>
+<ol class="pasos">
+<li>r = 9 / √(10·10) = 9/√100 = 9/10 = 0,9.</li>
+<li>r² = 0,81. El 81 % de la variabilidad de estas cinco notas, medida por la suma de cuadrados, queda asociada a la recta. El otro 19 % son residuos.</li>
+<li>Pendiente b = 9/10 = 0,9. Ordenada a = ȳ − b x̄ = 4 − 0,9·3 = 4 − 2,7 = 1,3.</li>
+<li>Recta: ŷ = 1,3 + 0,9x. En x = 1 predice 2,2 (dato 2). En x = 3 predice 4 (dato 5). En x = 5 predice 5,8 (dato 6).</li>
+</ol>
+<h2 id="coef-r">Coeficiente de correlación lineal r</h2>
+<p>r = 9 / √(10·10) = 9/10 = 0,9. No tiene unidades. Está entre −1 y 1. El signo positivo dice que, en estos cinco pares, la nota tiende a subir cuando suben las horas. 0,9 está cerca de 1: la relación lineal de esta nube es fuerte. No dice que las horas causen la nota.</p>
+<p class="formula">r = 0,9.</p>
+<span class="glosa">r es el coeficiente de correlación lineal de Pearson de estos cinco pares; 0,9 es 9 partido por 10, las dos sumas de cuadrados.</span>
+
+<h2 id="coef-r2">Coeficiente de determinación R²</h2>
+<p>En una recta con una sola variable explicativa, el coeficiente de determinación es el cuadrado de r. R² = r² = 0,81. De la suma de cuadrados de las notas (10), la recta recoge el 81 %. El 19 % restante son residuos: en x = 3 la recta predice 4 y el dato es 5, residuo 1, el mayor de la tabla.</p>
+<p class="formula">R² = 0,81.</p>
+<span class="glosa">R² es el coeficiente de determinación; 0,81 es 0,9 al cuadrado; no es una probabilidad ni un porcentaje de personas, es la fracción de la variación de y asociada a la recta.</span>
+
+<h2>Predicción y fiabilidad</h2>
+<p>Dentro de las horas observadas, de 1 a 5, la predicción ŷ = 1,3 + 0,9x es usable como descripción de esta nube: r = 0,9 y R² = 0,81 son altos, y la nube no se dobla en U. No es fiable como ley para otros estudiantes. Solo hay cinco pares, no un censo ni una muestra diseñada. Fuera del intervalo, por ejemplo x = 6, ŷ = 6,7 es una extrapolación: R² no la cubre. Y ni el mejor ajuste demostraría que estudiar causa la nota.</p>
+
+<h2>La nube de estos cinco pares</h2>
+<p>Puntos crema: (1, 2), (2, 3), (3, 5), (4, 4), (5, 6). Recta ámbar: ŷ = 1,3 + 0,9x. Es esta nube, no una recta genérica.</p>
+<div class="figura-svg"><svg viewBox="0 0 420 220" role="img">
+<title>Nube (1, 2), (2, 3), (3, 5), (4, 4), (5, 6). Recta ŷ = 1,3 + 0,9x. r = 0,9. R² = 0,81.</title>
+<rect width="420" height="220" fill="#161512"/>
+<line x1="50" y1="188" x2="392" y2="188" stroke="#9A9488"/>
+<line x1="50" y1="188" x2="50" y2="28" stroke="#9A9488"/>
+<line x1="106" y1="139.6" x2="330" y2="60.4" stroke="#C4A15A" stroke-width="2"/>
+<circle cx="106" cy="144" r="4.5" fill="#E6E1D6"/>
+<circle cx="162" cy="122" r="4.5" fill="#E6E1D6"/>
+<circle cx="218" cy="78" r="4.5" fill="#E6E1D6"/>
+<circle cx="274" cy="100" r="4.5" fill="#E6E1D6"/>
+<circle cx="330" cy="56" r="4.5" fill="#E6E1D6"/>
+<text x="106" y="206" fill="#9A9488" font-size="12" text-anchor="middle">1</text>
+<text x="162" y="206" fill="#9A9488" font-size="12" text-anchor="middle">2</text>
+<text x="218" y="206" fill="#9A9488" font-size="12" text-anchor="middle">3</text>
+<text x="274" y="206" fill="#9A9488" font-size="12" text-anchor="middle">4</text>
+<text x="330" y="206" fill="#9A9488" font-size="12" text-anchor="middle">5</text>
+<text x="40" y="148" fill="#9A9488" font-size="12" text-anchor="end">2</text>
+<text x="40" y="104" fill="#9A9488" font-size="12" text-anchor="end">4</text>
+<text x="40" y="60" fill="#9A9488" font-size="12" text-anchor="end">6</text>
+<text x="64" y="22" fill="#C4A15A" font-size="14">r = 0,9 · R² = 0,81</text>
+</svg></div>
+<p>A ojo la nube sube y no dobla siempre hacia el mismo lado: sube, da un salto en x = 3, baja en x = 4 y vuelve a subir. No hay una parábola clara. El ajuste lineal es el razonable. Forzar una cuadrática con cinco puntos casi siempre reduce residuos y no demuestra una ley curva.</p>
+<p class="formula">ŷ = 1,3 + 0,9x.</p>
+<span class="glosa">ŷ es la nota que predice la recta, no la nota observada; 1,3 es la ordenada en x = 0, fuera de los datos (las horas van de 1 a 5); 0,9 es el aumento de nota predicho por cada hora extra.</span>
+<h2>Cuando la recta no toca y la parábola sí</h2>
+<p>Puntos (0, 4), (1, 1), (2, 0), (3, 1), (4, 4), que son y = (x − 2)².</p>
+<ol class="pasos">
+<li>x̄ = 2, ȳ = (4+1+0+1+4)/5 = 10/5 = 2.</li>
+<li>Σ(x−2)² = 4+1+0+1+4 = 10. Σ(y−2)² = 4+1+4+1+4 = 14.</li>
+<li>Productos de desviaciones: (−2)(2) + (−1)(−1) + 0·(−2) + (1)(−1) + (2)(2) = −4 + 1 + 0 − 1 + 4 = 0.</li>
+<li>r = 0 / √(10·14) = 0. La recta de mínimos cuadrados es la horizontal ŷ = 2, inútil para predecir.</li>
+<li>A ojo se ve una U. La cuadrática y = (x − 2)² pasa por los cinco puntos. El juicio gráfico manda: no se usa la recta.</li>
+</ol>
+<p>r = 0 no significa «no hay relación». Significa «no hay relación lineal». Y aunque aquí la U es perfecta, encajar una curva no demuestra que una variable cause la otra.</p>
+<div class="figura-svg"><svg viewBox="0 0 420 180" role="img">
+<title>Cinco puntos en U, y = (x − 2) al cuadrado, frente a una recta horizontal inútil</title>
+<rect width="420" height="180" fill="#161512"/>
+<line x1="40" y1="90" x2="380" y2="90" stroke="#9A9488" stroke-dasharray="4 3"/>
+<polyline fill="none" stroke="#C4A15A" stroke-width="2" points="50,40 120,110 190,150 260,110 330,40"/>
+<circle cx="50" cy="40" r="4" fill="#E6E1D6"/>
+<circle cx="120" cy="110" r="4" fill="#E6E1D6"/>
+<circle cx="190" cy="150" r="4" fill="#E6E1D6"/>
+<circle cx="260" cy="110" r="4" fill="#E6E1D6"/>
+<circle cx="330" cy="40" r="4" fill="#E6E1D6"/>
+</svg></div>
+<h2>Lienzo de la recta 0,9</h2>
+<p>Puntos crema: los cinco datos. Recta ámbar: ŷ = 1,3 + 0,9x. Pulsa para marcar otro punto y ver el residuo respecto de la recta.</p>
+<canvas id="lienzo28" class="lienzo" width="640" height="280" aria-label="Nube de puntos y recta de regresión"></canvas>
+<div class="fila"><button type="button" class="boton" id="b28">Borrar marcas</button></div>
+<p id="lectura28" class="dato">Pulsa para marcar un punto.</p>
+<h2>Ejercicios</h2>
+<article class="ej">
+<h3>1. Condicionada</h3>
+<p>En esta tabla, ¿son independientes A y B? B1 y B2 son columnas; A1 y A2, filas. Frecuencias: A1-B1 = 4, A1-B2 = 6, A2-B1 = 5, A2-B2 = 5.</p>
+<label for="e28a">Tu razonamiento</label>
+<textarea class="editor" id="e28a"></textarea>
+<details class="porque"><summary>Corrección</summary>
+<ol class="pasos"><li>Marginales de fila: 10 y 10. Total 20.</li><li>Marginal de B1: 4+5 = 9, así P(B1) = 9/20 = 0,45.</li><li>P(B1 | A1) = 4/10 = 0,4. P(B1 | A2) = 5/10 = 0,5.</li><li>0,4 ≠ 0,45. No son independientes. La diferencia es pequeña: dependencia débil en esta tabla, no una relación fuerte.</li></ol>
+<p class="porque">Independencia exigiría que cada condicionada coincidiera con la marginal. No coincide, aunque 0,4, 0,45 y 0,5 estén cerca. Cerca no es igual.</p>
+</details>
+</article>
+<article class="ej">
+<h3>2. Predecir con la recta de la lección</h3>
+<p>Con ŷ = 1,3 + 0,9x, predice la nota si x = 6. ¿Es interpolación?</p>
+<label for="e28b">Tu razonamiento</label>
+<textarea class="editor" id="e28b"></textarea>
+<details class="porque"><summary>Corrección</summary>
+<ol class="pasos"><li>0,9 · 6 = 5,4.</li><li>ŷ = 1,3 + 5,4 = 6,7.</li><li>Las horas observadas van de 1 a 5. x = 6 está fuera: extrapolación.</li><li>r² = 0,81 habla del ajuste dentro de la nube, no de una hora que no se ha visto. Además estudiar no es la causa única de la nota.</li></ol>
+<p class="porque">6,7 sale de la recta sin redondeos ocultos: 1,3 + 5,4 = 6,7. Usarla como pronóstico de un estudiante de 6 horas alarga el modelo más allá de los datos.</p>
+</details>
+</article>
+<article class="ej">
+<h3>3. Alineados</h3>
+<p>Puntos (0, 1), (1, 3), (2, 5). Calcula r y la recta.</p>
+<label for="e28c">Tu razonamiento</label>
+<textarea class="editor" id="e28c"></textarea>
+<details class="porque"><summary>Corrección</summary>
+<ol class="pasos"><li>x̄ = 1, ȳ = 3.</li><li>Σ(x−1)² = 1+0+1 = 2. Σ(y−3)² = 4+0+4 = 8.</li><li>Productos: (−1)(−2) + 0 + (1)(2) = 2+2 = 4.</li><li>r = 4/√(2·8) = 4/√16 = 4/4 = 1. b = 4/2 = 2. a = 3 − 2·1 = 1. Recta y = 1 + 2x. r² = 1.</li></ol>
+<p class="porque">r = 1 solo sale si los puntos están en una recta creciente, como aquí: 1, 3 y 5. No queda residuo. Sigue sin ser una prueba de causalidad: tres puntos alineados pueden ser una coincidencia de un censo diminuto.</p>
+</details>
+</article>
+<article class="ej">
+<h3>4. La V</h3>
+<p>Puntos (0, 0), (1, 1), (2, 0). Calcula r y decide a ojo el modelo.</p>
+<label for="e28d">Tu razonamiento</label>
+<textarea class="editor" id="e28d"></textarea>
+<details class="porque"><summary>Corrección</summary>
+<ol class="pasos"><li>x̄ = 1, ȳ = (0+1+0)/3 = 1/3.</li><li>Σ(x−1)² = 1+0+1 = 2.</li><li>Productos: (0−1)(0−1/3) + 0 + (2−1)(0−1/3) = (−1)(−1/3) + (1)(−1/3) = 1/3 − 1/3 = 0.</li><li>r = 0. A ojo es una V, y la parábola y = 2x − x² pasa por los tres: en 0 vale 0, en 1 vale 1, en 2 vale 0. Se prefiere la cuadrática. Con tres puntos, el ajuste exacto no demuestra una ley social.</li></ol>
+<p class="porque">r = 0 otra vez no significa ausencia de patrón. El patrón es curvo y simétrico, y la covarianza se cancela. La recta horizontal en la media 1/3 no sigue a los puntos.</p>
+</details>
+</article>
+
+<h2>Cierre</h2>
+<p>La tabla da la conjunta, la marginal y la condicionada. r es el coeficiente de correlación lineal; R², el coeficiente de determinación. La predicción es fiable solo dentro de esta nube y como descripción lineal, no como causa ni como ley fuera de los datos: esa es su fiabilidad. Si la nube se dobla, la recta no se usa.</p>
+</section>
+
+<footer class="leccion-pie"><strong>Les vencimos</strong> · L28 de 33 · Matemáticas Aplicadas a las CCSS I · sin publicar</footer>
+</div>
+<script type="application/json" data-maestro="guion">{"curso": "bach1-mates-ccs", "leccion": 28, "titulo": "Tablas bidimensionales y regresión", "url": "leccion-28-regresion.html", "musica": false}</script>
+
+<script>
+(function(){
+  var c = document.getElementById('lienzo28');
+  if(!c) return;
+  var ctx = c.getContext('2d');
+  var extra = [];
+  var pts = [[1,2],[2,3],[3,5],[4,4],[5,6]];
+  function X(x){ return 50 + x*90; }
+  function Y(y){ return 250 - y*32; }
+  function fondo(){
+    ctx.fillStyle='#161512'; ctx.fillRect(0,0,c.width,c.height);
+    ctx.strokeStyle='#3a3428';
+    for(var i=0;i<=7;i++){ ctx.beginPath(); ctx.moveTo(X(i),20); ctx.lineTo(X(i),260); ctx.stroke(); }
+    for(var j=0;j<=7;j++){ ctx.beginPath(); ctx.moveTo(30,Y(j)); ctx.lineTo(620,Y(j)); ctx.stroke(); }
+    ctx.strokeStyle='#C4A15A'; ctx.lineWidth=2;
+    ctx.beginPath(); ctx.moveTo(X(0), Y(1.3)); ctx.lineTo(X(6), Y(1.3+0.9*6)); ctx.stroke();
+    ctx.fillStyle='#E6E1D6';
+    pts.forEach(function(p){ ctx.beginPath(); ctx.arc(X(p[0]), Y(p[1]), 5, 0, 6.3); ctx.fill(); });
+    ctx.fillStyle='#8F9A72';
+    extra.forEach(function(p){ ctx.beginPath(); ctx.arc(p.px, p.py, 4, 0, 6.3); ctx.fill(); });
+    ctx.fillStyle='#C4A15A'; ctx.font='13px sans-serif';
+    ctx.fillText('Recta ŷ = 1,3 + 0,9x', 60, 24);
+  }
+  c.addEventListener('pointerdown', function(ev){
+    var r = c.getBoundingClientRect();
+    var px = (ev.clientX-r.left)*c.width/r.width;
+    var py = (ev.clientY-r.top)*c.height/r.height;
+    extra.push({px:px,py:py});
+    var x = (px-50)/90;
+    var y = (250-py)/32;
+    var yhat = 1.3 + 0.9*x;
+    var out = document.getElementById('lectura28');
+    if(out) out.textContent = 'Marca ≈ ('+x.toFixed(2)+', '+y.toFixed(2)+'). La recta en esa x predice '+yhat.toFixed(2)+'. Residuo ≈ '+(y-yhat).toFixed(2)+'.';
+    fondo();
+  });
+  var b = document.getElementById('b28');
+  if(b) b.onclick = function(){ extra=[]; var o=document.getElementById('lectura28'); if(o) o.textContent='Marcas borradas.'; fondo(); };
+  fondo();
+})();
+</script>
+
+<!-- saber: D.1 -->
+</body>
+</html>

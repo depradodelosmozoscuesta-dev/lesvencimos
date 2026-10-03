@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<meta name="theme-color" content="#FAF7F0"/>
+<title>Lección 11 · Alojamiento, servidores y publicación · TIC I · Les vencimos</title>
+<link rel="icon" href="../icons/favicon.svg" type="image/svg+xml"/>
+<link rel="icon" href="../icons/favicon-32.png" sizes="32x32" type="image/png"/>
+<link rel="apple-touch-icon" href="../icons/apple-touch-icon.png"/>
+<link rel="stylesheet" href="../leccion-shell.css"/>
+<script src="../leccion-shell-nav.js" defer></script>
+<style>.gpio-sim{display:grid;grid-template-columns:7.5rem 1fr;gap:.8rem;align-items:center;background:#0E0E0C;color:#FAF7F0;border-radius:10px;padding:.85rem 1rem;margin:.4rem 0 0}\n.gpio-sim p{margin:.2rem 0;color:#FAF7F0}\n.gpio-sim .pin{font-family:ui-monospace,monospace;color:#C4A15A}\n.sw{width:4.2rem;height:2rem;border-radius:999px;border:1px solid #C4A15A;background:#2A2620;position:relative;cursor:pointer;padding:0}\n.sw[aria-pressed=\"true\"]{background:#C4A15A}\n.sw i{position:absolute;top:2px;left:2px;width:1.6rem;height:1.6rem;border-radius:50%;background:#FAF7F0;display:block}\n.sw[aria-pressed=\"true\"] i{left:2.2rem}\n
+.bloque-cuerpo table{width:100%;border-collapse:collapse;font-size:.92rem;margin:0 0 1rem}
+.bloque-cuerpo th,.bloque-cuerpo td{border:1px solid rgba(14,14,12,.12);padding:.45rem .55rem;vertical-align:top;text-align:left}
+.bloque-cuerpo th{background:#F0EBE0;font-weight:650}
+.bloque-cuerpo pre{background:#0E0E0C;color:#FAF7F0;padding:.9rem 1rem;border-radius:8px;overflow:auto;font-size:.82rem;line-height:1.45}
+.bloque-cuerpo pre code{color:inherit;font-size:inherit}
+.bloque-cuerpo code{font-family:ui-monospace,"Cascadia Code","Segoe UI Mono",monospace}
+.figura-svg{margin:1rem 0 1.15rem;background:#fff;border:1px solid rgba(14,14,12,.12);border-radius:10px;padding:.6rem .6rem .35rem}
+.figura-svg svg{width:100%;height:auto;display:block}
+.figura-svg figcaption{font-size:.82rem;color:#5C564C;padding:.35rem .2rem 0}
+details.comprueba{margin:.55rem 0;background:#fff;border:1px solid rgba(14,14,12,.12);border-left:3px solid #C4A15A;border-radius:8px;padding:.55rem .85rem}
+details.comprueba summary{cursor:pointer;font-weight:650;color:#0E0E0C}
+.lab-embed{background:#FAF7F0;border:1px solid rgba(14,14,12,.12);border-radius:8px;padding:.75rem}
+.lab-embed label{display:block;font-size:.78rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:#5C564C;margin:.4rem 0 .2rem}
+.lab-embed textarea,.lab-embed input[type=text],.lab-embed input[type=number],.lab-embed select{width:100%;font-family:ui-monospace,monospace;font-size:.82rem;border:1px solid rgba(14,14,12,.2);border-radius:6px;padding:.4rem .5rem;background:#fff;color:#0E0E0C}
+.lab-embed textarea{min-height:9rem;resize:vertical}
+.lab-row{display:flex;flex-wrap:wrap;gap:.4rem;margin:.45rem 0}
+.lab-embed button,.lab-embed .btn{background:#C4A15A;color:#1A160E;border:0;border-radius:4px;padding:.4rem .7rem;font-weight:700;cursor:pointer}
+.lab-embed button.sec{background:#fff;border:1px solid rgba(14,14,12,.2)}
+.lab-out{font-size:.88rem;background:#fff;border:1px solid rgba(14,14,12,.12);border-radius:6px;padding:.5rem .65rem;margin-top:.4rem}
+.lab-out .ok{color:#3D6B4F;font-weight:650}
+.lab-out .bad{color:#A85A3C;font-weight:650}
+.lab-preview{width:100%;min-height:220px;border:1px solid rgba(14,14,12,.15);border-radius:6px;background:#fff}
+.lab-canvas{width:100%;height:auto;background:#fff;border:1px solid rgba(14,14,12,.15);border-radius:6px;display:block}
+</style>
+</head>
+<body class="leccion-shell">
+<div class="leccion-wrap">
+  <nav class="leccion-barra" aria-label="Navegación de lección" data-actual="11" data-total="32">
+    <div class="leccion-progreso" role="status">
+      <span class="progreso-texto"><strong>11</strong> de <strong>32</strong></span>
+      <div class="progreso-pista" aria-hidden="true"><div class="progreso-lleno" style="width:34.38%"></div></div>
+    </div>
+    <div class="leccion-atajos">
+      <a class="atajo atajo-calc" href="../../../../modulos/calculadora.html" title="Calculadora offline">Calculadora</a>
+      <a class="atajo atajo-prev" href="leccion-10-video-digital-formatos-y-montaje.html" title="Lección 10">← Anterior</a>
+      <a class="atajo atajo-next" href="leccion-12-proyecto-tic-integrado.html" title="Lección 12">Siguiente →</a>
+    </div>
+  </nav>
+  <header class="leccion-top">
+    <a class="leccion-marca" href="../../../../index.html">Les <span>vencimos</span></a>
+    <p class="leccion-meta-top">1º Bachillerato · TIC I</p>
+  </header>
+  <header class="bloque-titulo">
+    <span class="eyebrow">Lección 11 · A · Proyecto TIC</span>
+    <h1 class="titulo-leccion"><em>Alojamiento</em>, servidores y publicación</h1>
+    <p class="meta-leccion">1º Bachillerato · TIC I · Decreto 40/2022 CyL</p>
+  </header>
+  
+  <aside class="bloque-curiosidad" aria-label="Curiosidad">
+    <p class="etiqueta-bloque">Curiosidad</p>
+    <h2 class="titulo-curiosidad">El nombre, la máquina y la carpeta</h2>
+    <p class="texto-curiosidad">Durante años se dijo «subir la web» como si el archivo cambiara de naturaleza. No cambia. Cambia quién lo entrega cuando alguien lo pide: tu disco, con file://, o un servidor, con HTTP. El DNS solo traduce el nombre de esa máquina.</p>
+    <div class="ilustracion-slot"><svg viewBox="0 0 96 96" width="96" height="96" aria-hidden="true"><rect x="8" y="16" width="80" height="64" rx="4" fill="none" stroke="#2F5D7A" stroke-width="3"/><path d="M20 36h56M20 48h40M20 60h48" stroke="#C4A15A" stroke-width="3"/></svg></div>
+  </aside>
+  <section class="bloque-cuerpo">
+    <h2 id="maestro-objetivos">Objetivos</h2>
+    <ol><li>Distinguir archivo, servidor, hosting, dominio y DNS.</li><li>Leer una URL como carpeta pública más ruta.</li><li>Empaquetar index.html, CSS y un LEEME en un ZIP local.</li><li>Evitar rutas de disco y blobs de sesión dentro del paquete.</li><li>No afirmar que el sitio está en internet si solo se ha descargado un ZIP.</li></ol>
+    <h2 id="maestro-explicacion">Explicación</h2>
+    
+<p>Publicar es poner los archivos donde otra persona pueda pedirlos. En internet eso lo hace un <strong>servidor</strong>: un ordenador que escucha y responde con el archivo que corresponde a la ruta. El <strong>hosting</strong> es el servicio que te deja usar ese ordenador, a veces compartido con más sitios. El <strong>dominio</strong> es el nombre (<code>ejemplo.ies.edu.es</code>). El <strong>DNS</strong> traduce el nombre a una dirección IP. Ninguno de los tres es «la web». La web, en nuestro caso, sigue siendo la carpeta: <code>index.html</code>, la hoja de estilo, los medios.</p>
+<h3>La ruta que pide el navegador</h3>
+<p>Cuando escribes <code>https://ejemplo.ies.edu.es/index.html</code>, el navegador pregunta al DNS la IP, abre una conexión (normalmente el puerto 443 si es HTTPS) y pide <code>/index.html</code>. El servidor busca ese archivo en la carpeta pública del sitio. Si pides <code>/estilos.css</code>, busca ese otro archivo. Por eso los enlaces del HTML tienen que ser relativos o, como mucho, absolutos respecto a la raíz del sitio (<code>/estilos.css</code>), nunca respecto a tu disco. Un <code>file://</code> no hace ninguna de esas preguntas: el sistema operativo abre la ruta local. Por eso la misma carpeta se puede probar en clase y, el día que haya hosting, subirse tal cual.</p>
+<p>HTTP es el protocolo de la petición y la respuesta. HTTPS es HTTP dentro de un cifrado: el contenido viaja de forma que un tercero en la red del instituto no lo lee con facilidad, y el navegador comprueba el certificado del servidor. No cambia el HTML. Cambia el transporte. Un candado no significa que el contenido sea veraz; solo que hablas con el servidor que presenta ese certificado.</p>
+<h3>Estático, dinámico, nube</h3>
+<p>Un sitio estático es un conjunto de archivos ya escritos. Es lo que sabes construir en el bloque A. Un sitio dinámico construye la página al pedirla, con un programa y a menudo una base de datos: es lo que hay detrás de muchos CMS. No hace falta un CMS para publicar la Semana de la Ciencia si la página no cambia cada minuto. La nube, en este contexto, puede ser un hosting de archivos estáticos: alguien te presta el servidor. Sigue siendo una carpeta. La práctica no abre una cuenta. Empaqueta un ZIP en tu propio disco, que es el gesto de «juntar la carpeta para subirla» sin subirla.</p>
+<p>El ZIP del laboratorio usa el método <em>store</em>: empaqueta sin comprimir. Basta para ver que varios archivos viajan juntos y que, al descomprimir, <code>index.html</code> y <code>estilos.css</code> quedan al mismo nivel, que es lo que la ruta relativa espera. Si metes el CSS en una subcarpeta y el HTML lo busca al lado, el servidor responderá 404. El 404 no es un fallo del dominio: es un archivo que no está donde la ruta dice.</p>
+<h3>Qué comprobar antes de llamar a eso «publicado»</h3>
+<p>Aunque no subas nada: (1) <code>index.html</code> abre en local, (2) el CSS carga, (3) no hay rutas a <code>C:\</code> ni a <code>blob:</code> que solo existen en tu sesión, (4) el <code>title</code> identifica el acto, (5) hay un <code>LEEME</code> que dice cómo abrir la carpeta. El dominio de ejemplo del laboratorio no se resuelve: escribirlo no contacta con ningún DNS. Sirve para leer la correspondencia entre nombre, ruta y archivo. Inventar que «ya está en internet» porque el ZIP se ha descargado es el error que esta lección quiere cerrar.</p>
+
+    <figure class="figura-svg"><svg viewBox="0 0 640 300" width="640" height="300" role="img" aria-label="Camino con flechas: navegador, DNS, servidor y archivos locales."><title>Ruta de publicación</title><rect width="640" height="300" fill="#FAF7F0"/>
+<rect x="24" y="110" width="120" height="64" rx="8" fill="#0E0E0C"/>
+<text x="84" y="148" text-anchor="middle" fill="#FAF7F0" font-size="14" font-family="sans-serif">navegador</text>
+<polygon points="156,142 184,142 184,132 204,150 184,168 184,158 156,158" fill="#C4A15A"/>
+<rect x="214" y="110" width="90" height="64" rx="8" fill="#C4A15A"/>
+<text x="259" y="148" text-anchor="middle" fill="#0E0E0C" font-size="14" font-family="sans-serif">DNS</text>
+<polygon points="316,142 344,142 344,132 364,150 344,168 344,158 316,158" fill="#C4A15A"/>
+<rect x="374" y="100" width="110" height="84" rx="4" fill="#5C564C"/>
+<text x="429" y="148" text-anchor="middle" fill="#FAF7F0" font-size="14" font-family="sans-serif">servidor</text>
+<polygon points="496,142 524,142 524,132 544,150 524,168 524,158 496,158" fill="#C4A15A"/>
+<rect x="552" y="90" width="64" height="36" fill="#E6E1D6" stroke="#0E0E0C"/>
+<rect x="552" y="132" width="64" height="36" fill="#E6E1D6" stroke="#0E0E0C"/>
+<rect x="552" y="174" width="64" height="36" fill="#E6E1D6" stroke="#0E0E0C"/>
+<text x="320" y="240" text-anchor="middle" fill="#5C564C" font-size="13" font-family="sans-serif">la ruta pide archivos, no el escritorio</text>
+</svg><figcaption>El navegador pide una ruta. El DNS nombra al servidor. La carpeta es el sitio.</figcaption></figure>
+    <h2 id="maestro-glosas">Glosas de esta lección</h2>
+<p class="glosa-simbolo"><strong>Servidor.</strong> Programa o máquina que responde con el archivo pedido.</p>
+<p class="glosa-simbolo"><strong>Hosting.</strong> Servicio que te deja usar un servidor, a menudo compartido.</p>
+<p class="glosa-simbolo"><strong>Dominio.</strong> Nombre legible. No es el servidor.</p>
+<p class="glosa-simbolo"><strong>DNS.</strong> Traduce el dominio a una IP. Esta página no consulta ninguno.</p>
+<p class="glosa-simbolo"><strong>IP.</strong> Dirección numérica de la máquina.</p>
+<p class="glosa-simbolo"><strong>HTTP / HTTPS.</strong> Protocolo de la petición. HTTPS añade cifrado y certificado.</p>
+<p class="glosa-simbolo"><strong>Sitio estático.</strong> Archivos ya escritos. Es lo que sabes construir.</p>
+<p class="glosa-simbolo"><strong>404.</strong> El servidor no encuentra esa ruta. Casi siempre es una carpeta mal hecha.</p>
+<p class="glosa-simbolo"><strong>Raíz pública.</strong> Carpeta que el servidor expone. index.html suele vivir ahí.</p>
+<p class="glosa-simbolo"><strong>ZIP store.</strong> Empaqueta sin comprimir. Basta para que los archivos viajen juntos.</p>
+    <h2 id="maestro-ejemplos">Ejemplos resueltos</h2>
+    <h3>Ejemplo 1 — CSS en otra carpeta</h3><ol><li>Abre el ZIP y anota la ruta real del CSS, por ejemplo css/estilos.css.</li><li>Abre el HTML y anota qué href pide.</li><li>Iguala las dos rutas antes de volver a empaquetar.</li><li>Prueba en local: si ya falla aquí, en el servidor será un 404.</li></ol><h3>Ejemplo 2 — Blob en el src</h3><ol><li>Busca en el HTML guardado un src que empiece por blob:.</li><li>Ese enlace solo existía en la sesión que ya cerraste.</li><li>Sustitúyelo por un archivo real de la carpeta o quítalo.</li><li>Si el medio no está, dilo en el LEEME en vez de dejar el blob.</li></ol><h3>Ejemplo 3 — Dominio inventado</h3><ol><li>Busca en el trabajo la frase que afirma un dominio publicado.</li><li>Comprueba si esa cadena se ha resuelto de verdad o solo la mostró el laboratorio.</li><li>Si no hay alojamiento, borra la afirmación.</li><li>Escribe, en su lugar, que el paquete se abre en local.</li></ol>
+    <h2>Decisiones de aula</h2><p>Cada caso es una entrega realista del proyecto del IES Duero. Lee la situación antes de mirar la decisión.</p><h3>1. Ruta C: dentro del ZIP</h3><p><strong>Situación.</strong> Se cuela un enlace al escritorio.</p><p><strong>No conviene.</strong> Porque en casa abre.</p><p><strong>Decisión.</strong> Buscar «C:\» y «blob:» y quitarlos.</p><p><strong>Por qué:</strong> Un enlace al escritorio abre en casa y se rompe en el equipo de al lado, que es donde se va a ver el paquete. Hay que buscar rutas con letra de disco y direcciones blob, y quitarlas antes de empaquetar. El ZIP tiene que abrir en un ordenador que no es el tuyo.</p><h3>2. Olvidar el LEEME</h3><p><strong>Situación.</strong> El ZIP llega y nadie sabe cuál es la portada.</p><p><strong>No conviene.</strong> index.html por costumbre, sin decirlo.</p><p><strong>Decisión.</strong> LEEME de cuatro líneas.</p><p><strong>Por qué:</strong> Si el ZIP llega sin LEEME, nadie sabe cuál es la portada, y la costumbre de index.html falla cuando el archivo se llama portada.html. Cuatro líneas bastan: qué abrir, con qué, y qué no está incluido. El nombre de la portada se escribe, no se adivina.</p><h3>3. Subcarpeta de más al descomprimir</h3><p><strong>Situación.</strong> El sistema crea semana/semana/index.html y el CSS queda fuera.</p><p><strong>No conviene.</strong> Volver a comprimir mirando el primer nivel.</p><p><strong>Decisión.</strong> Los archivos del sitio están en la raíz del ZIP, no dentro de otra carpeta con el mismo nombre.</p><p><strong>Por qué:</strong> Al descomprimir, una carpeta de más deja semana/semana/index.html y el CSS fuera de la ruta que pide el HTML. El servidor, igual que el disco, responderá 404. Se vuelve a comprimir mirando el primer nivel: los archivos del sitio están a la vista, no anidados de más.</p><h3>4. Llamar nube al ZIP</h3><p><strong>Situación.</strong> «Lo he subido a la nube» porque está en Descargas.</p><p><strong>No conviene.</strong> Nombrar el disco.</p><p><strong>Decisión.</strong> La nube sería un servidor. Descargas es tu usuario.</p><p><strong>Por qué:</strong> Descargas no es la nube: es una carpeta de tu disco. La nube sería un servidor al que otro navegador pide el archivo. Llamar nube al ZIP porque «lo he subido» a Descargas confunde guardar con publicar, y el LEEME no puede repetir esa frase.</p>
+    <h2>El mismo acto, leído en esta capa</h2><p>Las ocho piezas son el contenido de la Semana de la Ciencia del IES Duero (Aranda de Duero). Se repiten en el bloque A para que compares decisiones, no para que copies el mismo archivo doce veces. Debajo va el documento marcado, listo para abrirlo en local, y la lectura de cada pieza.</p><pre><code>&lt;!DOCTYPE html&gt;
+&lt;html lang=&quot;es&quot;&gt;
+&lt;head&gt;
+&lt;meta charset=&quot;utf-8&quot;/&gt;
+&lt;title&gt;Semana de la Ciencia · IES Duero&lt;/title&gt;
+&lt;!-- Capa de esta lectura: lección 11. El texto del acto no cambia; cambia la decisión. --&gt;
+&lt;/head&gt;
+&lt;body&gt;
+&lt;header&gt;
+&lt;p&gt;IES Duero · Aranda de Duero&lt;/p&gt;
+&lt;h1&gt;Semana de la Ciencia&lt;/h1&gt;
+&lt;/header&gt;
+&lt;nav aria-label=&quot;En la página&quot;&gt;
+&lt;a href=&quot;#b1&quot;&gt;Apertura en el salón de actos&lt;/a&gt;
+&lt;a href=&quot;#b2&quot;&gt;Taller de luz&lt;/a&gt;
+&lt;a href=&quot;#b3&quot;&gt;Taller de temperatura&lt;/a&gt;
+&lt;a href=&quot;#b4&quot;&gt;Visita al patio meteorológico&lt;/a&gt;
+&lt;a href=&quot;#b5&quot;&gt;Datos en la pizarra&lt;/a&gt;
+&lt;a href=&quot;#b6&quot;&gt;Preguntas&lt;/a&gt;
+&lt;a href=&quot;#b7&quot;&gt;Créditos y licencia de los materiales&lt;/a&gt;
+&lt;a href=&quot;#b8&quot;&gt;Cómo llegar&lt;/a&gt;
+&lt;/nav&gt;
+&lt;main&gt;
+&lt;section id=&quot;b1&quot;&gt;
+&lt;h2&gt;Apertura en el salón de actos&lt;/h2&gt;
+&lt;p&gt;A las 17:00 se abre el salón, no el laboratorio. El h1 de la página es el nombre del acto; este taller es un h2. Hay que decir el aforo (120 butacas) y que no se reserva sitio por mensaje: se entra por orden hasta completar. Quien llegue a las 17:20 oye el inicio, así que el primer párrafo no puede depender de un chiste que solo entiende quien estaba en la fila. El enlace interno #apertura permite saltar desde el nav.&lt;/p&gt;
+&lt;/section&gt;
+&lt;section id=&quot;b2&quot;&gt;
+&lt;h2&gt;Taller de luz&lt;/h2&gt;
+&lt;p&gt;En el laboratorio de física hay una fotorresistencia de demostración. La página no enciende el sensor: explica la hora (17:30) y el grupo máximo (16 personas). El detalle del pin GPIO se cuenta en la lección 4 con un LED simulado; aquí, en la estructura, basta un párrafo y una lista de dos normas: no tocar la protoboard y anotar la lectura en el cuaderno, no en el móvil de otra persona.&lt;/p&gt;
+&lt;/section&gt;
+&lt;section id=&quot;b3&quot;&gt;
+&lt;h2&gt;Taller de temperatura&lt;/h2&gt;
+&lt;p&gt;Segundo grupo, misma franja, aula de al lado. Si los dos talleres se mezclan en un solo párrafo, nadie sabe a qué puerta ir. Van en sections distintas, cada una con su h2. La temperatura se mide con un sensor digital de demostración del departamento; la página no publica la marca como si fuera un anuncio, solo el lugar y la duración (25 minutos).&lt;/p&gt;
+&lt;/section&gt;
+&lt;section id=&quot;b4&quot;&gt;
+&lt;h2&gt;Visita al patio meteorológico&lt;/h2&gt;
+&lt;p&gt;Si llueve, este bloque se cae. Por eso el texto tiene la alternativa escrita (vídeo de tres gráficos en el salón), no un «ya veremos». En HTML la alternativa es una frase dentro de la misma section, no una imagen que sustituye al aviso. Plano general: el patio está detrás del gimnasio, puerta verde.&lt;/p&gt;
+&lt;/section&gt;
+&lt;section id=&quot;b5&quot;&gt;
+&lt;h2&gt;Datos en la pizarra&lt;/h2&gt;
+&lt;p&gt;Al final se apuntan tres números: luz, temperatura y aforo real. Son una lista ordenada si el orden es el del acto, o desordenada si son datos sueltos. Elegimos ol porque se leen en ese orden en la puesta en común. Cada li es una frase corta, no un párrafo disfrazado.&lt;/p&gt;
+&lt;/section&gt;
+&lt;section id=&quot;b6&quot;&gt;
+&lt;h2&gt;Preguntas&lt;/h2&gt;
+&lt;p&gt;Diez minutos. El heading es h2 «Preguntas», no h1: la página ya tiene dueño. Se recuerda que no hay turno de fotos al alumnado. Esa frase es texto, no un icono. Quien imprima la página en blanco y negro tiene que leerla igual.&lt;/p&gt;
+&lt;/section&gt;
+&lt;section id=&quot;b7&quot;&gt;
+&lt;h2&gt;Créditos y licencia de los materiales&lt;/h2&gt;
+&lt;p&gt;El footer nombra al departamento de tecnología del IES Duero y dice que los textos de esta página son del centro para el acto. No se pega música ni fotos de banco de imágenes. Si más adelante hay un plano, será un SVG hecho en clase. La licencia concreta se estudiará en el bloque B; aquí basta no atribuirse lo que no es del instituto.&lt;/p&gt;
+&lt;/section&gt;
+&lt;section id=&quot;b8&quot;&gt;
+&lt;h2&gt;Cómo llegar&lt;/h2&gt;
+&lt;p&gt;Calle San Francisco, Aranda de Duero. El autobús urbano deja en la plaza; desde allí, seis minutos a pie. No incrustamos un mapa de un proveedor externo: exige red y cookies. Un párrafo con la referencia basta, y en la lección 7 el mismo dato cabe en el cartel. La ruta relativa no interviene; esto es contenido, no un archivo.&lt;/p&gt;
+&lt;/section&gt;
+&lt;/main&gt;
+&lt;footer&gt;&lt;p&gt;Material del departamento de Tecnología para el acto. Copia local, file://.&lt;/p&gt;&lt;/footer&gt;
+&lt;/body&gt;
+&lt;/html&gt;</code></pre><h3>Apertura en el salón de actos</h3><p>A las 17:00 se abre el salón, no el laboratorio. El h1 de la página es el nombre del acto; este taller es un h2. Hay que decir el aforo (120 butacas) y que no se reserva sitio por mensaje: se entra por orden hasta completar. Quien llegue a las 17:20 oye el inicio, así que el primer párrafo no puede depender de un chiste que solo entiende quien estaba en la fila. El enlace interno #apertura permite saltar desde el nav.</p><p><strong>Desde esta lección.</strong> Este texto acaba en index.html dentro de la carpeta pública. La ruta del enlace es relativa; el dominio no forma parte del archivo.</p><h3>Taller de luz</h3><p>En el laboratorio de física hay una fotorresistencia de demostración. La página no enciende el sensor: explica la hora (17:30) y el grupo máximo (16 personas). El detalle del pin GPIO se cuenta en la lección 4 con un LED simulado; aquí, en la estructura, basta un párrafo y una lista de dos normas: no tocar la protoboard y anotar la lectura en el cuaderno, no en el móvil de otra persona.</p><p><strong>Desde esta lección.</strong> Este texto acaba en index.html dentro de la carpeta pública. La ruta del enlace es relativa; el dominio no forma parte del archivo.</p><h3>Taller de temperatura</h3><p>Segundo grupo, misma franja, aula de al lado. Si los dos talleres se mezclan en un solo párrafo, nadie sabe a qué puerta ir. Van en sections distintas, cada una con su h2. La temperatura se mide con un sensor digital de demostración del departamento; la página no publica la marca como si fuera un anuncio, solo el lugar y la duración (25 minutos).</p><p><strong>Desde esta lección.</strong> Este texto acaba en index.html dentro de la carpeta pública. La ruta del enlace es relativa; el dominio no forma parte del archivo.</p><h3>Visita al patio meteorológico</h3><p>Si llueve, este bloque se cae. Por eso el texto tiene la alternativa escrita (vídeo de tres gráficos en el salón), no un «ya veremos». En HTML la alternativa es una frase dentro de la misma section, no una imagen que sustituye al aviso. Plano general: el patio está detrás del gimnasio, puerta verde.</p><p><strong>Desde esta lección.</strong> Este texto acaba en index.html dentro de la carpeta pública. La ruta del enlace es relativa; el dominio no forma parte del archivo.</p><h3>Datos en la pizarra</h3><p>Al final se apuntan tres números: luz, temperatura y aforo real. Son una lista ordenada si el orden es el del acto, o desordenada si son datos sueltos. Elegimos ol porque se leen en ese orden en la puesta en común. Cada li es una frase corta, no un párrafo disfrazado.</p><p><strong>Desde esta lección.</strong> Este texto acaba en index.html dentro de la carpeta pública. La ruta del enlace es relativa; el dominio no forma parte del archivo.</p><h3>Preguntas</h3><p>Diez minutos. El heading es h2 «Preguntas», no h1: la página ya tiene dueño. Se recuerda que no hay turno de fotos al alumnado. Esa frase es texto, no un icono. Quien imprima la página en blanco y negro tiene que leerla igual.</p><p><strong>Desde esta lección.</strong> Este texto acaba en index.html dentro de la carpeta pública. La ruta del enlace es relativa; el dominio no forma parte del archivo.</p><h3>Créditos y licencia de los materiales</h3><p>El footer nombra al departamento de tecnología del IES Duero y dice que los textos de esta página son del centro para el acto. No se pega música ni fotos de banco de imágenes. Si más adelante hay un plano, será un SVG hecho en clase. La licencia concreta se estudiará en el bloque B; aquí basta no atribuirse lo que no es del instituto.</p><p><strong>Desde esta lección.</strong> Este texto acaba en index.html dentro de la carpeta pública. La ruta del enlace es relativa; el dominio no forma parte del archivo.</p><h3>Cómo llegar</h3><p>Calle San Francisco, Aranda de Duero. El autobús urbano deja en la plaza; desde allí, seis minutos a pie. No incrustamos un mapa de un proveedor externo: exige red y cookies. Un párrafo con la referencia basta, y en la lección 7 el mismo dato cabe en el cartel. La ruta relativa no interviene; esto es contenido, no un archivo.</p><p><strong>Desde esta lección.</strong> Este texto acaba en index.html dentro de la carpeta pública. La ruta del enlace es relativa; el dominio no forma parte del archivo.</p><h2>Errores que se repiten</h2><ul><li><strong>Dominio = hosting.</strong> Se contrata un nombre y no hay carpeta. Son contratos distintos; aquí, ninguno.</li><li><strong>Index con mayúscula rara.</strong> Index.HTML en un servidor sensible a mayúsculas. index.html.</li><li><strong>Enlace absoluto a tu IP local.</strong> http://192.168.1.20/ solo existe en tu casa. Ruta relativa.</li><li><strong>Creer que store es «menos ZIP».</strong> Sigue siendo un paquete válido. Se puede abrir y listar.</li><li><strong>404 culpando al DNS.</strong> El nombre resuelve y el archivo no está. Mirar la ruta.</li><li><strong>Certificado como contenido.</strong> Se habla del candado y no de la página. Revisar el HTML.</li></ul><h2>Rúbrica de esta lección</h2><div class="tarjeta" style="overflow-x:auto"><table><thead><tr><th>Criterio</th><th>Aún no</th><th>En proceso</th><th>Conseguido</th><th>Notable</th></tr></thead><tbody><tr><td>Modelo</td><td>«La web es Google»</td><td>Mezcla dominio y archivo</td><td>Separa DNS, servidor y carpeta</td><td>HTTPS no se confunde con verdad</td></tr><tr><td>Rutas</td><td>C:\ o blob</td><td>Relativa rota</td><td>Relativa que carga el CSS</td><td>Probado en carpeta nueva</td></tr><tr><td>ZIP</td><td>No abre</td><td>Abre desordenado</td><td>Raíz con index, css, LEEME</td><td>Método store explicado</td></tr><tr><td>404</td><td>Se culpa a la red</td><td>No se sabe leer</td><td>Se localiza el archivo ausente</td><td>Mayúsculas de index vigiladas</td></tr><tr><td>Afirmación</td><td>«Ya está publicado»</td><td>Dominio de ejemplo como real</td><td>Se dice que no hay DNS</td><td>LEEME coherente</td></tr></tbody></table></div>
+    <h2 id="maestro-cierre">Mini cierre</h2>
+    <p>La web es la carpeta. El servidor la entrega. El DNS nombra al servidor. El ZIP demuestra que sabes juntar la carpeta. Publicar de verdad sería otro paso, y no se finge.</p>
+    <h2 id="maestro-comprueba">Comprueba</h2>
+    
+<p>Abre cada pregunta, responde en el cuaderno y después mira la solución. El párrafo «Por qué» es la parte que se estudia.</p>
+<details class="comprueba">
+<summary>1. ¿El candado HTTPS garantiza que el acto es cierto?</summary>
+<p><strong>Respuesta.</strong> No. Garantiza que hablas con el servidor que presenta el certificado y que la red no lee el contenido con facilidad.</p>
+<p><strong>Por qué:</strong> El candado HTTPS no garantiza que el acto sea cierto. Garantiza que hablas con el servidor que presenta el certificado y que la red no lee el contenido en claro. Una página falsa puede tener candado; el contenido se comprueba aparte.</p>
+</details>
+<details class="comprueba">
+<summary>2. ¿Por qué el laboratorio no «resuelve» el dominio que escribes?</summary>
+<p><strong>Respuesta.</strong> Porque resolver sería una consulta de red a un DNS, y esta materia practica el modelo sin fingir la infraestructura.</p>
+<p><strong>Por qué:</strong> Si la página consultara un DNS de verdad, dependerías de la red y podrías creer que un dominio de ejemplo existe. El texto deja la correspondencia nombre–ruta–archivo, que es lo que hay que saber leer.</p>
+</details>
+<details class="comprueba">
+<summary>3. ¿Un CMS es obligatorio para publicar?</summary>
+<p><strong>Respuesta.</strong> No. Un sitio estático se publica subiendo la carpeta. El CMS hace falta si la página se construye al vuelo o la edita gente que no toca archivos.</p>
+<p><strong>Por qué:</strong> Un CMS no es obligatorio para publicar. Un sitio estático se publica subiendo la carpeta, si de verdad hay un alojamiento. El CMS hace falta cuando varias personas editan campos sin tocar la plantilla, no para que exista un dominio.</p>
+</details>
+  </section>
+  <section id="maestro-vida" class="bloque-vida-real">
+    <div class="contenido-vida">
+      <p class="etiqueta-bloque">En la vida real</p>
+      <h2 class="titulo-vida">La carpeta que sí puedes entregar</h2>
+      <ul><li>El departamento puede dejar el ZIP en el ordenador del aula para que otra clase lo abra sin red.</li><li>Un dominio .edu.es del centro, si existe, no lo gestiona el alumnado en esta práctica: se entiende, no se da de alta.</li><li>Un 404 el día de la publicación suele ser un archivo mal colocado, no «se ha caído internet».</li><li>HTTPS cifra el transporte. No convierte en verdadero el texto del acto.</li></ul>
+    </div>
+  </section>
+  
+  <section id="maestro-interactivo" class="bloque-interactivo" aria-label="Laboratorio">
+    <div class="marco-interactivo-cabecera">
+      <span class="etiqueta-interactivo">Laboratorio · en esta página</span>
+      <a class="enlace-abrir" href="l11-alojamiento-servidores-y-publicacion.html">Abrir en pestaña →</a>
+    </div>
+    <div class="lab-embed" id="lab-inline">
+<p class="nota">Publicar, aquí, es empaquetar archivos y entender la ruta. No hay alta en un hosting real.</p>
+<label for="fname">Archivo</label>
+<select id="fname"><option>index.html</option><option>estilos.css</option><option>LEEME.txt</option></select>
+<label for="body">Contenido</label>
+<textarea id="body" spellcheck="false"></textarea>
+<div class="lab-row">
+  <button type="button" id="bLoad" class="sec">Cargar</button>
+  <button type="button" id="bKeep">Guardar en el paquete</button>
+  <button type="button" id="bMap" class="sec">Ver mapa de rutas</button>
+  <button type="button" id="bZip">Descargar ZIP</button>
+</div>
+<label for="dom">Nombre de dominio (solo explicación)</label>
+<input id="dom" type="text" value="cienciaduero.ies.edu.es" placeholder="ejemplo.dominio"/>
+<div id="out" class="lab-out"></div>
+
+<script>
+
+function byId(id){return document.getElementById(id);}
+function esc(s){return String(s).replace(/[&<>"]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;"}[c];});}
+function say(html){var o=byId("out"); if(o) o.innerHTML=html;}
+
+
+
+function crc32(bytes){
+  if(!crc32.t){
+    crc32.t=[];
+    for(var n=0;n<256;n++){var c=n; for(var k=0;k<8;k++) c=(c&1)?(0xEDB88320^(c>>>1)):(c>>>1); crc32.t[n]=c>>>0;}
+  }
+  var crc=0xFFFFFFFF;
+  for(var i=0;i<bytes.length;i++) crc=crc32.t[(crc^bytes[i])&255]^(crc>>>8);
+  return (crc^0xFFFFFFFF)>>>0;
+}
+function u16(n){return [n&255,(n>>>8)&255];}
+function u32(n){return [n&255,(n>>>8)&255,(n>>>16)&255,(n>>>24)&255];}
+function zipStore(files){
+  var enc=new TextEncoder();
+  var locals=[], centrals=[], offset=0;
+  files.forEach(function(f){
+    var name=enc.encode(f.name), data=enc.encode(f.text), crc=crc32(data);
+    var lh=u32(0x04034b50).concat(u16(20),u16(0),u16(0),u16(0),u16(0),u32(crc),u32(data.length),u32(data.length),u16(name.length),u16(0));
+    var lb=new Uint8Array(lh.length+name.length+data.length);
+    lb.set(lh,0); lb.set(name,lh.length); lb.set(data,lh.length+name.length);
+    locals.push(lb);
+    var ch=u32(0x02014b50).concat(u16(20),u16(20),u16(0),u16(0),u16(0),u16(0),u32(crc),u32(data.length),u32(data.length),u16(name.length),u16(0),u16(0),u16(0),u16(0),u32(0),u32(offset));
+    var cb=new Uint8Array(ch.length+name.length);
+    cb.set(ch,0); cb.set(name,ch.length); centrals.push(cb);
+    offset+=lb.length;
+  });
+  var csize=centrals.reduce(function(a,b){return a+b.length;},0);
+  var eocd=u32(0x06054b50).concat(u16(0),u16(0),u16(files.length),u16(files.length),u32(csize),u32(offset),u16(0));
+  var parts=locals.concat(centrals,[new Uint8Array(eocd)]);
+  var total=parts.reduce(function(a,b){return a+b.length;},0);
+  var out=new Uint8Array(total), o=0;
+  parts.forEach(function(p){out.set(p,o); o+=p.length;});
+  return new Blob([out],{type:"application/zip"});
+}
+function saveBlob(name, blob){
+  var a=document.createElement("a");
+  a.href=URL.createObjectURL(blob); a.download=name; a.click();
+}
+
+var files={
+"index.html":"<!DOCTYPE html>\n<html lang=\"es\">\n<head><meta charset=\"utf-8\"/><title>IES Duero</title><link rel=\"stylesheet\" href=\"estilos.css\"/></head>\n<body><h1>Semana de la Ciencia</h1><p>Página estática.</p></body></html>\n",
+"estilos.css":"body{font-family:Georgia,serif;background:#FAF7F0;color:#0E0E0C;margin:2rem}\nh1{border-bottom:3px solid #C4A15A}\n",
+"LEEME.txt":"Paquete local de la Semana de la Ciencia.\nAbrir index.html con el navegador (file://) o descomprimir en la carpeta pública de un hosting estático.\nNo incluye base de datos.\n"
+};
+function load(){ byId("body").value=files[byId("fname").value]; }
+byId("bLoad").onclick=load;
+byId("fname").onchange=load;
+byId("bKeep").onclick=function(){ files[byId("fname").value]=byId("body").value; say("<span class='ok'>Actualizado en el paquete de esta página.</span>"); };
+byId("bMap").onclick=function(){
+  var dom=(byId("dom").value||"ejemplo.local").replace(/^https?:\/\//,"").split("/")[0];
+  var rows=Object.keys(files).map(function(name){
+    return "<li><code>https://"+esc(dom)+"/"+esc(name)+"</code> ← archivo <code>"+esc(name)+"</code> en la carpeta pública</li>";
+  }).join("");
+  say("<p>Un dominio no es el servidor: el DNS traduce el nombre a una IP, y el servidor entrega la carpeta.</p><ul>"+rows+"</ul><p class='nota'>Esta página no consulta ningún DNS. El nombre de arriba es un ejemplo didáctico.</p>");
+};
+byId("bZip").onclick=function(){
+  files[byId("fname").value]=byId("body").value;
+  var list=Object.keys(files).map(function(k){return {name:k, text:files[k]};});
+  saveBlob("sitio-ies-duero.zip", zipStore(list));
+  say("<span class='ok'>ZIP método store (sin comprimir, sí empaquetado). Ábrelo en local y comprueba que index.html enlaza estilos.css con ruta relativa.</span>");
+};
+load();
+
+</script></div>
+    <p class="fallback-enlace">Escribes y dibujas aquí mismo: no hay salto a otro módulo. La misma herramienta, a pantalla completa, está en <a href="l11-alojamiento-servidores-y-publicacion.html">l11-alojamiento-servidores-y-publicacion.html</a> y en el marco (útil si el navegador permite <code>file://</code> en iframes).</p>
+    <div class="marco-interactivo">
+      <iframe title="Laboratorio L11" src="l11-alojamiento-servidores-y-publicacion.html" loading="lazy"></iframe>
+    </div>
+  </section>
+
+  <section id="maestro-reto" class="bloque-reto" aria-label="Reto Profesor">
+    <span class="etiqueta-reto">Reto Profesor</span>
+    <h2 class="titulo-reto">El paquete estático</h2>
+    <p>Prepara en el laboratorio index.html, estilos.css y LEEME.txt. El HTML debe enlazar el CSS con ruta relativa. Descarga el ZIP, descomprímelo en una carpeta nueva y abre index.html con file://. Comprueba que el estilo carga. En el cuaderno, escribe la URL de ejemplo que correspondería a cada archivo y una frase que diga por qué esa URL no está activa.</p>
+    <p class="reto-id">reto_id: bach1-tic-L11</p>
+  </section>
+
+  <footer class="leccion-pie">
+    <strong>Les vencimos</strong> · L11 de 32 · bloque A · offline / file:// · sin CDN · bloque A · Proyecto TIC
+  </footer>
+</div>
+</body>
+</html>

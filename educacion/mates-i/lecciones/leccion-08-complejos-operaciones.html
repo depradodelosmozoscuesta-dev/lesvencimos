@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<meta name="theme-color" content="#FAF7F0"/>
+<title>Lección 08 · Operaciones con complejos · Les vencimos</title>
+<link rel="icon" href="../../../../brand/favicon/favicon.svg" type="image/svg+xml"/>
+<link rel="icon" href="../../../../brand/favicon/favicon-32.png" sizes="32x32" type="image/png"/>
+<link rel="apple-touch-icon" href="../../../../brand/favicon/apple-touch-icon.png"/>
+<link rel="manifest" href="../manifest.webmanifest"/>
+<link rel="stylesheet" href="../../../../profesor/_plantilla-leccion/leccion-shell.css"/>
+<link rel="stylesheet" href="../../../../profesor/_maestro/maestro-puntero.css"/>
+<script src="../../../../profesor/_plantilla-leccion/leccion-shell-nav.js" defer></script>
+<script src="../../../../profesor/_maestro/maestro-runtime.js" defer></script>
+<style>
+
+.figura-svg{background:#fff;border:1px solid rgba(14,14,12,.12);border-radius:10px;padding:.45rem;margin:.5rem 0 1rem}
+.figura-svg svg{width:100%;height:auto;display:block}
+.glosa{margin:0 0 1rem;padding:0}
+.glosa div{margin:0 0 .55rem;padding:.55rem .7rem;background:#fff;border:1px solid rgba(14,14,12,.12);border-radius:8px}
+.glosa dt{font-weight:700;color:#0E0E0C}
+.glosa dd{margin:.15rem 0 0;color:#2A2620}
+.ej{margin:0 0 1rem;padding:.9rem 1rem;background:#fff;border:1px solid rgba(14,14,12,.12);border-left:3px solid #C4A15A;border-radius:10px}
+.ej h3{margin:0 0 .4rem}
+.ej ol{margin:.3rem 0 0}
+.error-tipico{margin:0 0 1rem;padding:.9rem 1rem;background:#FBF3EE;border:1px solid rgba(168,90,60,.35);border-left:3px solid #A85A3C;border-radius:10px}
+.editor{min-height:8.5rem;padding:.7rem .8rem;border:1px solid rgba(14,14,12,.28);border-radius:8px;background:#FFFCF5;font-family:ui-monospace,"Cascadia Code","Segoe UI Mono",monospace;font-size:1rem;line-height:1.45;white-space:pre-wrap}
+.editor:focus{outline:2px solid #C4A15A}
+.fila{display:flex;flex-wrap:wrap;gap:.45rem .8rem;align-items:center;margin:.4rem 0 .6rem}
+.fila label{font-weight:650;font-size:.92rem}
+.fila input[type="range"]{width:10rem;accent-color:#C4A15A}
+.salida{font-variant-numeric:tabular-nums;font-weight:700;color:#2F5D7A}
+.nota-local{font-size:.88rem;color:#5C564C}
+details{margin:0 0 .7rem;background:#fff;border:1px solid rgba(14,14,12,.12);border-radius:10px;padding:.55rem .8rem}
+details summary{cursor:pointer;font-weight:700;color:#0E0E0C}
+.porque{margin:.55rem 0 0;padding:.55rem .7rem;background:#E4F0E8;border-radius:8px}
+table.ops{width:100%;border-collapse:collapse;margin:.4rem 0 1rem;font-size:1rem}
+table.ops th,table.ops td{border:1px solid rgba(14,14,12,.12);padding:.35rem .5rem;text-align:left}
+table.ops th{background:#F0EBE0}
+.boton{font:inherit;font-weight:700;font-size:.85rem;padding:.3rem .7rem;border-radius:999px;border:1px solid #C4A15A;background:#fff;color:#2A2620;cursor:pointer}
+
+</style>
+<style>
+.editor,textarea.editor{width:100%;min-height:5.5rem;font-family:ui-monospace,monospace;font-size:.95rem;line-height:1.45;padding:.55rem .65rem;border:1px solid rgba(196,161,90,.45);border-radius:8px;background:#161512;color:#E6E1D6;resize:vertical}
+.lienzo{display:block;width:100%;height:260px;background:#161512;border:1px solid #C4A15A;border-radius:8px;touch-action:none;cursor:crosshair;margin:.4rem 0 1rem}
+.fila-lienzo{display:flex;flex-wrap:wrap;gap:.4rem;margin:.45rem 0 1rem}
+.boton-lienzo{font:inherit;font-weight:700;font-size:.85rem;padding:.45rem .85rem;border-radius:999px;border:1px solid #C4A15A;background:transparent;color:#E6E1D6;cursor:pointer}
+</style>
+</head>
+<body class="leccion-shell" data-maestro-json="maestro-08.json">
+<div class="leccion-wrap">
+
+  <nav class="leccion-barra" aria-label="Navegación de lección" data-actual="8" data-total="48">
+    <div class="leccion-progreso" role="status">
+      <span class="progreso-texto"><strong>8</strong> de <strong>48</strong></span>
+      <a class="atajo atajo-maestro" href="?maestro=1">Modo maestro</a>
+      <div class="progreso-pista" aria-hidden="true"><div class="progreso-lleno" style="width:17%"></div></div>
+    </div>
+    <div class="leccion-atajos">
+      <a class="atajo atajo-calc" href="../../../../modulos/calculadora.html" title="Calculadora offline">Calculadora</a>
+      <a class="atajo atajo-prev" href="leccion-07-complejos-raices.html" title="Lección 07">← Anterior</a>
+      <a class="atajo atajo-next" href="leccion-09-historia-conjuntos.html" title="Lección 09">Siguiente →</a>
+    </div>
+  </nav>
+
+  <header class="leccion-top">
+    <a class="leccion-marca" href="../../../../index.html">Les <span>vencimos</span></a>
+    <p class="leccion-meta-top">1º Bachillerato Matemáticas I · Ciencias y Tecnología</p>
+  </header>
+
+  <header class="bloque-titulo" id="maestro-titulo" data-maestro="titulo">
+    <span class="eyebrow">Lección 08 · A · Sentido numérico</span>
+    <h1 class="titulo-leccion" id="titulo-leccion"><em>Operar</em> con complejos</h1>
+    <p class="meta-leccion">Sentido numérico: estrategias para operar con números complejos en casos sencillos, suma, resta, producto y cociente. Decreto 40/2022, Castilla y León.</p>
+  </header>
+
+
+  <section class="bloque-cuerpo" id="maestro-objetivos">
+    <h2>Objetivos</h2>
+    <ul>
+      <li>Sumar, restar y multiplicar complejos en forma binómica.</li>
+      <li>Dividir multiplicando numerador y denominador por el conjugado del denominador.</li>
+      <li>Comprobar un cociente multiplicando de nuevo y recuperando el dividendo.</li>
+    </ul>
+  </section>
+  <section class="bloque-cuerpo" id="maestro-explicacion">
+    <h2>Explicación</h2>
+    <p>Operar con complejos, en los casos sencillos del sentido numérico, se hace con la forma a + bi y con i<sup>2</sup> = −1. No hay una tecla nueva: hay las mismas operaciones, con la regla de que i<sup>2</sup> se sustituye por −1 en cuanto aparece.</p>
+    <h3>Suma y resta</h3>
+    <p>Se juntan partes reales con partes reales e imaginarias con imaginarias. (a + bi) + (c + di) = (a + c) + (b + d)i. La resta cambia el signo de las dos componentes del segundo: (a − c) + (b − d)i. Es la misma idea que sumar vectores (a, b) y (c, d). El nombre cambia; la cuenta de las parejas, no.</p>
+    <h3>Producto</h3>
+    <p>(a + bi)(c + di) = ac + adi + bci + bdi<sup>2</sup> = ac + (ad + bc)i + bd(−1) = (ac − bd) + (ad + bc)i. Cada término sale de la propiedad distributiva. El único sitio donde entra i<sup>2</sup> es el último, y por eso el producto de las partes imaginarias cambia de signo al pasar a la parte real.</p>
+    <h3>Cociente por el conjugado</h3>
+    <p>Para dividir entre c + di, con c y d no ambos cero, se multiplica arriba y abajo por el conjugado c − di. El denominador queda (c + di)(c − di) = c<sup>2</sup> − (di)<sup>2</sup> = c<sup>2</sup> − d<sup>2</sup> i<sup>2</sup> = c<sup>2</sup> + d<sup>2</sup>, un real positivo. Después se divide cada componente del numerador entre ese real. No se divide «parte real entre parte real» dejando la i sin tocar: eso no es el cociente.</p>
+    <h3>El caso que se verifica</h3>
+    <p>El ejemplo 2 divide (2 + 3i) entre (1 − i) y vuelve a multiplicar. Si el producto del cociente por el divisor no devuelve el dividendo, la división está mal aunque el aspecto sea binómico.</p>
+  </section>
+  <section class="bloque-cuerpo" id="maestro-glosa">
+    <h2>Glosa de los símbolos de esta lección</h2>
+    <dl class="glosa">
+      <div><dt>z + w</dt><dd>Suma binómica: se suman partes reales y partes imaginarias por separado.</dd></div>
+      <div><dt>z − w</dt><dd>Resta: se restan esas mismas partes.</dd></div>
+      <div><dt>zw</dt><dd>Producto. Al final, i<sup>2</sup> se sustituye por −1.</dd></div>
+      <div><dt>z / w</dt><dd>Cociente: se multiplica por el conjugado de w y se divide entre |w|<sup>2</sup>.</dd></div>
+      <div><dt>w̄</dt><dd>Conjugado del divisor, la herramienta que vuelve real el denominador.</dd></div>
+    </dl>
+  </section>
+  <section class="bloque-cuerpo" id="maestro-ejemplo1">
+    <h2>Ejemplo 1, paso a paso</h2>
+    <div class="ej">
+      <h3>Suma, resta y producto de 2 + 3i y 1 − i</h3>
+      <ol>
+        <li>Suma: (2 + 1) + (3 + (−1))i = 3 + 2i.</li>
+        <li>Resta: (2 − 1) + (3 − (−1))i = 1 + 4i.</li>
+        <li>Producto: (2 + 3i)(1 − i) = 2 · 1 + 2 · (−i) + 3i · 1 + 3i · (−i).</li>
+        <li>Eso es 2 − 2i + 3i − 3i<sup>2</sup>.</li>
+        <li>−3i<sup>2</sup> = −3(−1) = 3. Parte real: 2 + 3 = 5. Parte imaginaria: −2 + 3 = 1.</li>
+      </ol>
+      <p>Resultados: suma <strong>3 + 2i</strong>, resta <strong>1 + 4i</strong>, producto <strong>5 + i</strong>.</p>
+    </div>
+  </section>
+  <section class="bloque-cuerpo" id="maestro-ejemplo2">
+    <h2>Ejemplo 2, paso a paso, cociente verificado</h2>
+    <div class="ej">
+      <h3>(2 + 3i) / (1 − i)</h3>
+      <ol>
+        <li>Conjugado del divisor: 1 + i. Módulo al cuadrado: 1<sup>2</sup> + (−1)<sup>2</sup> = 2.</li>
+        <li>Numerador nuevo: (2 + 3i)(1 + i) = 2 + 2i + 3i + 3i<sup>2</sup> = 2 + 5i − 3 = −1 + 5i.</li>
+        <li>Cociente: (−1)/2 + (5/2)i = −1/2 + (5/2)i.</li>
+        <li>Verificación. (−1/2 + (5/2)i)(1 − i) = −1/2 + (1/2)i + (5/2)i − (5/2)i<sup>2</sup>.</li>
+        <li>Parte real: −1/2 + 5/2 = 4/2 = 2, porque −(5/2)i<sup>2</sup> = 5/2. Parte imaginaria: 1/2 + 5/2 = 6/2 = 3.</li>
+        <li>Se recupera 2 + 3i. El cociente es correcto.</li>
+      </ol>
+      <p>Resultado: <strong>−1/2 + (5/2)i</strong>. Aparte, (3 + 4i)(3 − 4i) = 9 − (4i)<sup>2</sup> = 9 + 16 = 25, el cuadrado del módulo, para recordar que conjugados se multiplican en un real.</p>
+    </div>
+  </section>
+  <section class="bloque-cuerpo" id="maestro-error">
+    <h2>Error típico, corregido</h2>
+    <div class="error-tipico">
+      <p>Se divide (2 + 3i) / (1 − i) haciendo 2/1 + (3/−1)i = 2 − 3i. Eso trata la expresión como si las partes no se mezclaran. El producto de comprobación falla: (2 − 3i)(1 − i) = 2 − 2i − 3i + 3i<sup>2</sup> = 2 − 5i − 3 = −1 − 5i, que no es 2 + 3i.</p>
+      <p>La corrección es multiplicar por el conjugado. El denominador 1 + 1 = 2 es real, y el numerador −1 + 5i se reparte entre ese 2. La verificación del ejemplo 2 es la que manda, no el parecido con una división de fracciones término a término.</p>
+    </div>
+  </section>
+  <section class="bloque-cuerpo" id="maestro-figura">
+    <h2>Figura: sumar es unir desplazamientos</h2>
+    <p>2 + 3i es el punto (2, 3). Sumar 1 − i desplaza una unidad a la derecha y una hacia abajo, hasta (3, 2), que es 3 + 2i. El producto y el cociente no se leen como esa misma traslación: por eso la figura solo ilustra la suma, que sí es vectorial.</p>
+    <div class="figura-svg">
+      <svg viewBox="0 0 680 240" role="img" aria-labelledby="fig08t">
+        <title id="fig08t">Suma de 2 más 3i y 1 menos i hasta 3 más 2i</title>
+        <rect width="680" height="240" fill="#FAF7F0"/>
+        <line x1="80" y1="200" x2="560" y2="200" stroke="#2A2620"/>
+        <line x1="120" y1="30" x2="120" y2="220" stroke="#2A2620"/>
+        <line x1="120" y1="200" x2="200" y2="80" stroke="#2F5D7A" stroke-width="3"/>
+        <line x1="200" y1="80" x2="240" y2="120" stroke="#3D6B4F" stroke-width="3"/>
+        <circle cx="240" cy="120" r="5" fill="#C4A15A"/>
+        <text x="150" y="70" font-size="15" fill="#2F5D7A">2 + 3i</text>
+        <text x="248" y="108" font-size="15" fill="#0E0E0C">3 + 2i</text>
+        <text x="250" y="150" font-size="14" fill="#3D6B4F">+ (1 − i)</text>
+      </svg>
+    </div>
+    <p>Escala: 40 px por unidad. Desde el origen (120, 200), el 2 avanza 80 px y el 3 sube 120 px: se llega a (200, 80). El sumando (1, −1) avanza 40 y baja 40: (240, 120). La parte imaginaria del resultado es 2, y 200 − 80 = 120 de altura sobre el eje, que son 3 unidades solo en el primer vector; al bajar una, quedan 2. Cuadra con 3 + 2i.</p>
+  </section>
+  <section class="bloque-vida-real" id="maestro-vida">
+    <p class="etiqueta-bloque">En la vida real</p>
+    <h2 class="titulo-vida">Comprobar el cociente es parte de la operación</h2>
+    <div class="contenido-vida">
+      <p>Igual que al dividir enteros se multiplica para ver el resto, aquí el cociente se acepta cuando al multiplicarlo por el divisor reaparece el dividendo. −1/2 + (5/2)i no se memoriza: se fabrica con el conjugado y se contrasta. Esa comprobación cabe en un margen del cuaderno.</p>
+    </div>
+  </section>
+  <section class="bloque-cuerpo" id="maestro-practica">
+    <h2>Práctica en la misma página</h2>
+    <p>z = 2 + 3i está fijo. Mueve la parte real y la imaginaria de w. La figura dibuja z + w. En la caja, repite el cociente (2 + 3i)/(1 − i) hasta llegar a −1/2 + (5/2)i y la multiplicación de vuelta.</p>
+    <div class="figura-svg">
+      <svg id="svg-op" viewBox="0 0 680 220" role="img" aria-labelledby="fig08v">
+        <title id="fig08v">Suma viva de complejos</title>
+        <rect width="680" height="220" fill="#FFFFFF"/>
+        <line x1="40" y1="160" x2="660" y2="160" stroke="#E4DDD0"/>
+        <line x1="160" y1="16" x2="160" y2="210" stroke="#E4DDD0"/>
+        <circle id="ps" cx="240" cy="40" r="6" fill="#C4A15A"/>
+        <text id="ts" x="280" y="36" font-size="16" fill="#0E0E0C">suma</text>
+      </svg>
+    </div>
+    <div class="fila">
+      <label for="wc">parte real de w (−2 a 3)</label>
+      <input id="wc" type="range" min="-2" max="3" step="1" value="1"/>
+      <label for="wd">parte imaginaria de w (−2 a 3)</label>
+      <input id="wd" type="range" min="-2" max="3" step="1" value="-1"/>
+      <span class="salida" id="lectura">(2+3i)+(1−i) = 3+2i</span>
+    </div>
+    <div id="desarrollo" class="editor" contenteditable="true" role="textbox" aria-multiline="true" aria-label="Tu desarrollo"></div>
+    <p class="nota-local">Clave local: bach1-mates-i-L08. No se envía a ningún sitio.</p>
+  </section>
+  <section class="bloque-cuerpo" id="maestro-comprueba">
+    <h2>Comprueba</h2>
+    <details>
+      <summary>Calcula (1 + 2i) + (3 − 5i).</summary>
+      <p>Respuesta: <strong>4 − 3i</strong>.</p>
+      <p>Por qué: 1 + 3 = 4 y 2 + (−5) = −3. La suma no mezcla la parte real con la imaginaria.</p>
+    </details>
+    <details>
+      <summary>Calcula (1 + i)<sup>2</sup>.</summary>
+      <p>Respuesta: 1 + 2i + i<sup>2</sup> = 1 + 2i − 1 = <strong>2i</strong>.</p>
+      <p>Por qué: el cuadrado de la suma tiene el doble producto 2i y el cuadrado de i, que es −1 y cancela al 1 real.</p>
+    </details>
+    <details>
+      <summary>Calcula (2 + i) / (1 + i) y compruébalo.</summary>
+      <p>Respuesta: <strong>3/2 − (1/2)i</strong>.</p>
+      <p>Por qué: se multiplica por 1 − i. Numerador: (2 + i)(1 − i) = 2 − 2i + i − i<sup>2</sup> = 3 − i. Denominador: 1 + 1 = 2. Al multiplicar de vuelta, (3/2 − i/2)(1 + i) = 3/2 + 3i/2 − i/2 − i<sup>2</sup>/2 = 2 + i.</p>
+    </details>
+  </section>
+  <section class="bloque-cuerpo" id="maestro-cierre">
+<section class="bloque-cuerpo" id="maestro-editor">
+  <h2>Tu resolución</h2>
+  <p>Escribe el desarrollo en este cuadro. Si necesitas un boceto, dibújalo en el lienzo de esta misma página. No se envía a ningún sitio.</p>
+  <label for="razonamiento-08">Tu resolución</label>
+  <textarea class="editor" id="razonamiento-08" placeholder="Dato… Modelo… Cálculo… Comprobación…"></textarea>
+  <p>Lienzo para el boceto.</p>
+  <canvas id="lienzo-08" class="lienzo" width="900" height="260" aria-label="Lienzo para el boceto de la lección 08"></canvas>
+  <div class="fila-lienzo"><button type="button" class="boton-lienzo" data-clear="lienzo-08">Borrar lienzo</button></div>
+</section>
+    <h2>Mini cierre</h2>
+    <p>Suma y resta, por partes. Producto, distributiva e i<sup>2</sup> = −1. Cociente, conjugado en el denominador hasta dejar un real. Un cociente no está terminado hasta que la multiplicación inversa recupera el dato.</p>
+  </section>
+  <section class="bloque-reto" id="maestro-reto">
+    <span class="etiqueta-reto">Reto</span>
+    <h2 class="titulo-reto">Un cociente corto, verificado</h2>
+    <p>Divide 1 + i entre 1 − i. El denominador, tras el conjugado, vale 2. Escribe el resultado y multiplícalo por 1 − i para recuperar 1 + i. Si no lo recuperas, el error está en el numerador.</p>
+    <p class="reto-id">reto_id: bach1-mates-i-L08</p>
+  </section>
+
+
+  <footer class="leccion-pie">
+    <strong>Les vencimos</strong> · L08 de 48 · Matemáticas I · Castilla y León · offline
+  </footer>
+</div>
+
+<script type="application/json" data-maestro="guion">
+{
+  "curso": "bach1-mates-i",
+  "leccion": 8,
+  "titulo": "Operaciones con complejos",
+  "url": "leccion-08-complejos-operaciones.html",
+  "musica": false,
+  "pasos": [
+    {
+      "id": "intro",
+      "decir": "Lección 8. Sumar y restar complejos es operar por partes. Multiplicar usa que i al cuadrado vale menos 1. Dividir usa el conjugado.",
+      "ancla": "#maestro-titulo",
+      "puntero": true,
+      "esperaMs": 420
+    },
+    {
+      "id": "reglas",
+      "decir": "El producto (a más b i) por (c más d i) tiene parte real a c menos b d, y parte imaginaria a d más b c.",
+      "ancla": "#maestro-explicacion",
+      "puntero": true,
+      "esperaMs": 300
+    },
+    {
+      "id": "ej1",
+      "decir": "Ejemplo. 2 más 3 i más 1 menos i es 3 más 2 i. La resta es 1 más 4 i. El producto es 5 más i, porque menos 3 i al cuadrado suma 3 a la parte real.",
+      "ancla": "#maestro-ejemplo1",
+      "puntero": true,
+      "esperaMs": 300
+    },
+    {
+      "id": "ej2",
+      "decir": "Cociente. (2 más 3 i) entre (1 menos i) es menos un medio más cinco medios i. Al multiplicar de vuelta sale otra vez 2 más 3 i.",
+      "ancla": "#maestro-ejemplo2",
+      "puntero": true,
+      "esperaMs": 300
+    },
+    {
+      "id": "error",
+      "decir": "Error: dividir parte a parte, 2 entre 1 y 3 entre menos 1. Esa pareja, por el divisor, no devuelve el dividendo.",
+      "ancla": "#maestro-error",
+      "puntero": true,
+      "esperaMs": 300
+    },
+    {
+      "id": "figura",
+      "decir": "La figura solo suma: desde 2 más 3 i, sumar 1 menos i llega a 3 más 2 i.",
+      "ancla": "#maestro-figura",
+      "puntero": true,
+      "esperaMs": 300
+    },
+    {
+      "id": "practica",
+      "decir": "Mueve w y lee la suma. En la caja deja escrito el cociente verificado.",
+      "ancla": "#maestro-practica",
+      "puntero": true,
+      "esperaMs": 300
+    },
+    {
+      "id": "cierre",
+      "decir": "Cierre: conjugado en el denominador y comprobación multiplicando. La próxima lección ordena los conjuntos.",
+      "ancla": "#maestro-cierre",
+      "puntero": true,
+      "esperaMs": 300
+    }
+  ]
+}
+</script>
+<script>
+
+(function(){
+  var key='bach1-mates-i-L08';
+  var ed=document.getElementById('desarrollo');
+  if(!ed) return;
+  try{
+    var saved=localStorage.getItem(key);
+    if(saved) ed.textContent=saved;
+  }catch(e){}
+  ed.addEventListener('input', function(){
+    try{ localStorage.setItem(key, ed.innerText); }catch(e){}
+  });
+})();
+
+(function(){
+  var wc=document.getElementById('wc');
+  var wd=document.getElementById('wd');
+  var ps=document.getElementById('ps');
+  var ts=document.getElementById('ts');
+  var lec=document.getElementById('lectura');
+  function pinta(){
+    var c=Number(wc.value), d=Number(wd.value);
+    var ar=2+c, bi=3+d;
+    ps.setAttribute('cx', String(160+ar*40));
+    ps.setAttribute('cy', String(160-bi*32));
+    var txt='(2+3i)+('+c+(d<0?d:'+'+d)+'i) = '+ar+(bi<0?bi:'+'+bi)+'i';
+    ts.textContent=txt;
+    lec.textContent=txt;
+  }
+  wc.addEventListener('input', pinta);
+  wd.addEventListener('input', pinta);
+  pinta();
+})();
+
+</script>
+<script>(function(){function liga(c){var ctx=c.getContext('2d');function fondo(){ctx.fillStyle='#161512';ctx.fillRect(0,0,c.width,c.height);ctx.strokeStyle='#C4A15A';ctx.strokeRect(.5,.5,c.width-1,c.height-1);}function fit(){var r=c.getBoundingClientRect();var w=Math.max(320,Math.floor(r.width));if(c.width!==w){c.width=w;c.height=260;fondo();}}var dib=false,last=null;function pos(ev){var r=c.getBoundingClientRect();var s=ev.touches?ev.touches[0]:ev;return{x:(s.clientX-r.left)*c.width/r.width,y:(s.clientY-r.top)*c.height/r.height};}c.addEventListener('pointerdown',function(ev){dib=true;last=pos(ev);try{c.setPointerCapture(ev.pointerId);}catch(e){}ev.preventDefault();});c.addEventListener('pointermove',function(ev){if(!dib)return;var p=pos(ev);ctx.strokeStyle='#E6E1D6';ctx.lineWidth=2.2;ctx.lineCap='round';ctx.beginPath();ctx.moveTo(last.x,last.y);ctx.lineTo(p.x,p.y);ctx.stroke();last=p;ev.preventDefault();});function up(){dib=false;}c.addEventListener('pointerup',up);c.addEventListener('pointerleave',up);var b=document.querySelector('[data-clear="'+c.id+'"]');if(b)b.addEventListener('click',fondo);fit();window.addEventListener('resize',fit);}document.querySelectorAll('canvas.lienzo').forEach(liga);})();</script>
+</body>
+</html>

@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#FAF7F0">
+<title>L29 · Comunicar pese al nivel</title>
+<style>
+:root{--bg:#FAF7F0;--ink:#2A2620;--carbon:#0E0E0C;--muted:#5C564C;--card:#fff;--gold:#C4A15A;--gold-soft:#F5EDD8;--gold-deep:#8A6B2F;--green:#3D6B4F;--green-soft:#E4F0E8;--blue:#2F5D7A;--blue-soft:#E3EEF4;--rose:#9B3A4A;--rose-soft:#F8E8EB;--shadow:0 10px 32px rgba(42,38,32,.09);--radius:18px}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{min-height:100%;background:var(--bg);color:var(--ink);font-family:"Segoe UI",system-ui,-apple-system,sans-serif;-webkit-font-smoothing:antialiased}
+body{display:flex;flex-direction:column;align-items:center;padding:14px 10px 36px}
+.wrap{width:100%;max-width:1040px}
+header{text-align:center;margin-bottom:12px}
+.badge{display:inline-block;font-size:.78rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--gold-deep);background:var(--gold-soft);padding:4px 12px;border-radius:999px;margin-bottom:8px}
+h1{font-size:clamp(1.25rem,4.5vw,1.85rem);line-height:1.2;font-weight:800;color:#0E0E0C}
+.subtitle{margin-top:6px;font-size:clamp(.9rem,2.8vw,1.05rem);color:var(--muted);font-weight:500}
+.story{background:linear-gradient(135deg,#F5EDD8,#E3EEF4 55%,#E4F0E8);border:2px solid #E0D0A8;border-radius:var(--radius);padding:12px 14px;margin-bottom:14px;font-size:clamp(.9rem,2.5vw,1.02rem);line-height:1.45;display:flex;gap:14px;align-items:center}
+.story-avatar{flex:0 0 auto;width:72px;height:72px}
+.story-avatar svg{width:72px;height:72px;display:block}
+.story strong{color:var(--gold-deep)}
+.card{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);padding:16px 14px 18px;margin-bottom:14px}
+.card h2{font-size:clamp(1.05rem,3vw,1.25rem);font-weight:800;margin-bottom:8px;color:#0E0E0C}
+.hint{font-size:clamp(.88rem,2.4vw,1rem);color:var(--muted);line-height:1.45;margin-bottom:10px}
+.btn-row{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px;justify-content:center}
+button.action{appearance:none;border:none;border-radius:999px;padding:10px 18px;font-weight:800;font-size:.95rem;cursor:pointer;background:#C4A15A;color:#0E0E0C}
+button.action.secondary{background:#fff;color:#8A6B2F;border:2px solid #C4A15A}
+button.action:disabled{opacity:.55;cursor:default}
+.stage{position:relative;width:100%;min-height:220px;background:linear-gradient(#E7E1D6 0%,#FAF7F0 72%);border-radius:14px;overflow:hidden;border:2px solid #C4A15A;margin-bottom:12px;display:flex;align-items:center;justify-content:center}
+.stage svg{width:100%;height:100%;max-height:320px;display:block}
+.verdict{text-align:center;font-size:1.02rem;font-weight:700;padding:12px;border-radius:14px;margin:10px 0;display:none;border:2px solid #E0D0A8;line-height:1.4}
+.verdict.show{display:block}.verdict.ok{background:var(--green-soft);color:#2A5238;border-color:#9BC4A8}.verdict.bad{background:var(--rose-soft);color:#7A2A36;border-color:#E8A8B0}
+.opts{display:grid;gap:8px;margin:10px 0}
+.opt{padding:12px 14px;border:2px solid #D9D0C0;border-radius:12px;background:#fff;cursor:pointer;font-weight:700;text-align:left;font-size:.95rem;color:#2A2620;line-height:1.35}
+.opt:hover{border-color:#C4A15A}.opt.ok{border-color:#3D6B4F;background:#E4F0E8}.opt.bad{border-color:#9B3A4A;background:#F8E8EB}
+.opt:disabled{cursor:default}
+.prompt{font-weight:800;text-align:center;margin:8px 0;font-size:clamp(1rem,2.6vw,1.15rem);line-height:1.35;color:#0E0E0C}
+.counter{text-align:center;font-size:.8rem;font-weight:800;color:#2F5D7A;letter-spacing:.04em;text-transform:uppercase}
+.glossary{display:grid;gap:.45rem;margin:0;padding:12px 14px;background:#FFFcf5;border-radius:12px;border:2px solid #C4A15A;font-size:.95rem;line-height:1.4}
+.glossary strong{color:#8A6B2F}
+footer{text-align:center;font-size:.8rem;color:var(--muted);margin-top:4px}
+body.preview-mode .story,body.preview-mode footer,body.preview-mode .hide-preview{display:none}
+@media (max-width:640px){.story{flex-direction:column;text-align:center}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="badge">Lección 29 · B · Plurilingüismo · CyL Decreto 40/2022</div>
+    <h1>La palabra que no tienes</h1>
+    <p class="subtitle">It's a thing you use to… What do you call…?</p>
+  </header>
+  <div class="story">
+    <div class="story-avatar"><svg viewBox="0 0 80 80" aria-hidden="true"><circle cx="40" cy="40" r="38" fill="#F5EDD8"/><path d="M22 72 Q40 52 58 72" fill="#2A2620"/><ellipse cx="40" cy="38" rx="18" ry="20" fill="#E8C4A0"/><path d="M22 33 Q30 8 48 14 Q60 20 56 36 Q46 18 32 22 Q24 24 22 33Z" fill="#2A2620"/><ellipse cx="33" cy="40" rx="2.2" ry="2.6" fill="#0E0E0C"/><ellipse cx="47" cy="40" rx="2.2" ry="2.6" fill="#0E0E0C"/><path d="M36 50 Q40 53 44 50" fill="none" stroke="#8A6B2F" stroke-width="1.6"/><path d="M58 28 h12 M64 22 v12" stroke="#C4A15A" stroke-width="2"/></svg></div>
+    <div><p>En una tienda de <strong>Salamanca</strong>, Inés no recuerda <em>receipt</em>. Pide el papel que demuestra lo que ha pagado y sigue la cola.</p></div>
+  </div>
+  <div class="card">
+    <h2>Elige la vuelta que sí se entiende</h2>
+    <p class="hint">Una sola opción define de verdad. Un invento presentado como palabra oficial no cuenta.</p>
+    <div class="stage" id="stage"></div>
+    <p class="counter" id="rcounter"></p>
+    <p class="prompt" id="rprompt"></p>
+    <div class="opts" id="ropts"></div>
+    <div class="verdict" id="rverdict"></div>
+    <div class="btn-row"><button class="action secondary" id="nextRound" type="button">Siguiente caso</button></div>
+  </div>
+  <div class="card hide-preview" id="quizCard">
+    <h2>Mini-check</h2>
+    <p class="hint">Cuatro cierres: comparar, avisar, la función del paraguas y la estrategia que falla.</p>
+    <p class="counter" id="qcounter"></p>
+    <p class="prompt" id="qprompt"></p>
+    <div class="opts" id="qopts"></div>
+    <div class="verdict" id="qverdict"></div>
+    <div class="btn-row"><button class="action secondary" id="nextQuiz" type="button">Siguiente pregunta</button></div>
+  </div>
+  <div class="card glossary hide-preview"><strong>Circumlocution</strong> — decir el sentido porque falta la palabra. · <strong>It's a thing you use to…</strong> — objeto y función. · <strong>It's a person who…</strong> — persona. · <strong>It's a place where…</strong> — lugar. · <strong>What do you call…?</strong> — ¿cómo se llama? · <strong>I don't know the exact word</strong> — aviso: lo que sigue no es el nombre oficial. · <strong>Kettle</strong> — hervidor: a thing you use to boil water. · <strong>Receipt</strong> — ticket: the paper that shows what you paid. · <strong>Neighbour</strong> — a person who lives next to you.</div>
+  <footer>1º Bachillerato · Inglés I · CyL · offline · sin red</footer>
+</div>
+<script>
+window.LESSON = {"rounds": [{"q": "No te sale kettle. ¿Qué dices?", "scene": {"layout": "bubbles", "title": "kettle", "parts": [{"t": "definición", "on": true}, {"t": "invento", "on": false}], "foot": "Hervir agua, sin nombre falso", "pic": "object"}, "opts": [{"t": "I don't know the exact word. It's a thing you use to boil water.", "ok": true, "why": "Avisas de que defines y dices la función. What do you call it? puede ir justo después. Por eso se queda «I don't know the exact word. It's a thing you use to boil water.»: es la forma que responde al caso sin mover el sentido que esta lección acaba de fijar."}, {"t": "The official word is boil-machine.", "ok": false, "why": "Boil-machine no es la palabra inglesa. La presentas como oficial y el otro aprende un invento. La opción que sí cierra el caso es «I don't know the exact word. It's a thing you use to boil water.»; marcar «The official word is boil-machine.» desplaza el significado que la pregunta pide."}, {"t": "No sé.", "ok": false, "why": "Cortas. No hay objeto, ni función, ni pregunta. La opción que sí cierra el caso es «I don't know the exact word. It's a thing you use to boil water.»; marcar «No sé.» desplaza el significado que la pregunta pide."}, {"t": "It is water.", "ok": false, "why": "Demasiado corto: el agua no es el hervidor. Falta what you use it for. La opción que sí cierra el caso es «I don't know the exact word. It's a thing you use to boil water.»; marcar «It is water.» desplaza el significado que la pregunta pide."}]}, {"q": "¿Qué pregunta pide el nombre después de definir?", "scene": {"layout": "stack", "title": "Pregunta", "parts": [{"t": "What do you call", "on": true}, {"t": "Yeah, right", "on": false}, {"t": "I agree", "on": false}, {"t": "You are wrong", "on": false}], "foot": "Primero el sentido, luego el nombre", "pic": "bubbles"}, "opts": [{"t": "What do you call the thing you use to boil water?", "ok": true, "why": "La definición va dentro de la pregunta. What's the word for…? hace el mismo trabajo. Por eso se queda «What do you call the thing you use to boil water?»: es la forma que responde al caso sin mover el sentido que esta lección acaba de fijar."}, {"t": "Yeah, right, the kettle.", "ok": false, "why": "Eso es ironía, y además ya usas la palabra que decías no tener. La opción que sí cierra el caso es «What do you call the thing you use to boil water?»; marcar «Yeah, right, the kettle.» desplaza el significado que la pregunta pide."}, {"t": "I agree.", "ok": false, "why": "No pide un nombre. Es acuerdo de otra lección. La opción que sí cierra el caso es «What do you call the thing you use to boil water?»; marcar «I agree.» desplaza el significado que la pregunta pide."}, {"t": "You are wrong.", "ok": false, "why": "No define nada y ataca. No es circunlocución. La opción que sí cierra el caso es «What do you call the thing you use to boil water?»; marcar «You are wrong.» desplaza el significado que la pregunta pide."}]}, {"q": "Quieres el ticket. ¿Qué petición se entiende sin receipt?", "scene": {"layout": "split", "title": "receipt", "parts": [{"t": "the paper", "on": true}, {"t": "the pay", "on": false}], "foot": "Papel y función", "pic": "object"}, "opts": [{"t": "Can I have the paper that shows what I paid?", "ok": true, "why": "Paper es el objeto. Shows what I paid es la función. Con eso basta en la tienda. Por eso se queda «Can I have the paper that shows what I paid?»: es la forma que responde al caso sin mover el sentido que esta lección acaba de fijar."}, {"t": "Can I have the pay?", "ok": false, "why": "Pay no es el papel. Suena a que pides el dinero, no el ticket. La opción que sí cierra el caso es «Can I have the paper that shows what I paid?»; marcar «Can I have the pay?» desplaza el significado que la pregunta pide."}, {"t": "Give me that.", "ok": false, "why": "That no dice qué. En un mostrador hay más de una cosa. La opción que sí cierra el caso es «Can I have the paper that shows what I paid?»; marcar «Give me that.» desplaza el significado que la pregunta pide."}, {"t": "What?", "ok": false, "why": "No pides nada concreto. El dependiente no puede adivinar el ticket. La opción que sí cierra el caso es «Can I have the paper that shows what I paid?»; marcar «What?» desplaza el significado que la pregunta pide."}]}, {"q": "Neighbour. ¿Qué molde le corresponde?", "scene": {"layout": "flow", "title": "persona", "parts": [{"t": "person who", "on": true}, {"t": "thing", "on": false}, {"t": "place", "on": false}, {"t": "list", "on": false}], "foot": "Vive al lado", "pic": "people"}, "opts": [{"t": "It's a person who lives next to you.", "ok": true, "why": "Es una persona y el relativo who lleva lo que la define: dónde vive respecto a ti. Por eso se queda «It's a person who lives next to you.»: es la forma que responde al caso sin mover el sentido que esta lección acaba de fijar."}, {"t": "It's a thing you use to live.", "ok": false, "why": "Un vecino no es un objeto. El molde thing no encaja. La opción que sí cierra el caso es «It's a person who lives next to you.»; marcar «It's a thing you use to live.» desplaza el significado que la pregunta pide."}, {"t": "It's a place where neighbours sit.", "ok": false, "why": "Eso definiría un lugar, no a la persona. Station sería un place where. La opción que sí cierra el caso es «It's a person who lives next to you.»; marcar «It's a place where neighbours sit.» desplaza el significado que la pregunta pide."}, {"t": "It's a list of neighbours.", "ok": false, "why": "Una lista sería un timetable o un censo. Neighbour es una persona. La opción que sí cierra el caso es «It's a person who lives next to you.»; marcar «It's a list of neighbours.» desplaza el significado que la pregunta pide."}]}, {"q": "No te sale timetable en la estación. ¿Qué pides?", "scene": {"layout": "scale", "title": "horas", "parts": [{"t": "list of times", "on": true}, {"t": "a watch", "on": false}, {"t": "a ticket", "on": false}, {"t": "a train", "on": false}], "foot": "Los horarios, no el reloj", "pic": "object"}, "opts": [{"t": "I need the list of times when the buses go.", "ok": true, "why": "Eso es un timetable: tiempos y salidas. No hace falta la palabra. Por eso se queda «I need the list of times when the buses go.»: es la forma que responde al caso sin mover el sentido que esta lección acaba de fijar."}, {"t": "I need a watch.", "ok": false, "why": "Un reloj da la hora de ahora, no el horario de los autobuses. La opción que sí cierra el caso es «I need the list of times when the buses go.»; marcar «I need a watch.» desplaza el significado que la pregunta pide."}, {"t": "I need the paper that shows what I paid.", "ok": false, "why": "Eso es un receipt. En la estación, antes de viajar, no es lo que pides si buscas las salidas. La opción que sí cierra el caso es «I need the list of times when the buses go.»; marcar «I need the paper that shows what I paid.» desplaza el significado que la pregunta pide."}, {"t": "I need a train, sin más.", "ok": false, "why": "Puede ser el deseo final, pero no describe el horario. La circunlocución de timetable es la lista de horas. La opción que sí cierra el caso es «I need the list of times when the buses go.»; marcar «I need a train, sin más.» desplaza el significado que la pregunta pide."}]}, {"q": "Scissors. ¿Qué definición no miente?", "scene": {"layout": "split", "title": "tijeras", "parts": [{"t": "cut paper", "on": true}, {"t": "boil water", "on": false}], "foot": "Cortar, no hervir", "pic": "object"}, "opts": [{"t": "It's a thing you use to cut paper.", "ok": true, "why": "La función es cortar. Aunque scissors sea plural, el molde thing you use to sigue siendo claro. Por eso se queda «It's a thing you use to cut paper.»: es la forma que responde al caso sin mover el sentido que esta lección acaba de fijar."}, {"t": "It's a thing you use to boil water.", "ok": false, "why": "Eso es un kettle. Si lo dices, te traen otra cosa. La opción que sí cierra el caso es «It's a thing you use to cut paper.»; marcar «It's a thing you use to boil water.» desplaza el significado que la pregunta pide."}, {"t": "It's a person who cuts paper.", "ok": false, "why": "Sería una persona, no las tijeras. El molde person who cambia el tipo. La opción que sí cierra el caso es «It's a thing you use to cut paper.»; marcar «It's a person who cuts paper.» desplaza el significado que la pregunta pide."}, {"t": "The official word is cut-thing.", "ok": false, "why": "Otra vez un invento presentado como nombre. La definición honesta no necesita bautizarlo. La opción que sí cierra el caso es «It's a thing you use to cut paper.»; marcar «The official word is cut-thing.» desplaza el significado que la pregunta pide."}]}, {"q": "Te acaban de decir umbrella. Tú ibas a pedir uno porque llueve. ¿Qué haces?", "scene": {"layout": "timeline", "title": "seguir", "parts": [{"t": "parar", "on": false}, {"t": "repetir y seguir", "on": true}, {"t": "inventar", "on": false}], "foot": "El puente ya no hace falta", "pic": "object"}, "opts": [{"t": "Umbrella. Can I borrow an umbrella?", "ok": true, "why": "Repites una vez y continúas el recado. La definición ya cumplió. Por eso se queda «Umbrella. Can I borrow an umbrella?»: es la forma que responde al caso sin mover el sentido que esta lección acaba de fijar."}, {"t": "Paras y buscas tres sinónimos antes de salir a la lluvia.", "ok": false, "why": "Retrasas el mensaje. Con la palabra ya puedes pedir. La opción que sí cierra el caso es «Umbrella. Can I borrow an umbrella?»; marcar «Paras y buscas tres sinónimos antes de salir a la lluvia.» desplaza el significado que la pregunta pide."}, {"t": "It's a thing you use to keep the rain off, otra vez, como si no te la hubieran dicho.", "ok": false, "why": "La circunlocución era para el hueco. El hueco ya está lleno. La opción que sí cierra el caso es «Umbrella. Can I borrow an umbrella?»; marcar «It's a thing you use to keep the rain off, otra vez, como si no te la hubieran dicho.» desplaza el significado que la pregunta pide."}, {"t": "The official word is rain-hat.", "ok": false, "why": "Ignoras la palabra que te acaban de dar y la sustituyes por un invento. La opción que sí cierra el caso es «Umbrella. Can I borrow an umbrella?»; marcar «The official word is rain-hat.» desplaza el significado que la pregunta pide."}]}, {"q": "Station. ¿Qué molde es el suyo?", "scene": {"layout": "stack", "title": "lugar", "parts": [{"t": "place where", "on": true}, {"t": "person", "on": false}, {"t": "thing you cut", "on": false}, {"t": "paper you paid", "on": false}], "foot": "Donde coges el tren", "pic": "object"}, "opts": [{"t": "It's a place where you catch a train.", "ok": true, "why": "Place where localiza. Catch a train dice qué haces allí. Por eso se queda «It's a place where you catch a train.»: es la forma que responde al caso sin mover el sentido que esta lección acaba de fijar."}, {"t": "It's a person who catches trains.", "ok": false, "why": "Eso sería un viajero, no la estación. La opción que sí cierra el caso es «It's a place where you catch a train.»; marcar «It's a person who catches trains.» desplaza el significado que la pregunta pide."}, {"t": "It's a thing you use to cut paper.", "ok": false, "why": "Eso define scissors, no la estación. El molde y la función no coinciden con un lugar. La opción que sí cierra el caso es «It's a place where you catch a train.»; marcar «It's a thing you use to cut paper.» desplaza el significado que la pregunta pide."}, {"t": "It's the paper that shows what you paid.", "ok": false, "why": "Eso define el ticket, un papel de compra. Puedes llevarlo encima en la estación, pero no dice qué es la estación. La opción que sí cierra el caso es «It's a place where you catch a train.»; marcar «It's the paper that shows what you paid.» desplaza el significado que la pregunta pide."}]}], "quiz": [{"q": "It's like a pot, but you use it to heat water. ¿Sigue siendo circunlocución?", "scene": {"layout": "bubbles", "title": "like", "parts": [{"t": "sí, comparas", "on": true}, {"t": "no, es el nombre", "on": false}], "foot": "Comparar no es bautizar", "pic": "object"}, "opts": [{"t": "Sí. Comparas con algo que sí sabes decir y añades la función.", "ok": true, "why": "Like a pot no afirma que la palabra sea pot. La función, heat water, acerca el hervidor. Por eso se queda «Sí. Comparas con algo que sí sabes decir y añades la función.»: es la forma que responde al caso sin mover el sentido que esta lección acaba de fijar."}, {"t": "No. Pot es el nombre oficial del kettle.", "ok": false, "why": "Pot es una olla. Te has acercado, no has acertado el nombre. Por eso va con but y con la función. La opción que sí cierra el caso es «Sí. Comparas con algo que sí sabes decir y añades la función.»; marcar «No. Pot es el nombre oficial del kettle.» desplaza el significado que la pregunta pide."}, {"t": "No, porque está prohibido comparar.", "ok": false, "why": "Comparar es una circunlocución válida. Lo que no vale es vender el invento como palabra del diccionario. La opción que sí cierra el caso es «Sí. Comparas con algo que sí sabes decir y añades la función.»; marcar «No, porque está prohibido comparar.» desplaza el significado que la pregunta pide."}, {"t": "Solo si añades You are wrong.", "ok": false, "why": "You are wrong no dice para qué sirve el objeto ni pide el nombre. Solo estorba la explicación. La opción que sí cierra el caso es «Sí. Comparas con algo que sí sabes decir y añades la función.»; marcar «Solo si añades You are wrong.» desplaza el significado que la pregunta pide."}]}, {"q": "I don't know the exact word. ¿Por qué conviene decirlo?", "scene": {"layout": "split", "title": "aviso", "parts": [{"t": "no es el nombre", "on": true}, {"t": "para callarte", "on": false}], "foot": "Marca la definición", "pic": "bubbles"}, "opts": [{"t": "Porque avisas de que lo siguiente es una definición, no el nombre real.", "ok": true, "why": "El otro no se queda con boil-machine como vocabulario. Por eso se queda «Porque avisas de que lo siguiente es una definición, no el nombre real.»: es la forma que responde al caso sin mover el sentido que esta lección acaba de fijar."}, {"t": "Porque así puedes dejar la frase a medias.", "ok": false, "why": "El aviso abre la definición. No es una excusa para parar. La opción que sí cierra el caso es «Porque avisas de que lo siguiente es una definición, no el nombre real.»; marcar «Porque así puedes dejar la frase a medias.» desplaza el significado que la pregunta pide."}, {"t": "Porque sustituye a What do you call.", "ok": false, "why": "No la sustituye. Puede ir delante. La pregunta sigue pidiendo el nombre. La opción que sí cierra el caso es «Porque avisas de que lo siguiente es una definición, no el nombre real.»; marcar «Porque sustituye a What do you call.» desplaza el significado que la pregunta pide."}, {"t": "Porque en inglés no se puede definir.", "ok": false, "why": "Definir es precisamente la estrategia de esta lección. La opción que sí cierra el caso es «Porque avisas de que lo siguiente es una definición, no el nombre real.»; marcar «Porque en inglés no se puede definir.» desplaza el significado que la pregunta pide."}]}, {"q": "Umbrella. ¿Qué función no puedes cambiar?", "scene": {"layout": "stack", "title": "lluvia", "parts": [{"t": "keep the rain off", "on": true}, {"t": "boil", "on": false}, {"t": "cut", "on": false}, {"t": "the times", "on": false}], "foot": "Si cambias la función, es otro objeto", "pic": "object"}, "opts": [{"t": "A thing you use to keep the rain off.", "ok": true, "why": "Esa es la función. Si llueve y pides eso, te entienden. Por eso se queda «A thing you use to keep the rain off.»: es la forma que responde al caso sin mover el sentido que esta lección acaba de fijar."}, {"t": "A thing you use to boil water.", "ok": false, "why": "Boil water es la función del hervidor, no la del paraguas. Te entenderían otra cosa. La opción que sí cierra el caso es «A thing you use to keep the rain off.»; marcar «A thing you use to boil water.» desplaza el significado que la pregunta pide."}, {"t": "A thing you use to cut paper.", "ok": false, "why": "Cut paper es la función de scissors. Un paraguas no corta papel. La opción que sí cierra el caso es «A thing you use to keep the rain off.»; marcar «A thing you use to cut paper.» desplaza el significado que la pregunta pide."}, {"t": "A list of times.", "ok": false, "why": "Eso es un timetable, no un paraguas. La opción que sí cierra el caso es «A thing you use to keep the rain off.»; marcar «A list of times.» desplaza el significado que la pregunta pide. Hay que leer la frase entera, no solo la palabra que se parece al español."}]}, {"q": "¿Qué estrategia falla?", "scene": {"layout": "flow", "title": "fallo", "parts": [{"t": "callarse", "on": true}, {"t": "thing", "on": false}, {"t": "What do you call", "on": false}, {"t": "repetir", "on": false}], "foot": "El silencio no comunica", "pic": "object"}, "opts": [{"t": "Parar en español con un no sé y no definir.", "ok": true, "why": "El hueco se queda vacío. Las otras tres opciones son la estrategia: molde, pregunta y repetir al oír la palabra. Por eso se queda «Parar en español con un no sé y no definir.»: es la forma que responde al caso sin mover el sentido que esta lección acaba de fijar."}, {"t": "It's a thing you use to…", "ok": false, "why": "Es uno de los tres moldes. No es el fallo. La opción que sí cierra el caso es «Parar en español con un no sé y no definir.»; marcar «It's a thing you use to…» desplaza el significado que la pregunta pide."}, {"t": "What do you call…?", "ok": false, "why": "Es la pregunta que pide el nombre. Conviene usarla. La opción que sí cierra el caso es «Parar en español con un no sé y no definir.»; marcar «What do you call…?» desplaza el significado que la pregunta pide."}, {"t": "Repetir kettle y seguir.", "ok": false, "why": "Eso cierra bien la circunlocución. No es un error. La opción que sí cierra el caso es «Parar en español con un no sé y no definir.»; marcar «Repetir kettle y seguir.» desplaza el significado que la pregunta pide."}]}]};
+
+(function(){
+if(/[?&]preview=1\b/.test(location.search)) document.body.classList.add('preview-mode');
+var D = window.LESSON;
+function el(id){return document.getElementById(id);}
+function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function drawVisual(spec){
+  var s = el('stage');
+  if(!s || !spec) return;
+  var parts = spec.parts || [];
+  var title = esc(spec.title || '');
+  var foot = esc(spec.foot || '');
+  var pic = spec.pic || 'doors';
+  function lab(p){ return esc((p && p.t) || ''); }
+  function on(p){ return !!(p && p.on); }
+  var a = parts[0] || {t:'', on:false};
+  var b = parts[1] || {t:'', on:false};
+  var c = parts[2] || {t:'', on:false};
+  var svg = '';
+  if(pic==='doors'){
+    function door(x, p, hue){
+      var hot = on(p);
+      return '<rect x="'+x+'" y="28" width="150" height="150" rx="8" fill="'+(hot?'#F5EDD8':'#fff')+'" stroke="'+(hot?'#C4A15A':'#0E0E0C')+'" stroke-width="'+(hot?4:2)+'"/>'
+        + '<rect x="'+(x+52)+'" y="88" width="46" height="90" rx="4" fill="'+hue+'"/>'
+        + '<circle cx="'+(x+88)+'" cy="136" r="4" fill="#C4A15A"/>'
+        + '<text x="'+(x+75)+'" y="58" text-anchor="middle" font-size="13" font-weight="800" fill="#0E0E0C">'+lab(p)+'</text>';
+    }
+    svg = '<svg viewBox="0 0 440 230" role="img" aria-label="'+title+'"><rect width="440" height="230" fill="#FAF7F0"/>'
+      + door(18, a, '#2F5D7A') + door(200, b, '#3D6B4F')
+      + '<circle cx="390" cy="120" r="14" fill="#E8C4A0" stroke="#0E0E0C" stroke-width="2"/>'
+      + '<rect x="380" y="134" width="20" height="32" rx="4" fill="#C4A15A" stroke="#0E0E0C"/>'
+      + '<text x="220" y="214" text-anchor="middle" font-size="12" font-weight="700" fill="#8A6B2F">'+foot+'</text></svg>';
+  } else if(pic==='bubbles'){
+    svg = '<svg viewBox="0 0 440 230" role="img" aria-label="'+title+'"><rect width="440" height="230" fill="#FAF7F0"/>'
+      + '<circle cx="70" cy="150" r="16" fill="#E8C4A0" stroke="#0E0E0C" stroke-width="2"/>'
+      + '<rect x="58" y="166" width="24" height="36" rx="5" fill="#2F5D7A" stroke="#0E0E0C"/>'
+      + '<path d="M96 48 h150 a14 14 0 0 1 14 14 v40 a14 14 0 0 1 -14 14 h-90 l-16 16 v-16 h-44 a14 14 0 0 1 -14 -14 v-40 a14 14 0 0 1 14 -14z" fill="'+(on(a)?'#F8E8EB':'#fff')+'" stroke="#9B3A4A" stroke-width="3"/>'
+      + '<text x="168" y="86" text-anchor="middle" font-size="13" font-weight="800" fill="#0E0E0C">'+lab(a)+'</text>'
+      + '<circle cx="360" cy="156" r="16" fill="#E8C4A0" stroke="#0E0E0C" stroke-width="2"/>'
+      + '<rect x="348" y="172" width="24" height="34" rx="5" fill="#3D6B4F" stroke="#0E0E0C"/>'
+      + '<path d="M250 118 h150 a14 14 0 0 1 14 14 v36 a14 14 0 0 1 -14 14 h-40 l-14 14 v-14 h-96 a14 14 0 0 1 -14 -14 v-36 a14 14 0 0 1 14 -14z" fill="'+(on(b)?'#E4F0E8':'#fff')+'" stroke="#3D6B4F" stroke-width="3"/>'
+      + '<text x="322" y="152" text-anchor="middle" font-size="13" font-weight="800" fill="#0E0E0C">'+lab(b)+'</text>'
+      + '<text x="220" y="222" text-anchor="middle" font-size="12" font-weight="700" fill="#8A6B2F">'+foot+'</text></svg>';
+  } else if(pic==='statue'){
+    svg = '<svg viewBox="0 0 440 230" role="img" aria-label="'+title+'"><rect width="440" height="230" fill="#F3E6C8"/>'
+      + '<path d="M0 150 Q80 120 160 150 T320 146 T440 150 V230 H0Z" fill="#E4C98A"/>'
+      + '<rect x="168" y="48" width="22" height="100" rx="3" fill="#C4A15A" stroke="#0E0E0C" stroke-width="3"/>'
+      + '<rect x="206" y="56" width="20" height="92" rx="3" fill="#C4A15A" stroke="#0E0E0C" stroke-width="3"/>'
+      + '<ellipse cx="280" cy="150" rx="28" ry="16" fill="#C4A15A" stroke="#0E0E0C" stroke-width="3"/>'
+      + '<path d="M262 146 Q274 154 286 144" fill="none" stroke="#0E0E0C" stroke-width="2"/>'
+      + '<rect x="150" y="150" width="100" height="28" fill="#fff" stroke="#0E0E0C" stroke-width="3"/>'
+      + '<text x="200" y="168" text-anchor="middle" font-size="10" font-weight="800" fill="#0E0E0C">'+lab(a)+'</text>'
+      + '<circle cx="48" cy="132" r="12" fill="#E8C4A0" stroke="#0E0E0C"/>'
+      + '<rect x="38" y="144" width="20" height="30" rx="3" fill="#2F5D7A" stroke="#0E0E0C"/>'
+      + '<circle cx="92" cy="128" r="12" fill="#E8C4A0" stroke="#0E0E0C"/>'
+      + '<rect x="82" y="140" width="20" height="32" rx="3" fill="#3D6B4F" stroke="#0E0E0C"/>'
+      + '<text x="220" y="210" text-anchor="middle" font-size="12" font-weight="700" fill="#0E0E0C">'+foot+'</text></svg>';
+  } else if(pic==='stress'){
+    var bars = parts.slice(0,4);
+    if(!bars.length) bars = [{t:'', on:true}];
+    var chunks = bars.map(function(p,i){
+      var h = on(p) ? 92 : 48;
+      var x = 36 + i*100;
+      var y = 150 - h;
+      return '<rect x="'+x+'" y="'+y+'" width="70" height="'+h+'" rx="8" fill="'+(on(p)?'#C4A15A':'#fff')+'" stroke="#0E0E0C" stroke-width="'+(on(p)?4:2)+'"/>'
+        + '<text x="'+(x+35)+'" y="'+(y+h/2)+'" text-anchor="middle" font-size="12" font-weight="800" fill="#0E0E0C">'+lab(p)+'</text>';
+    }).join('');
+    svg = '<svg viewBox="0 0 440 230" role="img" aria-label="'+title+'"><rect width="440" height="230" fill="#FAF7F0"/>'
+      + '<line x1="24" y1="150" x2="416" y2="150" stroke="#2A2620" stroke-width="3"/>'
+      + chunks
+      + '<text x="220" y="28" text-anchor="middle" font-size="14" font-weight="800" fill="#0E0E0C">'+title+'</text>'
+      + '<text x="220" y="200" text-anchor="middle" font-size="12" font-weight="700" fill="#8A6B2F">'+foot+'</text></svg>';
+  } else if(pic==='pitch'){
+    var up = on(a);
+    svg = '<svg viewBox="0 0 440 230" role="img" aria-label="'+title+'"><rect width="440" height="230" fill="#FAF7F0"/>'
+      + '<path d="M40 150 C90 150 100 70 150 60" fill="none" stroke="'+(up?'#C4A15A':'#2A2620')+'" stroke-width="6" stroke-linecap="round"/>'
+      + '<polygon points="150,48 166,68 138,72" fill="'+(up?'#C4A15A':'#2A2620')+'"/>'
+      + '<text x="100" y="180" text-anchor="middle" font-size="13" font-weight="800">'+lab(a)+'</text>'
+      + '<path d="M240 70 C290 80 300 140 360 156" fill="none" stroke="'+(!up?'#C4A15A':'#2A2620')+'" stroke-width="6" stroke-linecap="round"/>'
+      + '<polygon points="360,168 344,148 372,146" fill="'+(!up?'#C4A15A':'#2A2620')+'"/>'
+      + '<text x="310" y="190" text-anchor="middle" font-size="13" font-weight="800">'+lab(b)+'</text>'
+      + '<text x="220" y="220" text-anchor="middle" font-size="12" font-weight="700" fill="#8A6B2F">'+foot+'</text></svg>';
+  } else if(pic==='sheep'){
+    svg = '<svg viewBox="0 0 440 230" role="img" aria-label="'+title+'"><rect width="440" height="230" fill="#FAF7F0"/>'
+      + '<ellipse cx="110" cy="120" rx="54" ry="32" fill="'+(on(a)?'#C4A15A':'#fff')+'" stroke="#0E0E0C" stroke-width="3"/>'
+      + '<circle cx="156" cy="104" r="16" fill="#E8C4A0" stroke="#0E0E0C" stroke-width="2"/>'
+      + '<path d="M80 148 v24 M110 150 v26 M140 148 v24" stroke="#0E0E0C" stroke-width="3"/>'
+      + '<text x="110" y="196" text-anchor="middle" font-size="13" font-weight="800">'+lab(a)+'</text>'
+      + '<path d="M250 150 L310 150 L340 120 L300 120 Z" fill="'+(on(b)?'#C4A15A':'#fff')+'" stroke="#0E0E0C" stroke-width="3"/>'
+      + '<line x1="300" y1="120" x2="300" y2="78" stroke="#0E0E0C" stroke-width="3"/>'
+      + '<polygon points="300,80 348,108 300,112" fill="#E3EEF4" stroke="#0E0E0C" stroke-width="2"/>'
+      + '<text x="300" y="196" text-anchor="middle" font-size="13" font-weight="800">'+lab(b)+'</text>'
+      + '<text x="220" y="220" text-anchor="middle" font-size="12" font-weight="700" fill="#8A6B2F">'+foot+'</text></svg>';
+  } else if(pic==='mouth'){
+    svg = '<svg viewBox="0 0 440 230" role="img" aria-label="'+title+'"><rect width="440" height="230" fill="#FAF7F0"/>'
+      + '<circle cx="110" cy="100" r="48" fill="#F5EDD8" stroke="#0E0E0C" stroke-width="3"/>'
+      + '<ellipse cx="94" cy="92" rx="4" ry="5" fill="#0E0E0C"/><ellipse cx="126" cy="92" rx="4" ry="5" fill="#0E0E0C"/>'
+      + '<path d="M90 118 h40" stroke="#0E0E0C" stroke-width="3"/>'
+      + '<rect x="104" y="112" width="12" height="16" rx="2" fill="#E8C4A0" stroke="#9B3A4A"/>'
+      + '<text x="110" y="176" text-anchor="middle" font-size="13" font-weight="800">'+lab(a)+'</text>'
+      + '<circle cx="310" cy="100" r="48" fill="#E4F0E8" stroke="#0E0E0C" stroke-width="3"/>'
+      + '<ellipse cx="294" cy="92" rx="4" ry="5" fill="#0E0E0C"/><ellipse cx="326" cy="92" rx="4" ry="5" fill="#0E0E0C"/>'
+      + '<path d="M288 122 Q310 136 332 122" fill="none" stroke="#0E0E0C" stroke-width="3"/>'
+      + '<text x="310" y="176" text-anchor="middle" font-size="13" font-weight="800">'+lab(b)+'</text>'
+      + '<text x="220" y="214" text-anchor="middle" font-size="12" font-weight="700" fill="#8A6B2F">'+foot+'</text></svg>';
+  } else if(pic==='paper'){
+    svg = '<svg viewBox="0 0 440 230" role="img" aria-label="'+title+'"><rect width="440" height="230" fill="#FAF7F0"/>'
+      + '<rect x="120" y="16" width="200" height="190" rx="6" fill="#fff" stroke="#0E0E0C" stroke-width="3"/>'
+      + '<rect x="140" y="32" width="160" height="22" rx="4" fill="'+(on(a)?'#C4A15A':'#F5EDD8')+'" stroke="#0E0E0C"/>'
+      + '<text x="220" y="48" text-anchor="middle" font-size="12" font-weight="800">'+lab(a)+'</text>'
+      + '<rect x="140" y="66" width="160" height="48" rx="4" fill="'+(on(b)?'#C4A15A':'#fff')+'" stroke="#2A2620"/>'
+      + '<text x="220" y="94" text-anchor="middle" font-size="12" font-weight="700">'+lab(b)+'</text>'
+      + '<circle cx="148" cy="136" r="4" fill="#0E0E0C"/><line x1="160" y1="136" x2="286" y2="136" stroke="#2A2620"/>'
+      + '<circle cx="148" cy="156" r="4" fill="#0E0E0C"/><line x1="160" y1="156" x2="286" y2="156" stroke="#2A2620"/>'
+      + '<circle cx="148" cy="176" r="4" fill="#0E0E0C"/><line x1="160" y1="176" x2="240" y2="176" stroke="#2A2620"/>'
+      + '<text x="220" y="222" text-anchor="middle" font-size="12" font-weight="700" fill="#8A6B2F">'+foot+'</text></svg>';
+  } else if(pic==='people'){
+    svg = '<svg viewBox="0 0 440 230" role="img" aria-label="'+title+'"><rect width="440" height="230" fill="#FAF7F0"/>'
+      + '<rect x="90" y="120" width="260" height="16" rx="4" fill="#C4A15A" stroke="#0E0E0C"/>'
+      + '<rect x="110" y="136" width="12" height="40" fill="#2A2620"/><rect x="318" y="136" width="12" height="40" fill="#2A2620"/>'
+      + '<circle cx="80" cy="78" r="16" fill="#E8C4A0" stroke="#0E0E0C" stroke-width="2"/>'
+      + '<rect x="66" y="94" width="28" height="36" rx="6" fill="#2F5D7A" stroke="#0E0E0C"/>'
+      + '<circle cx="360" cy="78" r="16" fill="#E8C4A0" stroke="#0E0E0C" stroke-width="2"/>'
+      + '<rect x="346" y="94" width="28" height="36" rx="6" fill="#3D6B4F" stroke="#0E0E0C"/>'
+      + '<rect x="130" y="70" width="180" height="36" rx="10" fill="'+(on(a)?'#F8E8EB':'#fff')+'" stroke="#0E0E0C" stroke-width="2"/>'
+      + '<text x="220" y="92" text-anchor="middle" font-size="12" font-weight="800">'+lab(a)+'</text>'
+      + '<rect x="150" y="168" width="150" height="28" rx="8" fill="'+(on(b)?'#E4F0E8':'#fff')+'" stroke="#0E0E0C"/>'
+      + '<text x="225" y="186" text-anchor="middle" font-size="12" font-weight="800">'+lab(b)+'</text>'
+      + '<text x="220" y="222" text-anchor="middle" font-size="12" font-weight="700" fill="#8A6B2F">'+foot+'</text></svg>';
+  } else if(pic==='object'){
+    svg = '<svg viewBox="0 0 440 230" role="img" aria-label="'+title+'"><rect width="440" height="230" fill="#FAF7F0"/>'
+      + '<rect x="36" y="70" width="90" height="70" rx="10" fill="#fff" stroke="#0E0E0C" stroke-width="3" stroke-dasharray="6 4"/>'
+      + '<text x="81" y="110" text-anchor="middle" font-size="22" font-weight="800" fill="#8A6B2F">?</text>'
+      + '<path d="M130 104 h40" stroke="#C4A15A" stroke-width="4"/>'
+      + '<polygon points="170,96 188,104 170,112" fill="#C4A15A"/>'
+      + '<rect x="196" y="48" width="220" height="120" rx="12" fill="#fff" stroke="#0E0E0C" stroke-width="3"/>'
+      + '<text x="306" y="84" text-anchor="middle" font-size="13" font-weight="800" fill="#0E0E0C">'+lab(a)+'</text>'
+      + '<text x="306" y="112" text-anchor="middle" font-size="13" font-weight="700" fill="#0E0E0C">'+lab(b)+'</text>'
+      + '<text x="306" y="140" text-anchor="middle" font-size="12" fill="#8A6B2F">'+lab(c)+'</text>'
+      + '<text x="220" y="210" text-anchor="middle" font-size="12" font-weight="700" fill="#8A6B2F">'+foot+'</text></svg>';
+  } else if(pic==='shop'){
+    svg = '<svg viewBox="0 0 440 230" role="img" aria-label="'+title+'"><rect width="440" height="230" fill="#FAF7F0"/>'
+      + '<path d="M40 90 L160 40 L280 90 V190 H40 Z" fill="#F5EDD8" stroke="#0E0E0C" stroke-width="3"/>'
+      + '<rect x="130" y="120" width="40" height="70" fill="#2F5D7A"/>'
+      + '<rect x="70" y="110" width="40" height="30" fill="#E3EEF4" stroke="#0E0E0C"/>'
+      + '<text x="160" y="78" text-anchor="middle" font-size="13" font-weight="800">'+lab(a)+'</text>'
+      + '<rect x="300" y="120" width="110" height="18" rx="4" fill="#C4A15A" stroke="#0E0E0C"/>'
+      + '<circle cx="340" cy="100" r="14" fill="#E8C4A0" stroke="#0E0E0C"/>'
+      + '<rect x="328" y="114" width="24" height="28" rx="4" fill="#3D6B4F" stroke="#0E0E0C"/>'
+      + '<text x="355" y="168" text-anchor="middle" font-size="12" font-weight="800">'+lab(b)+'</text>'
+      + '<text x="220" y="216" text-anchor="middle" font-size="12" font-weight="700" fill="#8A6B2F">'+foot+'</text></svg>';
+  } else if(pic==='battery'){
+    var hot = on(b);
+    svg = '<svg viewBox="0 0 440 230" role="img" aria-label="'+title+'"><rect width="440" height="230" fill="#FAF7F0"/>'
+      + '<rect x="70" y="70" width="180" height="80" rx="10" fill="#fff" stroke="#0E0E0C" stroke-width="3"/>'
+      + '<rect x="250" y="94" width="16" height="32" fill="#0E0E0C"/>'
+      + '<rect x="82" y="82" width="'+(hot?40:140)+'" height="56" rx="6" fill="'+(hot?'#9B3A4A':'#3D6B4F')+'"/>'
+      + '<text x="160" y="180" text-anchor="middle" font-size="13" font-weight="800">'+lab(a)+'</text>'
+      + '<text x="340" y="110" text-anchor="middle" font-size="13" font-weight="800">'+lab(b)+'</text>'
+      + '<text x="220" y="214" text-anchor="middle" font-size="12" font-weight="700" fill="#8A6B2F">'+foot+'</text></svg>';
+  } else {
+    svg = '<svg viewBox="0 0 440 200" role="img" aria-label="'+title+'"><rect width="440" height="200" fill="#FAF7F0"/>'
+      + '<text x="220" y="100" text-anchor="middle" font-size="14" font-weight="800">'+title+'</text></svg>';
+  }
+  s.innerHTML = svg;
+}
+function bind(box, opts, verdict){
+  box.innerHTML = '';
+  opts.forEach(function(o){
+    var b = document.createElement('button');
+    b.className = 'opt';
+    b.type = 'button';
+    b.textContent = o.t;
+    b.addEventListener('click', function(){
+      var buttons = box.querySelectorAll('.opt');
+      buttons.forEach(function(x, idx){
+        x.disabled = true;
+        if(opts[idx].ok) x.classList.add('ok');
+      });
+      if(!o.ok){ b.classList.remove('ok'); b.classList.add('bad'); }
+      verdict.className = 'verdict show '+(o.ok?'ok':'bad');
+      verdict.textContent = o.why;
+    });
+    box.appendChild(b);
+  });
+  verdict.className = 'verdict';
+  verdict.textContent = '';
+}
+var ri = 0;
+function showRound(){
+  var rounds = D.rounds || [];
+  var r = rounds[ri];
+  el('rcounter').textContent = 'Caso '+(ri+1)+' de '+rounds.length;
+  el('rprompt').textContent = r.q;
+  drawVisual(r.scene);
+  bind(el('ropts'), r.opts, el('rverdict'));
+}
+el('nextRound').addEventListener('click', function(){
+  ri = (ri+1) % D.rounds.length;
+  showRound();
+});
+showRound();
+var qi = 0;
+function showQuiz(){
+  var q = D.quiz[qi];
+  el('qcounter').textContent = 'Pregunta '+(qi+1)+' de '+D.quiz.length;
+  el('qprompt').textContent = q.q;
+  if(q.scene) drawVisual(q.scene);
+  bind(el('qopts'), q.opts, el('qverdict'));
+}
+el('nextQuiz').addEventListener('click', function(){
+  qi = (qi+1) % D.quiz.length;
+  showQuiz();
+});
+showQuiz();
+})();
+
+</script>
+</body>
+</html>

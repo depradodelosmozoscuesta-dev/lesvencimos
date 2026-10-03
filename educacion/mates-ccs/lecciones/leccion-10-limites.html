@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<meta name="theme-color" content="#0E0E0C"/>
+<title>Lección 10 · Límites · Les vencimos</title>
+<link rel="icon" href="../icons/favicon.svg" type="image/svg+xml"/>
+<link rel="stylesheet" href="../leccion-shell.css"/>
+<style>
+
+  .pasos{list-style:none;margin:0 0 1rem;padding:0;counter-reset:paso}
+  .pasos li{position:relative;margin:0 0 .7rem;padding:.7rem .8rem .7rem 3.1rem;background:var(--lv-panel);border:1px solid var(--lv-linea);border-radius:10px}
+  .pasos li::before{counter-increment:paso;content:counter(paso);position:absolute;left:.65rem;top:.7rem;width:1.7rem;height:1.7rem;border-radius:50%;background:#C4A15A;color:#1A160E;font-weight:700;font-size:.9rem;display:flex;align-items:center;justify-content:center}
+  .figura-svg{background:var(--lv-panel);border:1px solid var(--lv-linea);border-radius:10px;padding:.4rem;margin:.4rem 0 1rem}
+  .figura-svg svg{width:100%;height:auto;display:block}
+  .ej{margin:0 0 1rem;padding:.85rem .95rem;background:var(--lv-panel);border:1px solid var(--lv-linea);border-left:3px solid #C4A15A;border-radius:10px}
+  .ej h3{margin:0 0 .35rem;font-family:var(--lv-serif);font-size:1.05rem;color:var(--lv-titulo)}
+  .editor,textarea.editor{width:100%;min-height:5.2rem;font-family:ui-monospace,monospace;font-size:.95rem;line-height:1.4;padding:.55rem .65rem;border:1px solid rgba(196,161,90,.45);border-radius:8px;background:#161512;color:#E6E1D6;resize:vertical}
+  .lienzo{display:block;width:100%;height:240px;background:#161512;border:1px solid #C4A15A;border-radius:8px;touch-action:none;cursor:crosshair}
+  .fila{display:flex;flex-wrap:wrap;gap:.4rem;margin:.45rem 0}
+  .boton{font:inherit;font-weight:700;font-size:.85rem;padding:.35rem .75rem;border-radius:999px;border:1px solid #C4A15A;background:transparent;color:#E6E1D6;cursor:pointer}
+  .boton.amber{background:#C4A15A;color:#1A160E;border-color:#b08d45}
+  .porque{margin-top:.5rem;padding:.6rem .7rem;background:#1a2218;border-radius:8px;color:#E6E1D6}
+  .dato{font-size:.95rem;color:var(--lv-suave)}
+  .formula{background:#161512;border-left:3px solid #C4A15A;padding:.45rem .7rem;overflow-x:auto;font-family:ui-monospace,monospace}
+  .glosa{font-size:.95rem;color:#d9d0bc;margin-top:.25rem}
+  table.datos{width:100%;border-collapse:collapse;margin:.4rem 0 1rem;font-size:.98rem}
+  table.datos th,table.datos td{border:1px solid var(--lv-linea);padding:.35rem .5rem;text-align:left}
+  table.datos th{background:#161512;color:#C4A15A}
+  table.datos td.num{font-variant-numeric:tabular-nums}
+
+</style>
+<script src="../leccion-shell-nav.js" defer></script>
+</head>
+<body class="leccion-shell">
+<div class="leccion-wrap">
+
+<nav class="leccion-barra" aria-label="Navegación de lección" data-actual="10" data-total="33">
+  <div class="leccion-progreso" role="status">
+    <span class="progreso-texto"><strong>10</strong> de <strong>33</strong></span>
+    <div class="progreso-pista" aria-hidden="true"><div class="progreso-lleno" style="width:31.25%"></div></div>
+  </div>
+  <div class="leccion-atajos">
+    <a class="atajo atajo-prev" href="leccion-09-prestamos.html">← Anterior</a>
+    <a class="atajo atajo-next" href="leccion-11-continuidad.html">Siguiente →</a>
+  </div>
+</nav>
+
+<header class="leccion-top">
+  <a class="leccion-marca" href="../mates-ccs.html">Les <span>vencimos</span></a>
+  <p class="leccion-meta-top">Matemáticas Aplicadas a las Ciencias Sociales I · 1.º Bachillerato</p>
+</header>
+
+<header class="bloque-titulo">
+  <span class="eyebrow">Lección 10 · B.2 · Cambio</span>
+  <h1 class="titulo-leccion">Límites desde tabla, gráfica y expresión</h1>
+  <p class="meta-leccion">Decreto 40/2022 CyL · primer curso · antes de segundo</p>
+</header>
+
+<aside class="bloque-curiosidad" aria-label="Para situarte">
+  <p class="etiqueta-bloque">Para situarte</p>
+  <h2 class="titulo-curiosidad">Acercarse no es llegar</h2>
+  <p class="texto-curiosidad">Un límite pregunta qué valor se acerca la función cuando x se acerca a un sitio. La función puede no estar definida justo ahí, y aun así el límite puede existir.</p>
+</aside>
+
+<section class="bloque-cuerpo">
+  <h2>Objetivos</h2>
+  <ul>
+    <li>Estimar un límite leyendo una tabla de valores cercanos.</li>
+    <li>Leer un límite en una gráfica, incluido un hueco y un salto.</li>
+    <li>Calcular un límite sencillo a partir de la expresión, simplificando o reescribiendo.</li>
+    <li>Distinguir límite por la izquierda, por la derecha y límite a largo plazo, cuando x crece sin tope.</li>
+  </ul>
+
+  <h2>Tres sitios donde mirar el mismo límite</h2>
+  <p>En el sentido de la medida, bloque B.2 del primer curso, el límite se estima o se calcula desde una tabla, un gráfico o una expresión algebraica. No hace falta la definición formal con distancias: hace falta ver hacia dónde va la función y comprobar que los tres lenguajes cuentan la misma historia.</p>
+  <p>Si x se acerca a un número a, escribimos el límite de f(x) cuando x tiende a a. Nos importa el comportamiento al lado de a, no el cartel que haya puesto alguien exactamente en a. Por eso una función puede tener límite 4 en x = 2 y, a la vez, no valer 4 en ese punto: o no está definida, o está definida con otro valor.</p>
+  <p class="formula">lim (x → a) f(x) = L</p>
+  <p class="glosa">x es la variable que se mueve; a es el número al que x se acerca; f(x) es el valor de la función en esos vecinos; L es el número al que esos valores se arriman. L no tiene por qué ser f(a).</p>
+  <p>Hay tres lecturas útiles en ciencias sociales:</p>
+  <ul>
+    <li>Tabla: eliges x cada vez más pegados a a, por los dos lados, y miras si f(x) se estabiliza en el mismo sitio.</li>
+    <li>Gráfica: sigues la curva hacia la recta vertical x = a. Si los dos lados llegan a la misma altura, esa altura es el límite. Un punto vacío o un punto relleno aislado no cambia esa altura.</li>
+    <li>Expresión: si la fórmula se atasca (por ejemplo, 0/0), la reescribes. Si cerca de a coincide con una expresión más simple, el límite es el valor de esa expresión simple.</li>
+  </ul>
+  <p>Cuando los dos lados no se ponen de acuerdo, el límite (a secas) no existe. Aun así puedes hablar del límite por la izquierda, x → a<sup>−</sup>, y por la derecha, x → a<sup>+</sup>. Una tarifa que cambia de golpe al cumplir una edad es el caso típico: a la izquierda del corte vale una cosa y a la derecha otra.</p>
+  <p>También miramos qué pasa cuando x se hace muy grande, x → ∞. No es «x igual a infinito». Es: si x sigue creciendo, ¿la función se acerca a alguna altura estable? En una proporción de polinomios del mismo grado, esa altura es el cociente de los coeficientes principales.</p>
+  <p class="formula">(3x + 1) / (x + 2) = 3 − 5 / (x + 2)</p>
+  <p class="glosa">x es la variable, por ejemplo un número de años o de unidades; 3 es el cociente de los coeficientes de x; 5 es lo que hay que restar para que la igualdad sea exacta, porque 3(x + 2) − 5 = 3x + 1; x + 2 es el denominador original, que crece y hace pequeño el segundo término.</p>
+
+  <h2>Ejemplo 1. Tabla, álgebra y un hueco</h2>
+  <p>Sea f(x) = (x<sup>2</sup> − 4) / (x − 2), definida para todo x distinto de 2. En x = 2 el denominador es cero y el numerador también: la fórmula, tal cual, no da un número. Mira vecinos.</p>
+  <table class="datos">
+    <thead><tr><th>x</th><th>1,9</th><th>1,99</th><th>2,01</th><th>2,1</th></tr></thead>
+    <tbody>
+      <tr><td>f(x)</td><td class="num">3,9</td><td class="num">3,99</td><td class="num">4,01</td><td class="num">4,1</td></tr>
+    </tbody>
+  </table>
+  <p>Comprueba uno: si x = 1,9, numerador 1,9<sup>2</sup> − 4 = 3,61 − 4 = −0,39 y denominador −0,1, así que f(1,9) = 3,9. Los cuatro valores se arriman a 4, por la izquierda y por la derecha. La estimación del límite es 4.</p>
+  <ol class="pasos">
+    <li>Factoriza el numerador: x<sup>2</sup> − 4 = (x − 2)(x + 2).</li>
+    <li>Para x ≠ 2 se cancela el factor común: f(x) = x + 2.</li>
+    <li>x + 2, cuando x se acerca a 2, se acerca a 4. El límite es 4.</li>
+    <li>f(2) sigue sin existir. El límite no rellena el hueco por sí solo; solo dice a qué altura está el hueco.</li>
+  </ol>
+  <p class="formula">lim (x → 2) (x<sup>2</sup> − 4) / (x − 2) = 4</p>
+  <p class="glosa">x es la variable; 2 es el punto donde el denominador original se anula; x<sup>2</sup> − 4 es el numerador, diferencia de cuadrados; 4 es el límite, que coincide con 2 + 2, el valor de la expresión ya simplificada.</p>
+  <div class="figura-svg">
+    <svg viewBox="0 0 640 320" role="img" aria-label="Recta y = x + 2 con un hueco en el punto (2, 4)">
+      <title>Gráfica de (x² − 4) / (x − 2): la recta y = x + 2 con un hueco en (2, 4)</title>
+      <rect width="640" height="320" fill="#161512"/>
+      <line x1="40" y1="280" x2="600" y2="280" stroke="#9A9488" stroke-width="1.2"/>
+      <line x1="80" y1="20" x2="80" y2="300" stroke="#9A9488" stroke-width="1.2"/>
+      <polyline points="80,224 200,164 250,139" fill="none" stroke="#C4A15A" stroke-width="2.5"/>
+      <polyline points="290,119 480,24" fill="none" stroke="#C4A15A" stroke-width="2.5"/>
+      <circle cx="270" cy="129" r="6" fill="#161512" stroke="#E6E1D6" stroke-width="2"/>
+      <text x="286" y="118" fill="#E6E1D6" font-size="14" font-family="Segoe UI,sans-serif">hueco (2, 4)</text>
+      <text x="560" y="270" fill="#9A9488" font-size="14" font-family="Segoe UI,sans-serif">x</text>
+      <text x="90" y="36" fill="#9A9488" font-size="14" font-family="Segoe UI,sans-serif">y</text>
+      <text x="250" y="300" fill="#9A9488" font-size="13" font-family="Segoe UI,sans-serif">2</text>
+      <text x="48" y="134" fill="#9A9488" font-size="13" font-family="Segoe UI,sans-serif">4</text>
+    </svg>
+  </div>
+  <p>El esquema representa la recta y = x + 2 y deja vacío el punto de abscisa 2. La altura de ese hueco es el límite, 4. Quien lee solo el punto vacío y dice «no hay límite» confunde «no hay función» con «no hay límite». El lienzo de debajo está a escala para marcar ese punto.</p>
+
+  <h2>Ejemplo 2. Un salto y un límite a largo plazo</h2>
+  <p>Una cuota de acceso, en euros, depende de las horas x ya usadas: T(x) = 3 si x &lt; 2 y T(x) = 5 si x ≥ 2. No es una fórmula rota: es una tarifa a trozos, definida también en 2, donde vale 5.</p>
+  <ol class="pasos">
+    <li>Por la izquierda de 2, x es menor que 2, así que T(x) = 3. El límite por la izquierda es 3.</li>
+    <li>Por la derecha, T(x) = 5. El límite por la derecha es 5.</li>
+    <li>3 ≠ 5, luego no existe el límite cuando x tiende a 2. Da igual que T(2) = 5: el valor del punto no reconcilia los dos lados.</li>
+  </ol>
+  <p class="formula">lim (x → 2<sup>−</sup>) T(x) = 3 &nbsp; y &nbsp; lim (x → 2<sup>+</sup>) T(x) = 5</p>
+  <p class="glosa">x son las horas usadas; 2 es el corte de la tarifa; T(x) es la cuota en euros; 3 es la cuota del tramo bajo; 5 es la cuota del tramo alto, que también es T(2).</p>
+  <p>Otro encargo, ahora de largo plazo. La proporción (3x + 1) / (x + 2) se reescribe como 3 − 5 / (x + 2). Cuando x crece, 5 / (x + 2) se hace pequeño y la proporción se acerca a 3. Tabla exacta:</p>
+  <table class="datos">
+    <thead><tr><th>x</th><th>8</th><th>18</th><th>48</th><th>98</th></tr></thead>
+    <tbody>
+      <tr><td>(3x+1)/(x+2)</td><td class="num">2,5</td><td class="num">2,75</td><td class="num">2,9</td><td class="num">2,95</td></tr>
+    </tbody>
+  </table>
+  <p>25/10 = 2,5; 55/20 = 2,75; 145/50 = 2,9; 295/100 = 2,95. Van hacia 3 y no lo pasan. El límite cuando x tiende a infinito es 3. No hay una x en la que la expresión valga exactamente 3, porque 5 / (x + 2) nunca es cero.</p>
+
+  <h2>Marca el límite en el lienzo</h2>
+  <p>La gráfica de debajo es la del ejemplo 1: recta con hueco en (2, 4). Con el dedo o el ratón, marca el hueco y escribe al lado, a mano, la altura del límite. Restaurar vuelve a dejar solo la gráfica.</p>
+  <canvas id="lienzo10" class="lienzo" width="900" height="240" aria-label="Lienzo para marcar el límite en el hueco de la recta"></canvas>
+  <div class="fila"><button type="button" class="boton" id="blienzo10" data-clear>Restaurar gráfica</button></div>
+
+  <h2>Ejercicios</h2>
+  <article class="ej">
+    <h3>1. Otra tabla que se atasca</h3>
+    <p>g(x) = (x<sup>2</sup> − 1) / (x − 1), con x ≠ 1. Calcula g(0,9), g(0,99), g(1,01) y g(1,1). Estima el límite cuando x tiende a 1 y confírmalo simplificando.</p>
+    <label for="e10-1">Tabla, estimación y álgebra</label>
+    <textarea class="editor" id="e10-1"></textarea>
+    <details>
+      <summary>Corrección</summary>
+      <ol class="pasos">
+        <li>g(0,9) = (0,81 − 1) / (0,9 − 1) = (−0,19) / (−0,1) = 1,9.</li>
+        <li>g(0,99) = (0,9801 − 1) / (−0,01) = 1,99.</li>
+        <li>g(1,01) = (1,0201 − 1) / 0,01 = 2,01. g(1,1) = (1,21 − 1) / 0,1 = 2,1.</li>
+        <li>La tabla se acerca a 2. Como x<sup>2</sup> − 1 = (x − 1)(x + 1), para x ≠ 1 se tiene g(x) = x + 1, y el límite es 2.</li>
+      </ol>
+      <p class="porque">0/0 no es un número y tampoco es el límite. Es la señal de que la fórmula original no sirve en ese punto y hay que reescribirla en un entorno donde el factor común no es cero.</p>
+    </details>
+  </article>
+  <article class="ej">
+    <h3>2. Una expresión que no se atasca</h3>
+    <p>Calcula el límite de 5x + 2 cuando x tiende a 0. Después di cuánto vale la función en 0 y si los dos números coinciden.</p>
+    <label for="e10-2">Tu límite</label>
+    <textarea class="editor" id="e10-2"></textarea>
+    <details>
+      <summary>Corrección</summary>
+      <ol class="pasos">
+        <li>5x + 2 es un polinomio: cerca de 0 se comporta como su valor en 0.</li>
+        <li>El límite es 5 · 0 + 2 = 2.</li>
+        <li>La función en 0 también vale 2. Coinciden.</li>
+      </ol>
+      <p class="porque">No toda pregunta de límite esconde un hueco. Si la expresión está definida y es un polinomio, el límite en a es sustituir a. El caso interesante del ejemplo 1 era precisamente el que no deja sustituir.</p>
+    </details>
+  </article>
+  <article class="ej">
+    <h3>3. Dos lados que no casan</h3>
+    <p>f(x) = x + 1 si x &lt; 0, y f(x) = 2 − x si x ≥ 0. Halla el límite por la izquierda en 0, el límite por la derecha en 0, f(0) y di si existe el límite.</p>
+    <label for="e10-3">Límites laterales</label>
+    <textarea class="editor" id="e10-3"></textarea>
+    <details>
+      <summary>Corrección</summary>
+      <ol class="pasos">
+        <li>Por la izquierda se usa x + 1, que tiende a 1.</li>
+        <li>Por la derecha se usa 2 − x, que tiende a 2.</li>
+        <li>f(0) = 2 − 0 = 2.</li>
+        <li>Como 1 ≠ 2, el límite cuando x tiende a 0 no existe.</li>
+      </ol>
+      <p class="porque">El valor f(0) solo informa del lado en el que ha quedado incluido el corte. Un límite de dos lados exige el mismo número a izquierda y derecha. Aquí la gráfica da un salto de altura 1.</p>
+    </details>
+  </article>
+  <article class="ej">
+    <h3>4. Cuando x crece</h3>
+    <p>Estudia (2x − 4) / (x + 1) cuando x tiende a infinito. Reescribe la fracción y comprueba con x = 5, x = 11 y x = 29.</p>
+    <label for="e10-4">Reescritura y tres valores</label>
+    <textarea class="editor" id="e10-4"></textarea>
+    <details>
+      <summary>Corrección</summary>
+      <ol class="pasos">
+        <li>2(x + 1) − 6 = 2x − 4, luego (2x − 4) / (x + 1) = 2 − 6 / (x + 1).</li>
+        <li>Cuando x crece, 6 / (x + 1) tiende a 0. El límite es 2.</li>
+        <li>x = 5: 6 / 6 = 1. x = 11: 18 / 12 = 1,5. x = 29: 54 / 30 = 1,8. Se acercan a 2 por debajo.</li>
+      </ol>
+      <p class="porque">El término con x en el numerador y el término con x en el denominador mandan cuando x es grande. El −4 y el +1 se quedan pequeños en comparación, pero la reescritura exacta evita el gesto vago de «tachamos los números sueltos».</p>
+    </details>
+  </article>
+
+  <h2>Cierre</h2>
+  <p>Tabla para estimar, gráfica para ver el hueco o el salto, álgebra para cerrar el número. Si los dos lados discrepan, dilo: el límite no existe, y escribe los laterales. Si x se va a infinito, busca la altura a la que la expresión se aplana.</p>
+</section>
+
+<footer class="leccion-pie">
+  <strong>Les vencimos</strong> · Lección 10 de 33 · Matemáticas Aplicadas a las CCSS I · staging · sin publicar
+</footer>
+</div>
+<!-- saber: B.2 Cambio. Límites: estimación y cálculo a partir de una tabla, un gráfico o una expresión algebraica. -->
+
+<script>
+(function(){
+  var c = document.getElementById("lienzo10");
+  if(!c) return;
+  var ctx = c.getContext("2d");
+  function fondo(){
+    var w = c.width, h = c.height;
+    ctx.fillStyle = "#161512";
+    ctx.fillRect(0,0,w,h);
+    var ox = 46, oy = h - 32;
+    var sx = (w - 78) / 6;
+    var sy = (h - 58) / 8;
+    function X(x){ return ox + x * sx; }
+    function Y(y){ return oy - y * sy; }
+    ctx.strokeStyle = "#9A9488";
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(24, oy); ctx.lineTo(w - 12, oy);
+    ctx.moveTo(ox, 12); ctx.lineTo(ox, h - 12);
+    ctx.stroke();
+    ctx.fillStyle = "#9A9488";
+    ctx.font = "13px sans-serif";
+    ctx.fillText("x", w - 22, oy - 6);
+    ctx.fillText("y", ox + 6, 22);
+    ctx.fillText("2", X(2) - 4, oy + 16);
+    ctx.fillText("4", 22, Y(4) + 4);
+    ctx.strokeStyle = "#C4A15A";
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(X(0), Y(2));
+    ctx.lineTo(X(1.82), Y(3.82));
+    ctx.moveTo(X(2.18), Y(4.18));
+    ctx.lineTo(X(5.4), Y(7.4));
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.arc(X(2), Y(4), 5.5, 0, Math.PI * 2);
+    ctx.fillStyle = "#161512";
+    ctx.fill();
+    ctx.strokeStyle = "#E6E1D6";
+    ctx.stroke();
+    ctx.fillStyle = "#E6E1D6";
+    ctx.fillText("límite 4", X(2) + 12, Y(4) - 10);
+  }
+  function fit(){
+    var r = c.getBoundingClientRect();
+    c.width = Math.max(320, Math.floor(r.width));
+    c.height = 240;
+    fondo();
+  }
+  var dib = false, last = null;
+  function pos(ev){
+    var r = c.getBoundingClientRect();
+    var src = ev.touches ? ev.touches[0] : ev;
+    return {x:(src.clientX - r.left) * c.width / r.width, y:(src.clientY - r.top) * c.height / r.height};
+  }
+  c.addEventListener("pointerdown", function(ev){ dib = true; last = pos(ev); ev.preventDefault(); });
+  c.addEventListener("pointermove", function(ev){
+    if(!dib) return;
+    var p = pos(ev);
+    ctx.strokeStyle = "#E6E1D6"; ctx.lineWidth = 2.2; ctx.lineCap = "round";
+    ctx.beginPath(); ctx.moveTo(last.x, last.y); ctx.lineTo(p.x, p.y); ctx.stroke();
+    last = p; ev.preventDefault();
+  });
+  c.addEventListener("pointerup", function(){ dib = false; });
+  c.addEventListener("pointerleave", function(){ dib = false; });
+  var b = document.getElementById("blienzo10");
+  if(b) b.addEventListener("click", fondo);
+  fit();
+  window.addEventListener("resize", fit);
+})();
+</script>
+
+</body>
+</html>

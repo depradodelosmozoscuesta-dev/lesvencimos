@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#FAF7F0">
+<title>L20 · Léxico: tiempo, espacio y procesos</title>
+<style>
+:root{--bg:#FAF7F0;--ink:#2A2620;--carbon:#0E0E0C;--muted:#5C564C;--card:#fff;--gold:#C4A15A;--gold-soft:#F5EDD8;--gold-deep:#8A6B2F;--green:#3D6B4F;--green-soft:#E4F0E8;--blue:#2F5D7A;--blue-soft:#E3EEF4;--rose:#9B3A4A;--rose-soft:#F8E8EB;--shadow:0 10px 32px rgba(42,38,32,.09);--radius:18px}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{min-height:100%;background:var(--bg);color:var(--ink);font-family:"Segoe UI",system-ui,-apple-system,sans-serif;-webkit-font-smoothing:antialiased}
+body{display:flex;flex-direction:column;align-items:center;padding:14px 10px 36px}
+.wrap{width:100%;max-width:1040px}
+header{text-align:center;margin-bottom:12px}
+.badge{display:inline-block;font-size:.78rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--gold-deep);background:var(--gold-soft);padding:4px 12px;border-radius:999px;margin-bottom:8px}
+h1{font-size:clamp(1.25rem,4.5vw,1.85rem);line-height:1.2;font-weight:800;color:#0E0E0C}
+.subtitle{margin-top:6px;font-size:clamp(.9rem,2.8vw,1.05rem);color:var(--muted);font-weight:500}
+.story{background:linear-gradient(135deg,#F5EDD8,#E3EEF4 55%,#E4F0E8);border:2px solid #E0D0A8;border-radius:var(--radius);padding:12px 14px;margin-bottom:14px;font-size:clamp(.9rem,2.5vw,1.02rem);line-height:1.45;display:flex;gap:14px;align-items:center}
+.story-avatar{flex:0 0 auto;width:72px;height:72px}
+.story-avatar svg{width:72px;height:72px;display:block}
+.story strong{color:var(--gold-deep)}
+.card{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);padding:16px 14px 18px;margin-bottom:14px}
+.card h2{font-size:clamp(1.05rem,3vw,1.25rem);font-weight:800;margin-bottom:8px;color:#0E0E0C}
+.hint{font-size:clamp(.88rem,2.4vw,1rem);color:var(--muted);line-height:1.45;margin-bottom:10px}
+.btn-row{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px;justify-content:center}
+button.action{appearance:none;border:none;border-radius:999px;padding:10px 18px;font-weight:800;font-size:.95rem;cursor:pointer;background:#C4A15A;color:#0E0E0C}
+button.action.secondary{background:#fff;color:#8A6B2F;border:2px solid #C4A15A}
+button.action:disabled{opacity:.55;cursor:default}
+.stage{position:relative;width:100%;min-height:220px;background:linear-gradient(#E7E1D6 0%,#FAF7F0 72%);border-radius:14px;overflow:hidden;border:2px solid #C4A15A;margin-bottom:12px;display:flex;align-items:center;justify-content:center}
+.stage svg{width:100%;height:100%;max-height:320px;display:block}
+.verdict{text-align:center;font-size:1.02rem;font-weight:700;padding:12px;border-radius:14px;margin:10px 0;display:none;border:2px solid #E0D0A8;line-height:1.4}
+.verdict.show{display:block}.verdict.ok{background:var(--green-soft);color:#2A5238;border-color:#9BC4A8}.verdict.bad{background:var(--rose-soft);color:#7A2A36;border-color:#E8A8B0}
+.opts{display:grid;gap:8px;margin:10px 0}
+.opt{padding:12px 14px;border:2px solid #D9D0C0;border-radius:12px;background:#fff;cursor:pointer;font-weight:700;text-align:left;font-size:.95rem;color:#2A2620;line-height:1.35}
+.opt:hover{border-color:#C4A15A}.opt.ok{border-color:#3D6B4F;background:#E4F0E8}.opt.bad{border-color:#9B3A4A;background:#F8E8EB}
+.opt:disabled{cursor:default}
+.prompt{font-weight:800;text-align:center;margin:8px 0;font-size:clamp(1rem,2.6vw,1.15rem);line-height:1.35;color:#0E0E0C}
+.counter{text-align:center;font-size:.8rem;font-weight:800;color:#2F5D7A;letter-spacing:.04em;text-transform:uppercase}
+.glossary{display:grid;gap:.45rem;margin:0;padding:12px 14px;background:#FFFcf5;border-radius:12px;border:2px solid #C4A15A;font-size:.95rem;line-height:1.4}
+.glossary strong{color:#8A6B2F}
+footer{text-align:center;font-size:.8rem;color:var(--muted);margin-top:4px}
+body.preview-mode .story,body.preview-mode footer,body.preview-mode .hide-preview{display:none}
+@media (max-width:640px){.story{flex-direction:column;text-align:center}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="badge">Lección 20 · A · Comunicación · CyL Decreto 40/2022</div>
+    <h1>La pieza que se dice junta</h1>
+    <p class="subtitle">On time, city centre, take place, set off, heavy rain</p>
+  </header>
+  <div class="story">
+    <div class="story-avatar"><svg viewBox="0 0 80 80" aria-hidden="true"><circle cx="40" cy="40" r="38" fill="#F5EDD8"/><path d="M22 72 Q40 52 58 72" fill="#8A6B2F"/><ellipse cx="40" cy="38" rx="18" ry="20" fill="#E8C4A0"/><path d="M22 34 Q24 12 40 10 Q56 12 58 34 Q52 22 40 20 Q28 22 22 34Z" fill="#3A2A20"/><ellipse cx="33" cy="40" rx="2.2" ry="2.6" fill="#0E0E0C"/><ellipse cx="47" cy="40" rx="2.2" ry="2.6" fill="#0E0E0C"/><path d="M36 48 Q40 52 44 48" fill="none" stroke="#C4A15A" stroke-width="1.8" stroke-linecap="round"/></svg></div>
+    <div><p>Hacia <strong>Palencia</strong>, sin horario oficial: <strong>set off</strong>, <strong>on time</strong>, <strong>in the city centre</strong>. No es una lección de verbos.</p></div>
+  </div>
+  <div class="card">
+    <h2>Elige la colocación, no un tiempo verbal</h2>
+    <p class="hint">No repases gramática: mira si la pieza es puntualidad, extremo, suceso o proceso.</p>
+    <div class="stage" id="stage"></div>
+    <p class="counter" id="rcounter"></p>
+    <p class="prompt" id="rprompt"></p>
+    <div class="opts" id="ropts"></div>
+    <div class="verdict" id="rverdict"></div>
+    <div class="btn-row"><button class="action secondary" id="nextRound" type="button">Siguiente caso</button></div>
+  </div>
+  <div class="card hide-preview" id="quizCard">
+    <h2>Mini-check</h2>
+    <p class="hint">Spend, from time to time, break out y go on.</p>
+    <p class="counter" id="qcounter"></p>
+    <p class="prompt" id="qprompt"></p>
+    <div class="opts" id="qopts"></div>
+    <div class="verdict" id="qverdict"></div>
+    <div class="btn-row"><button class="action secondary" id="nextQuiz" type="button">Siguiente pregunta</button></div>
+  </div>
+  <div class="card glossary hide-preview"><strong>On time</strong> — puntual. · <strong>In time</strong> — con margen. · <strong>In the end</strong> — finalmente. · <strong>At the end of</strong> — el extremo. · <strong>City centre / outskirts</strong> — centro / afueras. · <strong>Take place</strong> — ocurrir. · <strong>Carry out</strong> — realizar. · <strong>Heavy rain / strong wind</strong> — adjetivo que coloca.</div>
+  <footer>1º Bachillerato · Inglés I · CyL · offline · sin red</footer>
+</div>
+<script>
+window.LESSON = {"rounds": [{"q": "Llegasteis a la hora dicha. Puntualidad, no «antes de que cierre».", "scene": {"layout": "split", "title": "On time", "parts": [{"t": "on time", "on": true}, {"t": "in time", "on": false}], "foot": "Puntual no es lo mismo que a tiempo de", "pic": "ontime"}, "opts": [{"t": "We arrived on time.", "ok": true, "why": "On time es a la hora prevista. Por eso encaja con el enunciado: conserva el sentido, no añade un dato y respeta la estructura que esta lección pide, y se comprueba en cuanto se lee en voz alta."}, {"t": "We arrived in time.", "ok": false, "why": "In time sería con margen, antes de que fuera tarde, no la puntualidad estricta que pide el enunciado. Esa elección no encaja con el enunciado, porque cambia el sentido o el molde aunque alguna palabra coincida con la forma correcta."}, {"t": "We arrived in the time.", "ok": false, "why": "In the time no es la colocación; ni on ni in llevan the aquí. Esa elección no encaja con el enunciado, porque cambia el sentido o el molde aunque alguna palabra coincida con la forma correcta, y se comprueba en cuanto se lee en voz alta."}, {"t": "We arrived at the end.", "ok": false, "why": "At the end sería el extremo de algo, no la puntualidad. Esa elección no encaja con el enunciado, porque cambia el sentido o el molde aunque alguna palabra coincida con la forma correcta, y se comprueba en cuanto se lee en voz alta."}]}, {"q": "Finalmente, después de todo, encontrasteis la plaza. No es el extremo de la calle.", "scene": {"layout": "bubbles", "title": "In the end", "parts": [{"t": "in the end", "on": true}, {"t": "at the end of", "on": false}], "foot": "Finalmente", "pic": "streetend"}, "opts": [{"t": "In the end we found the square.", "ok": true, "why": "In the end significa finalmente. Por eso encaja con el enunciado: conserva el sentido, no añade un dato y respeta la estructura que esta lección pide, y se comprueba en cuanto se lee en voz alta."}, {"t": "At the end of we found the square.", "ok": false, "why": "At the end of necesita un nombre: of the street, of the film. Esa elección no encaja con el enunciado, porque cambia el sentido o el molde aunque alguna palabra coincida con la forma correcta, y se comprueba en cuanto se lee en voz alta."}, {"t": "In the end of the morning we found.", "ok": false, "why": "In the end no lleva of; el tramo de la mañana, si lo quieres, es at the end of the morning. Esa elección no encaja con el enunciado, porque cambia el sentido o el molde aunque alguna palabra coincida con la forma correcta."}, {"t": "On time we found the square.", "ok": false, "why": "On time no significa finalmente. Esa elección no encaja con el enunciado, porque cambia el sentido o el molde aunque alguna palabra coincida con la forma correcta, y se comprueba en cuanto se lee en voz alta."}]}, {"q": "El parque está al extremo de la calle.", "scene": {"layout": "flow", "title": "At the end", "parts": [{"t": "at the end of the street", "on": true}, {"t": "in the end of the street", "on": false}, {"t": "on time of the street", "on": false}, {"t": "in time the street", "on": false}], "foot": "Posición", "pic": "meeting"}, "opts": [{"t": "at the end of the street", "ok": true, "why": "At the end of marca el extremo. Por eso encaja con el enunciado: conserva el sentido, no añade un dato y respeta la estructura que esta lección pide, y se comprueba en cuanto se lee en voz alta."}, {"t": "in the end of the street", "ok": false, "why": "In the end no lleva of y no significa extremo. Esa elección no encaja con el enunciado, porque cambia el sentido o el molde aunque alguna palabra coincida con la forma correcta, y se comprueba en cuanto se lee en voz alta."}, {"t": "on the end of the street", "ok": false, "why": "La colocación de posición es at the end of. Esa elección no encaja con el enunciado, porque cambia el sentido o el molde aunque alguna palabra coincida con la forma correcta, y se comprueba en cuanto se lee en voz alta."}, {"t": "close of the street", "ok": false, "why": "Close va con to: close to, no close of. Esa elección no encaja con el enunciado, porque cambia el sentido o el molde aunque alguna palabra coincida con la forma correcta, y se comprueba en cuanto se lee en voz alta."}]}, {"q": "Centro y afueras.", "scene": {"layout": "stack", "title": "Centre", "parts": [{"t": "in the city centre", "on": true}, {"t": "on the outskirts", "on": true}], "foot": "In el centro, on las afueras", "pic": "trip"}, "opts": [{"t": "in the city centre, on the outskirts", "ok": true, "why": "Centre con in; outskirts con on. Por eso encaja con el enunciado: conserva el sentido, no añade un dato y respeta la estructura que esta lección pide, y se comprueba en cuanto se lee en voz alta."}, {"t": "on the city centre, in the outskirts", "ok": false, "why": "Las preposiciones están cruzadas. Esa elección no encaja con el enunciado, porque cambia el sentido o el molde aunque alguna palabra coincida con la forma correcta, y se comprueba en cuanto se lee en voz alta."}, {"t": "at the city centre, at the outskirts", "ok": false, "why": "No es at en ninguno de los dos huecos de esta lección. Esa elección no encaja con el enunciado, porque cambia el sentido o el molde aunque alguna palabra coincida con la forma correcta, y se comprueba en cuanto se lee en voz alta."}, {"t": "in the centre of the outskirts", "ok": false, "why": "Mezcla los dos sitios en uno. Esa elección no encaja con el enunciado, porque cambia el sentido o el molde aunque alguna palabra coincida con la forma correcta, y se comprueba en cuanto se lee en voz alta."}]}, {"q": "Orientas sin mapa oficial: sigue recto y gira.", "scene": {"layout": "scale", "title": "Recto", "parts": [{"t": "go straight on", "on": true}, {"t": "turn left", "on": true}], "foot": "Dos colocaciones de ruta", "pic": "ontime"}, "opts": [{"t": "Go straight on and then turn left.", "ok": true, "why": "Go straight on y turn left son las fórmulas. Por eso encaja con el enunciado: conserva el sentido, no añade un dato y respeta la estructura que esta lección pide, y se comprueba en cuanto se lee en voz alta."}, {"t": "Go straight and turn the left.", "ok": false, "why": "Falta on, y left no lleva the. Esa elección no encaja con el enunciado, porque cambia el sentido o el molde aunque alguna palabra coincida con la forma correcta, y se comprueba en cuanto se lee en voz alta."}, {"t": "Go on straight to left.", "ok": false, "why": "El orden y la partícula no son la colocación. Esa elección no encaja con el enunciado, porque cambia el sentido o el molde aunque alguna palabra coincida con la forma correcta, y se comprueba en cuanto se lee en voz alta."}, {"t": "Turn straight on left.", "ok": false, "why": "Turn no se combina así con straight on. Esa elección no encaja con el enunciado, porque cambia el sentido o el molde aunque alguna palabra coincida con la forma correcta, y se comprueba en cuanto se lee en voz alta."}]}, {"q": "Salud y prisa, sin diagnóstico.", "scene": {"layout": "split", "title": "Estado", "parts": [{"t": "feel ill / in a hurry", "on": true}, {"t": "feel sleep", "on": false}], "foot": "Fell asleep, feel ill", "pic": "street"}, "opts": [{"t": "I feel ill and I am in a hurry.", "ok": true, "why": "Feel ill es el estado; In a hurry, la prisa. Por eso encaja con el enunciado: conserva el sentido, no añade un dato y respeta la estructura que esta lección pide, y se comprueba en cuanto se lee en voz alta."}, {"t": "I feel sleep and I have hurry.", "ok": false, "why": "Fall asleep es el proceso de dormirse; have hurry no coloca: be in a hurry. Esa elección no encaja con el enunciado, porque cambia el sentido o el molde aunque alguna palabra coincida con la forma correcta."}, {"t": "I am aware the delay and I stay calmness.", "ok": false, "why": "Aware pide of; calmness no sustituye a stay calm. Esa elección no encaja con el enunciado, porque cambia el sentido o el molde aunque alguna palabra coincida con la forma correcta, y se comprueba en cuanto se lee en voz alta."}, {"t": "I look worry and fall sleep.", "ok": false, "why": "El adjetivo es worried, no worry; dormirse es fall asleep, no fall sleep. Esa elección no encaja con el enunciado, porque cambia el sentido o el molde aunque alguna palabra coincida con la forma correcta."}]}, {"q": "El suceso ocurre. La tarea la hacéis vosotros.", "scene": {"layout": "bubbles", "title": "Take place", "parts": [{"t": "takes place", "on": true}, {"t": "carry out", "on": true}], "foot": "No son el mismo verbo", "pic": "meeting"}, "opts": [{"t": "The meeting takes place on Friday. We carry out the plan.", "ok": true, "why": "Take place es ocurrir; carry out es realizar un plan. Por eso encaja con el enunciado: conserva el sentido, no añade un dato y respeta la estructura que esta lección pide, y se comprueba en cuanto se lee en voz alta."}, {"t": "The meeting carries out on Friday. We take place the plan.", "ok": false, "why": "Los has invertido; un plan no take place como objeto vuestro, y una reunión no carry out sola. Esa elección no encaja con el enunciado, porque cambia el sentido o el molde aunque alguna palabra coincida con la forma correcta."}, {"t": "The meeting does place. We do the plan out.", "ok": false, "why": "Do place no es la pieza; el suceso takes place y el plan se carries out. Esa elección no encaja con el enunciado, porque cambia el sentido o el molde aunque alguna palabra coincida con la forma correcta."}, {"t": "The meeting breaks out the plan.", "ok": false, "why": "Break out es estallar un incendio o una discusión, no realizar un plan. Esa elección no encaja con el enunciado, porque cambia el sentido o el molde aunque alguna palabra coincida con la forma correcta."}]}, {"q": "Viaje y lluvia.", "scene": {"layout": "flow", "title": "Colocación", "parts": [{"t": "went on a trip", "on": true}, {"t": "heavy rain", "on": true}, {"t": "did a travel", "on": false}, {"t": "strong rain", "on": false}], "foot": "Sin do a travel", "pic": "trip"}, "opts": [{"t": "We went on a trip. There was heavy rain and a strong wind.", "ok": true, "why": "Go on a trip; heavy rain; strong wind. Por eso encaja con el enunciado: conserva el sentido, no añade un dato y respeta la estructura que esta lección pide, y se comprueba en cuanto se lee en voz alta."}, {"t": "We did a travel. There was strong rain and a heavy wind.", "ok": false, "why": "Did a travel no coloca, y los adjetivos de lluvia y viento están cruzados. Esa elección no encaja con el enunciado, porque cambia el sentido o el molde aunque alguna palabra coincida con la forma correcta."}, {"t": "We made a travel in the time.", "ok": false, "why": "Ni make a travel ni in the time. Esa elección no encaja con el enunciado, porque cambia el sentido o el molde aunque alguna palabra coincida con la forma correcta, y se comprueba en cuanto se lee en voz alta."}, {"t": "We travelled a trip with heavy wind.", "ok": false, "why": "Travel no lleva a trip como objeto así, y el viento pide strong. Esa elección no encaja con el enunciado, porque cambia el sentido o el molde aunque alguna palabra coincida con la forma correcta, y se comprueba en cuanto se lee en voz alta."}]}], "quiz": [{"q": "Spend time o waste time. Lo empleaste en el plano, no lo tiraste.", "scene": {"layout": "split", "title": "Spend", "parts": [{"t": "spend time", "on": true}, {"t": "waste time", "on": false}], "foot": "Emplear no es malgastar", "pic": "ontime"}, "opts": [{"t": "I spent time on the map.", "ok": true, "why": "Spend time es emplearlo; on the map dice en qué. Por eso encaja con el enunciado: conserva el sentido, no añade un dato y respeta la estructura que esta lección pide, y se comprueba en cuanto se lee en voz alta."}, {"t": "I wasted time on the map.", "ok": false, "why": "Waste time sería malgastarlo; el enunciado dice que sirvió. Esa elección no encaja con el enunciado, porque cambia el sentido o el molde aunque alguna palabra coincida con la forma correcta, y se comprueba en cuanto se lee en voz alta."}, {"t": "I did time on the map.", "ok": false, "why": "Do time no existe en esta lección; emplear el tiempo es spend time. Esa elección no encaja con el enunciado, porque cambia el sentido o el molde aunque alguna palabra coincida con la forma correcta, y se comprueba en cuanto se lee en voz alta."}, {"t": "I spent the time of the map.", "ok": false, "why": "No es spend time on; of the map cambia la pieza. Esa elección no encaja con el enunciado, porque cambia el sentido o el molde aunque alguna palabra coincida con la forma correcta, y se comprueba en cuanto se lee en voz alta."}]}, {"q": "From time to time significa…", "scene": {"layout": "bubbles", "title": "De vez en cuando", "parts": [{"t": "de vez en cuando", "on": true}, {"t": "a la hora en punto", "on": false}], "foot": "No es on time", "pic": "meeting"}, "opts": [{"t": "de vez en cuando", "ok": true, "why": "From time to time es ocasional, no puntualidad. Por eso encaja con el enunciado: conserva el sentido, no añade un dato y respeta la estructura que esta lección pide, y se comprueba en cuanto se lee en voz alta."}, {"t": "a la hora en punto", "ok": false, "why": "A la hora en punto es on time; from time to time es de vez en cuando. Esa elección no encaja con el enunciado, porque cambia el sentido o el molde aunque alguna palabra coincida con la forma correcta, y se comprueba en cuanto se lee en voz alta."}, {"t": "al final de la calle", "ok": false, "why": "Eso sería at the end of the street. Esa elección no encaja con el enunciado, porque cambia el sentido o el molde aunque alguna palabra coincida con la forma correcta, y se comprueba en cuanto se lee en voz alta."}, {"t": "por fin, después de todo", "ok": false, "why": "Por fin, después de todo, es in the end, no from time to time. Esa elección no encaja con el enunciado, porque cambia el sentido o el molde aunque alguna palabra coincida con la forma correcta, y se comprueba en cuanto se lee en voz alta."}]}, {"q": "A fire ___.", "scene": {"layout": "stack", "title": "Break out", "parts": [{"t": "broke out", "on": true}, {"t": "took place", "on": false}, {"t": "carried out", "on": false}], "foot": "Estallar", "pic": "trip"}, "opts": [{"t": "broke out", "ok": true, "why": "Un incendio estalla con break out; take place no dice ese estallido. Por eso encaja con el enunciado: conserva el sentido, no añade un dato y respeta la estructura que esta lección pide, y se comprueba en cuanto se lee en voz alta."}, {"t": "carried out", "ok": false, "why": "Carry out es realizar un plan, no estallar. Esa elección no encaja con el enunciado, porque cambia el sentido o el molde aunque alguna palabra coincida con la forma correcta, y se comprueba en cuanto se lee en voz alta."}, {"t": "set off", "ok": false, "why": "Set off es ponerse en camino, o hacer salir; no es el verbo del incendio en esta lección. Esa elección no encaja con el enunciado, porque cambia el sentido o el molde aunque alguna palabra coincida con la forma correcta."}, {"t": "went on a trip", "ok": false, "why": "Go on a trip es ponerse de viaje; el fuego pide break out. Esa elección no encaja con el enunciado, porque cambia el sentido o el molde aunque alguna palabra coincida con la forma correcta, y se comprueba en cuanto se lee en voz alta."}]}, {"q": "Give up, go on, find out, slow down. La discusión sigue.", "scene": {"layout": "scale", "title": "Go on", "parts": [{"t": "go on", "on": true}, {"t": "give up", "on": false}], "foot": "Seguir", "pic": "streetend"}, "opts": [{"t": "The argument went on.", "ok": true, "why": "Go on significa seguir; give up sería dejar la discusión. Por eso encaja con el enunciado: conserva el sentido, no añade un dato y respeta la estructura que esta lección pide, y se comprueba en cuanto se lee en voz alta."}, {"t": "The argument gave up.", "ok": false, "why": "Give up sería dejarlo; además quien deja algo suele ser una persona. Esa elección no encaja con el enunciado, porque cambia el sentido o el molde aunque alguna palabra coincida con la forma correcta, y se comprueba en cuanto se lee en voz alta."}, {"t": "The argument found out.", "ok": false, "why": "Find out es enterarse de un dato, no continuar. Esa elección no encaja con el enunciado, porque cambia el sentido o el molde aunque alguna palabra coincida con la forma correcta, y se comprueba en cuanto se lee en voz alta."}, {"t": "The argument slowed the hurry.", "ok": false, "why": "Slow down no se construye con the hurry; be in a hurry es otra pieza. Esa elección no encaja con el enunciado, porque cambia el sentido o el molde aunque alguna palabra coincida con la forma correcta, y se comprueba en cuanto se lee en voz alta."}]}]};
+
+(function(){
+if(/[?&]preview=1\b/.test(location.search)) document.body.classList.add('preview-mode');
+var D = window.LESSON;
+function el(id){return document.getElementById(id);}
+function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function drawVisual(spec){
+  var s = el('stage');
+  if(!s || !spec) return;
+  var pic = spec.pic || 'talk';
+  var foot = esc(spec.foot || '');
+  function person(x,y,shirt,arm){
+    var aL, aR;
+    if(arm==='up'){
+      aL='<line x1="'+x+'" y1="'+(y+16)+'" x2="'+(x-18)+'" y2="'+(y-6)+'" stroke="#0E0E0C" stroke-width="3" stroke-linecap="round"/>';
+      aR='<line x1="'+x+'" y1="'+(y+16)+'" x2="'+(x+18)+'" y2="'+(y-6)+'" stroke="#0E0E0C" stroke-width="3" stroke-linecap="round"/>';
+    } else if(arm==='point'){
+      aL='<line x1="'+x+'" y1="'+(y+20)+'" x2="'+(x-16)+'" y2="'+(y+38)+'" stroke="#0E0E0C" stroke-width="3" stroke-linecap="round"/>';
+      aR='<line x1="'+x+'" y1="'+(y+18)+'" x2="'+(x+26)+'" y2="'+(y+6)+'" stroke="#0E0E0C" stroke-width="3" stroke-linecap="round"/>';
+    } else if(arm==='ask'){
+      aL='<line x1="'+x+'" y1="'+(y+20)+'" x2="'+(x-20)+'" y2="'+(y+8)+'" stroke="#0E0E0C" stroke-width="3" stroke-linecap="round"/>';
+      aR='<line x1="'+x+'" y1="'+(y+20)+'" x2="'+(x+14)+'" y2="'+(y+40)+'" stroke="#0E0E0C" stroke-width="3" stroke-linecap="round"/>';
+    } else {
+      aL='<line x1="'+x+'" y1="'+(y+20)+'" x2="'+(x-16)+'" y2="'+(y+40)+'" stroke="#0E0E0C" stroke-width="3" stroke-linecap="round"/>';
+      aR='<line x1="'+x+'" y1="'+(y+20)+'" x2="'+(x+16)+'" y2="'+(y+40)+'" stroke="#0E0E0C" stroke-width="3" stroke-linecap="round"/>';
+    }
+    return '<circle cx="'+x+'" cy="'+y+'" r="14" fill="#F3D6B8" stroke="#0E0E0C" stroke-width="2"/>'
+      + '<path d="M'+(x-8)+' '+(y-6)+' q8 -16 16 0" fill="#2A2620"/>'
+      + '<path d="M'+(x-16)+' '+(y+48)+' q16 -28 32 0 v6 h-32 z" fill="'+shirt+'" stroke="#0E0E0C" stroke-width="2"/>'
+      + aL + aR
+      + '<line x1="'+(x-6)+'" y1="'+(y+50)+'" x2="'+(x-8)+'" y2="'+(y+72)+'" stroke="#0E0E0C" stroke-width="3" stroke-linecap="round"/>'
+      + '<line x1="'+(x+6)+'" y1="'+(y+50)+'" x2="'+(x+9)+'" y2="'+(y+72)+'" stroke="#0E0E0C" stroke-width="3" stroke-linecap="round"/>';
+  }
+  function bubble(x,y,w,h,lines,fill){
+    var tx = lines.map(function(line,i){
+      return '<text x="'+(x+w/2)+'" y="'+(y+20+i*15)+'" text-anchor="middle" font-size="12" font-weight="700" fill="#0E0E0C">'+esc(line)+'</text>';
+    }).join('');
+    return '<path d="M'+(x+24)+' '+(y+h)+' l-10 16 l16 -6 z" fill="'+fill+'" stroke="#0E0E0C" stroke-width="2"/>'
+      + '<rect x="'+x+'" y="'+y+'" width="'+w+'" height="'+h+'" rx="16" fill="'+fill+'" stroke="#0E0E0C" stroke-width="2"/>' + tx;
+  }
+  var sky = '<rect width="420" height="230" fill="#E7F0F6"/>';
+  var ground = '<rect x="0" y="176" width="420" height="54" fill="#E4D7C3"/>'
+    + '<path d="M0 176 Q80 166 160 176 T320 176 T420 176 V230 H0 Z" fill="#D9C7A4"/>';
+  var body = '';
+  var aria = 'Escena de la lección';
+  if(pic==='report' || pic==='backshift'){
+    aria = 'Una alumna dice que está cansada y un compañero lo cuenta un paso atrás en el tiempo';
+    body = person(78,96,'#C4A15A','point') + person(250,96,'#7FA8C9','ask')
+      + bubble(18,18,150,46,['I am tired'],'#fff')
+      + bubble(188,14,200,50,['She was tired'],'#F5EDD8')
+      + '<circle cx="360" cy="150" r="18" fill="#fff" stroke="#0E0E0C" stroke-width="2"/>'
+      + '<line x1="360" y1="150" x2="360" y2="138" stroke="#0E0E0C" stroke-width="2"/>'
+      + '<line x1="360" y1="150" x2="348" y2="150" stroke="#C4A15A" stroke-width="2"/>';
+  } else if(pic==='ask'){
+    aria = 'Alguien pregunta dónde está el andén y la otra persona lo cuenta sin invertir el orden';
+    body = person(70,100,'#C4A15A','ask') + person(300,100,'#3D6B4F','point')
+      + '<rect x="150" y="118" width="54" height="40" rx="4" fill="#F5EDD8" stroke="#0E0E0C" stroke-width="2"/>'
+      + '<text x="177" y="143" text-anchor="middle" font-size="16" font-weight="800" fill="#0E0E0C">1</text>'
+      + '<rect x="172" y="158" width="8" height="22" fill="#2A2620"/>'
+      + bubble(16,16,160,48,['Where is it?'],'#fff')
+      + bubble(210,16,190,48,['where it was'],'#E4F0E8');
+  } else if(pic==='passive' || pic==='causative'){
+    aria = 'Una profesora revisa un ensayo mientras la alumna espera: lo hace otra persona';
+    body = person(96,100,'#C4A15A','down') + person(300,96,'#2F5D7A','point')
+      + '<rect x="168" y="118" width="70" height="48" rx="4" fill="#fff" stroke="#0E0E0C" stroke-width="2"/>'
+      + '<line x1="178" y1="132" x2="226" y2="132" stroke="#C4A15A" stroke-width="3"/>'
+      + '<line x1="178" y1="144" x2="220" y2="144" stroke="#2A2620" stroke-width="2"/>'
+      + '<line x1="178" y1="154" x2="214" y2="154" stroke="#2A2620" stroke-width="2"/>'
+      + '<path d="M250 108 l18 8 -6 4 -8 -14 z" fill="#9B3A4A" stroke="#0E0E0C" stroke-width="1"/>';
+  } else if(pic==='hearsay'){
+    aria = 'Tres personas comentan un rumor y una lo cuenta como algo que se dice, no como hecho propio';
+    body = person(70,104,'#C4A15A','ask') + person(180,104,'#7FA8C9','point') + person(300,104,'#3D6B4F','down')
+      + '<path d="M40 40 q40 -30 90 0 q20 16 0 28 q-50 8 -90 -8 z" fill="#fff" stroke="#0E0E0C" stroke-width="2"/>'
+      + '<text x="86" y="58" text-anchor="middle" font-size="12" font-weight="700" fill="#0E0E0C">se dice</text>';
+  } else if(pic==='paraphrase'){
+    aria = 'La misma maleta descrita con otras palabras, sin añadir un objeto nuevo';
+    body = person(64,100,'#C4A15A','point') + person(330,100,'#7FA8C9','point')
+      + '<rect x="176" y="120" width="68" height="44" rx="8" fill="#8A6B2F" stroke="#0E0E0C" stroke-width="2"/>'
+      + '<path d="M196 120 v-10 h28 v10" fill="none" stroke="#0E0E0C" stroke-width="3"/>'
+      + bubble(12,16,150,44,['The hall is full'],'#fff')
+      + bubble(230,16,176,44,['no free seat'],'#F5EDD8');
+  } else if(pic==='leaflet' || pic==='scroll' || pic==='summary'){
+    aria = 'Un aviso largo se queda en una sola frase dicha con la fuente a la vista';
+    body = person(300,100,'#2F5D7A','point')
+      + '<rect x="36" y="46" width="120" height="110" rx="6" fill="#fff" stroke="#0E0E0C" stroke-width="2"/>'
+      + '<line x1="48" y1="66" x2="140" y2="66" stroke="#C4A15A" stroke-width="4"/>'
+      + '<line x1="48" y1="84" x2="140" y2="84" stroke="#2A2620" stroke-width="2"/>'
+      + '<line x1="48" y1="98" x2="132" y2="98" stroke="#2A2620" stroke-width="2"/>'
+      + '<line x1="48" y1="112" x2="120" y2="112" stroke="#2A2620" stroke-width="2"/>'
+      + '<rect x="180" y="78" width="90" height="36" rx="8" fill="#F5EDD8" stroke="#0E0E0C" stroke-width="2"/>'
+      + '<line x1="192" y1="96" x2="256" y2="96" stroke="#8A6B2F" stroke-width="3"/>';
+  } else if(pic==='news'){
+    aria = 'Un periódico con columnas y una persona leyéndolo, no una carta con saludo';
+    body = person(300,102,'#2F5D7A','point')
+      + '<rect x="28" y="36" width="200" height="130" rx="4" fill="#fff" stroke="#0E0E0C" stroke-width="3"/>'
+      + '<rect x="40" y="48" width="176" height="22" fill="#0E0E0C"/>'
+      + '<text x="128" y="64" text-anchor="middle" font-size="12" font-weight="800" fill="#F5EDD8">NEWS</text>'
+      + '<line x1="46" y1="86" x2="110" y2="86" stroke="#2A2620" stroke-width="2"/>'
+      + '<line x1="46" y1="100" x2="110" y2="100" stroke="#2A2620" stroke-width="2"/>'
+      + '<line x1="46" y1="114" x2="100" y2="114" stroke="#2A2620" stroke-width="2"/>'
+      + '<line x1="124" y1="86" x2="190" y2="86" stroke="#2A2620" stroke-width="2"/>'
+      + '<line x1="124" y1="100" x2="184" y2="100" stroke="#2A2620" stroke-width="2"/>'
+      + '<rect x="150" y="118" width="40" height="30" fill="#C4A15A" stroke="#0E0E0C"/>';
+  } else if(pic==='letter'){
+    aria = 'Dos sobres: uno cercano con un corazón discreto y otro formal con membrete';
+    body = person(70,104,'#C4A15A','point') + person(320,104,'#2F5D7A','down')
+      + '<rect x="120" y="70" width="78" height="54" fill="#F5EDD8" stroke="#0E0E0C" stroke-width="2"/>'
+      + '<path d="M120 70 l39 28 l39 -28" fill="none" stroke="#0E0E0C" stroke-width="2"/>'
+      + '<rect x="214" y="64" width="78" height="60" fill="#fff" stroke="#0E0E0C" stroke-width="2"/>'
+      + '<line x1="224" y1="80" x2="280" y2="80" stroke="#2F5D7A" stroke-width="3"/>'
+      + '<line x1="224" y1="96" x2="270" y2="96" stroke="#2A2620" stroke-width="2"/>';
+  } else if(pic==='copy'){
+    aria = 'Una hoja se calca encima de otra y una tercera se reescribe aparte con la fuente señalada';
+    body = '<rect x="40" y="50" width="100" height="120" fill="#fff" stroke="#0E0E0C" stroke-width="2"/>'
+      + '<rect x="70" y="70" width="100" height="120" fill="#F8E8EB" stroke="#9B3A4A" stroke-width="2"/>'
+      + '<line x1="84" y1="96" x2="154" y2="96" stroke="#9B3A4A" stroke-width="2"/>'
+      + '<line x1="84" y1="112" x2="150" y2="112" stroke="#9B3A4A" stroke-width="2"/>'
+      + person(300,100,'#3D6B4F','point')
+      + '<rect x="230" y="40" width="70" height="40" rx="6" fill="#E4F0E8" stroke="#0E0E0C" stroke-width="2"/>';
+  } else if(pic==='rope' || pic==='theme'){
+    aria = 'Tres personas unidas por una cuerda: la idea del párrafo no se suelta';
+    body = person(70,104,'#C4A15A','point') + person(200,104,'#7FA8C9','point') + person(330,104,'#3D6B4F','down')
+      + '<path d="M90 120 Q150 80 190 120 T310 120" fill="none" stroke="#C4A15A" stroke-width="4"/>';
+  } else if(pic==='tone'){
+    aria = 'La misma escena contada a un amigo y, con otro gesto, a un adulto del instituto';
+    body = person(60,108,'#C4A15A','ask') + person(160,112,'#7FA8C9','up')
+      + person(250,100,'#2F5D7A','down') + person(350,104,'#3D6B4F','point')
+      + '<rect x="300" y="70" width="36" height="28" fill="#fff" stroke="#0E0E0C"/>';
+  } else if(pic==='mirror'){
+    aria = 'Alguien se mira en un espejo y, al lado, dos personas se pasan un libro';
+    body = person(80,104,'#C4A15A','point')
+      + '<ellipse cx="150" cy="100" rx="28" ry="40" fill="#E3EEF4" stroke="#0E0E0C" stroke-width="3"/>'
+      + '<circle cx="150" cy="96" r="8" fill="#F3D6B8" stroke="#0E0E0C"/>'
+      + person(250,104,'#7FA8C9','point') + person(340,104,'#3D6B4F','point')
+      + '<rect x="286" y="118" width="28" height="20" fill="#C4A15A" stroke="#0E0E0C"/>';
+  } else if(pic==='bridge'){
+    aria = 'Dos puentes, uno más bajo y de piedra, y una persona los compara sin cifras';
+    body = person(50,110,'#2F5D7A','point')
+      + '<path d="M90 150 Q150 90 210 150" fill="none" stroke="#8A6B2F" stroke-width="8"/>'
+      + '<path d="M240 150 Q300 110 370 150" fill="none" stroke="#2A2620" stroke-width="6"/>'
+      + '<rect x="120" y="148" width="16" height="22" fill="#C4A15A" stroke="#0E0E0C"/>'
+      + '<rect x="160" y="148" width="16" height="22" fill="#C4A15A" stroke="#0E0E0C"/>';
+  } else if(pic==='water' || pic==='crowd'){
+    aria = 'Personas que se pueden contar y una jarra de agua que no se cuenta una a una';
+    body = person(50,108,'#C4A15A','down') + person(100,112,'#7FA8C9','down') + person(150,108,'#3D6B4F','ask')
+      + '<path d="M280 80 h50 l-8 70 h-34 z" fill="#E3EEF4" stroke="#2F5D7A" stroke-width="3"/>'
+      + '<path d="M286 110 h38 v28 h-38 z" fill="#7FA8C9"/>'
+      + '<ellipse cx="305" cy="80" rx="18" ry="6" fill="none" stroke="#2F5D7A" stroke-width="2"/>';
+  } else if(pic==='bag'){
+    aria = 'Una mochila demasiado pesada junto a un reloj que marca que el tiempo no basta';
+    body = person(80,104,'#C4A15A','down')
+      + '<rect x="120" y="120" width="46" height="40" rx="6" fill="#8A6B2F" stroke="#0E0E0C" stroke-width="2"/>'
+      + '<path d="M132 120 v-12 h22 v12" fill="none" stroke="#0E0E0C" stroke-width="3"/>'
+      + '<circle cx="280" cy="100" r="36" fill="#fff" stroke="#0E0E0C" stroke-width="3"/>'
+      + '<line x1="280" y1="100" x2="280" y2="78" stroke="#9B3A4A" stroke-width="3"/>'
+      + '<line x1="280" y1="100" x2="298" y2="108" stroke="#0E0E0C" stroke-width="3"/>';
+  } else if(pic==='street' || pic==='bus' || pic==='museum' || pic==='gate'){
+    aria = 'Calle con parada, autobús y puerta de un museo';
+    body = '<rect x="250" y="70" width="140" height="90" fill="#F5EDD8" stroke="#0E0E0C" stroke-width="2"/>'
+      + '<polygon points="240,70 320,36 410,70" fill="#C4A15A" stroke="#0E0E0C" stroke-width="2"/>'
+      + '<rect x="300" y="110" width="28" height="50" fill="#2F5D7A" stroke="#0E0E0C"/>'
+      + '<rect x="40" y="124" width="120" height="36" rx="8" fill="#7FA8C9" stroke="#0E0E0C" stroke-width="2"/>'
+      + '<circle cx="62" cy="162" r="8" fill="#0E0E0C"/>'
+      + '<circle cx="136" cy="162" r="8" fill="#0E0E0C"/>'
+      + '<rect x="168" y="96" width="8" height="70" fill="#2A2620"/>'
+      + '<circle cx="172" cy="88" r="10" fill="#C4A15A" stroke="#0E0E0C"/>'
+      + person(210,108,'#3D6B4F','point');
+  } else if(pic==='walk' || pic==='rain' || pic==='plan'){
+    aria = 'Una persona camina bajo la lluvia y un autobús corta la escena';
+    body = '<path d="M20 150 H400" stroke="#C4A15A" stroke-width="8" stroke-linecap="round"/>'
+      + person(120,96,'#2F5D7A','point')
+      + '<path d="M200 40 q30 20 10 36" fill="#7FA8C9" stroke="#0E0E0C" stroke-width="2"/>'
+      + '<line x1="190" y1="78" x2="184" y2="96" stroke="#2F5D7A" stroke-width="2"/>'
+      + '<line x1="206" y1="80" x2="200" y2="100" stroke="#2F5D7A" stroke-width="2"/>'
+      + '<line x1="220" y1="76" x2="216" y2="94" stroke="#2F5D7A" stroke-width="2"/>'
+      + '<rect x="300" y="112" width="90" height="32" rx="6" fill="#C4A15A" stroke="#0E0E0C" stroke-width="2"/>'
+      + '<circle cx="318" cy="148" r="7" fill="#0E0E0C"/>'
+      + '<circle cx="372" cy="148" r="7" fill="#0E0E0C"/>';
+  } else if(pic==='clock'){
+    aria = 'Un reloj y una persona que espera, con el marcador de tiempo a la vista';
+    body = person(80,104,'#C4A15A','ask')
+      + '<circle cx="230" cy="100" r="48" fill="#fff" stroke="#0E0E0C" stroke-width="3"/>'
+      + '<line x1="230" y1="100" x2="230" y2="66" stroke="#9B3A4A" stroke-width="3"/>'
+      + '<line x1="230" y1="100" x2="258" y2="112" stroke="#0E0E0C" stroke-width="3"/>'
+      + '<rect x="300" y="80" width="80" height="50" rx="8" fill="#F5EDD8" stroke="#0E0E0C"/>';
+  } else if(pic==='question' || pic==='who'){
+    aria = 'Una persona pregunta con el ceño y el bocadillo, frente a otra que señala al sujeto de la llamada';
+    body = person(70,104,'#C4A15A','ask') + person(280,104,'#2F5D7A','point')
+      + bubble(16,18,150,52,['Who called?'],'#fff')
+      + '<rect x="188" y="108" width="22" height="36" rx="3" fill="#0E0E0C"/>'
+      + '<circle cx="199" cy="102" r="6" fill="#7FA8C9"/>'
+      + '<path d="M210 120 h28" stroke="#C4A15A" stroke-width="3"/>';
+  } else if(pic==='exclaim' || pic==='tag'){
+    aria = 'Una persona abre los brazos ante el frío y el bocadillo es una exclamación, no una pregunta';
+    body = person(120,108,'#C4A15A','up')
+      + bubble(180,20,180,56,['How cold!'],'#F5EDD8')
+      + '<path d="M40 70 q20 30 0 50" fill="none" stroke="#7FA8C9" stroke-width="3"/>'
+      + '<path d="M60 64 q16 28 0 46" fill="none" stroke="#7FA8C9" stroke-width="3"/>'
+      + '<circle cx="70" cy="150" r="16" fill="#E3EEF4" stroke="#2F5D7A" stroke-width="2"/>';
+  } else if(pic==='because' || pic==='despite'){
+    aria = 'Llueve y las personas se quedan bajo un tejado: la lluvia es la causa, no una hipótesis';
+    body = '<rect x="40" y="90" width="200" height="80" fill="#F5EDD8" stroke="#0E0E0C" stroke-width="2"/>'
+      + '<polygon points="30,90 140,48 250,90" fill="#8A6B2F" stroke="#0E0E0C" stroke-width="2"/>'
+      + person(100,112,'#C4A15A','down') + person(170,112,'#2F5D7A','down')
+      + '<line x1="280" y1="40" x2="274" y2="70" stroke="#2F5D7A" stroke-width="3"/>'
+      + '<line x1="300" y1="36" x2="294" y2="72" stroke="#2F5D7A" stroke-width="3"/>'
+      + '<line x1="320" y1="44" x2="316" y2="74" stroke="#2F5D7A" stroke-width="3"/>'
+      + '<path d="M340 100 q20 10 16 28" fill="#7FA8C9" stroke="#0E0E0C"/>';
+  } else if(pic==='ifhyp' || pic==='purpose'){
+    aria = 'Un tren aún no ha llegado y dos personas esperan en un cruce: es hipótesis, no causa ya ocurrida';
+    body = '<path d="M40 160 H200" stroke="#2A2620" stroke-width="6"/>'
+      + '<path d="M200 160 L300 110" stroke="#2A2620" stroke-width="6"/>'
+      + '<path d="M200 160 L310 170" stroke="#C4A15A" stroke-width="6"/>'
+      + person(90,104,'#C4A15A','ask') + person(150,108,'#7FA8C9','point')
+      + '<rect x="300" y="78" width="86" height="36" rx="8" fill="#9B3A4A" stroke="#0E0E0C"/>'
+      + '<circle cx="318" cy="118" r="8" fill="#0E0E0C"/>'
+      + '<circle cx="368" cy="118" r="8" fill="#0E0E0C"/>'
+      + bubble(220,16,160,40,['If it is late…'],'#fff');
+  } else if(pic==='ontime' || pic==='streetend' || pic==='meeting' || pic==='trip'){
+    aria = 'Reloj en hora, calle que termina y un grupo que se reúne';
+    body = person(46,108,'#C4A15A','point')
+      + '<circle cx="130" cy="78" r="28" fill="#fff" stroke="#0E0E0C" stroke-width="3"/>'
+      + '<line x1="130" y1="78" x2="130" y2="60" stroke="#0E0E0C" stroke-width="2"/>'
+      + '<line x1="130" y1="78" x2="146" y2="84" stroke="#C4A15A" stroke-width="2"/>'
+      + '<path d="M190 150 H330" stroke="#8A6B2F" stroke-width="6"/>'
+      + '<rect x="320" y="110" width="28" height="40" fill="#2F5D7A" stroke="#0E0E0C"/>'
+      + person(250,108,'#3D6B4F','ask') + person(360,108,'#7FA8C9','up');
+  } else {
+    aria = 'Dos personas hablan en una escena de clase';
+    body = person(90,104,'#C4A15A','ask') + person(260,104,'#2F5D7A','point')
+      + bubble(24,22,160,46,['…'],'#fff');
+  }
+  var svg = '<svg viewBox="0 0 420 230" role="img" aria-label="'+esc(aria)+'">'+sky+ground+body
+    + '<text x="210" y="214" text-anchor="middle" font-size="12" font-weight="700" fill="#8A6B2F">'+foot+'</text></svg>';
+  s.innerHTML = svg;
+}
+function bind(box, opts, verdict){
+  box.innerHTML = '';
+  opts.forEach(function(o){
+    var b = document.createElement('button');
+    b.className = 'opt';
+    b.type = 'button';
+    b.textContent = o.t;
+    b.addEventListener('click', function(){
+      var buttons = box.querySelectorAll('.opt');
+      buttons.forEach(function(x, idx){
+        x.disabled = true;
+        if(opts[idx].ok) x.classList.add('ok');
+      });
+      if(!o.ok){ b.classList.remove('ok'); b.classList.add('bad'); }
+      verdict.className = 'verdict show '+(o.ok?'ok':'bad');
+      verdict.textContent = o.why;
+    });
+    box.appendChild(b);
+  });
+  verdict.className = 'verdict';
+  verdict.textContent = '';
+}
+var ri = 0;
+function showRound(){
+  var rounds = D.rounds || [];
+  var r = rounds[ri];
+  el('rcounter').textContent = 'Caso '+(ri+1)+' de '+rounds.length;
+  el('rprompt').textContent = r.q;
+  drawVisual(r.scene);
+  bind(el('ropts'), r.opts, el('rverdict'));
+}
+el('nextRound').addEventListener('click', function(){
+  ri = (ri+1) % D.rounds.length;
+  showRound();
+});
+showRound();
+var qi = 0;
+function showQuiz(){
+  var q = D.quiz[qi];
+  el('qcounter').textContent = 'Pregunta '+(qi+1)+' de '+D.quiz.length;
+  el('qprompt').textContent = q.q;
+  if(q.scene) drawVisual(q.scene);
+  bind(el('qopts'), q.opts, el('qverdict'));
+}
+el('nextQuiz').addEventListener('click', function(){
+  qi = (qi+1) % D.quiz.length;
+  showQuiz();
+});
+showQuiz();
+})();
+
+
+</script>
+</body>
+</html>

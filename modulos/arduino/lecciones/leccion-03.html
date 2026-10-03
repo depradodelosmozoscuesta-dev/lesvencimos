@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="color-scheme" content="dark">
+<title>L03 · La placa, el sketch y el pin · les vencimos</title>
+<style>
+:root{--bg:#0E0E0C;--surf:#161512;--panel:#1C1A16;--ink:#E6E1D6;--mut:#9A9488;--acc:#C4A15A;--acc-ink:#1A160E;--danger:#C46A4A;--ok:#8F9A72;--line:#2A2720}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:400 17px/1.55 "Segoe UI",system-ui,sans-serif}
+h1,h2,h3{font-family:"Iowan Old Style",Palatino,Georgia,serif;font-weight:600;line-height:1.25}
+a{color:var(--acc)}
+.wrap{max-width:42rem;margin:0 auto;padding:1.25rem 1.1rem 3.5rem}
+header.top{border-bottom:1px solid var(--line);padding-bottom:.8rem;margin-bottom:1.2rem}
+.marca{font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;color:var(--mut);margin:0}
+h1{font-size:1.7rem;margin:.35rem 0 .2rem}
+.meta{color:var(--mut);margin:0 0 .8rem;font-size:.92rem}
+nav.pasos{display:flex;flex-wrap:wrap;gap:.5rem;margin:.4rem 0 0}
+nav.pasos a,button{min-height:44px;padding:.45rem .8rem;border:1px solid var(--line);border-radius:2px;background:var(--surf);color:var(--ink);font:inherit;text-decoration:none;cursor:pointer}
+button.acc{background:var(--acc);color:var(--acc-ink);border-color:var(--acc);font-weight:600}
+.maestro{background:var(--panel);border:1px solid var(--line);padding:1rem 1.05rem;margin:1.1rem 0}
+.maestro h2{margin:.1rem 0 .6rem;font-size:1.05rem;color:var(--acc)}
+pre{background:var(--surf);border:1px solid var(--line);padding:.9rem 1rem;overflow:auto;font-size:.88rem;line-height:1.45}
+.warn{border-left:3px solid var(--danger);padding:.2rem 0 .2rem .8rem;color:var(--ink)}
+.quiz{margin-top:1.2rem}
+figure{margin:1rem 0;background:#161512;border:1px solid var(--line);padding:.55rem .7rem}
+figure svg{width:100%;height:auto;display:block}
+figcaption{color:var(--mut);font-size:.9rem;margin:.45rem 0 0}
+.ejemplo{background:#161512;border:1px solid var(--line);padding:.8rem .95rem;margin:.7rem 0}
+.ejemplo h3{margin:.1rem 0 .4rem;font-size:1.05rem}
+
+.pregunta{background:var(--surf);border:1px solid var(--line);padding:.8rem 1rem;margin:.7rem 0}
+.respuesta{color:var(--ok);margin:.55rem 0 0}
+footer{margin-top:2.2rem;padding-top:.8rem;border-top:1px solid var(--line);color:var(--mut);font-size:.82rem}
+.pend{color:var(--mut)}
+ol.temario{padding-left:1.2rem}
+ol.temario li{margin:.28rem 0}
+
+.sim,.anota{margin:1rem 0;background:#161512;border:1px solid var(--line);padding:.8rem .9rem}
+.sim h2,.anota h2{margin:.1rem 0 .4rem;font-size:1.15rem}
+.sim-canvas{width:100%;height:auto;background:#1C1A16;border:1px solid var(--line);margin:.6rem 0;display:block}
+.sim-lab{display:flex;align-items:center;gap:.6rem;margin:.4rem 0;color:var(--ink)}
+.sim-range{flex:1;min-height:44px}
+.sim-out{min-width:3rem;color:var(--acc)}
+.sim-dedo{margin-top:.4rem}
+textarea.nota-montaje{width:100%;min-height:8rem;background:#1C1A16;color:var(--ink);border:1px solid var(--line);padding:.7rem;font:inherit;line-height:1.45}
+
+</style>
+</head>
+<body>
+<article class="wrap" id="ens-placa-sketch-pin" data-ens="ens-placa-sketch-pin" data-hw="placa-uno-r3">
+<header class="top">
+<p class="marca">les vencimos · offline</p>
+<h1>L03. La placa, el sketch y el pin</h1>
+<p class="meta">Antes de enchufar (0–8%)</p>
+<nav class="pasos"><a href="../arduino-ensenanza.html">Al curso</a><a href="leccion-02.html">Anterior</a><a href="leccion-04.html">Siguiente</a></nav>
+</header>
+<section class="maestro" id="maestro">
+<h2>Maestro</h2>
+<p id="maestro-texto">Mira la placa sin cablear todavía. Tiene un USB, unos agujeros numerados y una palabra que vas a usar mil veces: pin. El programa se llama sketch. Hoy no subimos nada. Hoy aprendes a señalar: de dónde entra la corriente, dónde está la masa, y qué pin es de sí o no y cuál mide un número.</p>
+<button type="button" class="acc" id="escuchar">Escuchar</button>
+</section>
+<section class="lectura">
+<p>El USB sirve para dos cosas a la vez: alimentar la placa desde el ordenador y copiar el programa. El archivo que escribes se llama sketch y termina en .ino. Aún no importa el programa del ordenador: eso vive en el módulo Software. Aquí importa qué hay en la placa cuando el sketch ya está dentro.</p>
+<p>Un pin digital es una patilla que está alta o baja. En el Uno, alta son unos 5 voltios y baja son 0, la masa. Un pin analógico, marcado A0, A1 y siguientes, puede medir una tensión y convertirla en un número. GND es la masa, el cero de referencia. El pin de 5V es la alimentación regulada de la placa, no una fuente infinita.</p>
+<p>La referencia de este curso es el Arduino Uno R3, lógica de 5 voltios. El Nano clásico, con el mismo ATmega328P, es de la misma familia: también 5 voltios. No es otra lógica. En cambio, un Nano 33, un ESP o un MKR, y muchas placas nuevas, trabajan a 3,3 voltios. Meter 5 voltios en un pin de 3,3 puede quemar la placa. Si la tuya no es un Uno, míralo en el catálogo Hardware, ancla placa-uno-r3 o placa-nano, antes de copiar un esquema de 5 voltios.</p>
+<p>Hoy no enchufes sensores. Solo localiza en tu placa, o en un dibujo: el conector USB, el pin 13, un pin GND y el pin 5V. El pin 13 lo usaremos para probar, porque casi siempre lleva ya un LED soldado en la placa.</p>
+</section>
+<h2>Montaje</h2>
+<figure><svg viewBox="0 0 640 210" aria-label="Mapa del curso"><rect x="16" y="40" width="140" height="120" rx="6" fill="#1C1A16" stroke="#C4A15A"/><text x="86.0" y="58" text-anchor="middle" fill="#E6E1D6" font-size="13">Antes</text><text x="26" y="78" fill="#9A9488" font-size="11">placa</text><text x="26" y="94" fill="#9A9488" font-size="11">5 V y masa</text><text x="26" y="110" fill="#9A9488" font-size="11">no hay red</text><rect x="180" y="40" width="140" height="120" rx="6" fill="#1C1A16" stroke="#C4A15A"/><text x="250.0" y="58" text-anchor="middle" fill="#E6E1D6" font-size="13">Entrada</text><text x="190" y="78" fill="#9A9488" font-size="11">botón</text><text x="190" y="94" fill="#9A9488" font-size="11">luz</text><text x="190" y="110" fill="#9A9488" font-size="11">distancia</text><rect x="344" y="40" width="140" height="120" rx="6" fill="#1C1A16" stroke="#C4A15A"/><text x="414.0" y="58" text-anchor="middle" fill="#E6E1D6" font-size="13">Salida</text><text x="354" y="78" fill="#9A9488" font-size="11">brillo</text><text x="354" y="94" fill="#9A9488" font-size="11">servo</text><text x="354" y="110" fill="#9A9488" font-size="11">sonido</text><rect x="508" y="36" width="116" height="128" rx="6" fill="#1C1A16" stroke="#8F9A72"/><text x="566.0" y="54" text-anchor="middle" fill="#E6E1D6" font-size="13">Tuyo</text><text x="518" y="74" fill="#9A9488" font-size="11">tres guiados</text><text x="518" y="90" fill="#9A9488" font-size="11">luego el tuyo</text><path d="M156 100 h20" stroke="#C4A15A" stroke-width="2"/><path d="M320 100 h20" stroke="#C4A15A" stroke-width="2"/><path d="M484 100 h20" stroke="#C4A15A" stroke-width="2"/><text x="16" y="24" fill="#9A9488" font-size="12">El orden importa: cada caja usa la anterior</text></svg><figcaption>La placa es el chip más el USB, el regulador y las serigrafías. El sketch es el texto. El pin es el agujero que el texto nombra.</figcaption></figure>
+<h2>Pines de esta lección</h2>
+<figure><svg viewBox="0 0 340 118" aria-label="Pines de la lección"><rect x="6" y="16" width="328" height="86" rx="8" fill="#1C1A16" stroke="#C4A15A"/><text x="16" y="14" fill="#9A9488" font-size="11">Uno R3 · 5 V · mira la serigrafía, no la memoria</text><rect x="16" y="32" width="68" height="32" rx="4" fill="#161512" stroke="#C4A15A"/><text x="50" y="53" text-anchor="middle" fill="#E6E1D6" font-size="13">13</text><text x="50" y="84" text-anchor="middle" fill="#9A9488" font-size="10">LED de a bordo</text><rect x="94" y="32" width="68" height="32" rx="4" fill="#161512" stroke="#9A9488"/><text x="128" y="53" text-anchor="middle" fill="#E6E1D6" font-size="13">5 V</text><text x="128" y="84" text-anchor="middle" fill="#9A9488" font-size="10">alimentación</text><rect x="172" y="32" width="68" height="32" rx="4" fill="#161512" stroke="#9A9488"/><text x="206" y="53" text-anchor="middle" fill="#E6E1D6" font-size="13">GND</text><text x="206" y="84" text-anchor="middle" fill="#9A9488" font-size="10">masa</text><rect x="250" y="32" width="68" height="32" rx="4" fill="#161512" stroke="#9A9488"/><text x="284" y="53" text-anchor="middle" fill="#E6E1D6" font-size="13">A0</text><text x="284" y="84" text-anchor="middle" fill="#9A9488" font-size="10">más adelante</text></svg><figcaption>En el dibujo grande, busca 13, 5 V y GND antes de buscar nada raro.</figcaption></figure>
+<figure><svg class="board-svg" id="pinout-uno-estatico" viewBox="0 0 340 520" role="img" aria-label="Pinout interactivo Arduino Uno">
+<rect x="40" y="20" width="260" height="480" rx="8" fill="#1C1A16" stroke="#C4A15A" stroke-width="2"/>
+<rect x="120" y="8" width="70" height="28" rx="3" fill="#2A2720" stroke="#9A9488"/>
+<text x="155" y="27" text-anchor="middle" fill="#E6E1D6" font-size="10" font-family="Segoe UI,system-ui,sans-serif">USB</text>
+<rect x="210" y="30" width="55" height="40" rx="4" fill="#2A2720" stroke="#9A9488"/>
+<text x="237" y="55" text-anchor="middle" fill="#9A9488" font-size="9">DC</text>
+<text x="170" y="70" text-anchor="middle" fill="#C4A15A" font-size="12" font-family="Georgia,serif">Arduino Uno R3</text>
+<rect x="100" y="200" width="140" height="100" rx="4" fill="#161512" stroke="#2A2720"/>
+<text x="170" y="255" text-anchor="middle" fill="#9A9488" font-size="11">ATmega328P</text>
+<circle cx="200" cy="160" r="5" fill="#C46A4A" opacity=".7"/><text x="210" y="164" fill="#9A9488" font-size="8">L</text>
+<g class="ping" data-pin="scl">
+<circle class="pin other" id="pin-scl" data-pin="scl" data-board="uno" cx="55" cy="90" r="7" tabindex="0" role="button" aria-label="SCL"/>
+<text x="27" y="94" text-anchor="end" fill="#9A9488" font-size="9" font-family="Segoe UI,system-ui,sans-serif">SCL</text>
+</g>
+<g class="ping" data-pin="sda">
+<circle class="pin other" id="pin-sda" data-pin="sda" data-board="uno" cx="55" cy="112" r="7" tabindex="0" role="button" aria-label="SDA"/>
+<text x="27" y="116" text-anchor="end" fill="#9A9488" font-size="9" font-family="Segoe UI,system-ui,sans-serif">SDA</text>
+</g>
+<g class="ping" data-pin="aref">
+<circle class="pin other" id="pin-aref" data-pin="aref" data-board="uno" cx="55" cy="134" r="7" tabindex="0" role="button" aria-label="AREF"/>
+<text x="27" y="138" text-anchor="end" fill="#9A9488" font-size="9" font-family="Segoe UI,system-ui,sans-serif">AREF</text>
+</g>
+<g class="ping" data-pin="gndL">
+<circle class="pin gnd" id="pin-gndL" data-pin="gndL" data-board="uno" cx="55" cy="156" r="7" tabindex="0" role="button" aria-label="GND"/>
+<text x="27" y="160" text-anchor="end" fill="#9A9488" font-size="9" font-family="Segoe UI,system-ui,sans-serif">GND</text>
+</g>
+<g class="ping" data-pin="d13">
+<circle class="pin digital" id="pin-d13" data-pin="d13" data-board="uno" cx="55" cy="178" r="7" tabindex="0" role="button" aria-label="13"/>
+<text x="27" y="182" text-anchor="end" fill="#9A9488" font-size="9" font-family="Segoe UI,system-ui,sans-serif">13</text>
+</g>
+<g class="ping" data-pin="d12">
+<circle class="pin digital" id="pin-d12" data-pin="d12" data-board="uno" cx="55" cy="200" r="7" tabindex="0" role="button" aria-label="12"/>
+<text x="27" y="204" text-anchor="end" fill="#9A9488" font-size="9" font-family="Segoe UI,system-ui,sans-serif">12</text>
+</g>
+<g class="ping" data-pin="d11">
+<circle class="pin digital" id="pin-d11" data-pin="d11" data-board="uno" cx="55" cy="222" r="7" tabindex="0" role="button" aria-label="11~"/>
+<text x="27" y="226" text-anchor="end" fill="#9A9488" font-size="9" font-family="Segoe UI,system-ui,sans-serif">11~</text>
+</g>
+<g class="ping" data-pin="d10">
+<circle class="pin digital" id="pin-d10" data-pin="d10" data-board="uno" cx="55" cy="244" r="7" tabindex="0" role="button" aria-label="10~"/>
+<text x="27" y="248" text-anchor="end" fill="#9A9488" font-size="9" font-family="Segoe UI,system-ui,sans-serif">10~</text>
+</g>
+<g class="ping" data-pin="d9">
+<circle class="pin digital" id="pin-d9" data-pin="d9" data-board="uno" cx="55" cy="266" r="7" tabindex="0" role="button" aria-label="9~"/>
+<text x="27" y="270" text-anchor="end" fill="#9A9488" font-size="9" font-family="Segoe UI,system-ui,sans-serif">9~</text>
+</g>
+<g class="ping" data-pin="d8">
+<circle class="pin digital" id="pin-d8" data-pin="d8" data-board="uno" cx="55" cy="288" r="7" tabindex="0" role="button" aria-label="8"/>
+<text x="27" y="292" text-anchor="end" fill="#9A9488" font-size="9" font-family="Segoe UI,system-ui,sans-serif">8</text>
+</g>
+<g class="ping" data-pin="d7">
+<circle class="pin digital" id="pin-d7" data-pin="d7" data-board="uno" cx="55" cy="310" r="7" tabindex="0" role="button" aria-label="7"/>
+<text x="27" y="314" text-anchor="end" fill="#9A9488" font-size="9" font-family="Segoe UI,system-ui,sans-serif">7</text>
+</g>
+<g class="ping" data-pin="d6">
+<circle class="pin digital" id="pin-d6" data-pin="d6" data-board="uno" cx="55" cy="332" r="7" tabindex="0" role="button" aria-label="6~"/>
+<text x="27" y="336" text-anchor="end" fill="#9A9488" font-size="9" font-family="Segoe UI,system-ui,sans-serif">6~</text>
+</g>
+<g class="ping" data-pin="d5">
+<circle class="pin digital" id="pin-d5" data-pin="d5" data-board="uno" cx="55" cy="354" r="7" tabindex="0" role="button" aria-label="5~"/>
+<text x="27" y="358" text-anchor="end" fill="#9A9488" font-size="9" font-family="Segoe UI,system-ui,sans-serif">5~</text>
+</g>
+<g class="ping" data-pin="d4">
+<circle class="pin digital" id="pin-d4" data-pin="d4" data-board="uno" cx="55" cy="376" r="7" tabindex="0" role="button" aria-label="4"/>
+<text x="27" y="380" text-anchor="end" fill="#9A9488" font-size="9" font-family="Segoe UI,system-ui,sans-serif">4</text>
+</g>
+<g class="ping" data-pin="d3">
+<circle class="pin digital" id="pin-d3" data-pin="d3" data-board="uno" cx="55" cy="398" r="7" tabindex="0" role="button" aria-label="3~"/>
+<text x="27" y="402" text-anchor="end" fill="#9A9488" font-size="9" font-family="Segoe UI,system-ui,sans-serif">3~</text>
+</g>
+<g class="ping" data-pin="d2">
+<circle class="pin digital" id="pin-d2" data-pin="d2" data-board="uno" cx="55" cy="420" r="7" tabindex="0" role="button" aria-label="2"/>
+<text x="27" y="424" text-anchor="end" fill="#9A9488" font-size="9" font-family="Segoe UI,system-ui,sans-serif">2</text>
+</g>
+<g class="ping" data-pin="d1">
+<circle class="pin digital" id="pin-d1" data-pin="d1" data-board="uno" cx="55" cy="442" r="7" tabindex="0" role="button" aria-label="1 TX"/>
+<text x="27" y="446" text-anchor="end" fill="#9A9488" font-size="9" font-family="Segoe UI,system-ui,sans-serif">1 TX</text>
+</g>
+<g class="ping" data-pin="d0">
+<circle class="pin digital" id="pin-d0" data-pin="d0" data-board="uno" cx="55" cy="464" r="7" tabindex="0" role="button" aria-label="0 RX"/>
+<text x="27" y="468" text-anchor="end" fill="#9A9488" font-size="9" font-family="Segoe UI,system-ui,sans-serif">0 RX</text>
+</g>
+<g class="ping" data-pin="vin">
+<circle class="pin other" id="pin-vin" data-pin="vin" data-board="uno" cx="285" cy="100" r="7" tabindex="0" role="button" aria-label="VIN"/>
+<text x="299" y="104" text-anchor="start" fill="#9A9488" font-size="9" font-family="Segoe UI,system-ui,sans-serif">VIN</text>
+</g>
+<g class="ping" data-pin="gnd1">
+<circle class="pin gnd" id="pin-gnd1" data-pin="gnd1" data-board="uno" cx="285" cy="126" r="7" tabindex="0" role="button" aria-label="GND"/>
+<text x="299" y="130" text-anchor="start" fill="#9A9488" font-size="9" font-family="Segoe UI,system-ui,sans-serif">GND</text>
+</g>
+<g class="ping" data-pin="gnd2">
+<circle class="pin gnd" id="pin-gnd2" data-pin="gnd2" data-board="uno" cx="285" cy="152" r="7" tabindex="0" role="button" aria-label="GND"/>
+<text x="299" y="156" text-anchor="start" fill="#9A9488" font-size="9" font-family="Segoe UI,system-ui,sans-serif">GND</text>
+</g>
+<g class="ping" data-pin="v5">
+<circle class="pin power5" id="pin-v5" data-pin="v5" data-board="uno" cx="285" cy="178" r="7" tabindex="0" role="button" aria-label="5V"/>
+<text x="299" y="182" text-anchor="start" fill="#9A9488" font-size="9" font-family="Segoe UI,system-ui,sans-serif">5V</text>
+</g>
+<g class="ping" data-pin="v33">
+<circle class="pin power33" id="pin-v33" data-pin="v33" data-board="uno" cx="285" cy="204" r="7" tabindex="0" role="button" aria-label="3.3V"/>
+<text x="299" y="208" text-anchor="start" fill="#9A9488" font-size="9" font-family="Segoe UI,system-ui,sans-serif">3.3V</text>
+</g>
+<g class="ping" data-pin="reset">
+<circle class="pin other" id="pin-reset" data-pin="reset" data-board="uno" cx="285" cy="230" r="7" tabindex="0" role="button" aria-label="RESET"/>
+<text x="299" y="234" text-anchor="start" fill="#9A9488" font-size="9" font-family="Segoe UI,system-ui,sans-serif">RESET</text>
+</g>
+<g class="ping" data-pin="io">
+<circle class="pin other" id="pin-io" data-pin="io" data-board="uno" cx="285" cy="256" r="7" tabindex="0" role="button" aria-label="IOREF"/>
+<text x="299" y="260" text-anchor="start" fill="#9A9488" font-size="9" font-family="Segoe UI,system-ui,sans-serif">IOREF</text>
+</g>
+<g class="ping" data-pin="a0">
+<circle class="pin analog" id="pin-a0" data-pin="a0" data-board="uno" cx="285" cy="282" r="7" tabindex="0" role="button" aria-label="A0"/>
+<text x="299" y="286" text-anchor="start" fill="#9A9488" font-size="9" font-family="Segoe UI,system-ui,sans-serif">A0</text>
+</g>
+<g class="ping" data-pin="a1">
+<circle class="pin analog" id="pin-a1" data-pin="a1" data-board="uno" cx="285" cy="308" r="7" tabindex="0" role="button" aria-label="A1"/>
+<text x="299" y="312" text-anchor="start" fill="#9A9488" font-size="9" font-family="Segoe UI,system-ui,sans-serif">A1</text>
+</g>
+<g class="ping" data-pin="a2">
+<circle class="pin analog" id="pin-a2" data-pin="a2" data-board="uno" cx="285" cy="334" r="7" tabindex="0" role="button" aria-label="A2"/>
+<text x="299" y="338" text-anchor="start" fill="#9A9488" font-size="9" font-family="Segoe UI,system-ui,sans-serif">A2</text>
+</g>
+<g class="ping" data-pin="a3">
+<circle class="pin analog" id="pin-a3" data-pin="a3" data-board="uno" cx="285" cy="360" r="7" tabindex="0" role="button" aria-label="A3"/>
+<text x="299" y="364" text-anchor="start" fill="#9A9488" font-size="9" font-family="Segoe UI,system-ui,sans-serif">A3</text>
+</g>
+<g class="ping" data-pin="a4">
+<circle class="pin analog" id="pin-a4" data-pin="a4" data-board="uno" cx="285" cy="386" r="7" tabindex="0" role="button" aria-label="A4"/>
+<text x="299" y="390" text-anchor="start" fill="#9A9488" font-size="9" font-family="Segoe UI,system-ui,sans-serif">A4</text>
+</g>
+<g class="ping" data-pin="a5">
+<circle class="pin analog" id="pin-a5" data-pin="a5" data-board="uno" cx="285" cy="412" r="7" tabindex="0" role="button" aria-label="A5"/>
+<text x="299" y="416" text-anchor="start" fill="#9A9488" font-size="9" font-family="Segoe UI,system-ui,sans-serif">A5</text>
+</g>
+</svg><figcaption>Pinout del Uno R3, el mismo dibujo que en Hardware. Marca con la vista el 13, los GND y el 5 V. El resto espera su lección.</figcaption></figure><h2>Por qué</h2>
+<p>Tres palabras se mezclan y luego todo el curso se tuerce. La placa es el objeto: Uno R3, conector USB, regulador, agujeros. El sketch es el texto con setup y loop que escribes en el ordenador. El pin es una patilla concreta, con un número impreso en el plástico. El sketch no enciende un LED en general. Enciende el número que escribiste, si el cable está en ese número.</p><p>En el Uno, el pin 13 ya lleva un LED pequeño soldado en la placa, con su resistencia. Por eso el primer programa se ve sin protoboard. Si ese LED parpadea, el chip, el cable USB y el programa están bien. Si no parpadea, no añadas más cables para compensar: todavía no has salido de la placa.</p><p>5 V y GND no son pines de señal. 5 V es la alimentación que la placa ofrece cuando el USB o el conector externo están bien. GND es la masa, el cero de todos los voltajes. Un circuito sin masa común es un circuito abierto aunque veas muchos hilos. VIN y el conector de barril son otra entrada de alimentación, no un pin para un LED.</p><p>IOREF dice a los escudos qué voltaje usa la placa. En el Uno lee 5 V. En una placa de 3,3 V no vale el mismo escudo ni el mismo sensor alimentado a 5 V. RESET reinicia el chip. Los pines 0 y 1, marcados RX y TX, están unidos al USB: más adelante no los uses como botones.</p><h2>Práctica</h2>
+<ol><li>Con la placa desenchufada, pon el dedo en el LED cercano al pin 13. Es el de a bordo.</li><li>Sigue con el dedo el número 13 en la serigrafía hasta el agujero metálico.</li><li>Encuentra dos agujeros marcados GND. Da igual cuál uses para la masa de un LED.</li><li>Encuentra 5 V. No lo confundas con 3,3 V, que está al lado y es más débil.</li><li>Encuentra A0 en el otro lado. Aún no se cablea; solo tienes que ver que no es el 0 de RX.</li><li>Lee en la seda si pone Uno o si tu placa es otra. Si es otra, anota si es de 5 V o de 3,3 V.</li><li>Abre el pinout grande de esta página y tapa con un papel los pines que no sean 13, 5 V y GND. Eso es tu mapa de las próximas lecciones.</li></ol><section class="anota"><h2>Anota el montaje</h2><p>Escribe qué cable va a qué pin, o qué has entendido del paso. Se guarda en este aparato.</p><textarea class="nota-montaje" rows="6" placeholder="Pin, color del cable, a qué agujero."></textarea></section><h2>Ejemplos resueltos</h2>
+<div class="ejemplo"><h3>El 3,3 V por costumbre</h3><p>Pedro alimenta un LED desde el pin de 3,3 V porque ha leído que es más seguro. El LED brilla poco o nada, y el regulador de 3,3 V del Uno no está pensado para alimentar cargas. El pin de señal sigue sin usarse.</p><p>Lo correcto en este curso: el LED va de un pin de entrada y salida, el 13 al principio, a masa, con resistencia. Los 5 V de la placa alimentan sensores y módulos, no sustituyen al pin que el programa enciende y apaga.</p></div><div class="ejemplo"><h3>Setup no es el bucle</h3><p>Alguien pone pinMode y digitalWrite dentro de un texto que no es setup, o solo escribe loop y nunca declara el pin. El 13 no se vuelve salida y el LED de a bordo no obedece.</p><p>Regla: setup se ejecuta una vez al arrancar o al pulsar RESET. Loop se repite para siempre. La dirección del pin, entrada o salida, se dice en setup. Encender y apagar se dice en loop.</p></div><h2>En la mesa</h2>
+<p>Recorre la placa con un palillo, no con un cable. Toca el 13 y di salida de prueba. Toca un GND y di cero. Toca 5 V y di alimentación, no señal. Toca 3,3 V y di no es el de los LED de este curso. Toca el 0 y el 1 y di reservados para hablar con el ordenador. Toca A0 y di medida, más adelante. Si te saltas un nombre, vuelves. Esta ronda sustituye a una hora de cablear a ciegas.</p>
+<p>Enchufa el USB solo un momento, sin sketch nuevo, y mira si se enciende el LED de alimentación, que no es el del pin 13. Si no se enciende, el cable o el puerto están mal y no tiene sentido seguir a la lección del parpadeo. Si se enciende, desenchufa. Ya sabes separar placa viva de programa cargado. Mucha gente no lo separa y persigue fallos de código que son un cable USB a medias.</p>
+<p>Deja el pinout de esta página abierto al lado cuando cablees las próximas lecciones. Cada vez que un tutorial de fuera use otro número, vuelve aquí y pregunta si ese número existe en tu seda. Si no existe, el tutorial es de otra placa. No se adapta encogiendo de hombros.</p>
+
+<h2>Ejercicio</h2>
+<p>Sin conectar nada peligroso, señala en la placa o en una foto: USB, pin 13, GND y 5V. Anota al lado si tu placa es de 5 voltios (Uno o Nano clásico) o si aún no lo sabes.</p>
+<section class="quiz">
+<h2>Autoevaluación</h2>
+<div class="pregunta"><p><strong>1.</strong> ¿Qué es un sketch?</p><button type="button" class="ver">ver respuesta</button><p class="respuesta" hidden>El programa de Arduino, un archivo .ino.</p></div><div class="pregunta"><p><strong>2.</strong> ¿El Nano clásico con ATmega328P es de 3,3 voltios?</p><button type="button" class="ver">ver respuesta</button><p class="respuesta" hidden>No. Es de la misma familia que el Uno: 5 voltios.</p></div><div class="pregunta"><p><strong>3.</strong> ¿Se pueden meter 5 voltios en un pin de una placa de 3,3?</p><button type="button" class="ver">ver respuesta</button><p class="respuesta" hidden>No. Puede quemar la placa.</p></div>
+</section>
+<footer>les vencimos · Arduino Enseñanza · offline</footer>
+</article>
+<script>
+document.querySelectorAll("button.ver").forEach(function(b){
+  b.addEventListener("click", function(){
+    var r = b.parentElement.querySelector(".respuesta");
+    if(!r) return;
+    r.hidden = !r.hidden;
+    b.textContent = r.hidden ? "ver respuesta" : "ocultar respuesta";
+  });
+});
+var btn = document.getElementById("escuchar");
+if(btn){
+  btn.addEventListener("click", function(){
+    var el = document.getElementById("maestro-texto");
+    var texto = el ? el.textContent : "";
+    if(window.LesVencimosMaestro && typeof window.LesVencimosMaestro.decir === "function"){
+      window.LesVencimosMaestro.decir(texto);
+      return;
+    }
+    if(!window.speechSynthesis || typeof window.SpeechSynthesisUtterance !== "function") return;
+    window.speechSynthesis.cancel();
+    var u = new SpeechSynthesisUtterance(texto);
+    u.lang = "es-ES";
+    u.rate = 0.95;
+    window.speechSynthesis.speak(u);
+  });
+}
+
+document.querySelectorAll("textarea.nota-montaje").forEach(function(ta){
+  var art = document.querySelector("[data-ens]");
+  var key = "lv-ens-nota-" + (art ? art.getAttribute("data-ens") : "leccion");
+  try {
+    var prev = localStorage.getItem(key);
+    if(prev) ta.value = prev;
+    ta.addEventListener("input", function(){ localStorage.setItem(key, ta.value); });
+  } catch (e) {}
+});
+var sim = document.querySelector("section.sim");
+if(sim){
+  var canvas = sim.querySelector("canvas.sim-canvas");
+  var ctx = canvas.getContext("2d");
+  var kind = sim.getAttribute("data-sim");
+  var da = sim.getAttribute("data-a") || "";
+  var db = sim.getAttribute("data-b") || "";
+  var toggle = sim.querySelector(".sim-toggle");
+  var range = sim.querySelector(".sim-range");
+  var out = sim.querySelector(".sim-out");
+  var dedo = sim.querySelector(".sim-dedo");
+  var vivo = true;
+  var pulsado = false;
+  var permiso = true;
+  var ledOn = false;
+  var ultimoFlanco = 0;
+  var t0 = Date.now();
+  function num(el, fallo){ return el ? parseInt(el.value, 10) : fallo; }
+  if(dedo && kind !== "noche"){
+    dedo.addEventListener("pointerdown", function(ev){
+      pulsado = true;
+      if(kind === "flanco"){
+        var ahora = Date.now();
+        if(ahora - ultimoFlanco > 30){
+          ledOn = !ledOn;
+          ultimoFlanco = ahora;
+        }
+      }
+      ev.preventDefault();
+    });
+    window.addEventListener("pointerup", function(){ pulsado = false; });
+  }
+  if(dedo && kind === "noche"){
+    dedo.addEventListener("click", function(){
+      permiso = !permiso;
+      dedo.setAttribute("aria-pressed", permiso ? "true" : "false");
+      dedo.textContent = permiso ? "Permiso dado" : "Sin permiso";
+    });
+  }
+  if(toggle){
+    toggle.addEventListener("click", function(){
+      vivo = !vivo;
+      toggle.setAttribute("aria-pressed", vivo ? "true" : "false");
+      toggle.textContent = vivo ? "Parar simulación" : "Encender simulación";
+    });
+  }
+  function circulo(x, y, r, on, nivel){
+    ctx.beginPath();
+    ctx.arc(x, y, r, 0, Math.PI * 2);
+    if(on){
+      var a = nivel == null ? 1 : nivel;
+      ctx.fillStyle = "rgba(196,161,90," + (0.25 + 0.75 * a) + ")";
+      ctx.shadowColor = "#C4A15A";
+      ctx.shadowBlur = 16 * a;
+    } else {
+      ctx.fillStyle = "#2A2720";
+      ctx.shadowBlur = 0;
+    }
+    ctx.fill();
+    ctx.shadowBlur = 0;
+    ctx.lineWidth = 2;
+    ctx.strokeStyle = on ? "#C4A15A" : "#9A9488";
+    ctx.stroke();
+  }
+  function caja(x, y, w, h, titulo){
+    ctx.fillStyle = "#161512";
+    ctx.strokeStyle = "#C4A15A";
+    ctx.lineWidth = 2;
+    ctx.fillRect(x, y, w, h);
+    ctx.strokeRect(x, y, w, h);
+    ctx.fillStyle = "#E6E1D6";
+    ctx.font = "14px sans-serif";
+    ctx.fillText(titulo, x + 10, y + 22);
+  }
+  function texto(x, y, s, col){
+    ctx.fillStyle = col || "#E6E1D6";
+    ctx.font = "13px sans-serif";
+    ctx.fillText(s, x, y);
+  }
+  function frame(){
+    var ahora = Date.now();
+    var lectura = num(range, 0);
+    var enciende = false;
+    var nivel = 1;
+    var etiqueta = "";
+    if(kind === "blink"){
+      var hi = parseInt(da, 10) || 500;
+      var lo = parseInt(db, 10) || 500;
+      var ciclo = hi + lo;
+      var fase = vivo ? ((ahora - t0) % ciclo) : 0;
+      enciende = vivo && fase < hi;
+      etiqueta = enciende ? "HIGH" : "LOW";
+    } else if(kind === "hold"){
+      enciende = vivo && pulsado;
+      etiqueta = pulsado ? "LOW, pulsado" : "HIGH, suelto";
+    } else if(kind === "nivel"){
+      enciende = vivo && pulsado;
+      etiqueta = pulsado ? "lectura LOW" : "lectura HIGH";
+    } else if(kind === "flanco"){
+      enciende = vivo && ledOn;
+      etiqueta = enciende ? "LED encendido" : "LED apagado";
+    } else if(kind === "umbral"){
+      var umbral = parseInt(da, 10);
+      enciende = vivo && (db === "lt" ? lectura < umbral && lectura > 0 : lectura > umbral);
+      if(sim.getAttribute("data-sim") === "umbral" && da === "20"){
+        enciende = vivo && lectura > 0 && lectura < umbral;
+      }
+      etiqueta = String(lectura);
+      nivel = 1;
+    } else if(kind === "pwm"){
+      nivel = vivo ? lectura / 255 : 0;
+      enciende = vivo && lectura > 0;
+      etiqueta = String(lectura);
+    } else if(kind === "servo"){
+      var span = 140;
+      var pos = vivo ? ((ahora - t0) % 2800) / 2800 : 0.5;
+      var tri = pos < 0.5 ? pos * 2 : (1 - pos) * 2;
+      var grados = Math.round(20 + tri * span);
+      if(range) range.value = String(grados);
+      lectura = grados;
+      enciende = vivo;
+      etiqueta = grados + " grados";
+    } else if(kind === "buzz"){
+      var fb = vivo ? ((ahora - t0) % 1000) : 500;
+      etiqueta = fb < 300 ? "440" : (fb < 600 ? "880" : "silencio");
+      enciende = vivo && fb < 600;
+    } else if(kind === "carga"){
+      var fc = vivo ? ((ahora - t0) % 4000) : 2000;
+      enciende = vivo && fc < 2000;
+      etiqueta = enciende ? "pin en HIGH" : "pin en LOW";
+    } else if(kind === "semi"){
+      var fs = vivo ? ((ahora - t0) % 3500) : 0;
+      etiqueta = fs < 1500 ? "rojo" : (fs < 2000 ? "ambar" : "verde");
+      enciende = vivo;
+    } else if(kind === "alarma"){
+      enciende = vivo && lectura > 0 && lectura < 20;
+      etiqueta = lectura + " cm";
+    } else if(kind === "noche"){
+      var noche = lectura < 400 && permiso;
+      enciende = vivo && noche;
+      nivel = enciende ? 180/255 : 0;
+      etiqueta = (permiso ? "con permiso" : "sin permiso") + " · " + lectura;
+    }
+    if(out) out.textContent = etiqueta;
+    ctx.clearRect(0, 0, 320, 160);
+    ctx.fillStyle = "#1C1A16";
+    ctx.fillRect(0, 0, 320, 160);
+    caja(12, 28, 90, 100, "Uno");
+    if(kind === "semi"){
+      var fs2 = vivo ? ((ahora - t0) % 3500) : 0;
+      circulo(160, 48, 14, vivo && fs2 < 1500, 1);
+      circulo(210, 48, 14, vivo && fs2 >= 1500 && fs2 < 2000, 1);
+      circulo(260, 48, 14, vivo && fs2 >= 2000, 1);
+      texto(150, 78, "10 rojo");
+      texto(198, 78, "11");
+      texto(248, 78, "12 verde");
+      texto(16, 150, vivo ? "ciclo en marcha" : "simulación parada", "#9A9488");
+    } else if(kind === "servo"){
+      var rad = (180 - lectura) * Math.PI / 180;
+      ctx.strokeStyle = "#C4A15A";
+      ctx.lineWidth = 4;
+      ctx.beginPath();
+      ctx.moveTo(200, 110);
+      ctx.lineTo(200 + Math.cos(rad) * 70, 110 - Math.sin(rad) * 50);
+      ctx.stroke();
+      circulo(200, 110, 8, true, 1);
+      texto(120, 150, etiqueta);
+    } else if(kind === "buzz" || kind === "alarma"){
+      circulo(150, 80, 18, kind === "alarma" ? enciende : false, 1);
+      texto(176, 76, kind === "alarma" ? "LED 13" : "");
+      ctx.beginPath();
+      ctx.arc(250, 80, 22, 0, Math.PI * 2);
+      ctx.strokeStyle = enciende ? "#C4A15A" : "#9A9488";
+      ctx.lineWidth = 3;
+      ctx.stroke();
+      if(enciende){
+        ctx.beginPath();
+        ctx.arc(250, 80, 32, 0, Math.PI * 2);
+        ctx.stroke();
+      }
+      texto(120, 140, etiqueta);
+    } else if(kind === "carga"){
+      circulo(170, 70, 16, enciende, 1);
+      texto(196, 66, "orden");
+      ctx.strokeStyle = enciende ? "#8F9A72" : "#9A9488";
+      ctx.strokeRect(230, 48, 70, 44);
+      texto(242, 74, enciende ? "carga" : "quieta", enciende ? "#8F9A72" : "#9A9488");
+      texto(16, 150, etiqueta, "#9A9488");
+    } else {
+      circulo(200, 78, 18, enciende, nivel);
+      texto(230, 74, "LED");
+      texto(16, 150, etiqueta, "#9A9488");
+    }
+    if(!vivo){
+      texto(230, 150, "parada", "#9A9488");
+    }
+    requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+}
+
+</script>
+</body>
+</html>

@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
+<title>L18 · Laboratorio · Leer el nombre y el parentesco</title>
+<style>
+:root{--bg:#FAF7F0;--ink:#2A2620;--muted:#5C564C;--card:#fff;--gold:#C4A15A;--gold-soft:#F5EDD8;--gold-deep:#8A6B2F;--green:#3D6B4F;--green-soft:#E4F0E8;--blue:#2F5D7A;--blue-soft:#E3EEF4;--rose:#9B3A4A;--rose-soft:#F8E8EB;--line:#E0D0A8}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--ink);font-family:"Segoe UI",system-ui,sans-serif;line-height:1.45}
+body{padding:14px 12px 32px}
+.wrap{max-width:860px;margin:0 auto}
+.badge{display:inline-block;font-size:.75rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--gold-deep);background:var(--gold-soft);padding:4px 10px;border-radius:999px}
+h1{font-size:1.45rem;line-height:1.25;margin:.4rem 0 .3rem}
+.lead{color:var(--muted);margin:0 0 12px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px;margin:0 0 12px}
+.q{font-weight:750;margin:0 0 8px}
+.opts{display:grid;gap:8px}
+button.opt,button.chip{font:inherit;text-align:left;background:#fff;border:2px solid #D9D0C0;border-radius:12px;padding:10px 12px;cursor:pointer;font-weight:650}
+button.opt:hover,button.chip:hover{border-color:var(--gold)}
+button.opt.ok,button.chip.ok{border-color:var(--green);background:var(--green-soft)}
+button.opt.bad{border-color:var(--rose);background:var(--rose-soft)}
+button.opt:disabled{cursor:default}
+.why{margin:8px 0 0;font-size:.95rem}
+.why strong{color:var(--gold-deep)}
+.row{display:flex;flex-wrap:wrap;gap:8px}
+.slot{min-height:42px;border:2px dashed #C4B8A0;border-radius:12px;padding:8px;display:flex;flex-wrap:wrap;gap:6px;background:#FFFcf5}
+.bar{display:flex;justify-content:space-between;gap:8px;align-items:center;margin:8px 0}
+.score{font-weight:800;color:var(--gold-deep)}
+button.action{font:inherit;font-weight:800;border:0;border-radius:999px;background:var(--gold);color:#1A160E;padding:8px 14px;cursor:pointer}
+footer{color:var(--muted);font-size:.8rem;text-align:center}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="badge">Lección 18 · bloque C · sin red</div>
+  <h1>Leer el nombre y el parentesco</h1>
+  <p class="lead">Mayúsculas, categorías y qué se pierde al extinguir una rama. Sin subespecies de encina: ese nombre está discutido.</p>
+  <div class="bar"><span class="score" id="score">0</span><button type="button" class="action" id="reset">Reiniciar</button></div>
+  <div id="lab"></div>
+  <footer>Les vencimos · laboratorio autónomo · sin red · corrección inmediata</footer>
+</div>
+<script>
+
+function boot(ITEMS){
+  var root=document.getElementById("lab");
+  var score=0, done=0;
+  var sc=document.getElementById("score");
+  function paint(){ sc.textContent=score+" / "+ITEMS.length; }
+  ITEMS.forEach(function(it,i){
+    var card=document.createElement("section");
+    card.className="card";
+    var h=document.createElement("p");
+    h.className="q";
+    h.textContent=(i+1)+". "+it.q;
+    card.appendChild(h);
+    if(it.tipo==="orden"){
+      var slot=document.createElement("div");
+      slot.className="slot";
+      var pool=document.createElement("div");
+      pool.className="row";
+      var picked=[];
+      function judge(){
+        var ok=picked.length===it.correcto.length && picked.every(function(p,k){return p===it.correcto[k];});
+        done++; if(ok) score++;
+        paint();
+        var w=document.createElement("p");
+        w.className="why";
+        w.innerHTML=(ok?"<strong>Correcto.</strong> ":"<strong>No es esa secuencia.</strong> Orden: "+it.correcto.join(" → ")+". ")+it.porque;
+        card.appendChild(w);
+        pool.querySelectorAll("button").forEach(function(b){b.disabled=true;});
+      }
+      it.piezas.forEach(function(txt){
+        var b=document.createElement("button");
+        b.type="button"; b.className="chip"; b.textContent=txt;
+        b.addEventListener("click", function(){
+          if(b.disabled) return;
+          b.disabled=true; b.className="chip ok";
+          picked.push(txt); slot.appendChild(b);
+          if(picked.length===it.correcto.length) judge();
+        });
+        pool.appendChild(b);
+      });
+      var hint=document.createElement("p");
+      hint.className="why";
+      hint.textContent="Pulsa en orden, del primero al último.";
+      card.appendChild(hint); card.appendChild(slot); card.appendChild(pool);
+    } else {
+      var opts=document.createElement("div");
+      opts.className="opts";
+      it.opciones.forEach(function(op){
+        var b=document.createElement("button");
+        b.type="button"; b.className="opt"; b.textContent=op.t;
+        b.addEventListener("click", function(){
+          if(card.dataset.done) return;
+          card.dataset.done="1"; done++;
+          opts.querySelectorAll("button").forEach(function(x){x.disabled=true;});
+          if(op.ok){ b.classList.add("ok"); score++; }
+          else {
+            b.classList.add("bad");
+            opts.querySelectorAll("button").forEach(function(x,idx){ if(it.opciones[idx].ok) x.classList.add("ok"); });
+          }
+          paint();
+          var w=document.createElement("p");
+          w.className="why";
+          w.innerHTML=(op.ok?"<strong>Correcto.</strong> ":"<strong>No.</strong> ")+it.porque;
+          card.appendChild(w);
+        });
+        opts.appendChild(b);
+      });
+      card.appendChild(opts);
+    }
+    root.appendChild(card);
+  });
+  paint();
+  document.getElementById("reset").addEventListener("click", function(){ location.reload(); });
+  window.addEventListener("message", function(ev){
+    var d=ev.data||{};
+    if(d.type==="maestro:reset") location.reload();
+    if(d.type==="maestro:highlight"){
+      var c=root.querySelector(".card"); if(c) c.style.outline="3px solid #C4A15A";
+    }
+  });
+}
+
+boot([{"tipo": "orden", "q": "Ordena las categorías de mayor a menor.", "piezas": ["Especie", "Familia", "Dominio", "Género", "Clase", "Filo", "Orden"], "correcto": ["Dominio", "Filo", "Clase", "Orden", "Familia", "Género", "Especie"], "porque": "Dominio, filo (o división), clase, orden, familia, género, especie. El reino, cuando se usa, va entre dominio y filo, y no todos los reinos clásicos son grupos naturales."}, {"tipo": "test", "q": "¿Cuál es la forma correcta de la encina?", "opciones": [{"t": "Quercus ilex, con mayúscula solo en el género y las dos palabras como nombre de especie.", "ok": true}, {"t": "Ilex quercus, porque el nombre vulgar empieza por encina.", "ok": false}, {"t": "quercus Ilex, con el epíteto en mayúscula.", "ok": false}, {"t": "Ilex, a secas.", "ok": false}], "porque": "El género es Quercus. Ilex con mayúscula es el género del acebo. El epíteto va en minúscula y no viaja solo."}, {"tipo": "test", "q": "Quercus pyrenaica y Quercus ilex se parecen en el nombre porque…", "opciones": [{"t": "Comparten género: parentesco más estrecho que con Pinus sylvestris.", "ok": true}, {"t": "Los dos son pinos de la Cordillera Cantábrica.", "ok": false}, {"t": "Comparten epíteto específico.", "ok": false}, {"t": "Son la misma especie con dos nombres vulgares.", "ok": false}], "porque": "Mismo género, distinto epíteto: especies distintas del mismo género. El pino albar es otro género y otra familia."}, {"tipo": "test", "q": "«Procariota»…", "opciones": [{"t": "Describe una organización sin núcleo, no un dominio.", "ok": true}, {"t": "Es el dominio que une bacterias y arqueas como grupo natural más cercano entre sí que a los eucariotas.", "ok": false}, {"t": "Es un epíteto específico.", "ok": false}, {"t": "Es sinónimo de protista.", "ok": false}], "porque": "Hay dos dominios procariotas. Los eucariotas quedan más cerca de ciertas arqueas que de las bacterias."}, {"tipo": "test", "q": "Lynx pardinus se lee…", "opciones": [{"t": "Género Lynx, epíteto pardinus; más cercano a Lynx lynx que a Vulpes vulpes.", "ok": true}, {"t": "Especie pardinus del género Vulpes.", "ok": false}, {"t": "Cualquier félido emblemático, intercambiable.", "ok": false}, {"t": "Una subespecie de encina.", "ok": false}], "porque": "El binomial dice el parentesco. Conservar al lince ibérico no es lo mismo que conservar «los carnívoros»."}, {"tipo": "test", "q": "Dos comunidades de cuatro especies. Una con ramas largas y separadas, otra con cuatro especies hermanas. La riqueza…", "opciones": [{"t": "Es la misma; la diversidad filogenética, no.", "ok": true}, {"t": "Ya mide toda la biodiversidad que importa.", "ok": false}, {"t": "Es mayor en la de las especies hermanas porque están más juntas.", "ok": false}, {"t": "Obliga a conservar solo la especie más bonita de cada una.", "ok": false}], "porque": "Contar especies no mide la longitud de las ramas. Tampoco el parentesco es el único criterio: faltan funciones y poblaciones."}, {"tipo": "test", "q": "El tuátara (Sphenodon) se usa en la lección como…", "opciones": [{"t": "Ejemplo de única especie viva de un linaje largo, no como fauna de Castilla y León.", "ok": true}, {"t": "Endemismo del Sistema Central.", "ok": false}, {"t": "Sinónimo de Lynx pardinus.", "ok": false}, {"t": "Prueba de que los reptiles forman una escalera hacia los mamíferos.", "ok": false}], "porque": "Es un caso de manual de rama larga. No hace falta fingir que vive en el Duero para entender el criterio."}, {"tipo": "test", "q": "¿Qué no dice el nombre Quercus ilex?", "opciones": [{"t": "Si la población local está amenazada o cuántos individuos quedan.", "ok": true}, {"t": "El género.", "ok": false}, {"t": "El epíteto específico.", "ok": false}, {"t": "Que no es un Pinus.", "ok": false}], "porque": "El nombre fija el parentesco reconocido. Abundancia y amenaza son otros datos."}]);
+</script>
+</body>
+</html>

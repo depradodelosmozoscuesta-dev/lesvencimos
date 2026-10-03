@@ -1,0 +1,974 @@
+<!DOCTYPE html>
+<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="color-scheme" content="dark"><title>Robot — Electrónica · les vencimos</title>
+<style>
+:root{--bg:#0E0E0C;--surf:#161512;--panel:#1C1A16;--ink:#E6E1D6;--mut:#9A9488;--acc:#C4A15A;--acc-ink:#1A160E;--danger:#C46A4A;--ok:#8F9A72;--line:#2A2720;--wire:#5B8FA8}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--ink);font:400 16px/1.45 "Segoe UI",system-ui,sans-serif}
+h1,h2,h3,h4{font-family:Iowan Old Style,Palatino,Georgia,serif;font-weight:600}
+a{color:var(--acc)}
+.top{position:sticky;top:0;z-index:20;background:rgba(14,14,12,.96);border-bottom:1px solid var(--line)}
+.top-inner{max-width:1100px;margin:0 auto;padding:.75rem 1rem;display:flex;flex-wrap:wrap;gap:.75rem;align-items:center}
+.brand{display:flex;align-items:center;gap:.6rem;text-decoration:none;color:var(--ink)}
+.brand svg{width:28px;height:28px}
+.brand span{font-size:.7rem;letter-spacing:.14em;text-transform:uppercase;color:var(--mut)}
+.brand strong{display:block;font-size:1rem;color:var(--acc)}
+#q{flex:1;min-width:160px;min-height:44px;padding:.6rem .8rem;border:1px solid var(--line);border-radius:2px;background:var(--surf);color:var(--ink);font:inherit}
+.wrap{max-width:1100px;margin:0 auto;padding:1.25rem 1rem 4rem}
+.hero{padding:1.25rem 0 1rem;border-bottom:1px solid var(--line);margin-bottom:1.25rem}
+.hero p{color:var(--mut);max-width:44rem}
+.navsec{display:flex;flex-wrap:wrap;gap:.45rem;margin:1rem 0 0}
+.navsec a{display:inline-flex;align-items:center;min-height:44px;padding:.35rem .65rem;border:1px solid var(--line);border-radius:2px;text-decoration:none;color:var(--ink);font-size:.82rem;background:var(--surf)}
+.navsec a:hover{border-color:var(--acc);color:var(--acc)}
+section{margin:2.1rem 0}
+section>h2{font-size:1.35rem;border-bottom:1px solid var(--line);padding-bottom:.4rem;margin-bottom:1rem}
+section>h2 span{color:var(--mut);font-size:.72rem;font-family:"Segoe UI",system-ui,sans-serif;letter-spacing:.12em;text-transform:uppercase;margin-left:.5rem}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:1rem}
+.card{background:var(--surf);border:1px solid var(--line);border-radius:2px;padding:1rem}
+.card.hidden{display:none}
+.card h3{margin:0 0 .35rem;font-size:1.05rem;color:var(--acc)}
+.meta{margin:0 0 .55rem;color:var(--mut);font-size:.82rem}
+.specs{width:100%;border-collapse:collapse;font-size:.8rem;margin:.4rem 0 .55rem}
+.specs th{text-align:left;color:var(--mut);font-weight:400;padding:.2rem .3rem .2rem 0;width:34%;vertical-align:top}
+.specs td{padding:.2rem .3rem;border-bottom:1px solid var(--line);vertical-align:top}
+.note{margin:0;font-size:.88rem}
+.ref,.panel{background:var(--panel);border:1px solid var(--line);padding:1rem 1.1rem;border-radius:2px;margin:.8rem 0}
+.ref ul,.prose ul,.ref ol{margin:.4rem 0 0;padding-left:1.15rem}
+.ref li,.prose li{margin:.4rem 0}
+.foot{margin-top:3rem;padding-top:1rem;border-top:1px solid var(--line);color:var(--mut);font-size:.8rem}
+.pill{display:inline-block;font-size:.65rem;letter-spacing:.12em;text-transform:uppercase;color:var(--ok);border:1px solid var(--ok);padding:.15rem .45rem;border-radius:2px}
+.warn{color:var(--danger)}
+div.warn{background:var(--panel);border:1px solid var(--danger);border-radius:2px;padding:.75rem 1rem;margin:.8rem 0}
+.ok{color:var(--ok)}
+.count{color:var(--mut);font-size:.85rem}
+.prose p{color:var(--ink);max-width:46rem}
+.prose h3{color:var(--acc);margin:1.2rem 0 .4rem;font-size:1.1rem}
+.diagram{background:var(--surf);border:1px solid var(--line);border-radius:2px;padding:.75rem;margin:1rem 0}
+.diagram h4{margin:.2rem 0 .5rem;color:var(--acc)}
+.diagram svg{width:100%;max-width:720px;height:auto;display:block}
+.diagram .cap{color:var(--mut);font-size:.82rem;margin:.4rem 0 0}
+.steps li{margin:.55rem 0}
+.subnav{display:flex;flex-wrap:wrap;gap:.45rem;margin:.4rem 0 1rem}
+.subnav a{display:inline-flex;align-items:center;min-height:44px;padding:.3rem .6rem;border:1px solid var(--line);border-radius:2px;text-decoration:none;color:var(--ink);font-size:.8rem;background:var(--panel)}
+</style></head><body>
+<header class="top"><div class="top-inner">
+<a class="brand" href="#inicio"><svg viewBox="0 0 32 32" aria-hidden="true"><circle cx="16" cy="18" r="2.2" fill="#C4A15A"/><path d="M16 16 L8 8 Q16 2 24 8 Z" fill="none" stroke="#C4A15A" stroke-width="1.4"/><path d="M16 16 L6 14 Q8 4 16 8 Z" fill="none" stroke="#C4A15A" stroke-width="1.2"/><path d="M16 16 L26 14 Q24 4 16 8 Z" fill="none" stroke="#C4A15A" stroke-width="1.2"/><path d="M16 16 L10 24 Q16 28 22 24 Z" fill="none" stroke="#C4A15A" stroke-width="1.2"/><line x1="16" y1="16" x2="16" y2="28" stroke="#9A9488" stroke-width="1.2"/></svg><div><span>les vencimos · offline</span><strong>Robot Electrónica</strong></div></a>
+<input id="q" type="search" placeholder="Buscar ficha: LiPo, IMU, XT60, fusible…" autocomplete="off" aria-label="Buscar fichas por nombre">
+<span class="pill">file:// · v20261003a</span></div></header>
+<main class="wrap" id="inicio">
+<div class="hero">
+<h1>Electrónica del robot humanoide</h1>
+<p>Cuerpo pequeño o mediano de taller: servos de bus o PWM, no un industrial de 24 V de fábrica. Aquí se cablea la potencia, la lógica, los sensores y el corte. El equilibrio, la cinemática y la marcha son Control. Las piezas, el CAD y la estructura son Diseño. El curso de montaje desde cero es Enseñanza. Las fichas de cada placa, el pinout y los precios no se repiten: viven en el hardware de Arduino y en el de Raspberry.</p>
+<div class="ref">
+<ul>
+<li>Hay dos raíles. El de potencia alimenta servos. El de lógica es de 3,3 V y a veces de 5 V. Un servo no sale del regulador de un Arduino o un ESP: el Uno ronda medio amperio y un servo en bloqueo se lo come.</li>
+<li>El pack es de litio, 2S (7,4 V nominal, 8,4 V lleno) o 3S (11,1 V y 12,6 V), el que acepte la hoja del servo. Sin BMS, o sin cargador con balance, el pack no entra en el robot.</li>
+<li>La corriente que manda el fusible y la sección del cable es el pico, si varios servos bloquean a la vez, no la media de la marcha.</li>
+<li>La masa de señal y la de potencia se juntan en un solo punto, junto a la batería o al repartidor. Estrella, no bucles.</li>
+<li>En un servo de bus los datos van en cadena y la potencia en paralelo. En un PWM hay un hilo de señal por servo. Un pin de 3,3 V no admite 5 V.</li>
+<li>La IMU cuenta la orientación del tronco por I2C limpio. Los pies dicen si hay apoyo. El filtro, el ZMP y el lazo de posición no se explican aquí.</li>
+<li>Muchos servos de bus ya traen encoder magnético. No añadas otro salvo que el diseño lo pida. Señal fina, potencia gruesa en el tronco, holgura en cadera, rodilla y tobillo.</li>
+<li>Una placa de tiempo real habla con servos, IMU y pies a ritmo fijo. Una Raspberry solo entra si hace falta visión o un plan largo, y no es obligatoria para andar.</li>
+<li>Una sola fuente manda el reloj de los servos. El corte de emergencia quita la potencia de los motores aunque la lógica siga un segundo. Cortar solo la lógica deja los servos duros o impredecibles.</li>
+<li>Mientras se cablea, la batería va desconectada. La primera prueba de un servo se hace sin la pierna armada, por si da un giro completo.</li>
+</ul>
+</div>
+<p class="count" id="count"></p>
+<nav class="navsec" aria-label="Secciones">
+<a href="#alimentacion">Alimentación</a>
+<a href="#bateria">Batería</a>
+<a href="#drivers">Drivers</a>
+<a href="#sensores">Sensores</a>
+<a href="#cableado">Cableado</a>
+<a href="#quien-manda">Quién manda</a>
+<a href="#seguridad-electrica">Seguridad eléctrica</a>
+</nav>
+</div>
+<section id="alimentacion">
+<h2>Alimentación <span>01 · dos raíles</span></h2>
+<div class="prose">
+<p>En este robot conviven dos mundos que no se prestan corriente. El raíl de potencia es el positivo de los servos: sale del pack, pasa por el fusible y por los interruptores, y llega gordo a cada articulación. El raíl de lógica es lo que come la placa, la IMU, el reloj del conversor de las células de carga y los pull-ups. Ese segundo raíl es de 3,3 V casi siempre, y a veces hay además un 5 V para una placa que lo pida o para el pulso de un servo viejo. Son reguladores distintos. Comparten masa, y la comparten en un solo punto.</p>
+<p>Nunca alimentes un servo desde el regulador de 5 V de un Arduino o de un ESP. En un Uno ese camino ronda medio amperio entre el USB y el regulador de la placa, y se calienta antes de llegar. Un servo pequeño en bloqueo pide del orden de un amperio, y uno mediano bastante más: el número exacto está en la hoja de ese servo, no en esta página. Si el servo tira de ese pin, la tensión de 5 V se hunde, la placa se reinicia y el pulso siguiente sale a medias. Parece un fallo de programa. Es un fallo de raíl.</p>
+<p>La tensión de la lógica, en este taller, es 3,3 V. La señal de un servo de hobby clásico suele ser un pulso pensado en torno a 5 V, aunque muchos aceptan 3,3 V como nivel alto: lo confirma la hoja, no una costumbre. El pack es 2S, 7,4 V nominales y 8,4 V lleno, o 3S, 11,1 V nominales y 12,6 V lleno, según el servo que hayas elegido. No mezcles un servo de 7,4 V con un pack de 3S. Lleno, ese pack está en 12,6 V, y el variador interno del servo no perdona el exceso aunque en vacío parezca que gira.</p>
+<p>El presupuesto de corriente se hace en dos cifras y se queda la peor. La de reposo o de marcha suave sirve para estimar minutos de batería. La de pico, cuando varios servos de pierna se plantan a la vez y se quedan en bloqueo, es la que elige el fusible, la sección del tronco y el tamaño del repartidor. Sumar medias y poner un fusible un poco por encima es cómo se funde el cable antes que el fusible, o cómo se cae el robot con el fusible entero.</p>
+<p>Cerca de cada chip de lógica va un condensador de desacoplo, cerámico, del orden de 100 nF, con las patas cortas. En la salida del buck de lógica, un electrolítico o un polímero de varias decenas o unos cientos de microfaradios, tensión holgada respecto a la salida. Son órdenes de magnitud de taller, no el valor calculado de tu buck: si la hoja del regulador pide otra red, manda la hoja. En el raíl de servos, junto al repartidor, un condensador gordo de tensión superior al pack lleno ayuda a los picos cortos. En un 3S, 16 V se queda corto de margen; 25 V es la elección tranquila. No sustituye al cable ni al fusible.</p>
+<p>Las piernas tienen cable largo. La caída es corriente por resistencia del ida y del vuelta. Un 20 AWG anda por 33 ohmios por kilómetro de cobre, cifra orientativa de taller. Medio metro entre ida y vuelta son unos 0,016 ohmios. A 2 A de un servo bloqueado caes unas decenas de milivoltios: en un solo servo, a veces ni se nota. En el tronco, si metes 12 A de un pico de ejemplo por un cable fino y largo, la caída pasa de medio voltio, el servo pierde fuerza y la lógica, si la colgaste de esa misma línea, se reinicia. Por eso el tronco es corto y grueso, y la lógica sale de su propio buck, no de un empalme a mitad de la pierna.</p>
+<p>La masa va en estrella. El negativo de la batería llega a un punto, el del repartidor o un borne junto al pack. De ahí sale la masa de potencia de cada rama y, con su propio cable, la masa del buck de lógica. No devuelvas la masa de los servos atravesando la placa. No unas la masa del USB del ordenador y la del pack en dos sitios a la vez si puedes evitarlo: ese bucle mete el ruido del motor en la IMU. Señal y potencia se tocan una vez. Si mides continuidad de masa por todos lados y además ves saltos en el sensor cuando la pierna carga, tienes un bucle o una masa floja, no un filtro mal escrito.</p>
+</div>
+<div class="diagram">
+<h4>Árbol de potencia</h4>
+<svg viewBox="0 0 720 460" role="img" aria-label="Árbol de potencia: batería, fusible, interruptor, repartidor, buck de lógica y raíl de servos con masa en estrella">
+<rect x="8" y="8" width="704" height="444" fill="#161512" stroke="#2A2720"/>
+<rect x="28" y="36" width="92" height="52" fill="#1C1A16" stroke="#C46A4A"/>
+<text x="74" y="58" text-anchor="middle" fill="#E6E1D6" font-size="12" font-family="Georgia,serif">Batería</text>
+<text x="74" y="76" text-anchor="middle" fill="#9A9488" font-size="10" font-family="Segoe UI,sans-serif">2S o 3S</text>
+<line x1="120" y1="62" x2="156" y2="62" stroke="#C46A4A" stroke-width="3"/>
+<rect x="156" y="40" width="78" height="44" fill="#1C1A16" stroke="#C4A15A"/>
+<text x="195" y="66" text-anchor="middle" fill="#E6E1D6" font-size="12" font-family="Segoe UI,sans-serif">Fusible</text>
+<line x1="234" y1="62" x2="270" y2="62" stroke="#C46A4A" stroke-width="3"/>
+<rect x="270" y="40" width="96" height="44" fill="#1C1A16" stroke="#C4A15A"/>
+<text x="318" y="60" text-anchor="middle" fill="#E6E1D6" font-size="11" font-family="Segoe UI,sans-serif">Interruptor</text>
+<text x="318" y="76" text-anchor="middle" fill="#9A9488" font-size="10" font-family="Segoe UI,sans-serif">general</text>
+<line x1="366" y1="62" x2="410" y2="62" stroke="#C46A4A" stroke-width="3"/>
+<rect x="410" y="28" width="110" height="68" fill="#1C1A16" stroke="#C46A4A"/>
+<text x="465" y="56" text-anchor="middle" fill="#E6E1D6" font-size="13" font-family="Georgia,serif">Repartidor</text>
+<text x="465" y="74" text-anchor="middle" fill="#9A9488" font-size="10" font-family="Segoe UI,sans-serif">positivo de potencia</text>
+<line x1="465" y1="96" x2="465" y2="150" stroke="#C46A4A" stroke-width="3"/>
+<line x1="200" y1="150" x2="640" y2="150" stroke="#C46A4A" stroke-width="3"/>
+<line x1="200" y1="150" x2="200" y2="176" stroke="#C46A4A" stroke-width="3"/>
+<rect x="140" y="176" width="120" height="50" fill="#1C1A16" stroke="#C4A15A"/>
+<text x="200" y="198" text-anchor="middle" fill="#E6E1D6" font-size="12" font-family="Segoe UI,sans-serif">Buck lógica</text>
+<text x="200" y="214" text-anchor="middle" fill="#9A9488" font-size="10" font-family="Segoe UI,sans-serif">5 V y 3,3 V</text>
+<line x1="200" y1="226" x2="200" y2="250" stroke="#C4A15A" stroke-width="2"/>
+<rect x="130" y="250" width="140" height="44" fill="#1C1A16" stroke="#5B8FA8"/>
+<text x="200" y="276" text-anchor="middle" fill="#E6E1D6" font-size="11" font-family="Segoe UI,sans-serif">Placa, IMU, pies</text>
+<line x1="400" y1="150" x2="400" y2="176" stroke="#C46A4A" stroke-width="3"/>
+<rect x="330" y="176" width="140" height="50" fill="#1C1A16" stroke="#C46A4A"/>
+<text x="400" y="198" text-anchor="middle" fill="#E6E1D6" font-size="12" font-family="Segoe UI,sans-serif">Corte emergencia</text>
+<text x="400" y="214" text-anchor="middle" fill="#9A9488" font-size="10" font-family="Segoe UI,sans-serif">solo servos</text>
+<line x1="400" y1="226" x2="400" y2="258" stroke="#C46A4A" stroke-width="3"/>
+<rect x="330" y="258" width="140" height="36" fill="#1C1A16" stroke="#C46A4A"/>
+<text x="400" y="280" text-anchor="middle" fill="#E6E1D6" font-size="11" font-family="Segoe UI,sans-serif">+ servos</text>
+<line x1="600" y1="150" x2="600" y2="176" stroke="#C46A4A" stroke-width="3"/>
+<rect x="540" y="176" width="130" height="50" fill="#1C1A16" stroke="#C46A4A"/>
+<text x="605" y="198" text-anchor="middle" fill="#E6E1D6" font-size="12" font-family="Segoe UI,sans-serif">+ piernas</text>
+<text x="605" y="214" text-anchor="middle" fill="#9A9488" font-size="10" font-family="Segoe UI,sans-serif">y brazos</text>
+<rect x="28" y="330" width="200" height="70" fill="#1C1A16" stroke="#8F9A72"/>
+<text x="128" y="356" text-anchor="middle" fill="#E6E1D6" font-size="13" font-family="Georgia,serif">Estrella de masa</text>
+<text x="128" y="376" text-anchor="middle" fill="#9A9488" font-size="10" font-family="Segoe UI,sans-serif">un punto, junto al pack</text>
+<line x1="74" y1="88" x2="74" y2="330" stroke="#6B6560" stroke-width="2"/>
+<line x1="228" y1="365" x2="400" y2="365" stroke="#6B6560" stroke-width="2"/>
+<line x1="128" y1="365" x2="74" y2="365" stroke="#6B6560" stroke-width="2"/>
+<line x1="400" y1="294" x2="400" y2="365" stroke="#6B6560" stroke-width="2"/>
+<line x1="605" y1="226" x2="605" y2="340" stroke="#6B6560" stroke-width="2"/>
+<line x1="400" y1="340" x2="605" y2="340" stroke="#6B6560" stroke-width="2"/>
+<line x1="200" y1="294" x2="200" y2="318" stroke="#6B6560" stroke-width="2"/>
+<line x1="200" y1="318" x2="128" y2="330" stroke="#6B6560" stroke-width="2"/>
+<text x="24" y="430" fill="#C46A4A" font-size="11" font-family="Segoe UI,sans-serif">trazo terracota = positivo de potencia (cable rojo)</text>
+<text x="340" y="430" fill="#C4A15A" font-size="11" font-family="Segoe UI,sans-serif">ámbar = salida de lógica</text>
+<text x="24" y="448" fill="#6B6560" font-size="11" font-family="Segoe UI,sans-serif">gris = masa, unida solo en la estrella (cable negro)</text>
+</svg>
+<p class="cap">El positivo de los servos no atraviesa el buck de 5 V. La lógica puede seguir un instante cuando el corte de emergencia abre el raíl de motores. Las masas vuelven al mismo punto.</p>
+</div>
+<div class="ref">
+<p>Ejemplo de taller, no es la ficha de un robot ni de un servo concreto. Doce servos. Con la pinza, en marcha suave, mides 0,4 A de media en el pack de 3S a 11,1 V. Quince minutos de esa media son 0,4 A por 0,25 h, unos 0,1 Ah. Eso no dimensiona el cable. Si cuatro servos de pierna se bloquean y la hoja de cada uno dice 2 A de bloqueo, el pico de esas cuatro patas ya son 8 A, más lo que estén haciendo los demás. El fusible y el tronco se eligen con ese pico. Si tu hoja dice otro amperio, el ejemplo se tira y se rehace: no se hereda el 2 A.</p>
+</div>
+<div class="grid">
+<article class="card" data-name="raíl de potencia servos">
+<h3>Raíl de potencia</h3>
+<p class="meta">Servos, no la placa</p>
+<table class="specs"><tbody>
+<tr><th>De dónde sale</th><td>Positivo del pack, después del fusible y del interruptor general.</td></tr>
+<tr><th>A quién alimenta</th><td>Servos, directo o por su driver. Nunca el pin de 5 V de la placa.</td></tr>
+<tr><th>Tensión</th><td>La del pack: 2S o 3S, la que liste la hoja del servo.</td></tr>
+<tr><th>Qué lo dimensiona</th><td>El pico de bloqueo simultáneo, no la media.</td></tr>
+</tbody></table>
+<p class="note">Si un servo es de 7,4 V, el pack es 2S. Un 3S lleno son 12,6 V. No hay término medio porque el robot aún no anda.</p>
+</article>
+<article class="card" data-name="raíl de lógica 3,3 V 5 V buck">
+<h3>Raíl de lógica</h3>
+<p class="meta">3,3 V y a veces 5 V</p>
+<table class="specs"><tbody>
+<tr><th>De dónde sale</th><td>Un buck desde el repartidor, con su propia masa a la estrella.</td></tr>
+<tr><th>3,3 V</th><td>ESP32, IMU, pull-ups del I2C, muchos encoders.</td></tr>
+<tr><th>5 V</th><td>Solo si una placa o un HX711 lo piden. No es el raíl de los servos.</td></tr>
+<tr><th>Tope de un Uno</th><td>El regulador de a bordo ronda medio amperio. Se queda para la placa.</td></tr>
+</tbody></table>
+<p class="note">El buck de lógica se elige por la lógica. Si lo usas para mover un servo, deja de ser un buck de lógica.</p>
+</article>
+<article class="card" data-name="presupuesto de corriente pico bloqueo fusible">
+<h3>Presupuesto de corriente</h3>
+<p class="meta">Pico manda, media informa</p>
+<table class="specs"><tbody>
+<tr><th>Reposo y marcha</th><td>Suma lo que midas con pinza. Sirve para los minutos de pack.</td></tr>
+<tr><th>Bloqueo</th><td>Corriente de bloqueo de la hoja, por cada servo que pueda clavarse a la vez.</td></tr>
+<tr><th>Fusible</th><td>Por encima de ese pico normal, por debajo de lo que aguanta el cable.</td></tr>
+<tr><th>Qué no vale</th><td>La corriente de catálogo en vacío de un solo servo.</td></tr>
+</tbody></table>
+<p class="note">Si no tienes la corriente de bloqueo, no inventes un fusible bonito. Mide en un servo suelto, con la pierna sin armar, y anótalo.</p>
+</article>
+<article class="card" data-name="masa en estrella un solo punto">
+<h3>Masa en estrella</h3>
+<p class="meta">Un punto, no un bucle</p>
+<table class="specs"><tbody>
+<tr><th>Dónde</th><td>Junto a la batería o en el borne de masa del repartidor.</td></tr>
+<tr><th>Quién llega</th><td>Negativo del pack, masas de servos, masa del buck, masa de la placa.</td></tr>
+<tr><th>Señal</th><td>La referencia de IMU y de bus vuelve con su cable, y entra a la estrella por la placa, no por la carcasa de un servo.</td></tr>
+<tr><th>Síntoma de bucle</th><td>La IMU salta cuando cargan las piernas y el programa no ha cambiado.</td></tr>
+</tbody></table>
+<p class="note">Una masa floja parece un servo loco: tirones, posiciones imposibles, bus que se calla a ratos. Aprieta y mide antes de tocar el código.</p>
+</article>
+<article class="card" data-name="desacoplo condensador caída de tensión pierna">
+<h3>Desacoplo y caída</h3>
+<p class="meta">Cifras orientativas de taller</p>
+<table class="specs"><tbody>
+<tr><th>Junto al chip</th><td>Cerámico del orden de 100 nF, patas cortas.</td></tr>
+<tr><th>Salida del buck</th><td>Decenas o pocos cientos de microfaradios. Manda la hoja del regulador.</td></tr>
+<tr><th>Raíl de servos</th><td>Condensador de tensión mayor que el pack lleno. En 3S, mejor 25 V que 16 V justos.</td></tr>
+<tr><th>20 AWG</th><td>Unos 33 ohmios por kilómetro. Medio metro ida y vuelta a 2 A: decenas de milivoltios.</td></tr>
+</tbody></table>
+<p class="note">Esos ohmios por kilómetro son cobre de taller, no una norma de instalación. Si el tramo es largo, sube sección; no bajes la tensión del servo para compensar.</p>
+</article>
+</div>
+<div class="warn"><p>Fallos típicos. La placa se reinicia al apoyar el pie: el servo está colgado del 5 V de la placa, o la masa de potencia vuelve por un pin fino. El servo de 7,4 V huele a caliente en un pack recién cargado de 3S: sobra tensión, apaga y cambia de pack, no de programa. La IMU hace picos al ritmo del paso: comparte raíl con los servos o la masa hace bucle. Qué hacer: separar raíles, rehacer la estrella, medir la caída en el tronco con la pinza y el polímetro a la vez.</p></div>
+</section>
+<section id="bateria">
+<h2>Batería <span>02 · litio, BMS, carga</span></h2>
+<div class="prose">
+<p>El humanoide de este tamaño suele ir en litio porque el peso va en el tronco y los servos piden picos cortos y altos. Una LiPo de aeromodelismo da mucha corriente para su masa. Un pack de celdas 18650, si las celdas son de alta descarga y llevan BMS, también sirve y se maltrata menos con los golpes, a cambio de más volumen. El NiMH, celda de 1,2 V nominales, es más benévolo si lo cortocircuitas un instante y no se embala como el litio, pero pesa más para la misma energía y se viene abajo de golpe al final de la descarga. Por eso aquí el camino normal es litio, y por eso esta sección es sobre todo una lista de lo que el litio no perdona.</p>
+<p>Una celda de LiPo, en números de dominio público que usa cualquier cargador de balance: nominal 3,7 V, llena 4,20 V, almacenamiento en torno a 3,8 V por celda. En reposo no la dejes bajar de unos 3,5 V si quieres que dure, y no la lleves nunca a 3,0 V. Esos 3,0 V ya son daño, no un poco más de autonomía. Un pack 2S suma: 7,4 V nominales, 8,4 V lleno, almacenamiento cerca de 7,6 V, corte práctico de reposo cerca de 7,0 V, y nunca 6,0 V. Un 3S: 11,1 V, 12,6 V, almacenamiento cerca de 11,4 V, corte práctico cerca de 10,5 V, nunca 9,0 V. Bajo carga la tensión cae por la resistencia interna: el corte de marcha se mira en reposo o con margen, no en el instante del bloqueo, o pararás cada paso.</p>
+<p>Muchas 18650 de Li-ion traen en la etiqueta 3,6 V nominales y las mismas 4,20 V llenas. El criterio de no bajar de unos 3,5 V en reposo, y jamás de 3,0 V, se mantiene. La corriente continua de una 18650 depende de la celda: unas dan pocos amperios y otras, de alta descarga, bastante más. No copies el índice C de una LiPo de hobby a un pack casero de 18650. Léelo en la hoja de esa celda y júntalo con el pico de los servos.</p>
+<p>El BMS vigila sobrecarga, sobredescarga, sobrecorriente, cortocircuito y, si es de los que equilibran, la diferencia entre celdas. El umbral exacto de corte, en voltios y en amperios, está en la ficha de ese BMS. Muchos cortan la sobredescarga cerca del fondo, a veces en torno a 2,5 o 3,0 V por celda, que es tarde para la salud de la celda. Por eso el robot deja de andar antes, cerca de 3,5 V por celda en reposo, y el BMS queda como última red, no como medidor de marcha. Un pack sin BMS, o sin un cargador que balancee, no entra en el robot. Soldarlo por ahora y equilibrar a ojo es cómo una celda se va a 4,3 V mientras la otra parece normal.</p>
+<p>La capacidad se estima, no se copia de un anuncio. En vatios: potencia media de los servos mientras anda, por las horas que quieras, partido por la tensión del pack, da amperios-hora. Luego no uses el pack hasta vacío: quédate en torno al 70 u 80 por ciento de esa cifra como energía útil, y súmale margen porque la media medida en la mesa es más baja que la media con el robot en los brazos. Ejemplo de taller, supuesto y no ficha de producto: diez servos a 2 W medios son 20 W. Doce minutos son 0,2 h. Energía 4 Wh. En 3S a 11,1 V salen unos 0,36 Ah. Usando solo un 75 por ciento, el pack del ejemplo anda por el medio amperio-hora. Si tus servos no son de 2 W medios, el ejemplo no te sirve: mide. El pico, aparte, puede ser de muchos amperios aunque la capacidad sea pequeña. Capacidad y corriente de descarga son dos números.</p>
+<p>El conector de potencia, en este tamaño, es XT30 o XT60. Orientativo de taller: XT30 cuando la corriente continua del pack se queda en el orden de 15 A o menos; XT60 cuando el fusible o el pico sostenido ya piden más. La ficha del conector manda, y un XT60 a medio insertar calienta igual que uno pequeño. El cable de balance va aparte, con su conector de varias vías. En 2S son tres contactos, en 3S cuatro: uno más que el número de celdas. No lo uses como positivo de potencia. La polaridad se pinta en el cuerpo del conector y se mira dos veces. Los clones no traen siempre el rojo en el mismo lado. Nunca inviertas el pack.</p>
+<p>Se carga con un cargador de balance, fuera del robot, dentro de una bolsa ignífuga, a la vista, encima de una mesa que no prenda. No se carga dentro del robot cerrado ni debajo de una silla. Si el robot no se va a usar en semanas, se deja en tensión de almacenamiento, cerca de 3,8 V por celda, no lleno y no vacío. Un pack lleno y olvidado en verano envejece e hincha.</p>
+<p>Si el pack hincha, se calienta solo o huele dulce, se para y se saca. No se pincha, no se aplasta para que vuelva a entrar, no se carga a ver si se recupera. Se deja en un sitio no inflamable, lejos de otros packs, y se da de baja. Un LiPo hinchado no es un pack de menos capacidad: es un pack que ya no tiene junta.</p>
+</div>
+<div class="diagram">
+<h4>Pack 2S con BMS y balance aparte</h4>
+<svg viewBox="0 0 720 300" role="img" aria-label="Dos celdas en serie, BMS en el positivo y cable de balance que no alimenta al robot">
+<rect x="8" y="8" width="704" height="284" fill="#161512" stroke="#2A2720"/>
+<rect x="40" y="70" width="70" height="120" fill="#1C1A16" stroke="#C4A15A"/>
+<text x="75" y="124" text-anchor="middle" fill="#E6E1D6" font-size="12" font-family="Georgia,serif">Celda</text>
+<text x="75" y="142" text-anchor="middle" fill="#9A9488" font-size="10" font-family="Segoe UI,sans-serif">3,7 V nom.</text>
+<text x="75" y="158" text-anchor="middle" fill="#9A9488" font-size="10" font-family="Segoe UI,sans-serif">4,20 V llena</text>
+<rect x="140" y="70" width="70" height="120" fill="#1C1A16" stroke="#C4A15A"/>
+<text x="175" y="124" text-anchor="middle" fill="#E6E1D6" font-size="12" font-family="Georgia,serif">Celda</text>
+<text x="175" y="142" text-anchor="middle" fill="#9A9488" font-size="10" font-family="Segoe UI,sans-serif">en serie</text>
+<text x="175" y="158" text-anchor="middle" fill="#9A9488" font-size="10" font-family="Segoe UI,sans-serif">pack 2S</text>
+<line x1="110" y1="100" x2="140" y2="100" stroke="#C46A4A" stroke-width="2"/>
+<line x1="75" y1="190" x2="75" y2="230" stroke="#6B6560" stroke-width="2"/>
+<line x1="75" y1="70" x2="75" y2="48" stroke="#5B8FA8" stroke-width="2"/>
+<line x1="175" y1="70" x2="175" y2="48" stroke="#C46A4A" stroke-width="2"/>
+<line x1="140" y1="160" x2="110" y2="160" stroke="#5B8FA8" stroke-width="2"/>
+<text x="40" y="40" fill="#9A9488" font-size="10" font-family="Segoe UI,sans-serif">balance</text>
+<rect x="250" y="78" width="120" height="100" fill="#1C1A16" stroke="#8F9A72"/>
+<text x="310" y="112" text-anchor="middle" fill="#E6E1D6" font-size="14" font-family="Georgia,serif">BMS</text>
+<text x="310" y="132" text-anchor="middle" fill="#9A9488" font-size="10" font-family="Segoe UI,sans-serif">carga, descarga</text>
+<text x="310" y="148" text-anchor="middle" fill="#9A9488" font-size="10" font-family="Segoe UI,sans-serif">corriente, corto</text>
+<text x="310" y="164" text-anchor="middle" fill="#9A9488" font-size="10" font-family="Segoe UI,sans-serif">equilibrio</text>
+<line x1="210" y1="110" x2="250" y2="110" stroke="#C46A4A" stroke-width="3"/>
+<line x1="370" y1="110" x2="450" y2="110" stroke="#C46A4A" stroke-width="3"/>
+<rect x="450" y="86" width="110" height="48" fill="#1C1A16" stroke="#C46A4A"/>
+<text x="505" y="114" text-anchor="middle" fill="#E6E1D6" font-size="12" font-family="Segoe UI,sans-serif">XT30 / XT60</text>
+<text x="450" y="156" fill="#C46A4A" font-size="11" font-family="Segoe UI,sans-serif">al fusible, cable rojo</text>
+<line x1="175" y1="48" x2="310" y2="48" stroke="#5B8FA8" stroke-width="1.5"/>
+<line x1="310" y1="48" x2="310" y2="78" stroke="#5B8FA8" stroke-width="1.5"/>
+<rect x="40" y="248" width="280" height="36" fill="#1C1A16" stroke="#5B8FA8"/>
+<text x="180" y="270" text-anchor="middle" fill="#E6E1D6" font-size="11" font-family="Segoe UI,sans-serif">Cable de balance: solo al cargador</text>
+<text x="400" y="250" fill="#9A9488" font-size="11" font-family="Segoe UI,sans-serif">2S lleno 8,4 V · 3S lleno 12,6 V</text>
+<text x="400" y="268" fill="#9A9488" font-size="11" font-family="Segoe UI,sans-serif">No es un positivo de más</text>
+</svg>
+<p class="cap">El BMS va en el camino de potencia. El mazo de balance tiene un hilo por nodo de celda y no alimenta servos. En 3S el dibujo añade una celda y un hilo más; la idea no cambia.</p>
+</div>
+<table class="specs">
+<tbody>
+<tr><th>Celda en reposo</th><td>Nominal 3,7 V (muchas 18650 dicen 3,6 V). Llena 4,20 V. Almacenamiento ~3,8 V. No bajar de ~3,5 V. Nunca 3,0 V.</td></tr>
+<tr><th>Pack 2S</th><td>7,4 V nominales, 8,4 V lleno, almacenamiento ~7,6 V, corte práctico de reposo ~7,0 V, nunca 6,0 V.</td></tr>
+<tr><th>Pack 3S</th><td>11,1 V nominales, 12,6 V lleno, almacenamiento ~11,4 V, corte práctico ~10,5 V, nunca 9,0 V.</td></tr>
+<tr><th>NiMH, contraste</th><td>1,2 V por celda. Seis celdas: 7,2 V. Más masa para la misma energía. No usa el BMS del litio.</td></tr>
+</tbody>
+</table>
+<p class="meta">Tensiones de celda de dominio público. Los cortes finos del BMS concreto están en su ficha. Lo de ~3,5 V por celda es criterio de uso del robot, no el umbral de emergencia del BMS.</p>
+<div class="grid">
+<article class="card" data-name="LiPo celda 4,20 V almacenamiento">
+<h3>LiPo</h3>
+<p class="meta">Polímero, picos altos, poco peso</p>
+<table class="specs"><tbody>
+<tr><th>Celda</th><td>3,7 V nominal, 4,20 V llena, ~3,8 V si va a estar parada.</td></tr>
+<tr><th>Por qué aquí</th><td>Corriente de pico alta con poca masa en el tronco.</td></tr>
+<tr><th>Qué añade</th><td>Embalamiento si se aplasta, se pincha, se sobrecarga o se cortocircuita.</td></tr>
+<tr><th>Condición</th><td>BMS y cargador de balance, o no sube al robot.</td></tr>
+</tbody></table>
+<p class="note">La etiqueta de C del sobre es de ese pack. No la traslades a otro formato.</p>
+</article>
+<article class="card" data-name="Li-ion 18650 pack BMS">
+<h3>Li-ion 18650</h3>
+<p class="meta">Celdas cilíndricas con BMS</p>
+<table class="specs"><tbody>
+<tr><th>Tensión</th><td>A menudo 3,6 V en la etiqueta, 4,20 V llena. Mismo techo y mismo suelo útil.</td></tr>
+<tr><th>Corriente</th><td>La de la hoja de la celda. Una celda de linterna no alimenta una pierna.</td></tr>
+<tr><th>Montaje</th><td>Portapilas o soldadura con pestaña, nunca el cuerpo de la celda como masa del chasis.</td></tr>
+<tr><th>Ventaja</th><td>Aguanta mejor el día a día que una bolsa blanda, si la celda es de descarga alta.</td></tr>
+</tbody></table>
+<p class="note">Una 18650 protegida ya lleva un circuito pequeño. Aun así, un pack en serie para el robot lleva su BMS de pack, no solo la chapita de una celda.</p>
+</article>
+<article class="card" data-name="NiMH 1,2 V comparado con litio">
+<h3>NiMH, y por qué no es el camino usual</h3>
+<p class="meta">1,2 V por celda</p>
+<table class="specs"><tbody>
+<tr><th>Pack típico</th><td>Seis celdas, 7,2 V nominales, para servos que acepten esa zona.</td></tr>
+<tr><th>A favor</th><td>Química más tolerante a un abuso leve. Menos incendio de embalamiento.</td></tr>
+<tr><th>En contra</th><td>Más peso y más volumen. La tensión se sostiene y luego cae de golpe.</td></tr>
+<tr><th>Cuándo</th><td>Si el diseño ya lo pidió. No mezcles un cargador de NiMH con una LiPo.</td></tr>
+</tbody></table>
+<p class="note">Esta página no cambia de química a mitad del cableado. Un conector XT pintado para litio no se reutiliza en NiMH porque encaja.</p>
+</article>
+<article class="card" data-name="BMS sobrecarga sobredescarga equilibrio">
+<h3>BMS</h3>
+<p class="meta">Sin él, el pack no entra</p>
+<table class="specs"><tbody>
+<tr><th>Sobrecarga</th><td>Corta cuando una celda pasa del techo. El número está en la ficha; el techo sano de carga es 4,20 V.</td></tr>
+<tr><th>Sobredescarga</th><td>Última red, a menudo demasiado baja para usarla como corte de marcha.</td></tr>
+<tr><th>Sobrecorriente y corto</th><td>Abre si el pico se pasa del ajuste. No reemplaza al fusible fundible junto al pack.</td></tr>
+<tr><th>Equilibrio</th><td>Iguala celdas, normalmente sangrando las altas. Hace falta el cargador de balance.</td></tr>
+</tbody></table>
+<p class="note">Un BMS de corriente ridícula para el pico de los servos abre en cada paso o se quema callado. Elige el BMS con el pico, igual que el fusible.</p>
+</article>
+<article class="card" data-name="conector XT30 XT60 balance polaridad">
+<h3>XT30, XT60 y balance</h3>
+<p class="meta">Potencia por un lado, balance por otro</p>
+<table class="specs"><tbody>
+<tr><th>XT30</th><td>Orientativo: corrientes continuas del orden de 15 A o menos. Confirma en la ficha del conector.</td></tr>
+<tr><th>XT60</th><td>Cuando el fusible ya vive por encima de eso. Un conector a medias insertar calienta igual.</td></tr>
+<tr><th>Balance</th><td>Mazo aparte. 2S: tres contactos. 3S: cuatro. Solo hacia el cargador.</td></tr>
+<tr><th>Polaridad</th><td>Pintada en el cuerpo. No fiarse del lado del rojo en un clon.</td></tr>
+</tbody></table>
+<p class="note">Invertir un pack de litio no es un chispazo menor. Revisa con el polímetro antes de la primera inserción.</p>
+</article>
+<article class="card" data-name="carga balance bolsa ignífuga almacenamiento">
+<h3>Carga y almacenamiento</h3>
+<p class="meta">Fuera del robot, a la vista</p>
+<table class="specs"><tbody>
+<tr><th>Cargador</th><td>De balance, modo LiPo o Li-ion según la química, celdas en serie correctas.</td></tr>
+<tr><th>Dónde</th><td>Bolsa ignífuga, a la vista, mesa que no prenda. No dentro del robot cerrado.</td></tr>
+<tr><th>Semanas parado</th><td>Tensión de almacenamiento, ~3,8 V por celda, no 4,20 V.</td></tr>
+<tr><th>Hinchado, calor, olor dulce</th><td>Parar, sacar, no pinchar, no cargar.</td></tr>
+</tbody></table>
+<p class="note">Si el cargador pide el número de celdas y no estás seguro, no arranques. Mide el pack. 8,4 V es 2S lleno; 12,6 V es 3S lleno. Una celda baja no se adivina por el total: por eso existe el balance.</p>
+</article>
+</div>
+<div class="warn"><p>Fallos típicos. El robot muere a los diez minutos con el pack grande: una celda del serie está por los suelos y el total aún parece decente; se mira el balance, no solo el XT. El conector quema el dedo: está a medias, o por ahí pasa el pico de un tronco calcado en un XT pequeño. El pack huele dulce después de un golpe: se saca, no se sigue el ensayo. Qué hacer: medir celda a celda, cambiar el conector si está recocido, dar de baja el pack hinchado.</p></div>
+</section>
+<section id="drivers">
+<h2>Drivers <span>03 · PWM, bus, nivel</span></h2>
+<div class="prose">
+<p>Un humanoide de hobby mueve las articulaciones con servos, no con un puente en H por junta. El driver, aquí, es quien traduce la orden de la placa de tiempo real al servo, y quien aguanta la corriente de bloqueo. Hay dos familias grandes. El servo PWM de hobby escucha un pulso en un hilo propio. El servo de bus serie escucha en un par, o en un hilo, compartido por toda la cadena, y la alimentación le llega en paralelo. Dynamixel parte esa segunda familia en dos electricidades distintas: TTL y RS-485. El puente en H y el MOSFET suelto solo entran si de verdad hay un motor de continua o un solenoide, por ejemplo un pestillo, no la rodilla.</p>
+<p>La corriente de bloqueo es la de diseño del driver y del cable. La corriente mientras se mueve suave en el aire es un dato de curiosidad. Cuando el pie no puede más y el servo sigue empujando, circula la de bloqueo, la de la hoja. Si esa cifra no aparece, se mide una vez, con el servo fuera de la pierna, y se anota. No se pone un driver de un amperio porque el movimiento de demostración gastaba poco.</p>
+<p>El paso de nivel importa en cuanto la placa es de 3,3 V, que es el caso del ESP32 y de muchas placas nuevas. Meter 5 V en un pin de 3,3 V lo puede matar: el máximo absoluto suele estar unas décimas por encima de la alimentación del pin, y 5 V se pasa. Una resistencia en serie no convierte 5 V en 3,3 V de forma fiable. Hace falta un desplazador, o una placa que ya lo traiga y cuya hoja lo diga. Al revés, un pulso de 3,3 V hacia un servo viejo puede quedarse corto si ese servo quiere un nivel alto de 5 V. Si el servo no se mueve y la alimentación está bien, se mira el nivel antes de culpar al temporizador.</p>
+</div>
+<div class="diagram">
+<h4>Tres servos de bus frente a tres PWM</h4>
+<svg viewBox="0 0 720 380" role="img" aria-label="A la izquierda tres servos con datos en serie y potencia en paralelo; a la derecha un hilo de señal por cada servo PWM">
+<rect x="8" y="8" width="704" height="364" fill="#161512" stroke="#2A2720"/>
+<text x="180" y="32" text-anchor="middle" fill="#C4A15A" font-size="13" font-family="Georgia,serif">Bus: datos en cadena</text>
+<text x="520" y="32" text-anchor="middle" fill="#C4A15A" font-size="13" font-family="Georgia,serif">PWM: un hilo por servo</text>
+<rect x="36" y="48" width="88" height="40" fill="#1C1A16" stroke="#5B8FA8"/>
+<text x="80" y="73" text-anchor="middle" fill="#E6E1D6" font-size="11" font-family="Segoe UI,sans-serif">Placa</text>
+<line x1="124" y1="68" x2="168" y2="68" stroke="#5B8FA8" stroke-width="2"/>
+<rect x="168" y="52" width="64" height="36" fill="#1C1A16" stroke="#E6E1D6"/>
+<text x="200" y="74" text-anchor="middle" fill="#E6E1D6" font-size="11" font-family="Segoe UI,sans-serif">S1</text>
+<line x1="232" y1="68" x2="268" y2="68" stroke="#5B8FA8" stroke-width="2"/>
+<rect x="268" y="52" width="64" height="36" fill="#1C1A16" stroke="#E6E1D6"/>
+<text x="300" y="74" text-anchor="middle" fill="#E6E1D6" font-size="11" font-family="Segoe UI,sans-serif">S2</text>
+<line x1="332" y1="68" x2="360" y2="68" stroke="#5B8FA8" stroke-width="2"/>
+<rect x="300" y="100" width="64" height="36" fill="#1C1A16" stroke="#E6E1D6"/>
+<text x="332" y="122" text-anchor="middle" fill="#E6E1D6" font-size="11" font-family="Segoe UI,sans-serif">S3</text>
+<line x1="332" y1="88" x2="332" y2="100" stroke="#5B8FA8" stroke-width="2"/>
+<text x="80" y="112" fill="#5B8FA8" font-size="10" font-family="Segoe UI,sans-serif">un par de datos</text>
+<line x1="48" y1="160" x2="340" y2="160" stroke="#C46A4A" stroke-width="3"/>
+<line x1="200" y1="160" x2="200" y2="88" stroke="#C46A4A" stroke-width="2"/>
+<line x1="300" y1="160" x2="300" y2="88" stroke="#C46A4A" stroke-width="2"/>
+<line x1="332" y1="160" x2="332" y2="136" stroke="#C46A4A" stroke-width="2"/>
+<line x1="48" y1="188" x2="340" y2="188" stroke="#6B6560" stroke-width="2"/>
+<text x="48" y="210" fill="#C46A4A" font-size="10" font-family="Segoe UI,sans-serif">+ potencia en paralelo, rojo</text>
+<text x="48" y="226" fill="#6B6560" font-size="10" font-family="Segoe UI,sans-serif">masa en paralelo, negro</text>
+<text x="48" y="248" fill="#9A9488" font-size="11" font-family="Segoe UI,sans-serif">Cada servo, un ID distinto.</text>
+<text x="48" y="266" fill="#9A9488" font-size="11" font-family="Segoe UI,sans-serif">Dos IDs iguales: el bus miente.</text>
+<rect x="430" y="48" width="100" height="40" fill="#1C1A16" stroke="#C4A15A"/>
+<text x="480" y="73" text-anchor="middle" fill="#E6E1D6" font-size="11" font-family="Segoe UI,sans-serif">Placa o 9685</text>
+<line x1="530" y1="58" x2="600" y2="58" stroke="#C4A15A" stroke-width="2"/>
+<line x1="530" y1="70" x2="600" y2="94" stroke="#C4A15A" stroke-width="2"/>
+<line x1="530" y1="80" x2="600" y2="130" stroke="#C4A15A" stroke-width="2"/>
+<rect x="600" y="44" width="70" height="28" fill="#1C1A16" stroke="#E6E1D6"/>
+<text x="635" y="62" text-anchor="middle" fill="#E6E1D6" font-size="11" font-family="Segoe UI,sans-serif">P1</text>
+<rect x="600" y="80" width="70" height="28" fill="#1C1A16" stroke="#E6E1D6"/>
+<text x="635" y="98" text-anchor="middle" fill="#E6E1D6" font-size="11" font-family="Segoe UI,sans-serif">P2</text>
+<rect x="600" y="116" width="70" height="28" fill="#1C1A16" stroke="#E6E1D6"/>
+<text x="635" y="134" text-anchor="middle" fill="#E6E1D6" font-size="11" font-family="Segoe UI,sans-serif">P3</text>
+<line x1="430" y1="180" x2="670" y2="180" stroke="#C46A4A" stroke-width="3"/>
+<line x1="635" y1="144" x2="635" y2="180" stroke="#C46A4A" stroke-width="2"/>
+<line x1="430" y1="200" x2="670" y2="200" stroke="#6B6560" stroke-width="2"/>
+<text x="430" y="228" fill="#C4A15A" font-size="10" font-family="Segoe UI,sans-serif">ámbar = señal, un hilo por servo</text>
+<text x="430" y="246" fill="#C46A4A" font-size="10" font-family="Segoe UI,sans-serif">rojo = potencia, no sale del regulador</text>
+<text x="430" y="270" fill="#9A9488" font-size="11" font-family="Segoe UI,sans-serif">Un temporizador por canal, o un</text>
+<text x="430" y="286" fill="#9A9488" font-size="11" font-family="Segoe UI,sans-serif">generador externo. No dos placas</text>
+<text x="430" y="302" fill="#9A9488" font-size="11" font-family="Segoe UI,sans-serif">al mismo servo.</text>
+<text x="36" y="330" fill="#E6E1D6" font-size="11" font-family="Segoe UI,sans-serif">El hilo de datos no lleva la corriente de bloqueo. El positivo gordo sí.</text>
+<text x="36" y="350" fill="#9A9488" font-size="11" font-family="Segoe UI,sans-serif">Colores: rojo potencia, negro masa, ámbar señal, azul del dibujo = par de bus.</text>
+</svg>
+<p class="cap">Izquierda: un bus semidúplex entra y sale de cada servo, y el positivo se reparte. Derecha: cada PWM tiene su señal. En los dos casos la potencia es paralela y gorda.</p>
+</div>
+<div class="grid">
+<article class="card" data-name="servo PWM hobby 50 Hz pulso">
+<h3>Servo PWM de hobby</h3>
+<p class="meta">Un hilo de señal, alimentación aparte</p>
+<table class="specs"><tbody>
+<tr><th>Señal</th><td>Trama del orden de 20 ms, unos 50 Hz. Pulso alto en torno a 1–2 ms. Algunos llegan a 0,5–2,5 ms. La hoja fija el ancho y el recorrido; no asumas 180 grados.</td></tr>
+<tr><th>Nivel</th><td>Pulso clásico pensado a 5 V. Muchos aceptan 3,3 V. Si no obedece, míralo antes de subir el pack.</td></tr>
+<tr><th>Alimentación</th><td>Aparte del pulso. Microservos a menudo 4,8–6 V; otros, 7,4 V. Número de la hoja.</td></tr>
+<tr><th>Hilos</th><td>Rojo potencia, negro masa, amarillo blanco o naranja señal. Una señal por servo.</td></tr>
+</tbody></table>
+<p class="note">Un digital moderno a veces admite tramas más rápidas. Si la hoja no lo dice, quédate en unos 50 Hz. Dos placas dando pulso al mismo conector pelean: manda una sola.</p>
+</article>
+<article class="card" data-name="PCA9685 generador PWM externo">
+<h3>Generador PWM externo</h3>
+<p class="meta">PCA9685 y placas parecidas</p>
+<table class="specs"><tbody>
+<tr><th>Para qué</th><td>Multiplicar canales cuando la placa no tiene un temporizador por articulación. Dieciséis canales es la cifra habitual de ese chip.</td></tr>
+<tr><th>Bus de orden</th><td>I2C. Dirección de fábrica 0x40, movible con los puentes de dirección.</td></tr>
+<tr><th>Potencia</th><td>El borne de servos es el raíl gordo. El chip no transporta el bloqueo por el I2C.</td></tr>
+<tr><th>Nivel</th><td>Si la lógica del módulo va a 5 V, el I2C puede salir a 5 V. No lo unas a un ESP32 sin leer si esa placa ya desplaza el nivel.</td></tr>
+</tbody></table>
+<p class="note">Las pistas finas de una placa barata no son un tronco de pierna. Si se calientan con dos servos clavados, reparte la potencia por cable gordo al borne y no fíes el pico a la pista.</p>
+</article>
+<article class="card" data-name="LX-16A LewanSoul bus semidúplex">
+<h3>Bus LX-16A / LewanSoul</h3>
+<p class="meta">Semidúplex TTL, cadena</p>
+<table class="specs"><tbody>
+<tr><th>Datos</th><td>Un hilo de datos compartido, ida y vuelta. Hace falta circuito de sentido, no un UART desnudo de dos hilos peleándose.</td></tr>
+<tr><th>Velocidad</th><td>En esta familia el hábito de taller es 115200. Confírmalo en la hoja; no lo copies a otra marca.</td></tr>
+<tr><th>Alimentación</th><td>En paralelo. La zona típica de esta referencia anda por 6–8,4 V. La hoja manda, y un 3S de 12,6 V no es casi.</td></tr>
+<tr><th>Identidad</th><td>Un ID por servo, puesto con un solo servo enchufado al adaptador, antes de cerrar la cadena.</td></tr>
+</tbody></table>
+<p class="note">Corriente de bloqueo: la de la hoja del LX-16A. El cable de datos puede ser fino; el de potencia, no.</p>
+</article>
+<article class="card" data-name="Feetech STS SCS bus serie">
+<h3>Feetech STS / SCS</h3>
+<p class="meta">Otra familia, otro protocolo</p>
+<table class="specs"><tbody>
+<tr><th>Datos</th><td>Semidúplex serie. SCS es la generación anterior; STS, la posterior. No des por hecho el mismo baud ni el mismo paquete.</td></tr>
+<tr><th>Nivel</th><td>TTL. El adaptador es el de esta familia o un circuito de sentido equivalente.</td></tr>
+<tr><th>Alimentación</th><td>En paralelo. Cada referencia trae su tensión: un STS3215 y un SCS pequeño no comparten pack por simpático.</td></tr>
+<tr><th>Cadena</th><td>Datos en serie de conector a conector. Potencia en paralelo. IDs únicos en ese bus.</td></tr>
+</tbody></table>
+<p class="note">Si mezclas STS y SCS en el mismo hilo porque los dos son Feetech, el que no entiende el paquete se calla o se mueve a destiempo. Una familia por bus.</p>
+</article>
+<article class="card" data-name="Waveshare ST3215 bus servo">
+<h3>Waveshare ST3215 y similares</h3>
+<p class="meta">Bus serie, clase de pack más alto</p>
+<table class="specs"><tbody>
+<tr><th>Datos</th><td>Cadena semidúplex, como el resto de esta familia de bus. Adaptador con sentido.</td></tr>
+<tr><th>Alimentación</th><td>Esta referencia se usa en zona de 12 V. Llena, un 3S son 12,6 V: comprueba en la hoja que ese techo entra, no lo des por hecho.</td></tr>
+<tr><th>Encoder</th><td>Suele llevar el magnético dentro. No añadas otro en la misma junta salvo que Diseño lo pida.</td></tr>
+<tr><th>Corriente</th><td>Bloqueo y nominal, en la hoja de Waveshare. El driver y el cable, al bloqueo.</td></tr>
+</tbody></table>
+<p class="note">Y similares significa la misma electricidad: datos en cadena, potencia en paralelo, una sola placa dueña del bus. No significa la misma tensión.</p>
+</article>
+<article class="card" data-name="Dynamixel TTL AX XL semidúplex">
+<h3>Dynamixel TTL</h3>
+<p class="meta">AX, XL y variantes T</p>
+<table class="specs"><tbody>
+<tr><th>Electricidad</th><td>Un hilo de datos a nivel TTL, no par diferencial. Semidúplex: pregunta y respuesta por el mismo hilo.</td></tr>
+<tr><th>Nivel</th><td>Los AX clásicos trabajan la señal en zona de 5 V. En las series nuevas, míralo. Un pin de 3,3 V no es entrada de 5 V.</td></tr>
+<tr><th>Adaptador</th><td>U2D2 o equivalente, con el circuito de sentido. Un USB-serie de dos hilos, sin eso, no vale.</td></tr>
+<tr><th>Alimentación</th><td>Aparte del dato. AX-12 en zona de 9 a 12 V; XL-320 en zona de 7,4 V. Cada hoja, su número.</td></tr>
+</tbody></table>
+<p class="note">En muchos AX el baud de fábrica es 1 Mbps. Si no contesta, se prueba el de la hoja, no el 115200 heredado de un LX-16A. Potencia en paralelo, datos en cadena, ID único.</p>
+</article>
+<article class="card" data-name="Dynamixel RS-485 diferencial U2D2">
+<h3>Dynamixel RS-485</h3>
+<p class="meta">Par A y B, no un UART TTL</p>
+<table class="specs"><tbody>
+<tr><th>Electricidad</th><td>Par diferencial. Aguanta mejor el ruido de un cable de pierna que el TTL de un hilo.</td></tr>
+<tr><th>Nivel</th><td>No es el 0 y el 5 del UART. Hace falta transceptor RS-485 y el sentido de transmisión.</td></tr>
+<tr><th>Adaptador</th><td>U2D2 o equivalente. No se empalma A y B a TX y RX con dos resistencias.</td></tr>
+<tr><th>Cadena</th><td>El par recorre los servos. La potencia, otra vez, en paralelo y al bloqueo.</td></tr>
+</tbody></table>
+<p class="note">Una variante T y una variante R de la misma carcasa no comparten bus. Si el conector tiene A y B, no es el TTL de tres pines, aunque el servo se parezca.</p>
+</article>
+<article class="card" data-name="puente H MOSFET motor DC solenoide">
+<h3>Puente en H o MOSFET</h3>
+<p class="meta">Solo motor de continua o solenoide</p>
+<table class="specs"><tbody>
+<tr><th>Cuándo</th><td>Un motor que no es servo, o un solenoide. No es el camino de la rodilla de este robot.</td></tr>
+<tr><th>Alimentación</th><td>Raíl de potencia en el puente. Lógica del puente desde el raíl de lógica, masa común en la estrella.</td></tr>
+<tr><th>Protección</th><td>Si el módulo no trae diodo de libre circulación, el solenoide lo necesita. La hoja del módulo dice cuál es el caso.</td></tr>
+<tr><th>Corriente</th><td>La de arranque o de bloqueo del motor, no la de vacío. Otra vez, la hoja.</td></tr>
+</tbody></table>
+<p class="note">No alimentes ese motor desde el regulador de la placa. Si ya es un servo, no lo abras para ponerle un driver de otra familia.</p>
+</article>
+<article class="card" data-name="paso de nivel 3,3 V 5 V">
+<h3>Paso de nivel 3,3 V y 5 V</h3>
+<p class="meta">Lo que mata un pin</p>
+<table class="specs"><tbody>
+<tr><th>5 V hacia 3,3 V</th><td>Puede destruir el pin. El máximo suele ser la alimentación del pin más unas décimas. 5 V se pasa.</td></tr>
+<tr><th>Qué usar</th><td>Desplazador de verdad. En I2C, uno bidireccional. Una serie de 1 kiloohmio no es un regulador.</td></tr>
+<tr><th>3,3 V hacia servo</th><td>A veces basta como nivel alto. Si la hoja pide 5 V de señal, desplaza solo esa señal, no la potencia.</td></tr>
+<tr><th>HX711 y 9685</th><td>Muchas placas baratas sacan 5 V en el dato. Se lee la serigrafía antes de tocar el ESP32.</td></tr>
+</tbody></table>
+<p class="note">El fallo es silencioso: el pin queda medio muerto y el resto de la placa sigue. Si un día el I2C murió después de probar el sensor de 5 V, el paso de nivel llega tarde.</p>
+</article>
+</div>
+<div class="warn"><p>Fallos típicos. Toda la cadena callada: dos servos con el mismo ID, o el adaptador sin circuito de sentido, o TX y RX cruzados en un TTL que no es semidúplex. Un solo servo de la cadena caliente y flojo: su positivo está mal crimpado y no le llega el pack. Un ESP32 que deja de arrancar tras conectar el bus de 5 V: le entró tensión de más por el pin. Qué hacer: un servo solo, ID conocido, alimentación medida en el conector del servo y no solo en el repartidor, y ningún pin de 3,3 V viendo 5 V.</p></div>
+</section>
+<section id="sensores">
+<h2>Sensores <span>04 · tronco y pies</span></h2>
+<div class="prose">
+<p>Tres cosas se cablean en el cuerpo, y las tres se quedan en la electricidad. La IMU dice cómo está orientado el tronco. Los sensores del pie dicen si esa planta apoya y cómo se reparte el peso entre puntos. El encoder dice el ángulo de la junta. Qué hacer con eso para no caerse, el filtro, el ZMP y el lazo, es Control. Aquí: qué hilos, a qué tensión, y qué ruido del propio robot los vuelve inútiles.</p>
+</div>
+<nav class="subnav" aria-label="Sensores">
+<a href="#imu">IMU</a>
+<a href="#fuerza-pies">Fuerza en los pies</a>
+<a href="#encoders">Encoders</a>
+</nav>
+<h3 id="imu">IMU</h3>
+<div class="prose">
+<p>Va en el tronco porque el tronco es quien define la vertical del robot. El filtro complementario o Madgwick, y cualquier fusión, no se explica en esta página. Lo que sí: casi siempre habla I2C a 3,3 V. Ejemplos reales de pieza, no un inventario: el MPU-6050, viejo y aún en cajones, direcciones 0x68 o 0x69 según el pin AD0; el ICM-42688 y el BMI270 como generación más nueva, I2C o SPI según cómo se cablee la placa. La dirección fina y el mapa de registros están en la hoja de la pieza. Si hace falta el módulo de placas, está en el catálogo de Arduino. Aquí solo importa que no compartan el raíl ruidoso de los servos.</p>
+<p>Los pull-ups del I2C van a 3,3 V. En muchas placas ya vienen, del orden de 4,7 kiloohmios. Dos módulos con pull-ups fuertes en paralelo se quedan cortos de resistencia y el flanco se estropea: si montas dos, mira si hay que quitar un juego. El cable, corto, mejor trenzado, por debajo de unas pocas decenas de centímetros. Cien kilohercios es la velocidad tranquila si el mazo pasa cerca de potencia; subir solo cuando el tramo es limpio. La alimentación sale del buck de lógica, con el cerámico de 100 nF en la placa del sensor si no lo trae.</p>
+<p>Sujeción rígida al tronco. Si la placa baila con cinta sobre un cable, la medida es la cinta, no el robot. Los ejes se marcan y se confirman con la pieza en la mano: el convenio de esta página es X adelante, Y a la izquierda, Z arriba, y hay piezas que traen el dibujo de la serigrafía al revés o girado. Lejos del imán de un encoder magnético si la IMU lleva magnetómetro. El MPU-6050 no lleva; otras sí. Un imán de junta al lado del magnetómetro lo clava. Aunque no uses la brújula para andar, no la dejes saturada por si acaso.</p>
+</div>
+<div class="diagram">
+<h4>Ejes en el tronco</h4>
+<svg viewBox="0 0 520 280" role="img" aria-label="Torso con eje X hacia adelante, Y a la izquierda del robot y Z hacia arriba">
+<rect x="8" y="8" width="504" height="264" fill="#161512" stroke="#2A2720"/>
+<rect x="180" y="70" width="120" height="150" rx="8" fill="#1C1A16" stroke="#C4A15A"/>
+<text x="240" y="150" text-anchor="middle" fill="#E6E1D6" font-size="13" font-family="Georgia,serif">Tronco</text>
+<rect x="214" y="96" width="52" height="36" fill="#161512" stroke="#5B8FA8"/>
+<text x="240" y="118" text-anchor="middle" fill="#5B8FA8" font-size="10" font-family="Segoe UI,sans-serif">IMU</text>
+<line x1="240" y1="132" x2="240" y2="40" stroke="#8F9A72" stroke-width="2"/>
+<polygon points="240,32 234,46 246,46" fill="#8F9A72"/>
+<text x="252" y="40" fill="#8F9A72" font-size="12" font-family="Segoe UI,sans-serif">Z arriba</text>
+<line x1="240" y1="150" x2="120" y2="150" stroke="#C4A15A" stroke-width="2"/>
+<polygon points="112,150 126,144 126,156" fill="#C4A15A"/>
+<text x="36" y="142" fill="#C4A15A" font-size="12" font-family="Segoe UI,sans-serif">Y izquierda</text>
+<line x1="266" y1="114" x2="360" y2="70" stroke="#C46A4A" stroke-width="2"/>
+<polygon points="368,64 350,66 358,82" fill="#C46A4A"/>
+<text x="372" y="68" fill="#C46A4A" font-size="12" font-family="Segoe UI,sans-serif">X adelante</text>
+<text x="24" y="230" fill="#9A9488" font-size="11" font-family="Segoe UI,sans-serif">Convenio de esta página. Confírmalo con la serigrafía de la pieza.</text>
+<text x="24" y="250" fill="#9A9488" font-size="11" font-family="Segoe UI,sans-serif">I2C a 3,3 V. Lejos del imán de un encoder si hay magnetómetro.</text>
+</svg>
+<p class="cap">La IMU va atornillada o pegada rígida, no flotando en el mazo. X sale del pecho, Y hacia la izquierda del robot, Z a la cabeza.</p>
+</div>
+<div class="grid">
+<article class="card" data-name="MPU-6050 I2C 0x68 0x69">
+<h3>MPU-6050</h3>
+<p class="meta">Viejo, todavía aparece</p>
+<table class="specs"><tbody>
+<tr><th>Bus</th><td>I2C a 3,3 V. Dirección 0x68 con AD0 a masa, 0x69 con AD0 a alto.</td></tr>
+<tr><th>Qué es</th><td>Giroscopio y acelerómetro. No trae magnetómetro.</td></tr>
+<tr><th>Placa típica</th><td>Muchas rompen a 5 V con un regulador y dejan el I2C en peligro. Lee si el módulo es de 3,3 V en las líneas.</td></tr>
+<tr><th>Cable</th><td>Corto, pull-ups a 3,3 V, raíl de lógica limpio.</td></tr>
+</tbody></table>
+<p class="note">Sirve para orientar el tronco. No es la pieza que elegirías hoy si partes de cero, y no por eso se alimenta mal.</p>
+</article>
+<article class="card" data-name="ICM-42688 IMU nueva">
+<h3>ICM-42688</h3>
+<p class="meta">Generación más nueva</p>
+<table class="specs"><tbody>
+<tr><th>Bus</th><td>I2C o SPI, según los pines que uses. En este robot, I2C a 3,3 V es el camino simple.</td></tr>
+<tr><th>Alimentación</th><td>3,3 V de lógica. Cerámico cerca. No el positivo de los servos.</td></tr>
+<tr><th>Dirección</th><td>La de la hoja de esa variante. No heredes la 0x68 del MPU por costumbre.</td></tr>
+<tr><th>Montaje</th><td>Rígido, ejes marcados, lejos de imanes de junta.</td></tr>
+</tbody></table>
+<p class="note">SPI es más inmune si el cable tiene que ser largo, y gasta más pines. Si alargas, acortas antes el cable: esta página prefiere pocos centímetros.</p>
+</article>
+<article class="card" data-name="BMI270 IMU Bosch">
+<h3>BMI270</h3>
+<p class="meta">Otra pieza actual, mismo papel</p>
+<table class="specs"><tbody>
+<tr><th>Bus</th><td>I2C o SPI a 3,3 V. Pull-ups si el módulo no los trae.</td></tr>
+<tr><th>Papel</th><td>Orientación del tronco. El filtro no se cablea: se escribe en Control.</td></tr>
+<tr><th>Ruido</th><td>Masa quieta a la estrella, sin acompañar el retorno de un servo.</td></tr>
+<tr><th>Ejes</th><td>Confirma X adelante, Y izquierda, Z arriba con la pieza, no con este dibujo solo.</td></tr>
+</tbody></table>
+<p class="note">Si la placa del BMI270 es de 5 V porque lleva regulador, las líneas de dato siguen pudiendo ser de 3,3. Míralas con el polímetro en reposo antes de enchufarlas a un sitio que no toque.</p>
+</article>
+</div>
+<h3 id="fuerza-pies">Fuerza en los pies</h3>
+<div class="prose">
+<p>El pie tiene que decir dos cosas modestas: si está apoyado, y cómo se reparte el peso entre zonas de la planta. Con eso, Control puede hablar de ZMP. Esta página no calcula el ZMP. Electrónicamente hay tres vías reales. La FSR en un divisor resistivo es barata y no es una báscula: vale para saber que hay contacto y, mal que bien, si carga más la punta o el talón. La célula de carga con HX711 mide de verdad en el eje de la célula, a cambio de un puente, reloj, datos y una excitación limpia. Cuatro puntos por planta, punta interior, punta exterior, talón interior y talón exterior, son los que convierten un hay peso en un apoyo que sirve.</p>
+<p>El HX711 no se sienta al lado del buck de los servos. Su masa no comparte retorno con el pico de la rodilla. El par de la célula va trenzado. Si la placa del HX711 trabaja a 5 V y saca el dato a 5 V, no entra directa a un pin de 3,3 V: o la placa es de 3,3 V, o desplazas el dato. El reloj lo genera la placa de tiempo real. No hace falta un reloj de cristal de laboratorio para que la electricidad sea válida, pero sí hace falta no alargar ese par pierna arriba junto al positivo gordo más de lo inevitable.</p>
+</div>
+<div class="diagram">
+<h4>Planta con cuatro puntos</h4>
+<svg viewBox="0 0 520 360" role="img" aria-label="Planta del pie con cuatro puntos y cable con holgura subiendo por el tobillo">
+<rect x="8" y="8" width="504" height="344" fill="#161512" stroke="#2A2720"/>
+<ellipse cx="200" cy="200" rx="70" ry="120" fill="#1C1A16" stroke="#C4A15A"/>
+<text x="200" y="40" text-anchor="middle" fill="#9A9488" font-size="11" font-family="Segoe UI,sans-serif">punta</text>
+<circle cx="168" cy="110" r="10" fill="#C46A4A"/>
+<circle cx="232" cy="110" r="10" fill="#C46A4A"/>
+<circle cx="160" cy="270" r="10" fill="#C4A15A"/>
+<circle cx="236" cy="270" r="10" fill="#C4A15A"/>
+<text x="300" y="114" fill="#C46A4A" font-size="11" font-family="Segoe UI,sans-serif">punta interior y exterior</text>
+<text x="300" y="274" fill="#C4A15A" font-size="11" font-family="Segoe UI,sans-serif">talón interior y exterior</text>
+<path d="M200 110 C 200 160, 250 150, 250 40" fill="none" stroke="#5B8FA8" stroke-width="2"/>
+<path d="M168 110 C 150 150, 230 170, 250 40" fill="none" stroke="#5B8FA8" stroke-width="1.5"/>
+<path d="M160 270 C 120 240, 230 200, 250 40" fill="none" stroke="#6B6560" stroke-width="1.5"/>
+<path d="M236 270 C 260 220, 240 180, 250 40" fill="none" stroke="#6B6560" stroke-width="1.5"/>
+<path d="M250 40 C 270 20, 300 30, 310 18 C 330 40, 300 55, 280 48" fill="none" stroke="#C4A15A" stroke-width="2"/>
+<text x="318" y="28" fill="#C4A15A" font-size="11" font-family="Segoe UI,sans-serif">holgura en el tobillo</text>
+<text x="24" y="330" fill="#9A9488" font-size="11" font-family="Segoe UI,sans-serif">El mazo sube con bucle. No va tenso cuando el tobillo flexiona del todo.</text>
+</svg>
+<p class="cap">Cuatro puntos. El cable de los cuatro sube por el tobillo con holgura, no pegado al canto que roce.</p>
+</div>
+<div class="grid">
+<article class="card" data-name="FSR divisor resistivo fuerza pie">
+<h3>FSR en divisor</h3>
+<p class="meta">Barata, no es una báscula</p>
+<table class="specs"><tbody>
+<tr><th>Circuito</th><td>FSR hacia el raíl de lógica, resistencia fija hacia masa, ADC en el centro. O al revés, pero igual en los cuatro puntos.</td></tr>
+<tr><th>Resistencia fija</th><td>Se elige cerca del valor que la FSR toma en el peso que te importa. 10 kiloohmios es un punto de partida orientativo, luego se mide.</td></tr>
+<tr><th>Qué da</th><td>Contacto y un orden de carga. Histéresis, deriva y temperatura. No kilos de verdad.</td></tr>
+<tr><th>Nivel</th><td>El ADC ve como mucho el raíl al que la subiste, 3,3 V o 5 V, el que acepte la placa.</td></tr>
+</tbody></table>
+<p class="note">Sirve para saber que el pie apoya y para comparar punta con talón. Si necesitas newtons repetibles, no es esta ficha: es la célula.</p>
+</article>
+<article class="card" data-name="célula de carga HX711 puente">
+<h3>Célula de carga y HX711</h3>
+<p class="meta">Puente, reloj y datos</p>
+<table class="specs"><tbody>
+<tr><th>Célula</th><td>Puente completo. Excitación E+ y E−. Señal del puente en par trenzado.</td></tr>
+<tr><th>HX711</th><td>Reloj PD_SCK y dato DOUT hacia la placa de tiempo real. Ganancia habitual del canal A: 128. Confírmalo en la hoja.</td></tr>
+<tr><th>Tensión</th><td>Muchas placas se alimentan a 5 V y sacan el dato a 5 V. No va directo a un ESP32.</td></tr>
+<tr><th>Dónde no</th><td>Pegado al buck de los servos. Masa quieta, de vuelta a la lógica.</td></tr>
+</tbody></table>
+<p class="note">La célula mide en su eje. Ponerla de canto porque cabía mide el roce, no el peso. El sentido mecánico es Diseño; el cable, aquí, no se aplasta en el tobillo.</p>
+</article>
+<article class="card" data-name="cuatro puntos planta punta talón">
+<h3>Cuatro puntos por planta</h3>
+<p class="meta">Interior y exterior, punta y talón</p>
+<table class="specs"><tbody>
+<tr><th>Puntos</th><td>Punta interior, punta exterior, talón interior, talón exterior.</td></tr>
+<tr><th>Por qué cuatro</th><td>Con uno sabes que hay peso. Con cuatro sabes hacia qué borde se va.</td></tr>
+<tr><th>Cable</th><td>Un mazo por pierna, holgura en el tobillo, funda si roza el canto.</td></tr>
+<tr><th>Igualdad</th><td>Los cuatro del mismo tipo. Mezclar FSR y célula en la misma planta complica la lectura sin ganar magia.</td></tr>
+</tbody></table>
+<p class="note">El nombre de cada punto se escribe en el conector de arriba. No se adivina por el color si el color ya significa potencia o señal.</p>
+</article>
+</div>
+<div class="warn"><p>Fallos típicos del pie. Los cuatro canales leen lo mismo: el mazo comparte un positivo pelado y se han quedado en corto. El HX711 da saltos al ritmo del servo: está al lado del buck o el par sin trenzar acompaña el positivo de la pantorrilla. La FSR no vuelve a cero: no es una báscula, o quedó doblada en el canto. Qué hacer: separar el mazo de la potencia, alejar el HX711, y no calibrar un sensor que está mecánicamente pillado.</p></div>
+<h3 id="encoders">Encoders</h3>
+<div class="prose">
+<p>Muchos servos de bus ya traen el encoder magnético dentro, un AS5600 o un equivalente que no vas a ver. La posición sale por el mismo bus por el que mandas el ángulo. No añadas otro encoder en esa junta salvo que Diseño lo pida, por ejemplo en un eje pasivo que el servo no ve. Dos medidas del mismo eje que no coinciden no hacen el robot más preciso: hacen una discusión.</p>
+<p>Si el encoder es externo, hay dos electricidades. El incremental en cuadratura saca A y B, y a veces un índice Z, un pulso por vuelta. Se cuentan flancos. El absoluto, I2C o SPI, y el AS5600 es el ejemplo de taller, dice el ángulo sin contar desde un cero. Los dos quieren cable corto, trenzado, pull-ups si la salida es abierta, y alimentación a 3,3 V o a 5 V según la pieza, no según el servo de al lado.</p>
+<p>El lazo de posición no se explica aquí. Sí se explica el pulso perdido: un cable que roza en la rodilla se pela, hace contacto un instante y el incremental se deja una cuenta. Esa cuenta no vuelve sola. El cable va con holgura en el eje, funda en el roce, y brida que no muerda. Un absoluto se pierde menos por un golpe de ruido, y se pierde igual si le cortas el I2C en la flexión máxima.</p>
+</div>
+<div class="grid">
+<article class="card" data-name="encoder interno servo de bus">
+<h3>Encoder interno del servo de bus</h3>
+<p class="meta">Ya viene, no se duplica</p>
+<table class="specs"><tbody>
+<tr><th>Dónde está</th><td>Dentro del LX-16A, del STS, del ST3215, del Dynamixel y de otros de la misma idea.</td></tr>
+<tr><th>Qué hilos</th><td>Ninguno nuevo. La posición viaja por el bus de datos.</td></tr>
+<tr><th>Cuándo añadir otro</th><td>Solo si Diseño pide medida en un eje que ese servo no cubre.</td></tr>
+<tr><th>Imán</th><td>El del encoder interno no se acerca a una IMU con magnetómetro.</td></tr>
+</tbody></table>
+<p class="note">Si el bus se calla, no tienes ángulo, aunque el imán siga girando. La reparación es el cable de datos y la alimentación, no un segundo sensor encima.</p>
+</article>
+<article class="card" data-name="encoder incremental cuadratura A B índice">
+<h3>Incremental en cuadratura</h3>
+<p class="meta">A, B y a veces índice</p>
+<table class="specs"><tbody>
+<tr><th>Hilos</th><td>A, B, alimentación, masa. Índice si la pieza lo trae, un pulso por vuelta.</td></tr>
+<tr><th>Nivel</th><td>3,3 V o 5 V según la pieza. Colector abierto: pull-up al raíl que acepte la placa.</td></tr>
+<tr><th>Pines</th><td>Flancos rápidos. En la placa de tiempo real, no en un mazo que pase por un conector flojo.</td></tr>
+<tr><th>Fallo de rodilla</th><td>Un roce que interrumpe A durante un paso descuenta o duplica. Holgura y funda.</td></tr>
+</tbody></table>
+<p class="note">No hace falta explicar el lazo para exigir que A y B no viajen pegados al positivo del servo durante treinta centímetros. Se cruzan a 90 grados si tienen que cruzarse.</p>
+</article>
+<article class="card" data-name="AS5600 encoder absoluto I2C">
+<h3>Absoluto I2C o SPI</h3>
+<p class="meta">AS5600 como ejemplo</p>
+<table class="specs"><tbody>
+<tr><th>Bus</th><td>I2C, dirección típica 0x36 en el AS5600. Algunas placas sacan además analógico o PWM.</td></tr>
+<tr><th>Alimentación</th><td>La de la hoja. Este chip acepta un margen amplio; tu placa de adaptación puede no aceptarlo. Léela.</td></tr>
+<tr><th>Imán</th><td>Encima del chip, centrado. El entrehierro es del orden de un milímetro; el valor lo fija la hoja, no este párrafo.</td></tr>
+<tr><th>Cable</th><td>Corto y trenzado. Si pasa por la rodilla, bucle de servicio, nunca tenso en la extensión máxima.</td></tr>
+</tbody></table>
+<p class="note">Un absoluto no acumula el pulso perdido, y aun así un conector que se abre en la flexión te deja sin ángulo en el peor momento. Se alivia el cable igual que en el incremental.</p>
+</article>
+</div>
+<div class="warn"><p>Fallos típicos del encoder. El ángulo salta de vez en cuando y el servo está bien: el cable de A roza en el canto de la rodilla. Dos AS5600 en el mismo I2C con la misma dirección: uno de los dos tiene que cambiar de dirección si la pieza lo permite, o ir a otro bus. El magnético lee siempre lo mismo: el imán no gira con el eje, o está demasiado lejos. Qué hacer: mover la junta a mano con la alimentación de lógica, mirar si el dato cambia, y rehacer el bucle de cable antes de tocar ganancias.</p></div>
+</section>
+<section id="cableado">
+<h2>Cableado <span>05 · sección, color, holgura</span></h2>
+<div class="prose">
+<p>El cable de este robot es corto, pero trabaja doblándose. La sección se elige por corriente de pico y por caída, no por el rollo que había en el cajón. La tabla de abajo es orientativa de taller para tramos de menos de 30 cm. No es una norma UNE, no vale para una pared, y no sustituye la corriente de bloqueo de tu servo. Si el tramo es más largo, se sube sección o se acepta la caída medida, no se discute con la tabla.</p>
+<p>El color se elige una vez y se mantiene en todo el robot. Rojo, potencia. Negro, masa. Amarillo o blanco, señal de PWM o línea suelta de sensor. El bus de datos, par trenzado, y si hace falta marcar, una cinta, no un rojo. El mismo rojo no puede significar positivo de pack en el tronco y canal A del encoder en la pierna. Quien herede el robot a oscuras tiene que poder seguir el positivo sin un esquema en la otra mano.</p>
+<p>El recorrido deja holgura en la cadera, en la rodilla y en el tobillo. El cable pasa por el eje de giro o hace un bucle de servicio. Nunca va tenso en la extensión máxima: si en la mesa, con la pierna estirada del todo, el cable ya tira, en el primer paso se pela o arranca el conector. Las bridas no muerden. Si al cerrar la brida el aislante se aplasta, está mal, aunque quede bonito. Donde haya roce con un canto, funda, no cinta que se corre.</p>
+<p>Potencia y señal no viajan en paralelo y pegados. Si tienen que cruzarse, se cruzan a 90 grados. El par de la célula y el I2C no se enrollan en el positivo del servo para que quede un solo mazo. Un mazo único es cómodo y es una antena. Dos mazos, con la masa de señal volviendo junto a su señal, hacen menos daño.</p>
+</div>
+<table class="specs">
+<tbody>
+<tr><th>Señal, encoder, I2C</th><td>28–26 AWG, unos 0,08–0,13 mm². Orientativo, menos de 30 cm. No lleva el bloqueo de un servo.</td></tr>
+<tr><th>Potencia de un servo pequeño</th><td>22–20 AWG, unos 0,32–0,52 mm². El servo mediano, si la hoja pasa de un par de amperios de bloqueo, se va al grueso de la fila siguiente en ese tramo.</td></tr>
+<tr><th>Tronco que suma varios servos</th><td>18–16 AWG, unos 0,82–1,3 mm². Es el cable del pico, no el de un conector de señal.</td></tr>
+<tr><th>Conector de señal fino</th><td>Solo señal. Un pin dúplex de protoboard en el positivo del pack es un calentador.</td></tr>
+</tbody>
+</table>
+<p class="meta">Tabla orientativa de taller para menos de 30 cm. No es norma UNE. Los mm² son el orden habitual de esos AWG, redondeado. La corriente de tu servo manda sobre la fila.</p>
+<div class="diagram">
+<h4>Pierna de perfil, bucle en la rodilla</h4>
+<svg viewBox="0 0 420 520" role="img" aria-label="Pierna de perfil con bucle de cable en la rodilla y holgura en cadera y tobillo">
+<rect x="8" y="8" width="404" height="504" fill="#161512" stroke="#2A2720"/>
+<rect x="160" y="30" width="90" height="36" fill="#1C1A16" stroke="#9A9488"/>
+<text x="205" y="52" text-anchor="middle" fill="#9A9488" font-size="11" font-family="Segoe UI,sans-serif">cadera</text>
+<rect x="185" y="80" width="36" height="130" fill="#1C1A16" stroke="#C4A15A"/>
+<circle cx="203" cy="230" r="22" fill="#1C1A16" stroke="#C4A15A" stroke-width="2"/>
+<text x="203" y="234" text-anchor="middle" fill="#E6E1D6" font-size="10" font-family="Segoe UI,sans-serif">rodilla</text>
+<rect x="185" y="260" width="36" height="130" fill="#1C1A16" stroke="#C4A15A"/>
+<circle cx="203" cy="410" r="16" fill="#1C1A16" stroke="#C4A15A"/>
+<text x="250" y="414" fill="#9A9488" font-size="11" font-family="Segoe UI,sans-serif">tobillo</text>
+<rect x="160" y="430" width="100" height="28" fill="#1C1A16" stroke="#E6E1D6"/>
+<text x="210" y="448" text-anchor="middle" fill="#E6E1D6" font-size="11" font-family="Segoe UI,sans-serif">pie</text>
+<path d="M150 48 C 120 80, 130 140, 160 200 C 200 230, 250 220, 230 250 C 200 290, 150 270, 170 300 C 190 360, 150 380, 175 410 C 200 440, 140 450, 160 458" fill="none" stroke="#C46A4A" stroke-width="2.5"/>
+<path d="M158 56 C 128 90, 138 148, 168 206 C 206 236, 242 226, 224 256 C 196 294, 158 276, 176 306" fill="none" stroke="#6B6560" stroke-width="1.5"/>
+<text x="250" y="120" fill="#C46A4A" font-size="11" font-family="Segoe UI,sans-serif">rojo potencia</text>
+<text x="250" y="138" fill="#6B6560" font-size="11" font-family="Segoe UI,sans-serif">negro masa</text>
+<text x="250" y="200" fill="#C4A15A" font-size="12" font-family="Georgia,serif">bucle</text>
+<text x="250" y="218" fill="#9A9488" font-size="11" font-family="Segoe UI,sans-serif">en la rodilla</text>
+<text x="24" y="490" fill="#9A9488" font-size="11" font-family="Segoe UI,sans-serif">En extensión máxima el bucle aún está flojo. La brida no aplasta.</text>
+</svg>
+<p class="cap">El lazo vive en el eje de la rodilla. Cadera y tobillo repiten la misma idea. El cable de señal, si baja por aquí, no va abrazado al rojo: va al otro lado o cruzando a 90 grados.</p>
+</div>
+<div class="grid">
+<article class="card" data-name="sección de cable AWG milímetros">
+<h3>Sección</h3>
+<p class="meta">Orientativa, tramo corto</p>
+<table class="specs"><tbody>
+<tr><th>28–26 AWG</th><td>Señal. Unos 0,08–0,13 mm².</td></tr>
+<tr><th>22–20 AWG</th><td>Un servo pequeño. Unos 0,32–0,52 mm².</td></tr>
+<tr><th>18–16 AWG</th><td>Tronco común. Unos 0,82–1,3 mm².</td></tr>
+<tr><th>Límite</th><td>Menos de 30 cm y sin ser norma. Más largo o más amperios: se mide la caída.</td></tr>
+</tbody></table>
+<p class="note">Caída de ejemplo, orientativa: 22 AWG anda por unos 50 ohmios por kilómetro. Ocho amperios en un metro de ida y vuelta son unas décimas de voltio, y en un tramo malo pasa del medio voltio. Por eso el tronco no es 22 AWG.</p>
+</article>
+<article class="card" data-name="código de color rojo negro amarillo">
+<h3>Código de color</h3>
+<p class="meta">Uno solo en todo el robot</p>
+<table class="specs"><tbody>
+<tr><th>Rojo</th><td>Positivo de potencia. Pack, repartidor, servo.</td></tr>
+<tr><th>Negro</th><td>Masa. La de potencia y la de señal, hasta la estrella.</td></tr>
+<tr><th>Amarillo o blanco</th><td>Señal PWM o hilo de sensor que no sea bus.</td></tr>
+<tr><th>Par trenzado</th><td>Bus de datos, I2C, puente de la célula. No se pinta de rojo.</td></tr>
+</tbody></table>
+<p class="note">Si un servo trae el naranja de fábrica en la señal, se deja y se anota, o se cambia en un latiguillo propio. No se recablea el interno del servo.</p>
+</article>
+<article class="card" data-name="holgura cadera rodilla tobillo bridas">
+<h3>Recorrido y holgura</h3>
+<p class="meta">Eje de giro o bucle de servicio</p>
+<table class="specs"><tbody>
+<tr><th>Articulaciones</th><td>Cadera, rodilla, tobillo, y el hombro si el brazo gira igual.</td></tr>
+<tr><th>Prueba</th><td>Articulación al tope, con la mano, sin pack. El cable no se tensa.</td></tr>
+<tr><th>Bridas</th><td>Sujetan sin marcar el aislante. Si marca, sobra apriete.</td></tr>
+<tr><th>Roce</th><td>Funda. La cinta sola se corre al segundo día.</td></tr>
+</tbody></table>
+<p class="note">Un hilo partido en la rodilla es el fallo más caro de diagnosticar porque a veces hace contacto si dejas la pierna quieta en la mesa.</p>
+</article>
+<article class="card" data-name="mapa de conectores batería repartidor bus">
+<h3>Mapa de conectores</h3>
+<p class="meta">Qué entra en cada sitio</p>
+<table class="specs"><tbody>
+<tr><th>Batería</th><td>XT30 o XT60 al fusible. Balance solo al cargador, tapado cuando el robot anda.</td></tr>
+<tr><th>Repartidor</th><td>Positivo después del interruptor general. De ahí, buck de lógica y, pasando el corte de emergencia, servos.</td></tr>
+<tr><th>Placa de lógica</th><td>5 V o 3,3 V desde el buck, masa a la estrella, buses de señal. Ningún positivo de servo en un pin de la placa.</td></tr>
+<tr><th>Pierna y brazo</th><td>Cada cadena: un par de datos y un par de potencia. IDs únicos en esa cadena.</td></tr>
+</tbody></table>
+<p class="note">Dos cadenas en dos UART pueden repetir números de ID. En la misma cadena, no. Se etiqueta el conector de la pierna izquierda y el de la derecha en el cuerpo, no en un papel suelto.</p>
+</article>
+</div>
+<div class="warn"><p>Fallos típicos. Servo loco que en la mesa va bien y al estirar la rodilla se calla: hilo partido o masa que abre en el bucle. El 5 V de lógica se cae cuando cargan las piernas: la lógica está tomada del positivo de los servos, o la masa es común demasiado tarde y el retorno levanta el cero. XT60 a medio insertar: calienta, falsea la tensión y parece una batería muerta. Qué hacer: mover la junta a mano midiendo continuidad del bucle, rehacer la toma de lógica en el buck, y empujar el conector hasta el clic con el pack aún desconectado.</p></div>
+</section>
+<section id="quien-manda">
+<h2>Quién manda <span>06 · dos placas, un reloj</span></h2>
+<div class="prose">
+<p>La arquitectura de este robot es corta. Una placa de tiempo real, un Arduino o un ESP32, habla con los servos, con la IMU y con los pies a un ritmo fijo que ella misma sostiene. Las fichas de cada placa, pinout y precios están en el módulo de hardware de Arduino y en el de Raspberry; aquí no se repiten. Esta página solo dice qué papel tiene cada una.</p>
+<p>El catálogo de placas de la familia Arduino, y las placas del mismo cajón que se usan como ella, está en <a href="../arduino/arduino-hardware.html">el hardware de Arduino</a>. El de la placa mayor está en <a href="../raspberry/raspberry-hardware.html">el hardware de Raspberry</a>. Si falta un pin o una tensión de regulador, se mira allí, no se inventa aquí.</p>
+<p>Una placa mayor, una Raspberry Pi, entra solo si hace falta visión o un plan largo. No es obligatoria para un humanoide que solo anda. Si no hay cámara y no hay un plan que dure más que un paso, la placa de tiempo real se basta. Poner la Pi porque queda seria añade un USB que se puede caer y una masa más que tiene que volver a la estrella.</p>
+<p>Entre ellas, si las dos están, hay un USB o un UART, y hay masa común. La masa del USB no es una segunda estrella: se entiende de dónde entra y se evita el bucle con el pack. La placa de tiempo real no espera a la grande para sostener el servo. Si el enlace se calla, ella sigue con la última orden segura que ya tenía, o quita el par. Esa política se escribe en Control. Aquí importa que el cable USB no forme parte del circuito que aguanta la corriente ni el pulso del servo.</p>
+<p>Una sola fuente manda el reloj de los servos. O la placa de tiempo real genera los PWM, o es dueña del bus semidúplex, o manda el I2C del generador externo. No dos placas dando PWM al mismo servo. No dos maestros en el mismo bus de datos. La Pi, si existe, pide posiciones a la placa pequeña o le entrega un objetivo; no le roba el temporizador.</p>
+</div>
+<div class="diagram">
+<h4>Dos cajas y los buses</h4>
+<svg viewBox="0 0 720 320" role="img" aria-label="Placa de tiempo real unida por USB o UART a una Raspberry opcional, dueña de servos, IMU y pies">
+<rect x="8" y="8" width="704" height="304" fill="#161512" stroke="#2A2720"/>
+<rect x="40" y="40" width="200" height="90" fill="#1C1A16" stroke="#C4A15A"/>
+<text x="140" y="78" text-anchor="middle" fill="#E6E1D6" font-size="14" font-family="Georgia,serif">Tiempo real</text>
+<text x="140" y="100" text-anchor="middle" fill="#9A9488" font-size="11" font-family="Segoe UI,sans-serif">Arduino o ESP32</text>
+<rect x="480" y="40" width="200" height="90" fill="#1C1A16" stroke="#9A9488" stroke-dasharray="4 3"/>
+<text x="580" y="78" text-anchor="middle" fill="#E6E1D6" font-size="14" font-family="Georgia,serif">Placa mayor</text>
+<text x="580" y="100" text-anchor="middle" fill="#9A9488" font-size="11" font-family="Segoe UI,sans-serif">Raspberry, solo si hace falta</text>
+<line x1="240" y1="85" x2="480" y2="85" stroke="#5B8FA8" stroke-width="2"/>
+<text x="360" y="74" text-anchor="middle" fill="#5B8FA8" font-size="11" font-family="Segoe UI,sans-serif">USB o UART</text>
+<text x="360" y="108" text-anchor="middle" fill="#9A9488" font-size="10" font-family="Segoe UI,sans-serif">no sostiene al servo</text>
+<rect x="70" y="190" width="140" height="48" fill="#1C1A16" stroke="#C46A4A"/>
+<text x="140" y="218" text-anchor="middle" fill="#E6E1D6" font-size="12" font-family="Segoe UI,sans-serif">Servos</text>
+<rect x="250" y="190" width="140" height="48" fill="#1C1A16" stroke="#8F9A72"/>
+<text x="320" y="218" text-anchor="middle" fill="#E6E1D6" font-size="12" font-family="Segoe UI,sans-serif">IMU</text>
+<rect x="430" y="190" width="140" height="48" fill="#1C1A16" stroke="#C4A15A"/>
+<text x="500" y="218" text-anchor="middle" fill="#E6E1D6" font-size="12" font-family="Segoe UI,sans-serif">Pies</text>
+<line x1="140" y1="130" x2="140" y2="190" stroke="#C46A4A" stroke-width="2"/>
+<line x1="140" y1="160" x2="320" y2="160" stroke="#8F9A72" stroke-width="2"/>
+<line x1="320" y1="160" x2="320" y2="190" stroke="#8F9A72" stroke-width="2"/>
+<line x1="320" y1="160" x2="500" y2="160" stroke="#C4A15A" stroke-width="2"/>
+<line x1="500" y1="160" x2="500" y2="190" stroke="#C4A15A" stroke-width="2"/>
+<text x="40" y="276" fill="#E6E1D6" font-size="12" font-family="Segoe UI,sans-serif">Una sola dueña del reloj de los servos. La caja de la derecha puede no existir.</text>
+<text x="40" y="296" fill="#9A9488" font-size="11" font-family="Segoe UI,sans-serif">Pinouts y precios: módulos de hardware de Arduino y de Raspberry. Aquí no se repiten.</text>
+</svg>
+<p class="cap">La línea de arriba es un enlace de órdenes. Las tres de abajo salen de la placa de tiempo real. Si la de arriba se cae, las de abajo siguen.</p>
+</div>
+<div class="grid">
+<article class="card" data-name="placa de tiempo real Arduino ESP32">
+<h3>Placa de tiempo real</h3>
+<p class="meta">La que habla con el cuerpo</p>
+<table class="specs"><tbody>
+<tr><th>Quién</th><td>Arduino o ESP32. El catálogo está en el hardware de Arduino, no aquí.</td></tr>
+<tr><th>Qué lleva</th><td>Servos, IMU y pies, a ritmo fijo, sin esperar a otra placa.</td></tr>
+<tr><th>Alimentación</th><td>Raíl de lógica. Los servos no entran por su regulador.</td></tr>
+<tr><th>Reloj</th><td>Es la única dueña del PWM o del bus. No se reparte con la Pi.</td></tr>
+</tbody></table>
+<p class="note">Si eliges la placa por el número de pines o por el USB, se mira el catálogo. El papel, en cualquier caso, es este: tiempo real del cuerpo.</p>
+</article>
+<article class="card" data-name="Raspberry Pi visión plan largo">
+<h3>Placa mayor</h3>
+<p class="meta">Opcional</p>
+<table class="specs"><tbody>
+<tr><th>Quién</th><td>Raspberry Pi. Fichas y pinout en el hardware de Raspberry.</td></tr>
+<tr><th>Cuándo</th><td>Visión, o un plan que no cabe en el ritmo del paso. Para solo andar, no hace falta.</td></tr>
+<tr><th>Qué no hace</th><td>No genera el PWM del servo ni es el segundo maestro del bus.</td></tr>
+<tr><th>Alimentación</th><td>La suya, desde el buck si la hoja de esa Pi lo permite, o su camino propio, masa a la estrella.</td></tr>
+</tbody></table>
+<p class="note">Una Pi que se apaga no puede ser la razón de que el servo se quede clavado con par. Por eso no es ella quien lo alimenta de pulsos.</p>
+</article>
+<article class="card" data-name="enlace USB UART masa común">
+<h3>Enlace entre las dos</h3>
+<p class="meta">Órdenes, no potencia</p>
+<table class="specs"><tbody>
+<tr><th>Medio</th><td>USB o UART. Masa común, pensada, sin segundo bucle con el pack.</td></tr>
+<tr><th>Si se calla</th><td>La de tiempo real no espera. Sostiene ella la última orden segura o quita par.</td></tr>
+<tr><th>Prohibido</th><td>Dos placas dando PWM al mismo servo, o dos maestros en el mismo bus.</td></tr>
+<tr><th>Dónde se escribe el qué</th><td>La política de esa espera es Control. El cable, aquí, no lleva la corriente del servo.</td></tr>
+</tbody></table>
+<p class="note">Un UART de 5 V contra un pin de 3,3 V es el mismo problema de la ficha de nivel. El enlace también se desplaza si las placas no comparten nivel.</p>
+</article>
+</div>
+<div class="warn"><p>Fallos típicos. El servo da una sacudida cuando arranca la Pi: las dos placas hablan al arrancar, o el pin de PWM flota mientras el USB enumera. Se deja la potencia de servos cortada hasta que la placa de tiempo real está en su estado conocido. El bus de una pierna se corrompe cuando enchufas el cable de vídeo o el USB: masa en bucle. Qué hacer: una dueña del reloj, enlace solo de órdenes, estrella única.</p></div>
+</section>
+<section id="seguridad-electrica">
+<h2>Seguridad eléctrica <span>07 · corte, litio, primer encendido</span></h2>
+<div class="prose">
+<p>Una LiPo arde cuando se le pide lo que no sabe hacer: sobrecorriente, sobrecarga por encima de 4,20 V por celda, perforación, aplastamiento, o un cable pelado que cierra el pack en corto. No hace falta un gran teatro. Basta un positivo que roce el canto de aluminio de la cadera, o un balance pinchado por una brida. Las reglas de este taller son cortas. Pack con BMS. Fusible fundible en el positivo, pegado a la batería. Carga fuera, a la vista, en bolsa ignífuga. Nada de pinchar un hinchado. Nada de dejar el pack cargando solo en la habitación. Si huele dulce, se para.</p>
+<p>El fusible se calcula por encima del pico normal y por debajo de lo que aguanta el cable. Ejemplo de taller, no una norma y no una pieza del robot: pico que esperas de 12 A, tronco en 16 AWG que en tramo corto vive holgado respecto a eso, fusible de 15 A. Si tus hojas suman otro pico, el 15 A no se copia. El fusible no protege la placa en abstracto: protege el cable del pack. Va en el positivo, lo bastante cerca del pack como para que un corto aguas abajo pase por él. Un interruptor general corta la potencia de los servos y, si quieres, toda la potencia. Además está el corte de emergencia, que es otro mando.</p>
+<p>El corte de emergencia es un pulsador o un interruptor físico, accesible con el robot en el suelo, sin abrir tapas. Quita la potencia de los motores aunque la lógica siga un segundo. Cortar solo la lógica deja el positivo de los servos vivo. Un PWM que se queda a medias, un pin que flota al reiniciar, o un servo de bus que conserva el último objetivo con el par puesto, mantienen la junta dura o la hacen saltar. Sin positivo de motor, el servo deja de empujar. Puede seguir duro de engranajes, eso es mecánica, pero ya no recibe orden ni corriente de bloqueo. Por eso el corte va en el raíl de servos, no en el botón de reset de la placa.</p>
+<p>El corte por tensión baja lo hace el BMS o la placa, y lo hace antes de matar la celda. Número orientativo: no mandes marcha por debajo de unos 3,5 V por celda en reposo. En 2S, unos 7,0 V. En 3S, unos 10,5 V. Bajo carga verás menos: no uses el bache de un bloqueo como alarma, o pararás cada paso, ni uses el corte de emergencia del BMS, a menudo cerca de 3,0 V o por debajo, como si fuera el nivel de trabajo. El BMS salva la celda de la muerte. El corte de marcha salva la vida útil. Hacen falta los dos.</p>
+<p>Mientras se cablea, la batería está desconectada. No un momento con el conector puesto. La primera prueba de un servo es sin la pierna armada, sujeto, con sitio para un giro completo. Un servo nuevo puede irse a un tope que en la articulación arranca el cuerno o el cable. Se prueba uno, se ve el sentido, se limita el recorrido, y solo después se monta.</p>
+<p>El buck, el BMS y el driver se tocan, con cuidado, después de un rato de trabajo. Si no se puede dejar el dedo, está mal dimensionado o mal refrigerado. Un buck de lógica que quema con la IMU y la placa no es un buck de lógica: está alimentando algo que no debe, o es demasiado justo. Se apaga, se mide, se cambia. No se le pega un ventilador para seguir.</p>
+</div>
+<div class="diagram">
+<h4>El corte de emergencia solo abre servos</h4>
+<svg viewBox="0 0 720 240" role="img" aria-label="Interruptor de emergencia en el positivo de los servos, con el buck de lógica todavía alimentado">
+<rect x="8" y="8" width="704" height="224" fill="#161512" stroke="#2A2720"/>
+<rect x="30" y="40" width="100" height="48" fill="#1C1A16" stroke="#C46A4A"/>
+<text x="80" y="68" text-anchor="middle" fill="#E6E1D6" font-size="12" font-family="Segoe UI,sans-serif">Repartidor</text>
+<line x1="130" y1="64" x2="200" y2="64" stroke="#C46A4A" stroke-width="3"/>
+<line x1="200" y1="64" x2="230" y2="40" stroke="#C46A4A" stroke-width="3"/>
+<circle cx="200" cy="64" r="5" fill="#C4A15A"/>
+<text x="210" y="100" fill="#C4A15A" font-size="11" font-family="Segoe UI,sans-serif">corte abierto</text>
+<line x1="250" y1="64" x2="320" y2="64" stroke="#2A2720" stroke-width="3"/>
+<rect x="320" y="40" width="140" height="48" fill="#1C1A16" stroke="#2A2720"/>
+<text x="390" y="68" text-anchor="middle" fill="#9A9488" font-size="12" font-family="Segoe UI,sans-serif">servos sin positivo</text>
+<line x1="80" y1="88" x2="80" y2="140" stroke="#C4A15A" stroke-width="2"/>
+<line x1="80" y1="140" x2="200" y2="140" stroke="#C4A15A" stroke-width="2"/>
+<rect x="200" y="116" width="150" height="48" fill="#1C1A16" stroke="#8F9A72"/>
+<text x="275" y="144" text-anchor="middle" fill="#E6E1D6" font-size="12" font-family="Segoe UI,sans-serif">lógica sigue</text>
+<text x="370" y="160" fill="#8F9A72" font-size="12" font-family="Segoe UI,sans-serif">un segundo, o los que hagan falta</text>
+<text x="30" y="200" fill="#E6E1D6" font-size="12" font-family="Segoe UI,sans-serif">Cortar el reset de la placa no es un corte de emergencia: el positivo de los servos seguiría vivo.</text>
+</svg>
+<p class="cap">Con el corte abierto no hay camino de potencia hasta los servos. El buck de lógica puede seguir alimentado para que la placa no se reinicie a ciegas.</p>
+</div>
+<div class="ref">
+<p>Antes de conectar el pack, con el conector aún separado, se recorre esta lista. Si un ítem falla, no se sigue al siguiente con el pack puesto.</p>
+<ol class="steps">
+<li>Pack desconectado y apoyo fuera del robot. Tensión medida: 2S no pasa de 8,4 V, 3S no pasa de 12,6 V, ninguna celda por debajo de 3,0 V.</li>
+<li>Polaridad pintada y comprobada dos veces. Rojo al positivo. El lado del clon no se da por bueno.</li>
+<li>El mazo de balance no está metido en un borne de potencia. Va tapado o al cargador, no al repartidor.</li>
+<li>Fusible en serie en el positivo, pegado al pack, valor escrito y acorde al pico y al cable. No un hilo puente hasta el lunes.</li>
+<li>Interruptor general abierto y corte de emergencia en la posición que quita los servos.</li>
+<li>Ningún servo de 7,4 V en un arnés de 3S. Ningún pin de 3,3 V viendo un cable que venga de 5 V.</li>
+<li>Masa en un solo punto. El buck de lógica no alimenta servos. El regulador de la placa tampoco.</li>
+<li>Holgura hecha en cadera, rodilla y tobillo, con cada junta al tope, sin pack. Bridas sin morder. Funda en el roce.</li>
+<li>Primera energía de lógica sola. Fuente de banco con límite de corriente si la tienes, o el buck ya fusionado, todavía sin servos. Luego un servo suelto, sin pierna armada, por si gira entero.</li>
+<li>Al minuto: nada huele dulce, nada hincha, el buck y el BMS se pueden tocar, la tensión por celda sigue sana. Si no, pack fuera.</li>
+</ol>
+</div>
+<div class="grid">
+<article class="card" data-name="fusible positivo interruptor general">
+<h3>Fusible e interruptor</h3>
+<p class="meta">Pegados al pack</p>
+<table class="specs"><tbody>
+<tr><th>Dónde</th><td>Positivo, en serie, tan cerca del pack como el cable permita.</td></tr>
+<tr><th>Valor</th><td>Por encima del pico normal, por debajo de lo que aguanta ese cable. Ejemplo de taller: 12 A de pico y fusible de 15 A, solo si el cable es el del tronco gordo.</td></tr>
+<tr><th>Interruptor</th><td>Corta potencia de servos. Accesible. No es el reset de la placa.</td></tr>
+<tr><th>Qué no es</th><td>El BMS no sustituye al fusible fundible. El fusible no equilibra celdas.</td></tr>
+</tbody></table>
+<p class="note">Un fusible de señal en un cable de 26 AWG no protege un tronco de 16 AWG, y al revés un fusible enorme en un hilo fino no llega a tiempo. Se emparejan.</p>
+</article>
+<article class="card" data-name="corte de emergencia pulsador servos">
+<h3>Corte de emergencia</h3>
+<p class="meta">Físico, a mano, en el raíl de motores</p>
+<table class="specs"><tbody>
+<tr><th>Qué abre</th><td>El positivo de los servos. La lógica puede seguir.</td></tr>
+<tr><th>Por qué no la lógica</th><td>El servo seguiría alimentado: pulso a medias, pin flotante o último objetivo con par.</td></tr>
+<tr><th>Dónde está</th><td>Accesible con el robot en el suelo, sin herramientas.</td></tr>
+<tr><th>Prueba</th><td>Con un servo suelto, se pulsa y el servo deja de empujar. Si sigue empujando, el corte está en el sitio equivocado.</td></tr>
+</tbody></table>
+<p class="note">Se prueba esa función el primer día, no el día del fallo. Un corte que nadie ha pulsado suele estar cableado al revés.</p>
+</article>
+<article class="card" data-name="corte por infratensión 3,5 V por celda">
+<h3>Corte por infratensión</h3>
+<p class="meta">Antes de matar la celda</p>
+<table class="specs"><tbody>
+<tr><th>Marcha</th><td>No ordenar paso por debajo de ~3,5 V por celda en reposo. 2S ~7,0 V. 3S ~10,5 V.</td></tr>
+<tr><th>Bajo carga</th><td>La tensión cae. No uses el bache del bloqueo como único criterio, o pararás cada paso.</td></tr>
+<tr><th>BMS</th><td>Última red, a menudo cerca de 3,0 V o más baja. Salva de la muerte, no administra la marcha.</td></tr>
+<tr><th>Nunca</th><td>3,0 V por celda como si aún quedara un poco. Eso ya es daño.</td></tr>
+</tbody></table>
+<p class="note">Quién mide, si el BMS con histéresis o la placa con un divisor bien dimensionado, depende del hardware que tengas. El número de paro de la marcha es este. Orientativo de uso, no una ficha de BMS.</p>
+</article>
+<article class="card" data-name="primer encendido polaridad checklist">
+<h3>Primer encendido</h3>
+<p class="meta">Pack al final, servo suelto</p>
+<table class="specs"><tbody>
+<tr><th>Mientras cableas</th><td>Batería desconectada.</td></tr>
+<tr><th>Lógica</th><td>Primero sola. Fuente limitada si existe. Sin servos.</td></tr>
+<tr><th>Un servo</th><td>Fuera de la pierna, con sitio para un giro completo.</td></tr>
+<tr><th>Calor</th><td>Buck, BMS y driver se pueden tocar. Si no, se apaga.</td></tr>
+</tbody></table>
+<p class="note">La lista larga está arriba, diez ítems. Esta ficha es el recordatorio: polaridad, un servo, sin la pierna armada, nariz atenta al olor dulce.</p>
+</article>
+</div>
+<div class="warn"><p>Si el pack hincha, se calienta solo o huele dulce: se corta, se saca a un sitio que no prenda, no se pincha y no se carga. Si llega a arder, te apartas, no respiras el humo y usas el medio que tu taller tenga previsto para litio. Esta página no sustituye ese plan. Lo que sí sustituye es la costumbre de probar un momento con el pack puesto mientras pelas un cable.</p></div>
+</section>
+<footer class="foot">
+<p>les vencimos · offline · v20261003a · electrónica del cuerpo. No publicado.</p>
+<p>Catálogos, sin repetir fichas: <a href="../arduino/arduino-hardware.html">Arduino hardware</a> · <a href="../raspberry/raspberry-hardware.html">Raspberry hardware</a>.</p>
+<p>No es Diseño (estructura), no es Control (equilibrio y marcha), no es Enseñanza (curso de montaje). Cifras de tensión de celda, de trama PWM y de sección: de dominio público o marcadas como orientativas de taller. La corriente de bloqueo y la tensión máxima de tu servo se leen en su hoja.</p>
+</footer>
+</main>
+<script>
+(function(){
+  var q=document.getElementById('q');
+  var cards=[].slice.call(document.querySelectorAll('.card'));
+  var count=document.getElementById('count');
+  function filt(){
+    var t=(q&&q.value?q.value:'').trim().toLowerCase();
+    var n=0;
+    for(var i=0;i<cards.length;i++){
+      var c=cards[i];
+      var name=(c.getAttribute('data-name')||'');
+      var h=c.querySelector('h3');
+      if(h) name+=' '+h.textContent;
+      var hay=(name+' '+(c.innerText||'')).toLowerCase();
+      var ok=!t||hay.indexOf(t)!==-1;
+      c.classList.toggle('hidden',!ok);
+      if(ok) n++;
+    }
+    if(count) count.textContent=n+' fichas visibles';
+  }
+  if(q) q.addEventListener('input',filt);
+  filt();
+})();
+</script>
+</body></html>

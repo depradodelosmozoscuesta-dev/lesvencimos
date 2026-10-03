@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Lección 19 · Estática: partícula, sólido y par</title>
+<link rel="stylesheet" href="leccion-shell.css"/>
+<script src="leccion-shell-nav.js" defer></script>
+<style>
+  .pasos{list-style:none;margin:0 0 1rem;padding:0;counter-reset:paso}
+  .pasos li{position:relative;margin:0 0 .7rem;padding:.7rem .8rem .7rem 3.1rem;background:#fff;border:1px solid rgba(14,14,12,.12);border-radius:10px}
+  .pasos li::before{counter-increment:paso;content:counter(paso);position:absolute;left:.65rem;top:.7rem;width:1.7rem;height:1.7rem;border-radius:50%;background:#2F5D7A;color:#fff;font-weight:700;font-size:.9rem;display:flex;align-items:center;justify-content:center}
+  .figura-svg{background:#fff;border:1px solid rgba(14,14,12,.12);border-radius:10px;padding:.4rem;margin:.4rem 0 1rem}
+  .figura-svg svg{width:100%;height:auto;display:block}
+  .ej{margin:0 0 1rem;padding:.85rem .95rem;background:#fff;border:1px solid rgba(14,14,12,.12);border-left:3px solid #C4A15A;border-radius:10px}
+  .ej h3{margin:0 0 .35rem;font-family:var(--lv-serif);font-size:1.05rem;color:#2A2620}
+  .editor,textarea.editor{width:100%;min-height:4.4rem;font-family:ui-monospace,"Cascadia Code","Segoe UI Mono",monospace;font-size:.95rem;line-height:1.4;padding:.55rem .65rem;border:1px solid rgba(14,14,12,.22);border-radius:8px;background:#FFFCF5;color:#2A2620;resize:vertical}
+  .lienzo{display:block;width:100%;height:220px;background:#fff;border:1px solid #2F5D7A;border-radius:8px;touch-action:none;cursor:crosshair}
+  .fila{display:flex;flex-wrap:wrap;gap:.4rem;margin:.45rem 0}
+  .boton{font:inherit;font-weight:700;font-size:.85rem;padding:.35rem .75rem;border-radius:999px;border:1px solid #C4A15A;background:#fff;color:#2A2620;cursor:pointer}
+  .boton.verde{border-color:#3D6B4F;background:#3D6B4F;color:#fff}
+  .porque{margin-top:.5rem;padding:.6rem .7rem;background:#E4F0E8;border-radius:8px;color:#2A2620}
+  .dato{font-size:.95rem;color:#5C564C}
+  .panel-int{padding:.75rem}
+  .panel-int label{display:block;font-weight:650;font-size:.92rem;margin:.35rem 0 .15rem}
+  .ok{color:#3D6B4F}.mal{color:#A85A3C}
+  table.masas{width:100%;border-collapse:collapse;margin:.4rem 0 1rem;font-size:.98rem}
+  table.masas th,table.masas td{border:1px solid rgba(14,14,12,.12);padding:.35rem .5rem;text-align:left}
+  table.masas th{background:#F0EBE0}
+</style>
+</head>
+<body class="leccion-shell">
+<div class="leccion-wrap">
+<nav class="leccion-barra" aria-label="Navegación de lección" data-actual="19" data-total="23">
+  <div class="leccion-progreso" role="status">
+    <span class="progreso-texto"><strong>19</strong> de <strong>23</strong></span>
+    <div class="progreso-pista" aria-hidden="true"><div class="progreso-lleno" style="width:82.61%"></div></div>
+  </div>
+  <div class="leccion-atajos">
+    <a class="atajo atajo-calc" href="../../../modulos/calculadora.html" title="Calculadora offline">Calculadora</a>
+    <a class="atajo atajo-prev" href="leccion-18-leyes-newton.html">← Anterior</a>
+    <a class="atajo atajo-next" href="leccion-20-momento-impulso.html">Siguiente →</a>
+  </div>
+</nav>
+<header class="leccion-top">
+  <a class="leccion-marca" href="../../index.html">Les <span>vencimos</span></a>
+  <p class="leccion-meta-top">Física y Química · 1º Bachillerato</p>
+</header>
+<header class="bloque-titulo" id="maestro-titulo">
+  <span class="eyebrow">Lección 19 · Bloque E · Estática</span>
+  <h1 class="titulo-leccion">Quieta la suma, y aun así <em>puede</em> girar</h1>
+  <p class="meta-leccion">1º Bachillerato Física y Química · Ciencias · Decreto 40/2022 CyL</p>
+</header>
+
+<aside class="bloque-curiosidad" id="maestro-curiosidad">
+  <p class="etiqueta-bloque">Curiosidad histórica</p>
+  <h2 class="titulo-curiosidad">Quieta no significa «sin fuerzas»</h2>
+  <p class="texto-curiosidad">Una lámpara colgada no está sin fuerzas: el peso tira hacia abajo y el techo tira hacia arriba. Está quieta porque esas fuerzas se anulan. En un sólido rígido hace falta algo más: que tampoco haya giro. Un par de fuerzas puede dejar la suma en cero y, aun así, hacer girar el cuerpo.</p>
+</aside>
+<section class="bloque-cuerpo" id="maestro-objetivos">
+  <h2>Objetivos</h2>
+  <ul>
+    <li>Sumar fuerzas perpendiculares con Pitágoras, sin inventar un ángulo en grados.</li>
+    <li>Distinguir el equilibrio de una partícula (la suma de fuerzas es cero) del de un sólido rígido (también la suma de momentos es cero).</li>
+    <li>Calcular el momento de un par: dos fuerzas iguales, paralelas y de sentido contrario, separadas una distancia d. M = F·d.</li>
+    <li>Predecir si un cuerpo se queda o empieza a girar.</li>
+  </ul>
+</section>
+<section class="bloque-cuerpo" id="maestro-explicacion">
+  <h2>Qué significa cada letra</h2>
+  <ul>
+    <li>F, fuerza, en newtons (N). El peso es P = m·g, con g = 9,8 m/s².</li>
+    <li>La resultante es la suma vectorial. Si dos fuerzas son perpendiculares, R = √(F₁² + F₂²).</li>
+    <li>Equilibrio de una partícula: la resultante es cero. No hay aceleración del punto.</li>
+    <li>Momento de una fuerza respecto a un punto: M = F·d, con d la distancia perpendicular desde el punto hasta la recta de la fuerza, en metros. Unidad: N·m.</li>
+    <li>Par de fuerzas: dos fuerzas de igual módulo, paralelas, sentido contrario, que no caen en la misma recta. La suma de fuerzas es cero y el momento del par es F·d, donde d es la distancia entre las dos rectas.</li>
+  </ul>
+  <table class="masas">
+    <thead><tr><th>Caso</th><th>Condición que pides</th><th>Qué puede quedar</th></tr></thead>
+    <tbody>
+      <tr><td>Partícula</td><td>Resultante cero</td><td>Nada: no gira</td></tr>
+      <tr><td>Sólido rígido</td><td>Resultante cero y momentos cero</td><td>Si un momento no es cero, gira</td></tr>
+      <tr><td>Par</td><td>La suma de las dos fuerzas es cero</td><td>El momento F·d</td></tr>
+    </tbody>
+  </table>
+  <p class="dato">Suma de fuerzas cero no implica momento cero. El par de 15 N es la prueba: 15 − 15 = 0 N y M = 6,0 N·m.</p>
+  <div class="figura-svg">
+    <svg viewBox="0 0 720 240" role="img" aria-labelledby="t19">
+      <title id="t19">Resultante 6 N y 8 N, y un par de 15 N separado 0,40 m</title>
+      <rect width="720" height="240" fill="#FAF7F0"/>
+      <line x1="40" y1="150" x2="160" y2="150" stroke="#2F5D7A" stroke-width="3"/>
+      <polygon points="160,150 148,144 148,156" fill="#2F5D7A"/>
+      <text x="70" y="142" font-size="14" fill="#2F5D7A">6 N</text>
+      <line x1="40" y1="150" x2="40" y2="50" stroke="#C4A15A" stroke-width="3"/>
+      <polygon points="40,50 34,62 46,62" fill="#C4A15A"/>
+      <text x="48" y="90" font-size="14" fill="#2A2620">8 N</text>
+      <line x1="40" y1="150" x2="136" y2="70" stroke="#3D6B4F" stroke-width="3"/>
+      <polygon points="136,70 122,74 128,86" fill="#3D6B4F"/>
+      <text x="90" y="100" font-size="14" fill="#3D6B4F">10 N</text>
+      <text x="24" y="200" font-size="13" fill="#5C564C">6² + 8² = 36 + 64 = 100. R = 10 N.</text>
+      <line x1="430" y1="70" x2="620" y2="70" stroke="#2A2620" stroke-width="6"/>
+      <line x1="450" y1="110" x2="450" y2="40" stroke="#2F5D7A" stroke-width="3"/>
+      <polygon points="450,40 444,52 456,52" fill="#2F5D7A"/>
+      <line x1="600" y1="30" x2="600" y2="100" stroke="#C4A15A" stroke-width="3"/>
+      <polygon points="600,100 594,88 606,88" fill="#C4A15A"/>
+      <text x="430" y="140" font-size="14" fill="#2A2620">15 N hacia arriba</text>
+      <text x="430" y="160" font-size="14" fill="#2A2620">15 N hacia abajo, a 0,40 m</text>
+      <text x="430" y="190" font-size="13" fill="#5C564C">Suma de fuerzas = 0. Momento = 15·0,40 = 6,0 N·m.</text>
+    </svg>
+  </div>
+  <h2>Ejemplo resuelto, paso a paso</h2>
+  <ol class="pasos">
+    <li>Una partícula recibe 6,0 N hacia el este y 8,0 N hacia el norte. No están en la misma recta: son perpendiculares.</li>
+    <li>Módulo de la resultante: R = √(6,0² + 8,0²) = √(36 + 64) = √100 = 10 N. No hace falta el grado: la dirección queda dicha como «la de la hipotenusa de 6 y 8».</li>
+    <li>Para que la partícula quede en equilibrio, la tercera fuerza ha de ser 10 N en sentido contrario a esa resultante. Entonces 10 − 10 = 0.</li>
+    <li>Un volante: dos fuerzas de 15 N, paralelas y opuestas, separadas d = 0,40 m. Suma de fuerzas: 15 − 15 = 0 N. No hay traslación del centro.</li>
+    <li>Momento del par: M = F·d = 15·0,40 = 6,0 N·m. El volante sí puede girar. Equilibrio de sólido rígido exigiría que ese momento también fuera cero.</li>
+  </ol>
+  <h2>Segundo ejemplo resuelto</h2>
+  <p>El momento sale otra vez 6,0 N·m y el caso no es el par. Aquí hay una sola fuerza y la distancia va del eje a la recta de esa fuerza. El eje es la recta alrededor de la cual la puerta puede girar.</p>
+  <div class="figura-svg">
+    <svg viewBox="0 0 720 220" role="img" aria-labelledby="t19b">
+      <title id="t19b">Puerta: 12 N perpendiculares a 0,50 m del eje</title>
+      <rect width="720" height="220" fill="#FAF7F0"/>
+      <line x1="70" y1="24" x2="70" y2="176" stroke="#2A2620" stroke-width="6"/>
+      <text x="28" y="20" font-size="14" fill="#2A2620">eje</text>
+      <rect x="70" y="48" width="300" height="104" fill="#fff" stroke="#3D6B4F" stroke-width="2"/>
+      <line x1="370" y1="100" x2="370" y2="36" stroke="#2F5D7A" stroke-width="3"/>
+      <polygon points="370,36 364,48 376,48" fill="#2F5D7A"/>
+      <text x="384" y="72" font-size="15" fill="#2F5D7A">12 N</text>
+      <line x1="70" y1="100" x2="370" y2="100" stroke="#C4A15A" stroke-width="2" stroke-dasharray="5 3"/>
+      <text x="150" y="92" font-size="14" fill="#2A2620">d = 0,50 m</text>
+      <text x="70" y="204" font-size="14" fill="#5C564C">M = 12 · 0,50 = 6,0 N·m. Una sola fuerza: no es el par de 15 N.</text>
+    </svg>
+  </div>
+  <ol class="pasos">
+    <li>Empujas una puerta con F = 12 N, perpendicular a la hoja. La recta de la fuerza queda a d = 0,50 m del eje. d sigue siendo la distancia perpendicular, en metros, la misma letra del momento de arriba.</li>
+    <li>Momento respecto al eje: M = F·d = 12·0,50 = 6,0 N·m. Doce por un medio es seis. La unidad es newton metro, como en el par.</li>
+    <li>El par de 15 N separados 0,40 m también daba 6,0 N·m. El módulo coincide. La situación, no: allí 15 − 15 = 0 N y había dos fuerzas. Aquí la fuerza que tú haces mide 12 N y no tiene pareja dentro de tu mano.</li>
+    <li>Si la puerta no se traslada, el eje responde con 12 N opuestos a la tuya. La suma de fuerzas puede quedar en cero y el momento respecto al eje sigue siendo 6,0 N·m mientras empujas. Por eso una puerta quieta en el marco puede empezar a girar.</li>
+    <li>Para que no gire, el momento contrario tiene que valer también 6,0 N·m. Sirve 12 N a 0,50 m en el otro sentido, o 6,0 N con d = 1,0 m, porque 6,0·1,0 = 6,0. A 0,25 m harían falta 24 N: 24·0,25 = 6,0. Más cerca del eje, más fuerza para el mismo momento. No hay ángulo en grados: la fuerza ya es perpendicular.</li>
+  </ol>
+  <h2>Ejercicios</h2>
+  <p class="dato">Escribe en el editor. El esquema de flechas va en el lienzo de esta página.</p>
+  <article class="ej"><h3>1. Pitágoras</h3>
+    <p>Fuerzas perpendiculares de 5,0 N y 12 N. Calcula el módulo de la resultante.</p>
+    <textarea class="editor" id="e1"></textarea>
+    <details class="porque"><summary>Porqué</summary><p>5² + 12² = 25 + 144 = 169. √169 = 13. La resultante mide 13 N. Es el triple pitagórico 5-12-13, no una aproximación.</p></details>
+  </article>
+  <article class="ej"><h3>2. La tercera fuerza</h3>
+    <p>Esas mismas 5,0 N y 12 N actúan sobre un anillo. ¿Qué tercera fuerza lo deja en equilibrio?</p>
+    <textarea class="editor" id="e2"></textarea>
+    <details class="porque"><summary>Porqué</summary><p>La resultante mide 13 N. La tercera fuerza mide 13 N y va en sentido contrario a esa hipotenusa: 13 − 13 = 0. Si la pones a favor, 13 + 13 = 26 N y el anillo se acelera. No hace falta un grado: el sentido queda dicho como el opuesto a la resultante de 5,0 N y 12 N.</p></details>
+  </article>
+  <article class="ej"><h3>3. Peso y normal</h3>
+    <p>Un libro de 0,50 kg está quieto sobre la mesa. g = 9,8 m/s². Calcula el peso y la normal.</p>
+    <textarea class="editor" id="e3"></textarea>
+    <details class="porque"><summary>Porqué</summary><p>P = 0,50·9,8 = 4,9 N hacia abajo. Como no hay aceleración vertical, N = 4,9 N hacia arriba. No hace falta rozamiento: no hay fuerza horizontal.</p></details>
+  </article>
+  <article class="ej"><h3>4. Par en una llave</h3>
+    <p>Dos fuerzas de 25 N, opuestas y paralelas, separadas 0,20 m. Suma de fuerzas y momento del par.</p>
+    <textarea class="editor" id="e4"></textarea>
+    <details class="porque"><summary>Porqué</summary><p>Suma: 25 − 25 = 0 N. M = 25·0,20 = 5,0 N·m. El centro no se traslada por este par; la llave sí tiende a girar.</p></details>
+  </article>
+  <article class="ej"><h3>5. ¿Partícula o sólido?</h3>
+    <p>La suma de fuerzas sobre una barra es cero y el momento respecto al centro no lo es. ¿Está en equilibrio?</p>
+    <textarea class="editor" id="e5"></textarea>
+    <details class="porque"><summary>Porqué</summary><p>No, si la tratas como sólido rígido. La suma nula cancela la traslación del centro, y un momento distinto de cero produce giro. Una partícula no gira: con suma nula estaría en equilibrio. El par del primer ejemplo lo separa con cifras: 15 − 15 = 0 N y, aun así, M = 15·0,40 = 6,0 N·m. La puerta del segundo ejemplo hace lo mismo con una sola fuerza de 12 N a 0,50 m.</p></details>
+  </article>
+  <h2>Dibuja el par</h2>
+  <p>En el lienzo, una barra, dos flechas de 15 N opuestas y la cota 0,40 m.</p>
+  <canvas id="lienzo19" class="lienzo" width="900" height="220" aria-label="Par de fuerzas"></canvas>
+  <div class="fila"><button type="button" class="boton" id="b19">Borrar lienzo</button></div>
+</section>
+<section class="bloque-vida-real con-figura" id="maestro-vida">
+  <div class="figura" aria-hidden="true"><svg viewBox="0 0 80 80"><rect width="80" height="80" fill="#F0EBE0"/><rect x="18" y="36" width="44" height="8" fill="#2A2620"/><line x1="24" y1="36" x2="24" y2="18" stroke="#2F5D7A" stroke-width="3"/><line x1="56" y1="44" x2="56" y2="62" stroke="#C4A15A" stroke-width="3"/></svg></div>
+  <div class="contenido-vida">
+    <p class="etiqueta-bloque">En la vida real</p>
+    <h2 class="titulo-vida">Dónde se nota el par</h2>
+    <ul>
+      <li>El volante y la llave inglesa: empujas en un sitio y el apoyo empuja al revés. Lo que gira es el momento, no «una fuerza suelta».</li>
+      <li>Un semáforo colgado está en equilibrio de sólido: cables y peso se compensan, y no gira si los momentos también cierran.</li>
+      <li>En el deporte, un golpe que pasa por el centro empuja; uno que pasa lejos del centro, además, rota. Eso enlaza con la lección del momento lineal.</li>
+      <li>La puerta lo cuantifica: 12 N a 0,50 m dan 6,0 N·m. La misma cifra, 6,0 N·m, sale del par de 15 N a 0,40 m. Mismo momento, dos mecanismos distintos.</li>
+    </ul>
+  </div>
+</section>
+<section class="bloque-interactivo" id="maestro-interactivo">
+  <div class="marco-interactivo-cabecera"><span class="etiqueta-interactivo">Problema · en esta página</span></div>
+  <div class="panel-int">
+    <p>Un par. Elige el módulo y la separación. Escribe el momento en N·m, con una cifra decimal si hace falta.</p>
+    <label for="ff">Fuerza de cada rama: <span id="outF">15</span> N</label>
+    <input id="ff" type="range" min="5" max="40" step="5" value="15"/>
+    <label for="dd">Separación: <span id="outD">0,40</span> m</label>
+    <input id="dd" type="range" min="10" max="80" step="10" value="40"/>
+    <textarea class="editor" id="resp19" placeholder="Momento en N·m"></textarea>
+    <div class="fila"><button type="button" class="boton verde" id="chk19">Comprobar</button></div>
+    <p id="msg19" aria-live="polite"></p>
+  </div>
+</section>
+<section class="bloque-reto" id="maestro-reto">
+  <span class="etiqueta-reto">Reto Profesor</span>
+  <h2 class="titulo-reto">Cierra una barra</h2>
+  <p>Una barra de 1,00 m, apoyada en el centro. Cuelga 20 N a 0,30 m a la izquierda del centro. Di qué fuerza, a qué distancia a la derecha, anula el giro. En el lienzo, las dos flechas. g no hace falta: la fuerza ya está en newtons.</p>
+  <textarea class="editor" id="reto19"></textarea>
+  <canvas id="retoCv" class="lienzo" width="900" height="220" aria-label="Barra en equilibrio"></canvas>
+  <div class="fila"><button type="button" class="boton" id="bReto">Borrar lienzo del reto</button></div>
+  <ul>
+    <li>El momento a la izquierda es 20·0,30 = 6,0 N·m.</li>
+    <li>A la derecha, F·d = 6,0 N·m. Sirve, por ejemplo, 20 N a 0,30 m, o 30 N a 0,20 m.</li>
+    <li>No afirmas un ángulo en grados.</li>
+  </ul>
+  <p class="reto-id">reto_id: bach1-fyq-19-estatica</p>
+</section>
+
+<footer class="leccion-pie"><strong>Les vencimos</strong> · 1º Bachillerato Física y Química · Ciencias · Decreto 40/2022 CyL · sin CDN</footer>
+</div>
+<script>
+
+function liga(id, btn){
+  var c = document.getElementById(id); if(!c) return;
+  var ctx = c.getContext('2d');
+  function fondo(){ ctx.fillStyle='#fff'; ctx.fillRect(0,0,c.width,c.height); ctx.strokeStyle='#C4A15A'; ctx.strokeRect(0.5,0.5,c.width-1,c.height-1); }
+  function fit(){ var r=c.getBoundingClientRect(); var w=Math.max(300,Math.floor(r.width)); if(c.width!==w){ c.width=w; c.height=220; fondo(); } }
+  var dib=false, last=null;
+  function pos(ev){ var r=c.getBoundingClientRect(); var src=ev.touches?ev.touches[0]:ev; return {x:(src.clientX-r.left)*c.width/r.width, y:(src.clientY-r.top)*c.height/r.height}; }
+  c.addEventListener('pointerdown', function(ev){ dib=true; last=pos(ev); ev.preventDefault(); });
+  c.addEventListener('pointermove', function(ev){ if(!dib) return; var p=pos(ev); ctx.strokeStyle='#2A2620'; ctx.lineWidth=2.2; ctx.lineCap='round'; ctx.beginPath(); ctx.moveTo(last.x,last.y); ctx.lineTo(p.x,p.y); ctx.stroke(); last=p; ev.preventDefault(); });
+  window.addEventListener('pointerup', function(){ dib=false; });
+  document.getElementById(btn).addEventListener('click', fondo);
+  fit(); window.addEventListener('resize', fit);
+}
+
+
+liga('lienzo19','b19'); liga('retoCv','bReto');
+var ff=document.getElementById('ff'), dd=document.getElementById('dd');
+function refresca(){
+  document.getElementById('outF').textContent = ff.value;
+  document.getElementById('outD').textContent = (dd.value/100).toFixed(2).replace('.',',');
+}
+ff.addEventListener('input', refresca); dd.addEventListener('input', refresca); refresca();
+document.getElementById('chk19').addEventListener('click', function(){
+  var M = (+ff.value) * (+dd.value) / 100;
+  var bruto = document.getElementById('resp19').value.replace(/,/g,'.');
+  var nums = (bruto.match(/\d+(?:\.\d+)?/g)||[]).map(Number);
+  var ok = nums.some(function(n){ return Math.abs(n-M)<0.051; });
+  var msg = document.getElementById('msg19');
+  var txt = M.toFixed(2).replace('.',',');
+  if(ok){ msg.className='ok'; msg.textContent='Sí. M = '+ff.value+' · '+(dd.value/100).toFixed(2).replace('.',',')+' = '+txt+' N·m. La suma de fuerzas sigue siendo cero.'; }
+  else { msg.className='mal'; msg.textContent='M = F·d = '+txt+' N·m. d está en metros: el deslizador va de 0,10 a 0,80.'; }
+});
+
+</script>
+</body>
+</html>

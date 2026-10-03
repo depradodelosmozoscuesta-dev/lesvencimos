@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Laboratorio L05 · Presentaciones: estructura y narrativa</title>
+<style>
+:root{--ink:#0E0E0C;--amber:#C4A15A;--paper:#FAF7F0;--line:rgba(14,14,12,.14);--blue:#2F5D7A;--green:#3D6B4F;--bad:#A85A3C}
+*{box-sizing:border-box}
+body{margin:0;font-family:"Segoe UI",system-ui,sans-serif;background:var(--paper);color:var(--ink);line-height:1.45}
+header{padding:.7rem 1rem;border-bottom:2px solid var(--amber);background:#fff}
+header h1{margin:0;font-size:1.05rem;font-family:Palatino,Georgia,serif}
+header p{margin:.2rem 0 0;font-size:.8rem;color:#5C564C}
+main{padding:.75rem 1rem 2rem;max-width:62rem}
+label{display:block;font-size:.75rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:#5C564C;margin:.55rem 0 .2rem}
+textarea,input[type=text],input[type=number],select{width:100%;font:14px/1.4 ui-monospace,monospace;border:1px solid var(--line);border-radius:6px;padding:.4rem .5rem;background:#fff;color:var(--ink)}
+textarea{min-height:11rem;resize:vertical}
+.row{display:flex;flex-wrap:wrap;gap:.4rem;margin:.5rem 0}
+button{background:var(--amber);color:#1A160E;border:0;border-radius:4px;padding:.45rem .75rem;font-weight:700;cursor:pointer}
+button.sec{background:#fff;border:1px solid var(--line)}
+.grid{display:grid;gap:.75rem}
+@media(min-width:800px){.grid.dos{grid-template-columns:1fr 1fr}}
+iframe.pv,.pv{width:100%;min-height:280px;border:1px solid var(--line);border-radius:8px;background:#fff}
+.out{font-size:.9rem;background:#fff;border:1px solid var(--line);border-radius:8px;padding:.55rem .7rem}
+.ok{color:var(--green);font-weight:700}.bad{color:var(--bad);font-weight:700}
+canvas{width:100%;height:auto;background:#fff;border:1px solid var(--line);border-radius:8px}
+.nota{font-size:.82rem;color:#5C564C}
+.lab-row{display:flex;flex-wrap:wrap;gap:.4rem;margin:.45rem 0}
+.lab-out{font-size:.9rem;background:#fff;border:1px solid var(--line);border-radius:8px;padding:.55rem .7rem;margin-top:.35rem}
+.lab-canvas{width:100%;background:#fff;border:1px solid var(--line);border-radius:8px;display:block}
+.lab-preview{width:100%;min-height:260px;border:1px solid var(--line);border-radius:8px;background:#fff}
+h2{font-family:Palatino,Georgia,serif;font-size:1.05rem}
+</style>
+</head>
+<body>
+<header>
+  <h1>Laboratorio · L05 · Presentaciones: estructura y narrativa</h1>
+  <p>Offline, en esta página. No se envía nada a un servidor. Carbón + ámbar.</p>
+</header>
+<main>
+
+<p class="nota">Guion de diapositivas. Una idea por lámina. La narrativa es inicio, desarrollo y cierre.</p>
+<label for="st">Título de la lámina</label>
+<input id="st" type="text"/>
+<label for="b1">Viñeta 1</label><input id="b1" type="text"/>
+<label for="b2">Viñeta 2</label><input id="b2" type="text"/>
+<label for="b3">Viñeta 3</label><input id="b3" type="text"/>
+<div class="lab-row">
+  <button type="button" id="bPrevS" class="sec">←</button>
+  <button type="button" id="bNextS" class="sec">→</button>
+  <button type="button" id="bAdd">Añadir lámina</button>
+  <button type="button" id="bDel" class="sec">Borrar</button>
+</div>
+<p id="num" class="nota"></p>
+<div id="slide" style="background:#0E0E0C;color:#FAF7F0;border-radius:10px;min-height:11rem;padding:1rem 1.1rem;border-top:4px solid #C4A15A"></div>
+<div id="out" class="lab-out"></div>
+
+</main>
+<script>
+
+function byId(id){return document.getElementById(id);}
+function esc(s){return String(s).replace(/[&<>"]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;"}[c];});}
+function say(html){var o=byId("out"); if(o) o.innerHTML=html;}
+
+
+var slides=[
+  {t:"Semana de la Ciencia", b:["IES Duero · Aranda de Duero","Jueves, salón de actos","Una idea: abrir el laboratorio"]},
+  {t:"Qué vamos a ver", b:["Taller de sensores","Visita al laboratorio","Cierre con preguntas"]},
+  {t:"Cierre", b:["Aforo limitado","Llegar 10 min antes","Gracias"]}
+];
+var i=0;
+function read(){
+  slides[i]={t:byId("st").value, b:[byId("b1").value, byId("b2").value, byId("b3").value]};
+}
+function show(){
+  var s=slides[i];
+  byId("st").value=s.t; byId("b1").value=s.b[0]; byId("b2").value=s.b[1]; byId("b3").value=s.b[2];
+  byId("num").textContent="Lámina "+(i+1)+" de "+slides.length+" · acto "+(i===0?"inicio":(i===slides.length-1?"cierre":"desarrollo"));
+  var lis=s.b.filter(Boolean).map(function(x){return "<li>"+esc(x)+"</li>";}).join("");
+  byId("slide").innerHTML="<p style='letter-spacing:.12em;text-transform:uppercase;color:#C4A15A;font-size:.75rem;margin:0'>IES Duero</p><h2 style='font-family:Georgia,serif;margin:.3rem 0 .6rem'>"+esc(s.t||"(sin título)")+"</h2><ul>"+lis+"</ul>";
+  var longs=s.b.join(" ").length;
+  var msg = s.b.filter(Boolean).length>4 ? "Demasiadas viñetas." : "Jerarquía correcta: título y pocas viñetas.";
+  if((s.t||"").length>48) msg="Título largo: en proyección se parte. Acórtalo.";
+  say(msg);
+}
+byId("bPrevS").onclick=function(){ read(); i=Math.max(0,i-1); show(); };
+byId("bNextS").onclick=function(){ read(); i=Math.min(slides.length-1,i+1); show(); };
+byId("bAdd").onclick=function(){ read(); slides.splice(i+1,0,{t:"Nueva lámina", b:["","",""]}); i++; show(); };
+byId("bDel").onclick=function(){ if(slides.length===1) return; slides.splice(i,1); i=Math.max(0,i-1); show(); };
+["st","b1","b2","b3"].forEach(function(id){ byId(id).addEventListener("input", function(){ read(); show(); }); });
+show();
+
+</script>
+</body>
+</html>

@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<meta name="theme-color" content="#FAF7F0"/>
+<title>Lección 39 · Distribución bidimensional · Les vencimos</title>
+<link rel="icon" href="../../../../brand/favicon/favicon.svg" type="image/svg+xml"/>
+<link rel="manifest" href="../manifest.webmanifest"/>
+<link rel="stylesheet" href="../../../../profesor/_plantilla-leccion/leccion-shell.css"/>
+<link rel="stylesheet" href="../../../../profesor/_maestro/maestro-puntero.css"/>
+<script src="../../../../profesor/_plantilla-leccion/leccion-shell-nav.js" defer></script>
+<script src="../../../../profesor/_maestro/maestro-runtime.js" defer></script>
+<style>
+.editor,textarea.editor{width:100%;min-height:5.5rem;font-family:ui-monospace,monospace;font-size:.95rem;line-height:1.45;padding:.55rem .65rem;border:1px solid rgba(196,161,90,.45);border-radius:8px;background:#161512;color:#E6E1D6;resize:vertical}
+.lienzo{display:block;width:100%;height:260px;background:#161512;border:1px solid #C4A15A;border-radius:8px;touch-action:none;cursor:crosshair;margin:.4rem 0 1rem}
+.fila-lienzo{display:flex;flex-wrap:wrap;gap:.4rem;margin:.45rem 0 1rem}
+.boton-lienzo{font:inherit;font-weight:700;font-size:.85rem;padding:.45rem .85rem;border-radius:999px;border:1px solid #C4A15A;background:transparent;color:#E6E1D6;cursor:pointer}
+</style>
+</head>
+<body class="leccion-shell" data-maestro-json="maestro-39.json">
+<div class="leccion-wrap">
+
+  <nav class="leccion-barra" aria-label="Navegación de lección"
+       data-actual="39" data-total="48">
+    <div class="leccion-progreso" role="status">
+      <span class="progreso-texto"><strong>39</strong> de <strong>48</strong></span>
+      <a class="atajo atajo-maestro" href="?maestro=1">Modo maestro</a>
+      <div class="progreso-pista" aria-hidden="true"><div class="progreso-lleno" style="width:81%"></div></div>
+    </div>
+    <div class="leccion-atajos">
+      <a class="atajo atajo-calc" href="../../../../modulos/calculadora.html" title="Calculadora offline">Calculadora</a>
+      <a class="atajo atajo-prev" href="leccion-38-algoritmos.html" title="Lección anterior">← Anterior</a>
+      <a class="atajo atajo-next" href="leccion-40-regresion.html" title="Lección 40">Siguiente →</a>
+    </div>
+  </nav>
+
+  <header class="leccion-top">
+    <a class="leccion-marca" href="../../../../index.html">Les <span>vencimos</span></a>
+    <p class="leccion-meta-top">1º Bachillerato Matemáticas I · Ciencias y Tecnología</p>
+  </header>
+
+  <header class="bloque-titulo" id="maestro-titulo" data-maestro="titulo">
+    <span class="eyebrow">Lección 39 · Estadística bidimensional</span>
+    <h1 class="titulo-leccion" id="titulo-leccion">Dos sensores, una tabla: <em>conjunta</em>, marginales y condicionada</h1>
+    <p class="meta-leccion">1º Bachillerato Matemáticas I · Ciencias y Tecnología</p>
+  </header>
+
+  <section class="bloque-cuerpo" id="maestro-explicacion" data-maestro="explicacion">
+
+    <h2>Objetivos</h2>
+    <ol>
+      <li>Leer una tabla de parejas (temperatura y luz) y clasificarla con umbrales declarados.</li>
+      <li>Construir la tabla conjunta y las dos marginales.</li>
+      <li>Calcular una probabilidad condicionada por la definición y por la fila, y ver que coinciden.</li>
+    </ol>
+    <h2>Explicación</h2>
+    <h3>Dos variables a la vez</h3>
+    <p>Una distribución bidimensional cuenta parejas. La <strong>conjunta</strong> dice cuántas veces ocurren las dos cosas juntas. La <strong>marginal</strong> suma una fila o una columna y se olvida de la otra variable. La <strong>condicionada</strong> mira solo una fila (o una columna) y reparte dentro de ella.</p>
+    <p>Umbrales de este enunciado, fijados antes de contar: temperatura <em>fría</em> si es menor o igual que 15 °C, y <em>templada</em> si es mayor. Luz <em>baja</em> si la lectura es menor que 300, y <em>alta</em> si es mayor o igual que 300.</p>
+    <p>La conjunta, la marginal y la condicionada no se intercambian. La conjunta pone en el denominador las diez parejas (o las que tenga la lista). La marginal suma una fila o una columna y se olvida de la otra variable. La condicionada se queda dentro de la fila que ya sabes y cambia el denominador. Por eso 3/10, 5/10 y 3/5 pueden ser las tres correctas a la vez: responden a tres preguntas distintas sobre la misma tabla. Si el denominador no es el de la pregunta, el cociente puede estar bien dividido y seguir siendo la respuesta equivocada.</p>
+    <p>El umbral forma parte del enunciado, no del dibujo. 15 °C es fría porque se fijó «menor o igual que 15» antes de contar; 300 de luz es alta porque se fijó «mayor o igual que 300». Mover el corte después de ver una casilla vacía cambia el experimento. Una segunda lista, más abajo, usa los mismos cortes para que las dos tablas se puedan comparar. No es otra definición de fría.</p>
+    <h3 id="maestro-ejemplo-1">Ejemplo 1 · Diez lecturas declaradas</h3>
+    <p>Estos diez pares son datos de ejemplo. No salen de una placa encendida.</p>
+    <table>
+      <caption>Temperatura en grados Celsius y lectura de luz</caption>
+      <thead><tr><th>n</th><th>T (°C)</th><th>luz</th><th>temperatura</th><th>luz</th></tr></thead>
+      <tbody>
+        <tr><td>1</td><td>12</td><td>180</td><td>fría</td><td>baja</td></tr>
+        <tr><td>2</td><td>14</td><td>210</td><td>fría</td><td>baja</td></tr>
+        <tr><td>3</td><td>11</td><td>250</td><td>fría</td><td>baja</td></tr>
+        <tr><td>4</td><td>13</td><td>400</td><td>fría</td><td>alta</td></tr>
+        <tr><td>5</td><td>15</td><td>450</td><td>fría</td><td>alta</td></tr>
+        <tr><td>6</td><td>21</td><td>190</td><td>templada</td><td>baja</td></tr>
+        <tr><td>7</td><td>19</td><td>220</td><td>templada</td><td>baja</td></tr>
+        <tr><td>8</td><td>23</td><td>480</td><td>templada</td><td>alta</td></tr>
+        <tr><td>9</td><td>24</td><td>510</td><td>templada</td><td>alta</td></tr>
+        <tr><td>10</td><td>22</td><td>600</td><td>templada</td><td>alta</td></tr>
+      </tbody>
+    </table>
+    <p>Recuento: fría y baja, 3; fría y alta, 2; templada y baja, 2; templada y alta, 3. Suman 10.</p>
+    <table>
+      <caption>Tabla conjunta (frecuencias absolutas)</caption>
+      <thead><tr><th></th><th>luz baja</th><th>luz alta</th><th>marginal</th></tr></thead>
+      <tbody>
+        <tr><th>fría</th><td>3</td><td>2</td><td>5</td></tr>
+        <tr><th>templada</th><td>2</td><td>3</td><td>5</td></tr>
+        <tr><th>marginal</th><td>5</td><td>5</td><td>10</td></tr>
+      </tbody>
+    </table>
+    <h3 id="maestro-ejemplo-2">Ejemplo 2 · Conjunta, marginal y una condicionada</h3>
+    <p>Con diez parejas equiprobables (cada fila de la lista es un caso):</p>
+    <ul>
+      <li>Conjunta: P(fría y baja) = 3/10.</li>
+      <li>Marginal de la temperatura: P(fría) = 5/10 = 1/2. P(templada) = 1/2.</li>
+      <li>Marginal de la luz: P(baja) = 5/10 = 1/2. P(alta) = 1/2.</li>
+    </ul>
+    <p>Condicionada por dos caminos.</p>
+    <ol>
+      <li>Definición: P(baja | fría) = P(baja y fría) / P(fría) = (3/10) / (1/2) = 3/5.</li>
+      <li>Dentro de la fila «fría» hay 5 lecturas y 3 son de luz baja: 3/5.</li>
+    </ol>
+    <p>Los dos caminos dan 3/5. No es la conjunta 3/10: condicionar cambia el denominador.</p>
+        <h3 id="maestro-ejemplo-3">Ejemplo 3 · Otras ocho parejas, mismos umbrales</h3>
+    <p>Datos de ejemplo, no leídos de una placa. Mismos cortes: fría si T ≤ 15 °C; luz baja si la lectura es menor que 300.</p>
+    <table>
+      <caption>Ocho parejas declaradas para una segunda conjunta</caption>
+      <thead><tr><th>n</th><th>T (°C)</th><th>luz</th><th>clase</th></tr></thead>
+      <tbody>
+        <tr><td>1</td><td>10</td><td>100</td><td>fría y baja</td></tr>
+        <tr><td>2</td><td>16</td><td>100</td><td>templada y baja</td></tr>
+        <tr><td>3</td><td>16</td><td>300</td><td>templada y alta</td></tr>
+        <tr><td>4</td><td>18</td><td>299</td><td>templada y baja</td></tr>
+        <tr><td>5</td><td>9</td><td>301</td><td>fría y alta</td></tr>
+        <tr><td>6</td><td>20</td><td>700</td><td>templada y alta</td></tr>
+        <tr><td>7</td><td>14</td><td>150</td><td>fría y baja</td></tr>
+        <tr><td>8</td><td>15</td><td>299</td><td>fría y baja</td></tr>
+      </tbody>
+    </table>
+    <ol>
+      <li>Paso 1. Recuento: fría y baja, 3 (filas 1, 7 y 8); fría y alta, 1 (fila 5); templada y baja, 2 (filas 2 y 4); templada y alta, 2 (filas 3 y 6). 3 + 1 + 2 + 2 = 8.</li>
+      <li>Paso 2. Marginales: P(fría) = 4/8 = 1/2, P(templada) = 1/2, P(baja) = 5/8, P(alta) = 3/8. La luz ya no sale equilibrada, aunque la temperatura sí. En la tabla de diez parejas las dos marginales de luz eran 1/2; aquí no. El equilibrio no es una propiedad del método.</li>
+      <li>Paso 3. P(alta | fría) por la definición: P(alta y fría) / P(fría) = (1/8) / (1/2) = 1/4. Por la fila fría: 1 alta de 4 frías, también 1/4. Dentro de esa fila, P(baja | fría) = 3/4 y 1/4 + 3/4 = 1.</li>
+    </ol>
+    <p>El 15 °C de la fila 8 sigue siendo fría, y el 299 sigue siendo luz baja. Si alguien sube el corte de luz a 299 para «colar» esa fila en alta, la casilla fría y baja pasa de 3 a 2 y la condicionada ya no es 1/4. Eso no corrige la cuenta: cambia el enunciado después de contar.</p>
+        <h3 id="maestro-vuelta">Comprobación cruzada · ¿salen independientes?</h3>
+    <p>En las ocho parejas, P(fría y alta) = 1/8 y P(fría)·P(alta) = (1/2)·(3/8) = 3/16. 1/8 = 2/16, que no es 3/16. La diferencia es 1/16. No son independientes: saber que hace frío cambia la probabilidad de luz alta. Ya lo decía la condicionada, 1/4, distinta de la marginal 3/8. 1/4 − 3/8 = 2/8 − 3/8 = −1/8. El producto de marginales es otra forma de ver el mismo desajuste, no un tercer concepto suelto.</p>
+    <p>En la tabla de diez parejas pasa algo parecido con otros números: P(fría y baja) = 3/10 y P(fría)·P(baja) = (1/2)·(1/2) = 1/4. 3/10 − 1/4 = 6/20 − 5/20 = 1/20. Tampoco son independientes, aunque las dos marginales valgan 1/2 y la tabla «se vea equilibrada». El equilibrio de los márgenes no obliga a la conjunta 1/4. La casilla es 3/10, y 3/10 se queda.</p>
+    <p>Las ocho parejas, ahora en frecuencias relativas, para ver que la conjunta ya suma 1 sin esperar a la condicionada:</p>
+    <table>
+      <caption>Conjunta relativa de las ocho parejas</caption>
+      <thead><tr><th></th><th>luz baja</th><th>luz alta</th><th>marginal</th></tr></thead>
+      <tbody>
+        <tr><th>fría</th><td>3/8</td><td>1/8</td><td>4/8</td></tr>
+        <tr><th>templada</th><td>2/8</td><td>2/8</td><td>4/8</td></tr>
+        <tr><th>marginal</th><td>5/8</td><td>3/8</td><td>8/8</td></tr>
+      </tbody>
+    </table>
+    <p>3/8 + 1/8 + 2/8 + 2/8 = 8/8. La fila fría en relativas es 3/8 y 1/8, y al condicionar se divide entre 4/8, no entre 8/8: (1/8) / (4/8) = 1/4, el mismo resultado del ejemplo 3. Dividir la casilla entre el total de la tabla, en vez de entre la fila, devuelve la conjunta 1/8 y contesta otra pregunta.</p>
+    <h3 id="maestro-error">Error típico</h3>
+    <p>Dividir 3 entre 10 y llamar a eso «probabilidad de luz baja sabiendo que hace frío». 3/10 es la conjunta. La condicionada usa solo los 5 casos fríos: 3/5. Otro fallo es mover el umbral después de ver la tabla para que «quede bonita»: el umbral de esta lección está fijado (15 °C y 300) antes del recuento.</p>
+    
+<figure class="ilustracion-slot" id="maestro-svg">
+<svg viewBox="0 0 320 160" width="320" height="160" role="img" aria-label="Tabla de doble entrada: temperatura frente a luz, con totales al margen.">
+  <rect x="1" y="1" width="318" height="158" fill="#FAF7F0" stroke="#0E0E0C"/>
+  <text x="16" y="22" font-size="13" fill="#0E0E0C">Conjunta y marginales (n = 10)</text>
+  <rect x="110" y="36" width="90" height="28" fill="#FAF7F0" stroke="#C4A15A"/>
+  <rect x="200" y="36" width="90" height="28" fill="#FAF7F0" stroke="#C4A15A"/>
+  <text x="155" y="55" text-anchor="middle" font-size="12" fill="#0E0E0C">luz baja</text>
+  <text x="245" y="55" text-anchor="middle" font-size="12" fill="#0E0E0C">luz alta</text>
+  <rect x="16" y="64" width="94" height="28" fill="#FAF7F0" stroke="#0E0E0C"/>
+  <text x="63" y="83" text-anchor="middle" font-size="12" fill="#0E0E0C">fría</text>
+  <rect x="110" y="64" width="90" height="28" fill="#FAF7F0" stroke="#0E0E0C"/>
+  <text x="155" y="83" text-anchor="middle" font-size="14" fill="#0E0E0C">3</text>
+  <rect x="200" y="64" width="90" height="28" fill="#FAF7F0" stroke="#0E0E0C"/>
+  <text x="245" y="83" text-anchor="middle" font-size="14" fill="#0E0E0C">2</text>
+  <rect x="16" y="92" width="94" height="28" fill="#FAF7F0" stroke="#0E0E0C"/>
+  <text x="63" y="111" text-anchor="middle" font-size="12" fill="#0E0E0C">templada</text>
+  <rect x="110" y="92" width="90" height="28" fill="#FAF7F0" stroke="#0E0E0C"/>
+  <text x="155" y="111" text-anchor="middle" font-size="14" fill="#0E0E0C">2</text>
+  <rect x="200" y="92" width="90" height="28" fill="#FAF7F0" stroke="#0E0E0C"/>
+  <text x="245" y="111" text-anchor="middle" font-size="14" fill="#0E0E0C">3</text>
+  <text x="16" y="146" font-size="12" fill="#0E0E0C">Margen frío: 5 · margen baja: 5</text>
+</svg>
+</figure>
+
+    
+<h3 id="maestro-desarrollo">Tu desarrollo</h3>
+<p>Escribe aquí los pasos, con unidades o fracciones. Puedes borrar el rótulo y usar el hueco como papel.</p>
+<div class="tarjeta" contenteditable="true" spellcheck="true" aria-label="Tu desarrollo">Tu desarrollo</div>
+
+    <h3 id="maestro-comprueba">Comprueba</h3>
+<details>
+<summary>Comprueba · la suma de la tabla</summary>
+<p>Por qué: 3 + 2 + 2 + 3 = 10, que es el número de parejas. Si una casilla no cuadra, se ha clasificado mal un umbral: 15 °C sigue siendo fría, 300 de luz ya es alta.</p>
+</details>
+<details>
+<summary>Comprueba · el cociente (3/10) / (1/2)</summary>
+<p>Por qué: dividir por 1/2 es multiplicar por 2. (3/10) · 2 = 6/10 = 3/5. No es 3/20.</p>
+</details>
+<details>
+<summary>Comprueba · la fila fría</summary>
+<p>Por qué: en esa fila los casos son 3 y 2. La condicionada de «baja» es 3/(3+2) = 3/5, la de «alta» es 2/5, y 3/5 + 2/5 = 1. Dentro de la fila, las condicionadas se agotan.</p>
+</details>
+    <details class="extra-placa" id="maestro-placa"><summary>Si tienes una placa (opcional)</summary><p>No es obligatorio tener la placa para seguir la lección. Lo que sigue es un ejemplo declarado: si no tienes Arduino Uno o Nano, usa los números ya escritos y continúa.</p><pre>// Arduino Uno o Nano.
+// Luz (LDR en divisor) en A0. Segundo sensor analógico en A1.
+// La tabla de la lección es un ejemplo ya declarado: no hace falta leer la placa.
+void setup() {
+  Serial.begin(9600);
+}
+void loop() {
+  int luz = analogRead(A0);     // 0..1023
+  int otro = analogRead(A1);    // 0..1023
+  Serial.print(luz);
+  Serial.print(" ");
+  Serial.println(otro);
+  delay(1000);
+}</pre>
+    <p>Las diez filas de arriba son las que entran en la conjunta. Umbrales usados en la cuenta: fría si T ≤ 15; luz baja si la lectura &lt; 300. Con eso salen las casillas 3, 2, 2 y 3.</p>
+</details>
+
+  </section>
+
+  <section class="bloque-cuerpo" id="maestro-cierre" data-maestro="cierre">
+    <h2>Cierre</h2>
+    <p>De las diez parejas declaradas salen las casillas 3, 2, 2 y 3. P(fría y baja) = 3/10, P(fría) = 1/2 y P(baja | fría) = 3/5, tanto por la definición como contando dentro de la fila.</p>
+  </section>
+
+  <section class="bloque-reto" id="maestro-reto" data-maestro="reto">
+    <span class="etiqueta-reto">Reto</span>
+    <h2 class="titulo-reto">Otra condicionada, misma tabla</h2>
+    <p>Con la misma tabla, calcula P(alta | templada) de las dos maneras (definición y fila). Comprueba que las dos condicionadas de esa fila suman 1. No hace falta la placa.</p>
+    <p class="reto-id">reto_id: bach1-mates-i-L39</p>
+  </section>
+
+  <footer class="leccion-pie">
+    <strong>Les vencimos</strong> · L39 de 48 · shell HTML · offline / file:// · sin instalar
+  </footer>
+</div>
+
+<section class="bloque-cuerpo" id="maestro-editor">
+  <h2>Tu resolución</h2>
+  <p>Escribe el desarrollo en este cuadro. Si necesitas un boceto, dibújalo en el lienzo de esta misma página. No se envía a ningún sitio.</p>
+  <label for="razonamiento-39">Tu resolución</label>
+  <textarea class="editor" id="razonamiento-39" placeholder="Dato… Modelo… Cálculo… Comprobación…"></textarea>
+  <p>Lienzo para el boceto.</p>
+  <canvas id="lienzo-39" class="lienzo" width="900" height="260" aria-label="Lienzo para el boceto de la lección 39"></canvas>
+  <div class="fila-lienzo"><button type="button" class="boton-lienzo" data-clear="lienzo-39">Borrar lienzo</button></div>
+</section>
+<script type="application/json" data-maestro="guion">
+{
+  "curso": "bach1-mates-i",
+  "leccion": 39,
+  "titulo": "Distribución bidimensional",
+  "url": "leccion-39-bidimensional.html",
+  "musica": false,
+  "pasos": [
+    {
+      "id": "intro",
+      "decir": "Diez parejas declaradas de temperatura y luz. Vamos a la conjunta, a los márgenes y a una condicionada.",
+      "ancla": "#maestro-titulo",
+      "puntero": true,
+      "esperaMs": 400
+    },
+    {
+      "id": "umbrales",
+      "decir": "Fría hasta 15 grados inclusive. Luz baja por debajo de 300. Esos cortes no se mueven después de contar.",
+      "ancla": "#maestro-explicacion",
+      "puntero": true,
+      "esperaMs": 280
+    },
+    {
+      "id": "tabla",
+      "decir": "El recuento es 3, 2, 2 y 3. Suman 10. La marginal de fría es 5 y la de luz baja también es 5.",
+      "ancla": "#maestro-ejemplo-1",
+      "puntero": true,
+      "esperaMs": 280
+    },
+    {
+      "id": "condicionada",
+      "decir": "P de baja sabiendo fría es 3 décimos entre un medio, o sea 3 quintos. En la fila fría, 3 de 5. Coinciden.",
+      "ancla": "#maestro-ejemplo-2",
+      "puntero": true,
+      "esperaMs": 280
+    },
+    {
+      "id": "ej3",
+      "decir": "Ejemplo tres. Ocho parejas nuevas, mismos cortes: casillas 3, 1, 2 y 2. P de luz alta sabiendo fría es 1 octavo entre un medio, un cuarto, igual que 1 de 4 en la fila.",
+      "ancla": "#maestro-ejemplo-3",
+      "puntero": true,
+      "esperaMs": 280
+    },
+    {
+      "id": "error",
+      "decir": "3 décimos es la conjunta, no la condicionada. La condicionada divide entre la marginal.",
+      "ancla": "#maestro-error",
+      "puntero": true,
+      "esperaMs": 280
+    },
+    {
+      "id": "placa",
+      "decir": "La placa solo leería dos analógicos. La lección usa la tabla ya escrita.",
+      "ancla": "#maestro-placa",
+      "puntero": true,
+      "esperaMs": 280
+    },
+    {
+      "id": "cierre",
+      "decir": "Conjunta, marginal y condicionada son tres preguntas distintas.",
+      "ancla": "#maestro-cierre",
+      "puntero": true,
+      "esperaMs": 280
+    },
+    {
+      "id": "reto",
+      "decir": "El reto pide la condicionada de luz alta sabiendo templada, por los dos caminos.",
+      "ancla": "#maestro-reto",
+      "puntero": true,
+      "esperaMs": 280
+    }
+  ]
+}
+</script>
+<script>(function(){function liga(c){var ctx=c.getContext('2d');function fondo(){ctx.fillStyle='#161512';ctx.fillRect(0,0,c.width,c.height);ctx.strokeStyle='#C4A15A';ctx.strokeRect(.5,.5,c.width-1,c.height-1);}function fit(){var r=c.getBoundingClientRect();var w=Math.max(320,Math.floor(r.width));if(c.width!==w){c.width=w;c.height=260;fondo();}}var dib=false,last=null;function pos(ev){var r=c.getBoundingClientRect();var s=ev.touches?ev.touches[0]:ev;return{x:(s.clientX-r.left)*c.width/r.width,y:(s.clientY-r.top)*c.height/r.height};}c.addEventListener('pointerdown',function(ev){dib=true;last=pos(ev);try{c.setPointerCapture(ev.pointerId);}catch(e){}ev.preventDefault();});c.addEventListener('pointermove',function(ev){if(!dib)return;var p=pos(ev);ctx.strokeStyle='#E6E1D6';ctx.lineWidth=2.2;ctx.lineCap='round';ctx.beginPath();ctx.moveTo(last.x,last.y);ctx.lineTo(p.x,p.y);ctx.stroke();last=p;ev.preventDefault();});function up(){dib=false;}c.addEventListener('pointerup',up);c.addEventListener('pointerleave',up);var b=document.querySelector('[data-clear="'+c.id+'"]');if(b)b.addEventListener('click',fondo);fit();window.addEventListener('resize',fit);}document.querySelectorAll('canvas.lienzo').forEach(liga);})();</script>
+</body>
+</html>

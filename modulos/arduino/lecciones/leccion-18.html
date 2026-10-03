@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="color-scheme" content="dark">
+<title>L18 · Distancia o temperatura: la idea · les vencimos</title>
+<style>
+:root{--bg:#0E0E0C;--surf:#161512;--panel:#1C1A16;--ink:#E6E1D6;--mut:#9A9488;--acc:#C4A15A;--acc-ink:#1A160E;--danger:#C46A4A;--ok:#8F9A72;--line:#2A2720}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:400 17px/1.55 "Segoe UI",system-ui,sans-serif}
+h1,h2,h3{font-family:"Iowan Old Style",Palatino,Georgia,serif;font-weight:600;line-height:1.25}
+a{color:var(--acc)}
+.wrap{max-width:42rem;margin:0 auto;padding:1.25rem 1.1rem 3.5rem}
+header.top{border-bottom:1px solid var(--line);padding-bottom:.8rem;margin-bottom:1.2rem}
+.marca{font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;color:var(--mut);margin:0}
+h1{font-size:1.7rem;margin:.35rem 0 .2rem}
+.meta{color:var(--mut);margin:0 0 .8rem;font-size:.92rem}
+nav.pasos{display:flex;flex-wrap:wrap;gap:.5rem;margin:.4rem 0 0}
+nav.pasos a,button{min-height:44px;padding:.45rem .8rem;border:1px solid var(--line);border-radius:2px;background:var(--surf);color:var(--ink);font:inherit;text-decoration:none;cursor:pointer}
+button.acc{background:var(--acc);color:var(--acc-ink);border-color:var(--acc);font-weight:600}
+.maestro{background:var(--panel);border:1px solid var(--line);padding:1rem 1.05rem;margin:1.1rem 0}
+.maestro h2{margin:.1rem 0 .6rem;font-size:1.05rem;color:var(--acc)}
+pre{background:var(--surf);border:1px solid var(--line);padding:.9rem 1rem;overflow:auto;font-size:.88rem;line-height:1.45}
+.warn{border-left:3px solid var(--danger);padding:.2rem 0 .2rem .8rem;color:var(--ink)}
+.quiz{margin-top:1.2rem}
+figure{margin:1rem 0;background:#161512;border:1px solid var(--line);padding:.55rem .7rem}
+figure svg{width:100%;height:auto;display:block}
+figcaption{color:var(--mut);font-size:.9rem;margin:.45rem 0 0}
+.ejemplo{background:#161512;border:1px solid var(--line);padding:.8rem .95rem;margin:.7rem 0}
+.ejemplo h3{margin:.1rem 0 .4rem;font-size:1.05rem}
+
+.pregunta{background:var(--surf);border:1px solid var(--line);padding:.8rem 1rem;margin:.7rem 0}
+.respuesta{color:var(--ok);margin:.55rem 0 0}
+footer{margin-top:2.2rem;padding-top:.8rem;border-top:1px solid var(--line);color:var(--mut);font-size:.82rem}
+.pend{color:var(--mut)}
+ol.temario{padding-left:1.2rem}
+ol.temario li{margin:.28rem 0}
+
+.sim,.anota{margin:1rem 0;background:#161512;border:1px solid var(--line);padding:.8rem .9rem}
+.sim h2,.anota h2{margin:.1rem 0 .4rem;font-size:1.15rem}
+.sim-canvas{width:100%;height:auto;background:#1C1A16;border:1px solid var(--line);margin:.6rem 0;display:block}
+.sim-lab{display:flex;align-items:center;gap:.6rem;margin:.4rem 0;color:var(--ink)}
+.sim-range{flex:1;min-height:44px}
+.sim-out{min-width:3rem;color:var(--acc)}
+.sim-dedo{margin-top:.4rem}
+textarea.nota-montaje{width:100%;min-height:8rem;background:#1C1A16;color:var(--ink);border:1px solid var(--line);padding:.7rem;font:inherit;line-height:1.45}
+
+</style>
+</head>
+<body>
+<article class="wrap" id="ens-distancia-temperatura" data-ens="ens-distancia-temperatura">
+<header class="top">
+<p class="marca">les vencimos · offline</p>
+<h1>L18. Distancia o temperatura: la idea</h1>
+<p class="meta">Sensores (38–54%)</p>
+<nav class="pasos"><a href="../arduino-ensenanza.html">Al curso</a><a href="leccion-17.html">Anterior</a><a href="leccion-19.html">Siguiente</a></nav>
+</header>
+<section class="maestro" id="maestro">
+<h2>Maestro</h2>
+<p id="maestro-texto">Dos sensores más, una sola idea: el chip no «ve» el mundo, traduce tiempo o tensión a un número, y el número miente si la traducción no se cumple. El de distancia del ejemplo dispara un pulso y mide cuánto tarda el eco. El de temperatura, en general, entrega una tensión o un dato. No hay catálogo. Hay un sketch y un aviso.</p>
+<button type="button" class="acc" id="escuchar">Escuchar</button>
+</section>
+<section class="lectura">
+<p>El HC-SR04 tiene cuatro pines útiles: alimentación 5V, GND, disparo y eco. En el curso, disparo al pin 7 y eco al pin 8. El programa pone el disparo en alto unos microsegundos, luego mide con pulseIn cuánto permanece alto el eco. La duración va en microsegundos. Partir entre 58 da centímetros, una cuenta práctica para el aire de la habitación: ida y vuelta del sonido. Si el eco no vuelve, porque apuntas al vacío o al revés, pulseIn espera y el número no es una distancia. Es un fallo. Por eso el sketch solo se fía de un valor corto: si sale menos de 20 cm, enciende el LED 13. Lejos, o silencio, LED apagado.</p>
+<p>No hace falta Serial para ese aviso. Acércate la mano al sensor. La luz debe encenderse cerca y apagarse al retirarte. Si está siempre encendida, el umbral o el cable de eco están mal, no «la fórmula».</p>
+<p>Un sensor de temperatura hace otra traducción. Algunos entregan una tensión que sube con los grados, y entonces analogRead basta, como el potenciómetro. Otros hablan por un bus y entregan ya el número. Eso, el bus, es una lección posterior. Quédate con esto: sin la hoja del sensor no inventes la cuenta de grados. Distancia hoy, temperatura solo como idea, para no comprar a ciegas.</p>
+<p class="warn">El módulo de ultrasonidos del ejemplo es de 5 voltios, como el Uno. En una placa de 3,3, el pin de eco puede venir demasiado alto. No lo pases de una familia a la otra sin mirar Hardware.</p>
+</section>
+<h2>Montaje</h2>
+<figure><svg viewBox="0 0 640 200" aria-label="HC-SR04"><rect x="16" y="36" width="130" height="130" rx="6" fill="#1C1A16" stroke="#C4A15A"/><text x="81.0" y="54" text-anchor="middle" fill="#E6E1D6" font-size="13">Uno</text><text x="26" y="74" fill="#9A9488" font-size="11">5 V</text><text x="26" y="90" fill="#9A9488" font-size="11">trig 7</text><text x="26" y="106" fill="#9A9488" font-size="11">echo 8</text><text x="26" y="122" fill="#9A9488" font-size="11">GND</text><rect x="280" y="50" width="200" height="90" rx="8" fill="#1C1A16" stroke="#C4A15A"/><circle cx="330" cy="95" r="22" fill="#161512" stroke="#5B8FA8"/><circle cx="430" cy="95" r="22" fill="#161512" stroke="#8F9A72"/><text x="330" y="99" text-anchor="middle" fill="#E6E1D6" font-size="11">T</text><text x="430" y="99" text-anchor="middle" fill="#E6E1D6" font-size="11">E</text><text x="380" y="40" text-anchor="middle" fill="#9A9488" font-size="12">HC-SR04 · 5 V</text><line x1="146" y1="70" x2="280" y2="70" stroke="#C46A4A" stroke-width="3"/><line x1="146" y1="96" x2="280" y2="78" stroke="#5B8FA8" stroke-width="3"/><line x1="146" y1="122" x2="280" y2="112" stroke="#C4A15A" stroke-width="3"/><line x1="146" y1="148" x2="280" y2="130" stroke="#8F9A72" stroke-width="3"/></svg><figcaption>Trig en el 7, echo en el 8, alimentación del HC-SR04 a 5 V y su GND al GND de la placa. El LED del 13 solo se enciende si el eco volvió y hay menos de 20 cm.</figcaption></figure>
+<h2>Pines de esta lección</h2>
+<figure><svg viewBox="0 0 340 118" aria-label="Pines de la lección"><rect x="6" y="16" width="328" height="86" rx="8" fill="#1C1A16" stroke="#C4A15A"/><text x="16" y="14" fill="#9A9488" font-size="11">Uno R3 · 5 V · mira la serigrafía, no la memoria</text><rect x="16" y="32" width="68" height="32" rx="4" fill="#161512" stroke="#C4A15A"/><text x="50" y="53" text-anchor="middle" fill="#E6E1D6" font-size="13">7</text><text x="50" y="84" text-anchor="middle" fill="#9A9488" font-size="10">trig</text><rect x="94" y="32" width="68" height="32" rx="4" fill="#161512" stroke="#9A9488"/><text x="128" y="53" text-anchor="middle" fill="#E6E1D6" font-size="13">8</text><text x="128" y="84" text-anchor="middle" fill="#9A9488" font-size="10">echo</text><rect x="172" y="32" width="68" height="32" rx="4" fill="#161512" stroke="#9A9488"/><text x="206" y="53" text-anchor="middle" fill="#E6E1D6" font-size="13">5 V</text><text x="206" y="84" text-anchor="middle" fill="#9A9488" font-size="10">sensor</text><rect x="250" y="32" width="68" height="32" rx="4" fill="#161512" stroke="#9A9488"/><text x="284" y="53" text-anchor="middle" fill="#E6E1D6" font-size="13">GND</text><text x="284" y="84" text-anchor="middle" fill="#9A9488" font-size="10">común</text></svg><figcaption>El 7 habla un instante. El 8 escucha el tiempo. No los cruces y luego culpes a la fórmula.</figcaption></figure>
+<h2>Por qué</h2>
+<p>El HC-SR04 no dice centímetros. Dice un tiempo. Tú mandas un pulso de 10 microsegundos por trig. El módulo responde con un pulso en echo cuya duración es el viaje del sonido, ida y vuelta. Dividir esos microsegundos entre 58 da centímetros, una cuenta práctica para el aire de una habitación. No es exacta en el milímetro, y no hace falta.</p><p>pulseIn puede no volver si no hay eco: el objeto está demasiado lejos, demasiado torcido, o el cable de echo está suelto. Por eso el tercer argumento, 30000 microsegundos, corta la espera. Si duracion sale 0, no hay medida. Encender el LED con un 0 sería mentir. El if pide duracion mayor que 0 y además menos de 20 cm.</p><p>El sensor se alimenta a 5 V de la placa, no desde un pin. Cuatro hilos: 5 V, GND, trig, echo. Si falta la masa, el echo flota y a veces lees distancias imposibles. Si trig y echo están cruzados, oyes silencio: el 7 espera un eco que nadie manda y el 8 recibe un disparo que no sabe leer.</p><p>20 cm es una decisión de la lección, como el umbral del LDR. Cambiarla es cambiar el proyecto, no calibrar el sonido. El delay de 60 ms al final deja al módulo descansar entre medidas. Quitarlo del todo puede dar lecturas dobles.</p><h2>Práctica</h2>
+<ol><li>Cuatro cables: 5 V del módulo a 5 V, GND a GND, trig al 7, echo al 8.</li><li>Nada de pin 13 hacia el módulo. El 13 es solo el LED.</li><li>Carga el sketch. Apunta el sensor a tu palma, a unos 10 cm.</li><li>El LED debe encenderse. Apártate a un metro. Debe apagarse.</li><li>Tapa el sensor con un libro casi pegado, sin tocar las patillas. Tiene que seguir viendo corto, o callarse si no hay eco limpio. Anota cuál de las dos cosas pasa.</li><li>Cruza a propósito trig y echo, mira que deja de tener sentido, y vuelve a dejarlos como el dibujo.</li><li>No mires centímetros en el monitor. El contrato de esta lección es el LED y los 20 cm.</li></ol><section class="sim" data-sim="umbral" data-a="20" data-b="lt"><h2>Práctica en la página</h2><p>Por debajo de 20 cm, y con eco, el LED enciende. Arranca en 10 cm. La simulación arranca encendida.</p><button type="button" class="sim-toggle" aria-pressed="true">Parar simulación</button><canvas class="sim-canvas" width="320" height="160" aria-label="Simulación del circuito"></canvas><label class="sim-lab">Centímetros <input class="sim-range" type="range" min="0" max="200" value="10"></label><output class="sim-out"></output></section><h2>Ejemplos resueltos</h2>
+<div class="ejemplo"><h3>Siempre apagado</h3><p>Echo está en el 7 y trig en el 8, al revés del sketch. O la masa del módulo se quedó en una fila que no es el carril azul. pulseIn caduca, duracion es 0, y el if impide encender. Es el comportamiento seguro.</p><p>Se revisan los cuatro hilos con el dedo, placa apagada un momento si hay que rehacer. No se quita la condición de duracion mayor que 0 para forzar una luz.</p></div><div class="ejemplo"><h3>Enciende a cualquier distancia</h3><p>Se borró la parte de cm menor que 20 y se dejó solo duracion mayor que 0. Cualquier eco, incluso el de la pared a un metro, enciende el LED.</p><p>Las dos condiciones van juntas. Hay eco, y es corto. Una sola no es la alarma de la lección.</p></div><h2>Soldadura y seguridad</h2>
+<div class="soldar"><p>El HC-SR04 suele venir con pines macho. No lo sueldes del revés en un zócalo con la placa encendida. Si tienes que soldar una tira de pines a un módulo que vino en blanco, sujétala recta, un pin primero, luego el resto, y mira que no haya un puente de estaño entre trig y echo.</p><p>El módulo no se alimenta mientras sueldas. Y no lo apuntes a los ojos de nadie a quemarropa todo el rato: es ultrasonido, no es un láser, pero no es un juguete de pegar al oído.</p></div><h2>En la mesa</h2>
+<p>Apunta el sensor a la palma, quieta, a un palmo. LED encendido. Apártala un metro, hacia un espacio abierto, no hacia el techo bajo. LED apagado. Si en el espacio abierto sigue encendido, mide con un palmo si hay una estantería dentro de esos 20 cm que no estás mirando. Mueve el sensor, no el número, la primera vez. La segunda, si de verdad no hay obstáculo y sigue, revisa que la condición de los centímetros no se haya borrado.</p>
+<p>Cruza trig y echo a propósito, confirma el silencio, y documéntalo en el papel con la palabra cruzados. Vuelve a dejarlos bien. Este fallo provocado, cuando ya sabes la cura, hace que la próxima vez lo reconozcas en diez segundos. Sin provocarlo, la próxima vez culparás a la fórmula de los 58.</p>
+<p>No dejes el sensor pitando contra una pared toda la tarde. Además de no aprender nada, el módulo se queda midiendo sin pausa. El delay de 60 ms ya está. Cuando acabes, desenchufa. Un ultrasonido no es una luz, y no hace falta apuntarlo a nadie para demostrar la lección.</p>
+<h2>Sketch</h2>
+<pre><code>const int trig = 7;
+const int echo = 8;
+
+void setup() {
+  pinMode(trig, OUTPUT);
+  pinMode(echo, INPUT);
+  pinMode(13, OUTPUT);
+  digitalWrite(trig, LOW);
+}
+
+void loop() {
+  digitalWrite(trig, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(trig, LOW);
+  long duracion = pulseIn(echo, HIGH, 30000);
+  long cm = duracion / 58;
+  if (duracion &gt; 0 &amp;&amp; cm &lt; 20) {
+    digitalWrite(13, HIGH);
+  } else {
+    digitalWrite(13, LOW);
+  }
+  delay(60);
+}
+</code></pre>
+<h2>Ejercicio</h2>
+<p>Cablea 5V, GND, trig en 7 y echo en 8. Mano a menos de 20 cm: LED 13 encendido. Mano lejos: apagado. Si el número no responde, revisa que el eco vuelva, no la división.</p>
+<section class="quiz">
+<h2>Autoevaluación</h2>
+<div class="pregunta"><p><strong>1.</strong> ¿Qué mide de verdad el sensor de ultrasonidos antes de hablar de centímetros?</p><button type="button" class="ver">ver respuesta</button><p class="respuesta" hidden>El tiempo que tarda el eco.</p></div><div class="pregunta"><p><strong>2.</strong> ¿De dónde sale la cuenta de centímetros de esta lección?</p><button type="button" class="ver">ver respuesta</button><p class="respuesta" hidden>De dividir la duración en microsegundos entre 58.</p></div><div class="pregunta"><p><strong>3.</strong> Si el eco no vuelve, ¿el número sigue siendo una distancia fiable?</p><button type="button" class="ver">ver respuesta</button><p class="respuesta" hidden>No. El número miente. No hay eco que medir.</p></div>
+</section>
+<footer>les vencimos · Arduino Enseñanza · offline</footer>
+</article>
+<script>
+document.querySelectorAll("button.ver").forEach(function(b){
+  b.addEventListener("click", function(){
+    var r = b.parentElement.querySelector(".respuesta");
+    if(!r) return;
+    r.hidden = !r.hidden;
+    b.textContent = r.hidden ? "ver respuesta" : "ocultar respuesta";
+  });
+});
+var btn = document.getElementById("escuchar");
+if(btn){
+  btn.addEventListener("click", function(){
+    var el = document.getElementById("maestro-texto");
+    var texto = el ? el.textContent : "";
+    if(window.LesVencimosMaestro && typeof window.LesVencimosMaestro.decir === "function"){
+      window.LesVencimosMaestro.decir(texto);
+      return;
+    }
+    if(!window.speechSynthesis || typeof window.SpeechSynthesisUtterance !== "function") return;
+    window.speechSynthesis.cancel();
+    var u = new SpeechSynthesisUtterance(texto);
+    u.lang = "es-ES";
+    u.rate = 0.95;
+    window.speechSynthesis.speak(u);
+  });
+}
+
+document.querySelectorAll("textarea.nota-montaje").forEach(function(ta){
+  var art = document.querySelector("[data-ens]");
+  var key = "lv-ens-nota-" + (art ? art.getAttribute("data-ens") : "leccion");
+  try {
+    var prev = localStorage.getItem(key);
+    if(prev) ta.value = prev;
+    ta.addEventListener("input", function(){ localStorage.setItem(key, ta.value); });
+  } catch (e) {}
+});
+var sim = document.querySelector("section.sim");
+if(sim){
+  var canvas = sim.querySelector("canvas.sim-canvas");
+  var ctx = canvas.getContext("2d");
+  var kind = sim.getAttribute("data-sim");
+  var da = sim.getAttribute("data-a") || "";
+  var db = sim.getAttribute("data-b") || "";
+  var toggle = sim.querySelector(".sim-toggle");
+  var range = sim.querySelector(".sim-range");
+  var out = sim.querySelector(".sim-out");
+  var dedo = sim.querySelector(".sim-dedo");
+  var vivo = true;
+  var pulsado = false;
+  var permiso = true;
+  var ledOn = false;
+  var ultimoFlanco = 0;
+  var t0 = Date.now();
+  function num(el, fallo){ return el ? parseInt(el.value, 10) : fallo; }
+  if(dedo && kind !== "noche"){
+    dedo.addEventListener("pointerdown", function(ev){
+      pulsado = true;
+      if(kind === "flanco"){
+        var ahora = Date.now();
+        if(ahora - ultimoFlanco > 30){
+          ledOn = !ledOn;
+          ultimoFlanco = ahora;
+        }
+      }
+      ev.preventDefault();
+    });
+    window.addEventListener("pointerup", function(){ pulsado = false; });
+  }
+  if(dedo && kind === "noche"){
+    dedo.addEventListener("click", function(){
+      permiso = !permiso;
+      dedo.setAttribute("aria-pressed", permiso ? "true" : "false");
+      dedo.textContent = permiso ? "Permiso dado" : "Sin permiso";
+    });
+  }
+  if(toggle){
+    toggle.addEventListener("click", function(){
+      vivo = !vivo;
+      toggle.setAttribute("aria-pressed", vivo ? "true" : "false");
+      toggle.textContent = vivo ? "Parar simulación" : "Encender simulación";
+    });
+  }
+  function circulo(x, y, r, on, nivel){
+    ctx.beginPath();
+    ctx.arc(x, y, r, 0, Math.PI * 2);
+    if(on){
+      var a = nivel == null ? 1 : nivel;
+      ctx.fillStyle = "rgba(196,161,90," + (0.25 + 0.75 * a) + ")";
+      ctx.shadowColor = "#C4A15A";
+      ctx.shadowBlur = 16 * a;
+    } else {
+      ctx.fillStyle = "#2A2720";
+      ctx.shadowBlur = 0;
+    }
+    ctx.fill();
+    ctx.shadowBlur = 0;
+    ctx.lineWidth = 2;
+    ctx.strokeStyle = on ? "#C4A15A" : "#9A9488";
+    ctx.stroke();
+  }
+  function caja(x, y, w, h, titulo){
+    ctx.fillStyle = "#161512";
+    ctx.strokeStyle = "#C4A15A";
+    ctx.lineWidth = 2;
+    ctx.fillRect(x, y, w, h);
+    ctx.strokeRect(x, y, w, h);
+    ctx.fillStyle = "#E6E1D6";
+    ctx.font = "14px sans-serif";
+    ctx.fillText(titulo, x + 10, y + 22);
+  }
+  function texto(x, y, s, col){
+    ctx.fillStyle = col || "#E6E1D6";
+    ctx.font = "13px sans-serif";
+    ctx.fillText(s, x, y);
+  }
+  function frame(){
+    var ahora = Date.now();
+    var lectura = num(range, 0);
+    var enciende = false;
+    var nivel = 1;
+    var etiqueta = "";
+    if(kind === "blink"){
+      var hi = parseInt(da, 10) || 500;
+      var lo = parseInt(db, 10) || 500;
+      var ciclo = hi + lo;
+      var fase = vivo ? ((ahora - t0) % ciclo) : 0;
+      enciende = vivo && fase < hi;
+      etiqueta = enciende ? "HIGH" : "LOW";
+    } else if(kind === "hold"){
+      enciende = vivo && pulsado;
+      etiqueta = pulsado ? "LOW, pulsado" : "HIGH, suelto";
+    } else if(kind === "nivel"){
+      enciende = vivo && pulsado;
+      etiqueta = pulsado ? "lectura LOW" : "lectura HIGH";
+    } else if(kind === "flanco"){
+      enciende = vivo && ledOn;
+      etiqueta = enciende ? "LED encendido" : "LED apagado";
+    } else if(kind === "umbral"){
+      var umbral = parseInt(da, 10);
+      enciende = vivo && (db === "lt" ? lectura < umbral && lectura > 0 : lectura > umbral);
+      if(sim.getAttribute("data-sim") === "umbral" && da === "20"){
+        enciende = vivo && lectura > 0 && lectura < umbral;
+      }
+      etiqueta = String(lectura);
+      nivel = 1;
+    } else if(kind === "pwm"){
+      nivel = vivo ? lectura / 255 : 0;
+      enciende = vivo && lectura > 0;
+      etiqueta = String(lectura);
+    } else if(kind === "servo"){
+      var span = 140;
+      var pos = vivo ? ((ahora - t0) % 2800) / 2800 : 0.5;
+      var tri = pos < 0.5 ? pos * 2 : (1 - pos) * 2;
+      var grados = Math.round(20 + tri * span);
+      if(range) range.value = String(grados);
+      lectura = grados;
+      enciende = vivo;
+      etiqueta = grados + " grados";
+    } else if(kind === "buzz"){
+      var fb = vivo ? ((ahora - t0) % 1000) : 500;
+      etiqueta = fb < 300 ? "440" : (fb < 600 ? "880" : "silencio");
+      enciende = vivo && fb < 600;
+    } else if(kind === "carga"){
+      var fc = vivo ? ((ahora - t0) % 4000) : 2000;
+      enciende = vivo && fc < 2000;
+      etiqueta = enciende ? "pin en HIGH" : "pin en LOW";
+    } else if(kind === "semi"){
+      var fs = vivo ? ((ahora - t0) % 3500) : 0;
+      etiqueta = fs < 1500 ? "rojo" : (fs < 2000 ? "ambar" : "verde");
+      enciende = vivo;
+    } else if(kind === "alarma"){
+      enciende = vivo && lectura > 0 && lectura < 20;
+      etiqueta = lectura + " cm";
+    } else if(kind === "noche"){
+      var noche = lectura < 400 && permiso;
+      enciende = vivo && noche;
+      nivel = enciende ? 180/255 : 0;
+      etiqueta = (permiso ? "con permiso" : "sin permiso") + " · " + lectura;
+    }
+    if(out) out.textContent = etiqueta;
+    ctx.clearRect(0, 0, 320, 160);
+    ctx.fillStyle = "#1C1A16";
+    ctx.fillRect(0, 0, 320, 160);
+    caja(12, 28, 90, 100, "Uno");
+    if(kind === "semi"){
+      var fs2 = vivo ? ((ahora - t0) % 3500) : 0;
+      circulo(160, 48, 14, vivo && fs2 < 1500, 1);
+      circulo(210, 48, 14, vivo && fs2 >= 1500 && fs2 < 2000, 1);
+      circulo(260, 48, 14, vivo && fs2 >= 2000, 1);
+      texto(150, 78, "10 rojo");
+      texto(198, 78, "11");
+      texto(248, 78, "12 verde");
+      texto(16, 150, vivo ? "ciclo en marcha" : "simulación parada", "#9A9488");
+    } else if(kind === "servo"){
+      var rad = (180 - lectura) * Math.PI / 180;
+      ctx.strokeStyle = "#C4A15A";
+      ctx.lineWidth = 4;
+      ctx.beginPath();
+      ctx.moveTo(200, 110);
+      ctx.lineTo(200 + Math.cos(rad) * 70, 110 - Math.sin(rad) * 50);
+      ctx.stroke();
+      circulo(200, 110, 8, true, 1);
+      texto(120, 150, etiqueta);
+    } else if(kind === "buzz" || kind === "alarma"){
+      circulo(150, 80, 18, kind === "alarma" ? enciende : false, 1);
+      texto(176, 76, kind === "alarma" ? "LED 13" : "");
+      ctx.beginPath();
+      ctx.arc(250, 80, 22, 0, Math.PI * 2);
+      ctx.strokeStyle = enciende ? "#C4A15A" : "#9A9488";
+      ctx.lineWidth = 3;
+      ctx.stroke();
+      if(enciende){
+        ctx.beginPath();
+        ctx.arc(250, 80, 32, 0, Math.PI * 2);
+        ctx.stroke();
+      }
+      texto(120, 140, etiqueta);
+    } else if(kind === "carga"){
+      circulo(170, 70, 16, enciende, 1);
+      texto(196, 66, "orden");
+      ctx.strokeStyle = enciende ? "#8F9A72" : "#9A9488";
+      ctx.strokeRect(230, 48, 70, 44);
+      texto(242, 74, enciende ? "carga" : "quieta", enciende ? "#8F9A72" : "#9A9488");
+      texto(16, 150, etiqueta, "#9A9488");
+    } else {
+      circulo(200, 78, 18, enciende, nivel);
+      texto(230, 74, "LED");
+      texto(16, 150, etiqueta, "#9A9488");
+    }
+    if(!vivo){
+      texto(230, 150, "parada", "#9A9488");
+    }
+    requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+}
+
+</script>
+</body>
+</html>

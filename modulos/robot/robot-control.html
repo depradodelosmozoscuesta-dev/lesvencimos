@@ -1,0 +1,646 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="dark">
+<meta name="theme-color" content="#0E0E0C">
+<meta name="lv-stamp" content="v20261003a">
+<meta name="description" content="Control, equilibrio e IA offline de un humanoide de hobby. Sin red y sin cuenta.">
+<title>Control — Robot humanoide — Les vencimos</title>
+<style>
+:root{--bg:#0E0E0C;--surf:#161512;--panel:#1C1A16;--ink:#E6E1D6;--mut:#9A9488;--acc:#C4A15A;--acc-ink:#1A160E;--danger:#C46A4A;--ok:#8F9A72;--line:#2A2720}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--ink);font:400 16.5px/1.5 "Segoe UI",system-ui,sans-serif}
+h1,h2,h3{font-family:"Iowan Old Style",Palatino,Georgia,serif;font-weight:600}
+a{color:var(--acc)}
+.top{position:sticky;top:0;z-index:20;background:rgba(14,14,12,.96);border-bottom:1px solid var(--line)}
+.top-inner{max-width:54rem;margin:0 auto;padding:.7rem 1rem;display:flex;flex-wrap:wrap;gap:.7rem;align-items:center}
+.brand{display:flex;align-items:center;gap:.6rem;text-decoration:none;color:var(--ink)}
+.brand svg{width:32px;height:32px;flex:none}
+.brand span{font-size:.68rem;letter-spacing:.14em;text-transform:uppercase;color:var(--mut)}
+.brand strong{display:block;font-size:1rem;color:var(--acc);font-weight:600}
+#q{flex:1;min-width:140px;min-height:44px;padding:.55rem .75rem;border:1px solid var(--line);border-radius:2px;background:var(--surf);color:var(--ink);font:inherit}
+.wrap{max-width:54rem;margin:0 auto;padding:1.2rem 1rem 4rem}
+.hero{padding:.4rem 0 1rem;border-bottom:1px solid var(--line)}
+.hero p{color:var(--mut);max-width:42rem}
+.navsec{display:flex;flex-wrap:wrap;gap:.4rem;margin:1rem 0 0}
+.navsec a{display:inline-flex;align-items:center;min-height:44px;padding:.3rem .6rem;border:1px solid var(--line);border-radius:2px;text-decoration:none;color:var(--ink);font-size:.8rem;background:var(--surf)}
+.navsec a:hover{border-color:var(--acc);color:var(--acc)}
+section{margin:2rem 0}
+section>h2{font-size:1.35rem;border-bottom:1px solid var(--line);padding-bottom:.35rem}
+h3{color:var(--acc);font-size:1.08rem;margin:1.15rem 0 .35rem}
+p{max-width:42rem}
+.mut{color:var(--mut)}
+code{font-family:ui-monospace,monospace;font-size:.9em;color:var(--acc)}
+pre{background:var(--panel);border:1px solid var(--line);border-radius:2px;padding:.85rem 1rem;overflow-x:auto;line-height:1.45}
+pre code{color:var(--ink)}
+table{border-collapse:collapse;width:100%;max-width:42rem;font-size:.92rem;margin:.6rem 0 1rem}
+th,td{border-bottom:1px solid var(--line);text-align:left;padding:.35rem .4rem;vertical-align:top}
+th{color:var(--mut);font-weight:600}
+.warn{color:var(--danger)}
+.ok{color:var(--ok)}
+.sim{background:var(--surf);border:1px solid var(--line);border-radius:2px;padding:1rem;margin:1rem 0}
+button{min-height:44px;padding:.5rem .85rem;border-radius:2px;border:1px solid var(--acc);background:var(--acc);color:var(--acc-ink);font:600 .9rem "Segoe UI",system-ui,sans-serif;cursor:pointer}
+button.ghost{background:transparent;color:var(--ink);border-color:var(--line)}
+button.on{outline:1px solid var(--acc)}
+.row{display:flex;flex-wrap:wrap;gap:.4rem;margin:.4rem 0}
+label.sl{display:block;color:var(--mut);font-size:.85rem;margin:.45rem 0}
+input[type="range"]{width:100%;max-width:28rem;min-height:44px}
+input[type="number"]{min-height:44px;width:6.5rem;padding:.4rem .5rem;border:1px solid var(--line);border-radius:2px;background:var(--panel);color:var(--ink);font:inherit}
+.foot{margin-top:2.5rem;padding-top:1rem;border-top:1px solid var(--line);color:var(--mut);font-size:.8rem}
+svg.plano{width:100%;max-width:36rem;height:auto;background:var(--panel);border:1px solid var(--line);border-radius:2px}
+</style>
+</head>
+<body>
+<header class="top">
+<div class="top-inner">
+<a class="brand" href="#abrir"><svg viewBox="0 0 96 96" fill="none" role="img" aria-label="Les vencimos"><path stroke="#9A9488" stroke-width="2.4" stroke-linecap="round" opacity="0.72" d="M30 16v7.5M48 12v9.5M66 16v7.5M38.5 20v5.5M57.5 20v5.5"/><path fill="#E6E1D6" d="M48 10c-1.15 9.6-9.6 14.4-16.8 16.8C38.2 29.2 46.7 34 48 43.6c1.15-9.6 9.6-14.4 16.8-16.8C57.8 24.4 49.3 19.6 48 10z"/><path stroke="#9A9488" stroke-width="4" stroke-linecap="round" d="M18 49.5h60"/><path stroke="#9A9488" stroke-width="4" stroke-linecap="round" d="M26 49.5c0 15.5 8 27.5 22 32.5 14-5 22-17 22-32.5"/></svg><div><span>les vencimos · offline</span><strong>Control del robot</strong></div></a>
+<input id="q" type="search" placeholder="Buscar en esta página" aria-label="Buscar en esta página">
+</div>
+</header>
+<main class="wrap">
+<div class="hero" id="abrir">
+<p class="mut" style="letter-spacing:.14em;text-transform:uppercase;font-size:.72rem">Offline</p>
+<h1>Control</h1>
+<p>Cubre el control, el equilibrio y la IA offline de un humanoide de hobby: cómo sientes, comparas y actúas, y cuándo el programa se niega a andar. No cubre la electrónica (alimentación, baterías, BMS, drivers ni cableado), ni el diseño de las piezas, ni el curso de montaje.</p>
+<p>El montaje y las lecciones están en <a href="robot-ensenanza.html">Enseñanza</a>. La alimentación, las baterías y los drivers están en <a href="robot-electronica.html">Electrónica</a>. Las piezas están en <a href="robot-diseno.html">Diseño</a>.</p>
+<nav class="navsec" aria-label="Secciones">
+<a href="#sencilla">En pocas frases</a>
+<a href="#equilibrio">Equilibrio</a>
+<a href="#marcha">Marcha</a>
+<a href="#imu">IMU</a>
+<a href="#estados">Estados</a>
+<a href="#caida">Caída</a>
+<a href="#ia-offline">IA offline</a>
+<a href="#voz">Voz</a>
+<a href="#errores">Errores</a>
+</nav>
+</div>
+
+<section id="sencilla">
+<h2>En pocas frases</h2>
+<p>Te caes cuando la vertical del centro de masa sale del trozo de suelo que de verdad estás pisando. Ese trozo es el polígono de apoyo. Puedes moverlo en <a href="#equilibrio">Equilibrio</a>.</p>
+<p>Andar no es un solo ángulo. Hay un rato con los dos pies abajo, otro con uno solo, y el pie que va por el aire. El orden de un paso de hobby, sin la dinámica de un paper, está en <a href="#marcha">Marcha</a>.</p>
+<p>El programa vive en estados: reposo, de pie, marcha, giro, agachado, caída, levantarse y parada. Desde el suelo no se ordena marcha. La tabla y los botones que rechazan lo inválido están en <a href="#estados">Estados</a>.</p>
+<p>La caída es un ángulo que se queda grande unas decenas o unos cien milisegundos, o un golpe en el acelerómetro. Esos umbrales son un punto de partida, no una constante oficial. Cuándo no debes levantarte está en <a href="#caida">Caída</a>.</p>
+<p>La IMU te da inclinación. Si solo integras el giroscopio, el ángulo se va. El filtro y la lectura por I2C están en <a href="#imu">IMU</a>.</p>
+<p>Equilibrio y caída de un hobby se resuelven con umbral, filtro y máquina de estados. Una red pequeña, sin nube, puede etiquetar la fase o decir si te caes, entrenada con este robot. No sustituye el lazo. El límite real está en <a href="#ia-offline">IA offline</a>. La voz, si cabe, son frases cortas, no un diálogo: <a href="#voz">Voz</a>.</p>
+</section>
+
+<section id="equilibrio">
+<h2>Equilibrio</h2>
+<p>El centro de masa es el punto donde puedes colgar el cuerpo y no gira. En un humanoide de pie no lo ves: lo estimas con las masas de torso, muslos y pantorrillas, o lo mides colgando el robot quieto. La proyección vertical de ese punto tiene que caer dentro del polígono de apoyo. Si cae fuera, el peso hace un momento que tumba el cuerpo. No hace falta un modelo de paper para verlo: o el punto está dentro, o no.</p>
+<p>El polígono de apoyo es la figura convexa que envuelve los contactos que de verdad cargan. Con los dos pies planos y cargados, el polígono va de un borde exterior al otro y cubre también el hueco entre los pies. Con un solo pie cargado, el polígono es la planta de ese pie. El pie que está en el aire no cuenta, aunque el programa crea que sigue abajo.</p>
+<h3>Tobillo y cadera</h3>
+<p>La estrategia de tobillo es la corrección pequeña. El cuerpo se queda casi rígido y el tobillo empuja el centro de masa de vuelta hacia el interior de la planta, como cuando te balanceas sin despegar los talones. Sirve mientras la proyección sigue cerca del centro del pie y el servo todavía tiene recorrido y par.</p>
+<p>La estrategia de cadera es la corrección grande. La cadera se mueve al revés de la caída para que el centro de masa vuelva a entrar, aunque los tobillos ya no puedan. Un servo de hobby a menudo no puede hacerla: es lento, tiene holgura y se queda sin par cerca del tope. Si el lazo pide un ángulo que el servo no alcanza en el tiempo de la caída, la orden existe y el cuerpo ya está en el suelo. En ese caso no simules la cadera de un paper: reduce el paso, baja el centro de masa o acepta que ese servo solo vale para la estrategia de tobillo.</p>
+<h3>FSR frente a solo IMU</h3>
+<p>La IMU te dice inclinación y velocidad angular. No te dice qué pie está cargado. Puedes estar inclinado y seguir con los dos pies abajo, o casi vertical y con un pie ya en el aire. Una FSR bajo la planta, o cualquier sensor de fuerza que hayas calibrado, entra en el lazo como un dato de carga: si la lectura del pie de apoyo está por debajo del umbral que mediste en tu robot, ese pie no forma polígono y no debes lanzar el balanceo. El cableado de la FSR no es esta página. El uso sí: la fuerza decide el polígono; la IMU decide cuánto corriges dentro de él.</p>
+<h3>Sentir, comparar, actuar</h3>
+<p>Cada vuelta del lazo hace tres cosas y vuelve a empezar. Sientes: lees IMU y, si la tienes, la carga de los pies. Comparas: restas la inclinación medida de la inclinación que quieres en este estado, y miras si el centro de masa estimado sigue dentro del polígono. Actúas: escribes el ángulo nuevo a los servos que este estado tiene permiso de mover.</p>
+<p>Como orientación de hobby, ese lazo quiere vivir entre 50 y 200 veces por segundo. No es una cifra de un datasheet ni una ley. Por debajo, el servo se entera tarde. Por encima, no ganas nada si el propio servo tarda más que el periodo en moverse. Lo que rompe el lazo, aunque el número de hercios parezca bonito, es un servo lento, la holgura que se come los primeros grados, un suelo blando que cambia el polígono, y un <code>delay</code> que bloquea la vuelta entera. El tiempo se mide con <code>millis</code> o con el reloj del micro. No se espera dentro del lazo.</p>
+<h3>Simulador</h3>
+<p>El dibujo es un rectángulo de enseñanza, no la planta medida de tu robot. Dos pies y un punto. En doble apoyo el polígono es el rectángulo que envuelve los dos pies, hueco incluido. En apoyo simple es solo el pie que marcas. Pulsa comprobar: el texto dice si el punto cae dentro.</p>
+<div class="sim">
+<svg id="plano" class="plano" viewBox="0 0 320 240" role="img" aria-label="Dos pies y el centro de masa">
+<rect id="poly" x="36" y="150" width="200" height="58" fill="none" stroke="#8F9A72" stroke-width="2"/>
+<rect id="pieI" x="36" y="150" width="78" height="58" fill="#1C1A16" stroke="#E6E1D6" stroke-width="1.5"/>
+<rect id="pieD" x="158" y="150" width="78" height="58" fill="#1C1A16" stroke="#E6E1D6" stroke-width="1.5"/>
+<circle id="com" cx="136" cy="176" r="7" fill="#C4A15A"/>
+<text x="48" y="182" fill="#9A9488" font-size="12">pie izq.</text>
+<text x="168" y="182" fill="#9A9488" font-size="12">pie der.</text>
+</svg>
+<label class="sl" for="cx">Centro de masa, horizontal <span id="cxv">136</span></label>
+<input id="cx" type="range" min="20" max="280" value="136">
+<label class="sl" for="cy">Centro de masa, vertical <span id="cyv">176</span></label>
+<input id="cy" type="range" min="40" max="220" value="176">
+<div class="row">
+<button type="button" id="bDob">Doble apoyo</button>
+<button type="button" class="ghost" id="bIzq">Solo pie izquierdo</button>
+<button type="button" class="ghost" id="bDer">Solo pie derecho</button>
+<button type="button" id="bComp">Comprobar</button>
+</div>
+<p id="eqTxt">Todavía no has comprobado.</p>
+</div>
+</section>
+
+<section id="marcha">
+<h2>Marcha</h2>
+<p>Un paso de hobby, visto de lado, tiene tres fases y el centro de masa no hace lo mismo en cada una. No es la dinámica ZMP de un paper: no calculas el punto de momento cero ni un modelo de contacto. Fijas poses medidas en tu robot y las encadenas en el tiempo.</p>
+<p>En doble apoyo los dos pies cargan. El polígono es ancho y el centro de masa se desplaza del pie que va a despegar hacia el pie que se queda. En apoyo simple solo carga un pie. El centro de masa tiene que estar ya sobre ese pie antes de levantar el otro; si no, el polígono se encoge y tú sigues fuera. En balanceo el pie libre avanza por el aire. El polígono sigue siendo el pie de apoyo. Al apoyar de nuevo vuelves a doble apoyo, con el centro de masa entre los dos, y el otro lado repite el cuento.</p>
+<h3>Un paso, en orden</h3>
+<p>Este es el orden que puedes programar sin inventar una dinámica. Qué simplificas: las poses son las que mediste, los tiempos son un punto de partida, y no hay un modelo del suelo.</p>
+<ol>
+<li>Estás en doble apoyo, de pie, y sabes que el pie que se queda está cargado. Si no lo sabes, no empieces.</li>
+<li>Mueve el peso hacia ese pie. Sigues en doble apoyo. El otro pie todavía toca, pero ya no es el que salva el equilibrio.</li>
+<li>Pasa a apoyo simple solo cuando la carga del pie de apoyo supera el umbral que mediste. Entonces levanta el pie libre.</li>
+<li>Avanza ese pie y bájalo. Mientras va por el aire, el centro de masa sigue dentro del pie que carga. Si se sale, no es un problema de la trayectoria: es que el apoyo no aguanta.</li>
+<li>Al tocar el suelo, vuelve el doble apoyo. No lances el paso contrario hasta que el pie nuevo cargue.</li>
+</ol>
+<h3>Dos eslabones, en un plano</h3>
+<p>Muslo y pantorrilla, vistos de lado, son dos barras articuladas. Hipótesis, dichas para que no las uses donde no valen: el movimiento es plano, no hay desplazamiento entre el eje y la barra, las dos uniones giran, y longitudes y coordenadas van en la misma unidad. El ángulo cero de esta fórmula es el de las matemáticas, desde el eje horizontal del dibujo, no el cero del servo. El mapa entre los dos lo haces después de medir tu robot.</p>
+<p>Directa. Con el muslo de longitud L1 y ángulo q1, y la pantorrilla de longitud L2 y ángulo q2 relativo al muslo, el tobillo queda en</p>
+<p><code>x = L1·cos(q1) + L2·cos(q1+q2)</code><br><code>y = L1·sin(q1) + L2·sin(q1+q2)</code></p>
+<p>Inversa. Quieres el tobillo en (x, y). El coseno del ángulo de la rodilla es</p>
+<p><code>cos(q2) = (x² + y² − L1² − L2²) / (2·L1·L2)</code></p>
+<p>Si ese coseno sale de [−1, 1], o si alguna longitud no es positiva, el punto está fuera de alcance y el código no debe inventar un ángulo. Si cabe, hay dos posturas, codo a un lado o al otro:</p>
+<p><code>q2 = atan2(±√(1−cos²q2), cos q2)</code><br><code>q1 = atan2(y, x) − atan2(L2·sin q2, L1 + L2·cos q2)</code></p>
+<p>El código de abajo rechaza el punto. No lo acerca al borde por su cuenta: acercarlo es una decisión de marcha, no de la fórmula.</p>
+<pre><code>bool inversaPlana(float L1, float L2, float x, float y,
+                  float &amp;q1, float &amp;q2, bool codoPositivo) {
+  if (!(L1 &gt; 0.0f) || !(L2 &gt; 0.0f)) return false;
+  float c2 = (x * x + y * y - L1 * L1 - L2 * L2) / (2.0f * L1 * L2);
+  if (c2 &gt; 1.0f || c2 &lt; -1.0f) return false; // fuera de alcance
+  float s2 = sqrtf(1.0f - c2 * c2);
+  if (!codoPositivo) s2 = -s2;
+  q2 = atan2f(s2, c2);
+  q1 = atan2f(y, x) - atan2f(L2 * sinf(q2), L1 + L2 * c2);
+  return true;
+}</code></pre>
+<div class="sim">
+<p>Prueba la misma cuenta aquí. Longitudes y punto en la misma unidad, la que tú elijas. Si el punto no alcanza, la página lo dice y no imprime un ángulo falso.</p>
+<div class="row">
+<label class="sl">L1 <input id="L1" type="number" value="10" step="0.1"></label>
+<label class="sl">L2 <input id="L2" type="number" value="10" step="0.1"></label>
+<label class="sl">x <input id="px" type="number" value="12" step="0.1"></label>
+<label class="sl">y <input id="py" type="number" value="8" step="0.1"></label>
+</div>
+<div class="row">
+<button type="button" id="bInv">Calcular inversa</button>
+<button type="button" class="ghost" id="bCodo">Codo al otro lado</button>
+</div>
+<p id="kinTxt">Todavía no has calculado.</p>
+</div>
+<h3>Tiempos de un kit de unos 30 cm</h3>
+<p>Punto de partida, no un número universal y no una medida de tu robot. Para un kit de unos 30 cm puedes empezar con 200 ms de doble apoyo mientras pasas el peso, 150 ms comprobando que el pie de apoyo ya carga, y 400 ms de balanceo. Un paso de un lado sale cerca de 750 ms antes de repetir con el otro. Si el servo no llega, alarga el balanceo. Si el robot se queda parado entre pasos, el fallo suele ser el umbral de carga, no el cronómetro. Hay que medirlo en tu robot.</p>
+<p>La secuencia no usa <code>delay</code>. Guarda el instante en que entraste en la fase y comparas con <code>millis</code>. Los ángulos no están en el ejemplo: cada fase llama a una pose que tú rellenas después de medir. Si el pie de apoyo no está cargado, el balanceo se rechaza.</p>
+<pre><code>enum Fase : uint8_t { F_QUIETO, F_DOBLE, F_SIMPLE, F_BALANCEO };
+
+// Punto de partida para un kit de unos 30 cm. No lo copies como verdad.
+const uint32_t MS_DOBLE = 200;
+const uint32_t MS_SIMPLE = 150;
+const uint32_t MS_BALANCEO = 400;
+
+Fase fase = F_QUIETO;
+uint32_t tFase = 0;
+
+bool pieApoyoCargado() {
+  // Compara la FSR, o el sensor que tengas, con el umbral medido en tu robot.
+  // Si no tienes sensor de fuerza, esta función tiene que decir la verdad
+  // de otra medida tuya. Devolver true siempre es mentir.
+  return cargaPieApoyo &gt; umbralCargaMedido;
+}
+
+void pedirPaso() {
+  if (estado != DE_PIE &amp;&amp; estado != MARCHA) return;
+  if (!pieApoyoCargado()) return; // sin carga conocida no hay balanceo
+  fase = F_DOBLE;
+  tFase = millis();
+}
+
+void aplicarPose(Fase f) {
+  // Rellena los grados después de medir este robot.
+  // Aquí solo se elige qué pose toca. No hay ángulos inventados.
+  if (f == F_DOBLE) poseDobleApoyo();
+  else if (f == F_SIMPLE) posePesoEnApoyo();
+  else if (f == F_BALANCEO) posePieEnAire();
+  else poseDePie();
+}
+
+void marchaTick() {
+  if (fase == F_QUIETO) return;
+  if ((fase == F_SIMPLE || fase == F_BALANCEO) &amp;&amp; !pieApoyoCargado()) {
+    fase = F_QUIETO;          // el polígono ya no es el que creías
+    aplicarPose(F_QUIETO);
+    return;
+  }
+  uint32_t dt = millis() - tFase;
+  if (fase == F_DOBLE &amp;&amp; dt &gt;= MS_DOBLE) {
+    fase = F_SIMPLE;
+    tFase = millis();
+  } else if (fase == F_SIMPLE &amp;&amp; dt &gt;= MS_SIMPLE) {
+    fase = F_BALANCEO;
+    tFase = millis();
+  } else if (fase == F_BALANCEO &amp;&amp; dt &gt;= MS_BALANCEO) {
+    fase = F_QUIETO;
+  }
+  aplicarPose(fase);
+}</code></pre>
+</section>
+
+<section id="imu">
+<h2>IMU</h2>
+<p>El acelerómetro mide aceleración específica, gravedad incluida. Quieto, con un eje alineado con la vertical, ese eje lee cerca de 1 g hacia arriba o hacia abajo y los otros dos leen cerca de cero, más el ruido. El giroscopio mide velocidad angular. Quieto, debería leer cero; lo que lee es el offset, y ese offset, integrado, se convierte en un ángulo que camina aunque el robot no se mueva. Esa caminata es la deriva.</p>
+<p>Los ejes los marca el fabricante en la placa, no el cuerpo del robot. Si montas el módulo girado y no cambias el signo, el corrector empuja hacia el lado de la caída. Antes de cerrar el lazo, inclina el robot a mano hacia un lado conocido y mira si el ángulo que imprimes crece en ese sentido. Si crece al revés, invierte el signo en el código, no en la esperanza.</p>
+<p>La calibración de offset se hace en reposo, con el robot quieto y ya en la orientación en la que va a trabajar el filtro. Promedias el giroscopio y restas esa media cada lectura. No restes la media del acelerómetro si ese eje es el que lleva la gravedad: te quedarías sin el 1 g que usa el ángulo. El filtro de abajo usa el acelerómetro en bruto para el ángulo y solo le quita el offset al giroscopio.</p>
+<h3>Leer un MPU-6050 por I2C</h3>
+<p>Los registros de este ejemplo salen del mapa RM-MPU-6000A-00, revisión 4.0, del 9 de marzo de 2012. El MPU-6050 habla I2C hasta 400 kHz. <code>WHO_AM_I</code> es el registro 117, dirección 0x75, y su valor por defecto es 0x68: son los seis bits altos de la dirección I2C de siete bits. El bit bajo lo pone la patilla AD0 y no aparece en el registro. Con AD0 a nivel bajo la dirección es 0x68, porque 1101000 en binario es 0x68. Con AD0 alto es 0x69.</p>
+<p><code>PWR_MGMT_1</code> es el registro 107, 0x6B. Al salir de reset vale 0x40, que es el bit SLEEP. El bit 7, <code>DEVICE_RESET</code>, pone los registros a su valor por defecto y se limpia solo al terminar. El mapa no da un tiempo en milisegundos: el ejemplo espera a que el bit 7 baje, con un tope para no quedarse colgado. <code>CLKSEL</code> 1 elige el PLL con el giroscopio X, que es lo que el mapa recomienda frente al oscilador interno de 8 MHz. Escribir 0x01 deja SLEEP a cero y <code>CLKSEL</code> a 1.</p>
+<p><code>GYRO_CONFIG</code> es el registro 27, 0x1B. <code>FS_SEL</code> 0 es ±250 °/s y 131 LSB por °/s. <code>ACCEL_CONFIG</code> es el registro 28, 0x1C. <code>AFS_SEL</code> 0 es ±2 g y 16384 LSB/g. Escribir 0 en los dos apaga también los bits de self-test. El acelerómetro empieza en el registro 59, 0x3B, seis bytes X, Y, Z. La temperatura es el 65 y el 66, 0x41 y 0x42. El giroscopio empieza en el 67, 0x43. Una lectura seguida de catorce bytes desde 0x3B trae acelerómetro, temperatura y giroscopio del mismo instante, que es lo que el mapa garantiza si el bus está libre al copiar los registros internos. La temperatura en grados, con la cuenta en decimal, es el valor con signo partido por 340 y luego más 36,53. No hace falta para el equilibrio.</p>
+<p>En un Uno el bus I2C del núcleo está en A4 y A5. El cableado no es esta página. En otras placas no copies esos números de pin.</p>
+<pre><code>#include &lt;Wire.h&gt;
+
+const uint8_t MPU = 0x68; // AD0 a nivel bajo. Si AD0 está alto, 0x69.
+
+int16_t ax, ay, az, gx, gy, gz;
+float offGx = 0, offGy = 0, offGz = 0;
+float angulo = 0;          // radianes, eje que tú elijas tras mirar el montaje
+const float A = 0.98f;     // punto de partida del complementario, no una constante del sensor
+uint32_t tPrev = 0;
+bool imuOk = false;
+
+void escribeReg(uint8_t reg, uint8_t val) {
+  Wire.beginTransmission(MPU);
+  Wire.write(reg);
+  Wire.write(val);
+  Wire.endTransmission();
+}
+
+uint8_t leeReg(uint8_t reg) {
+  Wire.beginTransmission(MPU);
+  Wire.write(reg);
+  Wire.endTransmission(false);
+  Wire.requestFrom(MPU, (uint8_t)1);
+  if (Wire.available() &lt; 1) return 0;
+  return Wire.read();
+}
+
+bool arrancaMpu() {
+  escribeReg(0x6B, 0x80); // DEVICE_RESET. El bit se limpia solo.
+  uint32_t t0 = millis();
+  while (leeReg(0x6B) &amp; 0x80) {
+    if (millis() - t0 &gt; 100) return false; // el mapa no da el tiempo; esto es un tope
+  }
+  escribeReg(0x6B, 0x01); // despierta, PLL con el giroscopio X
+  escribeReg(0x1B, 0x00); // ±250 °/s, 131 LSB por °/s
+  escribeReg(0x1C, 0x00); // ±2 g, 16384 LSB/g
+  uint8_t quien = leeReg(0x75);
+  return quien == 0x68;
+}
+
+bool leeCatorce() {
+  Wire.beginTransmission(MPU);
+  Wire.write(0x3B); // ACCEL_XOUT_H, y detrás temp y giroscopio
+  if (Wire.endTransmission(false) != 0) return false;
+  if (Wire.requestFrom(MPU, (uint8_t)14) != 14) return false;
+  ax = (Wire.read() &lt;&lt; 8) | Wire.read();
+  ay = (Wire.read() &lt;&lt; 8) | Wire.read();
+  az = (Wire.read() &lt;&lt; 8) | Wire.read();
+  Wire.read(); Wire.read(); // temperatura, no entra en el ángulo
+  gx = (Wire.read() &lt;&lt; 8) | Wire.read();
+  gy = (Wire.read() &lt;&lt; 8) | Wire.read();
+  gz = (Wire.read() &lt;&lt; 8) | Wire.read();
+  return true;
+}
+
+void calibraOffsetQuieto() {
+  // Solo el giroscopio. Restar la media del acelerómetro se comería 1 g.
+  long sx = 0, sy = 0, sz = 0;
+  const int N = 50; // punto de partida, no un número del mapa
+  for (int i = 0; i &lt; N; i++) {
+    if (!leeCatorce()) continue;
+    sx += gx; sy += gy; sz += gz;
+    uint32_t espera = millis();
+    while (millis() - espera &lt; 5) { /* quieto, fuera del lazo de marcha */ }
+  }
+  offGx = sx / (float)N;
+  offGy = sy / (float)N;
+  offGz = sz / (float)N;
+}
+
+void setup() {
+  Wire.begin();
+  Wire.setClock(400000); // el 6050 admite hasta 400 kHz
+  imuOk = arrancaMpu();
+  if (imuOk) calibraOffsetQuieto();
+  tPrev = millis();
+}
+
+void loop() {
+  if (!imuOk || !leeCatorce()) return;
+  uint32_t ahora = millis();
+  float dt = (ahora - tPrev) / 1000.0f;
+  tPrev = ahora;
+  if (dt &lt;= 0.0f) return;
+
+  // °/s en el fondo de escala de FS_SEL 0. Cambia 131 si cambias FS_SEL.
+  float gxDps = (gx - offGx) / 131.0f;
+
+  // Ángulo por acelerómetro. ay y az valen si la gravedad cae en ese plano.
+  // Si tu montaje usa otro par de ejes, cambia el par y el signo. Míralo.
+  float angAcc = atan2f((float)ay, (float)az);
+
+  // Complementario. A cerca de 0.98 fía del giroscopio a corto plazo
+  // y del acelerómetro para no derivar. Es un punto de partida.
+  angulo = A * (angulo + gxDps * (3.14159265f / 180.0f) * dt) + (1.0f - A) * angAcc;
+}</code></pre>
+<p>El filtro complementario es esa línea: <code>angle = A*(angle + gyro*dt) + (1−A)*accelAngle</code>, con A típico cerca de 0,98. El giroscopio va en radianes por segundo si el ángulo va en radianes. Si A es 1, solo integras y derivas. Si A es 0, solo crees al acelerómetro y un paso te parece una caída. Madgwick es la alternativa cuando quieres un cuaternión y puedes pagar más CPU. No pego la librería. Cuántos microsegundos te cuesta en tu placa hay que medirlo en tu robot.</p>
+<h3>Dónde cabe el lazo, no la red</h3>
+<p>Estas cifras son memoria del chip, no memoria libre para tu sketch. El núcleo, la pila y los servos se comen una parte que hay que medirla en tu robot.</p>
+<table>
+<tr><th>Placa</th><th>Memoria que sí está escrita en la fuente</th></tr>
+<tr><td>Uno y Nano clásico, ATmega328P. El Nano Every no es este chip.</td><td>32 Kbytes de flash, 1 Kbyte de EEPROM, 2 Kbytes de SRAM interna. Trabaja de 2,7 V a 5,5 V.</td></tr>
+<tr><td>ESP32, datasheet de la serie, versión 5.3</td><td>448 KB de ROM, 520 KB de SRAM, 16 KB de SRAM en el RTC (8 KB FAST y 8 KB SLOW). No todos los encapsulados traen PSRAM. Los 520 KB no están libres.</td></tr>
+<tr><td>ESP32-S3, datasheet v2.2</td><td>384 KB de ROM, 512 KB de SRAM, 16 KB de SRAM en el RTC (8 KB FAST y 8 KB SLOW). La PSRAM en el encapsulado, según la variante, no está, o es 2 MB, 8 MB o 16 MB. No son 520 KB.</td></tr>
+<tr><td>Raspberry Pi 4 Model B, ficha de abril de 2026</td><td>BCM2711, cuatro Cortex-A72. RAM: 1 GB, 2 GB, 3 GB, 4 GB u 8 GB de LPDDR4.</td></tr>
+<tr><td>Raspberry Pi 5, ficha de octubre de 2026</td><td>BCM2712, cuatro Cortex-A76 a 2,4 GHz. LPDDR4X-4267 en opciones de 1 GB, 2 GB, 4 GB, 8 GB y 16 GB.</td></tr>
+</table>
+</section>
+
+<section id="estados">
+<h2>Estados</h2>
+<p>Ocho nombres y una sola variable. REPOSO es el programa encendido sin orden de sostenerse. DE_PIE sostiene la pose vertical. MARCHA ejecuta el paso de la sección anterior. GIRO cambia el rumbo sin dar un paso de avance. AGACHADO baja el cuerpo y se queda. CAIDA es el suelo: no hay polígono útil. LEVANTARSE es la secuencia de poses para volver a DE_PIE. PARADA congela los servos donde están y no acepta marcha hasta que vuelves a armar desde REPOSO.</p>
+<p>La tabla es la política de ejemplo de esta página, no una norma. Lo prohibido está dicho para que el <code>switch</code> lo rechace con una frase, no con silencio.</p>
+<table>
+<tr><th>Desde</th><th>Puede pasar a</th><th>Prohibido</th></tr>
+<tr><td>REPOSO</td><td>DE_PIE, PARADA</td><td>MARCHA, GIRO, LEVANTARSE</td></tr>
+<tr><td>DE_PIE</td><td>MARCHA, GIRO, AGACHADO, REPOSO, PARADA, CAIDA</td><td>LEVANTARSE</td></tr>
+<tr><td>MARCHA</td><td>DE_PIE, GIRO, PARADA, CAIDA</td><td>AGACHADO directo, LEVANTARSE</td></tr>
+<tr><td>GIRO</td><td>DE_PIE, MARCHA, PARADA, CAIDA</td><td>AGACHADO directo, LEVANTARSE</td></tr>
+<tr><td>AGACHADO</td><td>DE_PIE, PARADA, CAIDA</td><td>MARCHA directa, LEVANTARSE</td></tr>
+<tr><td>CAIDA</td><td>LEVANTARSE, PARADA</td><td>MARCHA, GIRO, DE_PIE, AGACHADO</td></tr>
+<tr><td>LEVANTARSE</td><td>DE_PIE, CAIDA, PARADA</td><td>MARCHA directa</td></tr>
+<tr><td>PARADA</td><td>REPOSO</td><td>cualquier otra, incluida MARCHA</td></tr>
+</table>
+<pre><code>enum Estado : uint8_t {
+  REPOSO, DE_PIE, MARCHA, GIRO, AGACHADO, CAIDA, LEVANTARSE, PARADA
+};
+
+Estado estado = REPOSO;
+
+bool permitido(Estado desde, Estado hacia) {
+  if (hacia == PARADA &amp;&amp; desde != PARADA) return true;
+  switch (desde) {
+    case REPOSO:      return hacia == DE_PIE;
+    case DE_PIE:      return hacia == MARCHA || hacia == GIRO || hacia == AGACHADO
+                             || hacia == REPOSO || hacia == CAIDA;
+    case MARCHA:      return hacia == DE_PIE || hacia == GIRO || hacia == CAIDA;
+    case GIRO:        return hacia == DE_PIE || hacia == MARCHA || hacia == CAIDA;
+    case AGACHADO:    return hacia == DE_PIE || hacia == CAIDA;
+    case CAIDA:       return hacia == LEVANTARSE; // nunca MARCHA desde el suelo
+    case LEVANTARSE:  return hacia == DE_PIE || hacia == CAIDA;
+    case PARADA:      return hacia == REPOSO;
+  }
+  return false;
+}
+
+const char* nombre(Estado e) {
+  switch (e) {
+    case REPOSO: return "REPOSO";
+    case DE_PIE: return "DE_PIE";
+    case MARCHA: return "MARCHA";
+    case GIRO: return "GIRO";
+    case AGACHADO: return "AGACHADO";
+    case CAIDA: return "CAIDA";
+    case LEVANTARSE: return "LEVANTARSE";
+    case PARADA: return "PARADA";
+  }
+  return "?";
+}
+
+// Devuelve false y no cambia el estado si la transición no está en la tabla.
+bool transicion(Estado hacia) {
+  if (!permitido(estado, hacia)) return false;
+  estado = hacia;
+  return true;
+}</code></pre>
+<div class="sim">
+<p>Estado ahora: <strong id="estAhora">REPOSO</strong></p>
+<div class="row" id="estBtns">
+<button type="button" data-e="REPOSO">REPOSO</button>
+<button type="button" data-e="DE_PIE">DE_PIE</button>
+<button type="button" data-e="MARCHA">MARCHA</button>
+<button type="button" data-e="GIRO">GIRO</button>
+<button type="button" data-e="AGACHADO">AGACHADO</button>
+<button type="button" data-e="CAIDA">CAIDA</button>
+<button type="button" data-e="LEVANTARSE">LEVANTARSE</button>
+<button type="button" data-e="PARADA">PARADA</button>
+</div>
+<p id="estTxt">Pulsa un estado. Si la política de esta página no lo permite, el texto dice por qué y el estado no cambia.</p>
+</div>
+</section>
+
+<section id="caida">
+<h2>Caída</h2>
+<p>Dos avisos, y cualquiera de los dos puede bastar. El primero es un ángulo que se mantiene. Un punto de partida, para afinar en tu robot y no una constante oficial: unos 45° durante unas decenas de milisegundos o unos 100 ms. Un pico de un solo sample no cuenta, porque un paso también sacude. El segundo es un pico de aceleración. El número de g hay que medirlo en tu robot: el golpe contra el suelo no es el mismo en moqueta que en baldosa, y copiar el umbral de otro robot es un error de la última sección.</p>
+<pre><code>// 45° y 100 ms son un punto de partida. No son una constante oficial.
+const float ANG_CAIDA = 45.0f * 3.14159265f / 180.0f;
+const uint32_t MS_SOSTENIDO = 100;
+uint32_t tSobre = 0;
+bool sobre = false;
+
+bool caidaPorAngulo(float anguloAbs) {
+  if (anguloAbs &lt; ANG_CAIDA) { sobre = false; return false; }
+  if (!sobre) { sobre = true; tSobre = millis(); return false; }
+  return millis() - tSobre &gt;= MS_SOSTENIDO;
+}
+
+bool caidaPorGolpe(float gMedidos) {
+  // umbralGolpe lo mides tú. Aquí no hay una cifra de datasheet.
+  return gMedidos &gt; umbralGolpeMedido;
+}</code></pre>
+<p>Cuando entras en CAIDA, la pose de protección es la que ya decidiste con el robot en la mano: recoger brazos para que no queden bajo el cuerpo, y no seguir mandando la pose de pie. Los grados no van en esta página porque no los he medido en tu robot.</p>
+<h3>Levantarse</h3>
+<p>Boca arriba y boca abajo no comparten la primera pose. El orden sí es el mismo tipo de lista: una pose cada vez, y no pasas a la siguiente si el servo no ha llegado o si el ángulo de la IMU no es el que esperabas.</p>
+<p>Boca arriba, de espaldas. Primero pliegas para sentarte, llevando el torso hacia las rodillas. Después pasas el peso a los pies, con las manos o los brazos empujando el suelo si tu diseño los tiene. Después extiendes hasta DE_PIE. Si a mitad el ángulo vuelve a pasar el umbral, regresas a CAIDA y no insistes en el mismo ciclo.</p>
+<p>Boca abajo, de bruces. Primero recoges rodillas bajo la cadera, no intentas sentarte como si estuvieras boca arriba. Después empujas el torso hacia atrás hasta quedar a gatas o en cuclillas, según lo que tu mecánica alcance. Después subes a DE_PIE. La pose que pide un ángulo más allá del tope del servo falla siempre, aunque el orden sea correcto.</p>
+<p>Lo que falla, en los dos casos: la batería ya no da el par del servo, el servo no llega al ángulo de esa pose, o el suelo resbala o está blando y el apoyo se mueve. El umbral de batería hay que medirlo en tu robot. Esta página no da un voltaje.</p>
+<p>No te levantes en escaleras, en un borde, ni con la batería justa para un intento. En esos tres casos PARADA o quédate en CAIDA. Un levantamiento a medias en un borde termina peor que quedarse quieto.</p>
+</section>
+
+<section id="ia-offline">
+<h2>IA offline</h2>
+<p>La tesis de esta página es corta. El equilibrio y la caída de un humanoide de hobby se resuelven con un umbral, un filtro y una máquina de estados. La IA no sustituye el lazo. El lazo tiene que seguir corriendo aunque el modelo tarde, se equivoque o no quepa.</p>
+<p>Lo que sí puede un modelo pequeño, sin nube y sin API, es una etiqueta. La fase de la marcha, entrenada con los pasos de este robot, o un sí o no de «me caigo». Un árbol de decisión cabe donde una red no cabe, y se lee: si el ángulo pasa de esto y la carga del pie cae, entonces fase de balanceo. Una red diminuta hace el mismo trabajo si tienes ejemplos de este robot y mides que la inferencia termina antes de la siguiente corrección del servo. Los ejemplos de otro robot no valen: la holgura, el montaje de la IMU y el peso no se aprenden solos mirando un vídeo.</p>
+<p>Lo que no cabe, y no hace falta inventar un tamaño para decirlo: un chat, y un modelo grande de voz del estilo de un Whisper grande. No cito megas de Whisper porque no los he leído para esta página. Tampoco hay cuenta ni servidor. Si la etiqueta necesita red para existir, no es de esta página.</p>
+<table>
+<tr><th>Dónde</th><th>Qué cabe, con la cifra leída</th><th>Qué no afirmes</th></tr>
+<tr><td>Uno o Nano con ATmega328P</td><td>2 Kbytes de SRAM. La red int8 de detección de persona del ejemplo oficial de ESP, 250 kilobytes, no entra.</td><td>No digas que «TFLite Micro» en abstracto cabe o no cabe: el tamaño de <code>hello_world</code> no está leído aquí.</td></tr>
+<tr><td>ESP32</td><td>520 KB de SRAM interna, no libres. El mismo ejemplo de persona está probado en ESP32-DevKitC. En la nota de esp-tflite-micro 1.3.0, <code>invoke()</code> de person detection a 240 MHz tarda 4084 ms sin ESP-NN y 380 ms con ESP-NN. La página de ese componente dice que la estable más nueva es la 1.4.1, así que 1.3.0 no es la última.</td><td>380 ms es el tiempo de <code>invoke()</code>, no los fotogramas de una cámara ni el periodo de tu marcha.</td></tr>
+<tr><td>ESP32-S3</td><td>512 KB de SRAM. El ejemplo de persona está probado en ESP32-S3-DevKitC, ESP32-S3-EYE y ESP32-S3-Korvo-2. <code>invoke()</code> a 240 MHz: 2300 ms sin ESP-NN y 54 ms con ESP-NN, misma nota de la 1.3.0.</td><td>El README del ejemplo cita 1–2 FPS solo para el ESP32-S2. No lo pases al S3.</td></tr>
+<tr><td>Pi 4 o Pi 5</td><td>La ficha del 4 lista hasta 8 GB, en opciones de 1, 2, 3, 4 u 8 GB. La del 5 lista 1, 2, 4, 8 y 16 GB. Ahí corre el modelo pequeño de voz de la sección siguiente, no un chat.</td><td>Los fotogramas de un detector en tu Pi hay que medirlos en tu Pi. Aquí no hay un FPS de visión.</td></tr>
+</table>
+<p>Los límites que se quedan aunque el modelo quepa: la latencia, porque una etiqueta que llega después del servo no corrige la caída; los datos, que tienen que ser de este robot; y la holgura mecánica, que un entrenamiento no aprieta. Si el árbol dice «tobillo +3°» y el engranaje se come 3°, el modelo tiene razón y el pie no se mueve.</p>
+</section>
+
+<section id="voz">
+<h2>Voz y vista, solo offline</h2>
+<p>Nada de esta sección llama a una API. Si no cabe en la placa, no existe para el robot.</p>
+<h3>Despertar en un ESP</h3>
+<p>WakeNet, en la documentación actual de ESP-SR, ya no usa las ediciones 1 a 8. WakeNet9 y WakeNet9l sirven para ESP32, ESP32-S3 y ESP32-P4. WakeNet9s es para ESP32-C3, C5 y C6. El audio de entrada es 16 kHz, mono, con signo de 16 bits, y cada trama tiene ventana y paso de 30 ms.</p>
+<p>El tamaño que sí está escrito es el banco de pruebas del ESP32-S3, no un ESP32 sin PSRAM. WakeNet9 cuantizado a 2 canales: 16 KB de RAM interna y 324 KB de PSRAM, 3,0 ms por trama de 32 ms. A 3 canales: 20 KB y 347 KB de PSRAM, 4,3 ms. La prueba de aciertos (98 % a 1 m en silencio, 96 % con ruido estacionario a SNR de 4 dB, 94 % con ruido de habla, 96 % con interrupción AEC; a 3 m, 98 / 96 / 94 / 94, y un falso disparo cada 12 horas) es de una ESP32-S3-Korvo V4.0 con WakeNet9 y la palabra Alexa. No es una promesa para tu palabra ni para tu placa.</p>
+<p>Esa cifra de WakeNet no incluye el resto del audio. En el mismo banco, el camino AFE de ejemplo MR, SR, LOW_COST usa 60,1 KB de RAM interna y 739,7 KB de PSRAM. MultiNet 4 Q8 usa 10,5 KB internos y 1009 KB de PSRAM. MultiNet 7 usa 18 KB y 2920 KB. La tabla de órdenes que está publicada ahí es la inglesa, MultiNet 5_en, 6_en y 7_en. No la presentes como un reconocedor de español ni como algo que cabe en un ESP sin PSRAM. Si tu ESP32 no tiene PSRAM, el tamaño actual de WakeNet9 en esa placa no está en la página que he leído: hay que medirlo en tu robot, o leer la tabla de ocupación de ese chip antes de prometer la palabra de despertar.</p>
+<h3>Frases cortas en una Pi</h3>
+<p>Vosk publica dos familias. Los modelos pequeños suelen andar por 50 MB en disco y unos 300 MB de memoria en marcha, y corren en una Raspberry Pi. Los grandes pueden pedir hasta 16 GB en memoria. Para español, <code>vosk-model-small-es-0.42</code> está listado a 39M, como modelo ligero de banda ancha para Android y Raspberry Pi, licencia Apache 2.0, con error de palabra 16,02 en cv test, 16,72 en mtedx y 11,21 en mls. El grande, <code>vosk-model-es-0.42</code>, está a 1,4G. Esta página se queda con el pequeño. Reconoce habla. No conversa.</p>
+<p>«Para» y «anda» sí. Un diálogo no. La orden entra en la máquina de estados como una transición, con las mismas prohibiciones: «anda» en CAIDA se rechaza igual que el botón de MARCHA. Si Vosk duda, no te inventes la frase. Quédate en el estado actual.</p>
+<h3>Vista</h3>
+<p>En un Uno, no. Dos kilobytes de SRAM no alojan la red de 250 kilobytes del ejemplo de persona.</p>
+<p>En un ESP32-S3, solo lo que ese ejemplo oficial ya enseña: una red int8 de 250 kilobytes que marca persona o no persona, probada en las placas que lista el README. No es entender la escena. El tiempo de <code>invoke()</code> con ESP-NN, 54 ms en el S3 a 240 MHz, no es una tasa de fotogramas del robot andando. La cámara, el dibujo en pantalla y tu lazo de servos van aparte, y hay que medirlos en tu robot.</p>
+<p>En una Pi, un detector ligero del mismo tipo, persona o no, cabe en la RAM que lista la ficha. No cito fotogramas por segundo: hay que medirlos en tu Pi. Entender la escena, nombrar lo que pasa y decidir un plan a partir de ello no es este detector y no es esta página.</p>
+</section>
+
+<section id="errores">
+<h2>Errores típicos</h2>
+<p>El signo de la IMU está al revés. Inclinas el robot a la izquierda y el ángulo dice derecha, así que el tobillo empuja hacia la caída. Se arregla en el signo del corrector, después de mirar el montaje, no subiendo la ganancia.</p>
+<p>Hay un <code>delay</code> dentro del lazo. El hercio que calculaste no existe: la vuelta espera y el servo obedece un ángulo viejo. El tiempo va con <code>millis</code>, como en la marcha.</p>
+<p>El servo está en el tope. La estrategia de cadera pide un grado más y el engranaje ya no gira. La orden nueva no es una corrección. Recorta el ángulo antes de mandarlo, o no pidas esa estrategia con ese servo.</p>
+<p>El umbral es de otro robot. Cuarenta y cinco grados, cien milisegundos, el pico de g y el tiempo del paso de 30 cm son puntos de partida de esta página. Si los copias y no los afinas, el tuyo o se tira al suelo o se niega a andar en llano.</p>
+</section>
+<p class="foot">Offline. Sin cuenta. Esta página no publica nada. les vencimos · control del humanoide · v20261003a</p>
+</main>
+<script>
+(function () {
+  var q = document.getElementById("q");
+  q.addEventListener("input", function () {
+    var t = q.value.toLowerCase();
+    var nodes = document.querySelectorAll("main section");
+    for (var i = 0; i < nodes.length; i++) {
+      var s = nodes[i];
+      s.style.display = !t || s.textContent.toLowerCase().indexOf(t) !== -1 ? "" : "none";
+    }
+  });
+
+  var cx = document.getElementById("cx");
+  var cy = document.getElementById("cy");
+  var com = document.getElementById("com");
+  var poly = document.getElementById("poly");
+  var modo = "doble";
+  var pies = {
+    izq: {x: 36, y: 150, w: 78, h: 58},
+    der: {x: 158, y: 150, w: 78, h: 58}
+  };
+
+  function dentro(r, x, y) {
+    return x >= r.x && x <= r.x + r.w && y >= r.y && y <= r.y + r.h;
+  }
+
+  function apoyo() {
+    if (modo === "izq") return pies.izq;
+    if (modo === "der") return pies.der;
+    return {x: pies.izq.x, y: pies.izq.y, w: (pies.der.x + pies.der.w) - pies.izq.x, h: pies.izq.h};
+  }
+
+  function pinta() {
+    var x = Number(cx.value);
+    var y = Number(cy.value);
+    com.setAttribute("cx", x);
+    com.setAttribute("cy", y);
+    document.getElementById("cxv").textContent = String(x);
+    document.getElementById("cyv").textContent = String(y);
+    var r = apoyo();
+    poly.setAttribute("x", r.x);
+    poly.setAttribute("y", r.y);
+    poly.setAttribute("width", r.w);
+    poly.setAttribute("height", r.h);
+  }
+
+  function marcar(id) {
+    ["bDob", "bIzq", "bDer"].forEach(function (n) {
+      document.getElementById(n).className = n === id ? "" : "ghost";
+    });
+  }
+
+  cx.addEventListener("input", pinta);
+  cy.addEventListener("input", pinta);
+  document.getElementById("bDob").addEventListener("click", function () { modo = "doble"; marcar("bDob"); pinta(); });
+  document.getElementById("bIzq").addEventListener("click", function () { modo = "izq"; marcar("bIzq"); pinta(); });
+  document.getElementById("bDer").addEventListener("click", function () { modo = "der"; marcar("bDer"); pinta(); });
+  document.getElementById("bComp").addEventListener("click", function () {
+    var x = Number(cx.value);
+    var y = Number(cy.value);
+    var r = apoyo();
+    var ok = dentro(r, x, y);
+    var donde = modo === "doble" ? "doble apoyo (el rectángulo que envuelve los dos pies)"
+      : (modo === "izq" ? "solo el pie izquierdo" : "solo el pie derecho");
+    var el = document.getElementById("eqTxt");
+    el.textContent = ok
+      ? "Estable: el centro de masa cae dentro del polígono de " + donde + ". Este rectángulo es de enseñanza, no la planta medida."
+      : "Inestable: el centro de masa cae fuera del polígono de " + donde + ". En apoyo simple el hueco entre los pies ya no sujeta.";
+    el.className = ok ? "ok" : "warn";
+  });
+  pinta();
+
+  var codoPos = true;
+  document.getElementById("bCodo").addEventListener("click", function () {
+    codoPos = !codoPos;
+    this.textContent = codoPos ? "Codo al otro lado" : "Codo al lado de ahora";
+  });
+  document.getElementById("bInv").addEventListener("click", function () {
+    var L1 = Number(document.getElementById("L1").value);
+    var L2 = Number(document.getElementById("L2").value);
+    var x = Number(document.getElementById("px").value);
+    var y = Number(document.getElementById("py").value);
+    var out = document.getElementById("kinTxt");
+    if (!(L1 > 0) || !(L2 > 0)) {
+      out.className = "warn";
+      out.textContent = "Rechazado: L1 y L2 tienen que ser longitudes positivas, en la misma unidad que x e y.";
+      return;
+    }
+    var c2 = (x * x + y * y - L1 * L1 - L2 * L2) / (2 * L1 * L2);
+    if (c2 > 1 || c2 < -1) {
+      out.className = "warn";
+      out.textContent = "Rechazado: el punto está fuera de alcance. cos(q2) = " + c2.toFixed(3) + ", y tiene que estar entre -1 y 1. No se inventa un ángulo.";
+      return;
+    }
+    var s2 = Math.sqrt(1 - c2 * c2);
+    if (!codoPos) s2 = -s2;
+    var q2 = Math.atan2(s2, c2);
+    var q1 = Math.atan2(y, x) - Math.atan2(L2 * Math.sin(q2), L1 + L2 * c2);
+    var xr = L1 * Math.cos(q1) + L2 * Math.cos(q1 + q2);
+    var yr = L1 * Math.sin(q1) + L2 * Math.sin(q1 + q2);
+    var a1 = q1 * 180 / Math.PI;
+    var a2 = q2 * 180 / Math.PI;
+    out.className = "ok";
+    out.textContent = "Cabe. q1 = " + a1.toFixed(1) + "° desde el eje horizontal de la fórmula, q2 = " + a2.toFixed(1) + "° respecto al muslo. La directa devuelve x = " + xr.toFixed(2) + ", y = " + yr.toFixed(2) + ". El cero del servo no es este cero: el mapa hay que medirlo en tu robot.";
+  });
+
+  var permitido = {
+    REPOSO: {DE_PIE: 1, PARADA: 1},
+    DE_PIE: {MARCHA: 1, GIRO: 1, AGACHADO: 1, REPOSO: 1, PARADA: 1, CAIDA: 1},
+    MARCHA: {DE_PIE: 1, GIRO: 1, PARADA: 1, CAIDA: 1},
+    GIRO: {DE_PIE: 1, MARCHA: 1, PARADA: 1, CAIDA: 1},
+    AGACHADO: {DE_PIE: 1, PARADA: 1, CAIDA: 1},
+    CAIDA: {LEVANTARSE: 1, PARADA: 1},
+    LEVANTARSE: {DE_PIE: 1, CAIDA: 1, PARADA: 1},
+    PARADA: {REPOSO: 1}
+  };
+  var porque = {
+    "CAIDA>MARCHA": "Desde CAIDA no hay polígono de apoyo. MARCHA está prohibida. Solo LEVANTARSE o PARADA.",
+    "CAIDA>GIRO": "Girar en el suelo no es un estado de esta política. Primero LEVANTARSE.",
+    "CAIDA>DE_PIE": "DE_PIE no se salta. Pasa por LEVANTARSE.",
+    "CAIDA>AGACHADO": "Agacharse supone que ya estás arriba. Desde CAIDA, no.",
+    "PARADA>MARCHA": "PARADA solo vuelve a REPOSO. Andar desde la parada está prohibido.",
+    "REPOSO>MARCHA": "Desde REPOSO primero DE_PIE. No se anda sin haber sostenido el cuerpo.",
+    "MARCHA>AGACHADO": "Desde MARCHA no te agachas directo. Vuelve a DE_PIE.",
+    "LEVANTARSE>MARCHA": "Termina en DE_PIE antes de ordenar MARCHA."
+  };
+  var estado = "REPOSO";
+  var nombres = document.querySelectorAll("#estBtns button");
+  for (var i = 0; i < nombres.length; i++) {
+    nombres[i].addEventListener("click", function () {
+      var hacia = this.getAttribute("data-e");
+      var txt = document.getElementById("estTxt");
+      if (hacia === estado) {
+        txt.className = "";
+        txt.textContent = "Ya estás en " + estado + ". No hay transición.";
+        return;
+      }
+      if (permitido[estado][hacia]) {
+        var antes = estado;
+        estado = hacia;
+        document.getElementById("estAhora").textContent = estado;
+        txt.className = "ok";
+        txt.textContent = "Aceptada: " + antes + " pasa a " + estado + ". Es la política de ejemplo de esta página, no una norma externa.";
+      } else {
+        var clave = estado + ">" + hacia;
+        txt.className = "warn";
+        txt.textContent = "Rechazada: " + (porque[clave] || (estado + " no tiene permiso para pasar a " + hacia + ". Mira la tabla. El estado sigue en " + estado + "."));
+      }
+    });
+  }
+})();
+</script>
+</body>
+</html>

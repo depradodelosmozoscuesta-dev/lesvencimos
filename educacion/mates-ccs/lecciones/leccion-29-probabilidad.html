@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<meta name="theme-color" content="#0E0E0C"/>
+<title>Lección 29 · Probabilidad, frecuencia y Laplace · Les vencimos</title>
+<link rel="icon" href="../icons/favicon.svg" type="image/svg+xml"/>
+<link rel="stylesheet" href="../leccion-shell.css"/>
+<style>
+  .pasos{list-style:none;margin:0 0 1rem;padding:0;counter-reset:paso}
+  .pasos li{position:relative;margin:0 0 .7rem;padding:.7rem .8rem .7rem 3.1rem;background:var(--lv-panel);border:1px solid var(--lv-linea);border-radius:10px}
+  .pasos li::before{counter-increment:paso;content:counter(paso);position:absolute;left:.65rem;top:.7rem;width:1.7rem;height:1.7rem;border-radius:50%;background:#C4A15A;color:#1A160E;font-weight:700;font-size:.9rem;display:flex;align-items:center;justify-content:center}
+  .figura-svg{background:var(--lv-panel);border:1px solid var(--lv-linea);border-radius:10px;padding:.4rem;margin:.4rem 0 1rem}
+  .figura-svg svg{width:100%;height:auto;display:block}
+  .ej{margin:0 0 1rem;padding:.85rem .95rem;background:var(--lv-panel);border:1px solid var(--lv-linea);border-left:3px solid #C4A15A;border-radius:10px}
+  .ej h3{margin:0 0 .35rem;font-family:var(--lv-serif);font-size:1.05rem;color:var(--lv-titulo)}
+  .editor,textarea.editor{width:100%;min-height:5.2rem;font-family:ui-monospace,monospace;font-size:.95rem;line-height:1.4;padding:.55rem .65rem;border:1px solid rgba(196,161,90,.45);border-radius:8px;background:#161512;color:#E6E1D6;resize:vertical;box-sizing:border-box}
+  .lienzo{display:block;width:100%;max-width:640px;height:280px;background:#161512;border:1px solid #C4A15A;border-radius:8px;touch-action:none;cursor:crosshair}
+  .fila{display:flex;flex-wrap:wrap;gap:.4rem;margin:.45rem 0;align-items:center}
+  .boton{font:inherit;font-weight:700;font-size:.85rem;padding:.35rem .75rem;border-radius:999px;border:1px solid #C4A15A;background:transparent;color:#E6E1D6;cursor:pointer}
+  .porque{margin-top:.5rem;padding:.6rem .7rem;background:#1a2218;border-radius:8px;color:#E6E1D6}
+  .dato{font-size:.95rem;color:var(--lv-suave)}
+  table.datos{width:100%;border-collapse:collapse;margin:.4rem 0 1rem;font-size:.98rem}
+  table.datos th,table.datos td{border:1px solid var(--lv-linea);padding:.35rem .5rem;text-align:left}
+  table.datos th{background:#161512;color:#C4A15A}
+  .glosa{display:block;font-size:.9rem;color:#9A9488;margin:.15rem 0 .7rem}
+  .formula{display:block;margin:.35rem 0 .15rem;padding:.45rem .7rem;background:#161512;border-left:3px solid #C4A15A;overflow-x:auto}
+  input.campo{background:#161512;color:#E6E1D6;border:1px solid #C4A15A;border-radius:6px;padding:.3rem .45rem;width:5.5rem}
+  .salida{font-family:ui-monospace,monospace;color:#C4A15A}
+</style>
+<script src="../leccion-shell-nav.js" defer></script>
+</head>
+<body class="leccion-shell">
+<div class="leccion-wrap">
+<nav class="leccion-barra" aria-label="Navegación de lección" data-actual="29" data-total="33">
+  <div class="leccion-progreso" role="status">
+    <span class="progreso-texto"><strong>29</strong> de <strong>33</strong></span>
+    <div class="progreso-pista" aria-hidden="true"><div class="progreso-lleno" style="width:90.62%"></div></div>
+  </div>
+  <div class="leccion-atajos">
+    <a class="atajo atajo-prev" href="leccion-28-regresion.html">← Anterior</a>
+    <a class="atajo atajo-next" href="leccion-30-binomial-normal.html">Siguiente →</a>
+  </div>
+</nav>
+<header class="leccion-top">
+  <p class="leccion-marca">Les <span>vencimos</span></p>
+  <p class="leccion-meta-top">Matemáticas Aplicadas a las CCSS I · 1º Bachillerato</p>
+</header>
+<header class="bloque-titulo">
+  <span class="eyebrow">Lección 29 · B.1 y D.2 · Incertidumbre</span>
+  <h1 class="titulo-leccion">Probabilidad, frecuencia y <em>Laplace</em></h1>
+  <p class="meta-leccion">1º Bach CCSS · CyL Decreto 40/2022 · B.1 Medida de la incertidumbre · D.2</p>
+</header>
+
+<aside class="bloque-curiosidad"><p class="etiqueta-bloque">Para situarte</p>
+<h2 class="titulo-curiosidad">Medir lo que aún no ha pasado</h2>
+<p class="texto-curiosidad">En 1.º la probabilidad mide incertidumbre. Se estima con la frecuencia relativa y, si los casos son equiprobables, se calcula con Laplace y un recuento. El árbol y las combinaciones se hacen aquí mismo.</p></aside>
+<section class="bloque-cuerpo">
+<h2>Objetivos</h2>
+<ul>
+<li>Distinguir la probabilidad, como medida entre 0 y 1, de una racha corta de frecuencias.</li>
+<li>Aplicar la regla de Laplace solo cuando los resultados elementales son equiprobables.</li>
+<li>Contar con un árbol o con combinaciones antes de dividir.</li>
+</ul>
+<h2>Frecuencia y Laplace</h2>
+<p class="formula">frec. relativa = veces que ocurrió / veces que se repitió el experimento.</p>
+<span class="glosa">El numerador cuenta solo el suceso que te interesa; el denominador es el número de repeticiones, no el número de resultados posibles del modelo. La frecuencia estima la probabilidad y no tiene por qué coincidir con ella en una serie corta.</span>
+<p class="formula">P(A) = casos favorables / casos posibles, si todos los casos posibles son igual de probables.</p>
+<span class="glosa">A es el suceso; los casos son resultados elementales equiprobables, no etiquetas gruesas. Si juntas resultados que no pesan lo mismo, Laplace no se aplica a esas etiquetas.</span>
+<div class="figura-svg"><svg viewBox="0 0 420 160" role="img">
+<title>Árbol de dos extracciones sin reemplazo entre tres bolas, dos rojas y una azul</title>
+<rect width="420" height="160" fill="#161512"/>
+<text x="20" y="80" fill="#E6E1D6" font-size="13">inicio</text>
+<line x1="70" y1="76" x2="140" y2="40" stroke="#C4A15A"/>
+<line x1="70" y1="76" x2="140" y2="110" stroke="#C4A15A"/>
+<text x="146" y="44" fill="#E6E1D6" font-size="13">R 2/3</text>
+<text x="146" y="114" fill="#E6E1D6" font-size="13">A 1/3</text>
+<line x1="200" y1="40" x2="270" y2="24" stroke="#E6E1D6"/>
+<line x1="200" y1="40" x2="270" y2="58" stroke="#E6E1D6"/>
+<text x="276" y="28" fill="#C4A15A" font-size="13">R 1/2</text>
+<text x="276" y="62" fill="#E6E1D6" font-size="13">A 1/2</text>
+</svg></div>
+<h2>Ejemplo 1. Una urna, Laplace directo</h2>
+<p>5 bolas rojas, 3 azules, 2 verdes. Se extrae una al azar. Total 10, y el sorteo no favorece a ninguna bola.</p>
+<ol class="pasos">
+<li>P(roja) = 5/10 = 1/2.</li>
+<li>P(no verde) = 8/10 = 4/5.</li>
+<li>P(verde) = 2/10 = 1/5. Suma con la anterior: 4/5 + 1/5 = 1, como debe ser en complementarios.</li>
+</ol>
+<p class="formula">P(roja) = 5/10.</p>
+<span class="glosa">5 es el número de bolas rojas, los casos favorables; 10 es el número de bolas, los casos posibles equiprobables.</span>
+<p>Si en 40 sorteos con reemplazo la roja sale 22 veces, la frecuencia relativa es 22/40 = 0,55. No contradice a 1/2: 40 tiradas son pocas para que la frecuencia se pegue al valor. La frecuencia es una estimación; 1/2 es la probabilidad del modelo simétrico.</p>
+<h2>Ejemplo 2. Recuento con combinaciones y con árbol</h2>
+<p>Se elige un equipo de 2 personas entre A, B, C y D, al azar, sin orden. Los pares son AB, AC, AD, BC, BD, CD: son C(4, 2) = 6, y el sorteo los trata igual.</p>
+<ol class="pasos">
+<li>P(A está en el equipo) = 3/6 = 1/2, porque A aparece en AB, AC y AD.</li>
+<li>También C(3, 1)/C(4, 2) = 3/6: se elige al compañero de A entre los otros tres.</li>
+</ol>
+<p>Segundo recuento, ahora ordenado. Bolsa con bolas distinguibles R1, R2 y A. Se extraen dos sin devolución. El árbol de la figura, o la lista, da 3·2 = 6 resultados ordenados equiprobables: R1R2, R2R1, R1A, AR1, R2A, AR2.</p>
+<ol class="pasos">
+<li>Los dos rojos son solo R1R2 y R2R1: 2 de 6.</li>
+<li>Por el árbol: (2/3)·(1/2) = 1/3. Y 2/6 = 1/3. Cuadra.</li>
+<li>Tratar «dos rojos» y «mezcla» como si fueran dos casos iguales sería falso: la mezcla pesa más.</li>
+</ol>
+<p class="formula">P(dos rojas) = (2/3)·(1/2) = 1/3.</p>
+<span class="glosa">2/3 es la probabilidad de roja en la primera extracción; 1/2 es la probabilidad de la otra roja sabiendo que la primera ya salió y no se devolvió; el producto recorre esa rama del árbol.</span>
+<h2>Ejercicios</h2>
+<article class="ej">
+<h3>1. Frecuencia</h3>
+<p>En 200 repeticiones el suceso aparece 50 veces. Escribe la frecuencia relativa y qué no demuestra.</p>
+<label for="e29a">Tu razonamiento</label>
+<textarea class="editor" id="e29a"></textarea>
+<details class="porque"><summary>Corrección</summary>
+<ol class="pasos"><li>50/200 = 1/4 = 0,25.</li><li>Es una estimación de la probabilidad a partir de lo observado.</li><li>No demuestra que la probabilidad sea exactamente 1/4: otra tanda de 200 puede dar otro numerador.</li><li>Si el experimento fuera una moneda justa, 1/4 sería una racha baja, no una redefinición de la moneda.</li></ol>
+<p class="porque">La frecuencia relativa usa los datos. La probabilidad del modelo, si lo hay, es otra pieza. Igualarlas tras una sola serie es confundir estimación y valor teórico.</p>
+</details>
+</article>
+<article class="ej">
+<h3>2. Un delegado</h3>
+<p>En un grupo hay 12 chicos y 18 chicas. Se sortea un delegado de modo que cada persona tiene la misma probabilidad. Calcula P(chica).</p>
+<label for="e29b">Tu razonamiento</label>
+<textarea class="editor" id="e29b"></textarea>
+<details class="porque"><summary>Corrección</summary>
+<ol class="pasos"><li>Casos posibles: 12+18 = 30 personas.</li><li>Favorables: 18.</li><li>P = 18/30 = 3/5.</li><li>Laplace vale porque el sorteo es entre personas, no entre las etiquetas «chico» y «chica», que no son equiprobables.</li></ol>
+<p class="porque">Si alguien divide 1/2 porque «hay dos sexos», está aplicando Laplace a casos que no pesan igual. El caso elemental es la persona.</p>
+</details>
+</article>
+<article class="ej">
+<h3>3. Parejas de ingredientes</h3>
+<p>Hay cuatro ingredientes A, B, C, D. Se eligen dos al azar, sin orden y sin repetición. Calcula la probabilidad de que A esté entre los elegidos.</p>
+<label for="e29c">Tu razonamiento</label>
+<textarea class="editor" id="e29c"></textarea>
+<details class="porque"><summary>Corrección</summary>
+<ol class="pasos"><li>C(4, 2) = 6 pares: AB, AC, AD, BC, BD, CD.</li><li>A está en tres de ellos.</li><li>P = 3/6 = 1/2.</li><li>Lista y fórmula coinciden.</li></ol>
+<p class="porque">El total no es 4·3 = 12, porque ese recuento ordena y aquí el equipo {A, B} es el mismo que {B, A}. Si se usara el recuento ordenado habría que usarlo también en el numerador: 6 favorables de 12, y otra vez 1/2.</p>
+</details>
+</article>
+<article class="ej">
+<h3>4. Sin reemplazo</h3>
+<p>De tres bolas distinguibles, dos rojas y una azul, se extraen dos sin devolución. Calcula P(las dos rojas) por árbol y por lista.</p>
+<label for="e29d">Tu razonamiento</label>
+<textarea class="editor" id="e29d"></textarea>
+<details class="porque"><summary>Corrección</summary>
+<ol class="pasos"><li>Primera roja: 2/3. Segunda roja, dado eso: 1/2.</li><li>Producto: 1/3.</li><li>Lista de 6 extracciones ordenadas: solo 2 son las dos rojas. 2/6 = 1/3.</li><li>Coinciden. No se usa 1/2 por «o las dos rojas o no».</li></ol>
+<p class="porque">Sin devolución las probabilidades de la segunda extracción cambian. El árbol lo registra en la segunda rama; la lista de permutaciones lo registra al no repetir bola.</p>
+</details>
+</article>
+
+<h2>Cierre</h2>
+<p>Pregunta siempre cuál es el caso elemental y si todos pesan lo mismo. Si no pesan igual, no uses Laplace sobre las etiquetas gruesas: baja al árbol o a la lista. La frecuencia relativa de una serie finita estima; no sustituye al recuento cuando el mecanismo es simétrico y conocido.</p>
+</section>
+
+<footer class="leccion-pie"><strong>Les vencimos</strong> · L29 de 33 · Matemáticas Aplicadas a las CCSS I · sin publicar</footer>
+</div>
+<script type="application/json" data-maestro="guion">{"curso": "bach1-mates-ccs", "leccion": 29, "titulo": "Probabilidad, frecuencia y Laplace", "url": "leccion-29-probabilidad.html", "musica": false}</script>
+
+<!-- saber: B.1 D.2 -->
+</body>
+</html>
