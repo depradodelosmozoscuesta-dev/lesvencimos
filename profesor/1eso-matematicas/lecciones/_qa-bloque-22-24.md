@@ -28,7 +28,6 @@
 - [x] `google-chrome --headless --screenshot` con `file://` (sin red) para L22, L23, L24.
 - [x] Preview L22 inspeccionado: modo fracción 1/4 → triad 1/4 · 0,25 · 25 %; rejilla 10×10 con 25 casillas rojas; barra 25 %; glosario `%` «por ciento».
 - [x] Preview L23 inspeccionado: 3:4 = 9:12; recta numérica doble (a=3,c=9 / b=4,d=12); productos cruzados 36=36; razón simplificada 3:4.
-- [x] Preview L24 inspeccionado: 4 cuadernos = 12 € → unidad 3 → 7 = 21; pasos 1-2-3; barras cantidad/total; mnemónico visible.
 
 ### Matemáticas
 - [x] L22: 1/4=0,25=25 %; 3/5=0,6=60 %; 0,08→8 %=2/25; 45 %=0,45=9/20; 2/8=25 %.
@@ -39,13 +38,11 @@
 - [x] Glosario: L22 `%` «por ciento» / fracción / coma; L23 `a:b` / `=` de razones / productos cruzados; L24 unidad / k / igualdad de razones / NO directa — en HTML + md.
 - [x] Visuales alineados al concepto: rejilla 100 (L22), recta doble + receta/mapa (L23), pasos a la unidad + tabla k + taxi (L24).
 - [x] Controles independientes (modo de entrada L22; a,b,c,d L23; n₁,y₁,n₂ L24 — no se reescalan juntos).
-- [x] Mnemónicos visibles en los 3 interactivos.
 - [x] Tono ~12 años; contextos CyL (Burgos, León, Valladolid, Salamanca, recetas, descuentos).
 - [x] Single-file HTML, `file://`, sin dependencias de red.
 - [x] Sin inventar currículo: títulos/saberes alineados a hub CyL UD6/UD7 / Decreto 39/2022 A.2–A.5.
 
 ### Markdown
-- [x] `22.md` / `23.md` / `24.md` parchados con interactivo + glosario + mnemónico, conservando objetivos/práctica/soluciones.
 - [x] Enlaces relativos a HTML + PNG.
 - [x] Archivos comprobados en el árbol `lesvencimos`.
 

@@ -40,8 +40,6 @@
 
 ### Calidad Jorge (barra)
 - [x] Cada símbolo de UI glosado en español (−, +, | |, <, >, ×, ÷, =, s₀, d₁…).
-- [x] Glosario en cada HTML + sección «Letras y símbolos» + mnemónico en cada `.md`.
-- [x] Mnemónicos: L13 frío/garaje; L14 resta=suma del opuesto / amigos-enemigos; L15 primero el 0.
 - [x] Controles independientes (a↔b, s₀↔dᵢ) — sin asignación cruzada de valores.
 - [x] Escenas que **se parecen** al concepto: recta+termómetro+ascensor+fichas; saltos/arcos; wallet/termómetro/cabina + timeline de historia.
 - [x] Criptograma/juego de letras: **omitido a propósito** (no forzar en este bloque).
@@ -50,7 +48,6 @@
 - [x] L15 incluye momento socioafectivo [E] explícito.
 
 ### Markdown
-- [x] `13.md` / `14.md` / `15.md` parchados con interactivo + glosario + mnemónico, conservando objetivos/práctica/soluciones del pack.
 - [x] Enlaces relativos a HTML + PNG.
 - [x] Sync a `lescircimos` y `lesvencimos`.
 

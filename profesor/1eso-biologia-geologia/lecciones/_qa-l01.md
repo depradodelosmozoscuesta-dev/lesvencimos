@@ -33,7 +33,6 @@
 - [x] Transiciones de narración; pills; Anterior/Siguiente; Auto-avance/Pausa; Reiniciar.
 - [x] Sliders independientes: temperatura (variable) y tiempo.
 - [x] Modelo toy de fusión: a más °C y más minutos, menos hielo.
-- [x] Mini-check: ordenar pasos (mnemónico) + hipótesis buena vs mala.
 - [x] Glosario en HTML; sin CDN; `file://` OK.
 - [x] `?preview=1` → paso Experimentar, T=26 °C, t=14 min, mid-melt.
 
@@ -42,7 +41,6 @@
 ## Markdown
 
 - [x] Header curso / UD A / Decreto 39/2022 A (método).
-- [x] Mnemónico «Oso Pequeño Hace Experimentos De Ciencia».
 - [x] Términos en español primero (hipótesis, variable, control, datos…).
 - [x] Enlace relativo al HTML + nota offline.
 - [x] Soluciones con porqués; errores frecuentes; mini cierre; Reto Profesor.

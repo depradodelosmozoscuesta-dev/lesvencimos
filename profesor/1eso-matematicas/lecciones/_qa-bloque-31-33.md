@@ -39,13 +39,11 @@
 - [x] **Dibujos = lo que nombran:** polígonos con vértices/lados/ángulos (L31); rectas + circunferencias + d ⊥ (L32); arcos de compás + intersección (L33) — no charcos/blobs.
 - [x] **Controles independientes:** L31 a/b/c no se reescalan juntos en pantalla; L32 r y d independientes; L33 lados SSS independientes.
 - [x] **Glosario en español primero:** vértice/lado/ángulo/diagonal/∥/⊥; paralelo/perpendicular/tangente/secante/O/r/d; compás/regla/mediatriz/bisectriz/SSS — en HTML + md.
-- [x] Mnemónicos visibles en los 3 interactivos.
 - [x] Tono ~12 años; UD10 Figuras planas.
 - [x] Single-file HTML, `file://`, sin dependencias de red.
 - [x] Sin inventar currículo: UD10 L31–L33 · Decreto 39/2022 C.1.
 
 ### Markdown
-- [x] `31.md` / `32.md` / `33.md` parchados con interactivo + glosario + mnemónico, conservando objetivos/práctica/soluciones/reto.
 - [x] Enlaces relativos a HTML + PNG.
 
 ---

@@ -30,7 +30,6 @@
 - [x] `google-chrome --headless --screenshot` con `file://` (sin red) para L25, L26, L27.
 - [x] Preview L25 inspeccionado: modo **Descuento**; sudadera 80 € −25 % → etiqueta Valladolid con badge −25 %, tachado 80 €, final **60,00 €**, pizarra ×0,75, ahorro 20 €; glosario `%` «por ciento».
 - [x] Preview L26 inspeccionado: ticket **SUPER MERINO · Segovia** con 3 líneas (pan, leche, manzanas); total **5,80 €**; cambio de 10 € = **4,20 €**; unitario manzanas 1,80 €/kg; momento [E] visible.
-- [x] Preview L27 inspeccionado: estantería arroz A 1,80 €/1 kg vs B 2,40 €/1,5 kg → B gana con **1,60 €/kg** (badge MEJOR kg); mnemónico + momento [E].
 
 ### Matemáticas
 - [x] L25: 25 % de 80 = 20; final dto = 60; aumento 4 % de 1000 = 1040 (modo); encadenados 50×0,8×0,9 = 36 ≠ 50×0,7 = 35.
@@ -41,14 +40,12 @@
 - [x] Glosario: L25 `%` «por ciento» / p% de N / base; L26 `€/kg` / 2×1 / 2ª al 50 % / «hasta −70 %»; L27 precio / calidad-precio / valor / €/mes — en HTML + md.
 - [x] Visuales reales alineados: **etiqueta de rebajas** (L25), **ticket térmico** (L26), **dos productos en estantería €/kg** (L27).
 - [x] Controles independientes (N, p, p₂; 3 líneas ticket; packs A/B; precios/meses A/B — no se reescalan juntos).
-- [x] Mnemónicos visibles en los 3 interactivos.
 - [x] Tono ~12 años; contextos CyL (Valladolid, Segovia, Burgos, Salamanca, Ávila, Pucela).
 - [x] Socioafectivo ligero [E] en L26 (privacidad del dinero) y L27 (ataca el argumento, no a la persona).
 - [x] Single-file HTML, `file://`, sin dependencias de red.
 - [x] Sin inventar currículo: UD7 L25 / UD8 L26–L27 · Decreto 39/2022 A.5–A.6 + E.
 
 ### Markdown
-- [x] `25.md` / `26.md` / `27.md` parchados con interactivo + glosario + mnemónico, conservando objetivos/práctica/soluciones.
 - [x] Enlaces relativos a HTML + PNG.
 - [x] Sync a `lescircimos` y `lesvencimos`.
 

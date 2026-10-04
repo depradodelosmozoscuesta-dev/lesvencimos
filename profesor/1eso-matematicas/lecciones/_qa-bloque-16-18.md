@@ -28,9 +28,7 @@
 
 ### Render / preview
 - [x] `google-chrome --headless --screenshot` con `file://` (sin red) para L16, L17, L18.
-- [x] Preview L16 inspeccionado: pizza 2/4 (2 trozos rojos / 2 amarillos), presets, amplificar k, simplificar → 1/2, vistas Pizza/Barra/Rectángulo/Equivalentes, panel música negra/corchea, mnemónico visible.
 - [x] Preview L17 inspeccionado: 2/5 < 1/2, recta 0…1 con anclas 0·1/2·1, barras+pizzas A/B, mcm=10 → 4/10 vs 5/10.
-- [x] Preview L18 inspeccionado: 1/4+1/6=5/12, pasos barras original→mcm 12→resultado 5/12, mnemónico del denominador.
 
 ### Matemáticas
 - [x] Equivalencia: 2/4 = 1/2; amplificar ×k deja mismo valor; mcd(2,4)=2.
@@ -42,13 +40,11 @@
 - [x] Glosario numerador/denominador/barra/`=`/`≠`/`<`/`>`/`+`/`−`/mcd/mcm en español (HTML + md).
 - [x] Visuales tipo fracción: pizza con crust+pepperoni, barras de longitud fija, rectángulo partido, recta 0–1(+).
 - [x] Controles independientes (a↔b, a/b↔c/d, k no reescala UI ajena).
-- [x] Mnemónicos: L16 «mismo tamaño, más trozos…»; L17 mismo numerador; L18 no sumar denominador.
 - [x] Panel música L16 (negra=1, corchea=1/2) — un panel corto, natural y claro.
 - [x] Single-file HTML, `file://`, sin dependencias de red.
 - [x] Sin inventar currículo: títulos/saberes alineados a hub CyL UD5 / Decreto 39/2022 A.2–A.3.
 
 ### Markdown
-- [x] `16.md` / `17.md` / `18.md` parchados con interactivo + glosario + mnemónico, conservando objetivos/práctica/soluciones.
 - [x] Enlaces relativos a HTML + PNG.
 - [x] Sync a `lescircimos` y `lesvencimos`.
 

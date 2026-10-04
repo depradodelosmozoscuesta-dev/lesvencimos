@@ -42,13 +42,11 @@
 - [x] Glosario: L19 `×`/`÷`/`=`/inversa/«de»/mcd; L20 todo/resto/`×+−÷`/cinta; L21 coma/décima/€/`<>/=` — en HTML + md.
 - [x] Visuales alineados al concepto: área (×), «dar la vuelta al segundo» (÷), cinta CyL (problemas), rejilla + billetes/monedas €.
 - [x] Controles independientes (a↔b, c↔d, N/fracciones, A↔B; modos no reescalan el otro número).
-- [x] Mnemónicos visibles en los 3 interactivos.
 - [x] Tono ~12 años; contextos CyL (Valladolid, León, Burgos, Salamanca, Ávila, Segovia).
 - [x] Single-file HTML, `file://`, sin dependencias de red.
 - [x] Sin inventar currículo: títulos/saberes alineados a hub CyL UD5/UD6 / Decreto 39/2022 A.2–A.3.
 
 ### Markdown
-- [x] `19.md` / `20.md` / `21.md` parchados con interactivo + glosario + mnemónico, conservando objetivos/práctica/soluciones.
 - [x] Enlaces relativos a HTML + PNG.
 - [x] Sync a `lescircimos` y `lesvencimos`.
 

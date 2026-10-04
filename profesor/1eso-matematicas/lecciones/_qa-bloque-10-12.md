@@ -41,7 +41,6 @@
 ### Calidad Jorge (barra)
 - [x] Cada letra/símbolo de UI explicado en español (n,d,k,b,N,p,a,b,g,mcd,mcm,×,÷,=,aⁿ).
 - [x] Glosario en cada HTML + glosario en cada `.md`.
-- [x] Mnemónicos en las tres lecciones.
 - [x] Controles independientes (sin reescalado cruzado n↔d, N↔n, a↔b) — buscado patrón de asignación cruzada: ninguno.
 - [x] Escenas que **se parecen** al concepto: rectángulos de bloques; criba + ladrillos de colores; varillas solapadas + timeline + Venn de factores.
 - [x] Criptograma/juego de letras: **omitido a propósito** (L07 ya lo tiene; no forzarlo en este bloque).
@@ -49,7 +48,6 @@
 - [x] Sin inventar currículo: títulos y saberes alineados a hub CyL UD3 / Decreto 39/2022 A.4.
 
 ### Markdown
-- [x] `10.md` / `11.md` / `12.md` parchados con sección interactivo + glosario + mnemónico + checklist, conservando objetivos/práctica/soluciones del pack.
 - [x] Enlaces relativos a HTML + PNG.
 - [x] Sync a `lesvencimos` y `lescircimos`.
 

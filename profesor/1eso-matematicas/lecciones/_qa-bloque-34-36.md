@@ -40,14 +40,12 @@
 - [x] **Dibujos = lo que nombran:** triángulos semejantes con marcas (L34); haz + paralelas cortando rayos (L35); rectángulo con cuadrados sobre los lados (L36) — no blobs.
 - [x] **Controles independientes:** L34 a/b/c/k; L35 t1/t2/aperturas; L36 catetos a y b (c calculado).
 - [x] **Glosario en español primero:** a/b/c/k/escala/homólogos; ∥/haz/AA/LAL/LLL; catetos/hipotenusa/terna — en HTML + md.
-- [x] Mnemónicos visibles en los 3 interactivos.
 - [x] Notas históricas **honestas**: Tales (versión escolar moderna; atribución tradicional); Pitágoras (ternas babilónicas previas; escuela pitagórica).
 - [x] Tono ~12 años; UD11 Semejanza, Tales y Pitágoras.
 - [x] Single-file HTML, `file://`, sin dependencias de red.
 - [x] Sin inventar currículo: UD11 L34–L36 · Decreto 39/2022 C.1.
 
 ### Markdown
-- [x] `34.md` / `35.md` / `36.md` parchados con interactivo + glosario + mnemónico, conservando objetivos/práctica/soluciones/reto.
 - [x] Enlaces relativos a HTML + PNG.
 - [x] Sync a `lescircimos` y `lesvencimos`.
 

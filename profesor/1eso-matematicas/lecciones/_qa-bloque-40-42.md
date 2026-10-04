@@ -41,14 +41,12 @@
 - [x] **Dibujos = lo que nombran:** bocadillos/tarjetas (L40); patio etiquetado L/A (L41); balanza de dos platos (L42) — no blobs.
 - [x] **Controles independientes:** L40 frase/x/F·c·k; L41 L/A o v/t o P/L; L42 a/b/c/xGuess.
 - [x] **Glosario en español primero:** x = «la cantidad desconocida»; P/L/A; variable vs incógnita; términos semejantes — en HTML + md.
-- [x] Mnemónicos visibles en los 3 interactivos y en los 3.md.
 - [x] Historias / contexto CyL: Lucía en Valladolid (cromos); patio del cole; taxi CyL; balanza de cocina.
 - [x] Tono ~12 años; UD13 L40–L42.
 - [x] Single-file HTML, `file://`, sin dependencias de red. Tema crema (#FAF7F0) alineado a `_plantilla-leccion`.
 - [x] Sin inventar currículo: UD13 · Decreto 39/2022 D.2, D.3, D.4.
 
 ### Markdown
-- [x] `40.md` / `41.md` / `42.md` parchados con interactivo + glosario + mnemónico, conservando objetivos/práctica/soluciones/reto.
 - [x] Enlaces relativos a HTML + PNG.
 - [x] Sync a `lescircimos` y `lesvencimos`.
 

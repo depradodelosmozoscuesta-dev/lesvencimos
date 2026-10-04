@@ -40,7 +40,6 @@
 - [x] **Dibujos = lo que nombran:** patio con pista/valla/árboles/edificio (L46); carpeta con hojas + estrellas (L47) — no blobs.
 - [x] **Controles independientes:** L46 Largo/Ancho/escala/cobertura/precio/%; L47 cada casilla/hábito/estrella aparte.
 - [x] **Glosario en español primero:** Largo (L), Ancho (A), Área (S), Perímetro (P), Escala 1:n, Cobertura (C) · Portfolio, Evidencia, Autoevaluación, Metacognición, Hábito, Logro — en HTML + md.
-- [x] Mnemónicos visibles en los 2 interactivos y en los 2.md.
 - [x] Historia CyL: IES Valladolid (patio); cierre hacia 2º ESO / Decreto 39/2022 sentido E.
 - [x] Tono ~12 años; UD15 L46–L47.
 - [x] Single-file HTML, `file://`, sin red. Tema crema (#FAF7F0).
@@ -48,7 +47,6 @@
 - [x] L47 socioafectivo **ligero**: evidencia concreta vs «se me dan mal» / «¿me miras el paso 2?» — no sermón.
 
 ### Markdown
-- [x] `46.md` / `47.md` parchados con interactivo + glosario + mnemónico, conservando objetivos/práctica/soluciones/reto.
 - [x] Enlaces relativos a HTML + PNG.
 - [x] Sync a `lescircimos` y `lesvencimos`.
 

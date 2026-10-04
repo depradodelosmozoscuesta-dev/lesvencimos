@@ -41,14 +41,12 @@
 - [x] **Dibujos = lo que nombran:** plano-mapa con hitos (L37); mini-mapas CyL con calles/huerto/aula/L (L38); fósforos y baldosas en L contables (L39) — no blobs.
 - [x] **Controles independientes:** L37 x/y (y x₂/y₂); L38 L/A o E/N o L/A/r; L39 a₁/d/n (y k en tabla).
 - [x] **Glosario en español primero:** abscisa/ordenada/(x,y)/cuadrantes; modelo/croquis/ruido/validar; n/aₙ/d — en HTML + md.
-- [x] Mnemónicos visibles en los 3 interactivos.
 - [x] Notas históricas / contexto **honestas**: Descartes + GPS ≠ plano escolar; mini-mapas CyL croquis (no planos oficiales); puente al álgebra / arte mudéjar.
 - [x] Tono ~12 años; UD12 L37–L38 · UD13 L39.
 - [x] Single-file HTML, `file://`, sin dependencias de red.
 - [x] Sin inventar currículo: UD12/UD13 · Decreto 39/2022 C.2, C.3, D.1.
 
 ### Markdown
-- [x] `37.md` / `38.md` / `39.md` parchados con interactivo + glosario + mnemónico, conservando objetivos/práctica/soluciones/reto.
 - [x] Enlaces relativos a HTML + PNG.
 - [x] Sync a `lescircimos` y `lesvencimos`.
 

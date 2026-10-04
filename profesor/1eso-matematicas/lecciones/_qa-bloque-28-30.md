@@ -28,7 +28,6 @@
 
 ### Render / preview
 - [x] `google-chrome --headless --screenshot` con `file://…?preview=1` (sin red) para L28, L29, L30.
-- [x] Preview L28 inspeccionado: modo **Longitud** · objeto **Lápiz**; regla real cm/mm; lápiz alineado 0→18 cm; convertidor 18 cm → 180 mm (×10); glosario magnitud/unidad/cantidad; mnemónico 10 000.
 - [x] Preview L29 inspeccionado: **Regla**; objeto «lápiz del estuche»; E=14,0 cm · M=14,6 cm · error **0,6 cm**; feedback «Bien: estás cerca»; marcas mm; aviso del 0 y parallax; glosario E/M.
 - [x] Preview L30 inspeccionado: **Triángulo** b=10 cm · h=6 cm → **A=30 cm²**; rectángulo fantasma + «otra mitad»; h ⊥ base; glosario A/b/h; perímetro ≠ área.
 
@@ -41,13 +40,11 @@
 - [x] **Dibujos = lo que nombran:** regla con marcas cm/mm (L28/L29); transportador semicircular con grados (L28/L29); áreas con cuadrícula / rectángulo fantasma / despiece L (L30) — no charcos/blobs.
 - [x] **Controles independientes:** L29 E y M no se reescalan juntos; L30 scaleX/scaleY fijos por unidad (mover b no encoge h en pantalla).
 - [x] **Glosario de letras en español primero:** magnitud/unidad/cantidad; E/M; A, b, h, L, B, P — en HTML + md.
-- [x] Mnemónicos visibles en los 3 interactivos.
 - [x] Tono ~12 años; contextos CyL (Segovia, Valladolid, León–Astorga, Salamanca…).
 - [x] Single-file HTML, `file://`, sin dependencias de red.
 - [x] Sin inventar currículo: UD9 L28–L30 · Decreto 39/2022 B.1–B.3.
 
 ### Markdown
-- [x] `28.md` / `29.md` / `30.md` parchados con interactivo + glosario + mnemónico, conservando objetivos/práctica/soluciones/reto.
 - [x] Enlaces relativos a HTML + PNG.
 - [x] Sync a `lescircimos` y `lesvencimos`.
 

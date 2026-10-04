@@ -41,7 +41,6 @@
 - [x] **Dibujos = lo que nombran:** balanza de dos platos (L43); tabla real + ejes (L44); tarjetas de pasos claras (L45) — no blobs / no spaghetti.
 - [x] **Controles independientes:** L43 coeficientes/paso/x-prueba; L44 m/n/puntos/destacar; L45 a/b/c y avance de paso.
 - [x] **Glosario en español primero:** x = «la cantidad desconocida»; ejes/tabla en castellano; algoritmo/entrada/salida — en HTML + md.
-- [x] Mnemónicos visibles en los 3 interactivos y en los 3.md.
 - [x] Historias / contexto CyL: mercadillo Valladolid/León; bici Castilla; temperatura Burgos.
 - [x] Tono ~12 años; UD13 L43 · UD14 L44–L45.
 - [x] Single-file HTML, `file://`, sin dependencias de red. Tema crema (#FAF7F0) alineado a `_plantilla-leccion`.
@@ -49,7 +48,6 @@
 - [x] L45 socioafectivo **ligero**: «¿me miras el paso 3?» / depurar es normal — no sermón.
 
 ### Markdown
-- [x] `43.md` / `44.md` / `45.md` parchados con interactivo + glosario + mnemónico, conservando objetivos/práctica/soluciones/reto.
 - [x] Enlaces relativos a HTML + PNG.
 - [x] Sync a `lescircimos` y `lesvencimos`.
 

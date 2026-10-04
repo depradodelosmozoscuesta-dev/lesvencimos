@@ -42,7 +42,6 @@
 ### Calidad Jorge (barra)
 - [x] Cada símbolo de UI explicado en español (×, ÷, =, ≠, √, aⁿ, ( ), letras a/b/c/n/s).
 - [x] Glosario en cada HTML + glosario en cada `.md`.
-- [x] Mnemónicos presentes en las tres lecciones.
 - [x] Controles independientes (filas≠columnas; base≠exponente; a/b/c del problema no se reescalan juntos).
 - [x] Escenas que **se parecen** a la situación (botellas, torre/baldosas, bus/mercadillo/merienda).
 - [x] **Un criptograma** en el bloque: L07 (productos). Clave explicada en la propia tarjeta morada.
