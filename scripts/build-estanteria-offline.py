@@ -39,6 +39,8 @@ EMBED_SOURCES = {
     "canto-solfeo": ROOT / "modulos" / "canto-solfeo.html",
     "historia-musica": ROOT / "modulos" / "historia-musica.html",
     "grabadora": ROOT / "modulos" / "grabadora.html",
+    "captura": ROOT / "modulos" / "captura.html",
+    "emitir": ROOT / "modulos" / "emitir.html",
     "reproductor": ROOT / "modulos" / "reproductor.html",
     "alto-rendimiento": ROOT / "modulos" / "alto-rendimiento.html",
     "cocina-maestro": ROOT / "modulos" / "cocina-maestro.html",
@@ -256,7 +258,7 @@ def main() -> None:
         raise SystemExit("shell missing EMBEDDED placeholder (need estanteria.shell.html)")
 
     embedded = build_embedded()
-    for need in ("hogar", "salud", "qr", "electro", "brico", "fontaneria", "jardin", "conservacion", "economia", "clima", "moda", "legal", "mascotas", "campo", "supervive", "caja", "gym", "guitarra", "piano", "armonica", "saxofon", "bajo", "canto-solfeo", "historia-musica", "grabadora", "calc", "medica", "medita", "auxilios", "escritura", "dibujo", "info", "guias", "mapas", "biblio", "teatro", "tanteo", "higiene", "arte", "protocolo", "ideas", "tabaco", "comunicacion", "gas", "alto-rendimiento", "cocina-maestro", "musica", "bateria", "clasica", "dj", "electronica", "grupo", "teoria-musical", "cuidado-instrumentos", "reproductor"):
+    for need in ("hogar", "salud", "qr", "electro", "brico", "fontaneria", "jardin", "conservacion", "economia", "clima", "moda", "legal", "mascotas", "campo", "supervive", "caja", "gym", "guitarra", "piano", "armonica", "saxofon", "bajo", "canto-solfeo", "historia-musica", "grabadora", "captura", "emitir", "calc", "medica", "medita", "auxilios", "escritura", "dibujo", "info", "guias", "mapas", "biblio", "teatro", "tanteo", "higiene", "arte", "protocolo", "ideas", "tabaco", "comunicacion", "gas", "alto-rendimiento", "cocina-maestro", "musica", "bateria", "clasica", "dj", "electronica", "grupo", "teoria-musical", "cuidado-instrumentos", "reproductor"):
         if need not in embedded:
             raise SystemExit(f"missing embed {need}")
 

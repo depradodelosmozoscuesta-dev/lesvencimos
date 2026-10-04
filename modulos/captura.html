@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0E0E0C">
+<title>Captura — Les vencimos</title>
+<style>
+:root {
+  --fondo: #0E0E0C; --fondo-2: #161512; --fondo-3: #1C1A16;
+  --tinta: #E6E1D6; --suave: #9A9488; --acento: #C4A15A; --acento-texto: #1A160E;
+  --linea: rgba(230,225,214,.14); --peligro: #C46A4A; --ok: #8F9A72;
+  --serif: "Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;
+  --sans: "Segoe UI",system-ui,-apple-system,sans-serif;
+  --radio: 2px;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; min-height: 100%; }
+html { color-scheme: dark; }
+body {
+  color: var(--tinta); background: var(--fondo);
+  font-family: var(--sans); font-size: 1.02rem; line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+.wrap { max-width: 40rem; margin: 0 auto; padding: 1.4rem 1.1rem 4rem; }
+header.top {
+  display: flex; align-items: baseline; justify-content: space-between;
+  gap: 1rem; padding-bottom: 1rem; border-bottom: 1px solid var(--linea); margin-bottom: 1.25rem;
+}
+.brand { color: var(--tinta); text-decoration: none; font-family: var(--serif); font-weight: 600; font-size: .95rem; letter-spacing: .04em; }
+.status { font-size: .7rem; letter-spacing: .14em; text-transform: uppercase; color: var(--suave); font-weight: 600; }
+h1 { margin: 0 0 .4rem; font-family: var(--serif); font-size: clamp(1.7rem,4.5vw,2.4rem); font-weight: 600; line-height: 1.12; }
+.lead { margin: 0 0 1.1rem; color: var(--suave); }
+.box {
+  background: var(--fondo-2); border: 1px solid var(--linea); border-radius: var(--radio);
+  padding: 1rem 1rem 1.1rem; margin: 0 0 1rem;
+}
+.box h2 {
+  margin: 0 0 .65rem; font-size: .7rem; letter-spacing: .16em;
+  text-transform: uppercase; color: var(--suave); font-weight: 600;
+}
+.row { display: flex; flex-wrap: wrap; gap: .4rem; align-items: center; }
+button.primary, button.ghost {
+  appearance: none; min-height: 44px; padding: .55rem 1rem; border-radius: var(--radio);
+  cursor: pointer; font: 700 .9rem var(--sans); display: inline-flex; align-items: center;
+}
+button.primary { border: 1px solid var(--acento); background: var(--acento); color: var(--acento-texto); }
+button.ghost { border: 1px solid var(--linea); background: transparent; color: var(--tinta); }
+button.rec { border: 1px solid var(--peligro); background: var(--peligro); color: var(--tinta); }
+button:disabled { opacity: .4; cursor: default; }
+select, label.check {
+  background: var(--fondo-3); color: var(--tinta); border: 1px solid var(--linea);
+  border-radius: var(--radio); font: inherit;
+}
+select { min-height: 44px; padding: .45rem .6rem; width: 100%; margin-top: .35rem; }
+label.check { display: flex; gap: .6rem; align-items: center; background: transparent; border: 0; margin-top: .7rem; color: var(--tinta); }
+.field { display: block; margin: .7rem 0 0; font-size: .78rem; color: var(--suave); font-weight: 600; letter-spacing: .04em; text-transform: uppercase; }
+.hint { color: var(--suave); font-size: .84rem; margin: .4rem 0 0; }
+.err { color: var(--peligro); }
+.reloj { font-family: var(--serif); font-size: 2.4rem; margin: .4rem 0 0; letter-spacing: .04em; }
+video { width: 100%; margin-top: .6rem; background: #000; }
+a.dl { color: var(--tinta); font-weight: 700; font-size: .9rem; }
+.cuenta {
+  position: fixed; inset: 0; display: none; align-items: center; justify-content: center;
+  background: rgba(14,14,12,.86); z-index: 5;
+}
+.cuenta.on { display: flex; }
+.cuenta b { font-family: var(--serif); font-size: 6rem; color: var(--acento); line-height: 1; }
+footer {
+  margin-top: 2rem; padding-top: 1rem; border-top: 1px solid var(--linea);
+  color: var(--suave); font-size: .75rem; letter-spacing: .08em; text-transform: uppercase;
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <a class="brand" href="../index.html">les vencimos</a>
+    <span class="status">Offline</span>
+  </header>
+  <h1>Captura</h1>
+  <p class="lead">Vídeo de la pantalla y, si el aparato lo suelta, su audio. Puedes mezclar el micrófono. Cuenta atrás, reloj y archivo al parar.</p>
+
+  <div class="box">
+    <h2>Límite real</h2>
+    <p class="hint" id="limite">El WebView de la app Android casi nunca tiene captura de pantalla. Hace falta Chrome, o Android 14+ con el permiso del sistema para grabar la pantalla. Si no arranca, no se finge una grabación.</p>
+  </div>
+
+  <div class="box">
+    <h2>Grabar</h2>
+    <label class="field">Cuenta atrás
+      <select id="cuenta-seg">
+        <option value="0">Sin espera</option>
+        <option value="3" selected>3 segundos</option>
+        <option value="5">5 segundos</option>
+        <option value="10">10 segundos</option>
+      </select>
+    </label>
+    <label class="field">Calidad
+      <select id="calidad">
+        <option value="baja">Baja · 480p</option>
+        <option value="media" selected>Media · 720p</option>
+        <option value="alta">Alta · 1080p</option>
+      </select>
+    </label>
+    <label class="check"><input id="mix" type="checkbox"> Mezclar el micrófono con el audio de la pantalla</label>
+    <p class="hint" id="fmt">Formato: …</p>
+    <p class="reloj" id="reloj" aria-live="polite">00:00</p>
+    <div class="row" style="margin-top:.8rem">
+      <button class="rec" type="button" id="go">Empezar</button>
+      <button class="ghost" type="button" id="stop" disabled>Parar</button>
+    </div>
+    <p class="hint" id="status"></p>
+    <p class="err" id="err" role="alert"></p>
+  </div>
+
+  <div class="box" id="takes" hidden>
+    <h2>Toma</h2>
+    <video id="prev" controls playsinline></video>
+    <div class="row" style="margin-top:.6rem">
+      <a class="dl" id="dl" download="captura.webm">Bajar</a>
+    </div>
+    <p class="hint" id="saved-msg"></p>
+  </div>
+
+  <footer>lesvencimos.com · captura · v20261004cap</footer>
+</div>
+<div class="cuenta" id="cuenta" aria-hidden="true"><b id="cuenta-n">3</b></div>
+<script>
+(function(){
+  var PRESETS={
+    baja:{w:854,h:480,fps:15,v:800000,a:64000},
+    media:{w:1280,h:720,fps:24,v:2500000,a:96000},
+    alta:{w:1920,h:1080,fps:30,v:4500000,a:128000}
+  };
+  var recording=false, rec=null, chunks=[], blob=null, displayStream=null, micStream=null, mixCtx=null, mixDest=null;
+  var clockTimer=0, countTimer=0, startedAt=0, counting=false;
+
+  function $(id){ return document.getElementById(id); }
+  function say(t){ $("status").textContent=t||""; }
+  function fail(t){ $("err").textContent=t||""; }
+  function lvBridge(){
+    try{
+      if(window.LvBridge) return window.LvBridge;
+      if(window.LesVencimosAndroid) return window.LesVencimosAndroid;
+      if(window.parent && window.parent!==window){
+        if(window.parent.LvBridge) return window.parent.LvBridge;
+        if(window.parent.LesVencimosAndroid) return window.parent.LesVencimosAndroid;
+      }
+    }catch(e){}
+    return null;
+  }
+  function saveUserFileHook(name, blob){
+    var b=lvBridge();
+    if(!b || typeof b.saveUserFile!=="function") return Promise.resolve(false);
+    return blob.arrayBuffer().then(function(buf){
+      var bytes=new Uint8Array(buf), bin="", i;
+      for(i=0;i<bytes.length;i++) bin+=String.fromCharCode(bytes[i]);
+      var b64=btoa(bin);
+      try{
+        var r=b.saveUserFile(name, b64, blob.type||"application/octet-stream");
+        if(r && typeof r.then==="function") return r.then(function(){ return true; }).catch(function(){ return false; });
+        return !!r;
+      }catch(e){ return false; }
+    }).catch(function(){ return false; });
+  }
+  function downloadBlob(name, blob){
+    var u=URL.createObjectURL(blob);
+    var a=document.createElement("a");
+    a.href=u; a.download=name; a.rel="noopener";
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(function(){ try{ URL.revokeObjectURL(u); }catch(e){} }, 8000);
+  }
+  var IDB_NAME="lv-captura-v1", IDB_STORE="takes";
+  function idbOpen(){
+    return new Promise(function(resolve, reject){
+      if(!window.indexedDB){ reject(new Error("no-idb")); return; }
+      var req=indexedDB.open(IDB_NAME, 1);
+      req.onupgradeneeded=function(){
+        var db=req.result;
+        if(!db.objectStoreNames.contains(IDB_STORE)) db.createObjectStore(IDB_STORE, {keyPath:"id"});
+      };
+      req.onsuccess=function(){ resolve(req.result); };
+      req.onerror=function(){ reject(req.error||new Error("idb")); };
+    });
+  }
+  function idbPut(rec){
+    return idbOpen().then(function(db){
+      return new Promise(function(resolve, reject){
+        var tx=db.transaction(IDB_STORE, "readwrite");
+        tx.objectStore(IDB_STORE).put(rec);
+        tx.oncomplete=function(){ resolve(true); };
+        tx.onerror=function(){ reject(tx.error); };
+      });
+    });
+  }
+  function pickMime(){
+    var list=[
+      ["video/webm;codecs=vp9,opus","WebM · VP9"],
+      ["video/webm;codecs=vp8,opus","WebM · VP8"],
+      ["video/webm;codecs=vp9","WebM · VP9"],
+      ["video/webm;codecs=vp8","WebM · VP8"],
+      ["video/webm","WebM"],
+      ["video/mp4;codecs=avc1.42E01E,mp4a.40.2","MP4 · H.264"],
+      ["video/mp4;codecs=avc1.42E01E","MP4 · H.264"],
+      ["video/mp4","MP4"]
+    ];
+    if(!window.MediaRecorder||!MediaRecorder.isTypeSupported) return {mime:"", label:"el que elija el aparato"};
+    for(var i=0;i<list.length;i++){
+      try{ if(MediaRecorder.isTypeSupported(list[i][0])) return {mime:list[i][0], label:list[i][1]}; }catch(e){}
+    }
+    return {mime:"", label:"el que elija el aparato"};
+  }
+  function extOf(m){ return (m||"").indexOf("mp4")>=0 ? "mp4" : "webm"; }
+  function stampName(e){
+    var d=new Date(), p=function(n){ return (n<10?"0":"")+n; };
+    return "LesVencimos-captura-"+d.getFullYear()+p(d.getMonth()+1)+p(d.getDate())+"-"+p(d.getHours())+p(d.getMinutes())+p(d.getSeconds())+"."+e;
+  }
+  function fmtTime(ms){
+    var s=Math.floor(ms/1000), m=Math.floor(s/60);
+    s=s%60;
+    return (m<10?"0":"")+m+":"+(s<10?"0":"")+s;
+  }
+  function paintFmt(){
+    var f=pickMime();
+    $("fmt").textContent="Formato: "+f.label+(f.mime?"":" (MediaRecorder no declara uno)");
+    return f;
+  }
+  function canCapture(){
+    return !!(navigator.mediaDevices && navigator.mediaDevices.getDisplayMedia && window.MediaRecorder);
+  }
+  function showLimit(){
+    if(canCapture()){
+      $("limite").textContent="El visor dice que puede pedir la pantalla. En el WebView de la app Android suele fallar igual: Chrome, o Android 14+ con permiso del sistema. Sin eso no hay grabación.";
+      return;
+    }
+    $("go").disabled=true;
+    fail("Este visor no tiene captura de pantalla (getDisplayMedia). Ábrelo en Chrome. La app Android necesita un permiso nativo que esta versión no trae. No se graba nada.");
+  }
+  function stopTracks(stream){
+    try{ if(stream) stream.getTracks().forEach(function(t){ t.stop(); }); }catch(e){}
+  }
+  function looksBluetooth(d){
+    var blob=((d&&d.deviceId)||"")+" "+((d&&d.label)||"");
+    return /bluetooth|\bbt\b|\bsco\b|auricular|headset|airpod|hands-?free|manos libres/i.test(blob);
+  }
+  function micForMix(){
+    if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia)
+      return Promise.reject(new Error("sin-micro"));
+    var b=lvBridge();
+    try{ if(b&&typeof b.preferBuiltInMic==="function") b.preferBuiltInMic(); }catch(e){}
+    function plain(){
+      return navigator.mediaDevices.getUserMedia({audio:{echoCancellation:false,noiseSuppression:false,autoGainControl:false}});
+    }
+    if(!navigator.mediaDevices.enumerateDevices) return plain();
+    return navigator.mediaDevices.enumerateDevices().then(function(all){
+      var inputs=(all||[]).filter(function(d){ return d.kind==="audioinput" && d.deviceId && !looksBluetooth(d); });
+      var id="";
+      for(var i=0;i<inputs.length;i++){
+        var low=(inputs[i].deviceId||"").toLowerCase();
+        if(low!=="default" && low!=="communications"){ id=inputs[i].deviceId; break; }
+      }
+      if(!id && inputs[0]) id=inputs[0].deviceId;
+      if(!id) return plain();
+      return navigator.mediaDevices.getUserMedia({audio:{deviceId:{exact:id},echoCancellation:false,noiseSuppression:false,autoGainControl:false}}).catch(plain);
+    }).catch(plain);
+  }
+  function displayOf(preset){
+    var video={width:{ideal:preset.w},height:{ideal:preset.h},frameRate:{ideal:preset.fps}};
+    return navigator.mediaDevices.getDisplayMedia({video:video, audio:true}).catch(function(err){
+      var n=(err&&err.name)||"";
+      if(/NotAllowed|AbortError|Abort|Security/i.test(n)) throw err;
+      return navigator.mediaDevices.getDisplayMedia({video:video});
+    });
+  }
+  function cancelCount(){
+    counting=false;
+    clearInterval(countTimer);
+    $("cuenta").classList.remove("on");
+    $("cuenta").setAttribute("aria-hidden","true");
+  }
+  function tickClock(){
+    if(!recording) return;
+    $("reloj").textContent=fmtTime(Date.now()-startedAt);
+  }
+  function cleanupStreams(){
+    stopTracks(displayStream); displayStream=null;
+    stopTracks(micStream); micStream=null;
+    if(mixCtx){ try{ mixCtx.close(); }catch(e){} mixCtx=null; }
+    mixDest=null;
+  }
+  function finish(){
+    recording=false;
+    clearInterval(clockTimer);
+    $("go").disabled=false;
+    $("stop").disabled=true;
+    cleanupStreams();
+  }
+  function beginRecord(){
+    var preset=PRESETS[$("calidad").value]||PRESETS.media;
+    var chosen=paintFmt();
+    fail("");
+    say("Elige la pantalla en el aviso del sistema…");
+    displayOf(preset).then(function(stream){
+      displayStream=stream;
+      var videoTracks=stream.getVideoTracks();
+      if(!videoTracks.length) throw new Error("sin-video");
+      videoTracks[0].addEventListener("ended", function(){ if(recording) stopRec(); });
+      var chain=Promise.resolve();
+      if($("mix").checked){
+        chain=micForMix().then(function(ms){ micStream=ms; }).catch(function(){
+          say("El micro no entró. Sigue solo la pantalla.");
+        });
+      }
+      return chain.then(function(){
+        var out=new MediaStream();
+        videoTracks.forEach(function(t){ out.addTrack(t); });
+        var screenAudio=stream.getAudioTracks();
+        if(micStream && (screenAudio.length||micStream.getAudioTracks().length)){
+          var AC=window.AudioContext||window.webkitAudioContext;
+          mixCtx=new AC();
+          mixDest=mixCtx.createMediaStreamDestination();
+          if(screenAudio.length) mixCtx.createMediaStreamSource(stream).connect(mixDest);
+          if(micStream.getAudioTracks().length) mixCtx.createMediaStreamSource(micStream).connect(mixDest);
+          mixDest.stream.getAudioTracks().forEach(function(t){ out.addTrack(t); });
+        }else{
+          screenAudio.forEach(function(t){ out.addTrack(t); });
+        }
+        if(!out.getAudioTracks().length) say("Sin audio de pantalla. El vídeo sí se graba.");
+        chunks=[]; blob=null;
+        var opts={};
+        if(chosen.mime) opts.mimeType=chosen.mime;
+        opts.videoBitsPerSecond=preset.v;
+        if(out.getAudioTracks().length) opts.audioBitsPerSecond=preset.a;
+        try{ rec=chosen.mime? new MediaRecorder(out, opts) : new MediaRecorder(out); }
+        catch(e){ rec=new MediaRecorder(out); }
+        rec.ondataavailable=function(e){ if(e.data&&e.data.size) chunks.push(e.data); };
+        rec.addEventListener("stop", onStopped);
+        rec.start(250);
+        recording=true;
+        startedAt=Date.now();
+        $("reloj").textContent="00:00";
+        clockTimer=setInterval(tickClock, 250);
+        $("go").disabled=true;
+        $("stop").disabled=false;
+        var label=(rec.mimeType&&rec.mimeType.indexOf("mp4")>=0)?"MP4 · H.264":(chosen.label||"vídeo");
+        if(/vp9/i.test(rec.mimeType||chosen.mime)) label="WebM · VP9";
+        else if(/vp8/i.test(rec.mimeType||chosen.mime)) label="WebM · VP8";
+        $("fmt").textContent="Formato: "+label;
+        say("Grabando la pantalla.");
+      });
+    }).catch(function(err){
+      cleanupStreams();
+      var n=(err&&(err.name||err.message))||"";
+      if(/NotAllowed|Abort|Permission/i.test(n)) fail("Captura cancelada o sin permiso de pantalla.");
+      else if(!canCapture()) fail("Este visor no puede capturar la pantalla.");
+      else fail("No se pudo capturar la pantalla. En la app Android el WebView no lo permite: ábrelo en Chrome.");
+      say("");
+      $("go").disabled=!canCapture();
+      $("stop").disabled=true;
+    });
+  }
+  function onStopped(){
+    var m=rec&&rec.mimeType||"video/webm";
+    blob=new Blob(chunks, {type:m});
+    finish();
+    if(!blob.size){ fail("La toma salió vacía."); return; }
+    var url=URL.createObjectURL(blob);
+    $("prev").src=url;
+    var name=stampName(extOf(m));
+    $("dl").href=url; $("dl").download=name;
+    $("takes").hidden=false;
+    say("Toma lista.");
+    idbPut({id:name, name:name, type:blob.type, size:blob.size, created:Date.now(), blob:blob}).catch(function(){});
+    downloadBlob(name, blob);
+    saveUserFileHook(name, blob).then(function(ok){
+      $("saved-msg").textContent=ok?("Guardado en la app · "+name):("Exportado · "+name+" (también en este aparato)");
+    });
+  }
+  function stopRec(){
+    cancelCount();
+    if(rec && rec.state!=="inactive"){
+      try{ rec.stop(); }catch(e){ finish(); }
+      return;
+    }
+    finish();
+  }
+  $("go").onclick=function(){
+    fail("");
+    if(!canCapture()){ showLimit(); return; }
+    if(recording||counting) return;
+    var n=parseInt($("cuenta-seg").value,10)||0;
+    if(n<=0){ beginRecord(); return; }
+    counting=true;
+    $("stop").disabled=false;
+    $("cuenta-n").textContent=String(n);
+    $("cuenta").classList.add("on");
+    $("cuenta").setAttribute("aria-hidden","false");
+    say("Empieza en "+n+"…");
+    countTimer=setInterval(function(){
+      n-=1;
+      if(n<=0){ cancelCount(); beginRecord(); return; }
+      $("cuenta-n").textContent=String(n);
+    }, 1000);
+  };
+  $("stop").onclick=stopRec;
+  paintFmt();
+  showLimit();
+})();
+</script>
+</body>
+</html>

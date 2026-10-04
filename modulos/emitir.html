@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0E0E0C">
+<title>Emitir — Les vencimos</title>
+<style>
+:root {
+  --fondo: #0E0E0C; --fondo-2: #161512; --fondo-3: #1C1A16;
+  --tinta: #E6E1D6; --suave: #9A9488; --acento: #C4A15A; --acento-texto: #1A160E;
+  --linea: rgba(230,225,214,.14); --peligro: #C46A4A;
+  --serif: "Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;
+  --sans: "Segoe UI",system-ui,-apple-system,sans-serif;
+  --radio: 2px;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; min-height: 100%; }
+html { color-scheme: dark; }
+body {
+  color: var(--tinta); background: var(--fondo);
+  font-family: var(--sans); font-size: 1.02rem; line-height: 1.5;
+}
+.wrap { max-width: 40rem; margin: 0 auto; padding: 1.4rem 1.1rem 4rem; }
+header.top {
+  display: flex; align-items: baseline; justify-content: space-between;
+  gap: 1rem; padding-bottom: 1rem; border-bottom: 1px solid var(--linea); margin-bottom: 1.25rem;
+}
+.brand { color: var(--tinta); text-decoration: none; font-family: var(--serif); font-weight: 600; font-size: .95rem; letter-spacing: .04em; }
+.status { font-size: .7rem; letter-spacing: .14em; text-transform: uppercase; color: var(--suave); font-weight: 600; }
+h1 { margin: 0 0 .4rem; font-family: var(--serif); font-size: clamp(1.7rem,4.5vw,2.4rem); font-weight: 600; line-height: 1.12; }
+.lead { margin: 0 0 1.1rem; color: var(--suave); }
+.box {
+  background: var(--fondo-2); border: 1px solid var(--linea); border-radius: var(--radio);
+  padding: 1rem 1rem 1.1rem; margin: 0 0 1rem;
+}
+.box h2 {
+  margin: 0 0 .65rem; font-size: .7rem; letter-spacing: .16em;
+  text-transform: uppercase; color: var(--suave); font-weight: 600;
+}
+ol { margin: .2rem 0 0; padding-left: 1.2rem; color: var(--tinta); }
+li { margin: .35rem 0; }
+.row { display: flex; flex-wrap: wrap; gap: .4rem; align-items: center; }
+button.primary, button.ghost, label.file {
+  appearance: none; min-height: 44px; padding: .55rem 1rem; border-radius: var(--radio);
+  cursor: pointer; font: 700 .9rem var(--sans); display: inline-flex; align-items: center;
+}
+button.primary { border: 1px solid var(--acento); background: var(--acento); color: var(--acento-texto); }
+button.ghost { border: 1px solid var(--linea); background: transparent; color: var(--tinta); }
+label.file { border: 1px solid var(--linea); background: transparent; color: var(--tinta); }
+input[type=file] { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+.hint { color: var(--suave); font-size: .84rem; margin: .4rem 0 0; }
+.err { color: var(--peligro); }
+.stage {
+  background: #000; border: 1px solid var(--linea); min-height: 12rem;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  padding: 1rem; text-align: center;
+}
+.stage .reloj { font-family: var(--serif); font-size: clamp(3rem,12vw,5.5rem); margin: 0; letter-spacing: .03em; color: var(--acento); }
+.stage video { width: 100%; max-height: 50vh; margin-top: .6rem; background: #000; }
+.stage:fullscreen, .stage:-webkit-full-screen { width: 100%; height: 100%; border: 0; }
+footer {
+  margin-top: 2rem; padding-top: 1rem; border-top: 1px solid var(--linea);
+  color: var(--suave); font-size: .75rem; letter-spacing: .08em; text-transform: uppercase;
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <a class="brand" href="../index.html">les vencimos</a>
+    <span class="status">Misma red</span>
+  </header>
+  <h1>Emitir</h1>
+  <p class="lead">Manda esta pantalla a un Chromecast o a la tele. No hay servidor propio ni emisión RTMP: usa el botón del sistema, o el de Chrome si aparece.</p>
+
+  <div class="box">
+    <h2>Tres toques reales</h2>
+    <ol>
+      <li>Chrome: menú → Enviar, o el icono de Chromecast.</li>
+      <li>Android: panel rápido → Smart View o Enviar pantalla.</li>
+      <li>El Chromecast y el teléfono tienen que estar en el mismo Wi-Fi.</li>
+    </ol>
+    <p class="hint">La app no puede pulsar Enviar por ti. Un WebView normal no abre el diálogo de Chromecast en silencio.</p>
+  </div>
+
+  <div class="box">
+    <h2>Intentar desde el navegador</h2>
+    <div class="row">
+      <button class="primary" type="button" id="try">Buscar pantalla</button>
+    </div>
+    <p class="hint" id="status"></p>
+    <p class="err" id="err" role="alert"></p>
+  </div>
+
+  <div class="box">
+    <h2>Pantalla de emisión</h2>
+    <p class="hint">Pon esto a pantalla completa y luego emite la pestaña o la pantalla del teléfono. El reloj y la vista previa se ven en la tele.</p>
+    <div class="stage" id="stage">
+      <p class="reloj" id="reloj">00:00</p>
+      <video id="vid" playsinline></video>
+    </div>
+    <div class="row" style="margin-top:.7rem">
+      <button class="ghost" type="button" id="clock">Iniciar reloj</button>
+      <button class="ghost" type="button" id="cam">Cámara</button>
+      <label class="file">Vídeo local<input id="file" type="file" accept="video/*"></label>
+      <button class="ghost" type="button" id="full">Pantalla completa</button>
+    </div>
+    <p class="hint">En Chrome, con un vídeo cargado, el control del reproductor puede mostrar Enviar si hay un Chromecast en la red. Eso es el botón del navegador, no un enlace nuestro.</p>
+  </div>
+
+  <footer>lesvencimos.com · emitir · v20261004cap</footer>
+</div>
+<script>
+(function(){
+  var clockTimer=0, clockOn=false, startedAt=0, camStream=null, fileUrl=null;
+  function $(id){ return document.getElementById(id); }
+  function say(t){ $("status").textContent=t||""; }
+  function fail(t){ $("err").textContent=t||""; }
+  var vid=$("vid");
+  vid.controls=true;
+  try{ vid.disableRemotePlayback=false; }catch(e){}
+
+  function fmt(ms){
+    var s=Math.floor(ms/1000), m=Math.floor(s/60);
+    s=s%60;
+    return (m<10?"0":"")+m+":"+(s<10?"0":"")+s;
+  }
+  function manual(extra){
+    fail(extra||"No se abrió un receptor. Usa los tres toques: Chrome → Enviar; Android → Smart View; mismo Wi-Fi.");
+  }
+  $("try").onclick=function(){
+    fail("");
+    if(typeof PresentationRequest==="undefined"){
+      say("");
+      manual("Este visor no tiene Presentation API.");
+      return;
+    }
+    var url=location.href.split("#")[0].split("?")[0];
+    var req;
+    try{ req=new PresentationRequest([url]); }
+    catch(e){ manual("No se pudo preparar la presentación."); return; }
+    try{ if(navigator.presentation) navigator.presentation.defaultRequest=req; }catch(e2){}
+    say("Buscando una pantalla…");
+    req.start().then(function(){
+      say("Sesión de presentación abierta. Si la tele no muestra esta página, usa Enviar pantalla del sistema.");
+      fail("");
+    }).catch(function(){
+      say("");
+      manual("El navegador no abrió la sesión.");
+    });
+  };
+  $("clock").onclick=function(){
+    if(clockOn){
+      clockOn=false; clearInterval(clockTimer);
+      this.textContent="Iniciar reloj";
+      return;
+    }
+    clockOn=true; startedAt=Date.now();
+    this.textContent="Parar reloj";
+    $("reloj").textContent="00:00";
+    clockTimer=setInterval(function(){ $("reloj").textContent=fmt(Date.now()-startedAt); }, 250);
+  };
+  function stopCam(){
+    if(camStream){ try{ camStream.getTracks().forEach(function(t){ t.stop(); }); }catch(e){} camStream=null; }
+  }
+  $("cam").onclick=function(){
+    fail("");
+    if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia){
+      fail("Este visor no abre la cámara. El cascarón Android no concede la cámara; ábrelo en Chrome o emite la pantalla con Smart View.");
+      return;
+    }
+    stopCam();
+    navigator.mediaDevices.getUserMedia({video:true, audio:false}).then(function(s){
+      camStream=s;
+      if(fileUrl){ URL.revokeObjectURL(fileUrl); fileUrl=null; }
+      vid.srcObject=s;
+      vid.play().catch(function(){});
+      say("Cámara en la página. Emite esta pestaña o la pantalla del teléfono.");
+    }).catch(function(){
+      fail("La cámara no está disponible aquí. En la app el WebView no la concede. Ábrelo en Chrome, o emite la pantalla con Smart View.");
+    });
+  };
+  $("file").onchange=function(){
+    var f=this.files&&this.files[0];
+    this.value="";
+    if(!f) return;
+    stopCam();
+    if(fileUrl) URL.revokeObjectURL(fileUrl);
+    fileUrl=URL.createObjectURL(f);
+    vid.srcObject=null;
+    vid.src=fileUrl;
+    vid.play().catch(function(){});
+    say("Vídeo local. En Chrome puede salir Enviar en los controles si hay un Chromecast.");
+    fail("");
+  };
+  $("full").onclick=function(){
+    var el=$("stage");
+    var fn=el.requestFullscreen||el.webkitRequestFullscreen;
+    if(!fn){ fail("Este visor no pone la página a pantalla completa. Emite la pantalla del teléfono con Smart View."); return; }
+    fn.call(el).catch(function(){ fail("No se pudo abrir a pantalla completa."); });
+  };
+})();
+</script>
+</body>
+</html>

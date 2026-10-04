@@ -105,6 +105,7 @@ footer {
     <label class="field">Micro
       <select id="mic"></select>
     </label>
+    <p class="hint">Si el Bluetooth lo usa otra app, se graba con el micro del teléfono.</p>
     <label class="field">Nivel fuera
       <input id="gain-out" type="range" min="0" max="100" value="100">
     </label>
@@ -146,7 +147,7 @@ footer {
     <ul class="hint" id="saved-list" style="list-style:none;padding:0;margin:.5rem 0 0"></ul>
   </div>
 
-  <footer>lesvencimos.com · grabadora · v20261001a</footer>
+  <footer>lesvencimos.com · grabadora · v20261004cap</footer>
 </div>
 <script>
 (function(){
@@ -258,14 +259,144 @@ footer {
     if(/SecurityError|secure/i.test(n)) return "El micro necesita contexto seguro (App WebView o https).";
     return "No se pudo conectar el micrófono. Prueba de nuevo o revisa el permiso.";
   }
+  function isBusyErr(err){
+    var n=((err&&err.name)||"")+" "+((err&&err.message)||"");
+    return /NotReadable|TrackStart|Abort/i.test(n);
+  }
+  function looksBluetooth(d){
+    var blob=((d&&d.deviceId)||"")+" "+((d&&d.label)||"");
+    return /bluetooth|\bbt\b|\bsco\b|auricular|headset|airpod|hands-?free|manos libres/i.test(blob);
+  }
+  function preferNativeMic(){
+    var b=lvBridge();
+    if(!b) return;
+    try{ if(typeof b.preferBuiltInMic==="function") b.preferBuiltInMic(); }catch(e){}
+    try{ if(typeof b.requestMicPermission==="function") b.requestMicPermission(); }catch(e2){}
+    try{ if(typeof b.requestAudioPermission==="function") b.requestAudioPermission(); }catch(e3){}
+  }
+  function enumerateAudio(){
+    if(!navigator.mediaDevices||!navigator.mediaDevices.enumerateDevices)
+      return Promise.resolve([]);
+    return navigator.mediaDevices.enumerateDevices().then(function(all){
+      return (all||[]).filter(function(d){ return d.kind==="audioinput"; });
+    });
+  }
+  function labelsEmpty(list){
+    if(!list||!list.length) return true;
+    return list.every(function(d){ return !(d&&d.label); });
+  }
   function gumConstraints(deviceId){
     var audio={ echoCancellation:false, noiseSuppression:false, autoGainControl:false };
     if(deviceId) audio.deviceId={ exact:deviceId };
     return { audio: audio };
   }
+  function skipForProbe(d){
+    var id=((d&&d.deviceId)||"").toLowerCase();
+    if(!id || id==="default" || id==="communications") return true;
+    return looksBluetooth(d);
+  }
+  function builtinId(){
+    var i,d,id,fallback="";
+    for(i=0;i<mics.length;i++){
+      d=mics[i];
+      if(!d||!d.deviceId||looksBluetooth(d)) continue;
+      id=(d.deviceId||"").toLowerCase();
+      if(id==="communications") continue;
+      if(id!=="default") return d.deviceId;
+      fallback=d.deviceId;
+    }
+    return fallback;
+  }
+  function labelEs(d){
+    var raw=((d&&d.label)||"").trim();
+    if(looksBluetooth(d)){
+      if(!raw) return "Bluetooth";
+      if(/bluetooth/i.test(raw)) return "Bluetooth · "+raw;
+      return "Bluetooth · "+raw;
+    }
+    var cleaned=raw.replace(/^(micr[oó]fono|microphone|default)\s*/i,"").trim();
+    if(!cleaned) return "Micro del teléfono";
+    return "Micro del teléfono · "+cleaned;
+  }
+  function selectMic(id){
+    var sel=$("mic"), opts=sel.querySelectorAll("option"), i;
+    for(i=0;i<opts.length;i++){
+      if(opts[i].value===id){ sel.value=id; return true; }
+    }
+    return false;
+  }
+  function idIsBluetooth(id){
+    var sel=$("mic");
+    var opt=sel.options[sel.selectedIndex];
+    if(opt && opt.getAttribute("data-bt")==="1" && (opt.value||"")===(id||"")) return true;
+    var i;
+    for(i=0;i<mics.length;i++){
+      if((mics[i].deviceId||"")===(id||"")) return looksBluetooth(mics[i]);
+    }
+    return looksBluetooth({deviceId:id||"", label:opt?opt.textContent:""});
+  }
+  function fillMics(){
+    var sel=$("mic");
+    sel.innerHTML="";
+    if(!mics.length){
+      var empty=document.createElement("option");
+      empty.value="";
+      empty.textContent="Sin micrófono — pulsa Buscar micros";
+      sel.appendChild(empty);
+      return;
+    }
+    var phone=[], bt=[], i;
+    for(i=0;i<mics.length;i++){
+      if(looksBluetooth(mics[i])) bt.push(mics[i]);
+      else phone.push(mics[i]);
+    }
+    function addGroup(title, list, isBt){
+      if(!list.length) return;
+      var g=document.createElement("optgroup");
+      g.label=title;
+      list.forEach(function(d){
+        var o=document.createElement("option");
+        o.value=d.deviceId||"";
+        o.textContent=labelEs(d);
+        if(isBt) o.setAttribute("data-bt","1");
+        g.appendChild(o);
+      });
+      sel.appendChild(g);
+    }
+    addGroup("Micro del teléfono", phone, false);
+    addGroup("Bluetooth", bt, true);
+    var prefer=builtinId();
+    if(prefer) selectMic(prefer);
+    else if(phone[0]&&phone[0].deviceId) selectMic(phone[0].deviceId);
+  }
+  function stopTracks(stream){
+    try{ if(stream) stream.getTracks().forEach(function(t){ t.stop(); }); }catch(e){}
+  }
+  function probePermission(list){
+    if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia){
+      return Promise.reject(Object.assign(new Error("unsupported"), {name:"NotSupportedError"}));
+    }
+    var cands=[];
+    (list||[]).forEach(function(d){ if(!skipForProbe(d)) cands.push(d.deviceId); });
+    function tryAt(i){
+      if(i>=cands.length){
+        return navigator.mediaDevices.getUserMedia({audio:true}).then(stopTracks).catch(function(err){
+          var n=(err&&err.name)||"";
+          if(/NotAllowed|Security/i.test(n)) throw err;
+          return null;
+        });
+      }
+      return navigator.mediaDevices.getUserMedia(gumConstraints(cands[i])).then(stopTracks).catch(function(err){
+        var n=(err&&err.name)||"";
+        if(/NotAllowed|Security/i.test(n)) throw err;
+        return tryAt(i+1);
+      });
+    }
+    return tryAt(0);
+  }
   function getMicStream(deviceId){
+    preferNativeMic();
     var b=lvBridge();
-    /* Preferir puente nativo si la App lo expone */
     if(b){
       if(typeof b.getMicStream==="function"){
         try{
@@ -282,18 +413,46 @@ footer {
           });
         }catch(e2){}
       }
-      if(typeof b.requestAudioPermission==="function"){
-        try{ b.requestAudioPermission(); }catch(e3){}
-      }
     }
     if(!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia){
       return Promise.reject(Object.assign(new Error("unsupported"), {name:"NotSupportedError"}));
     }
     return navigator.mediaDevices.getUserMedia(gumConstraints(deviceId)).catch(function(err){
       if(!deviceId) throw err;
-      return navigator.mediaDevices.getUserMedia(gumConstraints(null));
+      /* No caer al ruta por defecto si está ocupada: suele ser el Bluetooth. */
+      if(isBusyErr(err)) throw err;
+      var bid=builtinId();
+      if(bid && bid!==deviceId) return navigator.mediaDevices.getUserMedia(gumConstraints(bid));
+      throw err;
     });
   }
+  function scanMics(){
+    fail("");
+    say("Buscando micros…");
+    preferNativeMic();
+    return enumerateAudio().then(function(list){
+      if(!labelsEmpty(list)) return list;
+      return probePermission(list).then(function(){ return enumerateAudio(); });
+    }).then(function(list){
+      mics=list||[];
+      fillMics();
+      if(!mics.length){
+        fail("No aparece ningún micrófono. Si Bluetooth lo usa otra app, concede el permiso y pulsa Buscar micros otra vez.");
+        say("");
+        return mics;
+      }
+      say(mics.length+" micros. El predeterminado es el del teléfono, no Bluetooth.");
+      return mics;
+    }).catch(function(err){
+      fail(micErrorEs(err));
+      say("");
+      if(!mics.length) fillMics();
+      return mics;
+    });
+  }
+
+  $("scan").onclick=function(){ scanMics(); };
+  fillMics();
 
   $("gain-in").oninput=function(){ if(master) master.gain.value=this.value/100; };
   $("gain-out").oninput=function(){ if(micGain) micGain.gain.value=this.value/100; };
@@ -368,39 +527,6 @@ footer {
     clickTimer=setInterval(clickOnce, 500);
   };
 
-  function fillMics(){
-    var sel=$("mic");
-    sel.innerHTML="";
-    mics.forEach(function(d,i){
-      var o=document.createElement("option");
-      o.value=d.deviceId;
-      o.textContent=d.label||("Micro "+(i+1));
-      sel.appendChild(o);
-    });
-    if(!mics.length){
-      var o=document.createElement("option");
-      o.value=""; o.textContent="Micro del aparato";
-      sel.appendChild(o);
-    }
-  }
-  $("scan").onclick=function(){
-    fail("");
-    getMicStream(null).then(function(s){
-      try{ s.getTracks().forEach(function(t){ t.stop(); }); }catch(e){}
-      if(navigator.mediaDevices && navigator.mediaDevices.enumerateDevices){
-        return navigator.mediaDevices.enumerateDevices();
-      }
-      return [];
-    }).then(function(all){
-      mics=(all||[]).filter(function(d){ return d.kind==="audioinput"; });
-      fillMics();
-      say(mics.length? mics.length+" micros." : "Micro listo.");
-    }).catch(function(err){
-      fail(micErrorEs(err));
-    });
-  };
-  fillMics();
-
   function stopRec(){
     recording=false;
     $("rec").textContent="Grabar las dos";
@@ -449,12 +575,39 @@ footer {
       return;
     }
     ensure();
-    var id=$("mic").value;
-    say("Conectando micrófono…");
-    getMicStream(id).then(begin).catch(function(err){
-      fail(micErrorEs(err));
-      say("");
-    });
+    function go(){
+      var id=$("mic").value;
+      if(!id){
+        var b=builtinId();
+        if(b){ id=b; selectMic(b); }
+      }
+      say("Conectando micrófono…");
+      getMicStream(id||null).then(begin).catch(function(err){
+        if(isBusyErr(err) && (idIsBluetooth(id) || !id)){
+          return enumerateAudio().then(function(list){
+            if(list&&list.length){ mics=list; fillMics(); }
+            var bid=builtinId();
+            if(bid && bid!==id){
+              selectMic(bid);
+              say("El micro Bluetooth lo usa otra app. Grabando con el micro del teléfono.");
+              return getMicStream(bid).then(begin);
+            }
+            throw err;
+          });
+        }
+        throw err;
+      }).catch(function(err2){
+        if(isBusyErr(err2) && (idIsBluetooth(id)||!id))
+          fail("Ningún micrófono respondió. El Bluetooth lo usa otra app y el micro del teléfono tampoco. "+micErrorEs(err2));
+        else fail(micErrorEs(err2));
+        say("");
+      });
+    }
+    if(!mics.length){
+      scanMics().then(function(){ if(!$("err").textContent) go(); });
+      return;
+    }
+    go();
   };
 
   function arm(rec, chunks, kind){
