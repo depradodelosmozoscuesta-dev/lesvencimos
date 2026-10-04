@@ -66,6 +66,13 @@ select { min-height: 44px; padding: .45rem .6rem; width: 100%; margin-top: .35re
 .take { margin-top: .8rem; }
 .take audio { width: 100%; height: 40px; margin: .35rem 0; }
 a.dl { color: var(--tinta); font-weight: 700; font-size: .9rem; }
+label.check {
+  display: flex; align-items: flex-start; gap: .55rem;
+  margin: .75rem 0 0; font-size: .95rem; color: var(--tinta); font-weight: 650;
+  line-height: 1.35; text-transform: none; letter-spacing: 0;
+}
+label.check input { width: 1.15rem; height: 1.15rem; margin-top: .2rem; flex: 0 0 auto; }
+label.check.off { opacity: .45; }
 footer {
   margin-top: 2rem; padding-top: 1rem; border-top: 1px solid var(--linea);
   color: var(--suave); font-size: .75rem; letter-spacing: .08em; text-transform: uppercase;
@@ -98,7 +105,7 @@ footer {
 
   <div class="box">
     <h2>Fuera · ambiente</h2>
-    <p class="hint">Con cascos, esta pista es casi solo lo que tocas. Con el altavoz, el micro oye la música y a ti juntos. La pista de dentro sigue limpia.</p>
+    <p class="hint">Con cascos, esta pista es casi solo lo que tocas. Con el altavoz, el micro oye la música y a ti juntos. Ecualizar limpia la de fuera: la voz, un ruido seco, y parte de lo que sale del altavoz. La de dentro sigue igual.</p>
     <div class="row" style="margin-top:.7rem">
       <button class="ghost" type="button" id="scan">Buscar micros</button>
     </div>
@@ -109,6 +116,23 @@ footer {
     <label class="field">Nivel fuera
       <input id="gain-out" type="range" min="0" max="100" value="100">
     </label>
+    <label class="field">Cómo lo escuchas
+      <select id="modo">
+        <option value="auriculares">Auriculares</option>
+        <option value="altavoz" selected>Altavoz (manos libres)</option>
+        <option value="voz">Solo voz</option>
+      </select>
+    </label>
+    <label class="check" id="lab-quitar">
+      <input id="quitar" type="checkbox" checked>
+      <span>Quitar lo que sale del altavoz</span>
+    </label>
+    <p class="hint" id="quitar-hint">No es cancelación perfecta: baja en el micro lo que sale del altavoz, no lo borra.</p>
+    <label class="check">
+      <input id="eq-on" type="checkbox" checked>
+      <span>Ecualizar</span>
+    </label>
+    <p class="hint" id="eq-status"></p>
     <div class="meter" id="meter" aria-hidden="true"></div>
     <div class="row" style="margin-top:.8rem">
       <button class="rec" type="button" id="rec">Grabar las dos</button>
@@ -125,7 +149,7 @@ footer {
       <a class="dl" id="dl-in" download="dentro.webm">Bajar dentro</a>
     </div>
     <div class="take">
-      <div>Fuera</div>
+      <div id="fuera-label">Fuera</div>
       <audio id="hear-out" controls></audio>
       <a class="dl" id="dl-out" download="fuera.webm">Bajar fuera</a>
     </div>
@@ -147,7 +171,7 @@ footer {
     <ul class="hint" id="saved-list" style="list-style:none;padding:0;margin:.5rem 0 0"></ul>
   </div>
 
-  <footer>lesvencimos.com · grabadora · v20261004cap</footer>
+  <footer>lesvencimos.com · grabadora · v20261004eq</footer>
 </div>
 <script>
 (function(){
@@ -158,6 +182,10 @@ footer {
   var blobIn=null, blobOut=null, urls=[];
   var meterAnalyser=null, meterTimer=0;
   var mics=[];
+  var micSrcNode=null, eqProc=null, eqMerger=null, refTap=null, eqKeep=null, insideDelay=null, grabDsp=null;
+  var eqActive=false, lastClean=false;
+  var dspSet={eq:true, modo:"altavoz", quitar:true};
+  var LS_MODO="lv-grabadora-modo", LS_EQ="lv-grabadora-eq", LS_QUITAR="lv-grabadora-quitar-altavoz";
 
   function $(id){ return document.getElementById(id); }
   function mime(){
@@ -171,6 +199,256 @@ footer {
     if(m.indexOf("wav")>=0) return "wav";
     return "webm";
   }
+
+  function makeGrabadoraDsp(fs){
+    fs=fs||48000;
+    function BQ(){ this.b0=1; this.b1=0; this.b2=0; this.a1=0; this.a2=0; this.x1=0; this.x2=0; this.y1=0; this.y2=0; }
+    BQ.prototype.set=function(b0,b1,b2,a0,a1,a2){
+      this.b0=b0/a0; this.b1=b1/a0; this.b2=b2/a0; this.a1=a1/a0; this.a2=a2/a0;
+    };
+    BQ.prototype.hp=function(f,q){
+      var w0=2*Math.PI*f/fs, c=Math.cos(w0), s=Math.sin(w0), al=s/(2*q);
+      this.set((1+c)/2, -(1+c), (1+c)/2, 1+al, -2*c, 1-al);
+    };
+    BQ.prototype.peak=function(f,q,db){
+      var A=Math.pow(10, db/40), w0=2*Math.PI*f/fs, c=Math.cos(w0), s=Math.sin(w0), al=s/(2*q);
+      this.set(1+al*A, -2*c, 1-al*A, 1+al/A, -2*c, 1-al/A);
+    };
+    BQ.prototype.bp=function(f,q){
+      var w0=2*Math.PI*f/fs, c=Math.cos(w0), s=Math.sin(w0), al=s/(2*q);
+      this.set(al, 0, -al, 1+al, -2*c, 1-al);
+    };
+    BQ.prototype.step=function(x){
+      var y=this.b0*x + this.b1*this.x1 + this.b2*this.x2 - this.a1*this.y1 - this.a2*this.y2;
+      if(!isFinite(y)){ y=0; this.x1=this.x2=this.y1=this.y2=0; }
+      this.x2=this.x1; this.x1=x; this.y2=this.y1; this.y1=y;
+      return y;
+    };
+    var hp=new BQ(), pres=new BQ(), bp=new BQ();
+    hp.hp(100, 0.707);
+    pres.peak(3000, 0.9, 3.5);
+    bp.bp(1200, 0.4);
+    var maxLag=Math.max(8, Math.round(0.046*fs));
+    var hist=new Float32Array(maxLag);
+    var w=0, g=1, envF=0, envS=0, spE=0, brE=0, hold=0;
+    var aF=Math.exp(-1/(fs*0.0025)), aS=Math.exp(-1/(fs*0.055));
+    var aSp=Math.exp(-1/(fs*0.03)), aBr=Math.exp(-1/(fs*0.03));
+    var att=Math.exp(-1/(fs*0.01)), rel=Math.exp(-1/(fs*0.18));
+    var attFast=Math.exp(-1/(fs*0.0015));
+    var lags=[], ms, li;
+    for(ms=3; ms<=40; ms+=1) lags.push(Math.max(1, Math.round(ms/1000*fs)));
+    var acc=lags.map(function(){ return {dot:0, e:0, w:0}; });
+    var lastBi=0, lastLag=lags[0], seen=0;
+    var lookN=Math.max(1, Math.round(0.004*fs));
+    var dly=new Float32Array(lookN), dlyPos=0;
+    var show={altavoz:0, voz:0, ruido:0};
+    function commit(block){
+      var Q=hist.length, N=block.length;
+      if(!N) return;
+      if(N>=Q){ hist.set(block.subarray(N-Q)); return; }
+      hist.copyWithin(0, N);
+      hist.set(block, Q-N);
+    }
+    function refAt(block, i, lag){
+      var idx=i-lag;
+      if(idx>=0) return block[idx];
+      var h=hist.length+idx;
+      if(h<0||h>=hist.length) return 0;
+      return hist[h];
+    }
+    function decay(){
+      if(show.altavoz) show.altavoz--;
+      if(show.voz) show.voz--;
+      if(show.ruido) show.ruido--;
+    }
+    function process(mic, ref, set){
+      var N=mic.length, out=new Float32Array(N);
+      var modo=(set&&set.modo)||"altavoz";
+      var eq=!(set&&set.eq===false);
+      var quitar=!(set&&set.quitar===false);
+      var shape=eq && (modo==="altavoz" || modo==="voz");
+      var doSub=eq && modo==="altavoz" && quitar;
+      var refB=ref||null;
+      var i;
+      if(!shape){
+        for(i=0;i<N;i++){
+          var delayed0=dly[dlyPos];
+          dly[dlyPos]=mic[i];
+          dlyPos++; if(dlyPos>=lookN) dlyPos=0;
+          out[i]=delayed0;
+        }
+        if(refB) commit(refB);
+        w*=0.8;
+        decay();
+        return out;
+      }
+      if(!refB) refB=new Float32Array(N);
+      var useLag=lastLag, bestE=0, micE=0, refE=0, dotBest=0, bestBi=lastBi, curScore=0;
+      if(doSub){
+        var bi, bscore=-1, step=4, k;
+        seen+=N;
+        for(k=0;k<N;k+=step){
+          micE+=mic[k]*mic[k];
+          refE+=refB[k]*refB[k];
+        }
+        var warm=seen>maxLag+N;
+        for(bi=0; bi<lags.length; bi++){
+          var lag=lags[bi], dot=0, e=0;
+          for(k=0;k<N;k+=step){
+            var r=refAt(refB, k, lag);
+            dot+=mic[k]*r;
+            e+=r*r;
+          }
+          var a=acc[bi];
+          if(warm && refE>1e-6){
+            a.dot=a.dot*0.75+dot*0.25;
+            a.e=a.e*0.75+e*0.25;
+            var est=a.e>1e-8?a.dot/a.e:0;
+            if(est>0.85) est=0.85; else if(est<-0.85) est=-0.85;
+            if(!isFinite(est)) est=0;
+            a.w=a.w*0.65+est*0.35;
+          }else a.w*=0.9;
+          var score=Math.abs(a.dot)/Math.sqrt(a.e+1e-12);
+          if(score>bscore) bscore=score;
+          acc[bi].score=score;
+        }
+        if(warm && bscore>0){
+          var bar=bscore*0.9;
+          bestBi=0; useLag=lags[0];
+          for(bi=0; bi<lags.length; bi++){
+            if(acc[bi].score>=bar){ bestBi=bi; useLag=lags[bi]; break; }
+          }
+          if(lastBi && acc[lastBi] && acc[lastBi].score>=bscore*0.82 && lags[lastBi]<=useLag){
+            bestBi=lastBi; useLag=lags[lastBi];
+          }
+          dotBest=acc[bestBi].dot; bestE=acc[bestBi].e;
+          w=acc[bestBi].w;
+          lastLag=useLag; lastBi=bestBi;
+        }else w*=0.9;
+        if(!isFinite(w)) w=0;
+      }else{
+        w*=0.8;
+        for(bi=0; bi<acc.length; bi++) acc[bi].w*=0.9;
+      }
+      var corr=0;
+      if(doSub && micE>1e-8 && bestE>1e-8) corr=dotBest/Math.sqrt((micE*0.2+1e-12)*(bestE));
+      var duck=1;
+      if(doSub && Math.abs(corr)>0.55){
+        var tt=Math.min(1, (Math.abs(corr)-0.55)/0.45);
+        duck=1-0.22*tt;
+      }
+      var sawVoice=false, sawNoise=false, sawBleed=false;
+      if(doSub && (Math.abs(w)>0.06 || (refE>micE*0.2 && refE>1e-5))) sawBleed=true;
+      for(i=0;i<N;i++){
+        var x=mic[i];
+        if(doSub){
+          x=x-w*refAt(refB, i, useLag);
+          x*=duck;
+        }
+        var h=hp.step(x);
+        var band=bp.step(h);
+        var ah=h<0?-h:h, ab=band<0?-band:band;
+        envF=aF*envF+(1-aF)*ah;
+        envS=aS*envS+(1-aS)*ah;
+        spE=aSp*spE+(1-aSp)*ab;
+        brE=aBr*brE+(1-aBr)*ah;
+        var target=1;
+        var speechy=brE>0.006 && spE>brE*0.34;
+        var outside=brE>0.02 && spE<brE*0.28;
+        var crest=envF>0.045 && envF>envS*4.0;
+        var spike=crest || (envF>0.03 && envF>envS*3.2 && !speechy);
+        if(spike || (outside && envF>envS*1.7)) hold=Math.round(crest?0.028*fs:0.02*fs);
+        if(hold>0){ target*=(crest&&speechy?0.62:0.48); hold--; sawNoise=true; }
+        else if(outside && !speechy){ target*=0.78; sawNoise=true; }
+        if(brE<0.008){
+          var rr=brE/0.008;
+          target*=(0.35+0.65*rr);
+          if(rr<0.4) sawNoise=true;
+        }
+        if(brE>0.012 && target>0.75 && !outside && !sawNoise) sawVoice=true;
+        if(target<0.32) target=0.32;
+        var down=hold>0?attFast:att;
+        if(target<g) g=down*g+(1-down)*target;
+        else g=rel*g+(1-rel)*target;
+        var delayed=dly[dlyPos];
+        dly[dlyPos]=h;
+        dlyPos++; if(dlyPos>=lookN) dlyPos=0;
+        var y=pres.step(delayed)*g;
+        if(y>0.98) y=0.98; else if(y<-0.98) y=-0.98;
+        if(!isFinite(y)) y=0;
+        out[i]=y;
+      }
+      commit(refB);
+      if(sawBleed) show.altavoz=8; else if(show.altavoz) show.altavoz--;
+      if(sawVoice) show.voz=6; else if(show.voz) show.voz--;
+      if(sawNoise) show.ruido=8; else if(show.ruido) show.ruido--;
+      return out;
+    }
+    return {
+      process:process,
+      peek:function(){ return {altavoz:show.altavoz>0, voz:show.voz>0, ruido:show.ruido>0, w:w, lag:lastLag}; }
+    };
+  }
+
+  function paintEqStatus(){
+    var el=$("eq-status");
+    if(!el) return;
+    el.textContent=eqStatusText();
+  }
+  function eqStatusText(){
+    var on=$("eq-on") && $("eq-on").checked;
+    var modo=$("modo") ? $("modo").value : "altavoz";
+    if(!on) return "Ecualizar apagado: el micro se graba en crudo.";
+    if(!recording){
+      if(modo==="auriculares") return "Auriculares: el micro entra casi tal cual. No quito el altavoz.";
+      if(modo==="voz") return "Solo voz: graves más bajos, la voz más presente, y los ruidos secos se bajan.";
+      return "Altavoz: al grabar bajo parte de lo que sale del altavoz, realzo la voz y bajo ruidos secos. No es cancelación perfecta.";
+    }
+    if(!eqActive) return "En esta toma el micro va en crudo.";
+    if(!dspSet.eq) return "Ecualizar apagado: micro en crudo.";
+    if(dspSet.modo==="auriculares") return "Auriculares: micro casi tal cual.";
+    var pk=grabDsp?grabDsp.peek():{altavoz:false,voz:false,ruido:false};
+    var bits=[];
+    if(dspSet.modo==="altavoz" && dspSet.quitar) bits.push("altavoz");
+    if(pk.voz || dspSet.modo==="voz") bits.push("voz");
+    if(pk.ruido) bits.push("ruido");
+    if(!bits.length) bits.push("voz");
+    return "EQ: "+bits.join(" · ");
+  }
+  function syncModoUi(){
+    var modo=$("modo").value;
+    var alt=modo==="altavoz";
+    $("quitar").disabled=!alt;
+    $("lab-quitar").className=alt?"check":"check off";
+    $("quitar-hint").textContent=alt
+      ? "No es cancelación perfecta: baja en el micro lo que sale del altavoz, no lo borra."
+      : "Solo hace falta con el altavoz. Con cascos o solo voz no resto esa señal.";
+    dspSet.eq=!!$("eq-on").checked;
+    dspSet.modo=modo;
+    dspSet.quitar=!!$("quitar").checked;
+    try{
+      localStorage.setItem(LS_MODO, modo);
+      localStorage.setItem(LS_EQ, dspSet.eq?"1":"0");
+      localStorage.setItem(LS_QUITAR, dspSet.quitar?"1":"0");
+    }catch(e){}
+    paintEqStatus();
+  }
+  function loadModo(){
+    var modo="altavoz", eq="1", q="1", s;
+    try{
+      s=localStorage.getItem(LS_MODO);
+      if(s==="auriculares"||s==="altavoz"||s==="voz") modo=s;
+      s=localStorage.getItem(LS_EQ);
+      if(s==="0"||s==="1") eq=s;
+      s=localStorage.getItem(LS_QUITAR);
+      if(s==="0"||s==="1") q=s;
+    }catch(e){}
+    $("modo").value=modo;
+    $("eq-on").checked=eq!=="0";
+    $("quitar").checked=q!=="0";
+    syncModoUi();
+  }
+
   function ensure(){
     if(!ctx){
       ctx=new (window.AudioContext||window.webkitAudioContext)();
@@ -453,6 +731,10 @@ footer {
 
   $("scan").onclick=function(){ scanMics(); };
   fillMics();
+  $("modo").onchange=syncModoUi;
+  $("quitar").onchange=syncModoUi;
+  $("eq-on").onchange=syncModoUi;
+  loadModo();
 
   $("gain-in").oninput=function(){ if(master) master.gain.value=this.value/100; };
   $("gain-out").oninput=function(){ if(micGain) micGain.gain.value=this.value/100; };
@@ -527,32 +809,102 @@ footer {
     clickTimer=setInterval(clickOnce, 500);
   };
 
+  function dropNode(node){
+    if(!node) return;
+    try{ node.disconnect(); }catch(e){}
+  }
   function stopRec(){
     recording=false;
     $("rec").textContent="Grabar las dos";
     if(recIn && recIn.state!=="inactive") recIn.stop();
     if(recOut && recOut.state!=="inactive") recOut.stop();
     if(micStream) micStream.getTracks().forEach(function(t){ t.stop(); });
-    micStream=null; micGain=null; micDest=null; meterAnalyser=null;
+    micStream=null;
+    if(eqProc) eqProc.onaudioprocess=null;
+    dropNode(micSrcNode);
+    dropNode(eqMerger);
+    dropNode(eqProc);
+    dropNode(refTap);
+    dropNode(eqKeep);
+    dropNode(micGain);
+    if(master && refTap){ try{ master.disconnect(refTap); }catch(e){} }
+    if(master && insideDelay){ try{ master.disconnect(insideDelay); }catch(e){} }
     if(master && insideDest){ try{ master.disconnect(insideDest); }catch(e){} }
-    insideDest=null;
+    dropNode(insideDelay);
+    micSrcNode=null; eqProc=null; eqMerger=null; refTap=null; eqKeep=null;
+    micGain=null; micDest=null; insideDelay=null; insideDest=null; meterAnalyser=null;
     cancelAnimationFrame(meterTimer);
     paintMeter();
+    paintEqStatus();
   }
 
   function begin(stream){
     var ac=ensure();
     micStream=stream;
     var src=ac.createMediaStreamSource(stream);
+    micSrcNode=src;
     micGain=ac.createGain();
     micGain.gain.value=+$("gain-out").value/100;
     micDest=ac.createMediaStreamDestination();
     var an=ac.createAnalyser(); an.fftSize=2048;
-    src.connect(micGain); micGain.connect(micDest); micGain.connect(an);
     meterAnalyser=an;
+    eqActive=false;
+    lastClean=false;
+    syncModoUi();
+    if(dspSet.eq && typeof ac.createScriptProcessor==="function"){
+      try{
+        eqMerger=ac.createChannelMerger(2);
+        refTap=ac.createGain();
+        refTap.gain.value=1;
+        master.connect(refTap);
+        refTap.connect(eqMerger, 0, 1);
+        src.connect(eqMerger, 0, 0);
+        var bufSize=1024;
+        try{ eqProc=ac.createScriptProcessor(bufSize, 2, 1); }
+        catch(e1){ eqProc=ac.createScriptProcessor(2048, 2, 1); }
+        bufSize=eqProc.bufferSize||bufSize||1024;
+        grabDsp=makeGrabadoraDsp(ac.sampleRate);
+        eqProc.onaudioprocess=function(ev){
+          var inn=ev.inputBuffer;
+          var micCh=inn.getChannelData(0);
+          var refCh=inn.numberOfChannels>1?inn.getChannelData(1):null;
+          var o=ev.outputBuffer.getChannelData(0);
+          var processed=micCh, i;
+          try{ processed=grabDsp.process(micCh, refCh, dspSet); }
+          catch(err){ processed=micCh; }
+          for(i=0;i<o.length;i++) o[i]=processed[i];
+        };
+        eqMerger.connect(eqProc);
+        eqProc.connect(micGain);
+        eqKeep=ac.createGain();
+        eqKeep.gain.value=0;
+        eqProc.connect(eqKeep);
+        eqKeep.connect(ac.destination);
+        insideDelay=ac.createDelay(0.25);
+        insideDelay.delayTime.value=bufSize/ac.sampleRate+0.004;
+        eqActive=true;
+        lastClean=dspSet.modo==="altavoz"||dspSet.modo==="voz";
+      }catch(err){
+        try{ src.disconnect(); }catch(e2){}
+        if(master && refTap){ try{ master.disconnect(refTap); }catch(e3){} }
+        if(eqProc) eqProc.onaudioprocess=null;
+        dropNode(eqMerger); dropNode(eqProc); dropNode(refTap); dropNode(eqKeep); dropNode(insideDelay);
+        eqProc=null; eqMerger=null; refTap=null; eqKeep=null; insideDelay=null;
+        eqActive=false; lastClean=false;
+        try{ src.connect(micGain); }catch(e4){}
+      }
+    }
+    if(!eqActive){
+      try{ src.connect(micGain); }catch(e5){}
+    }
+    micGain.connect(micDest);
+    micGain.connect(an);
     if(insideDest){ try{ master.disconnect(insideDest); }catch(e){} }
     insideDest=ac.createMediaStreamDestination();
-    master.connect(insideDest);
+    if(eqActive && insideDelay){
+      master.connect(insideDelay);
+      insideDelay.connect(insideDest);
+    }else master.connect(insideDest);
     var mt=mime();
     chunksIn=[]; chunksOut=[]; blobIn=null; blobOut=null;
     recIn=mt? new MediaRecorder(insideDest.stream,{mimeType:mt}) : new MediaRecorder(insideDest.stream);
@@ -562,8 +914,13 @@ footer {
     recIn.start(250); recOut.start(250);
     recording=true;
     $("rec").textContent="Parar";
-    say("Grabando. Dentro y fuera, a la vez.");
-    (function loop(){ if(!recording) return; paintMeter(); meterTimer=requestAnimationFrame(loop); })();
+    say(eqActive ? "Grabando. Fuera pasa por el ecualizador." : "Grabando. Dentro y fuera, a la vez. Micro en crudo.");
+    (function loop(){
+      if(!recording) return;
+      if(eqActive && dspSet.eq && (dspSet.modo==="altavoz"||dspSet.modo==="voz")) lastClean=true;
+      paintMeter(); paintEqStatus();
+      meterTimer=requestAnimationFrame(loop);
+    })();
     if(audioEl && audioEl.paused) audioEl.play().catch(function(){});
   }
 
@@ -650,9 +1007,15 @@ footer {
     var n1=stampName("dentro", e1), n2=stampName("fuera", e2);
     $("dl-in").href=u1; $("dl-in").download=n1;
     $("dl-out").href=u2; $("dl-out").download=n2;
+    $("dl-out").textContent=lastClean?"Bajar fuera limpia":"Bajar fuera";
+    var fl=$("fuera-label");
+    if(fl) fl.textContent=lastClean?"Fuera · limpia":"Fuera";
     $("takes").hidden=false;
     say("Dos pistas. Guardando y exportando…");
-    Promise.all([persistAndExport(blobIn,"dentro"), persistAndExport(blobOut,"fuera")]).then(function(){
+    Promise.all([
+      persistAndExport(blobIn,"dentro"),
+      persistAndExport(blobOut, lastClean?"fuera-limpia":"fuera")
+    ]).then(function(){
       renderSaved();
     });
   }
@@ -679,7 +1042,7 @@ footer {
   var btnEx=$("export-all");
   if(btnEx) btnEx.onclick=function(){
     if(blobIn) persistAndExport(blobIn,"dentro");
-    if(blobOut) persistAndExport(blobOut,"fuera");
+    if(blobOut) persistAndExport(blobOut, lastClean?"fuera-limpia":"fuera");
     if(!blobIn && !blobOut){
       idbAll().then(function(rows){
         if(!rows.length){ say("No hay pistas para exportar."); return; }

@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0E0E0C">
+<title>Test permiso B — Les vencimos</title>
+<style>
+:root{--fondo:#0E0E0C;--fondo-2:#161512;--fondo-3:#1C1A16;--tinta:#E6E1D6;--suave:#9A9488;--acento:#C4A15A;--acento-texto:#1A160E;--linea:rgba(230,225,214,.14);--ok:#8F9A72;--mal:#C46A4A;--serif:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;--sans:"Segoe UI",system-ui,sans-serif}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--fondo);color:var(--tinta);font-family:var(--sans)}
+body{padding:1rem 1rem 2.5rem}
+.wrap{max-width:38rem;margin:0 auto}
+.lv-brandbar{display:flex;align-items:baseline;justify-content:space-between;gap:.75rem;padding:0 0 .7rem;margin:0 0 .85rem;border-bottom:1px solid var(--linea)}
+.lv-brandbar a{color:inherit;text-decoration:none;font-family:var(--serif);font-weight:600}
+.lv-off{font-size:.7rem;letter-spacing:.12em;text-transform:uppercase;opacity:.65;font-weight:600}
+.meta{display:flex;justify-content:space-between;gap:.5rem;color:var(--suave);font-size:.8rem;letter-spacing:.04em;margin-bottom:.6rem}
+h1{font-family:var(--serif);font-size:1.25rem;font-weight:600;margin:0 0 .8rem;line-height:1.35}
+.opts{display:flex;flex-direction:column;gap:.45rem}
+button.opt{text-align:left;background:var(--fondo-2);color:var(--tinta);border:1px solid var(--linea);padding:.75rem .8rem;font:500 1rem var(--sans);cursor:pointer;line-height:1.35}
+button.opt:hover{border-color:rgba(196,161,90,.55)}
+button.opt.buena{border-color:var(--ok);background:#1a1c16}
+button.opt.mala{border-color:var(--mal);background:#221714}
+.reveal{margin-top:.85rem;background:var(--fondo-2);border:1px solid var(--linea);padding:.8rem .85rem}
+.reveal p{margin:.35rem 0;line-height:1.45}
+.reveal .ok{color:var(--ok);font-weight:650}
+.cita{color:var(--suave);font-size:.82rem}
+.row{display:flex;flex-wrap:wrap;gap:.45rem;margin-top:.85rem}
+button.go,a.go{background:var(--acento);color:var(--acento-texto);border:0;text-decoration:none;padding:.65rem .9rem;font:600 .9rem var(--sans);cursor:pointer}
+a.ghost,button.ghost{background:transparent;color:var(--tinta);border:1px solid var(--linea);text-decoration:none;padding:.6rem .75rem;font:600 .82rem var(--sans);cursor:pointer}
+.score{font-family:var(--serif);font-size:1.6rem;margin:.2rem 0}
+.small{color:var(--suave);font-size:.82rem;line-height:1.45}
+</style>
+</head>
+<body>
+<div class="wrap">
+<div class="lv-brandbar"><a href="../conducir.html">Conducir</a><span class="lv-off">Estudio · no es la DGT</span></div>
+<div class="meta"><span id="prog">—</span><span id="marca">0 aciertos</span></div>
+<div id="app"></div>
+</div>
+<script src="preguntas-b.js"></script>
+<script>
+(function(){
+  var data = window.LV_CONDUCIR_B;
+  var app = document.getElementById("app");
+  var KEY = "lv-conducir-b-v1";
+  function loadMem(){
+    try { return JSON.parse(localStorage.getItem(KEY) || "{}"); } catch(e){ return {}; }
+  }
+  function saveMem(m){ try { localStorage.setItem(KEY, JSON.stringify(m)); } catch(e){} }
+  function shuffle(a){
+    var i, j, t;
+    for(i=a.length-1;i>0;i--){
+      j = Math.floor(Math.random()*(i+1));
+      t=a[i]; a[i]=a[j]; a[j]=t;
+    }
+    return a;
+  }
+  function param(name){
+    var q = location.search.replace(/^\?/,"").split("&");
+    for(var i=0;i<q.length;i++){
+      var p=q[i].split("=");
+      if(decodeURIComponent(p[0])===name) return decodeURIComponent(p[1]||"");
+    }
+    return "";
+  }
+  if(!data || !data.preguntas){
+    app.innerHTML = "<p>No se ha podido abrir el cuaderno.</p>";
+    return;
+  }
+  var tema = param("tema");
+  var modo = param("modo") || (tema ? "tema" : "simulacro");
+  var pool = data.preguntas.slice();
+  var tituloTema = "Simulacro de estudio";
+  if(tema){
+    pool = pool.filter(function(q){ return q.tema===tema; });
+    data.temas.forEach(function(t){ if(t.id===tema) tituloTema = t.titulo; });
+    modo = "tema";
+  } else if(modo==="fallos"){
+    var mem = loadMem();
+    var ids = mem.fallos || {};
+    pool = pool.filter(function(q){ return ids[q.id]; });
+    tituloTema = "Fallos guardados";
+  } else if(modo==="todos"){
+    tituloTema = "Cuaderno completo";
+  } else {
+    modo = "simulacro";
+    tituloTema = "Simulacro de 30";
+    pool = shuffle(pool).slice(0, 30);
+  }
+  if(modo!=="simulacro") shuffle(pool);
+  var idx = 0, aciertos = 0, fallos = 0, locked = false, elegida = -1;
+
+  function temaNombre(id){
+    var n = id;
+    data.temas.forEach(function(t){ if(t.id===id) n=t.titulo; });
+    return n;
+  }
+  function pintaMarca(){
+    document.getElementById("marca").textContent = aciertos + " aciertos · " + fallos + " fallos";
+    document.getElementById("prog").textContent = pool.length ? ((Math.min(idx+1, pool.length)) + " / " + pool.length + " · " + tituloTema) : tituloTema;
+  }
+  function fin(){
+    var apto = modo==="simulacro" && fallos<=3 && pool.length===30;
+    var html = "<p class='small'>"+tituloTema+"</p>";
+    html += "<p class='score'>"+aciertos+" / "+pool.length+"</p>";
+    if(!pool.length){
+      html += "<p>No hay preguntas en esta lista. Haz un simulacro y los fallos se guardan en este navegador.</p>";
+    } else if(modo==="simulacro"){
+      html += "<p>"+(apto?"Apto en este simulacro de estudio (3 fallos o menos).":"No apto en este simulacro: el criterio de estudio es no pasar de 3 fallos en 30.")+"</p>";
+      html += "<p class='small'>No es una nota de la DGT. El banco oficial no está en este módulo.</p>";
+    } else {
+      html += "<p class='small'>Preguntas de estudio. La cita de cada una está en la norma o en la página de la DGT indicada, revisadas el 4 de octubre de 2026.</p>";
+    }
+    html += "<div class='row'><button class='go' id='otra' type='button'>Otra vez</button>";
+    html += "<a class='ghost' href='test.html?modo=fallos'>Ver fallos</a>";
+    html += "<a class='ghost' href='../conducir.html'>Temas</a></div>";
+    app.innerHTML = html;
+    document.getElementById("prog").textContent = "Fin · " + tituloTema;
+    var b=document.getElementById("otra");
+    if(b) b.onclick=function(){ location.reload(); };
+  }
+  function render(){
+    if(idx>=pool.length){ fin(); return; }
+    locked=false; elegida=-1;
+    var q = pool[idx];
+    pintaMarca();
+    var html = "<p class='small'>"+temaNombre(q.tema)+" · "+q.id+"</p>";
+    html += "<h1>"+esc(q.p)+"</h1><div class='opts'>";
+    q.o.forEach(function(op,i){
+      html += "<button type='button' class='opt' data-i='"+i+"'>"+esc(op)+"</button>";
+    });
+    html += "</div><div id='rev'></div>";
+    app.innerHTML = html;
+    var buttons = app.querySelectorAll("button.opt");
+    buttons.forEach(function(btn){
+      btn.onclick=function(){ elegir(q, buttons, +btn.getAttribute("data-i")); };
+    });
+  }
+  function elegir(q, buttons, i){
+    if(locked) return;
+    locked=true; elegida=i;
+    var bien = i===q.c;
+    if(bien) aciertos++; else {
+      fallos++;
+      var mem=loadMem();
+      mem.fallos = mem.fallos || {};
+      mem.fallos[q.id] = (mem.fallos[q.id]||0)+1;
+      saveMem(mem);
+    }
+    pintaMarca();
+    buttons.forEach(function(btn){
+      var k=+btn.getAttribute("data-i");
+      btn.disabled=true;
+      if(k===q.c) btn.classList.add("buena");
+      if(k===i && !bien) btn.classList.add("mala");
+    });
+    var rev=document.getElementById("rev");
+    rev.className="reveal";
+    rev.innerHTML = "<p class='"+(bien?"ok":"")+"'>"+(bien?"Correcta.":"La correcta es: "+esc(q.o[q.c]))+"</p>"
+      + "<p>"+esc(q.nota)+"</p>"
+      + "<p class='cita'>"+esc(q.cita)+"</p>"
+      + "<div class='row'><button type='button' class='go' id='sig'>"+(idx+1>=pool.length?"Ver resultado":"Siguiente")+"</button></div>";
+    document.getElementById("sig").onclick=function(){ idx++; render(); };
+  }
+  function esc(s){
+    return String(s).replace(/[&<>"]/g, function(c){
+      return {"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;"}[c];
+    });
+  }
+  render();
+})();
+</script>
+</body>
+</html>

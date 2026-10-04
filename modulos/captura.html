@@ -39,6 +39,10 @@ h1 { margin: 0 0 .4rem; font-family: var(--serif); font-size: clamp(1.7rem,4.5vw
   margin: 0 0 .65rem; font-size: .7rem; letter-spacing: .16em;
   text-transform: uppercase; color: var(--suave); font-weight: 600;
 }
+.box h2.plain {
+  font-family: var(--serif); font-size: 1.35rem; letter-spacing: 0;
+  text-transform: none; color: var(--tinta); font-weight: 600; line-height: 1.2;
+}
 .row { display: flex; flex-wrap: wrap; gap: .4rem; align-items: center; }
 button.primary, button.ghost {
   appearance: none; min-height: 44px; padding: .55rem 1rem; border-radius: var(--radio);
@@ -57,6 +61,8 @@ label.check { display: flex; gap: .6rem; align-items: center; background: transp
 .field { display: block; margin: .7rem 0 0; font-size: .78rem; color: var(--suave); font-weight: 600; letter-spacing: .04em; text-transform: uppercase; }
 .hint { color: var(--suave); font-size: .84rem; margin: .4rem 0 0; }
 .err { color: var(--peligro); }
+ol.pasos { margin: .55rem 0 .2rem; padding-left: 1.2rem; }
+ol.pasos li { margin: .35rem 0; }
 .reloj { font-family: var(--serif); font-size: 2.4rem; margin: .4rem 0 0; letter-spacing: .04em; }
 video { width: 100%; margin-top: .6rem; background: #000; }
 a.dl { color: var(--tinta); font-weight: 700; font-size: .9rem; }
@@ -79,14 +85,24 @@ footer {
     <span class="status">Offline</span>
   </header>
   <h1>Captura</h1>
-  <p class="lead">Vídeo de la pantalla y, si el aparato lo suelta, su audio. Puedes mezclar el micrófono. Cuenta atrás, reloj y archivo al parar.</p>
+  <p class="lead" id="lead">Este móvil ya graba la pantalla con la herramienta del sistema: vídeo, sonido y reloj.</p>
 
-  <div class="box">
-    <h2>Límite real</h2>
-    <p class="hint" id="limite">El WebView de la app Android casi nunca tiene captura de pantalla. Hace falta Chrome, o Android 14+ con el permiso del sistema para grabar la pantalla. Si no arranca, no se finge una grabación.</p>
+  <div class="box" id="samsung">
+    <h2 class="plain">Este móvil ya graba la pantalla</h2>
+    <p class="hint">Graba el vídeo y el sonido de la pantalla, con su reloj. El archivo queda en Galería → Screen recordings.</p>
+    <ol class="pasos">
+      <li>Baja el panel.</li>
+      <li>Pulsa el icono <strong>Grabar pantalla</strong>.</li>
+      <li>Si no está: Panel lateral → <strong>Grabadora de pantalla</strong>.</li>
+    </ol>
+    <div class="row" style="margin-top:.85rem">
+      <button class="primary" type="button" id="abrir">Abrir grabadora del móvil</button>
+      <button class="ghost" type="button" id="probar">Probar en esta página</button>
+    </div>
+    <p class="hint" id="samsung-msg"></p>
   </div>
 
-  <div class="box">
+  <div class="box" id="recbox" hidden>
     <h2>Grabar</h2>
     <label class="field">Cuenta atrás
       <select id="cuenta-seg">
@@ -123,7 +139,7 @@ footer {
     <p class="hint" id="saved-msg"></p>
   </div>
 
-  <footer>lesvencimos.com · captura · v20261004cap</footer>
+  <footer>lesvencimos.com · captura · v20261004cap2</footer>
 </div>
 <div class="cuenta" id="cuenta" aria-hidden="true"><b id="cuenta-n">3</b></div>
 <script>
@@ -133,6 +149,8 @@ footer {
     media:{w:1280,h:720,fps:24,v:2500000,a:96000},
     alta:{w:1920,h:1080,fps:30,v:4500000,a:128000}
   };
+  var LEAD_PAGINA="Vídeo de la pantalla y, si el aparato lo suelta, su audio. Puedes mezclar el micrófono. Cuenta atrás, reloj y archivo al parar.";
+  var TAPAS="Dos toques: baja el panel y pulsa Grabar pantalla. Si no está, Panel lateral → Grabadora de pantalla.";
   var recording=false, rec=null, chunks=[], blob=null, displayStream=null, micStream=null, mixCtx=null, mixDest=null;
   var clockTimer=0, countTimer=0, startedAt=0, counting=false;
 
@@ -226,16 +244,37 @@ footer {
     $("fmt").textContent="Formato: "+f.label+(f.mime?"":" (MediaRecorder no declara uno)");
     return f;
   }
-  function canCapture(){
-    return !!(navigator.mediaDevices && navigator.mediaDevices.getDisplayMedia && window.MediaRecorder);
+  function hasDisplayApi(){
+    return !!(navigator.mediaDevices && typeof navigator.mediaDevices.getDisplayMedia==="function" && window.MediaRecorder);
   }
-  function showLimit(){
-    if(canCapture()){
-      $("limite").textContent="El visor dice que puede pedir la pantalla. En el WebView de la app Android suele fallar igual: Chrome, o Android 14+ con permiso del sistema. Sin eso no hay grabación.";
-      return;
+  function showSamsung(){
+    $("samsung").hidden=false;
+    $("recbox").hidden=true;
+    $("lead").textContent="Este móvil ya graba la pantalla con la herramienta del sistema: vídeo, sonido y reloj.";
+  }
+  function showRecorder(){
+    $("samsung").hidden=true;
+    $("recbox").hidden=false;
+    $("lead").textContent=LEAD_PAGINA;
+    $("go").disabled=false;
+  }
+  function openSystemRecorder(){
+    var b=lvBridge();
+    var names=["openScreenRecorder","openSamsungScreenRecorder","launchScreenRecorder","startScreenRecorder"];
+    var i, fn;
+    if(b){
+      for(i=0;i<names.length;i++){
+        fn=b[names[i]];
+        if(typeof fn==="function"){
+          try{
+            fn.call(b);
+            $("samsung-msg").textContent="Abriendo la grabadora del móvil…";
+            return;
+          }catch(e){}
+        }
+      }
     }
-    $("go").disabled=true;
-    fail("Este visor no tiene captura de pantalla (getDisplayMedia). Ábrelo en Chrome. La app Android necesita un permiso nativo que esta versión no trae. No se graba nada.");
+    $("samsung-msg").textContent=TAPAS;
   }
   function stopTracks(stream){
     try{ if(stream) stream.getTracks().forEach(function(t){ t.stop(); }); }catch(e){}
@@ -296,13 +335,34 @@ footer {
     $("stop").disabled=true;
     cleanupStreams();
   }
+  function onCaptureFail(err){
+    cleanupStreams();
+    cancelCount();
+    var n=(err&&(err.name||err.message))||"";
+    var cancelled=/NotAllowed|Abort|Permission/i.test(n);
+    say("");
+    $("stop").disabled=true;
+    if(cancelled && hasDisplayApi()){
+      showRecorder();
+      fail("Captura cancelada o sin permiso de pantalla.");
+      return;
+    }
+    showSamsung();
+    fail("");
+    $("samsung-msg").textContent="Sigue con la grabadora del móvil. Esta página no puede grabar en este visor.";
+  }
   function beginRecord(){
     var preset=PRESETS[$("calidad").value]||PRESETS.media;
     var chosen=paintFmt();
     fail("");
     say("Elige la pantalla en el aviso del sistema…");
+    if(!navigator.mediaDevices || typeof navigator.mediaDevices.getDisplayMedia!=="function"){
+      onCaptureFail(new Error("sin-api"));
+      return;
+    }
     displayOf(preset).then(function(stream){
       displayStream=stream;
+      showRecorder();
       var videoTracks=stream.getVideoTracks();
       if(!videoTracks.length) throw new Error("sin-video");
       videoTracks[0].addEventListener("ended", function(){ if(recording) stopRec(); });
@@ -349,16 +409,7 @@ footer {
         $("fmt").textContent="Formato: "+label;
         say("Grabando la pantalla.");
       });
-    }).catch(function(err){
-      cleanupStreams();
-      var n=(err&&(err.name||err.message))||"";
-      if(/NotAllowed|Abort|Permission/i.test(n)) fail("Captura cancelada o sin permiso de pantalla.");
-      else if(!canCapture()) fail("Este visor no puede capturar la pantalla.");
-      else fail("No se pudo capturar la pantalla. En la app Android el WebView no lo permite: ábrelo en Chrome.");
-      say("");
-      $("go").disabled=!canCapture();
-      $("stop").disabled=true;
-    });
+    }).catch(onCaptureFail);
   }
   function onStopped(){
     var m=rec&&rec.mimeType||"video/webm";
@@ -387,7 +438,7 @@ footer {
   }
   $("go").onclick=function(){
     fail("");
-    if(!canCapture()){ showLimit(); return; }
+    if(!hasDisplayApi()){ showSamsung(); $("samsung-msg").textContent=TAPAS; return; }
     if(recording||counting) return;
     var n=parseInt($("cuenta-seg").value,10)||0;
     if(n<=0){ beginRecord(); return; }
@@ -404,8 +455,20 @@ footer {
     }, 1000);
   };
   $("stop").onclick=stopRec;
+  $("abrir").onclick=openSystemRecorder;
+  $("probar").onclick=function(){
+    $("samsung-msg").textContent="";
+    if(!hasDisplayApi()){
+      $("samsung-msg").textContent="Sigue con la grabadora del móvil. Esta página no puede grabar en este visor.";
+      return;
+    }
+    showRecorder();
+    if(recording||counting) return;
+    beginRecord();
+  };
   paintFmt();
-  showLimit();
+  if(hasDisplayApi()) showRecorder();
+  else showSamsung();
 })();
 </script>
 </body>
