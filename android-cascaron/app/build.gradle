@@ -1,0 +1,88 @@
+plugins {
+    id 'com.android.application'
+}
+
+def flacoBuild = project.hasProperty('flaco')
+
+def keystorePropertiesFile = rootProject.file("keystore/keystore.properties")
+def keystoreProperties = new Properties()
+if (keystorePropertiesFile.exists()) {
+    keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
+}
+
+android {
+    namespace 'com.lesvencimos.cascaron'
+    compileSdk 34
+
+    defaultConfig {
+        applicationId "com.lesvencimos.cascaron"
+        minSdk 26
+        targetSdk 34
+        versionCode flacoBuild ? 8 : 37
+        versionName flacoBuild ? "1.0.7" : "2.0.17"
+        buildConfigField "boolean", "FLACO_MODE", flacoBuild ? "true" : "false"
+    }
+
+    signingConfigs {
+        release {
+            if (keystorePropertiesFile.exists()) {
+                storeFile rootProject.file(keystoreProperties['storeFile'])
+                storePassword keystoreProperties['storePassword']
+                keyAlias keystoreProperties['keyAlias']
+                keyPassword keystoreProperties['keyPassword']
+            }
+        }
+    }
+
+    buildTypes {
+        debug {
+            minifyEnabled false
+            debuggable true
+        }
+        release {
+            minifyEnabled false
+            debuggable false
+            signingConfig signingConfigs.release
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+
+    buildFeatures {
+        buildConfig true
+    }
+
+    sourceSets {
+        main {
+            if (flacoBuild) {
+                // El cascarón no incorpora el ZIP completo (~34 MB).
+                assets.exclude "embed/**"
+            }
+        }
+    }
+
+    androidResources {
+        // ZIP embebido + media del pack
+        noCompress 'html', 'js', 'css', 'json', 'png', 'svg', 'woff', 'woff2', 'mp4', 'm4a', 'zip'
+    }
+}
+
+configurations.configureEach {
+    resolutionStrategy {
+        force 'org.jetbrains.kotlin:kotlin-stdlib:1.9.24'
+        force 'org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.9.24'
+        force 'org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.9.24'
+    }
+    exclude group: 'org.jetbrains.kotlin', module: 'kotlin-stdlib-jdk7'
+    exclude group: 'org.jetbrains.kotlin', module: 'kotlin-stdlib-jdk8'
+}
+
+dependencies {
+    implementation 'androidx.appcompat:appcompat:1.7.0'
+    implementation 'androidx.activity:activity:1.9.2'
+    implementation 'androidx.webkit:webkit:1.11.0'
+}

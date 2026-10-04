@@ -20,7 +20,7 @@ public final class PackExtractor {
     public static final String CONTENT_DIR = "completo";
     public static final String MARKER = ".lv-extracted";
     public static final String EXPECTED_VERSION = BuildConfig.FLACO_MODE
-            ? "v20261001k6" : "v20261003embed";
+            ? "v20261001k6" : "v20261004embed-cap";
 
     public interface Progress {
         void onProgress(int percent, String message);
