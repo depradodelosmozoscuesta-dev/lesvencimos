@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<meta name="theme-color" content="#0E0E0C"/>
+<title>Lección 30 · Regresión, correlación y causalidad · Les vencimos</title>
+<link rel="icon" href="../icons/favicon.svg" type="image/svg+xml"/>
+<link rel="manifest" href="../manifest.webmanifest"/>
+<link rel="stylesheet" href="../leccion-shell.css"/>
+<style>
+.pasos{list-style:none;margin:0 0 1rem;padding:0;counter-reset:paso}
+.pasos li{position:relative;margin:0 0 .7rem;padding:.7rem .8rem .7rem 3.1rem;background:var(--lv-panel);border:1px solid var(--lv-linea);border-radius:10px}
+.pasos li::before{counter-increment:paso;content:counter(paso);position:absolute;left:.65rem;top:.7rem;width:1.7rem;height:1.7rem;border-radius:50%;background:#C4A15A;color:#1A160E;font-weight:700;font-size:.9rem;display:flex;align-items:center;justify-content:center}
+.figura-svg{background:#161512;border:1px solid var(--lv-linea);border-radius:10px;padding:.5rem;margin:.5rem 0 1.1rem}
+.figura-svg svg{width:100%;height:auto;display:block}
+.ej{margin:0 0 1rem;padding:.85rem .95rem;background:var(--lv-panel);border:1px solid var(--lv-linea);border-left:3px solid #C4A15A;border-radius:10px}
+.ej h3{margin:0 0 .35rem;font-family:var(--lv-serif);font-size:1.05rem;color:var(--lv-titulo)}
+.editor,textarea.editor{width:100%;min-height:5.5rem;font-family:ui-monospace,monospace;font-size:.95rem;line-height:1.45;padding:.55rem .65rem;border:1px solid rgba(196,161,90,.45);border-radius:8px;background:#161512;color:#E6E1D6;resize:vertical}
+.lienzo{display:block;width:100%;height:280px;background:#161512;border:1px solid #C4A15A;border-radius:8px;touch-action:none;cursor:crosshair}
+.fila{display:flex;flex-wrap:wrap;gap:.4rem;margin:.45rem 0}
+.boton{font:inherit;font-weight:700;font-size:.85rem;padding:.4rem .8rem;border-radius:999px;border:1px solid #C4A15A;background:transparent;color:#E6E1D6;cursor:pointer}
+.porque{margin-top:.55rem;padding:.65rem .75rem;background:#1a2218;border-radius:8px;color:#E6E1D6}
+.dato{font-size:.95rem;color:var(--lv-suave)}
+.glosa{display:block;font-size:.9rem;color:#9A9488;margin:.25rem 0 .5rem;line-height:1.4}
+.lab-box{margin:1rem 0;padding:.85rem;border:1px dashed rgba(196,161,90,.5);border-radius:10px;background:#141210}
+.lab-box iframe{width:100%;min-height:320px;border:1px solid #C4A15A;border-radius:8px;background:#0E0E0C}
+table.datos{width:100%;border-collapse:collapse;margin:.45rem 0 1rem;font-size:.98rem}
+table.datos th,table.datos td{border:1px solid var(--lv-linea);padding:.4rem .55rem;text-align:left}
+table.datos th{background:#161512;color:#C4A15A}
+</style>
+<script src="../leccion-shell-nav.js" defer></script>
+<link rel="stylesheet" href="../../../../profesor/_maestro/maestro-puntero.css"/>
+<script src="../../../../profesor/_maestro/maestro-runtime.js" defer></script>
+</head>
+<body class="leccion-shell" data-maestro-json="maestro-30.json">
+<div class="leccion-wrap">
+<nav class="leccion-barra" aria-label="Navegación de lección" data-actual="30" data-total="38">
+  <div class="leccion-progreso" role="status">
+    <span class="progreso-texto"><strong>30</strong> de <strong>38</strong></span>
+    <div class="progreso-pista" aria-hidden="true"><div class="progreso-lleno" style="width:78.95%"></div></div>
+  </div>
+  <div class="leccion-atajos">
+    <a class="atajo atajo-calc" href="../../../../modulos/calculadora.html" title="Calculadora offline">Calculadora</a>
+    <a class="atajo atajo-prev" href="leccion-29-variables-bidimensionales.html">← Anterior</a>
+    <a class="atajo atajo-next" href="leccion-31-coeficientes-prediccion.html">Siguiente →</a>
+  </div>
+</nav>
+<header class="leccion-top">
+  <a class="leccion-marca" href="../../../../index.html">Les <span>vencimos</span></a>
+  <p class="leccion-meta-top">Matemáticas Generales · 1º Bachillerato</p>
+</header>
+<header class="bloque-titulo">
+  <span class="eyebrow">Lección 30 · E · Estocástico</span>
+  <h1 class="titulo-leccion">Regresión, correlación y <em>causalidad</em></h1>
+  <p class="meta-leccion">1º Bach Matemáticas Generales · CyL Decreto 40/2022 · E.1 Regresión lineal y cuadrática; correlación no es causa</p>
+</header>
+<aside class="bloque-curiosidad" aria-label="Para situarte">
+  <p class="etiqueta-bloque">Para situarte</p>
+  <h2 class="titulo-curiosidad">La nube se alinea y aun así no manda</h2>
+  <p class="texto-curiosidad">Cinco alumnos: 1, 2, 3, 4 y 5 horas de estudio, con notas 2, 4, 5, 6 y 8. La recta de mínimos cuadrados es ŷ = 0,8 + 1,4x y la correlación sale altísima. El ejemplo siguiente, con datos esquemáticos de helados y ahogamientos, enseña que una asociación igual de clara puede venir de una tercera variable.</p>
+</aside>
+<section class="bloque-cuerpo">
+  <h2>Objetivos</h2>
+  <ul><li>Calcular la pendiente y la ordenada de una recta de mínimos cuadrados con cinco puntos.</li><li>Leer la correlación como fuerza de la asociación lineal, no como permiso para intervenir.</li><li>Separar, con un caso numérico, correlación y causalidad cuando hay una variable intermedia.</li><li>Ajustar una parábola de regresión ŷ = ax² + bx + c y compararla con la recta cuando la nube se curva, como pide E.1 (lineal y cuadrática).</li></ul>
+</section>
+<section class="bloque-cuerpo">
+<h2>Ajuste lineal y la pregunta que el ajuste no responde</h2>
+<p>La recta de regresión resume una nube por la recta que menos se separa de los puntos en vertical. Sirve para describir y, con cuidado, para predecir dentro del rango de las x. No dice qué pasaría si alguien forzara la x a cambiar: eso sería una causa, y la causa no sale de la misma cuenta.</p>
+<p><span class="glosa">x̄, ȳ = medias · Sxx = suma de (x − x̄)² · Syy = suma de (y − ȳ)² · Sxy = suma de (x − x̄)(y − ȳ) · pendiente b = Sxy / Sxx · ordenada a = ȳ − b x̄ · r = Sxy / √(Sxx Syy)</span></p>
+<p>En el ejemplo, x̄ = 3 y ȳ = 5. Las desviaciones de x son −2, −1, 0, 1, 2 y Sxx = 10. Las de y son −3, −1, 0, 1, 3 y Syy = 20. Los productos suman 14, así que b = 14/10 = 1,4 y 1,4 · 3 = 4,2<br>
+5 − 4,2 = 0,8<br>
+a = <strong>0,8</strong>. La recta dibujada es ŷ = 0,8 + 1,4x. Además r = 14/√200 ≈ 0,99: la asociación lineal es fortísima. Aun así, las horas y la nota pueden subir juntas porque quien ya domina la materia estudia más y también rinde más. El coeficiente no separa esas historias.</p>
+<p>El contraste está en el segundo ejemplo: helados y ahogamientos suben a la vez en el esquema de junio frente a enero, y la variable que empuja a las dos es el calor, no el helado. Cerrar la heladería no vacía la piscina. Correlación describe; causalidad exige un mecanismo y, casi siempre, un diseño que no es esta nube.</p>
+<p>E.1 no se queda en la recta: también pide el ajuste cuadrático, ŷ = ax² + bx + c, cuando la nube se curva. El ejemplo 4 resuelve las ecuaciones normales con cuatro puntos y dibuja esa parábola de regresión sobre los datos; la recta de los mismos puntos se queda corta en los extremos.</p>
+<table class="datos"><thead><tr><th>x horas</th><th>y nota</th><th>x − 3</th><th>y − 5</th><th>producto</th></tr></thead>
+<tbody>
+<tr><td>1</td><td>2</td><td>−2</td><td>−3</td><td>6</td></tr>
+<tr><td>2</td><td>4</td><td>−1</td><td>−1</td><td>1</td></tr>
+<tr><td>3</td><td>5</td><td>0</td><td>0</td><td>0</td></tr>
+<tr><td>4</td><td>6</td><td>1</td><td>1</td><td>1</td></tr>
+<tr><td>5</td><td>8</td><td>2</td><td>3</td><td>6</td></tr>
+</tbody></table>
+<h2>Gráfico del ejemplo</h2>
+<p class="dato">La figura no es decoración: los trazos corresponden a los números del ejemplo 1.</p>
+<div class="figura-svg"><svg viewBox="0 0 720 320" role="img" aria-label="Cinco puntos (1,2), (2,4), (3,5), (4,6), (5,8) y la recta 0,8 + 1,4x"><title>Cinco puntos (1,2), (2,4), (3,5), (4,6), (5,8) y la recta 0,8 + 1,4x</title><rect width="720" height="320" fill="#161512"/>
+<line x1="70" y1="280" x2="660" y2="280" stroke="#9A9488" stroke-width="1.6"/>
+<line x1="80" y1="290" x2="80" y2="30" stroke="#9A9488" stroke-width="1.6"/>
+<line x1="80" y1="232" x2="90" y2="232" stroke="#9A9488" stroke-width="1.2"/>
+<line x1="80" y1="160" x2="90" y2="160" stroke="#9A9488" stroke-width="1.2"/>
+<line x1="80" y1="88" x2="90" y2="88" stroke="#9A9488" stroke-width="1.2"/>
+<path d="M 170.0,227.2 L 215.0,210.4 L 260.0,193.6 L 305.0,176.8 L 350.0,160.0 L 395.0,143.2 L 440.0,126.4 L 485.0,109.6 L 530.0,92.8" fill="none" stroke="#C4A15A" stroke-width="2.5"/>
+<circle cx="170" cy="232" r="6" fill="#E6E1D6" stroke="#C4A15A" stroke-width="1.5"/><text x="180" y="224" fill="#9A9488" font-size="12">(1, 2)</text><circle cx="260" cy="184" r="6" fill="#E6E1D6" stroke="#C4A15A" stroke-width="1.5"/><text x="270" y="176" fill="#9A9488" font-size="12">(2, 4)</text><circle cx="350" cy="160" r="6" fill="#E6E1D6" stroke="#C4A15A" stroke-width="1.5"/><text x="360" y="152" fill="#9A9488" font-size="12">(3, 5)</text><circle cx="440" cy="136" r="6" fill="#E6E1D6" stroke="#C4A15A" stroke-width="1.5"/><text x="450" y="128" fill="#9A9488" font-size="12">(4, 6)</text><circle cx="530" cy="88" r="6" fill="#E6E1D6" stroke="#C4A15A" stroke-width="1.5"/><text x="540" y="80" fill="#9A9488" font-size="12">(5, 8)</text>
+<text x="100" y="24" fill="#C4A15A" font-size="14">horas de estudio y nota · recta 0,8 + 1,4x · cinco puntos del ejemplo</text>
+<text x="400" y="300" fill="#9A9488" font-size="13">x horas</text>
+<text x="24" y="160" fill="#9A9488" font-size="13">nota</text>
+</svg></div>
+<h2>Ejemplo resuelto 1 — La recta de las cinco horas</h2><p>Con los cinco puntos de la figura, obtén b y a, y escribe la recta. Comprueba Sxy = 14 y Sxx = 10.</p><ol class="pasos">
+<li>Medias: 1 + 2 = 3<br>
+3 + 3 = 6<br>
+6 + 4 = 10<br>
+10 + 5 = 15<br>
+15 / 5 = <strong>3</strong> y (2+4+5+6+8)/5 = 25/5 = 5. Los productos de desviaciones son 6, 1, 0, 1 y 6.<span class="glosa">Glosa: 6 + 1 = 7<br>
+7 + 1 = 8<br>
+8 + 6 = <strong>14</strong>. El producto del punto medio es 0 y no aporta.</span></li>
+<li>Sxx = (−2)² + (−1)² + 0 + 1² + 2² =4 + 1 = 5<br>
+5 + 1 = 6<br>
+6 + 4 = <strong>10</strong>. Pendiente b = 14/10 = 1,4.<span class="glosa">Glosa: la pendiente son puntos de nota asociados a una hora más, dentro de esta muestra.</span></li>
+<li>Orden1,4 · 3 = 4,2<br>
+5 − 4,2 = 0,8<br>
+a = <strong>0,8</strong>. La recta es ŷ = 0,8 + 1,4x, la de la figura.<span class="glosa">Glosa: a es el valor de la recta cuando x = 0, aunque x = 0 no esté en los datos.</span></li>
+<li>Cor = 14/√(10·20)<br>
+14/√(10·20) = 14/√200 ≈ 0,99. Casi 1, y ni así la cuenta demuestra que añadir una hora cause 1,4 puntos.<span class="glosa">Glosa: r mide alineación. La causa exigiría saber qué se ha mantenido constante al variar las horas.</span></li>
+</ol>
+<h2>Ejemplo resuelto 2 — Helados y ahogamientos, esquema</h2><p>Esquema de un municipio, no una estadística oficial: en enero, 4 ºC, 40 helados y 0 ahogamientos; en junio, 28 ºC, 800 helados y 6 ahogamientos. Hay asociación positiva. ¿Se evita el ahogamiento cerrando la heladería?</p><ol class="pasos">
+<li>Entre enero y junio suben a la vez la temperatura, los helados y los ahogamientos. El signo de la asociación helados–ahogamientos es positivo.<span class="glosa">Glosa: positivo significa que se mueven en el mismo sentido, no que uno produzca al otro.</span></li>
+<li>La variable que empuja a las dos series es el calor: más baños y, por separado, más helados. El helado está en medio del calendario, no en la cadena causal del ahogado.<span class="glosa">Glosa: una tercera variable correlacionada con las dos se llama factor de confusión.</span></li>
+<li>Cerrar la heladería bajaría la segunda cifra y dejaría intactos el calor y los baños. La predicción «menos helados, menos ahogamientos» copia la correlación y se salta el mecanismo.<span class="glosa">Glosa: intervenir sobre x solo cambia y si x es una causa de y, y aquí no lo es.</span></li>
+<li>La frase correcta separa las dos cosas: en el esquema, helados y ahogamientos están correlacionados; la causa plausible de los ahogamientos es la exposición al agua, no el postre.<span class="glosa">Glosa: correlación describe el esquema; la decisión de cerrar la heladería no se deduce de él.</span></li>
+</ol>
+<h2>Ejemplo resuelto 3 — Misma recta, sin palanca</h2><p>En los cinco alumnos, b = 1,4. Explica qué está permitido decir y qué no cuando alguien propone «obligar una hora más para ganar 1,4 puntos».</p><ol class="pasos">
+<li>Permitido: dentro de estos datos, a una hora más le acompañan, en la recta, 1,4 puntos más de nota. Es la pendiente del ajuste.<span class="glosa">Glosa: «acompañan» describe la nube. No dice qué ocurriría al empujar a un alumno concreto.</span></li>
+<li>No permitido: tratar 1,4 como el efecto de una hora impuesta. Quien estudia 5 horas puede ser quien ya iba mejor antes de abrir el libro.<span class="glosa">Glosa: la x observada no es una x asignada. Regresión sobre lo observado no es un experimento.</span></li>
+<li>El punto (4, 6) ni siquiera está en la recta: ŷ 1,4 · 4 = 5,6<br>
+0,8 + 5,6 = <strong>6,4</strong>, y la nota real es 6. La asociación no es una regla persona a persona.<span class="glosa">Glosa: el residuo 6 − 6,4 = −0,4 es la parte que la recta no captura. Se detalla en la lección siguiente.</span></li>
+<li>Aunque r ≈ 0,99, la frase causal sigue sin estar justificada. Una correlación casi perfecta puede ser espuria, como la del helado, o puede ser real: la cifra sola no distingue.<span class="glosa">Glosa: el tamaño de r no sustituye al diseño. Hace falta saber cómo se generó la x.</span></li>
+</ol>
+<h2>Ejemplo resuelto 4 — Regresión cuadrática</h2>
+<p>El saber E.1 pide regresión lineal y también cuadrática. Con los puntos (0, 1), (1, 2), (2, 5) y (3, 10), ajusta la parábola ŷ = ax² + bx + c por mínimos cuadrados y compárala con la recta de los mismos datos.</p>
+<div class="figura-svg"><svg viewBox="0 0 720 320" role="img" aria-label="Parábola de regresión y igual a x al cuadrado más 1 sobre los puntos (0,1), (1,2), (2,5) y (3,10), con la recta y igual a 3x en discontinuo">
+<title>Parábola de regresión ŷ = x² + 1 sobre los cuatro puntos; la recta ŷ = 3x queda corta en los extremos</title>
+<rect width="720" height="320" fill="#161512"/>
+<line x1="70" y1="290" x2="680" y2="290" stroke="#9A9488" stroke-width="1.5"/>
+<line x1="90" y1="300" x2="90" y2="24" stroke="#9A9488" stroke-width="1.5"/>
+<text x="688" y="294" fill="#9A9488" font-size="14">x</text>
+<text x="74" y="20" fill="#9A9488" font-size="14">y</text>
+<line x1="90.0" y1="290.0" x2="540.0" y2="92.0" stroke="#8F9A72" stroke-width="2" stroke-dasharray="6 4"/>
+<path d="M 90.0,268.0 L 105.0,267.8 L 120.0,267.1 L 135.0,266.0 L 150.0,264.5 L 165.0,262.5 L 180.0,260.1 L 195.0,257.2 L 210.0,253.9 L 225.0,250.2 L 240.0,246.0 L 255.0,241.4 L 270.0,236.3 L 285.0,230.8 L 300.0,224.9 L 315.0,218.5 L 330.0,211.7 L 345.0,204.4 L 360.0,196.7 L 375.0,188.6 L 390.0,180.0 L 405.0,171.0 L 420.0,161.5 L 435.0,151.6 L 450.0,141.3 L 465.0,130.5 L 480.0,119.3 L 495.0,107.6 L 510.0,95.5 L 525.0,83.0 L 540.0,70.0 L 555.0,56.6 L 570.0,42.7" fill="none" stroke="#C4A15A" stroke-width="2.5"/>
+<circle cx="90.0" cy="268.0" r="5" fill="#E6E1D6"/>
+<circle cx="240.0" cy="246.0" r="5" fill="#E6E1D6"/>
+<circle cx="390.0" cy="180.0" r="5" fill="#E6E1D6"/>
+<circle cx="540.0" cy="70.0" r="5" fill="#E6E1D6"/>
+<text x="100" y="262" fill="#E6E1D6" font-size="13">(0, 1)</text>
+<text x="250" y="240" fill="#E6E1D6" font-size="13">(1, 2)</text>
+<text x="400" y="174" fill="#E6E1D6" font-size="13">(2, 5)</text>
+<text x="548" y="74" fill="#E6E1D6" font-size="13">(3, 10)</text>
+<text x="400" y="40" fill="#C4A15A" font-size="15" font-weight="700">parábola ŷ = x² + 1</text>
+<text x="400" y="118" fill="#8F9A72" font-size="14">recta ŷ = 3x</text>
+</svg></div>
+<ol class="pasos">
+<li>Plantea las ecuaciones normales. Hay n = 4 puntos, Σx = 6, Σx² = 14, Σx³ = 36, Σx⁴ = 98, Σy = 18, Σxy = 42 y Σx²y = 112. El sistema es 4c + 6b + 14a = 18, 6c + 14b + 36a = 42 y 14c + 36b + 98a = 112.<span class="glosa">Glosa: cada ecuación iguala una suma de los datos con la misma suma hecha sobre ax² + bx + c; no es un sistema puesto a ojo.</span></li>
+<li>Divide por 2: 2c + 3b + 7a = 9, 3c + 7b + 18a = 21 y 7c + 18b + 49a = 56. De la primera, c = (9 − 3b − 7a)/2. Al sustituir c en la segunda queda b + 3a = 3, es decir b = 3 − 3a.<span class="glosa">Glosa: despejar y sustituir es el paso del ajuste; no adivines a, b y c mirando solo el dibujo.</span></li>
+<li>Con b = 3 − 3a, la expresión de c se reduce a c = a. La tercera ecuación pasa a 7a + 18(3 − 3a) + 49a = 56, esto es 2a + 54 = 56, luego a = 1, b = 0 y c = 1. La parábola de regresión es ŷ = x² + 1.<span class="glosa">Glosa: comprueba los cuatro puntos: 0+1, 1+1, 4+1 y 9+1. El residuo del ajuste cuadrático es 0.</span></li>
+<li>La recta de mínimos cuadrados de los mismos puntos es ŷ = 3x, porque Sxy/Sxx = 15/5 = 3 y la ordenada sale 0. Sus residuos son +1, −1, −1, +1: la recta se queda corta en los extremos y larga en el centro. La parábola describe esa curvatura; tampoco convierte x en causa.<span class="glosa">Glosa: mejorar el ajuste al pasar de recta a parábola no demuestra causalidad. E.1 pide los dos modelos y sigue sin leer una causa en el coeficiente.</span></li>
+</ol>
+<h2>Ejercicios</h2>
+<p class="dato">Escribe el razonamiento completo en el editor, no solo la cifra. Si el enunciado pide figura, dibújala en el lienzo de esta misma página.</p>
+<article class="ej"><h3>1. Tres puntos en línea</h3><p>Puntos (1, 2), (2, 4) y (3, 6). Halla la recta de mínimos cuadrados y di por qué, aun siendo perfecta, no demuestra una causa.</p><label for="e30a">Tu resolución</label><textarea class="editor" id="e30a" placeholder="Escribe aquí el razonamiento completo…"></textarea><details class="porque"><summary>Por qué (abre cuando hayas escrito)</summary><p>El paso es calcular medias y cociente de sumas, no «ver» la pendiente sin cuentas. La media de x es 2 y la de y es 4. Las desviaciones de x son −1, 0, 1 y Sxx = 2. Las de y son −2, 0, 2 y los productos suman 2 + 0 = 2<br>
+2 + 2 = <strong>4</strong>. Entonces b = 4/2 = 2 y 2 · 2 = 4<br>
+4 − 4 = 0<br>
+a = <strong>0</strong>, así que ŷ = 2x. Los tres puntos cumplen la recta y r = 1. Esa perfección solo dice que, en la muestra, y es exactamente el doble de x. No dice que manipular x vaya a fabricar y: podría ser que una tercera variable, el tiempo de clase por ejemplo, empuje a las dos. La recta describe estos tres pares; la causa necesitaría un argumento que la cuenta no trae.</p></details></article>
+<article class="ej"><h3>2. Leer b sin pasarse</h3><p>En el ejemplo de las horas, ¿cuántos puntos de nota asocia la recta a pasar de 2 horas a 3? ¿Por qué esa respuesta no es «el efecto de estudiar la tercera hora»?</p><label for="e30b">Tu resolución</label><textarea class="editor" id="e30b" placeholder="Escribe aquí el razonamiento completo…"></textarea><details class="porque"><summary>Por qué (abre cuando hayas escrito)</summary><p>El paso es multiplicar la pendiente por el incremento de x, no buscar el punto en la nube y restar notas reales. De x = 2 a x = 3, Δx = 1 y la recta sube b·1 = 1,4 puntos: de ŷ = 3,6 a ŷ = 5. Las notas reales de esos dos alumnos son 4 y 5, y su diferencia es 1, no 1,4: la pendiente es del ajuste, no de cada pareja de personas. Llamar a 1,4 «efecto» supondría que la hora extra es la única cosa que cambia. En los datos, quien estudió 3 horas puede diferir en atención, descanso o nivel previo. La recta no ha mantenido nada de eso fijo, así que 1,4 es asociación media en la muestra.</p></details></article>
+<article class="ej"><h3>3. Elegir la frase</h3><p>De estas dos frases, di cuál describe correlación y cuál afirma una causa, usando el esquema del helado: «en junio hay más helados y más ahogamientos» y «los helados provocan los ahogamientos».</p><label for="e30c">Tu resolución</label><textarea class="editor" id="e30c" placeholder="Escribe aquí el razonamiento completo…"></textarea><details class="porque"><summary>Por qué (abre cuando hayas escrito)</summary><p>El paso es mirar si la frase solo dice que las dos cifras se mueven juntas o si dice que intervenir en una cambiaría la otra. La primera frase es correlación: compara enero y junio y constata que helados y ahogamientos van en el mismo sentido. La segunda es causal y no se sostiene con el esquema, porque la variable que cambia entre los dos meses y empuja a las dos series es la temperatura y, con ella, el baño. Si los helados fueran la causa, quitarlos en junio debería bajar los ahogamientos aunque el calor y las piscinas siguieran igual, y el esquema no aporta esa prueba. Correlación y causa no se distinguen por lo convencida que suene la frase, sino por si hay mecanismo y diseño.</p></details></article>
+<article class="ej"><h3>4. Recta o parábola</h3><p>Con (0, 1), (1, 2), (2, 5) y (3, 10), la recta de mínimos cuadrados es ŷ = 3x y la parábola de regresión es ŷ = x² + 1. Explica, con los residuos, por qué el ajuste cuadrático describe mejor la nube y por qué ni uno ni otro demuestra que x cause y.</p><label for="e30d">Tu resolución</label><textarea class="editor" id="e30d" placeholder="Escribe aquí el razonamiento completo…"></textarea><details class="porque"><summary>Por qué (abre cuando hayas escrito)</summary><p>El paso es comparar residuos, no quedarse con el modelo que «se ve» más sencillo. Sobre la recta ŷ = 3x los residuos son +1, −1, −1 y +1: queda por debajo en los extremos y por encima en el centro, que es la firma de una curvatura. Sobre la parábola ŷ = x² + 1 los cuatro residuos son 0, así que el ajuste vertical es exacto. E.1 pide los dos: la regresión lineal resume la tendencia y la cuadrática recoge la curva. Ninguna dice que forzar un cambio de x cambiaría y; un residuo pequeño mide ajuste, no causa.</p></details></article>
+<h2>Dibuja en el lienzo</h2>
+<p>Reproduce a mano el gráfico del ejemplo: ejes o nodos, los datos numéricos y una frase con la conclusión. El botón borra el lienzo sin salir de la lección.</p>
+<canvas id="lienzo30" class="lienzo" width="900" height="280"></canvas><div class="fila"><button type="button" class="boton" data-clear="lienzo30">Borrar lienzo</button></div>
+</section>
+<div class="lab-box"><p><strong>Laboratorio</strong> — Recta, predicción y causa. Si el marco no carga, abre el hermano: <a href="l30-regresion-correlacion-causalidad.html">l30-regresion-correlacion-causalidad.html</a>.</p><iframe src="l30-regresion-correlacion-causalidad.html" title="Recta, predicción y causa" loading="lazy"></iframe></div>
+<section class="bloque-cuerpo">
+  <h2>Comprueba</h2>
+  <p class="dato">Tres preguntas. Responde mentalmente antes de abrir el porqué.</p>
+  <details class="porque"><summary>¿Cuánto valen b y a en los cinco puntos del gráfico?</summary><p>b = 1,4 y a = 0,8, luego ŷ = 0,8 + 1,4x. Por qué: Sxy = 14, Sxx = 10 y b es su cociente. La ordenada se obtiene de a = ȳ − b x̄ =1,4 · 3 = 4,2<br>
+5 − 4,2 = <strong>0,8</strong>. La recta de la figura es exactamente esa.</p></details>
+<details class="porque"><summary>¿Un r de aproximadamente 0,99 demuestra que estudiar causa la nota?</summary><p>No. Por qué: r = 14/√200 solo mide lo alineados que están los cinco puntos. Quien estudia más puede ser quien ya partía de un nivel más alto, y entonces las dos variables suben juntas sin que la hora sea la causa. Hace falta un diseño, no un coeficiente más bonito.</p></details>
+<details class="porque"><summary>En el esquema de enero y junio, ¿qué variable estorba la lectura causal?</summary><p>La temperatura. Por qué: pasa de 4 ºC a 28 ºC y empuja a la vez a los helados (de 40 a 800) y a los ahogamientos (de 0 a 6). La asociación helados–ahogamientos es real en el esquema y la intervención «cerrar la heladería» no toca esa causa. Correlación no es permiso para actuar sobre la variable que esté más a mano.</p></details>
+</section>
+<section class="bloque-reto">
+  <span class="etiqueta-reto">Reto Profesor</span>
+  <h2 class="titulo-reto">Asociación no es palanca</h2>
+  <p>En el lienzo marca los cinco puntos del ejemplo, traza a mano una recta creciente y escribe debajo una frase que diga asociación y otra que se niegue a decir causa.</p>
+  <p class="reto-id">reto_id: bach1-mates-gen-L30</p>
+</section>
+<footer class="leccion-pie"><strong>Les vencimos</strong> · L30 de 38 · Matemáticas Generales · staging · file:// · sin publicar</footer>
+</div>
+<script type="application/json" data-maestro="guion">{"curso": "bach1-mates-gen", "leccion": 30, "titulo": "Regresión, correlación y causalidad", "url": "leccion-30-regresion-correlacion-causalidad.html", "musica": false, "pasos": [{"id": "abrir", "dicho": "Cinco puntos y la recta 0,8 + 1,4x entre x = 1 y x = 5.", "hacer": "Leer en voz alta el apartado Para situarte y los objetivos."}, {"id": "figura", "dicho": "Sxy = 14 y Sxx = 10 fijan la pendiente 1,4. No es una recta puesta a ojo.", "hacer": "Mirar el SVG y decir qué dato numérico marca cada trazo."}, {"id": "ej1", "dicho": "Ejemplo 1: r ≈ 0,99 y, aun así, la causa no está demostrada.", "hacer": "Rehacer el ejemplo 1, glosa a glosa, sin mirar el resultado final."}, {"id": "ej2", "dicho": "Ejemplo 2: helados y ahogamientos suben con el calor. Cerrar la heladería no es la intervención.", "hacer": "Rehacer el ejemplo 2 y contrastarlo con el 1."}, {"id": "ej3", "dicho": "Ejemplo 3: 1,4 puntos por hora es la pendiente del ajuste, no el efecto de obligar una hora.", "hacer": "Rehacer el ejemplo 3 y anotar la comprobación."}, {"id": "practica", "dicho": "El laboratorio predice un x y avisa si te sales del intervalo 1 a 5.", "hacer": "Escribir el razonamiento de al menos dos ejercicios y usar el lienzo."}, {"id": "cierre", "dicho": "Una nube describe. No manda sobre lo que nadie ha manipulado. El ejemplo 4 ajusta la regresión cuadrática ŷ = x² + 1.", "hacer": "Contestar Comprueba antes de abrir y dejar el reto por escrito."}]}</script>
+<script>(function(){function liga(c){var ctx=c.getContext('2d');function fondo(){ctx.fillStyle='#161512';ctx.fillRect(0,0,c.width,c.height);ctx.strokeStyle='#C4A15A';ctx.strokeRect(.5,.5,c.width-1,c.height-1);}function fit(){var r=c.getBoundingClientRect();var w=Math.max(320,Math.floor(r.width));if(c.width!==w){c.width=w;c.height=280;fondo();}}var dib=false,last=null;function pos(ev){var r=c.getBoundingClientRect();var s=ev.touches?ev.touches[0]:ev;return{x:(s.clientX-r.left)*c.width/r.width,y:(s.clientY-r.top)*c.height/r.height};}c.addEventListener('pointerdown',function(ev){dib=true;last=pos(ev);ev.preventDefault();});c.addEventListener('pointermove',function(ev){if(!dib)return;var p=pos(ev);ctx.strokeStyle='#E6E1D6';ctx.lineWidth=2.2;ctx.lineCap='round';ctx.beginPath();ctx.moveTo(last.x,last.y);ctx.lineTo(p.x,p.y);ctx.stroke();last=p;ev.preventDefault();});function up(){dib=false;}c.addEventListener('pointerup',up);c.addEventListener('pointerleave',up);var b=document.querySelector('[data-clear="'+c.id+'"]');if(b)b.addEventListener('click',fondo);fit();window.addEventListener('resize',fit);}document.querySelectorAll('canvas.lienzo').forEach(liga);})();</script>
+</body>
+</html>

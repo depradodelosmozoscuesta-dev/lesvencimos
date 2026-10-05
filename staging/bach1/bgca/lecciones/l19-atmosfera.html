@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
+<title>L19 · Laboratorio · Capa, gas y giro</title>
+<style>
+:root{--bg:#FAF7F0;--ink:#2A2620;--muted:#5C564C;--card:#fff;--gold:#C4A15A;--gold-soft:#F5EDD8;--gold-deep:#8A6B2F;--green:#3D6B4F;--green-soft:#E4F0E8;--blue:#2F5D7A;--blue-soft:#E3EEF4;--rose:#9B3A4A;--rose-soft:#F8E8EB;--line:#E0D0A8}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--ink);font-family:"Segoe UI",system-ui,sans-serif;line-height:1.45}
+body{padding:14px 12px 32px}
+.wrap{max-width:860px;margin:0 auto}
+.badge{display:inline-block;font-size:.75rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--gold-deep);background:var(--gold-soft);padding:4px 10px;border-radius:999px}
+h1{font-size:1.45rem;line-height:1.25;margin:.4rem 0 .3rem}
+.lead{color:var(--muted);margin:0 0 12px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px;margin:0 0 12px}
+.q{font-weight:750;margin:0 0 8px}
+.opts{display:grid;gap:8px}
+button.opt,button.chip{font:inherit;text-align:left;background:#fff;border:2px solid #D9D0C0;border-radius:12px;padding:10px 12px;cursor:pointer;font-weight:650}
+button.opt:hover,button.chip:hover{border-color:var(--gold)}
+button.opt.ok,button.chip.ok{border-color:var(--green);background:var(--green-soft)}
+button.opt.bad{border-color:var(--rose);background:var(--rose-soft)}
+button.opt:disabled{cursor:default}
+.why{margin:8px 0 0;font-size:.95rem}
+.why strong{color:var(--gold-deep)}
+.row{display:flex;flex-wrap:wrap;gap:8px}
+.slot{min-height:42px;border:2px dashed #C4B8A0;border-radius:12px;padding:8px;display:flex;flex-wrap:wrap;gap:6px;background:#FFFcf5}
+.bar{display:flex;justify-content:space-between;gap:8px;align-items:center;margin:8px 0}
+.score{font-weight:800;color:var(--gold-deep)}
+button.action{font:inherit;font-weight:800;border:0;border-radius:999px;background:var(--gold);color:#1A160E;padding:8px 14px;cursor:pointer}
+footer{color:var(--muted);font-size:.8rem;text-align:center}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="badge">Lección 19 · bloque D · sin red</div>
+  <h1>Capa, gas y giro</h1>
+  <p class="lead">Perfil esquemático y circulación de superficie. Ningún ítem es una medición de aula.</p>
+  <div class="bar"><span class="score" id="score">0</span><button type="button" class="action" id="reset">Reiniciar</button></div>
+  <div id="lab"></div>
+  <footer>Les vencimos · laboratorio autónomo · sin red · corrección inmediata</footer>
+</div>
+<script>
+
+function boot(ITEMS){
+  var root=document.getElementById("lab");
+  var score=0, done=0;
+  var sc=document.getElementById("score");
+  function paint(){ sc.textContent=score+" / "+ITEMS.length; }
+  ITEMS.forEach(function(it,i){
+    var card=document.createElement("section");
+    card.className="card";
+    var h=document.createElement("p");
+    h.className="q";
+    h.textContent=(i+1)+". "+it.q;
+    card.appendChild(h);
+    if(it.tipo==="orden"){
+      var slot=document.createElement("div");
+      slot.className="slot";
+      var pool=document.createElement("div");
+      pool.className="row";
+      var picked=[];
+      function judge(){
+        var ok=picked.length===it.correcto.length && picked.every(function(p,k){return p===it.correcto[k];});
+        done++; if(ok) score++;
+        paint();
+        var w=document.createElement("p");
+        w.className="why";
+        w.innerHTML=(ok?"<strong>Correcto.</strong> ":"<strong>No es esa secuencia.</strong> Orden: "+it.correcto.join(" → ")+". ")+it.porque;
+        card.appendChild(w);
+        pool.querySelectorAll("button").forEach(function(b){b.disabled=true;});
+      }
+      it.piezas.forEach(function(txt){
+        var b=document.createElement("button");
+        b.type="button"; b.className="chip"; b.textContent=txt;
+        b.addEventListener("click", function(){
+          if(b.disabled) return;
+          b.disabled=true; b.className="chip ok";
+          picked.push(txt); slot.appendChild(b);
+          if(picked.length===it.correcto.length) judge();
+        });
+        pool.appendChild(b);
+      });
+      var hint=document.createElement("p");
+      hint.className="why";
+      hint.textContent="Pulsa en orden, del primero al último.";
+      card.appendChild(hint); card.appendChild(slot); card.appendChild(pool);
+    } else {
+      var opts=document.createElement("div");
+      opts.className="opts";
+      it.opciones.forEach(function(op){
+        var b=document.createElement("button");
+        b.type="button"; b.className="opt"; b.textContent=op.t;
+        b.addEventListener("click", function(){
+          if(card.dataset.done) return;
+          card.dataset.done="1"; done++;
+          opts.querySelectorAll("button").forEach(function(x){x.disabled=true;});
+          if(op.ok){ b.classList.add("ok"); score++; }
+          else {
+            b.classList.add("bad");
+            opts.querySelectorAll("button").forEach(function(x,idx){ if(it.opciones[idx].ok) x.classList.add("ok"); });
+          }
+          paint();
+          var w=document.createElement("p");
+          w.className="why";
+          w.innerHTML=(op.ok?"<strong>Correcto.</strong> ":"<strong>No.</strong> ")+it.porque;
+          card.appendChild(w);
+        });
+        opts.appendChild(b);
+      });
+      card.appendChild(opts);
+    }
+    root.appendChild(card);
+  });
+  paint();
+  document.getElementById("reset").addEventListener("click", function(){ location.reload(); });
+  window.addEventListener("message", function(ev){
+    var d=ev.data||{};
+    if(d.type==="maestro:reset") location.reload();
+    if(d.type==="maestro:highlight"){
+      var c=root.querySelector(".card"); if(c) c.style.outline="3px solid #C4A15A";
+    }
+  });
+}
+
+boot([{"tipo": "test", "q": "En aire seco, el orden de abundancia de manual es…", "opciones": [{"t": "Nitrógeno, oxígeno, argón, y dióxido de carbono ya muy por detrás, en torno al 0,04 %.", "ok": true}, {"t": "Oxígeno, dióxido de carbono, nitrógeno.", "ok": false}, {"t": "Vapor de agua al 78 %, porque es lo que se nota.", "ok": false}, {"t": "Ozono como segundo gas, por eso filtra.", "ok": false}], "porque": "78 %, 21 % y cerca del 0,9 % son redondeos de manual para N2, O2 y Ar. El vapor no entra en el aire seco. El ozono es escaso y aun así filtra."}, {"tipo": "test", "q": "El tiempo meteorológico ocurre sobre todo en…", "opciones": [{"t": "La troposfera, donde la temperatura baja con la altura y hay vapor de agua.", "ok": true}, {"t": "La estratosfera, porque ahí está el ozono.", "ok": false}, {"t": "La termosfera, porque es la más caliente.", "ok": false}, {"t": "El núcleo externo.", "ok": false}], "porque": "Nubes y precipitación necesitan el vapor y la convección de la troposfera. El ozono estratosférico hace otro trabajo."}, {"tipo": "test", "q": "La temperatura sube con la altura en la estratosfera porque…", "opciones": [{"t": "El ozono absorbe ultravioleta.", "ok": true}, {"t": "Está más cerca del Sol en varios miles de kilómetros.", "ok": false}, {"t": "El nitrógeno es un gas de efecto invernadero muy fuerte.", "ok": false}, {"t": "Ahí se forman las borrascas de superficie.", "ok": false}], "porque": "El gradiente cambia de signo donde el absorbente calienta. La distancia al Sol no explica 40 km de estratosfera."}, {"tipo": "test", "q": "¿Qué gas no sostiene el efecto invernadero natural?", "opciones": [{"t": "El nitrógeno, pese a ser el más abundante.", "ok": true}, {"t": "El vapor de agua.", "ok": false}, {"t": "El dióxido de carbono.", "ok": false}, {"t": "El metano.", "ok": false}], "porque": "Abundancia y absorción de infrarrojo no coinciden. N2 y O2 son malos absorbentes de IR."}, {"tipo": "test", "q": "Los cerca de −18 °C y 15 °C de la lección son…", "opciones": [{"t": "Temperatura efectiva de emisión y media de superficie, de un balance radiativo, no un termómetro de patio.", "ok": true}, {"t": "La lectura de un DHT22 en la cuenca del Duero.", "ok": false}, {"t": "La tropopausa y la mesopausa.", "ok": false}, {"t": "El antes y el después de una borrasca concreta.", "ok": false}], "porque": "Unos 33 °C de diferencia resumen el invernadero natural en ese modelo. No son el cambio climático de un año ni un dato de aula."}, {"tipo": "test", "q": "Anticiclón en el hemisferio norte:", "opciones": [{"t": "Alta presión, descenso del aire, divergencia en superficie y giro horario.", "ok": true}, {"t": "Baja presión, ascenso y giro antihorario.", "ok": false}, {"t": "Siempre lluvia, porque la presión es alta.", "ok": false}, {"t": "Un fenómeno de la mesosfera.", "ok": false}], "porque": "La subsidencia aleja el aire de la saturación. El sentido horario es el de Coriolis en el norte. En el sur, el giro se invierte."}, {"tipo": "test", "q": "Un DHT22 o un BME280 en el patio pueden dar…", "opciones": [{"t": "Temperatura y humedad relativa de ese punto, que no es un perfil atmosférico ni un dato oficial.", "ok": true}, {"t": "La altura de la tropopausa.", "ok": false}, {"t": "La concentración de ozono estratosférico.", "ok": false}, {"t": "La temperatura efectiva de emisión del planeta, −18 °C.", "ok": false}], "porque": "El sensor mira el aire que lo rodea. La Raspberry, si solo lee el USB, no añade otra magnitud."}, {"tipo": "orden", "q": "Ordena las capas desde la superficie hacia arriba.", "piezas": ["Mesosfera", "Troposfera", "Termosfera", "Estratosfera"], "correcto": ["Troposfera", "Estratosfera", "Mesosfera", "Termosfera"], "porque": "Tropo (baja la temperatura), estrato (sube), meso (baja), termo (sube). El criterio es térmico."}]);
+</script>
+</body>
+</html>

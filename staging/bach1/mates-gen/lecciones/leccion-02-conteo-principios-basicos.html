@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<meta name="theme-color" content="#0E0E0C"/>
+<title>Lección 02 · Conteo: principios básicos · Les vencimos</title>
+<link rel="icon" href="../icons/favicon.svg" type="image/svg+xml"/>
+<link rel="manifest" href="../manifest.webmanifest"/>
+<link rel="stylesheet" href="../leccion-shell.css"/>
+<style>
+.pasos{list-style:none;margin:0 0 1rem;padding:0;counter-reset:paso}
+.pasos li{position:relative;margin:0 0 .7rem;padding:.7rem .8rem .7rem 3.1rem;background:var(--lv-panel);border:1px solid var(--lv-linea);border-radius:10px}
+.pasos li::before{counter-increment:paso;content:counter(paso);position:absolute;left:.65rem;top:.7rem;width:1.7rem;height:1.7rem;border-radius:50%;background:#C4A15A;color:#1A160E;font-weight:700;font-size:.9rem;display:flex;align-items:center;justify-content:center}
+.figura-svg{background:#161512;border:1px solid var(--lv-linea);border-radius:10px;padding:.5rem;margin:.5rem 0 1.1rem}
+.figura-svg svg{width:100%;height:auto;display:block}
+.ej{margin:0 0 1rem;padding:.85rem .95rem;background:var(--lv-panel);border:1px solid var(--lv-linea);border-left:3px solid #C4A15A;border-radius:10px}
+.ej h3{margin:0 0 .35rem;font-family:var(--lv-serif);font-size:1.05rem;color:var(--lv-titulo)}
+.editor,textarea.editor{width:100%;min-height:5.5rem;font-family:ui-monospace,monospace;font-size:.95rem;line-height:1.45;padding:.55rem .65rem;border:1px solid rgba(196,161,90,.45);border-radius:8px;background:#161512;color:#E6E1D6;resize:vertical}
+.lienzo{display:block;width:100%;height:280px;background:#161512;border:1px solid #C4A15A;border-radius:8px;touch-action:none;cursor:crosshair}
+.fila{display:flex;flex-wrap:wrap;gap:.4rem;margin:.45rem 0}
+.boton{font:inherit;font-weight:700;font-size:.85rem;padding:.4rem .8rem;border-radius:999px;border:1px solid #C4A15A;background:transparent;color:#E6E1D6;cursor:pointer}
+.porque{margin-top:.55rem;padding:.65rem .75rem;background:#1a2218;border-radius:8px;color:#E6E1D6}
+.dato{font-size:.95rem;color:var(--lv-suave)}
+.glosa{display:block;font-size:.9rem;color:#9A9488;margin:.25rem 0 .5rem;line-height:1.4}
+.lab-box{margin:1rem 0;padding:.85rem;border:1px dashed rgba(196,161,90,.5);border-radius:10px;background:#141210}
+.lab-box iframe{width:100%;min-height:320px;border:1px solid #C4A15A;border-radius:8px;background:#0E0E0C}
+table.datos{width:100%;border-collapse:collapse;margin:.45rem 0 1rem;font-size:.98rem}
+table.datos th,table.datos td{border:1px solid var(--lv-linea);padding:.4rem .55rem;text-align:left}
+table.datos th{background:#161512;color:#C4A15A}
+</style>
+<script src="../leccion-shell-nav.js" defer></script>
+<link rel="stylesheet" href="../../../../profesor/_maestro/maestro-puntero.css"/>
+<script src="../../../../profesor/_maestro/maestro-runtime.js" defer></script>
+</head>
+<body class="leccion-shell" data-maestro-json="maestro-02.json">
+<div class="leccion-wrap">
+<nav class="leccion-barra" aria-label="Navegación de lección" data-actual="2" data-total="38">
+  <div class="leccion-progreso" role="status">
+    <span class="progreso-texto"><strong>2</strong> de <strong>38</strong></span>
+    <div class="progreso-pista" aria-hidden="true"><div class="progreso-lleno" style="width:5.26%"></div></div>
+  </div>
+  <div class="leccion-atajos">
+    <a class="atajo atajo-calc" href="../../../../modulos/calculadora.html" title="Calculadora offline">Calculadora</a>
+    <a class="atajo atajo-prev" href="leccion-01-que-son-matematicas-generales.html">← Anterior</a>
+    <a class="atajo atajo-next" href="leccion-03-palomar-e-inclusion-exclusion.html">Siguiente →</a>
+  </div>
+</nav>
+<header class="leccion-top">
+  <a class="leccion-marca" href="../../../../index.html">Les <span>vencimos</span></a>
+  <p class="leccion-meta-top">Matemáticas Generales · 1º Bachillerato</p>
+</header>
+<header class="bloque-titulo">
+  <span class="eyebrow">Lección 02 · A · Numérico</span>
+  <h1 class="titulo-leccion">Conteo: principios <em>básicos</em></h1>
+  <p class="meta-leccion">1º Bach Matemáticas Generales · CyL Decreto 40/2022 · A.1 Conteo</p>
+</header>
+<aside class="bloque-curiosidad" aria-label="Para situarte">
+  <p class="etiqueta-bloque">Para situarte</p>
+  <h2 class="titulo-curiosidad">Contar sin perder ni duplicar</h2>
+  <p class="texto-curiosidad">CyL pide comparación, adición, multiplicación y división para cardinales. El producto cuenta trayectorias independientes; la suma, caminos excluyentes. El error clásico es sumar cuando había que multiplicar (o al revés) y el doble conteo cuando hay solape.</p>
+</aside>
+<section class="bloque-cuerpo">
+  <h2>Objetivos</h2>
+  <ul><li>Aplicar la regla del producto con etapas claras.</li><li>Usar la suma solo en casos excluyentes.</li><li>Detectar y corregir el doble conteo.</li></ul>
+</section>
+<section class="bloque-cuerpo">
+<h2>Dos reglas, dos dibujos mentales</h2>
+<p>Si un proceso tiene k etapas y en la etapa i hay nᵢ opciones <strong>independientes</strong> de las anteriores, el total de resultados es el producto n₁·n₂·…·n_k. Piensa en una rejilla: cada celda es un par (fila, columna).</p>
+<p>Si puedes llegar al mismo tipo de resultado por caminos que <strong>no se solapan</strong> (o A o B, nunca ambos), entonces sumas los cardinales de esos caminos.</p>
+<span class="glosa">producto = «y luego» · suma = «o bien» · doble conteo = sumar con intersección no vacía sin restar</span>
+<div class="figura-svg"><svg viewBox="0 0 720 300" role="img" aria-label="Rejilla 3×4: cada celda es un menú (fila, columna)"><title>Rejilla 3×4: cada celda es un menú (fila, columna)</title><rect width="720" height="300" fill="#161512"/>
+<line x1="70" y1="260" x2="520" y2="260" stroke="#9A9488" stroke-width="1.5"/><line x1="70" y1="260" x2="70" y2="40" stroke="#9A9488" stroke-width="1.5"/>
+<line x1="100" y1="70" x2="100" y2="230" stroke="#C4A15A" stroke-width="1.5"/><line x1="190" y1="70" x2="190" y2="230" stroke="#C4A15A" stroke-width="1.5"/><line x1="280" y1="70" x2="280" y2="230" stroke="#C4A15A" stroke-width="1.5"/><line x1="370" y1="70" x2="370" y2="230" stroke="#C4A15A" stroke-width="1.5"/><line x1="460" y1="70" x2="460" y2="230" stroke="#C4A15A" stroke-width="1.5"/>
+<line x1="100" y1="70" x2="460" y2="70" stroke="#C4A15A" stroke-width="1.5"/><line x1="100" y1="110" x2="460" y2="110" stroke="#C4A15A" stroke-width="1.5"/><line x1="100" y1="150" x2="460" y2="150" stroke="#C4A15A" stroke-width="1.5"/><line x1="100" y1="190" x2="460" y2="190" stroke="#C4A15A" stroke-width="1.5"/><line x1="100" y1="230" x2="460" y2="230" stroke="#C4A15A" stroke-width="1.5"/>
+<circle cx="145" cy="90" r="5" fill="#E6E1D6"/><circle cx="145" cy="130" r="5" fill="#E6E1D6"/><circle cx="145" cy="170" r="5" fill="#E6E1D6"/><circle cx="235" cy="90" r="5" fill="#E6E1D6"/><circle cx="235" cy="130" r="5" fill="#E6E1D6"/><circle cx="235" cy="170" r="5" fill="#E6E1D6"/><circle cx="325" cy="90" r="5" fill="#E6E1D6"/><circle cx="325" cy="130" r="5" fill="#E6E1D6"/><circle cx="325" cy="170" r="5" fill="#E6E1D6"/><circle cx="415" cy="90" r="5" fill="#E6E1D6"/><circle cx="415" cy="130" r="5" fill="#E6E1D6"/><circle cx="415" cy="170" r="5" fill="#E6E1D6"/>
+<text x="540" y="120" fill="#E6E1D6" font-size="15">3 filas</text>
+<text x="540" y="150" fill="#E6E1D6" font-size="15">4 columnas</text>
+<text x="540" y="190" fill="#C4A15A" font-size="16" font-weight="700">3×4 = 12</text>
+</svg></div>
+<h2>Ejemplo resuelto 1 — menú completo</h2>
+<p>Un comedor ofrece 2 primeros, 3 segundos y 2 postres. Eliges exactamente uno de cada. ¿Cuántos menús distintos hay?</p>
+<ol class="pasos">
+<li>Etapa 1: 2 primeros; etapa 2: 3 segundos; etapa 3: 2 postres. Las elecciones son independientes.<span class="glosa">Glosa: «independiente» aquí significa que el segundo no restringe el primero.</span></li>
+<li>Por la regla del producto: 2 · 3 = 6<br>
+6 · 2 = <strong>12</strong> menús.<span class="glosa">Glosa: 2·3=6 combinaciones de primero+segundo; cada una admite 2 postres → 12.</span></li>
+<li>Comprobación parcial: fija el primer plato A; quedan 3·2=6 menús con A. Igual con B: otros 6. Total 12.<span class="glosa">Glosa: partir en casos excluyentes (A o B) y sumar recupera el mismo producto.</span></li>
+<li>Error a evitar: sumar 2 + 3 = 5<br>
+5 + 2 = <strong>7</strong>. Eso contaría «elegir un solo plato entre todos», no un menú de tres platos.<span class="glosa">Glosa: la suma responde a un «o»; el menú pide «y».</span></li>
+</ol>
+<h2>Ejemplo resuelto 2 — cromos en sobres</h2>
+<p>Hay 24 cromos idénticos en valor y se reparten en 4 sobres con el mismo número en cada uno. ¿Cuántos cromos van en cada sobre?</p>
+<ol class="pasos">
+<li>El enunciado pide un reparto equitativo: partes iguales.<span class="glosa">Glosa: eso apunta a división, no a producto.</span></li>
+<li>24÷4 = 6. Cada sobre recibe 6 cromos.<span class="glosa">Glosa: 4·6=24 cierra la comprobación por producto inverso.</span></li>
+<li>Si el reparto no fuera equitativo, la división sola no bastaría: haría falta la lista de tamaños.<span class="glosa">Glosa: lee siempre si hay igualdad de partes.</span></li>
+</ol>
+<h2>Ejemplo resuelto 3 — unión con solape</h2>
+<p>|A|=10 personas en el club de mates, |B|=7 en el de teatro, y 3 están en ambos. ¿Cuántas personas hay en al menos un club?</p>
+<ol class="pasos">
+<li>Si sumas 10+7=17, las 3 de la intersección se han contado dos veces.<span class="glosa">Glosa: doble conteo = el síntoma de olvidar el solape.</span></li>
+<li>|A∪B| = |A|+|B|−|A∩B|<br>
+10 + 7 = 17<br>
+17 − 3 = 14<br>
+|A|+|B|−|A∩B| = <strong>14</strong>.<span class="glosa">Glosa: restar una vez la intersección deja a cada persona contada una sola vez.</span></li>
+<li>Diagrama mental: solo A: 7; solo B: 4; ambos: 3; total 14.<span class="glosa">Glosa: 7 + 4 = 11<br>
+11 + 3 = <strong>14</strong> confirma la fórmula.</span></li>
+</ol>
+<h2>Ejercicios</h2>
+<article class="ej"><h3>1. Camisetas</h3><p>Una tienda tiene 4 tallas y 5 colores. Cada camiseta se define por una talla y un color. ¿Cuántas variantes hay? Escribe la regla que usas y un error típico.</p><label for="e2a">Tu resolución</label><textarea class="editor" id="e2a" placeholder="Escribe aquí el razonamiento completo…"></textarea><details class="porque"><summary>Por qué (abre cuando hayas escrito)</summary><p>Hay 4·5=20 variantes. Usas la regla del producto porque eliges talla y color de forma independiente: cada talla se combina con cada color. El error típico es sumar 4+5=9, que respondería a «elegir solo talla o solo color», no a la pareja completa. Comprueba: fija talla M → 5 colores; cuatro tallas → 20.</p></details></article>
+<article class="ej"><h3>2. Dos caminos</h3><p>Para ir al instituto puedes tomar 3 rutas en bus o 2 rutas en bici; no combinas bus y bici en el mismo trayecto. ¿Cuántas formas de ir hay? Justifica suma o producto.</p><label for="e2b">Tu resolución</label><textarea class="editor" id="e2b" placeholder="Escribe aquí el razonamiento completo…"></textarea><details class="porque"><summary>Por qué (abre cuando hayas escrito)</summary><p>Hay 3+2=5 formas. Son caminos excluyentes: o vas en bus (3 opciones) o en bici (2), nunca ambas a la vez en este enunciado. Por eso sumas. Si el enunciado pidiera «bus y luego bici», sería producto. La palabra «o» sin solape apunta a suma.</p></details></article>
+<article class="ej"><h3>3. Corregir el doble conteo</h3><p>En un aula, 18 tocan un instrumento, 12 cantan en el coro y 5 hacen ambas cosas. ¿Cuántos hacen al menos una de las dos actividades? Explica cada término de la fórmula.</p><label for="e2c">Tu resolución</label><textarea class="editor" id="e2c" placeholder="Escribe aquí el razonamiento completo…"></textarea><details class="porque"><summary>Por qué (abre cuando hayas escrito)</summary><p>18 + 12 = 30<br>
+30 − 5 = 25<br>
+|A∪B| = <strong>25</strong>. Sumas los que tocan y los que cantan, y restas los 5 de la intersección porque ya estaban en ambos sumandos. Sin restar obtendrías 30 y contarías dos veces a quienes hacen las dos actividades. Solo instrumento: 13; solo coro: 7; ambos: 5; total 25.</p></details></article>
+<h2>Dibuja la rejilla</h2>
+<p>En el lienzo, dibuja una rejilla 2×3 y numera las 6 celdas. Anota al lado «producto 2·3=6».</p>
+<canvas id="lienzo02" class="lienzo" width="900" height="280"></canvas><div class="fila"><button type="button" class="boton" data-clear="lienzo02">Borrar lienzo</button></div>
+</section>
+
+<section class="bloque-cuerpo">
+  <h2>Comprueba</h2>
+  <p class="dato">Tres preguntas. Responde mentalmente antes de abrir el porqué.</p>
+  <details class="porque"><summary>¿Por qué 3×4 es 12 y no 7?</summary><p>Porque cada fila se combina con cada columna: son etapas «y luego», no alternativas «o». La suma 3+4=7 contaría elegir una fila o una columna aislada, no un par. La rejilla del SVG tiene 12 cruces/celdas: una por cada par.</p></details>
+<details class="porque"><summary>24 cromos en 4 sobres iguales: ¿qué operación y por qué?</summary><p>División 24÷4=6. El enunciado impone partes iguales, así que el cardinal total se reparte en 4 grupos del mismo tamaño. La comprobación es el producto inverso 4·6=24. Si los sobres pudieran tener tamaños distintos, no bastaría una sola división.</p></details>
+<details class="porque"><summary>Si |A∩B|&gt;0 y sumas |A|+|B| sin restar, ¿qué falla?</summary><p>Cometes doble conteo: cada elemento de la intersección aparece en |A| y otra vez en |B|. La unión real exige restar |A∩B| una vez (inclusión-exclusión). Sin ese resto, el número queda hinchado y no describe «al menos en A o en B».</p></details>
+</section>
+<section class="bloque-reto">
+  <span class="etiqueta-reto">Reto Profesor</span>
+  <h2 class="titulo-reto">Inventario en casa</h2>
+  <p>Elige ropa o comida con 2 o 3 atributos (tipo×color×tamaño) y escribe el producto; dibuja la rejilla en el lienzo.</p>
+  <p class="reto-id">reto_id: bach1-mates-gen-L02</p>
+</section>
+<footer class="leccion-pie"><strong>Les vencimos</strong> · L02 de 38 · Matemáticas Generales · staging · file:// · sin publicar</footer>
+</div>
+<script type="application/json" data-maestro="guion">{"curso": "bach1-mates-gen", "leccion": 2, "titulo": "Conteo: principios básicos", "url": "leccion-02-conteo-principios-basicos.html", "musica": false, "pasos": [{"id": "abrir", "dicho": "Lección 02: Conteo: principios básicos. Contar sin perder ni duplicar.", "hacer": "Leer situarte y los objetivos en voz alta."}, {"id": "idea", "dicho": "Hoy trabajamos: A.1 Conteo. Mira el gráfico SVG antes de los números.", "hacer": "Observar la figura y nombrar qué representa cada símbolo."}, {"id": "ej1", "dicho": "Primer ejemplo resuelto: sigue cada paso y la glosa debajo.", "hacer": "Recalcular el ejemplo 1 en papel o en el editor."}, {"id": "ej2", "dicho": "Segundo ejemplo: cambia el contexto pero no la herramienta.", "hacer": "Recalcular el ejemplo 2 y comparar con el 1."}, {"id": "practica", "dicho": "Ahora los ejercicios: escribe el razonamiento completo, no solo el número.", "hacer": "Resolver al menos dos ejercicios; dibujar en el lienzo si pide figura."}, {"id": "lab", "dicho": "Si hay laboratorio, ábrelo y prueba un caso distinto al del texto.", "hacer": "Usar el lab o el iframe embebido."}, {"id": "comprueba", "dicho": "Comprueba: responde mentalmente antes de abrir el porqué.", "hacer": "Hacer las tres preguntas del bloque Comprueba."}, {"id": "reto", "dicho": "Cierra con el reto Profesor: deja constancia escrita.", "hacer": "Escribir el reto en el editor o en el portfolio."}]}</script>
+<script>(function(){function liga(c){var ctx=c.getContext('2d');function fondo(){ctx.fillStyle='#161512';ctx.fillRect(0,0,c.width,c.height);ctx.strokeStyle='#C4A15A';ctx.strokeRect(.5,.5,c.width-1,c.height-1);}function fit(){var r=c.getBoundingClientRect();var w=Math.max(320,Math.floor(r.width));if(c.width!==w){c.width=w;c.height=280;fondo();}}var dib=false,last=null;function pos(ev){var r=c.getBoundingClientRect();var s=ev.touches?ev.touches[0]:ev;return{x:(s.clientX-r.left)*c.width/r.width,y:(s.clientY-r.top)*c.height/r.height};}c.addEventListener('pointerdown',function(ev){dib=true;last=pos(ev);ev.preventDefault();});c.addEventListener('pointermove',function(ev){if(!dib)return;var p=pos(ev);ctx.strokeStyle='#E6E1D6';ctx.lineWidth=2.2;ctx.lineCap='round';ctx.beginPath();ctx.moveTo(last.x,last.y);ctx.lineTo(p.x,p.y);ctx.stroke();last=p;ev.preventDefault();});function up(){dib=false;}c.addEventListener('pointerup',up);c.addEventListener('pointerleave',up);var b=document.querySelector('[data-clear="'+c.id+'"]');if(b)b.addEventListener('click',fondo);fit();window.addEventListener('resize',fit);}document.querySelectorAll('canvas.lienzo').forEach(liga);})();</script>
+</body>
+</html>

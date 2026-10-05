@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Lección 06 · Clasificación de reacciones</title>
+<link rel="stylesheet" href="leccion-shell.css"/>
+<script src="leccion-shell-nav.js" defer></script>
+<style>
+  .pasos{list-style:none;margin:0 0 1rem;padding:0;counter-reset:paso}
+  .pasos li{position:relative;margin:0 0 .7rem;padding:.7rem .8rem .7rem 3.1rem;background:#fff;border:1px solid rgba(14,14,12,.12);border-radius:10px}
+  .pasos li::before{counter-increment:paso;content:counter(paso);position:absolute;left:.65rem;top:.7rem;width:1.7rem;height:1.7rem;border-radius:50%;background:#2F5D7A;color:#fff;font-weight:700;font-size:.9rem;display:flex;align-items:center;justify-content:center}
+  .figura-svg{background:#fff;border:1px solid rgba(14,14,12,.12);border-radius:10px;padding:.4rem;margin:.4rem 0 1rem}
+  .figura-svg svg{width:100%;height:auto;display:block}
+  .ej{margin:0 0 1rem;padding:.85rem .95rem;background:#fff;border:1px solid rgba(14,14,12,.12);border-left:3px solid #C4A15A;border-radius:10px}
+  .ej h3{margin:0 0 .35rem;font-family:var(--lv-serif);font-size:1.05rem;color:#2A2620}
+  .editor,textarea.editor{width:100%;min-height:4.6rem;font-family:ui-monospace,"Cascadia Code","Segoe UI Mono",monospace;font-size:.95rem;line-height:1.4;padding:.55rem .65rem;border:1px solid rgba(14,14,12,.22);border-radius:8px;background:#FFFCF5;color:#2A2620;resize:vertical}
+  .lienzo{display:block;width:100%;height:240px;background:#fff;border:1px solid #2F5D7A;border-radius:8px;touch-action:none;cursor:crosshair}
+  .fila{display:flex;flex-wrap:wrap;gap:.4rem;margin:.45rem 0}
+  .boton{font:inherit;font-weight:700;font-size:.85rem;padding:.35rem .75rem;border-radius:999px;border:1px solid #C4A15A;background:#fff;color:#2A2620;cursor:pointer}
+  .boton.verde{border-color:#3D6B4F;background:#3D6B4F;color:#fff}
+  .porque{margin-top:.5rem;padding:.6rem .7rem;background:#E4F0E8;border-radius:8px;color:#2A2620}
+  .dato{font-size:.95rem;color:#5C564C}
+  .panel-int{padding:.75rem}
+  .panel-int label{display:block;font-weight:650;font-size:.92rem;margin:.35rem 0 .15rem}
+  .ok{color:#3D6B4F}.mal{color:#A85A3C}
+  table.masas{width:100%;border-collapse:collapse;margin:.4rem 0 1rem;font-size:.92rem}
+  table.masas th,table.masas td{border:1px solid rgba(14,14,12,.12);padding:.35rem .5rem;text-align:left;vertical-align:top}
+  table.masas th{background:#F0EBE0}
+</style>
+</head>
+<body class="leccion-shell">
+<div class="leccion-wrap">
+
+<nav class="leccion-barra" aria-label="Navegación de lección" data-actual="6" data-total="23">
+  <div class="leccion-progreso" role="status">
+    <span class="progreso-texto"><strong>6</strong> de <strong>23</strong></span>
+    <div class="progreso-pista" aria-hidden="true"><div class="progreso-lleno" style="width:26.09%"></div></div>
+  </div>
+  <div class="leccion-atajos">
+    <a class="atajo atajo-calc" href="../../../modulos/calculadora.html" title="Calculadora offline">Calculadora</a>
+    <a class="atajo atajo-prev" href="leccion-05-leyes-estequiometria.html">← Anterior</a>
+    <a class="atajo atajo-next" href="leccion-07-gases-ideales.html">Siguiente →</a>
+  </div>
+</nav>
+
+<header class="leccion-top">
+  <a class="leccion-marca" href="../../index.html">Les <span>vencimos</span></a>
+  <p class="leccion-meta-top">Física y Química · 1º Bachillerato</p>
+</header>
+
+<header class="bloque-titulo" id="maestro-titulo">
+  <span class="eyebrow">Lección 06 · Bloque B · Clasificación</span>
+  <h1 class="titulo-leccion">Seis tipos, y a veces <em>dos a la vez</em></h1>
+  <p class="meta-leccion">1º Bachillerato Física y Química · Ciencias · Decreto 40/2022 CyL</p>
+</header>
+
+<aside class="bloque-curiosidad" id="maestro-curiosidad" aria-label="Curiosidad histórica">
+  <p class="etiqueta-bloque">Curiosidad histórica</p>
+  <h2 class="titulo-curiosidad">Clasificar no es coleccionar</h2>
+  <p class="texto-curiosidad">Desde el siglo XIX se separan las reacciones por cómo se reordenan los átomos y, aparte, por si cambia el número de oxidación. Aquí no hay un catálogo de contaminantes ni de medicamentos. Hay una ecuación por tipo, acotada a un caso real, y la regla de que dos etiquetas pueden ser verdaderas a la vez.</p>
+</aside>
+
+<section class="bloque-cuerpo" id="maestro-objetivos">
+  <h2>Objetivos</h2>
+  <ul>
+    <li>Reconocer síntesis, descomposición, desplazamiento y doble desplazamiento en una ecuación ajustada.</li>
+    <li>Decidir si además es ácido-base o redox, mirando protones o números de oxidación.</li>
+    <li>Aceptar el solapamiento: una síntesis puede ser redox, y un ácido-base puede no serlo.</li>
+    <li>Relacionar cada tipo con un solo caso, de medio ambiente o de un fármaco, sin ampliar el catálogo.</li>
+  </ul>
+</section>
+
+<section class="bloque-cuerpo" id="maestro-explicacion">
+  <h2>Dos preguntas, no una lista cerrada</h2>
+  <p>Primera pregunta: ¿cómo se reordenan las fórmulas? Síntesis, dos o más reactivos dan un producto. Descomposición, un reactivo da varios productos. Desplazamiento, un elemento libre saca a otro de su compuesto. Doble desplazamiento, dos compuestos intercambian parejas y no queda un elemento libre.</p>
+  <p>Segunda pregunta: ¿qué cambia por dentro? Si un ácido cede H<sup>+</sup> a una base, es ácido-base. Si algún número de oxidación cambia, es redox. Estas dos etiquetas no sustituyen a las cuatro primeras: se suman. Los números de esta lección son los de la lección 04: O en óxidos −2, H +1, Ca +2, grupo SO<sub>4</sub> con S +6, y el elemento libre en 0.</p>
+
+  <table class="masas">
+    <thead><tr><th>Tipo</th><th>Ecuación de esta lección</th><th>Caso acotado</th><th>¿Redox?</th></tr></thead>
+    <tbody>
+      <tr><td>Síntesis</td><td>CaO + H<sub>2</sub>O → Ca(OH)<sub>2</sub></td><td>Apagado de la cal. El hidróxido es el que luego puede neutralizar un agua ácida. Una ecuación, sin dosis de vertido.</td><td>No. Ca +2, O −2, H +1 a los dos lados.</td></tr>
+      <tr><td>Descomposición</td><td>CaCO<sub>3</sub> → CaO + CO<sub>2</sub></td><td>Horno de cal. Sale CO<sub>2</sub>. No se inventa aquí un factor de emisión.</td><td>No. Ca +2, C +4, O −2 se mantienen.</td></tr>
+      <tr><td>Desplazamiento</td><td>Fe + CuSO<sub>4</sub> → FeSO<sub>4</sub> + Cu</td><td>El hierro saca cobre de una disolución de cobre(II). Un caso, sin procedimiento de planta.</td><td>Sí. Fe pasa de 0 a +2. Cu pasa de +2 a 0.</td></tr>
+      <tr><td>Doble desplazamiento</td><td>CaSO<sub>4</sub> + Na<sub>2</sub>CO<sub>3</sub> → CaCO<sub>3</sub> + Na<sub>2</sub>SO<sub>4</sub></td><td>Un paso del ablandamiento del agua con carbonato: precipita CaCO<sub>3</sub>. Sin receta de dosificación.</td><td>No. Las parejas cambian; los números, no.</td></tr>
+      <tr><td>Ácido-base</td><td>CaCO<sub>3</sub> + 2 HCl → CaCl<sub>2</sub> + CO<sub>2</sub> + H<sub>2</sub>O</td><td>Algunos comprimidos antiácidos llevan carbonato de calcio. No es una dosis ni un consejo médico.</td><td>No. C sigue en +4 y el cloro entra ya en −1.</td></tr>
+      <tr><td>Redox</td><td>2 SO<sub>2</sub> + O<sub>2</sub> → 2 SO<sub>3</sub></td><td>El SO<sub>2</sub> de una combustión puede oxidarse a SO<sub>3</sub>, paso ligado a la lluvia ácida. Sin lista de otros gases.</td><td>Sí, y también es síntesis. S de +4 a +6. El O<sub>2</sub> pasa de 0 a −2.</td></tr>
+    </tbody>
+  </table>
+  <p class="dato">«Ácido sulfúrico» no hace falta para clasificar el SO<sub>3</sub>. Si lo nombras, es el nombre tradicional del H<sub>2</sub>SO<sub>4</sub>, no el de esta ecuación.</p>
+
+  <div class="figura-svg">
+    <svg viewBox="0 0 720 230" role="img" aria-labelledby="t06">
+      <title id="t06">El azufre pasa de +4 en el dióxido a +6 en el trióxido</title>
+      <rect width="720" height="230" fill="#FAF7F0"/>
+      <text x="24" y="28" font-size="15" font-weight="700" fill="#2A2620">2 SO₂ + O₂ → 2 SO₃</text>
+      <rect x="40" y="60" width="140" height="70" fill="#2F5D7A"/>
+      <text x="110" y="92" text-anchor="middle" font-size="16" font-weight="700" fill="#FAF7F0">S +4</text>
+      <text x="110" y="112" text-anchor="middle" font-size="13" fill="#FAF7F0">en SO₂</text>
+      <text x="210" y="100" font-size="22" fill="#2A2620">→</text>
+      <rect x="250" y="60" width="140" height="70" fill="#3D6B4F"/>
+      <text x="320" y="92" text-anchor="middle" font-size="16" font-weight="700" fill="#FAF7F0">S +6</text>
+      <text x="320" y="112" text-anchor="middle" font-size="13" fill="#FAF7F0">en SO₃</text>
+      <rect x="460" y="60" width="200" height="70" fill="#C4A15A"/>
+      <text x="560" y="92" text-anchor="middle" font-size="16" font-weight="700" fill="#2A2620">O₂ : 0 → −2</text>
+      <text x="560" y="112" text-anchor="middle" font-size="13" fill="#2A2620">se reduce</text>
+      <text x="40" y="180" font-size="14" fill="#2A2620">SO₂: x + 2·(−2) = 0 → x = +4</text>
+      <text x="40" y="204" font-size="14" fill="#2A2620">SO₃: x + 3·(−2) = 0 → x = +6</text>
+    </svg>
+  </div>
+
+  <h2>Ejemplo resuelto, paso a paso: 2 SO<sub>2</sub> + O<sub>2</sub> → 2 SO<sub>3</sub></h2>
+  <ol class="pasos">
+    <li>Ajustada ya está: 2 azufres, 6 oxígenos a cada lado. 2·2 + 2 = 6 a la izquierda; 2·3 = 6 a la derecha.</li>
+    <li>Número del azufre en SO<sub>2</sub>. x + 2·(−2) = 0, luego x = +4. En el O<sub>2</sub> el elemento libre vale 0.</li>
+    <li>En SO<sub>3</sub>: x + 3·(−2) = 0, luego x = +6. Cada oxígeno del trióxido es −2, no el cero del O<sub>2</sub>.</li>
+    <li>El azufre sube de +4 a +6: se oxida. El oxígeno del O<sub>2</sub> baja de 0 a −2: se reduce. Hay cambio, luego es redox.</li>
+    <li>También es síntesis: dos reactivos, un producto. Las dos etiquetas valen. El caso se queda en este paso de la lluvia ácida; no añadas otro gas ni una concentración que el enunciado no da.</li>
+  </ol>
+
+  <h2>Ejercicios</h2>
+  <p class="dato">Escribes la clasificación en el editor. Si hay que marcar números de oxidación, los dibujas en el lienzo.</p>
+
+  <article class="ej">
+    <h3>1. Apagar la cal</h3>
+    <p>CaO + H<sub>2</sub>O → Ca(OH)<sub>2</sub>. Tipo de reordenamiento y si es redox. Una frase sobre el caso, sin inventar una dosis.</p>
+    <textarea class="editor" id="e1"></textarea>
+    <details class="porque"><summary>Porqué</summary>
+      <p>Es síntesis: dos reactivos, un producto. Ca sigue en +2, el oxígeno en −2 y el hidrógeno en +1. No es redox. El caso acotado es el apagado de la cal, el paso que produce el hidróxido. No hace falta un protocolo de vertido.</p>
+    </details>
+  </article>
+
+  <article class="ej">
+    <h3>2. El horno</h3>
+    <p>CaCO<sub>3</sub> → CaO + CO<sub>2</sub>. Clasifícala y di qué número de oxidación tiene el carbono a cada lado.</p>
+    <textarea class="editor" id="e2"></textarea>
+    <details class="porque"><summary>Porqué</summary>
+      <p>Descomposición: un sólido da dos productos. En el carbonato, C + 3·(−2) = −2, así que el carbono es +4. En el CO<sub>2</sub>, x + 2·(−2) = 0 y el carbono sigue en +4. No es redox. El caso es el horno de cal y el CO<sub>2</sub> que sale; no inventes toneladas.</p>
+    </details>
+  </article>
+
+  <article class="ej">
+    <h3>3. Hierro y cobre(II)</h3>
+    <p>Fe + CuSO<sub>4</sub> → FeSO<sub>4</sub> + Cu. ¿Por qué es desplazamiento y por qué, además, redox?</p>
+    <textarea class="editor" id="e3"></textarea>
+    <details class="porque"><summary>Porqué</summary>
+      <p>El hierro elemental desplaza al cobre de su sal: queda Cu libre y FeSO<sub>4</sub>. Eso es desplazamiento, no doble desplazamiento, porque uno de los reactivos es un elemento. Fe pasa de 0 a +2 y Cu de +2 a 0. El azufre del sulfato se queda en +6. Es redox. El caso es esa recuperación de cobre en disolución, sin montar una planta.</p>
+    </details>
+  </article>
+
+  <article class="ej">
+    <h3>4. El comprimido, sin dosis</h3>
+    <p>CaCO<sub>3</sub> + 2 HCl → CaCl<sub>2</sub> + CO<sub>2</sub> + H<sub>2</sub>O. Clasifícala. Di explícitamente que no estás dando una pauta médica.</p>
+    <textarea class="editor" id="e4"></textarea>
+    <details class="porque"><summary>Porqué</summary>
+      <p>Es ácido-base: el HCl cede H<sup>+</sup> al carbonato y acaba saliendo CO<sub>2</sub> y agua. No es redox: el carbono sigue en +4, el calcio en +2, el cloro en −1 y el oxígeno en −2. Algunos antiácidos llevan carbonato de calcio. La ecuación no es una dosis ni un consejo. No inventes miligramos.</p>
+    </details>
+  </article>
+
+  <article class="ej">
+    <h3>5. Ablandar, sin receta</h3>
+    <p>CaSO<sub>4</sub> + Na<sub>2</sub>CO<sub>3</sub> → CaCO<sub>3</sub> + Na<sub>2</sub>SO<sub>4</sub>. ¿En qué se distingue del ejercicio 3?</p>
+    <textarea class="editor" id="e5"></textarea>
+    <details class="porque"><summary>Porqué</summary>
+      <p>Los dos reactivos son compuestos y se intercambian las parejas: Ca<sup>2+</sup> se va con el carbonato y el sodio con el sulfato. Es doble desplazamiento. No queda un elemento libre, así que no es desplazamiento simple. Ca +2, S +6, C +4, Na +1 y O −2 no cambian: no es redox. Es un paso de ablandamiento, no una dosificación.</p>
+    </details>
+  </article>
+
+  <h2>Dibuja el cambio del azufre</h2>
+  <p>En el lienzo, SO<sub>2</sub> con +4, una flecha, SO<sub>3</sub> con +6, y el O<sub>2</sub> de 0 a −2.</p>
+  <canvas id="lienzo06" class="lienzo" width="900" height="240" aria-label="Lienzo de números de oxidación"></canvas>
+  <div class="fila"><button type="button" class="boton" id="b06">Borrar lienzo</button></div>
+</section>
+
+<section class="bloque-vida-real con-figura" id="maestro-vida" aria-label="En la vida real">
+  <div class="figura" aria-hidden="true">
+    <svg viewBox="0 0 80 80">
+      <rect width="80" height="80" fill="#F0EBE0"/>
+      <circle cx="28" cy="40" r="12" fill="#2F5D7A"/>
+      <circle cx="52" cy="40" r="12" fill="#3D6B4F"/>
+      <text x="40" y="68" text-anchor="middle" font-size="9" fill="#2A2620">+4 → +6</text>
+    </svg>
+  </div>
+  <div class="contenido-vida">
+    <p class="etiqueta-bloque">En la vida real</p>
+    <h2 class="titulo-vida">Una ecuación alcanza para el caso</h2>
+    <ul>
+      <li>La lluvia ácida, en esta lección, es solo 2 SO<sub>2</sub> + O<sub>2</sub> → 2 SO<sub>3</sub>. No hace falta nombrar otro contaminante.</li>
+      <li>El antiácido es solo la ecuación del carbonato con HCl. Sin prospecto y sin miligramos.</li>
+      <li>El horno de cal y el ablandamiento con carbonato son el mismo criterio: clasificas la ecuación que tienes, no una fábrica entera.</li>
+    </ul>
+  </div>
+</section>
+
+<section class="bloque-interactivo" id="maestro-interactivo" aria-label="Problema interactivo">
+  <div class="marco-interactivo-cabecera">
+    <span class="etiqueta-interactivo">Problema · en esta página</span>
+  </div>
+  <div class="panel-int">
+    <p>Elige la ecuación. Escribe el tipo de reordenamiento. Si es redox, que aparezca la palabra «redox». Si no lo es, escribe «no es redox».</p>
+    <label for="reac">Ecuación</label>
+    <select id="reac">
+      <option value="cao">CaO + H₂O → Ca(OH)₂</option>
+      <option value="horno">CaCO₃ → CaO + CO₂</option>
+      <option value="fe">Fe + CuSO₄ → FeSO₄ + Cu</option>
+      <option value="sosa">CaSO₄ + Na₂CO₃ → CaCO₃ + Na₂SO₄</option>
+      <option value="anti">CaCO₃ + 2 HCl → CaCl₂ + CO₂ + H₂O</option>
+      <option value="so2">2 SO₂ + O₂ → 2 SO₃</option>
+    </select>
+    <label for="resp">Clasificación</label>
+    <textarea class="editor" id="resp" placeholder="síntesis, no es redox"></textarea>
+    <div class="fila"><button type="button" class="boton verde" id="chk06">Comprobar</button></div>
+    <p id="msg06" aria-live="polite"></p>
+    <canvas id="cv06" class="lienzo" width="900" height="220" aria-label="Dibuja reactivos y productos"></canvas>
+    <div class="fila"><button type="button" class="boton" id="bCv">Borrar este lienzo</button></div>
+  </div>
+</section>
+
+<section class="bloque-reto" id="maestro-reto" aria-label="Reto Profesor">
+  <span class="etiqueta-reto">Reto Profesor</span>
+  <h2 class="titulo-reto">Dos etiquetas, con números</h2>
+  <p>Elige la del hierro y el cobre, o la del SO<sub>2</sub>. En el editor escribe las dos etiquetas que le caben y los números de oxidación que cambian. En el lienzo, el antes y el después. No añadas otra reacción «parecida».</p>
+  <textarea class="editor" id="reto06"></textarea>
+  <canvas id="retoCv" class="lienzo" width="900" height="220" aria-label="Números de oxidación del reto"></canvas>
+  <div class="fila"><button type="button" class="boton" id="bReto">Borrar lienzo del reto</button></div>
+  <ul>
+    <li>Hierro y cobre: desplazamiento y redox. Fe 0 → +2, Cu +2 → 0.</li>
+    <li>SO<sub>2</sub>: síntesis y redox. S +4 → +6, O<sub>2</sub> 0 → −2.</li>
+    <li>No conviertes el caso en un catálogo ni en una dosis.</li>
+  </ul>
+  <p class="reto-id">reto_id: bach1-fyq-06-clasificacion</p>
+</section>
+
+<footer class="leccion-pie"><strong>Les vencimos</strong> · 1º Bachillerato Física y Química · Ciencias · Decreto 40/2022 CyL · sin CDN</footer>
+</div>
+<script>
+(function(){
+  function liga(id, btn){
+    var c = document.getElementById(id);
+    var ctx = c.getContext('2d');
+    function fit(){
+      var r = c.getBoundingClientRect();
+      var w = Math.max(300, Math.floor(r.width));
+      if (c.width !== w){ c.width = w; c.height = 240; fondo(); }
+    }
+    function fondo(){
+      ctx.fillStyle = '#fff';
+      ctx.fillRect(0,0,c.width,c.height);
+      ctx.strokeStyle = '#C4A15A';
+      ctx.strokeRect(0.5,0.5,c.width-1,c.height-1);
+    }
+    var dib = false, last = null;
+    function pos(ev){
+      var r = c.getBoundingClientRect();
+      var src = ev.touches ? ev.touches[0] : ev;
+      return {x:(src.clientX-r.left)*c.width/r.width, y:(src.clientY-r.top)*c.height/r.height};
+    }
+    c.addEventListener('pointerdown', function(ev){ dib = true; last = pos(ev); c.setPointerCapture(ev.pointerId); ev.preventDefault(); });
+    c.addEventListener('pointermove', function(ev){
+      if(!dib) return;
+      var p = pos(ev);
+      ctx.strokeStyle = '#2A2620'; ctx.lineWidth = 2.2; ctx.lineCap = 'round';
+      ctx.beginPath(); ctx.moveTo(last.x,last.y); ctx.lineTo(p.x,p.y); ctx.stroke();
+      last = p; ev.preventDefault();
+    });
+    c.addEventListener('pointerup', function(){ dib = false; });
+    c.addEventListener('pointercancel', function(){ dib = false; });
+    document.getElementById(btn).addEventListener('click', fondo);
+    fit();
+    window.addEventListener('resize', fit);
+  }
+  liga('lienzo06','b06');
+  liga('retoCv','bReto');
+  liga('cv06','bCv');
+  function norm(s){
+    return s.toLowerCase()
+      .replace(/á/g,'a').replace(/é/g,'e').replace(/í/g,'i').replace(/ó/g,'o').replace(/ú/g,'u')
+      .replace(/\s+/g,' ').trim();
+  }
+  var pista = {
+    cao: 'síntesis y no es redox',
+    horno: 'descomposición y no es redox',
+    fe: 'desplazamiento y redox',
+    sosa: 'doble desplazamiento y no es redox',
+    anti: 'ácido-base y no es redox',
+    so2: 'síntesis y redox'
+  };
+  document.getElementById('chk06').addEventListener('click', function(){
+    var k = document.getElementById('reac').value;
+    var t = norm(document.getElementById('resp').value);
+    var niega = t.indexOf('no es redox') !== -1 || t.indexOf('no redox') !== -1 || t.indexOf('sin redox') !== -1;
+    var diceRedox = t.indexOf('redox') !== -1 && !niega;
+    var ok = false;
+    if(k === 'cao') ok = (t.indexOf('sintes') !== -1 || t.indexOf('combin') !== -1) && !diceRedox && niega;
+    if(k === 'horno') ok = t.indexOf('descomp') !== -1 && !diceRedox && niega;
+    if(k === 'fe') ok = t.indexOf('desplaz') !== -1 && t.indexOf('doble') === -1 && diceRedox;
+    if(k === 'sosa') ok = t.indexOf('doble') !== -1 && !diceRedox && niega;
+    if(k === 'anti') ok = t.indexOf('acido') !== -1 && !diceRedox && niega;
+    if(k === 'so2') ok = (t.indexOf('sintes') !== -1 || t.indexOf('combin') !== -1) && diceRedox;
+    var msg = document.getElementById('msg06');
+    if(ok){
+      msg.className = 'ok';
+      msg.textContent = 'Sí: ' + pista[k] + '. Dibújalo en el lienzo.';
+    }else{
+      msg.className = 'mal';
+      msg.textContent = 'Tiene que leerse esto: ' + pista[k] + '. Si no es redox, escribe «no es redox» para que no quede ambiguo.';
+    }
+  });
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<meta name="theme-color" content="#0E0E0C"/>
+<title>Lección 27 · Pensamiento computacional · Les vencimos</title>
+<link rel="icon" href="../icons/favicon.svg" type="image/svg+xml"/>
+<link rel="manifest" href="../manifest.webmanifest"/>
+<link rel="stylesheet" href="../leccion-shell.css"/>
+<style>
+.pasos{list-style:none;margin:0 0 1rem;padding:0;counter-reset:paso}
+.pasos li{position:relative;margin:0 0 .7rem;padding:.7rem .8rem .7rem 3.1rem;background:var(--lv-panel);border:1px solid var(--lv-linea);border-radius:10px}
+.pasos li::before{counter-increment:paso;content:counter(paso);position:absolute;left:.65rem;top:.7rem;width:1.7rem;height:1.7rem;border-radius:50%;background:#C4A15A;color:#1A160E;font-weight:700;font-size:.9rem;display:flex;align-items:center;justify-content:center}
+.figura-svg{background:#161512;border:1px solid var(--lv-linea);border-radius:10px;padding:.5rem;margin:.5rem 0 1.1rem}
+.figura-svg svg{width:100%;height:auto;display:block}
+.ej{margin:0 0 1rem;padding:.85rem .95rem;background:var(--lv-panel);border:1px solid var(--lv-linea);border-left:3px solid #C4A15A;border-radius:10px}
+.ej h3{margin:0 0 .35rem;font-family:var(--lv-serif);font-size:1.05rem;color:var(--lv-titulo)}
+.editor,textarea.editor{width:100%;min-height:5.5rem;font-family:ui-monospace,monospace;font-size:.95rem;line-height:1.45;padding:.55rem .65rem;border:1px solid rgba(196,161,90,.45);border-radius:8px;background:#161512;color:#E6E1D6;resize:vertical}
+.lienzo{display:block;width:100%;height:280px;background:#161512;border:1px solid #C4A15A;border-radius:8px;touch-action:none;cursor:crosshair}
+.fila{display:flex;flex-wrap:wrap;gap:.4rem;margin:.45rem 0}
+.boton{font:inherit;font-weight:700;font-size:.85rem;padding:.4rem .8rem;border-radius:999px;border:1px solid #C4A15A;background:transparent;color:#E6E1D6;cursor:pointer}
+.porque{margin-top:.55rem;padding:.65rem .75rem;background:#1a2218;border-radius:8px;color:#E6E1D6}
+.dato{font-size:.95rem;color:var(--lv-suave)}
+.glosa{display:block;font-size:.9rem;color:#9A9488;margin:.25rem 0 .5rem;line-height:1.4}
+.lab-box{margin:1rem 0;padding:.85rem;border:1px dashed rgba(196,161,90,.5);border-radius:10px;background:#141210}
+.lab-box iframe{width:100%;min-height:320px;border:1px solid #C4A15A;border-radius:8px;background:#0E0E0C}
+table.datos{width:100%;border-collapse:collapse;margin:.45rem 0 1rem;font-size:.98rem}
+table.datos th,table.datos td{border:1px solid var(--lv-linea);padding:.4rem .55rem;text-align:left}
+table.datos th{background:#161512;color:#C4A15A}
+</style>
+<script src="../leccion-shell-nav.js" defer></script>
+<link rel="stylesheet" href="../../../../profesor/_maestro/maestro-puntero.css"/>
+<script src="../../../../profesor/_maestro/maestro-runtime.js" defer></script>
+</head>
+<body class="leccion-shell" data-maestro-json="maestro-27.json">
+<div class="leccion-wrap">
+<nav class="leccion-barra" aria-label="Navegación de lección" data-actual="27" data-total="38">
+  <div class="leccion-progreso" role="status">
+    <span class="progreso-texto"><strong>27</strong> de <strong>38</strong></span>
+    <div class="progreso-pista" aria-hidden="true"><div class="progreso-lleno" style="width:71.05%"></div></div>
+  </div>
+  <div class="leccion-atajos">
+    <a class="atajo atajo-calc" href="../../../../modulos/calculadora.html" title="Calculadora offline">Calculadora</a>
+    <a class="atajo atajo-prev" href="leccion-26-programacion-lineal.html">← Anterior</a>
+    <a class="atajo atajo-next" href="leccion-28-estadistica-interpretacion.html">Siguiente →</a>
+  </div>
+</nav>
+<header class="leccion-top">
+  <a class="leccion-marca" href="../../../../index.html">Les <span>vencimos</span></a>
+  <p class="leccion-meta-top">Matemáticas Generales · 1º Bachillerato</p>
+</header>
+<header class="bloque-titulo">
+  <span class="eyebrow">Lección 27 · D · Algebraico</span>
+  <h1 class="titulo-leccion">Pensamiento <em>computacional</em></h1>
+  <p class="meta-leccion">1º Bach Matemáticas Generales · CyL Decreto 40/2022 · D.5 Algoritmos, programas y herramientas offline</p>
+</header>
+<aside class="bloque-curiosidad" aria-label="Para situarte">
+  <p class="etiqueta-bloque">Para situarte</p>
+  <h2 class="titulo-curiosidad">Un procedimiento que se puede seguir sin adivinar</h2>
+  <p class="texto-curiosidad">El Decreto pide descomponer problemas, escribir algoritmos y usar herramientas. Aquí la herramienta es el papel: un diagrama de flujo y el algoritmo de Euclides ejecutado con 48 y 18, resto a resto, hasta que el divisor se hace cero.</p>
+</aside>
+<section class="bloque-cuerpo">
+  <h2>Objetivos</h2>
+  <ul><li>Leer un diagrama de flujo y distinguir secuencia, decisión y bucle.</li><li>Ejecutar el algoritmo de Euclides con números concretos y justificar el último resto no nulo.</li><li>Detectar un algoritmo que no termina o que falla al iniciar el acumulador.</li></ul>
+</section>
+<section class="bloque-cuerpo">
+<h2>Preciso, finito y escrito en pasos</h2>
+<p>Un algoritmo es una lista de instrucciones tan cerrada que otra persona, sin conocer el problema, llega al mismo resultado. No vale «haz la cuenta» ni «busca el máximo si se ve». Hacen falta una entrada, un proceso con operaciones permitidas y una salida, y hace falta que el proceso se detenga.</p>
+<p><span class="glosa">secuencia = pasos uno detrás de otro · decisión = una pregunta con dos salidas (sí / no) · bucle = volver atrás mientras una condición siga siendo verdadera · resto = lo que sobra en la división entera, a módulo b · mcd = mayor entero que divide a los dos números</span></p>
+<p>El diagrama de la izquierda es el de Euclides para el par del ejemplo. El rombo pregunta si b ya es 0. Si no lo es, la caja verde sustituye el par: el divisor pasa a ser el nuevo a, y el resto pasa a ser el nuevo b. La flecha vuelve al rombo. Si b es 0, se sale y la respuesta es el a que queda. A la derecha está la traza concreta, no un esquema vacío: (48, 18), (18, 12), (12, 6) y (6, 0).</p>
+<p>Esa misma disciplina sirve para un bucle que suma o para uno que busca un máximo. El fallo típico no es «no se me dan los algoritmos»: o falta la actualización que acerca el proceso al final, o el valor inicial no pertenece al conjunto de datos. Las dos cosas se ven al ejecutar tres vueltas con números, que es lo que pide esta lección.</p>
+<table class="datos"><thead><tr><th>Pieza</th><th>En el ejemplo</th><th>Si falta</th></tr></thead>
+<tbody>
+<tr><td>Entrada</td><td>a = 48, b = 18</td><td>No hay caso que ejecutar</td></tr>
+<tr><td>Condición</td><td>¿b = 0?</td><td>No se sabe cuándo salir</td></tr>
+<tr><td>Actualización</td><td>(a, b) ← (b, a mod b)</td><td>El rombo no cambia nunca</td></tr>
+<tr><td>Salida</td><td>6</td><td>El proceso no devuelve el mcd</td></tr>
+</tbody></table>
+<h2>Gráfico del ejemplo</h2>
+<p class="dato">La figura no es decoración: los trazos corresponden a los números del ejemplo 1.</p>
+<div class="figura-svg"><svg viewBox="0 0 720 320" role="img" aria-label="Diagrama de Euclides con el par 48 y 18 y la traza de restos 12, 6 y 0"><title>Diagrama de Euclides con el par 48 y 18 y la traza de restos 12, 6 y 0</title><rect width="720" height="320" fill="#161512"/>
+<circle cx="130" cy="34" r="16" fill="#1C1A16" stroke="#C4A15A" stroke-width="2"/>
+<line x1="130" y1="50" x2="130" y2="68" stroke="#C4A15A" stroke-width="2"/>
+<polygon points="40,68 220,68 220,112 40,112" fill="#1C1A16" stroke="#E6E1D6" stroke-width="1.6"/>
+<line x1="130" y1="112" x2="130" y2="136" stroke="#C4A15A" stroke-width="2"/>
+<polygon points="130,134 230,184 130,234 30,184" fill="#1C1A16" stroke="#C4A15A" stroke-width="2"/>
+<line x1="30" y1="184" x2="30" y2="262" stroke="#8F9A72" stroke-width="2"/>
+<line x1="30" y1="262" x2="130" y2="262" stroke="#8F9A72" stroke-width="2"/>
+<polygon points="122,254 138,254 130,270" fill="#8F9A72"/>
+<polygon points="40,248 220,248 220,302 40,302" fill="#1C1A16" stroke="#8F9A72" stroke-width="1.6"/>
+<line x1="230" y1="184" x2="300" y2="184" stroke="#C4A15A" stroke-width="2"/>
+<circle cx="348" cy="184" r="32" fill="#1C1A16" stroke="#C4A15A" stroke-width="2"/>
+<circle cx="520" cy="48" r="8" fill="#C4A15A"/>
+<circle cx="520" cy="108" r="8" fill="#C4A15A"/>
+<circle cx="520" cy="168" r="8" fill="#C4A15A"/>
+<circle cx="520" cy="228" r="8" fill="#8F9A72"/>
+<line x1="520" y1="56" x2="520" y2="100" stroke="#C4A15A" stroke-width="2"/>
+<line x1="520" y1="116" x2="520" y2="160" stroke="#C4A15A" stroke-width="2"/>
+<line x1="520" y1="176" x2="520" y2="220" stroke="#C4A15A" stroke-width="2"/>
+<text x="130" y="38" text-anchor="middle" fill="#E6E1D6" font-size="11">inicio</text>
+<text x="130" y="94" text-anchor="middle" fill="#E6E1D6" font-size="13">a = 48 , b = 18</text>
+<text x="130" y="180" text-anchor="middle" fill="#C4A15A" font-size="13">¿b = 0?</text>
+<text x="44" y="176" fill="#8F9A72" font-size="12">no</text>
+<text x="236" y="176" fill="#C4A15A" font-size="12">sí</text>
+<text x="130" y="278" text-anchor="middle" fill="#E6E1D6" font-size="12">a, b ← b, a mod b</text>
+<text x="348" y="180" text-anchor="middle" fill="#E6E1D6" font-size="12">mcd</text>
+<text x="348" y="196" text-anchor="middle" fill="#C4A15A" font-size="14">6</text>
+<text x="540" y="52" fill="#E6E1D6" font-size="13">48 , 18  resto 12</text>
+<text x="540" y="112" fill="#E6E1D6" font-size="13">18 , 12  resto 6</text>
+<text x="540" y="172" fill="#E6E1D6" font-size="13">12 , 6   resto 0</text>
+<text x="540" y="232" fill="#8F9A72" font-size="13">6 , 0    parar</text>
+<text x="430" y="28" fill="#C4A15A" font-size="14">traza del ejemplo 1</text>
+</svg></div>
+<h2>Ejemplo resuelto 1 — Euclides con 48 y 18</h2><p>Ejecuta el algoritmo de la figura con a = 48 y b = 18. Escribe cada división, el par nuevo y el motivo para parar. Comprueba que 6 divide a los dos.</p><ol class="pasos">
+<li>Primera vuelta: 48 = 2 · 18 + 12. El cociente es 2 y el resto es 12, así que el par pasa a ser (18, 12).<span class="glosa">Glosa: 2 · 18 = 36 y 48 − 36 = 12. El resto tiene que ser menor que el divisor.</span></li>
+<li>Segunda vuelta: 18 = 1 · 12 + 6. El par pasa a ser (12, 6). El mcd todavía no es 12: el resto no es cero.<span class="glosa">Glosa: se para solo cuando el resto es 0, no cuando el resto «ya es pequeño».</span></li>
+<li>Tercera vuelta: 12 = 2 · 6 + 0. El par pasa a ser (6, 0). La condición del rombo ya es sí, y la salida es 6.<span class="glosa">Glosa: el último divisor no nulo, que ahora está en a, es el máximo común divisor.</span></li>
+<li>Comprobación: 48 = 6 · 8 y 18 = 6 · 3. No hay un entero mayor que divida a los dos, porque el algoritmo agota los restos.<span class="glosa">Glosa: 8 y 3 son coprimos; si hubiera un divisor común mayor que 6, también dividiría al resto 0 de forma contradictoria con los pasos.</span></li>
+</ol>
+<h2>Ejemplo resuelto 2 — Suma de 1 a 5, bucle y atajo</h2><p>Un algoritmo hace s = 0 y, para i desde 1 hasta 5, s = s + i. Ejecútalo vuelta a vuelta y compáralo con la fórmula n(n+1)/2.</p><ol class="pasos">
+<li>Estado inicial: s = 0 e i = 1. La primera suma deja s = 1. No se empieza en el resultado.<span class="glosa">Glosa: el acumulador tiene que nacer en el elemento neutro de la suma, que es 0.</span></li>
+<li>Siguientes vueltas: i = 2 deja s = 3; i = 3 deja s = 6; i = 4 deja s = 10; i = 5 deja s = 15. Ahí el bucle corta.<span class="glosa">Glosa: el límite superior es 5 inclusive. Parar en 4 olvidaría el último sumando.</span></li>
+<li>La fórmula con n = 5 da 5 · 6 = 30<br>
+30 / 2 = <strong>15</strong>. Coincide con el bucle, así que el atajo no cambia el problema.<span class="glosa">Glosa: la fórmula es otro algoritmo para la misma salida; si no coincidiera, habría un límite mal puesto.</span></li>
+<li>Si el bucle llegara hasta 6, saldría 21, y la fórmula de n = 5 seguiría diciendo 15. El desajuste delata el error de límite, no «que la fórmula falle».<span class="glosa">Glosa: se depura comparando dos procedimientos sobre el mismo n, no discutiendo en abstracto.</span></li>
+</ol>
+<h2>Ejemplo resuelto 3 — El máximo no puede nacer en cero</h2><p>Lista: −3, −1, −8. Algoritmo A inicia m en el primer dato. Algoritmo B inicia m en 0 y solo actualiza si el dato es mayor. Ejecuta los dos.</p><ol class="pasos">
+<li>Algoritmo A: m = −3. El −1 es mayor, así que m = −1. El −8 no lo supera. Salida −1, que sí está en la lista.<span class="glosa">Glosa: empezar en el primer dato garantiza que m siempre es uno de los valores leídos.</span></li>
+<li>Algoritmo B: m = 0. Ningún dato es mayor que 0, así que m no se mueve. La salida es 0, y 0 no está en la lista.<span class="glosa">Glosa: el fallo es la inicialización, no la comparación. Con números positivos el mismo B habría parecido correcto.</span></li>
+<li>La decisión «dato mayor que m» está bien escrita en los dos. Lo que cambia el resultado es el valor de entrada del acumulador.<span class="glosa">Glosa: un ejemplo con negativos es una prueba de escritorio: busca el caso que rompe el algoritmo, no el caso cómodo.</span></li>
+<li>Corrección de B: o se inicia m con el primer elemento, o se declara que la lista es de números no negativos. Sin esa hipótesis, B es incorrecto.<span class="glosa">Glosa: un algoritmo correcto necesita decir para qué entradas promete funcionar.</span></li>
+</ol>
+<h2>Ejercicios</h2>
+<p class="dato">Escribe el razonamiento completo en el editor, no solo la cifra. Si el enunciado pide figura, dibújala en el lienzo de esta misma página.</p>
+<article class="ej"><h3>1. Euclides con 30 y 21</h3><p>Calcula mcd(30, 21) con el mismo algoritmo. Escribe los tres restos y di por qué la salida no es el último cociente.</p><label for="e27a">Tu resolución</label><textarea class="editor" id="e27a" placeholder="Escribe aquí el razonamiento completo…"></textarea><details class="porque"><summary>Por qué (abre cuando hayas escrito)</summary><p>El paso que hay que escribir es la división entera, no un «se ve que es 3».1 · 21 = 21<br>
+21 + 9 = 30<br>
+30 = <strong>30</strong>, así que el par pasa a (21, 9). Después 21 = 2 · 9 + 3 y el par pasa a (9, 3). Después 9 = 3 · 3 + 0 y se para: el mcd es 3, el último resto no nulo. El último cociente es también 3, pero eso es casualidad de este ejemplo; en 48 y 18 el último cociente era 2 y el mcd era 6. Por eso la regla es leer a cuando b llega a 0, no leer el cociente. Comprobación: 30 = 3 · 10 y 21 = 3 · 7.</p></details></article>
+<article class="ej"><h3>2. Un mientras que no se mueve</h3><p>Pseudocódigo: x = 3; mientras x sea mayor que 0, escribir x. No hay ninguna otra línea. ¿Qué ocurre en las tres primeras vueltas y qué propiedad del algoritmo falta?</p><label for="e27b">Tu resolución</label><textarea class="editor" id="e27b" placeholder="Escribe aquí el razonamiento completo…"></textarea><details class="porque"><summary>Por qué (abre cuando hayas escrito)</summary><p>El paso ausente es la actualización de x. Primera vuelta: x = 3, la condición es verdadera y se escribe 3. Segunda vuelta: x sigue siendo 3, porque nadie lo ha restado, y se vuelve a escribir 3. La tercera es idéntica. La condición no se acerca a ser falsa, así que el algoritmo no termina. En la definición que usamos en esta lección, terminar forma parte del algoritmo: un bucle solo es válido si cada vuelta cambia el estado hacia la salida, como el resto de Euclides, que es siempre menor que el divisor anterior y no puede bajar indefinidamente en los enteros no negativos.</p></details></article>
+<article class="ej"><h3>3. Contar aprobados</h3><p>Notas 4, 7, 5, 3, 9. Escribe un algoritmo que cuente cuántas son mayores o iguales que 5 y ejecútalo. Di qué pasa si la condición se escribe mal como «mayor que 5».</p><label for="e27c">Tu resolución</label><textarea class="editor" id="e27c" placeholder="Escribe aquí el razonamiento completo…"></textarea><details class="porque"><summary>Por qué (abre cuando hayas escrito)</summary><p>El paso es un contador que nace en 0 y solo suma 1 cuando la condición es verdadera, no sumar la propia nota. Con el umbral bien puesto: 4 no; 7 sí (c = 1); 5 sí (c = 2); 3 no; 9 sí (c = 3). Salida 3. Si la condición se cambia a «mayor que 5», el 5 deja de contarse y la salida es 2. El algoritmo no está «casi bien»: el borde del aprobado, que el Decreto y la evaluación colocan en 5, hay que copiarlo con el igual. Por eso se prueba el caso frontera, no solo un 9 y un 3.</p></details></article>
+<h2>Dibuja en el lienzo</h2>
+<p>Reproduce a mano el gráfico del ejemplo: ejes o nodos, los datos numéricos y una frase con la conclusión. El botón borra el lienzo sin salir de la lección.</p>
+<canvas id="lienzo27" class="lienzo" width="900" height="280"></canvas><div class="fila"><button type="button" class="boton" data-clear="lienzo27">Borrar lienzo</button></div>
+</section>
+<div class="lab-box"><p><strong>Laboratorio</strong> — Euclides paso a paso. Si el marco no carga, abre el hermano: <a href="l27-pensamiento-computacional.html">l27-pensamiento-computacional.html</a>.</p><iframe src="l27-pensamiento-computacional.html" title="Euclides paso a paso" loading="lazy"></iframe></div>
+<section class="bloque-cuerpo">
+  <h2>Comprueba</h2>
+  <p class="dato">Tres preguntas. Responde mentalmente antes de abrir el porqué.</p>
+  <details class="porque"><summary>¿Por qué en la figura se para al llegar al par (6, 0)?</summary><p>Porque b ya es 0 y el rombo sale hacia el círculo de la respuesta. Por qué: el resto 0 significa que 6 divide exactamente a 12, y los restos anteriores garantizan que 6 también divide a 18 y a 48. Seguir no tiene sentido: el módulo con divisor 0 no está definido.</p></details>
+<details class="porque"><summary>¿Qué dato de la lista −3, −1, −8 delata al algoritmo que empieza en 0?</summary><p>Que la salida 0 no pertenece a la lista. Por qué: un máximo de la lista tiene que ser uno de sus elementos. Si todas las pruebas se hacen con números positivos, el 0 inicial se sustituye enseguida y el error queda escondido. El caso negativo es el que obliga a corregir el inicio.</p></details>
+<details class="porque"><summary>¿La fórmula n(n+1)/2 sustituye al bucle o lo comprueba?</summary><p>Lo comprueba y, cuando ya se sabe que coinciden, también lo abrevia. Por qué: con n = 5 los dos dan 15. Si en otro n no dieran lo mismo, no se «elige el que guste»: se revisa el límite del bucle o el uso de la fórmula. Dos algoritmos de la misma función tienen que devolver la misma salida.</p></details>
+</section>
+<section class="bloque-reto">
+  <span class="etiqueta-reto">Reto Profesor</span>
+  <h2 class="titulo-reto">Euclides en tu libreta</h2>
+  <p>Elige dos enteros positivos menores que 100, dibuja en el lienzo el rombo y tres cajas con tus restos reales, y escribe al lado el mcd. No copies 48 y 18.</p>
+  <p class="reto-id">reto_id: bach1-mates-gen-L27</p>
+</section>
+<footer class="leccion-pie"><strong>Les vencimos</strong> · L27 de 38 · Matemáticas Generales · staging · file:// · sin publicar</footer>
+</div>
+<script type="application/json" data-maestro="guion">{"curso": "bach1-mates-gen", "leccion": 27, "titulo": "Pensamiento computacional", "url": "leccion-27-pensamiento-computacional.html", "musica": false, "pasos": [{"id": "abrir", "dicho": "El rombo pregunta si b es 0. Con 48 y 18 la respuesta tarda tres restos: 12, 6 y 0.", "hacer": "Leer en voz alta el apartado Para situarte y los objetivos."}, {"id": "figura", "dicho": "La columna de la derecha es la traza, no un adorno: cada círculo es un par.", "hacer": "Mirar el SVG y decir qué dato numérico marca cada trazo."}, {"id": "ej1", "dicho": "Ejemplo 1: el mcd es 6, y 6 no es el último cociente, que era 2.", "hacer": "Rehacer el ejemplo 1, glosa a glosa, sin mirar el resultado final."}, {"id": "ej2", "dicho": "Ejemplo 2: el bucle de la suma acaba en 15, igual que 5·6/2.", "hacer": "Rehacer el ejemplo 2 y contrastarlo con el 1."}, {"id": "ej3", "dicho": "Ejemplo 3: iniciar el máximo en 0 falla en cuanto aparecen negativos.", "hacer": "Rehacer el ejemplo 3 y anotar la comprobación."}, {"id": "practica", "dicho": "En el laboratorio cambia el par y mira cómo encogen las barras.", "hacer": "Escribir el razonamiento de al menos dos ejercicios y usar el lienzo."}, {"id": "cierre", "dicho": "Un algoritmo que no cambia su variable de control no es un algoritmo: no termina.", "hacer": "Contestar Comprueba antes de abrir y dejar el reto por escrito."}]}</script>
+<script>(function(){function liga(c){var ctx=c.getContext('2d');function fondo(){ctx.fillStyle='#161512';ctx.fillRect(0,0,c.width,c.height);ctx.strokeStyle='#C4A15A';ctx.strokeRect(.5,.5,c.width-1,c.height-1);}function fit(){var r=c.getBoundingClientRect();var w=Math.max(320,Math.floor(r.width));if(c.width!==w){c.width=w;c.height=280;fondo();}}var dib=false,last=null;function pos(ev){var r=c.getBoundingClientRect();var s=ev.touches?ev.touches[0]:ev;return{x:(s.clientX-r.left)*c.width/r.width,y:(s.clientY-r.top)*c.height/r.height};}c.addEventListener('pointerdown',function(ev){dib=true;last=pos(ev);ev.preventDefault();});c.addEventListener('pointermove',function(ev){if(!dib)return;var p=pos(ev);ctx.strokeStyle='#E6E1D6';ctx.lineWidth=2.2;ctx.lineCap='round';ctx.beginPath();ctx.moveTo(last.x,last.y);ctx.lineTo(p.x,p.y);ctx.stroke();last=p;ev.preventDefault();});function up(){dib=false;}c.addEventListener('pointerup',up);c.addEventListener('pointerleave',up);var b=document.querySelector('[data-clear="'+c.id+'"]');if(b)b.addEventListener('click',fondo);fit();window.addEventListener('resize',fit);}document.querySelectorAll('canvas.lienzo').forEach(liga);})();</script>
+</body>
+</html>

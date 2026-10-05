@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<meta name="theme-color" content="#0E0E0C"/>
+<title>Lección 32 · Compuesta y condicionada · Les vencimos</title>
+<link rel="icon" href="../icons/favicon.svg" type="image/svg+xml"/>
+<link rel="manifest" href="../manifest.webmanifest"/>
+<link rel="stylesheet" href="../leccion-shell.css"/>
+<style>
+.pasos{list-style:none;margin:0 0 1rem;padding:0;counter-reset:paso}
+.pasos li{position:relative;margin:0 0 .7rem;padding:.7rem .8rem .7rem 3.1rem;background:var(--lv-panel);border:1px solid var(--lv-linea);border-radius:10px}
+.pasos li::before{counter-increment:paso;content:counter(paso);position:absolute;left:.65rem;top:.7rem;width:1.7rem;height:1.7rem;border-radius:50%;background:#C4A15A;color:#1A160E;font-weight:700;font-size:.9rem;display:flex;align-items:center;justify-content:center}
+.figura-svg{background:#161512;border:1px solid var(--lv-linea);border-radius:10px;padding:.5rem;margin:.5rem 0 1.1rem}
+.figura-svg svg{width:100%;height:auto;display:block}
+.ej{margin:0 0 1rem;padding:.85rem .95rem;background:var(--lv-panel);border:1px solid var(--lv-linea);border-left:3px solid #C4A15A;border-radius:10px}
+.ej h3{margin:0 0 .35rem;font-family:var(--lv-serif);font-size:1.05rem;color:var(--lv-titulo)}
+.editor,textarea.editor{width:100%;min-height:5.5rem;font-family:ui-monospace,monospace;font-size:.95rem;line-height:1.45;padding:.55rem .65rem;border:1px solid rgba(196,161,90,.45);border-radius:8px;background:#161512;color:#E6E1D6;resize:vertical}
+.lienzo{display:block;width:100%;height:280px;background:#161512;border:1px solid #C4A15A;border-radius:8px;touch-action:none;cursor:crosshair}
+.fila{display:flex;flex-wrap:wrap;gap:.4rem;margin:.45rem 0}
+.boton{font:inherit;font-weight:700;font-size:.85rem;padding:.4rem .8rem;border-radius:999px;border:1px solid #C4A15A;background:transparent;color:#E6E1D6;cursor:pointer}
+.porque{margin-top:.55rem;padding:.65rem .75rem;background:#1a2218;border-radius:8px;color:#E6E1D6}
+.dato{font-size:.95rem;color:var(--lv-suave)}
+.glosa{display:block;font-size:.9rem;color:#9A9488;margin:.25rem 0 .5rem;line-height:1.4}
+.lab-box{margin:1rem 0;padding:.85rem;border:1px dashed rgba(196,161,90,.5);border-radius:10px;background:#141210}
+.lab-box iframe{width:100%;min-height:320px;border:1px solid #C4A15A;border-radius:8px;background:#0E0E0C}
+table.datos{width:100%;border-collapse:collapse;margin:.45rem 0 1rem;font-size:.98rem}
+table.datos th,table.datos td{border:1px solid var(--lv-linea);padding:.4rem .55rem;text-align:left}
+table.datos th{background:#161512;color:#C4A15A}
+</style>
+<script src="../leccion-shell-nav.js" defer></script>
+<link rel="stylesheet" href="../../../../profesor/_maestro/maestro-puntero.css"/>
+<script src="../../../../profesor/_maestro/maestro-runtime.js" defer></script>
+</head>
+<body class="leccion-shell" data-maestro-json="maestro-32.json">
+<div class="leccion-wrap">
+<nav class="leccion-barra" aria-label="Navegación de lección" data-actual="32" data-total="38">
+  <div class="leccion-progreso" role="status">
+    <span class="progreso-texto"><strong>32</strong> de <strong>38</strong></span>
+    <div class="progreso-pista" aria-hidden="true"><div class="progreso-lleno" style="width:84.21%"></div></div>
+  </div>
+  <div class="leccion-atajos">
+    <a class="atajo atajo-calc" href="../../../../modulos/calculadora.html" title="Calculadora offline">Calculadora</a>
+    <a class="atajo atajo-prev" href="leccion-31-coeficientes-prediccion.html">← Anterior</a>
+    <a class="atajo atajo-next" href="leccion-33-probabilidad-total-y-bayes.html">Siguiente →</a>
+  </div>
+</nav>
+<header class="leccion-top">
+  <a class="leccion-marca" href="../../../../index.html">Les <span>vencimos</span></a>
+  <p class="leccion-meta-top">Matemáticas Generales · 1º Bachillerato</p>
+</header>
+<header class="bloque-titulo">
+  <span class="eyebrow">Lección 32 · E · Estocástico</span>
+  <h1 class="titulo-leccion">Compuesta y <em>condicionada</em></h1>
+  <p class="meta-leccion">1º Bach Matemáticas Generales · CyL Decreto 40/2022 · E.2 Compuestos, condicionada, independencia y árbol</p>
+</header>
+<aside class="bloque-curiosidad" aria-label="Para situarte">
+  <p class="etiqueta-bloque">Para situarte</p>
+  <h2 class="titulo-curiosidad">La segunda bola no ve la misma urna</h2>
+  <p class="texto-curiosidad">Urna con 5 bolas rojas y 3 azules, ocho en total. Se extraen dos sin devolver la primera. El árbol de la figura cambia el denominador en la segunda rama: de 8 pasa a 7, y el color que ya salió cambia el numerador.</p>
+</aside>
+<section class="bloque-cuerpo">
+  <h2>Objetivos</h2>
+  <ul><li>Multiplicar a lo largo de una rama usando la probabilidad condicionada de la segunda extracción.</li><li>Sumar ramas cuando el suceso es una unión de caminos distintos.</li><li>Reconocer independencia solo cuando la condicionada coincide con la marginal, como al reemplazar.</li></ul>
+</section>
+<section class="bloque-cuerpo">
+<h2>El árbol guarda el orden y el denominador</h2>
+<p>Una probabilidad compuesta es la de un camino entero: primera extracción y segunda. En el árbol se multiplica la probabilidad de la rama de salida por la de la rama que sale de ella. Sin reemplazo, la segunda no se copia de la primera: queda una bola menos, y del color que ya salió queda una menos todavía.</p>
+<p><span class="glosa">P(R) = 5/8 · P(A) = 3/8 · sin reemplazo, tras roja: 4 rojas y 3 azules entre 7 · P(RR) = (5/8)·(4/7) = 20/56 · ramas que se suman = caminos distintos del mismo suceso · independencia = la condicionada no cambia al saber la primera</span></p>
+<p>Las cuatro hojas suman<br>
+20 / 56 = 5/14<br>
+15 / 56 = 15/56<br>
+5/14 + 15/56 = 5/8<br>
+15 / 56 = 15/56<br>
+5/8 + 15/56 = 25/28<br>
+6 / 56 = 3/28<br>
+25/28 + 3/28 = <strong>56/56</strong> = 1. Esa comprobación delata una rama mal contada. Colores distintos son dos caminos, RA y AR, no uno: 15 / 56 = 15/56<br>
+15/56 + 15/56 = <strong>15/28</strong>. Dos rojas son un solo camino, 20/56 = 5/14.</p>
+<p>Con reemplazo la urna no cambia y P(segunda roja | primera roja) sigue siendo 5/8, igual que la marginal: ahí sí hay independencia. Sin reemplazo, 4/7 no es 5/8. El laboratorio pone las dos situaciones una al lado de la otra para que el denominador no se copie por costumbre.</p>
+<h2>Gráfico del ejemplo</h2>
+<p class="dato">La figura no es decoración: los trazos corresponden a los números del ejemplo 1.</p>
+<div class="figura-svg"><svg viewBox="0 0 720 320" role="img" aria-label="Árbol sin reemplazo: ramas 5/8 y 3/8, segundas 4/7, 3/7, 5/7 y 2/7"><title>Árbol sin reemplazo: ramas 5/8 y 3/8, segundas 4/7, 3/7, 5/7 y 2/7</title><rect width="720" height="320" fill="#161512"/>
+<circle cx="70" cy="160" r="16" fill="#1C1A16" stroke="#C4A15A" stroke-width="2"/>
+<line x1="86" y1="150" x2="210" y2="70" stroke="#C4A15A" stroke-width="2"/>
+<line x1="86" y1="170" x2="210" y2="250" stroke="#C4A15A" stroke-width="2"/>
+<circle cx="226" cy="64" r="16" fill="#1C1A16" stroke="#C4A15A" stroke-width="2"/>
+<circle cx="226" cy="256" r="16" fill="#1C1A16" stroke="#8F9A72" stroke-width="2"/>
+<line x1="242" y1="56" x2="390" y2="28" stroke="#C4A15A" stroke-width="2"/>
+<line x1="242" y1="74" x2="390" y2="110" stroke="#8F9A72" stroke-width="2"/>
+<line x1="242" y1="248" x2="390" y2="200" stroke="#C4A15A" stroke-width="2"/>
+<line x1="242" y1="266" x2="390" y2="292" stroke="#8F9A72" stroke-width="2"/>
+<circle cx="408" cy="28" r="8" fill="#C4A15A"/>
+<circle cx="408" cy="112" r="8" fill="#8F9A72"/>
+<circle cx="408" cy="198" r="8" fill="#C4A15A"/>
+<circle cx="408" cy="292" r="8" fill="#8F9A72"/>
+<text x="70" y="164" text-anchor="middle" fill="#E6E1D6" font-size="12">8</text>
+<text x="226" y="68" text-anchor="middle" fill="#E6E1D6" font-size="12">R</text>
+<text x="226" y="260" text-anchor="middle" fill="#E6E1D6" font-size="12">A</text>
+<text x="130" y="100" fill="#C4A15A" font-size="13">5/8</text>
+<text x="130" y="230" fill="#8F9A72" font-size="13">3/8</text>
+<text x="300" y="36" fill="#C4A15A" font-size="13">4/7</text>
+<text x="300" y="100" fill="#8F9A72" font-size="13">3/7</text>
+<text x="300" y="230" fill="#C4A15A" font-size="13">5/7</text>
+<text x="300" y="286" fill="#8F9A72" font-size="13">2/7</text>
+<text x="430" y="32" fill="#E6E1D6" font-size="14">RR = 20/56</text>
+<text x="430" y="116" fill="#E6E1D6" font-size="14">RA = 15/56</text>
+<text x="430" y="202" fill="#E6E1D6" font-size="14">AR = 15/56</text>
+<text x="430" y="296" fill="#E6E1D6" font-size="14">AA = 6/56</text>
+<text x="40" y="24" fill="#C4A15A" font-size="14">sin reemplazo · 5 rojas y 3 azules</text>
+</svg></div>
+<h2>Ejemplo resuelto 1 — Dos colores distintos</h2><p>Con el árbol de la figura, calcula la probabilidad de sacar una roja y una azul, en cualquier orden.</p><ol class="pasos">
+<li>Camino roja luego azul: (5/8)·(3/7) = 15/56. Tras la roja quedan 3 azules de 7 bolas.<span class="glosa">Glosa: el 3 del numerador son las azules, que no han cambiado; el denominador sí, de 8 a 7.</span></li>
+<li>Camino azul luego roja: (3/8)·(5/7) = 15/56. Ahora se han quitado una azul y quedan las 5 rojas entre 7.<span class="glosa">Glosa: el orden cambia qué condicionada se usa, aunque el producto numérico coincida.</span></li>
+<li>El suceso «una de cada» es la unión de esos dos caminos, que no se solapan. Se suman: 15 / 56 = 15/56<br>
+15/56 + 15/56 = <strong>15/28</strong>.<span class="glosa">Glosa: multiplicar solo un camino olvidaría la mitad de las formas de conseguir colores distintos.</span></li>
+<li>Comprobación: los cuatro caminos suman 56/56. Los que no son mixtos son 20/56 + 6/56 = 26/56, y 1 − 26/56 = 30/56.<span class="glosa">Glosa: restar del total es lícito porque las cuatro hojas forman todo el espacio.</span></li>
+</ol>
+<h2>Ejemplo resuelto 2 — Con devolución el denominador no baja</h2><p>Se devuelve la primera bola. Calcula P(dos rojas) y compara P(segunda roja | primera roja) con 5/8.</p><ol class="pasos">
+<li>Con reemplazo, la segunda roja sigue teniendo probabilidad 5/8 aunque la primera haya sido roja. Hay independencia.<span class="glosa">Glosa: devolver restaura las 5 rojas y las 3 azules. El 7 no aparece.</span></li>
+<li>5 / 8 = 5/8<br>
+5 / 8 = 5/8<br>
+5 / 8 = 5/8<br>
+5/8 · 5 = <strong>25/8</strong><br>
+25/8 / 8 = <strong>25/64</strong><br>
+P(RR) = <strong>25/64</strong>. Ya no es 20/56. El numerador de la segunda rama no baja de 5 a 4.<span class="glosa">Glosa: 25/64 ≈ 0,391 y 20/56 ≈ 0,357. Sacar dos rojas es un poco más fácil si se devuelve la primera.</span></li>
+<li>La condicionada coincide con la marginal: 5/8 = 5/8. Esa igualdad es la definición de independencia en este experimento.<span class="glosa">Glosa: sin reemplazo la misma comparación era 4/7 frente a 5/8, y no se cumplía.</span></li>
+<li>No basta con que las extracciones «se parezcan». Hay que mirar si la información de la primera cambia el número de la segunda.<span class="glosa">Glosa: el árbol con reemplazo repite las fracciones; el de la figura no las repite.</span></li>
+</ol>
+<h2>Ejemplo resuelto 3 — La segunda roja, sin saber la primera</h2><p>Sin reemplazo, calcula la probabilidad de que la segunda bola sea roja, sumando los dos caminos que acaban en roja.</p><ol class="pasos">
+<li>Caminan a segunda roja: RR, que vale 20/56, y AR, que vale 15/56.<span class="glosa">Glosa: RA acaba en azul y AA acaba en azul. No entran en este suceso.</span></li>
+<li>Suma: 20 / 56 = 5/14<br>
+15 / 56 = 15/56<br>
+5/14 + 15/56 = <strong>5/8</strong>. La segunda bola, a ciegas, tiene la misma probabilidad de ser roja que la primera.<span class="glosa">Glosa: 35/56 = 5/8 porque 35 ÷ 7 = 5 y 56 ÷ 7 = 8.</span></li>
+<li>No contradice la dependencia. 4/7 es la probabilidad si ya se vio una roja. 5/8 es la probabilidad si no se vio nada.<span class="glosa">Glosa: marginal de la segunda y condicionada de la segunda son preguntas distintas.</span></li>
+<li>Por simetría, cualquiera de las ocho bolas es igual de probable en la segunda posición si no hay información. Por eso reaparece 5/8.<span class="glosa">Glosa: el árbol no «olvida» el sin reemplazo; al sumar los dos caminos, la información se cancela.</span></li>
+</ol>
+<h2>Ejercicios</h2>
+<p class="dato">Escribe el razonamiento completo en el editor, no solo la cifra. Si el enunciado pide figura, dibújala en el lienzo de esta misma página.</p>
+<article class="ej"><h3>1. Dos azules</h3><p>Sin reemplazo, calcula P(dos azules) y explica por qué la segunda fracción es 2/7 y no 3/8.</p><label for="e32a">Tu resolución</label><textarea class="editor" id="e32a" placeholder="Escribe aquí el razonamiento completo…"></textarea><details class="porque"><summary>Por qué (abre cuando hayas escrito)</summary><p>El paso es actualizar la urna después de la primera azul, no copiar 3/8 en la segunda rama. La primera azul sale con probabilidad 3/8. Quedan entonces 2 azules y 5 rojas, siete bolas, así que la segunda azul tiene probabilidad 2/7. El producto es (3/8)·(2/7) = 6/56 = 3/28, que es la hoja AA de la figura. Usar otra vez 3/8 sería devolver la bola sin decirlo y daría (3/8)·(3/8) = 9/64, un experimento distinto. El 2 del numerador es «una azul menos» y el 7 es «una bola menos»: las dos rebajas van juntas.</p></details></article>
+<article class="ej"><h3>2. ¿Dónde está la independencia?</h3><p>Explica con las fracciones 4/7 y 5/8 si las dos extracciones sin reemplazo son independientes, y qué habría que cambiar en la urna para que lo fueran.</p><label for="e32b">Tu resolución</label><textarea class="editor" id="e32b" placeholder="Escribe aquí el razonamiento completo…"></textarea><details class="porque"><summary>Por qué (abre cuando hayas escrito)</summary><p>El paso es comparar la condicionada con la marginal del mismo color, no juzgar por el aspecto del árbol. Sin reemplazo, P(segunda roja | primera roja) = 4/7, y la marginal de roja en la primera es 5/8. Como 4/7 ≠ 5/8, saber que la primera fue roja cambia la probabilidad de la segunda, y no hay independencia. Para que la hubiera, la segunda fracción tendría que seguir siendo 5/8, y eso ocurre si la bola se devuelve: la urna queda otra vez en 5 rojas y 3 azules. Independencia aquí no es una opinión sobre si los colores «tienen que ver»; es esa igualdad numérica.</p></details></article>
+<article class="ej"><h3>3. Un solo camino no basta</h3><p>Alguien calcula «roja y azul» solo como 15/56. ¿Qué suceso ha calculado en realidad y cuál es el que pedía cualquier orden?</p><label for="e32c">Tu resolución</label><textarea class="editor" id="e32c" placeholder="Escribe aquí el razonamiento completo…"></textarea><details class="porque"><summary>Por qué (abre cuando hayas escrito)</summary><p>El paso es listar los caminos del suceso antes de multiplicar una sola rama. 15/56 es únicamente roja seguida de azul, la hoja RA. El suceso «una de cada color», sin fijar el orden, incluye también azul seguida de roja, otros 15/56. La unión suma 30/56 porque los dos caminos no pueden ocurrir a la vez. Quedarse en 15/56 responde a una pregunta más estrecha, con el orden escrito. En cuanto el enunciado dice «en cualquier orden» o «una de cada», hay que recorrer las dos ramas del árbol y sumarlas. La comprobación con el complementario,<br>
+20 / 56 = 5/14<br>
+1 − 5/14 = 9/14<br>
+6 / 56 = 3/28<br>
+9/14 − 3/28 = <strong>30/56</strong>, evita olvidar AR.</p></details></article>
+<h2>Dibuja en el lienzo</h2>
+<p>Reproduce a mano el gráfico del ejemplo: ejes o nodos, los datos numéricos y una frase con la conclusión. El botón borra el lienzo sin salir de la lección.</p>
+<canvas id="lienzo32" class="lienzo" width="900" height="280"></canvas><div class="fila"><button type="button" class="boton" data-clear="lienzo32">Borrar lienzo</button></div>
+</section>
+<div class="lab-box"><p>Laboratorio — Árbol con y sin reemplazo. Si el marco no carga, abre el hermano: <a href="l32-probabilidad-compuesta-condicionada.html">l32-probabilidad-compuesta-condicionada.html</a>.</p><iframe src="l32-probabilidad-compuesta-condicionada.html" title="Árbol con y sin reemplazo" loading="lazy"></iframe></div>
+<section class="bloque-cuerpo">
+  <h2>Comprueba</h2>
+  <p class="dato">Tres preguntas. Responde mentalmente antes de abrir el porqué.</p>
+  <details class="porque"><summary>¿Cuánto suma la probabilidad de una roja y una azul, en cualquier orden?</summary><p>30/56, es decir 15/28. Por qué: son dos caminos, (5/8)·(3/7) = 15/56 y (3/8)·(5/7) = 15/56, y se suman porque el orden no está fijado. Un solo camino dejaría fuera la mitad del suceso.</p></details>
+<details class="porque"><summary>¿Por qué sin reemplazo no hay independencia?</summary><p>Porque 4/7 no es igual a 5/8. Por qué: si la primera fue roja, quedan 4 rojas de 7, no 5 de 8. La información de la primera extracción cambia la segunda. Con devolución las dos fracciones serían 5/8 y ahí sí serían independientes.</p></details>
+<details class="porque"><summary>Si no se mira la primera bola, ¿qué probabilidad tiene la segunda de ser roja?</summary><p>5/8, la misma que la primera. Por qué: se suman RR y AR,<br>
+20 / 56 = 5/14<br>
+15 / 56 = 15/56<br>
+5/14 + 15/56 = <strong>35/56</strong> = 5/8. No es la condicionada 4/7, porque esa exige haber visto una roja. Sin información, cualquiera de las ocho bolas puede ocupar el segundo lugar.</p></details>
+</section>
+<section class="bloque-reto">
+  <span class="etiqueta-reto">Reto Profesor</span>
+  <h2 class="titulo-reto">Numera las ramas</h2>
+  <p>En el lienzo dibuja el árbol de la urna, escribe 5/8, 3/8 y las cuatro segundas fracciones con denominador 7, y rodea las dos hojas que se suman para colores distintos.</p>
+  <p class="reto-id">reto_id: bach1-mates-gen-L32</p>
+</section>
+<footer class="leccion-pie">Les vencimos · L32 de 38 · Matemáticas Generales · staging · file:// · sin publicar</footer>
+</div>
+<script type="application/json" data-maestro="guion">{"curso": "bach1-mates-gen", "leccion": 32, "titulo": "Compuesta y condicionada", "url": "leccion-32-probabilidad-compuesta-condicionada.html", "musica": false, "pasos": [{"id": "abrir", "dicho": "Cuatro hojas: 20/56, 15/56, 15/56 y 6/56. Su suma es 1.", "hacer": "Leer en voz alta el apartado Para situarte y los objetivos."}, {"id": "figura", "dicho": "Tras una roja el denominador es 7 y las rojas que quedan son 4.", "hacer": "Mirar el SVG y decir qué dato numérico marca cada trazo."}, {"id": "ej1", "dicho": "Ejemplo 1: colores distintos suman 30/56, los dos caminos.", "hacer": "Rehacer el ejemplo 1, glosa a glosa, sin mirar el resultado final."}, {"id": "ej2", "dicho": "Ejemplo 2: con reemplazo, P(RR) = 25/64 y la condicionada no cambia.", "hacer": "Rehacer el ejemplo 2 y contrastarlo con el 1."}, {"id": "ej3", "dicho": "Ejemplo 3: la segunda roja, a ciegas, vuelve a valer 5/8.", "hacer": "Rehacer el ejemplo 3 y anotar la comprobación."}, {"id": "practica", "dicho": "El laboratorio contrasta el 4/7 del sin reemplazo con el 5/8 del con reemplazo.", "hacer": "Escribir el razonamiento de al menos dos ejercicios y usar el lienzo."}, {"id": "cierre", "dicho": "Multiplicar una rama y sumar las ramas del mismo suceso.", "hacer": "Contestar Comprueba antes de abrir y dejar el reto por escrito."}]}</script>
+<script>(function(){function liga(c){var ctx=c.getContext('2d');function fondo(){ctx.fillStyle='#161512';ctx.fillRect(0,0,c.width,c.height);ctx.strokeStyle='#C4A15A';ctx.strokeRect(.5,.5,c.width-1,c.height-1);}function fit(){var r=c.getBoundingClientRect();var w=Math.max(320,Math.floor(r.width));if(c.width!==w){c.width=w;c.height=280;fondo();}}var dib=false,last=null;function pos(ev){var r=c.getBoundingClientRect();var s=ev.touches?ev.touches[0]:ev;return{x:(s.clientX-r.left)*c.width/r.width,y:(s.clientY-r.top)*c.height/r.height};}c.addEventListener('pointerdown',function(ev){dib=true;last=pos(ev);ev.preventDefault();});c.addEventListener('pointermove',function(ev){if(!dib)return;var p=pos(ev);ctx.strokeStyle='#E6E1D6';ctx.lineWidth=2.2;ctx.lineCap='round';ctx.beginPath();ctx.moveTo(last.x,last.y);ctx.lineTo(p.x,p.y);ctx.stroke();last=p;ev.preventDefault();});function up(){dib=false;}c.addEventListener('pointerup',up);c.addEventListener('pointerleave',up);var b=document.querySelector('[data-clear="'+c.id+'"]');if(b)b.addEventListener('click',fondo);fit();window.addEventListener('resize',fit);}document.querySelectorAll('canvas.lienzo').forEach(liga);})();</script>
+</body>
+</html>

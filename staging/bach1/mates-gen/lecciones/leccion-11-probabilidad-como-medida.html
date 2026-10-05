@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<meta name="theme-color" content="#0E0E0C"/>
+<title>Lección 11 · Probabilidad como medida · Les vencimos</title>
+<link rel="icon" href="../icons/favicon.svg" type="image/svg+xml"/>
+<link rel="manifest" href="../manifest.webmanifest"/>
+<link rel="stylesheet" href="../leccion-shell.css"/>
+<style>
+.pasos{list-style:none;margin:0 0 1rem;padding:0;counter-reset:paso}
+.pasos li{position:relative;margin:0 0 .7rem;padding:.7rem .8rem .7rem 3.1rem;background:var(--lv-panel);border:1px solid var(--lv-linea);border-radius:10px}
+.pasos li::before{counter-increment:paso;content:counter(paso);position:absolute;left:.65rem;top:.7rem;width:1.7rem;height:1.7rem;border-radius:50%;background:#C4A15A;color:#1A160E;font-weight:700;font-size:.9rem;display:flex;align-items:center;justify-content:center}
+.figura-svg{background:#161512;border:1px solid var(--lv-linea);border-radius:10px;padding:.5rem;margin:.5rem 0 1.1rem}
+.figura-svg svg{width:100%;height:auto;display:block}
+.ej{margin:0 0 1rem;padding:.85rem .95rem;background:var(--lv-panel);border:1px solid var(--lv-linea);border-left:3px solid #C4A15A;border-radius:10px}
+.ej h3{margin:0 0 .35rem;font-family:var(--lv-serif);font-size:1.05rem;color:var(--lv-titulo)}
+.editor,textarea.editor{width:100%;min-height:5.5rem;font-family:ui-monospace,monospace;font-size:.95rem;line-height:1.45;padding:.55rem .65rem;border:1px solid rgba(196,161,90,.45);border-radius:8px;background:#161512;color:#E6E1D6;resize:vertical}
+.lienzo{display:block;width:100%;height:280px;background:#161512;border:1px solid #C4A15A;border-radius:8px;touch-action:none;cursor:crosshair}
+.fila{display:flex;flex-wrap:wrap;gap:.4rem;margin:.45rem 0}
+.boton{font:inherit;font-weight:700;font-size:.85rem;padding:.4rem .8rem;border-radius:999px;border:1px solid #C4A15A;background:transparent;color:#E6E1D6;cursor:pointer}
+.porque{margin-top:.55rem;padding:.65rem .75rem;background:#1a2218;border-radius:8px;color:#E6E1D6}
+.dato{font-size:.95rem;color:var(--lv-suave)}
+.glosa{display:block;font-size:.9rem;color:#9A9488;margin:.25rem 0 .5rem;line-height:1.4}
+.lab-box{margin:1rem 0;padding:.85rem;border:1px dashed rgba(196,161,90,.5);border-radius:10px;background:#141210}
+.lab-box iframe{width:100%;min-height:320px;border:1px solid #C4A15A;border-radius:8px;background:#0E0E0C}
+table.datos{width:100%;border-collapse:collapse;margin:.45rem 0 1rem;font-size:.98rem}
+table.datos th,table.datos td{border:1px solid var(--lv-linea);padding:.4rem .55rem;text-align:left}
+table.datos th{background:#161512;color:#C4A15A}
+</style>
+<script src="../leccion-shell-nav.js" defer></script>
+<link rel="stylesheet" href="../../../../profesor/_maestro/maestro-puntero.css"/>
+<script src="../../../../profesor/_maestro/maestro-runtime.js" defer></script>
+</head>
+<body class="leccion-shell" data-maestro-json="maestro-11.json">
+<div class="leccion-wrap">
+<nav class="leccion-barra" aria-label="Navegación de lección" data-actual="11" data-total="38">
+  <div class="leccion-progreso" role="status">
+    <span class="progreso-texto"><strong>11</strong> de <strong>38</strong></span>
+    <div class="progreso-pista" aria-hidden="true"><div class="progreso-lleno" style="width:28.95%"></div></div>
+  </div>
+  <div class="leccion-atajos">
+    <a class="atajo atajo-calc" href="../../../../modulos/calculadora.html" title="Calculadora offline">Calculadora</a>
+    <a class="atajo atajo-prev" href="leccion-10-educacion-financiera.html">← Anterior</a>
+    <a class="atajo atajo-next" href="leccion-12-variacion-absoluta-y-media.html">Siguiente →</a>
+  </div>
+</nav>
+<header class="leccion-top">
+  <a class="leccion-marca" href="../../../../index.html">Les <span>vencimos</span></a>
+  <p class="leccion-meta-top">Matemáticas Generales · 1º Bachillerato</p>
+</header>
+<header class="bloque-titulo">
+  <span class="eyebrow">Lección 11 · B · Medida</span>
+  <h1 class="titulo-leccion">Probabilidad como <em>medida</em></h1>
+  <p class="meta-leccion">1º Bach Matemáticas Generales · CyL Decreto 40/2022 · B.1 Probabilidad como medida de la incertidumbre</p>
+</header>
+<aside class="bloque-curiosidad" aria-label="Para situarte">
+  <p class="etiqueta-bloque">Para situarte</p>
+  <h2 class="titulo-curiosidad">Cinco bolas y un segmento de cero a uno</h2>
+  <p class="texto-curiosidad">La probabilidad mide la incertidumbre con un número entre 0 y 1. En la urna hay 3 bolas rojas y 2 azules; si sacas una al azar, P(roja) = 3/5 = 0,6, y ese 0,6 está marcado en el segmento [0, 1] del gráfico.</p>
+</aside>
+<section class="bloque-cuerpo">
+  <h2>Objetivos</h2>
+  <ul><li>Asignar probabilidades con la regla de Laplace cuando los casos son equiprobables.</li><li>Situar una probabilidad en el segmento [0, 1].</li><li>Usar el suceso contrario y la suma de sucesos incompatibles.</li></ul>
+</section>
+<section class="bloque-cuerpo">
+<h2>Un número entre imposible y seguro, con casos contados</h2>
+<p>Decir «hay bastante probabilidad» no mide. La probabilidad de un suceso es un número del intervalo cerrado [0, 1]: 0 es el suceso imposible en ese modelo, 1 es el suceso seguro, y el resto gradúa la incertidumbre. El gráfico lo dibuja como un segmento: el trazo ámbar llega al 60 % del camino entre 0 y 1.</p>
+<p><span class="glosa">caso favorable = resultado que nos interesa · caso posible = resultado del experimento que el modelo considera · equiprobable = todos los casos posibles pesan igual · P(A) = favorables / posibles en ese modelo · suceso contrario de A = «no ocurre A», y P(contrario) = 1 − P(A)</span></p>
+<p>En la urna hay 5 bolas y el sorteo es al azar, así que cada bola pesa 1/5. Las rojas son 3, luego P(roja) = 3/5 = 0,6. Las azules son 2, P(azul) = 2/5 = 0,4. Suman 1 porque rojo y azul cubren todas las bolas y no se solapan: o sale roja o sale azul.</p>
+<p>Laplace no se aplica a ciegas. Si las bolas no salen igual de a menudo (una es mucho mayor, o el sorteo está trucado), los casos dejan de ser equiprobables y el cociente 3/5 deja de ser el modelo. La probabilidad sigue siendo una medida entre 0 y 1, pero hay que estimarla de otra forma.</p>
+<table class="datos"><thead><tr><th>Suceso</th><th>Favorables</th><th>Posibles</th><th>Probabilidad</th><th>Lugar en [0, 1]</th></tr></thead>
+<tbody>
+<tr><td>roja</td><td>3</td><td>5</td><td>3/5 = 0,6</td><td>la marca del gráfico</td></tr>
+<tr><td>azul</td><td>2</td><td>5</td><td>2/5 = 0,4</td><td>a la izquierda del 0,6</td></tr>
+<tr><td>roja o azul</td><td>5</td><td>5</td><td>1</td><td>extremo derecho</td></tr>
+<tr><td>verde</td><td>0</td><td>5</td><td>0</td><td>extremo izquierdo</td></tr>
+</tbody></table>
+<h2>Gráfico del ejemplo</h2>
+<p class="dato">La figura no es decoración: los trazos corresponden a los números del ejemplo 1.</p>
+<div class="figura-svg"><svg viewBox="0 0 720 320" role="img" aria-label="Urna con 3 bolas rojas y 2 azules, y segmento [0, 1] marcado en 3/5"><title>Urna con 3 bolas rojas y 2 azules, y segmento [0, 1] marcado en 3/5</title><rect width="720" height="320" fill="#161512"/>
+<circle cx="90" cy="80" r="22" fill="#C4A15A" stroke="#E6E1D6"/>
+<circle cx="150" cy="80" r="22" fill="#C4A15A" stroke="#E6E1D6"/>
+<circle cx="210" cy="80" r="22" fill="#C4A15A" stroke="#E6E1D6"/>
+<circle cx="280" cy="80" r="22" fill="#8F9A72" stroke="#E6E1D6"/>
+<circle cx="340" cy="80" r="22" fill="#8F9A72" stroke="#E6E1D6"/>
+<text x="90" y="130" text-anchor="middle" fill="#C4A15A" font-size="13">R</text>
+<text x="150" y="130" text-anchor="middle" fill="#C4A15A" font-size="13">R</text>
+<text x="210" y="130" text-anchor="middle" fill="#C4A15A" font-size="13">R</text>
+<text x="280" y="130" text-anchor="middle" fill="#8F9A72" font-size="13">A</text>
+<text x="340" y="130" text-anchor="middle" fill="#8F9A72" font-size="13">A</text>
+<line x1="80" y1="220" x2="640" y2="220" stroke="#E6E1D6" stroke-width="3"/>
+<line x1="80" y1="205" x2="80" y2="235" stroke="#E6E1D6" stroke-width="2"/>
+<line x1="640" y1="205" x2="640" y2="235" stroke="#E6E1D6" stroke-width="2"/>
+<line x1="416" y1="205" x2="416" y2="235" stroke="#C4A15A" stroke-width="2"/>
+<path d="M80,220 L416,220" fill="none" stroke="#C4A15A" stroke-width="8"/>
+<circle cx="416" cy="220" r="7" fill="#E6E1D6"/>
+<polygon points="416,200 408,184 424,184" fill="#C4A15A"/>
+<text x="80" y="260" fill="#9A9488" font-size="14">0</text>
+<text x="630" y="260" fill="#9A9488" font-size="14">1</text>
+<text x="390" y="175" fill="#E6E1D6" font-size="14">3/5 = 0,6</text>
+<text x="430" y="100" fill="#E6E1D6" font-size="15">urna: 3 rojas y 2 azules</text>
+</svg></div>
+<h2>Ejemplo resuelto 1 — La urna del gráfico</h2><p>Se extrae una bola al azar. Calcula P(roja), P(azul) y sitúa P(roja) en [0, 1].</p><ol class="pasos">
+<li>Cuenta posibles: 5 bolas, un solo sorteo, mismas condiciones. El denominador es 5.<span class="glosa">Glosa: el denominador no es 2 «porque hay dos colores»; los colores no son equiprobables entre sí.</span></li>
+<li>Favorables a roja: 3. P(roja) = 3/5 = 0,6. Favorables a azul: 2. P(azul) = 2/5 = 0,4.<span class="glosa">Glosa: 3/5 no se simplifica con el 2 del otro color; son sucesos distintos.</span></li>
+<li>En el segmento, 0,6 está a 3/5 del recorrido. Si el segmento del SVG va de la marca 0 a la marca 1, la señal ámbar cae pasada la mitad, más cerca de 1 que de 0.<span class="glosa">Glosa: 0,6 no es «más de 1» ni «un 6 %». Un 6 % sería 0,06.</span></li>
+<li>Comprueba 0,6+0,4 = 1. Roja y azul son incompatibles y su unión es el suceso seguro.<span class="glosa">Glosa: si sumaran más de 1, habrías contado dos veces alguna bola o usado mal el denominador.</span></li>
+</ol>
+<h2>Ejemplo resuelto 2 — Dado honesto</h2><p>En un dado de 6 caras, calcula P(par) y el suceso contrario.</p><ol class="pasos">
+<li>Casos posibles: 1, 2, 3, 4, 5, 6. Seis, equiprobables si el dado es honesto.<span class="glosa">Glosa: las caras son el espacio, no «par e impar» como si solo hubiera dos casos iguales sin contar caras.</span></li>
+<li>Pares: 2, 4, 6. Tres favorables. P(par) = 3/6 = 1/2.<span class="glosa">Glosa: 3/6 se simplifica a 1/2, pero el recuento original eran 3 caras de 6.</span></li>
+<li>El contrario es «impar»: 1, 3, 5. P(impar) = 1 − 1/2 = 1/2. También 3/6.<span class="glosa">Glosa: restar de 1 sirve porque toda cara es par o impar, sin tercera opción.</span></li>
+<li>Comprueba que par e impar no comparten caras y cubren el dado. Por eso sus probabilidades suman 1.<span class="glosa">Glosa: si el suceso fuera «mayor que 4», el contrario no es «menor que 4»: también está el 4, que no es mayor que 4.</span></li>
+</ol>
+<h2>Ejemplo resuelto 3 — Incompatibles en la misma urna</h2><p>Con la urna de 5 bolas, P(roja) = 3/5 y P(azul) = 2/5. Calcula P(roja o azul) y explica por qué se suman.</p><ol class="pasos">
+<li>Roja y azul no pueden salir a la vez en una sola extracción: son incompatibles. Su intersección está vacía.<span class="glosa">Glosa: incompatible significa que el modelo asigna probabilidad 0 a la intersección, no que «sean distintos de nombre».</span></li>
+<li>P(unión) = P(roja) + P(azul) =3 / 5 = 3/5<br>
+2 / 5 = 2/5<br>
+3/5 + 2/5 = <strong>5/5</strong>= 1.<span class="glosa">Glosa: se suman los numeradores porque el denominador común ya es el mismo espacio de 5 bolas.</span></li>
+<li>Contando casos: favorables a «roja o azul» = 5, posibles = 5, cociente 1. El mismo resultado.<span class="glosa">Glosa: las dos vías (suma de probabilidades y recuento) tienen que coincidir.</span></li>
+<li>Si los sucesos se solaparan, no bastaría sumar: habría que restar la intersección. Aquí esa corrección es 0.<span class="glosa">Glosa: el caso de la unión de lecciones de conteo reaparece: no se puede sumar dos veces lo común.</span></li>
+</ol>
+<h2>Ejercicios</h2>
+<p class="dato">Escribe el razonamiento completo en el editor, no solo la cifra. Si el enunciado pide figura, dibújala en el lienzo de esta misma página.</p>
+<article class="ej"><h3>1. Una verde añadida</h3><p>Añades una bola verde a la urna (ahora hay 6). Calcula P(roja) y di hacia dónde se mueve la marca en [0, 1].</p><label for="e11a">Tu resolución</label><textarea class="editor" id="e11a" placeholder="Escribe aquí el razonamiento completo…"></textarea><details class="porque"><summary>Por qué (abre cuando hayas escrito)</summary><p>El denominador cambia: ya no hay 5 bolas sino 6, y las rojas siguen siendo 3 si no has añadido una roja. P(roja) = 3/6 = 1/2 = 0,5. La marca, que estaba en 0,6, se desplaza a la izquierda, hacia el centro del segmento, porque la misma cantidad de favorables se reparte entre más casos posibles. El paso que suele fallar es dejar el denominador en 5 después de haber metido la bola nueva. Comprueba que 0,5 está a mitad de camino entre 0 y 1, a la izquierda de la marca dibujada.</p></details></article>
+<article class="ej"><h3>2. Contrario de un color</h3><p>Sin añadir bolas, ¿cuál es la probabilidad de no sacar roja? Escríbela como resta y como cociente.</p><label for="e11b">Tu resolución</label><textarea class="editor" id="e11b" placeholder="Escribe aquí el razonamiento completo…"></textarea><details class="porque"><summary>Por qué (abre cuando hayas escrito)</summary><p>No sacar roja, en esta urna, es sacar azul: hay 2 azules de 5, así que el cociente es 2/5. Por el contrario, 1 − 3/5 = 2/5. Las dos escrituras cuentan lo mismo porque toda bola no roja es azul: no hay verdes en el modelo original. El paso es identificar el contrario dentro del espacio real de la urna, no inventar un color. Si hubiera verdes, «no roja» sería azul o verde y el numerador sería la suma de esas bolas, mientras que 1 − P(roja) seguiría siendo válido.</p></details></article>
+<article class="ej"><h3>3. Casos que no pesan igual</h3><p>Alguien dice que P(roja) = 1/2 porque «o sale roja o no». ¿Qué hipótesis de Laplace está usando mal?</p><label for="e11c">Tu resolución</label><textarea class="editor" id="e11c" placeholder="Escribe aquí el razonamiento completo…"></textarea><details class="porque"><summary>Por qué (abre cuando hayas escrito)</summary><p>Está tomando dos casos, «roja» y «no roja», y suponiéndolos equiprobables. En la urna no lo son: hay 3 rojas y 2 no rojas, así que «roja» pesa 3/5 y no 1/2. Laplace exige que los casos del denominador sean igual de verosímiles. Las cinco bolas sí lo son; los dos colores, no, porque agrupan cantidades distintas de bolas. El paso correcto es contar resultados elementales equiprobables (las bolas) y no atajos verbales de «sí o no». Por eso el segmento marca 0,6 y no 0,5.</p></details></article>
+<h2>Dibuja en el lienzo</h2>
+<p>Reproduce a mano el gráfico del ejemplo: ejes o nodos, los datos numéricos y una frase con la conclusión. El botón borra el lienzo sin salir de la lección.</p>
+<canvas id="lienzo11" class="lienzo" width="900" height="280"></canvas><div class="fila"><button type="button" class="boton" data-clear="lienzo11">Borrar lienzo</button></div>
+</section>
+
+<section class="bloque-cuerpo">
+  <h2>Comprueba</h2>
+  <p class="dato">Tres preguntas. Responde mentalmente antes de abrir el porqué.</p>
+  <details class="porque"><summary>¿Dónde está marcada P(roja) en el segmento?</summary><p>En 3/5 = 0,6, más allá de la mitad. Por qué: hay 3 bolas rojas entre 5 equiprobables, y el segmento [0, 1] representa la probabilidad, no el número de bolas. 3 bolas no se marcan en el punto 3.</p></details>
+<details class="porque"><summary>¿Por qué P(verde) = 0 no contradice que el 0 sea «imposible»?</summary><p>En este modelo es imposible sacar verde porque no hay bolas verdes. Por qué: el 0 no es una opinión; es el cociente 0/5. Si el experimento cambiara y hubiera verdes, el modelo cambiaría y ese 0 dejaría de valer.</p></details>
+<details class="porque"><summary>Par e impar en el dado suman 1. ¿Eso demuestra que cada uno vale 1/2 sin contar caras?</summary><p>No del todo. Por qué: dos contrarios siempre suman 1, pero podrían valer 1/6 y 5/6, por ejemplo «sacar un 6» y «no sacar un 6». Que sumen 1 no los hace iguales. En el dado, par e impar valen 1/2 porque cada uno reúne 3 caras de 6, no porque sean contrarios.</p></details>
+</section>
+<section class="bloque-reto">
+  <span class="etiqueta-reto">Reto Profesor</span>
+  <h2 class="titulo-reto">Una urna de verdad</h2>
+  <p>Dibuja en el lienzo una urna con tus datos (hasta 8 bolas), calcula una probabilidad y marca el punto en un segmento [0, 1].</p>
+  <p class="reto-id">reto_id: bach1-mates-gen-L11</p>
+</section>
+<footer class="leccion-pie"><strong>Les vencimos</strong> · L11 de 38 · Matemáticas Generales · staging · file:// · sin publicar</footer>
+</div>
+<script type="application/json" data-maestro="guion">{"curso": "bach1-mates-gen", "leccion": 11, "titulo": "Probabilidad como medida", "url": "leccion-11-probabilidad-como-medida.html", "musica": false, "pasos": [{"id": "abrir", "dicho": "Tres círculos ámbar y dos verdes: la urna. El segmento de abajo marca 0,6.", "hacer": "Leer en voz alta el apartado Para situarte y los objetivos."}, {"id": "figura", "dicho": "P(roja) = 3/5 porque las bolas son equiprobables, no los colores.", "hacer": "Mirar el SVG y decir qué dato numérico marca cada trazo."}, {"id": "ej1", "dicho": "Ejemplo 1: 0,6 y 0,4 suman 1 y cubren la urna.", "hacer": "Rehacer el ejemplo 1, glosa a glosa, sin mirar el resultado final."}, {"id": "ej2", "dicho": "Ejemplo 2: en el dado, par es 3 caras de 6, no «uno de dos nombres».", "hacer": "Rehacer el ejemplo 2 y contrastarlo con el 1."}, {"id": "ej3", "dicho": "Ejemplo 3: roja o azul, al ser incompatibles y cubrirlo todo, tiene probabilidad 1.", "hacer": "Rehacer el ejemplo 3 y anotar la comprobación."}, {"id": "practica", "dicho": "Si añades una bola, cambia el denominador antes de recolocar la marca.", "hacer": "Escribir el razonamiento de al menos dos ejercicios y usar el lienzo."}, {"id": "cierre", "dicho": "Comprueba que ninguna probabilidad de esta lección se sale de [0, 1].", "hacer": "Contestar Comprueba antes de abrir y dejar el reto por escrito."}]}</script>
+<script>(function(){function liga(c){var ctx=c.getContext('2d');function fondo(){ctx.fillStyle='#161512';ctx.fillRect(0,0,c.width,c.height);ctx.strokeStyle='#C4A15A';ctx.strokeRect(.5,.5,c.width-1,c.height-1);}function fit(){var r=c.getBoundingClientRect();var w=Math.max(320,Math.floor(r.width));if(c.width!==w){c.width=w;c.height=280;fondo();}}var dib=false,last=null;function pos(ev){var r=c.getBoundingClientRect();var s=ev.touches?ev.touches[0]:ev;return{x:(s.clientX-r.left)*c.width/r.width,y:(s.clientY-r.top)*c.height/r.height};}c.addEventListener('pointerdown',function(ev){dib=true;last=pos(ev);ev.preventDefault();});c.addEventListener('pointermove',function(ev){if(!dib)return;var p=pos(ev);ctx.strokeStyle='#E6E1D6';ctx.lineWidth=2.2;ctx.lineCap='round';ctx.beginPath();ctx.moveTo(last.x,last.y);ctx.lineTo(p.x,p.y);ctx.stroke();last=p;ev.preventDefault();});function up(){dib=false;}c.addEventListener('pointerup',up);c.addEventListener('pointerleave',up);var b=document.querySelector('[data-clear="'+c.id+'"]');if(b)b.addEventListener('click',fondo);fit();window.addEventListener('resize',fit);}document.querySelectorAll('canvas.lienzo').forEach(liga);})();</script>
+</body>
+</html>

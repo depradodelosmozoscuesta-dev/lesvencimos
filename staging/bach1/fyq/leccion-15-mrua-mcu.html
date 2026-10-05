@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Lección 15 · MRU, MRUA y MCU</title>
+<link rel="stylesheet" href="leccion-shell.css"/>
+<script src="leccion-shell-nav.js" defer></script>
+<style>
+  .pasos{list-style:none;margin:0 0 1rem;padding:0;counter-reset:paso}
+  .pasos li{position:relative;margin:0 0 .7rem;padding:.7rem .8rem .7rem 3.1rem;background:#fff;border:1px solid rgba(14,14,12,.12);border-radius:10px}
+  .pasos li::before{counter-increment:paso;content:counter(paso);position:absolute;left:.65rem;top:.7rem;width:1.7rem;height:1.7rem;border-radius:50%;background:#2F5D7A;color:#fff;font-weight:700;font-size:.9rem;display:flex;align-items:center;justify-content:center}
+  .figura-svg{background:#fff;border:1px solid rgba(14,14,12,.12);border-radius:10px;padding:.4rem;margin:.4rem 0 1rem}
+  .figura-svg svg{width:100%;height:auto;display:block}
+  .ej{margin:0 0 1rem;padding:.85rem .95rem;background:#fff;border:1px solid rgba(14,14,12,.12);border-left:3px solid #C4A15A;border-radius:10px}
+  .ej h3{margin:0 0 .35rem;font-family:var(--lv-serif);font-size:1.05rem;color:#2A2620}
+  textarea.editor{width:100%;min-height:4.2rem;font-family:ui-monospace,"Cascadia Code","Segoe UI Mono",monospace;font-size:.95rem;padding:.55rem .65rem;border:1px solid rgba(14,14,12,.22);border-radius:8px;background:#FFFCF5;color:#2A2620}
+  .lienzo{display:block;width:100%;height:230px;background:#fff;border:1px solid #2F5D7A;border-radius:8px;touch-action:none}
+  .fila{display:flex;flex-wrap:wrap;gap:.4rem;margin:.45rem 0}
+  .boton{font:inherit;font-weight:700;font-size:.85rem;padding:.35rem .75rem;border-radius:999px;border:1px solid #C4A15A;background:#fff;color:#2A2620;cursor:pointer}
+  .boton.on{background:#2F5D7A;color:#fff;border-color:#2F5D7A}
+  .porque{margin-top:.5rem;padding:.6rem .7rem;background:#E4F0E8;border-radius:8px}
+  .panel-int{padding:.75rem}
+  .ok{color:#3D6B4F}.mal{color:#A85A3C}
+  table.masas{width:100%;border-collapse:collapse;margin:.4rem 0 1rem;font-size:.96rem}
+  table.masas th,table.masas td{border:1px solid rgba(14,14,12,.12);padding:.35rem .45rem;text-align:left;vertical-align:top}
+  table.masas th{background:#F0EBE0}
+</style>
+</head>
+<body class="leccion-shell">
+<div class="leccion-wrap">
+
+<nav class="leccion-barra" aria-label="Navegación de lección" data-actual="15" data-total="23">
+  <div class="leccion-progreso" role="status">
+    <span class="progreso-texto"><strong>15</strong> de <strong>23</strong></span>
+    <div class="progreso-pista" aria-hidden="true"><div class="progreso-lleno" style="width:65.22%"></div></div>
+  </div>
+  <div class="leccion-atajos">
+    <a class="atajo atajo-calc" href="../../../modulos/calculadora.html" title="Calculadora offline">Calculadora</a>
+    <a class="atajo atajo-prev" href="leccion-14-variables-cinematicas.html">← Anterior</a>
+    <a class="atajo atajo-next" href="leccion-16-movimiento-compuesto.html">Siguiente →</a>
+  </div>
+</nav>
+
+<header class="leccion-top">
+  <a class="leccion-marca" href="../../index.html">Les <span>vencimos</span></a>
+  <p class="leccion-meta-top">Física y Química · 1º Bachillerato</p>
+</header>
+
+<header class="bloque-titulo" id="maestro-titulo">
+  <span class="eyebrow">Lección 15 · Bloque D · Cinemática</span>
+  <h1 class="titulo-leccion">Recta uniforme, recta acelerada, círculo <em>uniforme</em></h1>
+  <p class="meta-leccion">1º Bachillerato Física y Química · Ciencias · Decreto 40/2022 CyL</p>
+</header>
+
+<aside class="bloque-curiosidad" id="maestro-curiosidad">
+  <p class="etiqueta-bloque">Curiosidad histórica</p>
+  <h2 class="titulo-curiosidad">La rueda ya era un movimiento medible</h2>
+  <p class="texto-curiosidad">El movimiento rectilíneo uniforme es el de un cuerpo que recorre distancias iguales en tiempos iguales. El circular uniforme es el de una rueda que gira a ritmo constante: el punto del borde no va en línea recta, pero tarda lo mismo en cada vuelta. Huygens, en el siglo XVII, estudió el reloj de péndulo y la fuerza asociada a girar; aquí no hace falta su fórmula de péndulo. Sí hace falta separar la aceleración que cambia la rapidez de la que solo cambia el sentido.</p>
+</aside>
+
+<section class="bloque-cuerpo" id="maestro-objetivos">
+  <h2>Objetivos</h2>
+  <ul>
+    <li>Reconocer MRU, MRUA y MCU por lo que es constante y por la trayectoria.</li>
+    <li>Usar las unidades correctas: m, s, m/s, m/s², rad, rad/s.</li>
+    <li>Calcular un caso cotidiano de cada uno, con π = 3,14 cuando haya círculo.</li>
+  </ul>
+</section>
+
+<section class="bloque-cuerpo" id="maestro-explicacion">
+  <h2>Tres modelos</h2>
+  <table class="masas">
+    <thead><tr><th></th><th>Qué se mantiene</th><th>Ecuaciones de esta lección</th><th>Unidades</th><th>Cotidiano</th></tr></thead>
+    <tbody>
+      <tr><td>MRU</td><td>Trayectoria recta, v constante, a = 0</td><td>x = x<sub>0</sub> + v t</td><td>x en m, t en s, v en m/s</td><td>Cinta transportadora a régimen, pasillo del tren a paso constante</td></tr>
+      <tr><td>MRUA</td><td>Trayectoria recta, a constante distinta de cero</td><td>v = v<sub>0</sub> + a t<br/>x = x<sub>0</sub> + v<sub>0</sub> t + ½ a t²<br/>v² = v<sub>0</sub>² + 2 a Δx</td><td>a en m/s²</td><td>Coche que frena en recta; caída libre con g = 9,8 m/s² si eliges el eje</td></tr>
+      <tr><td>MCU</td><td>Circunferencia, rapidez constante, a tangencial = 0</td><td>v = ω r<br/>T = 2 π r / v<br/>ω = 2 π / T<br/>a<sub>n</sub> = v² / r = ω² r</td><td>r en m, ω en rad/s, T en s, a<sub>n</sub> en m/s². π = 3,14</td><td>Un punto del borde de un ventilador que ya gira a ritmo fijo</td></tr>
+    </tbody>
+  </table>
+  <p class="glosa-simbolo"><strong>a<sub>t</sub></strong> aceleración tangencial: cambia la rapidez. En el MRU y en el MCU vale 0. En el MRUA es la propia a, a lo largo de la recta. <strong>a<sub>n</sub></strong> aceleración normal: cambia la dirección de la velocidad. En la recta vale 0. En el MCU apunta al centro y no es cero aunque la rapidez no cambie. <strong>ω</strong> velocidad angular. <strong>T</strong> periodo, segundos de una vuelta. <strong>r</strong> radio.</p>
+  <p>g = 9,8 m/s² solo cuando el modelo es una caída o un lanzamiento vertical sin rozamiento. No sustituyas a por 9,8 en el frenado de un coche.</p>
+
+  <div class="figura-svg">
+    <svg viewBox="0 0 760 200" role="img" aria-labelledby="t15">
+      <title id="t15">Tres trayectorias: recta uniforme, recta con frenado y circunferencia</title>
+      <rect width="760" height="200" fill="#FAF7F0"/>
+      <line x1="30" y1="100" x2="230" y2="100" stroke="#2F5D7A" stroke-width="3"/>
+      <circle cx="70" cy="100" r="6" fill="#2F5D7A"/><circle cx="130" cy="100" r="6" fill="#2F5D7A"/><circle cx="190" cy="100" r="6" fill="#2F5D7A"/>
+      <text x="30" y="40" font-size="14" font-weight="700" fill="#2F5D7A">MRU · puntos equidistantes</text>
+      <line x1="270" y1="100" x2="470" y2="100" stroke="#C4A15A" stroke-width="3"/>
+      <circle cx="290" cy="100" r="6" fill="#C4A15A"/><circle cx="360" cy="100" r="6" fill="#C4A15A"/><circle cx="410" cy="100" r="6" fill="#C4A15A"/><circle cx="445" cy="100" r="6" fill="#C4A15A"/>
+      <text x="270" y="40" font-size="14" font-weight="700" fill="#8A6B2F">MRUA · se juntan al frenar</text>
+      <circle cx="610" cy="110" r="48" fill="none" stroke="#3D6B4F" stroke-width="3"/>
+      <circle cx="610" cy="62" r="6" fill="#3D6B4F"/>
+      <line x1="610" y1="62" x2="610" y2="110" stroke="#3D6B4F" stroke-width="1.5"/>
+      <text x="520" y="40" font-size="14" font-weight="700" fill="#3D6B4F">MCU · aₙ al centro</text>
+    </svg>
+  </div>
+
+  <h2>Ejemplo resuelto, paso a paso (MRUA)</h2>
+  <p>Un coche en recta lleva 12 m/s y frena con a = −1,5 m/s² hasta pararse. x<sub>0</sub> = 0 en el instante en que empieza a frenar. ¿Cuánto tarda y qué distancia recorre?</p>
+  <ol class="pasos">
+    <li>Es MRUA: trayectoria recta y aceleración constante distinta de cero. No uses g: el freno no es la gravedad. a = −1,5 m/s², v<sub>0</sub> = 12 m/s, v final = 0.</li>
+    <li>Tiempo: v = v<sub>0</sub> + a t → 0 = 12 + (−1,5) t → t = 12 / 1,5 = 8,0 s.</li>
+    <li>Posición: x = 0 + 12 · 8,0 + ½ (−1,5) · 8,0² = 96 + (−0,75) · 64 = 96 − 48 = 48 m.</li>
+    <li>Cierre con la otra ecuación: v² = v<sub>0</sub>² + 2 a Δx → 0 = 144 + 2(−1,5) Δx → 3 Δx = 144 → Δx = 48 m. Las dos coinciden.</li>
+    <li>Unidades: 12 m/s · 8 s = 96 m; (m/s²)·s² = m. Si dejas la velocidad en km/h, 12 m/s son 43,2 km/h, y no puedes multiplicar 43,2 por 8 para obtener metros.</li>
+  </ol>
+
+  <h2>El mismo rigor en un MCU</h2>
+  <p>Un punto del borde de un ventilador describe una circunferencia de radio 8,0 m a ω = 0,50 rad/s constantes. π = 3,14.</p>
+  <ol class="pasos">
+    <li>La rapidez es constante y la trayectoria no es recta: a<sub>t</sub> = 0 y a<sub>n</sub> no es cero. Es MCU, no MRU.</li>
+    <li>v = ω r = 0,50 · 8,0 = 4,0 m/s. Unidad: (rad/s) · m = m/s, porque el radián, en esta fórmula, no añade otra dimensión.</li>
+    <li>Periodo: T = 2 π / ω = 2 · 3,14 / 0,50 = 6,28 / 0,50 = 12,56 s. Una vuelta dura eso. También T = 2 π r / v = 2 · 3,14 · 8,0 / 4,0 = 50,24 / 4,0 = 12,56 s.</li>
+    <li>a<sub>n</sub> = ω² r = 0,25 · 8,0 = 2,0 m/s². Cierre: v² / r = 16 / 8,0 = 2,0 m/s². Apunta al centro, no en la dirección del movimiento.</li>
+  </ol>
+
+  <h2>Ejercicios</h2>
+  <article class="ej">
+    <h3>1. MRU con el cambio de unidad hecho</h3>
+    <p>Un autobús en recta mantiene 72 km/h durante 15 s. ¿Cuántos metros avanza?</p>
+    <textarea class="editor" aria-label="Ejercicio 1"></textarea>
+    <details class="porque"><summary>Porqué</summary>
+      <p>72 km/h = 72 / 3,6 = 20 m/s. MRU: Δx = v t = 20 · 15 = 300 m. Si multiplicas 72 · 15 obtienes un número sin unidad de metro. a = 0: no hay término ½ a t².</p>
+    </details>
+  </article>
+  <article class="ej">
+    <h3>2. Arranque en recta</h3>
+    <p>Desde el reposo, a = 3,0 m/s² durante 4,0 s. v y x.</p>
+    <textarea class="editor" aria-label="Ejercicio 2"></textarea>
+    <details class="porque"><summary>Porqué</summary>
+      <p>v = 0 + 3,0 · 4,0 = 12 m/s. x = ½ · 3,0 · 16 = 24 m. Cierre: v² = 144 y 2 a x = 6,0 · 24 = 144. Es MRUA, no MRU: la velocidad no es 12 m/s durante los 4 s, solo al final. Por eso el espacio no es 12 · 4.</p>
+    </details>
+  </article>
+  <article class="ej">
+    <h3>3. Caída libre, que es un MRUA concreto</h3>
+    <p>Eje hacia abajo, origen en la mano, sueltas un objeto (v<sub>0</sub> = 0). g = 9,8 m/s², sin rozamiento, t = 2,0 s. v y y.</p>
+    <textarea class="editor" aria-label="Ejercicio 3"></textarea>
+    <details class="porque"><summary>Porqué</summary>
+      <p>a = +9,8 m/s² porque el eje positivo apunta hacia abajo, el mismo sentido que el peso. v = 9,8 · 2,0 = 19,6 m/s. y = ½ · 9,8 · 4,0 = 19,6 m. Si hubieras puesto el eje hacia arriba, a sería −9,8 y la posición saldría negativa: el objeto está por debajo del origen. El modelo deja de valer cuando aparece el suelo o el aire de verdad importa.</p>
+    </details>
+  </article>
+  <article class="ej">
+    <h3>4. MCU de radio 5</h3>
+    <p>r = 5,0 m, rapidez constante v = 10 m/s, π = 3,14. Halla T, ω y a<sub>n</sub>. Di cuánto vale a<sub>t</sub>.</p>
+    <textarea class="editor" aria-label="Ejercicio 4"></textarea>
+    <details class="porque"><summary>Porqué</summary>
+      <p>T = 2 · 3,14 · 5,0 / 10 = 31,4 / 10 = 3,14 s. ω = v / r = 10 / 5,0 = 2,0 rad/s. Comprueba 2 π / T = 6,28 / 3,14 = 2,0 rad/s. a<sub>n</sub> = v² / r = 100 / 5,0 = 20 m/s². a<sub>t</sub> = 0 porque la rapidez no cambia. Hay aceleración, la normal: por eso no es un MRU «doblado».</p>
+    </details>
+  </article>
+  <article class="ej">
+    <h3>5. Unidades que no se prestan</h3>
+    <p>Corrige estas frases: «el periodo es 2 m»; «la velocidad angular es 3 m/s»; «en el MCU la aceleración es cero porque la velocidad es constante».</p>
+    <textarea class="editor" aria-label="Ejercicio 5"></textarea>
+    <details class="porque"><summary>Porqué</summary>
+      <p>El periodo se mide en segundos. 2 m puede ser un radio o un diámetro, no un T. La velocidad angular va en rad/s; m/s es la rapidez lineal v = ω r. En el MCU la velocidad vectorial no es constante: cambia de dirección. Por eso a<sub>n</sub> no es cero aunque a<sub>t</sub> sí lo sea. Decir «velocidad constante» sin decir si hablas del vector o de la rapidez es lo que confunde los tres modelos.</p>
+    </details>
+  </article>
+  <h2>Dibuja la trayectoria</h2>
+  <p>Elige una: recta con puntos iguales (MRU), recta con puntos cada vez más juntos (frenada) o circunferencia con una flecha al centro (MCU). Lienzo de esta página.</p>
+  <canvas id="libre15" class="lienzo" width="900" height="220" aria-label="Trayectoria a mano"></canvas>
+  <div class="fila"><button type="button" class="boton" id="bl">Borrar</button></div>
+</section>
+
+<section class="bloque-vida-real con-figura" id="maestro-vida">
+  <div class="figura" aria-hidden="true">
+    <svg viewBox="0 0 80 80"><rect width="80" height="80" fill="#F0EBE0"/>
+      <circle cx="40" cy="40" r="18" fill="none" stroke="#3D6B4F" stroke-width="3"/>
+      <rect x="14" y="36" width="22" height="10" fill="#2F5D7A"/>
+    </svg>
+  </div>
+  <div class="contenido-vida">
+    <p class="etiqueta-bloque">En la vida real</p>
+    <h2 class="titulo-vida">Tres escenas que ya conoces</h2>
+    <ul>
+      <li>El pasillo de un tren a velocidad constante, si caminas a paso fijo: MRU respecto al vagón.</li>
+      <li>El coche que se detiene ante un semáforo en recta: MRUA mientras el freno mantiene a casi constante. La distancia no es «velocidad por tiempo» con la velocidad inicial.</li>
+      <li>La lavadora en centrifugado, ya a régimen: la ropa del borde va en MCU. Hay aceleración hacia el eje aunque las revoluciones no suban.</li>
+    </ul>
+  </div>
+</section>
+
+<section class="bloque-interactivo" id="maestro-interactivo">
+  <div class="marco-interactivo-cabecera"><span class="etiqueta-interactivo">Problema · en esta página</span></div>
+  <div class="panel-int">
+    <p>Elige el modelo. El lienzo dibuja la trayectoria. Escribe la magnitud que se pide y comprueba.</p>
+    <div class="fila" id="mods"></div>
+    <p id="pide"></p>
+    <textarea class="editor" id="resp"></textarea>
+    <div class="fila"><button type="button" class="boton" id="chk">Comprobar</button></div>
+    <p id="msg" aria-live="polite"></p>
+    <canvas id="cv" class="lienzo" width="900" height="230" aria-label="Trayectoria del modelo"></canvas>
+  </div>
+</section>
+
+<section class="bloque-reto" id="maestro-reto">
+  <span class="etiqueta-reto">Reto Profesor</span>
+  <h2 class="titulo-reto">Una escena, un modelo, sus unidades</h2>
+  <p>Describe en dos líneas una escena tuya (no copies el coche ni el ventilador), di si es MRU, MRUA o MCU y calcula una magnitud con la unidad escrita. Dibuja la trayectoria.</p>
+  <textarea class="editor" id="reto"></textarea>
+  <canvas id="retoCv" class="lienzo" width="900" height="180" aria-label="Tu trayectoria"></canvas>
+  <div class="fila"><button type="button" class="boton" id="br">Borrar</button></div>
+  <p class="reto-id">reto_id: bach1-fyq-15-tres-modelos</p>
+</section>
+
+<footer class="leccion-pie"><strong>Les vencimos</strong> · 1º Bachillerato Física y Química · Ciencias · Decreto 40/2022 CyL · sin CDN</footer>
+</div>
+<script>
+(function(){
+  function libre(id, btn, h){
+    var c=document.getElementById(id), ctx=c.getContext('2d'), dib=false, last=null;
+    function fondo(){
+      var w=Math.max(300, Math.floor(c.getBoundingClientRect().width));
+      c.width=w; c.height=h; ctx.fillStyle='#fff'; ctx.fillRect(0,0,w,h);
+    }
+    function pos(ev){
+      var r=c.getBoundingClientRect();
+      return {x:(ev.clientX-r.left)*c.width/r.width, y:(ev.clientY-r.top)*c.height/r.height};
+    }
+    c.addEventListener('pointerdown', function(ev){ dib=true; last=pos(ev); ev.preventDefault(); });
+    c.addEventListener('pointermove', function(ev){
+      if(!dib) return; var p=pos(ev);
+      ctx.strokeStyle='#2A2620'; ctx.lineWidth=2.2; ctx.lineCap='round';
+      ctx.beginPath(); ctx.moveTo(last.x,last.y); ctx.lineTo(p.x,p.y); ctx.stroke(); last=p; ev.preventDefault();
+    });
+    window.addEventListener('pointerup', function(){ dib=false; });
+    document.getElementById(btn).addEventListener('click', fondo);
+    fondo();
+  }
+  libre('libre15','bl',220);
+  libre('retoCv','br',180);
+
+  var MODS=[
+    {id:'MRU', pide:'MRU: v = 4 m/s, t = 9 s, x0 = 0. Escribe x en metros.', val:36, why:'x = v t = 36 m. a = 0.'},
+    {id:'MRUA', pide:'MRUA: v0 = 0, a = 2 m/s², t = 5 s. Escribe x en metros.', val:25, why:'x = ½ · 2 · 25 = 25 m. v final = 10 m/s, y v² = 2 a x = 100.'},
+    {id:'MCU', pide:'MCU: r = 4 m, v = 4 m/s, π = 3,14. Escribe el periodo T en segundos.', val:6.28, why:'T = 2 · 3,14 · 4 / 4 = 6,28 s. an = v²/r = 4 m/s² y at = 0.'}
+  ];
+  var cur=0;
+  var box=document.getElementById('mods');
+  MODS.forEach(function(m,i){
+    var b=document.createElement('button');
+    b.type='button'; b.className='boton'+(i===0?' on':''); b.textContent=m.id;
+    b.addEventListener('click', function(){
+      cur=i; [].forEach.call(box.children, function(el,j){ el.classList.toggle('on', j===i); });
+      show();
+    });
+    box.appendChild(b);
+  });
+  function show(){
+    document.getElementById('pide').textContent=MODS[cur].pide;
+    document.getElementById('msg').textContent='';
+    draw();
+  }
+  function draw(){
+    var c=document.getElementById('cv'), ctx=c.getContext('2d');
+    var w=Math.max(320, Math.floor(c.getBoundingClientRect().width));
+    c.width=w; c.height=230;
+    ctx.fillStyle='#FAF7F0'; ctx.fillRect(0,0,w,230);
+    ctx.lineWidth=3; ctx.lineCap='round';
+    if(cur===0){
+      ctx.strokeStyle='#2F5D7A'; ctx.beginPath(); ctx.moveTo(30,120); ctx.lineTo(w-30,120); ctx.stroke();
+      for(var i=0;i<6;i++){ ctx.fillStyle='#2F5D7A'; ctx.beginPath(); ctx.arc(40+i*((w-80)/5),120,6,0,6.3); ctx.fill(); }
+      ctx.fillStyle='#2A2620'; ctx.font='15px Segoe UI,sans-serif'; ctx.fillText('MRU · separación constante', 30, 40);
+    }else if(cur===1){
+      ctx.strokeStyle='#C4A15A'; ctx.beginPath(); ctx.moveTo(30,120); ctx.lineTo(w-30,120); ctx.stroke();
+      var xs=[40,90,150,220,300,390];
+      xs.forEach(function(x){ ctx.fillStyle='#C4A15A'; ctx.beginPath(); ctx.arc(Math.min(x,w-40),120,6,0,6.3); ctx.fill(); });
+      ctx.fillStyle='#2A2620'; ctx.font='15px Segoe UI,sans-serif'; ctx.fillText('MRUA desde el reposo · se separan', 30, 40);
+    }else{
+      var cx=w/2, cy=120, R=70;
+      ctx.strokeStyle='#3D6B4F'; ctx.beginPath(); ctx.arc(cx,cy,R,0,6.3); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(cx,cy); ctx.lineTo(cx,cy-R); ctx.stroke();
+      ctx.fillStyle='#3D6B4F'; ctx.beginPath(); ctx.arc(cx,cy-R,6,0,6.3); ctx.fill();
+      ctx.fillStyle='#2A2620'; ctx.font='15px Segoe UI,sans-serif'; ctx.fillText('MCU · flecha de an hacia el centro', 30, 40);
+    }
+  }
+  document.getElementById('chk').addEventListener('click', function(){
+    var nums=(document.getElementById('resp').value.replace(/,/g,'.').match(/-?\d+(?:\.\d+)?/g)||[]).map(Number);
+    var ok=nums.some(function(n){ return Math.abs(n-MODS[cur].val)<0.051; });
+    var msg=document.getElementById('msg');
+    msg.className=ok?'ok':'mal';
+    msg.textContent=(ok?'Correcto. ':'No. ')+MODS[cur].why;
+  });
+  show();
+  window.addEventListener('resize', draw);
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Lección 14 · Variables cinemáticas</title>
+<link rel="stylesheet" href="leccion-shell.css"/>
+<script src="leccion-shell-nav.js" defer></script>
+<style>
+  .pasos{list-style:none;margin:0 0 1rem;padding:0;counter-reset:paso}
+  .pasos li{position:relative;margin:0 0 .7rem;padding:.7rem .8rem .7rem 3.1rem;background:#fff;border:1px solid rgba(14,14,12,.12);border-radius:10px}
+  .pasos li::before{counter-increment:paso;content:counter(paso);position:absolute;left:.65rem;top:.7rem;width:1.7rem;height:1.7rem;border-radius:50%;background:#2F5D7A;color:#fff;font-weight:700;font-size:.9rem;display:flex;align-items:center;justify-content:center}
+  .figura-svg{background:#fff;border:1px solid rgba(14,14,12,.12);border-radius:10px;padding:.4rem;margin:.4rem 0 1rem}
+  .figura-svg svg{width:100%;height:auto;display:block}
+  .ej{margin:0 0 1rem;padding:.85rem .95rem;background:#fff;border:1px solid rgba(14,14,12,.12);border-left:3px solid #C4A15A;border-radius:10px}
+  .ej h3{margin:0 0 .35rem;font-family:var(--lv-serif);font-size:1.05rem;color:#2A2620}
+  textarea.editor{width:100%;min-height:4.2rem;font-family:ui-monospace,"Cascadia Code","Segoe UI Mono",monospace;font-size:.95rem;padding:.55rem .65rem;border:1px solid rgba(14,14,12,.22);border-radius:8px;background:#FFFCF5;color:#2A2620}
+  .lienzo{display:block;width:100%;height:240px;background:#fff;border:1px solid #2F5D7A;border-radius:8px;touch-action:none}
+  .fila{display:flex;flex-wrap:wrap;gap:.4rem;margin:.45rem 0}
+  .boton{font:inherit;font-weight:700;font-size:.85rem;padding:.35rem .75rem;border-radius:999px;border:1px solid #C4A15A;background:#fff;color:#2A2620;cursor:pointer}
+  .porque{margin-top:.5rem;padding:.6rem .7rem;background:#E4F0E8;border-radius:8px}
+  .panel-int{padding:.75rem}
+  .panel-int label{display:block;font-weight:650;margin:.35rem 0 .1rem}
+  .panel-int input[type="range"]{width:100%;accent-color:#C4A15A}
+  .ok{color:#3D6B4F}.mal{color:#A85A3C}
+  table.masas{width:100%;border-collapse:collapse;margin:.4rem 0 1rem;font-variant-numeric:tabular-nums}
+  table.masas th,table.masas td{border:1px solid rgba(14,14,12,.12);padding:.3rem .45rem;text-align:left}
+  table.masas th{background:#F0EBE0}
+</style>
+</head>
+<body class="leccion-shell">
+<div class="leccion-wrap">
+
+<nav class="leccion-barra" aria-label="Navegación de lección" data-actual="14" data-total="23">
+  <div class="leccion-progreso" role="status">
+    <span class="progreso-texto"><strong>14</strong> de <strong>23</strong></span>
+    <div class="progreso-pista" aria-hidden="true"><div class="progreso-lleno" style="width:60.87%"></div></div>
+  </div>
+  <div class="leccion-atajos">
+    <a class="atajo atajo-calc" href="../../../modulos/calculadora.html" title="Calculadora offline">Calculadora</a>
+    <a class="atajo atajo-prev" href="leccion-13-sistemas-referencia.html">← Anterior</a>
+    <a class="atajo atajo-next" href="leccion-15-mrua-mcu.html">Siguiente →</a>
+  </div>
+</nav>
+
+<header class="leccion-top">
+  <a class="leccion-marca" href="../../index.html">Les <span>vencimos</span></a>
+  <p class="leccion-meta-top">Física y Química · 1º Bachillerato</p>
+</header>
+
+<header class="bloque-titulo" id="maestro-titulo">
+  <span class="eyebrow">Lección 14 · Bloque D · Cinemática</span>
+  <h1 class="titulo-leccion">x(t), v(t) y a(t): cada letra dice <em>una</em> cosa</h1>
+  <p class="meta-leccion">1º Bachillerato Física y Química · Ciencias · Decreto 40/2022 CyL</p>
+</header>
+
+<aside class="bloque-curiosidad" id="maestro-curiosidad">
+  <p class="etiqueta-bloque">Curiosidad histórica</p>
+  <h2 class="titulo-curiosidad">Galileo medía tiempos; la función llegó después</h2>
+  <p class="texto-curiosidad">Galileo estudió caídas y planos inclinados contando tiempos. La escritura x(t), v(t), a(t) es posterior: hace falta la idea de función y de tasa de cambio, que Newton y Leibniz pusieron en forma de cálculo en el siglo XVII. En este curso no derivas todavía con todas las reglas; sí lees qué significa cada símbolo y evalúas la función en un instante.</p>
+</aside>
+
+<section class="bloque-cuerpo" id="maestro-objetivos">
+  <h2>Objetivos</h2>
+  <ul>
+    <li>Asignar a x, v y a su magnitud, su unidad y su signo.</li>
+    <li>Leer x<sub>0</sub>, v<sub>0</sub> y a dentro de las ecuaciones del movimiento con aceleración constante.</li>
+    <li>Calcular x y v en un instante y distinguir «va al revés» de «frena».</li>
+  </ul>
+</section>
+
+<section class="bloque-cuerpo" id="maestro-explicacion">
+  <h2>Glosario de la fórmula, símbolo a símbolo</h2>
+  <p>Para aceleración constante, en una recta y con el origen ya elegido:</p>
+  <p class="glosa-simbolo">x(t) = x<sub>0</sub> + v<sub>0</sub> t + ½ a t²</p>
+  <p class="glosa-simbolo">v(t) = v<sub>0</sub> + a t</p>
+  <p class="glosa-simbolo">a(t) = a</p>
+  <p class="glosa-simbolo"><strong>t</strong> instante, en segundos, contado desde el momento en que x = x<sub>0</sub> y v = v<sub>0</sub>. No es una duración suelta si no dices desde cuándo.</p>
+  <p class="glosa-simbolo"><strong>x(t)</strong> posición en el instante t, en metros. Depende de dónde pusiste el origen. No es «el espacio recorrido» si ha habido ida y vuelta.</p>
+  <p class="glosa-simbolo"><strong>x<sub>0</sub></strong> posición en t = 0, en metros. Puede ser distinta de cero.</p>
+  <p class="glosa-simbolo"><strong>v(t)</strong> velocidad en t, en m/s. El signo dice el sentido respecto al eje: positivo, hacia x crecientes.</p>
+  <p class="glosa-simbolo"><strong>v<sub>0</sub></strong> velocidad en t = 0, en m/s.</p>
+  <p class="glosa-simbolo"><strong>a</strong> aceleración, constante en este modelo, en m/s². Si a y v tienen el mismo signo, la rapidez crece; si tienen signo contrario, la rapidez baja.</p>
+  <p class="glosa-simbolo"><strong>½</strong> no es una unidad. Sale al acumular una velocidad que cambia de forma lineal con el tiempo: el término extra de posición es el área de un triángulo de base t y altura a t.</p>
+  <p>Unidades: no sumes metros con segundos. 36 km/h = 36 · (1000 m)/(3600 s) = 10 m/s. Si el dato llega en km/h, pásalo antes de entrar en la fórmula.</p>
+
+  <div class="figura-svg">
+    <svg viewBox="0 0 760 230" role="img" aria-labelledby="t14">
+      <title id="t14">Gráficas del ejemplo: x parábola, v recta que cruza cero, a constante negativa</title>
+      <rect width="760" height="230" fill="#FAF7F0"/>
+      <text x="16" y="22" font-size="14" font-weight="700" fill="#2A2620">Ejemplo · x = 2 + 4t − t² · v = 4 − 2t · a = −2</text>
+      <g font-size="13" fill="#2A2620">
+        <text x="70" y="48">x (m)</text>
+        <text x="300" y="48">v (m/s)</text>
+        <text x="530" y="48">a (m/s²)</text>
+      </g>
+      <g stroke="#2A2620" fill="none" stroke-width="1.4">
+        <line x1="40" y1="180" x2="220" y2="180"/><line x1="40" y1="180" x2="40" y2="60"/>
+        <line x1="270" y1="180" x2="450" y2="180"/><line x1="270" y1="180" x2="270" y2="60"/>
+        <line x1="500" y1="180" x2="700" y2="180"/><line x1="500" y1="180" x2="500" y2="60"/>
+      </g>
+      <path d="M50 150 Q100 70 140 90 T210 160" fill="none" stroke="#2F5D7A" stroke-width="3"/>
+      <line x1="290" y1="80" x2="430" y2="170" stroke="#3D6B4F" stroke-width="3"/>
+      <line x1="520" y1="140" x2="680" y2="140" stroke="#C4A15A" stroke-width="3"/>
+      <text x="40" y="210" font-size="12" fill="#5C564C">t de 0 a 3 s: la posición sube de 2 m a 6 m y baja a 5 m; la velocidad pasa de +4 a −2; a no cambia.</text>
+    </svg>
+  </div>
+
+  <h2>Ejemplo resuelto, paso a paso</h2>
+  <p>x<sub>0</sub> = 2 m, v<sub>0</sub> = 4 m/s, a = −2 m/s². Escribe las tres funciones y complétalas en t = 0, 1, 2 y 3 s.</p>
+  <ol class="pasos">
+    <li>Sustituye, sin mezclar símbolos y números a medias. x(t) = 2 + 4 t + ½ (−2) t² = 2 + 4t − t². La unidad de cada término, al evaluar, es el metro: 4 m/s · s = m, y (m/s²) · s² = m.</li>
+    <li>v(t) = 4 + (−2) t = 4 − 2t, en m/s. a(t) = −2 m/s² en todo instante de este modelo.</li>
+    <li>t = 0: x = 2 m, v = 4 m/s. Recuperar x<sub>0</sub> y v<sub>0</sub> es la prueba de que no te has comido un término.</li>
+    <li>t = 1 s: x = 2 + 4 − 1 = 5 m. v = 4 − 2 = 2 m/s. Siguen el mismo signo: aún se aleja del origen, más despacio.</li>
+    <li>t = 2 s: x = 2 + 8 − 4 = 6 m. v = 0. Se detiene un instante. No confundas v = 0 con a = 0: la aceleración sigue siendo −2 m/s², así que no se queda parado.</li>
+    <li>t = 3 s: x = 2 + 12 − 9 = 5 m. v = 4 − 6 = −2 m/s. La posición ha bajado desde los 6 m. El signo negativo de v significa sentido contrario al eje, no «velocidad pequeña».</li>
+  </ol>
+  <table class="masas">
+    <thead><tr><th>t (s)</th><th>x (m)</th><th>v (m/s)</th><th>a (m/s²)</th></tr></thead>
+    <tbody>
+      <tr><td>0</td><td>2</td><td>4</td><td>−2</td></tr>
+      <tr><td>1</td><td>5</td><td>2</td><td>−2</td></tr>
+      <tr><td>2</td><td>6</td><td>0</td><td>−2</td></tr>
+      <tr><td>3</td><td>5</td><td>−2</td><td>−2</td></tr>
+    </tbody>
+  </table>
+
+  <h2>Ejercicios</h2>
+
+  <article class="ej">
+    <h3>1. Lee la función antes de sustituir</h3>
+    <p>x(t) = 8 − 3t, con t en s y x en m. Identifica x<sub>0</sub>, v y a. Calcula x(2 s) y el desplazamiento desde t = 0.</p>
+    <textarea class="editor" aria-label="Ejercicio 1"></textarea>
+    <details class="porque"><summary>Porqué</summary>
+      <p>No hay t², así que a = 0. x<sub>0</sub> = 8 m. El coeficiente de t es v = −3 m/s, constante. x(2) = 8 − 6 = 2 m. Desplazamiento Δx = x − x<sub>0</sub> = 2 − 8 = −6 m. El signo del desplazamiento dice el sentido; la distancia recorrida, como no hay vuelta, es 6 m.</p>
+    </details>
+  </article>
+  <article class="ej">
+    <h3>2. Cuándo se para un instante</h3>
+    <p>v(t) = −4 + 2t, en m/s si t va en s. Halla v<sub>0</sub>, a y el instante en que v = 0.</p>
+    <textarea class="editor" aria-label="Ejercicio 2"></textarea>
+    <details class="porque"><summary>Porqué</summary>
+      <p>v<sub>0</sub> = −4 m/s, a = +2 m/s². Signos contrarios: la rapidez disminuye. −4 + 2t = 0 → t = 2 s. Después v se hace positiva: ha cambiado de sentido. a no es cero en ese instante.</p>
+    </details>
+  </article>
+  <article class="ej">
+    <h3>3. Saca a del término cuadrático</h3>
+    <p>x(t) = 1 + 3t + t² (m, s). Escribe x<sub>0</sub>, v<sub>0</sub> y a. Comprueba x y v en t = 2 s.</p>
+    <textarea class="editor" aria-label="Ejercicio 3"></textarea>
+    <details class="porque"><summary>Porqué</summary>
+      <p>Comparas con x<sub>0</sub> + v<sub>0</sub> t + ½ a t². x<sub>0</sub> = 1 m, v<sub>0</sub> = 3 m/s. El coeficiente de t² es 1, y ese coeficiente es ½ a, luego a = 2 m/s². No es a = 1: te habrías comido el ½. En t = 2 s, x = 1 + 6 + 4 = 11 m. v = 3 + 2·2 = 7 m/s. Mismos signos: se va más deprisa hacia x crecientes.</p>
+    </details>
+  </article>
+  <article class="ej">
+    <h3>4. La unidad delata el símbolo</h3>
+    <p>Alguien escribe «la velocidad es 2 m/s²» y «la aceleración es 10 m/s». ¿Qué ha cruzado?</p>
+    <textarea class="editor" aria-label="Ejercicio 4"></textarea>
+    <details class="porque"><summary>Porqué</summary>
+      <p>Velocidad: m/s. Aceleración: m/s², porque es un cambio de velocidad (m/s) cada segundo. 2 m/s² puede ser una aceleración, no una velocidad. 10 m/s puede ser una velocidad, no una aceleración. El número sin la unidad no dice cuál de las tres variables es.</p>
+    </details>
+  </article>
+  <article class="ej">
+    <h3>5. Frenar no es ir hacia atrás</h3>
+    <p>En un instante, v = −3 m/s y a = +1 m/s². ¿La rapidez crece o baja? ¿El móvil va hacia x crecientes?</p>
+    <textarea class="editor" aria-label="Ejercicio 5"></textarea>
+    <details class="porque"><summary>Porqué</summary>
+      <p>Va hacia x decrecientes, porque v es negativa. La rapidez baja, porque a y v tienen signo contrario: dentro de poco v será −2 m/s, menos rápida, pero todavía negativa. «Frenar» no significa haber dado ya la vuelta. La vuelta llegará si a se mantiene, cuando v cruce por cero, como en el ejercicio 2.</p>
+    </details>
+  </article>
+
+  <h2>Dibuja la x(t) del ejemplo</h2>
+  <p>En el lienzo, ejes t y x. Marca los cuatro puntos de la tabla (0,2), (1,5), (2,6) y (3,5) y únelos. No tiene que ser una plantilla milimétrica: sí el máximo en t = 2 s.</p>
+  <canvas id="libre14" class="lienzo" width="900" height="240" aria-label="Gráfica x-t del ejemplo"></canvas>
+  <div class="fila"><button type="button" class="boton" id="bl">Borrar</button></div>
+</section>
+
+<section class="bloque-vida-real con-figura" id="maestro-vida">
+  <div class="figura" aria-hidden="true">
+    <svg viewBox="0 0 80 80"><rect width="80" height="80" fill="#F0EBE0"/>
+      <path d="M10 60 Q30 20 50 40 T74 28" fill="none" stroke="#2F5D7A" stroke-width="3"/>
+    </svg>
+  </div>
+  <div class="contenido-vida">
+    <p class="etiqueta-bloque">En la vida real</p>
+    <h2 class="titulo-vida">El velocímetro no es la posición</h2>
+    <ul>
+      <li>El cuentakilómetros acumula distancia. x(t) es otra cosa: un hito en la carretera puede hacer que x baje si das la vuelta, y el cuentakilómetros no baja.</li>
+      <li>La aguja del velocímetro marca rapidez, casi siempre sin signo. v(t) sí tiene signo según el sentido que tú elegiste.</li>
+      <li>Pisar el freno es una a contraria a v. Durante un rato sigues avanzando: x cambia mientras v aún no es cero.</li>
+    </ul>
+  </div>
+</section>
+
+<section class="bloque-interactivo" id="maestro-interactivo">
+  <div class="marco-interactivo-cabecera"><span class="etiqueta-interactivo">Problema · en esta página</span></div>
+  <div class="panel-int">
+    <p>Aceleración constante. El lienzo dibuja x(t). Escribe x y v en el instante t que marca el control.</p>
+    <label>x<sub>0</sub> (m): <strong id="ox0"></strong></label>
+    <input id="x0" type="range" min="-4" max="8" value="2" step="1"/>
+    <label>v<sub>0</sub> (m/s): <strong id="ov0"></strong></label>
+    <input id="v0" type="range" min="-6" max="6" value="4" step="1"/>
+    <label>a (m/s²): <strong id="oa"></strong></label>
+    <input id="a" type="range" min="-4" max="4" value="-2" step="1"/>
+    <label>t (s): <strong id="ot"></strong></label>
+    <input id="t" type="range" min="0" max="5" value="3" step="1"/>
+    <textarea class="editor" id="resp" placeholder="x = … m; v = … m/s"></textarea>
+    <div class="fila"><button type="button" class="boton" id="chk">Comprobar</button></div>
+    <p id="msg" aria-live="polite"></p>
+    <canvas id="cv" class="lienzo" width="900" height="240" aria-label="Gráfica x frente a t"></canvas>
+  </div>
+</section>
+
+<section class="bloque-reto" id="maestro-reto">
+  <span class="etiqueta-reto">Reto Profesor</span>
+  <h2 class="titulo-reto">Tus tres funciones</h2>
+  <p>Elige x<sub>0</sub>, v<sub>0</sub> y a distintos de cero, con a de signo contrario a v<sub>0</sub>. Escribe x(t), v(t) y a(t) glosando la unidad de cada símbolo, y el instante en que v = 0. Bosqueja x(t) en el lienzo.</p>
+  <textarea class="editor" id="reto"></textarea>
+  <canvas id="retoCv" class="lienzo" width="900" height="200" aria-label="Tu gráfica x-t"></canvas>
+  <div class="fila"><button type="button" class="boton" id="br">Borrar</button></div>
+  <p class="reto-id">reto_id: bach1-fyq-14-tres-funciones</p>
+</section>
+
+<footer class="leccion-pie"><strong>Les vencimos</strong> · 1º Bachillerato Física y Química · Ciencias · Decreto 40/2022 CyL · sin CDN</footer>
+</div>
+<script>
+(function(){
+  function libre(id, btn, h){
+    var c=document.getElementById(id), ctx=c.getContext('2d'), dib=false, last=null;
+    function fondo(){
+      var w=Math.max(300, Math.floor(c.getBoundingClientRect().width));
+      c.width=w; c.height=h;
+      ctx.fillStyle='#fff'; ctx.fillRect(0,0,w,h);
+    }
+    function pos(ev){
+      var r=c.getBoundingClientRect();
+      return {x:(ev.clientX-r.left)*c.width/r.width, y:(ev.clientY-r.top)*c.height/r.height};
+    }
+    c.addEventListener('pointerdown', function(ev){ dib=true; last=pos(ev); ev.preventDefault(); });
+    c.addEventListener('pointermove', function(ev){
+      if(!dib) return; var p=pos(ev);
+      ctx.strokeStyle='#2A2620'; ctx.lineWidth=2.2; ctx.lineCap='round';
+      ctx.beginPath(); ctx.moveTo(last.x,last.y); ctx.lineTo(p.x,p.y); ctx.stroke(); last=p; ev.preventDefault();
+    });
+    window.addEventListener('pointerup', function(){ dib=false; });
+    document.getElementById(btn).addEventListener('click', fondo);
+    fondo();
+  }
+  libre('libre14','bl',240);
+  libre('retoCv','br',200);
+  function n(x){ return (Math.round(x*10)/10).toFixed(1).replace('.',','); }
+  function estado(){
+    var x0=+document.getElementById('x0').value;
+    var v0=+document.getElementById('v0').value;
+    var a=+document.getElementById('a').value;
+    var t=+document.getElementById('t').value;
+    var x=x0+v0*t+0.5*a*t*t;
+    var v=v0+a*t;
+    return {x0:x0,v0:v0,a:a,t:t,x:x,v:v};
+  }
+  function pinta(){
+    var d=estado();
+    document.getElementById('ox0').textContent=n(d.x0);
+    document.getElementById('ov0').textContent=n(d.v0);
+    document.getElementById('oa').textContent=n(d.a);
+    document.getElementById('ot').textContent=n(d.t);
+    var c=document.getElementById('cv'), ctx=c.getContext('2d');
+    var w=Math.max(320, Math.floor(c.getBoundingClientRect().width));
+    var h=240; c.width=w; c.height=h;
+    ctx.fillStyle='#FAF7F0'; ctx.fillRect(0,0,w,h);
+    var pts=[];
+    for(var i=0;i<=50;i++){
+      var tt=i/10;
+      pts.push(d.x0+d.v0*tt+0.5*d.a*tt*tt);
+    }
+    var min=Math.min.apply(null, pts.concat([0]));
+    var max=Math.max.apply(null, pts.concat([0]));
+    if(max-min<1){ max+=1; min-=1; }
+    function X(tt){ return 40+(w-60)*(tt/5); }
+    function Y(xx){ return 20+(h-50)*(1-(xx-min)/(max-min)); }
+    ctx.strokeStyle='#2A2620'; ctx.lineWidth=1.2;
+    ctx.beginPath(); ctx.moveTo(40,Y(0)); ctx.lineTo(w-16,Y(0)); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(40,20); ctx.lineTo(40,h-28); ctx.stroke();
+    ctx.strokeStyle='#2F5D7A'; ctx.lineWidth=2.4; ctx.beginPath();
+    pts.forEach(function(xx,i){ var tt=i/10; if(i===0) ctx.moveTo(X(tt),Y(xx)); else ctx.lineTo(X(tt),Y(xx)); });
+    ctx.stroke();
+    ctx.fillStyle='#C4A15A';
+    ctx.beginPath(); ctx.arc(X(d.t), Y(d.x), 6, 0, 6.3); ctx.fill();
+    ctx.fillStyle='#2A2620'; ctx.font='14px Segoe UI, sans-serif';
+    ctx.fillText('t (s)', w-50, Y(0)-6);
+    ctx.fillText('x = '+n(d.x)+' m', Math.min(X(d.t)+8, w-90), Y(d.x)-8);
+    ctx.fillText('v = '+n(d.v)+' m/s', 50, 18);
+  }
+  ['x0','v0','a','t'].forEach(function(id){ document.getElementById(id).addEventListener('input', pinta); });
+  document.getElementById('chk').addEventListener('click', function(){
+    var d=estado();
+    var nums=(document.getElementById('resp').value.replace(/,/g,'.').match(/-?\d+(?:\.\d+)?/g)||[]).map(Number);
+    function cerca(v){ return nums.some(function(n){ return Math.abs(n-v)<0.051; }); }
+    var msg=document.getElementById('msg');
+    if(cerca(d.x)&&cerca(d.v)){
+      msg.className='ok';
+      msg.textContent='Bien. x = '+n(d.x)+' m y v = '+n(d.v)+' m/s. a sigue siendo '+n(d.a)+' m/s².';
+    }else{
+      msg.className='mal';
+      msg.textContent='Revisa. x = x0 + v0 t + ½ a t² = '+n(d.x)+' m. v = v0 + a t = '+n(d.v)+' m/s.';
+    }
+  });
+  pinta();
+  window.addEventListener('resize', pinta);
+})();
+</script>
+</body>
+</html>

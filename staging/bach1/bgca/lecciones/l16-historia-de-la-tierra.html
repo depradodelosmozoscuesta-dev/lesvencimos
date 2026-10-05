@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
+<title>L16 · Laboratorio · Asentado o reconstrucción</title>
+<style>
+:root{--bg:#FAF7F0;--ink:#2A2620;--muted:#5C564C;--card:#fff;--gold:#C4A15A;--gold-soft:#F5EDD8;--gold-deep:#8A6B2F;--green:#3D6B4F;--green-soft:#E4F0E8;--blue:#2F5D7A;--blue-soft:#E3EEF4;--rose:#9B3A4A;--rose-soft:#F8E8EB;--line:#E0D0A8}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--ink);font-family:"Segoe UI",system-ui,sans-serif;line-height:1.45}
+body{padding:14px 12px 32px}
+.wrap{max-width:860px;margin:0 auto}
+.badge{display:inline-block;font-size:.75rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--gold-deep);background:var(--gold-soft);padding:4px 10px;border-radius:999px}
+h1{font-size:1.45rem;line-height:1.25;margin:.4rem 0 .3rem}
+.lead{color:var(--muted);margin:0 0 12px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px;margin:0 0 12px}
+.q{font-weight:750;margin:0 0 8px}
+.opts{display:grid;gap:8px}
+button.opt,button.chip{font:inherit;text-align:left;background:#fff;border:2px solid #D9D0C0;border-radius:12px;padding:10px 12px;cursor:pointer;font-weight:650}
+button.opt:hover,button.chip:hover{border-color:var(--gold)}
+button.opt.ok,button.chip.ok{border-color:var(--green);background:var(--green-soft)}
+button.opt.bad{border-color:var(--rose);background:var(--rose-soft)}
+button.opt:disabled{cursor:default}
+.why{margin:8px 0 0;font-size:.95rem}
+.why strong{color:var(--gold-deep)}
+.row{display:flex;flex-wrap:wrap;gap:8px}
+.slot{min-height:42px;border:2px dashed #C4B8A0;border-radius:12px;padding:8px;display:flex;flex-wrap:wrap;gap:6px;background:#FFFcf5}
+.bar{display:flex;justify-content:space-between;gap:8px;align-items:center;margin:8px 0}
+.score{font-weight:800;color:var(--gold-deep)}
+button.action{font:inherit;font-weight:800;border:0;border-radius:999px;background:var(--gold);color:#1A160E;padding:8px 14px;cursor:pointer}
+footer{color:var(--muted);font-size:.8rem;text-align:center}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="badge">Lección 16 · bloque C · sin red</div>
+  <h1>Asentado o reconstrucción</h1>
+  <p class="lead">Clasifica el grado de cierre. No premio a la cifra más precisa.</p>
+  <div class="bar"><span class="score" id="score">0</span><button type="button" class="action" id="reset">Reiniciar</button></div>
+  <div id="lab"></div>
+  <footer>Les vencimos · laboratorio autónomo · sin red · corrección inmediata</footer>
+</div>
+<script>
+
+function boot(ITEMS){
+  var root=document.getElementById("lab");
+  var score=0, done=0;
+  var sc=document.getElementById("score");
+  function paint(){ sc.textContent=score+" / "+ITEMS.length; }
+  ITEMS.forEach(function(it,i){
+    var card=document.createElement("section");
+    card.className="card";
+    var h=document.createElement("p");
+    h.className="q";
+    h.textContent=(i+1)+". "+it.q;
+    card.appendChild(h);
+    if(it.tipo==="orden"){
+      var slot=document.createElement("div");
+      slot.className="slot";
+      var pool=document.createElement("div");
+      pool.className="row";
+      var picked=[];
+      function judge(){
+        var ok=picked.length===it.correcto.length && picked.every(function(p,k){return p===it.correcto[k];});
+        done++; if(ok) score++;
+        paint();
+        var w=document.createElement("p");
+        w.className="why";
+        w.innerHTML=(ok?"<strong>Correcto.</strong> ":"<strong>No es esa secuencia.</strong> Orden: "+it.correcto.join(" → ")+". ")+it.porque;
+        card.appendChild(w);
+        pool.querySelectorAll("button").forEach(function(b){b.disabled=true;});
+      }
+      it.piezas.forEach(function(txt){
+        var b=document.createElement("button");
+        b.type="button"; b.className="chip"; b.textContent=txt;
+        b.addEventListener("click", function(){
+          if(b.disabled) return;
+          b.disabled=true; b.className="chip ok";
+          picked.push(txt); slot.appendChild(b);
+          if(picked.length===it.correcto.length) judge();
+        });
+        pool.appendChild(b);
+      });
+      var hint=document.createElement("p");
+      hint.className="why";
+      hint.textContent="Pulsa en orden, del primero al último.";
+      card.appendChild(hint); card.appendChild(slot); card.appendChild(pool);
+    } else {
+      var opts=document.createElement("div");
+      opts.className="opts";
+      it.opciones.forEach(function(op){
+        var b=document.createElement("button");
+        b.type="button"; b.className="opt"; b.textContent=op.t;
+        b.addEventListener("click", function(){
+          if(card.dataset.done) return;
+          card.dataset.done="1"; done++;
+          opts.querySelectorAll("button").forEach(function(x){x.disabled=true;});
+          if(op.ok){ b.classList.add("ok"); score++; }
+          else {
+            b.classList.add("bad");
+            opts.querySelectorAll("button").forEach(function(x,idx){ if(it.opciones[idx].ok) x.classList.add("ok"); });
+          }
+          paint();
+          var w=document.createElement("p");
+          w.className="why";
+          w.innerHTML=(op.ok?"<strong>Correcto.</strong> ":"<strong>No.</strong> ")+it.porque;
+          card.appendChild(w);
+        });
+        opts.appendChild(b);
+      });
+      card.appendChild(opts);
+    }
+    root.appendChild(card);
+  });
+  paint();
+  document.getElementById("reset").addEventListener("click", function(){ location.reload(); });
+  window.addEventListener("message", function(ev){
+    var d=ev.data||{};
+    if(d.type==="maestro:reset") location.reload();
+    if(d.type==="maestro:highlight"){
+      var c=root.querySelector(".card"); if(c) c.style.outline="3px solid #C4A15A";
+    }
+  });
+}
+
+boot([{"tipo": "test", "q": "¿Qué parte de la diferenciación está bien asentada?", "opciones": [{"t": "Que el hierro acabó en el núcleo y los silicatos fuera, porque el planeta está en capas.", "ok": true}, {"t": "Que el núcleo quedó cerrado el año 4503 Ma, con precisión de un millón.", "ok": false}, {"t": "Que el núcleo externo es sólido y el interno, líquido.", "ok": false}, {"t": "Que la diferenciación ocurrió en el Cuaternario.", "ok": false}], "porque": "La estructura (núcleo externo líquido, interno sólido) se mide de forma indirecta. El calendario fino es de modelo. El estado sólido/líquido no se invierte."}, {"tipo": "test", "q": "El océano…", "opciones": [{"t": "Ya existía en el Arcaico; de qué mezcla de fuentes salió el agua sigue más abierto.", "ok": true}, {"t": "Apareció con los dinosaurios.", "ok": false}, {"t": "Es una reconstrucción sin rocas que lo apoyen.", "ok": false}, {"t": "Prueba que la atmósfera ya tenía un 21 % de oxígeno.", "ok": false}], "porque": "Sedimentos y lavas en almohadilla antiguas exigen agua líquida. Desgasificación e impactores pueden sumar; no hace falta un único origen cerrado."}, {"tipo": "test", "q": "El Gran Evento de Oxidación, hacia 2400 Ma, se entiende así:", "opciones": [{"t": "La fotosíntesis oxigénica superó a los sumideros y el oxígeno pudo acumularse.", "ok": true}, {"t": "El oxígeno apareció el mismo día que la primera célula, ya al 21 %.", "ok": false}, {"t": "Los animales terrestres lo produjeron al salir del agua.", "ok": false}, {"t": "Fue un cambio solo de la estratosfera en el siglo XX.", "ok": false}], "porque": "Hay un retraso entre producir oxígeno y verlo en el aire: el hierro y otros sumideros consumen el primero."}, {"tipo": "test", "q": "Pangea es…", "opciones": [{"t": "Un supercontinente reconstruido, de finales del Paleozoico, roto en el Mesozoico, con varias líneas de evidencia.", "ok": true}, {"t": "Una fotografía de satélite del Pérmico.", "ok": false}, {"t": "Una hipótesis sin fósiles, sin encaje y sin paleomagnetismo.", "ok": false}, {"t": "El nombre de la glaciación del Sistema Central.", "ok": false}], "porque": "Encaje, geología, fósiles y paleomagnetismo sostienen el supercontinente. El trazo de la costa en un mapa es la parte reconstruida con más libertad."}, {"tipo": "test", "q": "La hipótesis de la Tierra bola de nieve…", "opciones": [{"t": "Sigue discutida: hielo de polo a polo frente a océanos con agua abierta.", "ok": true}, {"t": "Es la explicación cerrada de las morrenas de Gredos.", "ok": false}, {"t": "Niega que haya habido glaciaciones en el Precámbrico.", "ok": false}, {"t": "Data el carbono-14 de un granito.", "ok": false}], "porque": "El debate es del Criogénico. Los glaciares del Sistema Central son cuaternarios y no deciden ese debate."}, {"tipo": "test", "q": "De los circos y morrenas del Sistema Central afirmamos…", "opciones": [{"t": "Que el agente fue el hielo del Cuaternario, no el río actual.", "ok": true}, {"t": "La edad exacta, en años, de cada morrena.", "ok": false}, {"t": "Que esas sierras son el borde de Pangea.", "ok": false}, {"t": "Que el hielo cubrió la Cuenca del Duero como un casquete permanente hasta hoy.", "ok": false}], "porque": "La forma identifica al glaciar. La edad local de cada depósito no se inventa. El Duero del centro de la cuenca no es ese relieve de circo."}, {"tipo": "orden", "q": "Ordena estos hitos de más antiguo a más moderno, con la escala de la lección.", "piezas": ["Ruptura de Pangea en el Mesozoico", "Oxígeno atmosférico importante", "Océano ya presente en el Arcaico", "Glaciares cuaternarios en el Sistema Central"], "correcto": ["Océano ya presente en el Arcaico", "Oxígeno atmosférico importante", "Ruptura de Pangea en el Mesozoico", "Glaciares cuaternarios en el Sistema Central"], "porque": "Agua líquida en el Arcaico, oxidación hacia 2400 Ma (aún Proterozoico), Pangea se rompe en el Mesozoico, y el hielo de las sierras es cuaternario."}, {"tipo": "test", "q": "¿Qué frase mezcla a propósito un hecho y un adorno numérico?", "opciones": [{"t": "«El núcleo existe y se separó el 4 de marzo de hace 4503,2 Ma».", "ok": true}, {"t": "«La Tierra tiene unos 4600 Ma».", "ok": false}, {"t": "«Hacia 2400 Ma el oxígeno atmosférico ya es importante».", "ok": false}, {"t": "«Pangea es una reconstrucción bien apoyada».", "ok": false}], "porque": "Unos 4600 Ma y unos 2400 Ma son órdenes de manual. El día y el decimal del núcleo no lo son."}]);
+</script>
+</body>
+</html>

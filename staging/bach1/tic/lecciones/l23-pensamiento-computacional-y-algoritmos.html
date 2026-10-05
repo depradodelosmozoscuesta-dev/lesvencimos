@@ -1,0 +1,799 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Laboratorio L23 · Pensamiento computacional y algoritmos</title>
+<style>
+:root{--ink:#0E0E0C;--amber:#C4A15A;--paper:#FAF7F0;--line:rgba(14,14,12,.14);--blue:#2F5D7A;--green:#3D6B4F;--bad:#A85A3C}
+*{box-sizing:border-box}
+body{margin:0;font-family:"Segoe UI",system-ui,sans-serif;background:var(--paper);color:var(--ink);line-height:1.45}
+header{padding:.7rem 1rem;border-bottom:2px solid var(--amber);background:#fff}
+header h1{margin:0;font-size:1.05rem;font-family:Palatino,Georgia,serif}
+header p{margin:.2rem 0 0;font-size:.8rem;color:#5C564C}
+main{padding:.75rem 1rem 2rem;max-width:62rem}
+label{display:block;font-size:.75rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:#5C564C;margin:.55rem 0 .2rem}
+textarea,input[type=text],input[type=number],select{width:100%;font:14px/1.4 ui-monospace,monospace;border:1px solid var(--line);border-radius:6px;padding:.4rem .5rem;background:#fff;color:var(--ink)}
+textarea{min-height:11rem;resize:vertical}
+.lab-row{display:flex;flex-wrap:wrap;gap:.4rem;margin:.45rem 0}
+button{background:var(--amber);color:#1A160E;border:0;border-radius:4px;padding:.45rem .75rem;font-weight:700;cursor:pointer}
+button.sec{background:#fff;border:1px solid var(--line)}
+.lab-out{font-size:.9rem;background:#fff;border:1px solid var(--line);border-radius:8px;padding:.55rem .7rem;margin-top:.35rem}
+.ok{color:var(--green);font-weight:700}.bad{color:var(--bad);font-weight:700}
+.lab-canvas{width:100%;background:#fff;border:1px solid var(--line);border-radius:8px;display:block}
+.nota{font-size:.82rem;color:#5C564C}
+h2{font-family:Palatino,Georgia,serif;font-size:1.05rem}
+.gpio-sim{display:grid;grid-template-columns:7.5rem 1fr;gap:.8rem;align-items:center;background:#0E0E0C;color:#FAF7F0;border-radius:10px;padding:.85rem 1rem;margin:.4rem 0 .8rem}
+.gpio-sim p{margin:.2rem 0;color:#FAF7F0;font-size:.92rem}
+.gpio-sim .pin{font-family:ui-monospace,monospace;color:#C4A15A}
+button.sw{width:4.2rem;height:2rem;min-height:2rem;border-radius:999px;border:1px solid #C4A15A;background:#2A2620;color:#FAF7F0;position:relative;cursor:pointer;padding:0;font-weight:700}
+button.sw[aria-pressed="true"]{background:#C4A15A;color:#1A160E}
+button.sw i{position:absolute;top:2px;left:2px;width:1.6rem;height:1.6rem;border-radius:50%;background:#FAF7F0;display:block;transition:left .15s}
+button.sw[aria-pressed="true"] i{left:2.2rem;background:#fff}
+</style>
+</head>
+<body>
+<header>
+  <h1>Laboratorio · L23 · Pensamiento computacional y algoritmos</h1>
+  <p>Offline, en esta página. No se envía nada a un servidor. Carbón + ámbar.</p>
+</header>
+<main>
+<p class="nota">Editor y canvas en esta página. «lee pulsador» copia el interruptor (1 encendido, 0 apagado). «lee luz» simula 420. No hay puerto serie ni placa.</p>
+
+<div class="gpio-sim" id="gpioL23">
+  <svg viewBox="0 0 120 140" width="120" height="140" role="img" aria-label="LED simulado en el pin GPIO 18">
+    <rect x="34" y="78" width="52" height="18" rx="3" fill="#5C564C"/>
+    <rect x="54" y="48" width="12" height="34" fill="#8A8175"/>
+    <circle id="gpioL23-glow" cx="60" cy="36" r="30" fill="#E24B2A" opacity="0"/>
+    <circle id="gpioL23-bulb" cx="60" cy="36" r="22" fill="#3A3530" stroke="#C4A15A" stroke-width="3"/>
+    <text x="60" y="118" text-anchor="middle" fill="#C4A15A" font-size="11" font-family="ui-monospace,monospace">GPIO 18</text>
+  </svg>
+  <div>
+    <p style="letter-spacing:.08em;text-transform:uppercase;font-size:.72rem;color:#C4A15A">Simulación local · sin hardware</p>
+    <p><strong>Raspberry Pi (BCM) · paralelo didáctico Arduino UNO D13</strong> · pin <span class="pin">GPIO 18</span></p>
+    <p>Estado del pin: <strong id="gpioL23-state">LOW</strong> · LED <strong id="gpioL23-led">apagado</strong></p>
+    <p><button type="button" class="sw" id="gpioL23-btn" aria-pressed="false" aria-label="Interruptor ON/OFF del LED en GPIO 18"><i></i></button>
+    <span id="gpioL23-sw">OFF</span></p>
+    <p style="color:#C8C0B4;font-size:.82rem">Este interruptor es la salida del algoritmo: ON pone el pin en alto y OFF lo pone en bajo.  HIGH enciende el LED (en la Pi, 3,3 V; en Arduino UNO el paralelo didáctico es digitalWrite HIGH en D13). No se envía nada fuera de esta página.</p>
+  </div>
+</div>
+<script>
+(function(){
+  var uid = "gpioL23";
+  var on = false;
+  var btn = document.getElementById(uid+"-btn");
+  var bulb = document.getElementById(uid+"-bulb");
+  var glow = document.getElementById(uid+"-glow");
+  var st = document.getElementById(uid+"-state");
+  var led = document.getElementById(uid+"-led");
+  var sw = document.getElementById(uid+"-sw");
+  function paint(){
+    btn.setAttribute("aria-pressed", on ? "true" : "false");
+    sw.textContent = on ? "ON" : "OFF";
+    bulb.setAttribute("fill", on ? "#E24B2A" : "#3A3530");
+    glow.setAttribute("opacity", on ? "0.35" : "0");
+    st.textContent = on ? "HIGH" : "LOW";
+    led.textContent = on ? "encendido" : "apagado";
+    window.__pinAlto = on;
+    var ev = document.createEvent("Event");
+    ev.initEvent("gpio-cambio", true, true);
+    document.dispatchEvent(ev);
+  }
+  btn.addEventListener("click", function(){ on = !on; paint(); });
+  paint();
+})();
+</script>
+
+
+<label for="src">Editor · pseudocódigo de esta página</label>
+<textarea id="src" spellcheck="false"></textarea>
+<div class="lab-row">
+  <button type="button" id="bRun">Ejecutar</button>
+  <button type="button" id="bFlow" class="sec">Dibujar diagrama</button>
+  
+  <button type="button" id="bRes" class="sec">Restaurar ejemplo</button>
+</div>
+
+<canvas id="cv" class="lab-canvas" width="640" height="280" aria-label="Lienzo de la lección 23"></canvas>
+<div id="out" class="lab-out">Pulsa Ejecutar. El resultado se queda en esta página.</div>
+<script>
+/* Intérprete de un subconjunto de pseudocódigo. Sin eval. */
+function interpret(src) {
+  var rawLines = String(src).replace(/\r/g, "").split("\n");
+  var lines = [];
+  for (var li = 0; li < rawLines.length; li++) {
+    lines.push({ t: rawLines[li].replace(/\s+$/, ""), n: li + 1 });
+  }
+  var env = {};
+  var trace = [];
+  var steps = 0;
+  var MAX = 500;
+  var out = [];
+
+  function err(n, msg) { var e = new Error("Línea " + n + ": " + msg); e.line = n; throw e; }
+  function bump(n) { steps++; if (steps > MAX) err(n, "demasiados pasos (¿bucle sin salida?)"); }
+
+  function tokenize(s) {
+    var t = [], i = 0;
+    while (i < s.length) {
+      var c = s.charAt(i);
+      if (c === " " || c === "\t") { i++; continue; }
+      if (c === '"' || c === "'") {
+        var q = c, j = i + 1, str = "";
+        while (j < s.length && s.charAt(j) !== q) {
+          if (s.charAt(j) === "\\") { j++; str += s.charAt(j); j++; continue; }
+          str += s.charAt(j); j++;
+        }
+        if (j >= s.length) throw new Error("cadena sin cerrar");
+        t.push({ k: "str", v: str }); i = j + 1; continue;
+      }
+      if (/[0-9]/.test(c) || (c === "." && /[0-9]/.test(s.charAt(i + 1)))) {
+        var j2 = i + 1;
+        while (j2 < s.length && /[0-9.]/.test(s.charAt(j2))) j2++;
+        t.push({ k: "num", v: parseFloat(s.slice(i, j2)) }); i = j2; continue;
+      }
+      if (/[A-Za-z_áéíóúñÁÉÍÓÚÑ]/.test(c)) {
+        var j3 = i + 1;
+        while (j3 < s.length && /[A-Za-z0-9_áéíóúñÁÉÍÓÚÑ]/.test(s.charAt(j3))) j3++;
+        t.push({ k: "id", v: s.slice(i, j3) }); i = j3; continue;
+      }
+      var two = s.slice(i, i + 3);
+      var ops3 = ["===", "!==", "<=", ">="];
+      var ops2 = ["==", "!=", "<=", ">=", "&&", "||"];
+      if (ops3.indexOf(s.slice(i, i + 3)) >= 0) { t.push({ k: "op", v: s.slice(i, i + 3) }); i += 3; continue; }
+      if (ops2.indexOf(s.slice(i, i + 2)) >= 0) { t.push({ k: "op", v: s.slice(i, i + 2) }); i += 2; continue; }
+      if ("+-*/%<>!()[],.".indexOf(c) >= 0) { t.push({ k: "op", v: c }); i++; continue; }
+      throw new Error("carácter no admitido «" + c + "»");
+    }
+    return t;
+  }
+
+  function Parser(tokens, n) {
+    this.tk = tokens; this.i = 0; this.n = n;
+  }
+  Parser.prototype.peek = function () { return this.tk[this.i] || null; };
+  Parser.prototype.pop = function () { return this.tk[this.i++] || null; };
+  Parser.prototype.fail = function (m) { err(this.n, m); };
+
+  function parseExpr(p) { return parseOr(p); }
+  function parseOr(p) {
+    var left = parseAnd(p);
+    while (p.peek() && p.peek().v === "||") { p.pop(); var r = parseAnd(p); left = !!(left || r); }
+    return left;
+  }
+  function parseAnd(p) {
+    var left = parseCmp(p);
+    while (p.peek() && p.peek().v === "&&") { p.pop(); var r = parseCmp(p); left = !!(left && r); }
+    return left;
+  }
+  function parseCmp(p) {
+    var left = parseSum(p);
+    var cmp = ["===", "!==", "==", "!=", "<", ">", "<=", ">="];
+    while (p.peek() && cmp.indexOf(p.peek().v) >= 0) {
+      var op = p.pop().v; var right = parseSum(p);
+      if (op === "===" || op === "==") left = left === right;
+      else if (op === "!==" || op === "!=") left = left !== right;
+      else if (op === "<") left = left < right;
+      else if (op === ">") left = left > right;
+      else if (op === "<=") left = left <= right;
+      else if (op === ">=") left = left >= right;
+    }
+    return left;
+  }
+  function parseSum(p) {
+    var left = parseProd(p);
+    while (p.peek() && (p.peek().v === "+" || p.peek().v === "-")) {
+      var op = p.pop().v; var right = parseProd(p);
+      if (typeof left === "string" || typeof right === "string") {
+        left = String(left) + String(right);
+      } else {
+        left = op === "+" ? left + right : left - right;
+      }
+    }
+    return left;
+  }
+  function parseProd(p) {
+    var left = parseUnary(p);
+    while (p.peek() && (p.peek().v === "*" || p.peek().v === "/" || p.peek().v === "%")) {
+      var op = p.pop().v; var right = parseUnary(p);
+      if (op === "*") left = left * right;
+      else if (op === "/") left = right === 0 ? err(p.n, "división por cero") : left / right;
+      else left = left % right;
+    }
+    return left;
+  }
+  function parseUnary(p) {
+    if (p.peek() && p.peek().v === "!") { p.pop(); return !parseUnary(p); }
+    if (p.peek() && p.peek().v === "-") { p.pop(); return -parseUnary(p); }
+    return parsePrimary(p);
+  }
+  function lookup(name, n) {
+    if (!Object.prototype.hasOwnProperty.call(env, name)) err(n, "«" + name + "» no tiene valor. Declárala con let.");
+    return env[name];
+  }
+  function parsePrimary(p) {
+    var tk = p.pop();
+    if (!tk) p.fail("falta una expresión");
+    if (tk.k === "num") return tk.v;
+    if (tk.k === "str") return tk.v;
+    if (tk.k === "id") {
+      if (tk.v === "verdadero" || tk.v === "true") return true;
+      if (tk.v === "falso" || tk.v === "false") return false;
+      if (tk.v === "nulo" || tk.v === "null") return null;
+      if (p.peek() && p.peek().v === "(") {
+        p.pop();
+        var args = [];
+        if (!(p.peek() && p.peek().v === ")")) {
+          args.push(parseExpr(p));
+          while (p.peek() && p.peek().v === ",") { p.pop(); args.push(parseExpr(p)); }
+        }
+        if (!p.peek() || p.peek().v !== ")") p.fail("falta ) en la llamada");
+        p.pop();
+        return callFn(tk.v, args, p.n);
+      }
+      var base = lookup(tk.v, p.n);
+      if (p.peek() && p.peek().v === "[") {
+        p.pop();
+        var ix = parseExpr(p);
+        if (!p.peek() || p.peek().v !== "]") p.fail("falta ]");
+        p.pop();
+        if (!Array.isArray(base)) err(p.n, "«" + tk.v + "» no es un vector");
+        if (ix < 0 || ix >= base.length || ix !== Math.floor(ix)) err(p.n, "índice " + ix + " fuera del vector (longitud " + base.length + ")");
+        return base[ix];
+      }
+      if (p.peek() && p.peek().v === ".") {
+        p.pop();
+        var prop = p.pop();
+        if (!prop || prop.k !== "id") p.fail("falta la propiedad");
+        if (prop.v === "longitud" && Array.isArray(base)) return base.length;
+        if (base && typeof base === "object" && Object.prototype.hasOwnProperty.call(base, prop.v)) return base[prop.v];
+        err(p.n, "«" + tk.v + "» no tiene «" + prop.v + "»");
+      }
+      return base;
+    }
+    if (tk.v === "(") {
+      var v = parseExpr(p);
+      if (!p.peek() || p.peek().v !== ")") p.fail("falta )");
+      p.pop(); return v;
+    }
+    if (tk.v === "[") {
+      var arr = [];
+      if (!(p.peek() && p.peek().v === "]")) {
+        arr.push(parseExpr(p));
+        while (p.peek() && p.peek().v === ",") { p.pop(); arr.push(parseExpr(p)); }
+      }
+      if (!p.peek() || p.peek().v !== "]") p.fail("falta ] del vector");
+      p.pop(); return arr;
+    }
+    p.fail("no sé leer «" + (tk.v || "") + "»");
+  }
+  function evalExpr(s, n) {
+    var tokens;
+    try { tokens = tokenize(s); } catch (e) { err(n, e.message); }
+    var p = new Parser(tokens, n);
+    var v = parseExpr(p);
+    if (p.peek()) err(n, "sobra «" + p.peek().v + "» en la expresión");
+    return v;
+  }
+
+  var functions = {};
+  function callFn(name, args, n) {
+    if (name === "longitud") return Array.isArray(args[0]) ? args[0].length : String(args[0]).length;
+    if (name === "absoluto") return Math.abs(Number(args[0]));
+    if (name === "redondeo") return Math.round(Number(args[0]));
+    if (name === "texto") return String(args[0]);
+    if (!functions[name]) err(n, "no existe la función «" + name + "»");
+    var fn = functions[name];
+    if (args.length !== fn.params.length) err(n, "«" + name + "» espera " + fn.params.length + " parámetros");
+    var saved = {};
+    for (var k in env) saved[k] = env[k];
+    for (var a = 0; a < fn.params.length; a++) env[fn.params[a]] = args[a];
+    var ret = execBlock(fn.body, (function(){var e=findEnd(fn.body); return e<0?lines.length:e;})(), true);
+    env = saved;
+    return ret.value;
+  }
+
+  function findEnd(from, openKw) {
+    var depth = 0;
+    for (var i = from; i < lines.length; i++) {
+      var t = lines[i].t.trim();
+      if (/^(mientras|para|funcion|repetir)\b/.test(t) || (/^si\b/.test(t) && !/^si no\b/.test(t) && t !== "sino")) depth++;
+      if (t === "fin" || t === "end" || t === "fin si" || t === "fin mientras" || t === "fin para" || t === "fin funcion") {
+        if (depth === 0) return i;
+        depth--;
+      }
+    }
+    return -1;
+  }
+
+  function execBlock(start, end, stopOnReturn) {
+    if (end == null) end = lines.length;
+    var i = start;
+    while (i < end) {
+      var line = lines[i].t.trim();
+      var n = lines[i].n;
+      if (line === "fin" || line === "end" || line === "fin si" || line === "fin mientras" || line === "fin para" || line === "fin funcion") {
+        return { i: i, value: null, returned: false };
+      }
+      if (line === "" || line.charAt(0) === "#") { i++; continue; }
+      bump(n);
+      var m;
+      if ((m = line.match(/^funcion\s+([A-Za-z_][\w]*)\s*\(([^)]*)\)\s*$/))) {
+        var endFn = findEnd(i + 1);
+        if (endFn < 0) err(n, "función sin fin");
+        var params = m[2].trim() ? m[2].split(",").map(function (s) { return s.trim(); }) : [];
+        functions[m[1]] = { params: params, body: i + 1 };
+        i = endFn + 1; continue;
+      }
+      if ((m = line.match(/^(?:let|const|var)\s+([A-Za-z_][\w]*)\s*=\s*(.+)$/)) || (m = line.match(/^([A-Za-z_][\w]*)\s*=\s*(.+)$/))) {
+        var name = m[1];
+        var isDecl = /^(let|const|var)\b/.test(line);
+        if (!isDecl && !Object.prototype.hasOwnProperty.call(env, name)) err(n, "«" + name + "» no está declarada");
+        var rhs = m[2];
+        var value;
+        var ixm = rhs.match(/^(.+)\[(.+)\]$/);
+        if (!isDecl && ixm && Array.isArray(env[name])) {
+          var arr = env[name].slice();
+          var ix = evalExpr(ixm[2], n);
+          arr[ix] = evalExpr(ixm[1], n);
+          value = arr;
+        } else {
+          value = evalExpr(rhs, n);
+        }
+        env[name] = value;
+        trace.push({ n: n, name: name, value: value });
+        i++; continue;
+      }
+      if ((m = line.match(/^escribe\s+(.+)$/i)) || (m = line.match(/^mostrar\s+(.+)$/i))) {
+        out.push(evalExpr(m[1], n));
+        trace.push({ n: n, name: "escribe", value: out[out.length - 1] });
+        i++; continue;
+      }
+      if ((m = line.match(/^si\s+(.+)$/i)) || (m = line.match(/^if\s+(.+)$/i))) {
+        var cond = evalExpr(m[1], n);
+        var endIf = findEnd(i + 1);
+        if (endIf < 0) err(n, "si sin fin");
+        var elseAt = -1, depth = 0;
+        for (var j = i + 1; j < endIf; j++) {
+          var tj = lines[j].t.trim();
+          if (/^(mientras|para|funcion)\b/.test(tj) || (/^si\b/.test(tj) && !/^si no\b/.test(tj) && tj !== "sino")) depth++;
+          else if (tj === "fin" || tj === "end" || /^fin /.test(tj)) depth--;
+          else if (depth === 0 && (tj === "si no" || tj === "sino" || tj === "else")) { elseAt = j; break; }
+        }
+        if (cond) {
+          var r1 = execBlock(i + 1, elseAt < 0 ? endIf : elseAt, true);
+          if (r1.returned) return r1;
+        } else if (elseAt >= 0) {
+          var r2 = execBlock(elseAt + 1, endIf, true);
+          if (r2.returned) return r2;
+        }
+        i = endIf + 1; continue;
+      }
+      if ((m = line.match(/^mientras\s+(.+)$/i)) || (m = line.match(/^while\s+(.+)$/i))) {
+        var endW = findEnd(i + 1);
+        if (endW < 0) err(n, "mientras sin fin");
+        var guard = 0;
+        while (evalExpr(m[1], n)) {
+          guard++; if (guard > 200) err(n, "el mientras no termina");
+          var rw = execBlock(i + 1, endW, true);
+          if (rw.returned) return rw;
+        }
+        i = endW + 1; continue;
+      }
+      if ((m = line.match(/^para\s+([A-Za-z_][\w]*)\s*=\s*(.+)\s+hasta\s+(.+)$/i))) {
+        var endF = findEnd(i + 1);
+        if (endF < 0) err(n, "para sin fin");
+        var vname = m[1];
+        var from = evalExpr(m[2], n);
+        var to = evalExpr(m[3], n);
+        if (typeof from !== "number" || typeof to !== "number") err(n, "el para necesita números");
+        var step = from <= to ? 1 : -1;
+        for (var v = from; step > 0 ? v <= to : v >= to; v += step) {
+          env[vname] = v;
+          trace.push({ n: n, name: vname, value: v });
+          var rf = execBlock(i + 1, endF, true);
+          if (rf.returned) return rf;
+        }
+        i = endF + 1; continue;
+      }
+      if ((m = line.match(/^devolver\s+(.+)$/i))) {
+        if (!stopOnReturn) err(n, "devolver fuera de una función");
+        return { i: i, value: evalExpr(m[1], n), returned: true };
+      }
+      if (line === "si no" || line === "sino" || line === "else") {
+        return { i: i, value: null, returned: false };
+      }
+      err(n, "no reconozco la orden. ¿Falta un fin?");
+    }
+    return { i: i, value: null, returned: false };
+  }
+
+
+  execBlock(0, lines.length, false);
+  return { env: env, trace: trace, out: out, steps: steps };
+}
+
+
+function fmt(v){
+  if (v === true) return "verdadero";
+  if (v === false) return "falso";
+  if (v === null) return "nulo";
+  if (typeof v === "string") return "«" + v + "»";
+  if (Array.isArray(v)) return "[" + v.map(fmt).join(", ") + "]";
+  if (typeof v === "number") return String(Math.round(v * 1000) / 1000);
+  return String(v);
+}
+function tipo(v){
+  if (Array.isArray(v)) return "vector";
+  if (v === true || v === false) return "booleano";
+  if (v === null) return "nulo";
+  if (typeof v === "number") return "número";
+  if (typeof v === "string") return "cadena";
+  return typeof v;
+}
+function prep(cv, ratio){
+  var w = cv.clientWidth || 0;
+  if (w < 280) w = 640;
+  cv.width = Math.round(w);
+  cv.height = Math.max(210, Math.round(w * (ratio || 0.42)));
+  return cv.getContext("2d");
+}
+function classify(line){
+  if (/^(inicio|fin)$/i.test(line)) return "term";
+  if (/^(si no|sino|else)$/i.test(line)) return "join";
+  if (/^(fin|end)\b/i.test(line)) return "join";
+  if (/^(si|if|mientras|while|para)\b/i.test(line)) return "dec";
+  if (/^(escribe|mostrar|lee)\b/i.test(line)) return "io";
+  if (/^funcion\b/i.test(line) || /^devolver\b/i.test(line)) return "fn";
+  return "proc";
+}
+function drawFlow(cv, src){
+  var g = prep(cv, 0.55);
+  var w = cv.width, h = cv.height;
+  g.fillStyle = "#FAF7F0";
+  g.fillRect(0, 0, w, h);
+  var lines = String(src).split("\n").map(function(s){return s.trim();}).filter(function(s){return s && s.charAt(0) !== "#";});
+  if (!lines.length){
+    g.fillStyle = "#5C564C";
+    g.font = "16px sans-serif";
+    g.fillText("Escribe el pseudocódigo: el diagrama se dibuja aquí.", 24, 40);
+    return;
+  }
+  var gap = Math.min(78, Math.max(52, (h - 24) / lines.length));
+  var cx = w * 0.5;
+  var y = 18;
+  function box(kind, text, y0){
+    g.font = "13px sans-serif";
+    var label = text.length > 42 ? text.slice(0, 40) + "…" : text;
+    var bw = Math.min(w - 48, Math.max(160, g.measureText(label).width + 36));
+    var bh = kind === "dec" ? 54 : 36;
+    var x = cx - bw / 2;
+    g.beginPath();
+    if (kind === "term"){
+      g.fillStyle = "#0E0E0C";
+      roundRect(g, x, y0, bw, bh, 18);
+      g.fill();
+      g.fillStyle = "#C4A15A";
+    } else if (kind === "dec"){
+      g.fillStyle = "#fff";
+      g.strokeStyle = "#C4A15A";
+      g.lineWidth = 2;
+      g.moveTo(cx, y0);
+      g.lineTo(x + bw, y0 + bh / 2);
+      g.lineTo(cx, y0 + bh);
+      g.lineTo(x, y0 + bh / 2);
+      g.closePath();
+      g.fill();
+      g.stroke();
+      g.fillStyle = "#0E0E0C";
+    } else if (kind === "io"){
+      g.fillStyle = "#fff";
+      g.strokeStyle = "#2F5D7A";
+      g.lineWidth = 2;
+      g.moveTo(x + 16, y0);
+      g.lineTo(x + bw, y0);
+      g.lineTo(x + bw - 16, y0 + bh);
+      g.lineTo(x, y0 + bh);
+      g.closePath();
+      g.fill();
+      g.stroke();
+      g.fillStyle = "#0E0E0C";
+    } else if (kind === "fn"){
+      g.fillStyle = "#2F5D7A";
+      roundRect(g, x, y0, bw, bh, 6);
+      g.fill();
+      g.fillStyle = "#FAF7F0";
+    } else if (kind === "join"){
+      g.fillStyle = "#C4A15A";
+      g.beginPath();
+      g.arc(cx, y0 + 12, 8, 0, Math.PI * 2);
+      g.fill();
+      return 28;
+    } else {
+      g.fillStyle = "#fff";
+      g.strokeStyle = "#0E0E0C";
+      g.lineWidth = 1.5;
+      roundRect(g, x, y0, bw, bh, 4);
+      g.fill();
+      g.stroke();
+      g.fillStyle = "#0E0E0C";
+    }
+    g.font = "13px sans-serif";
+    g.textAlign = "center";
+    g.fillText(label, cx, y0 + (kind === "dec" ? 32 : 23));
+    g.textAlign = "left";
+    return bh;
+  }
+  for (var i = 0; i < lines.length; i++){
+    var kind = classify(lines[i]);
+    var bh = box(kind, lines[i], y);
+    var ny = y + bh + 16;
+    if (i < lines.length - 1 && ny < h - 8){
+      g.strokeStyle = "#5C564C";
+      g.lineWidth = 1.4;
+      g.beginPath();
+      g.moveTo(cx, y + bh);
+      g.lineTo(cx, ny - 6);
+      g.stroke();
+      g.fillStyle = "#5C564C";
+      g.beginPath();
+      g.moveTo(cx - 4, ny - 10);
+      g.lineTo(cx + 4, ny - 10);
+      g.lineTo(cx, ny - 4);
+      g.fill();
+    }
+    y = ny;
+    if (y > h - 10) break;
+  }
+}
+function roundRect(g, x, y, w, h, r){
+  g.beginPath();
+  g.moveTo(x + r, y);
+  g.arcTo(x + w, y, x + w, y + h, r);
+  g.arcTo(x + w, y + h, x, y + h, r);
+  g.arcTo(x, y + h, x, y, r);
+  g.arcTo(x, y, x + w, y, r);
+  g.closePath();
+}
+function drawEnv(cv, env, trace){
+  var g = prep(cv, 0.46);
+  var w = cv.width, h = cv.height;
+  g.fillStyle = "#FAF7F0";
+  g.fillRect(0, 0, w, h);
+  g.fillStyle = "#0E0E0C";
+  g.font = "14px Georgia, serif";
+  g.fillText("Estado y traza (canvas local)", 16, 24);
+  var keys = Object.keys(env);
+  var y = 48;
+  g.font = "13px sans-serif";
+  if (!keys.length){
+    g.fillStyle = "#5C564C";
+    g.fillText("Todavía no hay variables. Ejecuta el editor.", 16, y);
+  }
+  var nums = [];
+  keys.forEach(function(k){ if (typeof env[k] === "number") nums.push(env[k]); });
+  var max = 1;
+  nums.forEach(function(n){ if (Math.abs(n) > max) max = Math.abs(n); });
+  keys.slice(0, 8).forEach(function(k){
+    var v = env[k];
+    g.fillStyle = "#5C564C";
+    g.fillText(k + " · " + tipo(v), 16, y);
+    if (typeof v === "number"){
+      var bw = (w - 220) * (Math.abs(v) / max);
+      g.fillStyle = "#C4A15A";
+      g.fillRect(200, y - 12, Math.max(2, bw), 14);
+      g.fillStyle = "#0E0E0C";
+      g.fillText(fmt(v), 206 + bw, y);
+    } else {
+      g.fillStyle = "#2F5D7A";
+      g.fillText(fmt(v), 200, y);
+    }
+    y += 26;
+  });
+  if (Array.isArray(env.lecturas) || Array.isArray(env.datos) || Array.isArray(env.v)){
+    var arr = env.lecturas || env.datos || env.v;
+    var base = h - 70;
+    var slot = (w - 40) / arr.length;
+    var m2 = 1;
+    arr.forEach(function(n){ if (typeof n === "number" && Math.abs(n) > m2) m2 = Math.abs(n); });
+    arr.forEach(function(n, i){
+      var bh = 50 * (Math.abs(Number(n) || 0) / m2);
+      g.fillStyle = "#2F5D7A";
+      g.fillRect(20 + i * slot, base - bh, Math.max(8, slot - 8), bh);
+    });
+  }
+  drawLed(g, w - 36, 28, window.__pinAlto);
+}
+function drawLed(g, x, y, on){
+  g.beginPath();
+  g.fillStyle = on ? "rgba(226,75,42,.35)" : "rgba(0,0,0,0)";
+  g.arc(x, y, 16, 0, Math.PI * 2);
+  g.fill();
+  g.beginPath();
+  g.fillStyle = on ? "#E24B2A" : "#3A3530";
+  g.strokeStyle = "#C4A15A";
+  g.lineWidth = 2;
+  g.arc(x, y, 10, 0, Math.PI * 2);
+  g.fill();
+  g.stroke();
+}
+function pistas(src){
+  var tips = [];
+  String(src).split("\n").forEach(function(line, i){
+    var t = line.trim();
+    if (/^(si|mientras|while|if)\b/i.test(t) && /=/.test(t) && !/==/.test(t) && !/<=|>=|!=/.test(t)){
+      tips.push("Línea " + (i + 1) + ": en una condición, un solo = no compara. Usa <, > o ==.");
+    }
+    if (/hasta\s+[A-Za-z_][\w]*\.longitud\s*$/.test(t)){
+      tips.push("Línea " + (i + 1) + ": el índice longitud se sale. El último es longitud - 1.");
+    }
+    if (/\b(var|let)\b/.test(t) && (t.match(/=/g) || []).length > 1 && !/==/.test(t)){
+      tips.push("Línea " + (i + 1) + ": hay más de un igual. Revisa si querías comparar dentro del valor.");
+    }
+  });
+  var opens = (src.match(/^(si|mientras|para|funcion)\b/gim) || []).length;
+  var closes = (src.match(/^\s*fin\b/gim) || []).length;
+  if (opens !== closes) tips.push("Hay " + opens + " bloques que se abren y " + closes + " «fin». Deben coincidir.");
+  return tips;
+}
+function preprocess(src){
+  var on = window.__pinAlto ? 1 : 0;
+  return String(src).replace(/^lee\s+([A-Za-z_][\w]*)\s*$/gim, function(_, name){
+    if (name === "pulsador" || name === "pin" || name === "boton") return "let " + name + " = " + on;
+    if (name === "luz") return "let luz = 420";
+    return "let " + name + " = 0";
+  });
+}
+function report(r){
+  var keys = Object.keys(r.env);
+  var html = "<div class='ok'>Ejecución terminada en " + r.steps + " pasos. Nada ha salido de esta página.</div>";
+  if (!keys.length) html += "<div>No quedan variables.</div>";
+  keys.forEach(function(k){
+    html += "<div><strong>" + k + "</strong> = " + fmt(r.env[k]) + " <span class='nota'>(" + tipo(r.env[k]) + ")</span></div>";
+  });
+  if (r.out && r.out.length){
+    html += "<div><strong>Salida:</strong> " + r.out.map(fmt).join(" · ") + "</div>";
+  }
+  if (r.trace && r.trace.length){
+    var last = r.trace.slice(-6);
+    html += "<div class='nota'>Últimas asignaciones: " + last.map(function(t){return "L" + t.n + " " + t.name + "=" + fmt(t.value);}).join("; ") + "</div>";
+  }
+  return html;
+}
+function bootLab(modo, starter){
+  var src = document.getElementById("src");
+  var out = document.getElementById("out");
+  var cv = document.getElementById("cv");
+  function say(h){ out.innerHTML = h; }
+  function redrawIdle(){
+    if (modo === "flujo") drawFlow(cv, src.value);
+    else if (modo === "juego") drawGame(cv, game, false);
+    else drawEnv(cv, {}, []);
+  }
+  src.value = starter;
+  var game = {x: 40, y: 90, vx: 2.2, score: 0, vidas: 3, cesta: 180, luz: 420, umbral: 500, meta: 5, on: false, id: 0};
+  function readRules(){
+    try {
+      var r = interpret(preprocess(src.value));
+      if (typeof r.env.umbral === "number") game.umbral = r.env.umbral;
+      if (typeof r.env.velocidad === "number") game.vx = r.env.velocidad;
+      if (typeof r.env.meta === "number") game.meta = r.env.meta;
+      return r;
+    } catch (e) { return null; }
+  }
+  function drawGame(canvas, gm, running){
+    var g = prep(canvas, 0.48);
+    var w = canvas.width, h = canvas.height;
+    g.fillStyle = "#0E0E0C";
+    g.fillRect(0, 0, w, h);
+    g.fillStyle = "#C4A15A";
+    g.font = "14px sans-serif";
+    g.fillText("Caza la lectura  ·  " + gm.score + " / " + gm.meta + "  ·  luz " + Math.round(gm.luz), 16, 24);
+    g.fillStyle = gm.luz < gm.umbral ? "#E24B2A" : "#C4A15A";
+    g.beginPath();
+    g.arc(gm.x, gm.y, 14, 0, Math.PI * 2);
+    g.fill();
+    g.fillStyle = "#FAF7F0";
+    g.fillRect(gm.cesta, h - 36, 70, 12);
+    drawLed(g, w - 28, 24, gm.luz < gm.umbral);
+    if (!running){
+      g.fillStyle = "#FAF7F0";
+      g.fillText("Pulsa «Jugar». Flechas o botones mueven la cesta. El punto es una lectura.", 16, h / 2);
+    }
+  }
+  function stepGame(){
+    var w = cv.width, h = cv.height;
+    game.x += game.vx;
+    game.luz = 300 + Math.abs((game.x * 3) % 700);
+    if (game.x > w - 16 || game.x < 16) game.vx *= -1;
+    game.y += 1.4;
+    if (game.y > h - 40){
+      if (game.x > game.cesta && game.x < game.cesta + 70){
+        if (game.luz < game.umbral) game.score += 1;
+      } else {
+        game.vidas -= 1;
+      }
+      game.y = 40;
+      game.x = 30 + (game.score * 37) % (w - 60);
+    }
+    drawGame(cv, game, true);
+    if (game.score >= game.meta || game.vidas <= 0){
+      cancelAnimationFrame(game.id);
+      game.on = false;
+      say(game.score >= game.meta
+        ? "<span class='ok'>Meta cumplida. Cada captura con luz &lt; umbral es un acierto. El LED del canvas se enciende cuando la lectura simulada está bajo el umbral: es la misma idea que GPIO 18 en HIGH.</span>"
+        : "<span class='bad'>Se acabaron los intentos. Baja la velocidad en el editor o amplía la práctica. No se ha enviado la puntuación a ningún sitio.</span>");
+      return;
+    }
+    game.id = requestAnimationFrame(stepGame);
+  }
+  document.getElementById("bRun").onclick = function(){
+    var tips = pistas(src.value);
+    try {
+      var r = interpret(preprocess(src.value));
+      var html = report(r);
+      if (tips.length) html += "<div class='bad'>" + tips.join("<br/>") + "</div>";
+      say(html);
+      if (modo === "flujo") drawFlow(cv, src.value);
+      else if (modo === "juego") { readRules(); drawGame(cv, game, game.on); }
+      else drawEnv(cv, r.env, r.trace);
+    } catch (e) {
+      var msg = "<span class='bad'>" + String(e.message) + "</span>";
+      if (tips.length) msg += "<div>" + tips.join("<br/>") + "</div>";
+      say(msg);
+      if (modo === "flujo") drawFlow(cv, src.value);
+      else drawEnv(cv, {}, []);
+    }
+  };
+  document.getElementById("bFlow").onclick = function(){ drawFlow(cv, src.value); say("<span class='ok'>Diagrama dibujado en el canvas de esta página. Óvalo: inicio/fin. Rectángulo: proceso. Rombo: decisión. Paralelogramo: entrada o salida.</span>"); };
+  document.getElementById("bRes").onclick = function(){ src.value = starter; say("Ejemplo restaurado."); redrawIdle(); };
+  var bPlay = document.getElementById("bPlay");
+  if (bPlay) bPlay.onclick = function(){
+    readRules();
+    game.score = 0; game.vidas = 3; game.y = 40; game.x = 40; game.on = true;
+    cancelAnimationFrame(game.id);
+    say("Partida local. La cesta no usa red.");
+    game.id = requestAnimationFrame(stepGame);
+  };
+  var bL = document.getElementById("bLeft");
+  var bR = document.getElementById("bRight");
+  function move(dx){ game.cesta += dx; if (game.cesta < 0) game.cesta = 0; }
+  if (bL) bL.onclick = function(){ move(-28); if (!game.on) drawGame(cv, game, false); };
+  if (bR) bR.onclick = function(){ move(28); if (!game.on) drawGame(cv, game, false); };
+  document.addEventListener("keydown", function(ev){
+    if (ev.key === "ArrowLeft") move(-24);
+    if (ev.key === "ArrowRight") move(24);
+  });
+  document.addEventListener("gpio-cambio", function(){
+    if (modo === "flujo" || modo === "traza") document.getElementById("bRun").click();
+  });
+  var bScore = document.getElementById("bScore");
+  if (bScore) bScore.onclick = function(){
+    var ids = ["s11","s12","s13","s14","s21","s22","s23","s31"];
+    var labels = ["1.1","1.2","1.3","1.4","2.1","2.2","2.3","3.1"];
+    var vals = ids.map(function(id){ return Number(document.getElementById(id).value) || 0; });
+    var g = prep(cv, 0.5);
+    var w = cv.width, h = cv.height;
+    g.fillStyle = "#FAF7F0"; g.fillRect(0,0,w,h);
+    var slot = (w - 30) / vals.length;
+    vals.forEach(function(v, i){
+      var bh = (h - 50) * (v / 4);
+      g.fillStyle = v >= 3 ? "#3D6B4F" : "#C4A15A";
+      g.fillRect(16 + i * slot, h - 28 - bh, slot - 12, bh);
+      g.fillStyle = "#0E0E0C";
+      g.font = "12px sans-serif";
+      g.fillText(labels[i], 16 + i * slot, h - 12);
+    });
+    var lines = src.value.split("\n").map(function(s){return s.trim();}).filter(Boolean);
+    var has = labels.filter(function(lb){ return src.value.indexOf(lb) >= 0; });
+    say("<span class='ok'>Gráfico local de autoevaluación.</span> Criterios nombrados en el editor: " + (has.join(", ") || "ninguno todavía") + ". Líneas de evidencia: " + lines.length + ".");
+  };
+  redrawIdle();
+}
+
+bootLab("traza", "# Avisador del patio · entrada, proceso, salida\nlee luz\nlet umbral = 500\nsi luz < umbral\n  escribe \"HIGH\"\nsi no\n  escribe \"LOW\"\nfin\nlee pulsador\n");
+</script>
+
+</main>
+</body>
+</html>

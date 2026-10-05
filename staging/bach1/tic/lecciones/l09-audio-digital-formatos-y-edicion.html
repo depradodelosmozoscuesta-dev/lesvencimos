@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Laboratorio L09 · Audio digital: formatos y edición</title>
+<style>
+:root{--ink:#0E0E0C;--amber:#C4A15A;--paper:#FAF7F0;--line:rgba(14,14,12,.14);--blue:#2F5D7A;--green:#3D6B4F;--bad:#A85A3C}
+*{box-sizing:border-box}
+body{margin:0;font-family:"Segoe UI",system-ui,sans-serif;background:var(--paper);color:var(--ink);line-height:1.45}
+header{padding:.7rem 1rem;border-bottom:2px solid var(--amber);background:#fff}
+header h1{margin:0;font-size:1.05rem;font-family:Palatino,Georgia,serif}
+header p{margin:.2rem 0 0;font-size:.8rem;color:#5C564C}
+main{padding:.75rem 1rem 2rem;max-width:62rem}
+label{display:block;font-size:.75rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:#5C564C;margin:.55rem 0 .2rem}
+textarea,input[type=text],input[type=number],select{width:100%;font:14px/1.4 ui-monospace,monospace;border:1px solid var(--line);border-radius:6px;padding:.4rem .5rem;background:#fff;color:var(--ink)}
+textarea{min-height:11rem;resize:vertical}
+.row{display:flex;flex-wrap:wrap;gap:.4rem;margin:.5rem 0}
+button{background:var(--amber);color:#1A160E;border:0;border-radius:4px;padding:.45rem .75rem;font-weight:700;cursor:pointer}
+button.sec{background:#fff;border:1px solid var(--line)}
+.grid{display:grid;gap:.75rem}
+@media(min-width:800px){.grid.dos{grid-template-columns:1fr 1fr}}
+iframe.pv,.pv{width:100%;min-height:280px;border:1px solid var(--line);border-radius:8px;background:#fff}
+.out{font-size:.9rem;background:#fff;border:1px solid var(--line);border-radius:8px;padding:.55rem .7rem}
+.ok{color:var(--green);font-weight:700}.bad{color:var(--bad);font-weight:700}
+canvas{width:100%;height:auto;background:#fff;border:1px solid var(--line);border-radius:8px}
+.nota{font-size:.82rem;color:#5C564C}
+.lab-row{display:flex;flex-wrap:wrap;gap:.4rem;margin:.45rem 0}
+.lab-out{font-size:.9rem;background:#fff;border:1px solid var(--line);border-radius:8px;padding:.55rem .7rem;margin-top:.35rem}
+.lab-canvas{width:100%;background:#fff;border:1px solid var(--line);border-radius:8px;display:block}
+.lab-preview{width:100%;min-height:260px;border:1px solid var(--line);border-radius:8px;background:#fff}
+h2{font-family:Palatino,Georgia,serif;font-size:1.05rem}
+</style>
+</head>
+<body>
+<header>
+  <h1>Laboratorio · L09 · Audio digital: formatos y edición</h1>
+  <p>Offline, en esta página. No se envía nada a un servidor. Carbón + ámbar.</p>
+</header>
+<main>
+
+<p class="nota">Línea de tiempo con cuatro clips senoidales. Se oye al pulsar, con un gesto tuyo (el navegador lo exige).</p>
+<div class="grid dos">
+<div>
+<label>Clip A Hz</label><input id="f0" type="number" value="262"/>
+<label>Clip B Hz</label><input id="f1" type="number" value="330"/>
+<label>Clip C Hz</label><input id="f2" type="number" value="392"/>
+<label>Clip D Hz</label><input id="f3" type="number" value="523"/>
+</div>
+<div>
+<label>Duración de cada clip (s)</label><input id="dur" type="number" min="0.1" max="1.2" step="0.1" value="0.4"/>
+<div class="lab-row">
+  <button type="button" id="bPlay">Reproducir mezcla</button>
+  <button type="button" id="bWav" class="sec">Exportar WAV</button>
+</div>
+<canvas id="cv" class="lab-canvas" width="640" height="160"></canvas>
+</div>
+</div>
+<div id="out" class="lab-out">WAV sin compresión. MP3 y OGG perderían armónicos a cambio de pesar menos: aquí no hace falta un codificador.</div>
+
+</main>
+<script>
+
+function byId(id){return document.getElementById(id);}
+function esc(s){return String(s).replace(/[&<>"]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;"}[c];});}
+function say(html){var o=byId("out"); if(o) o.innerHTML=html;}
+
+
+
+function toneSamples(freq, seconds, rate){
+  rate=rate||22050;
+  var n=Math.floor(rate*seconds), s=new Float32Array(n);
+  for(var i=0;i<n;i++){
+    var env=Math.min(1,i/180)*Math.min(1,(n-i)/500);
+    s[i]=Math.sin(2*Math.PI*freq*i/rate)*0.28*env;
+  }
+  return s;
+}
+function wavBlob(samples, rate){
+  var n=samples.length, buf=new ArrayBuffer(44+n*2), v=new DataView(buf);
+  function ws(o,s){for(var i=0;i<s.length;i++) v.setUint8(o+i,s.charCodeAt(i));}
+  ws(0,"RIFF"); v.setUint32(4,36+n*2,true); ws(8,"WAVE"); ws(12,"fmt ");
+  v.setUint32(16,16,true); v.setUint16(20,1,true); v.setUint16(22,1,true);
+  v.setUint32(24,rate,true); v.setUint32(28,rate*2,true); v.setUint16(32,2,true); v.setUint16(34,16,true);
+  ws(36,"data"); v.setUint32(40,n*2,true);
+  for(var i=0;i<n;i++){
+    var x=Math.max(-1,Math.min(1,samples[i]));
+    v.setInt16(44+i*2, x<0?x*32768:x*32767, true);
+  }
+  return new Blob([buf],{type:"audio/wav"});
+}
+
+function freqs(){ return [0,1,2,3].map(function(i){ return Math.max(80, Math.min(2000, parseFloat(byId("f"+i).value)||440)); }); }
+function draw(){
+  var c=byId("cv"), g=c.getContext("2d"), fs=freqs(), dur=parseFloat(byId("dur").value)||0.4;
+  g.fillStyle="#FAF7F0"; g.fillRect(0,0,640,160);
+  g.strokeStyle="#C4A15A"; g.lineWidth=2;
+  for(var i=0;i<4;i++){
+    var x=20+i*155;
+    g.strokeRect(x, 30, 140, 90);
+    g.fillStyle="#0E0E0C"; g.font="14px sans-serif";
+    g.fillText("Clip "+String.fromCharCode(65+i), x+8, 52);
+    g.fillText(fs[i].toFixed(0)+" Hz", x+8, 74);
+    g.fillText(dur.toFixed(1)+" s", x+8, 96);
+  }
+}
+function mix(){
+  var rate=22050, dur=Math.max(0.1, Math.min(1.2, parseFloat(byId("dur").value)||0.4));
+  var fs=freqs();
+  var parts=fs.map(function(f){ return toneSamples(f, dur, rate); });
+  var n=parts.reduce(function(a,p){return a+p.length;},0);
+  var all=new Float32Array(n), o=0;
+  parts.forEach(function(p){ all.set(p,o); o+=p.length; });
+  return {all:all, rate:rate, parts:parts};
+}
+byId("bPlay").onclick=function(){
+  var m=mix();
+  var Ctx=window.AudioContext||window.webkitAudioContext;
+  if(!Ctx){ say("<span class='bad'>Este navegador no expone AudioContext.</span>"); return; }
+  var ctx=new Ctx();
+  var buf=ctx.createBuffer(1, m.all.length, m.rate);
+  buf.getChannelData(0).set(m.all);
+  var src=ctx.createBufferSource();
+  src.buffer=buf; src.connect(ctx.destination); src.start();
+  say("<span class='ok'>Cuatro clips en serie, una sola pista mono. Empieza en el gesto del botón.</span>");
+};
+byId("bWav").onclick=function(){
+  var m=mix();
+  saveAsWav(m.all, m.rate);
+};
+function saveAsWav(samples, rate){
+  var blob=wavBlob(samples, rate);
+  var a=document.createElement("a");
+  a.href=URL.createObjectURL(blob); a.download="mezcla-ies-duero.wav"; a.click();
+  say("<span class='ok'>WAV PCM 16 bit, "+rate+" Hz, mono. Cabecera RIFF de 44 bytes y luego las muestras.</span>");
+}
+draw();
+["f0","f1","f2","f3","dur"].forEach(function(id){ byId(id).addEventListener("input", draw); });
+
+</script>
+</body>
+</html>

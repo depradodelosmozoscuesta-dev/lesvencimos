@@ -30,6 +30,8 @@ table.datos th,table.datos td{border:1px solid var(--lv-linea);padding:.4rem .55
 table.datos th{background:#161512;color:#C4A15A}
 </style>
 <script src="../leccion-shell-nav.js" defer></script>
+<link rel="stylesheet" href="../../../profesor/_maestro/maestro-puntero.css"/>
+<script src="../../../profesor/_maestro/maestro-runtime.js" defer></script>
 </head>
 <body class="leccion-shell" data-maestro-json="maestro-18.json">
 <div class="leccion-wrap">
@@ -66,13 +68,16 @@ table.datos th{background:#161512;color:#C4A15A}
 <h2>El peso manda, no el número de saltos</h2>
 <p>En un grafo ponderado cada arista lleva un número: minutos, euros o kilómetros. La longitud de un camino es la suma de esos pesos. El camino mínimo entre dos vértices es el de menor suma. No tiene por qué ser el que tiene menos aristas.</p>
 <p><span class="glosa">peso = número de la arista · longitud de un camino = suma de pesos · camino simple = no repite vértices · en el dibujo el trazo ámbar es A-C-B-D y el gris son las aristas que no entran en ese mínimo</span></p>
-<p>De A a D hay tres caminos simples. A-B-D suma 4+3 = 7. A-C-D suma 2+5 = 7. A-C-B-D suma 2+1+3 = 6. El tercero usa tres aristas y aun así es más corto que los de dos, porque C-B pesa solo 1 y evita la arista C-D, que pesa 5.</p>
+<p>De A a D hay tres caminos simples. A-B-D suma 4+3 = 7. A-C-D suma 2+5 = 7. A-C-B-D suma 2 + 1 = 3<br>
+3 + 3 = <strong>6</strong>. El tercero usa tres aristas y aun así es más corto que los de dos, porque C-B pesa solo 1 y evita la arista C-D, que pesa 5.</p>
 <p>No hace falta un algoritmo con nombre para un grafo de cuatro vértices: se enumeran los caminos simples y se comparan. En un grafo grande esa enumeración se sustituye por un método ordenado (como el de Dijkstra si los pesos son positivos). La idea no cambia: no te detienes en el primer camino que llega.</p>
 <table class="datos"><thead><tr><th>Camino</th><th>Suma</th><th>¿Mínimo?</th></tr></thead>
 <tbody>
 <tr><td>A-B-D</td><td>4+3 = 7</td><td>no</td></tr>
 <tr><td>A-C-D</td><td>2+5 = 7</td><td>no</td></tr>
-<tr><td>A-C-B-D</td><td>2+1+3 = 6</td><td>sí</td></tr>
+<tr><td>A-C-B-D</td><td><br>
+2 + 1 = 3<br>
+3 + 3 = <strong>6</strong></td><td>sí</td></tr>
 </tbody></table>
 <h2>Gráfico del ejemplo</h2>
 <p class="dato">La figura no es decoración: los trazos corresponden a los números del ejemplo 1.</p>
@@ -100,7 +105,8 @@ table.datos th{background:#161512;color:#C4A15A}
 <h2>Ejemplo resuelto 1 — Las tres sumas</h2><p>Con los pesos del gráfico, calcula la longitud de A-B-D, de A-C-D y de A-C-B-D.</p><ol class="pasos">
 <li>A-B-D usa las aristas de peso 4 y 3. Longitud 4+3 = 7.<span class="glosa">Glosa: no cuentes «dos aristas» como longitud 2; 2 sería un recuento, no una suma de pesos.</span></li>
 <li>A-C-D usa 2 y 5. Longitud 2+5 = 7. Llega en dos saltos, igual que el anterior, y cuesta lo mismo.<span class="glosa">Glosa: empate en 7 no significa que sean el mismo camino; solo que la suma coincide.</span></li>
-<li>A-C-B-D usa 2, 1 y 3. Longitud 2+1+3 = 6. Es el trazo ámbar del SVG.<span class="glosa">Glosa: tres aristas pueden sumar menos que dos si una de las cortas evita un peso grande.</span></li>
+<li>A-C-B-D usa 2, 1 y 3. Longitud 2 + 1 = 3<br>
+3 + 3 = <strong>6</strong>. Es el trazo ámbar del SVG.<span class="glosa">Glosa: tres aristas pueden sumar menos que dos si una de las cortas evita un peso grande.</span></li>
 <li>El mínimo de 7, 7 y 6 es 6. Cualquier otro recorrido que repita un vértice solo añadiría peso positivo y no mejoraría.<span class="glosa">Glosa: con pesos positivos, un rodeo no acorta. Por eso basta mirar caminos simples.</span></li>
 </ol>
 <h2>Ejemplo resuelto 2 — Por qué C-D no es un atajo</h2><p>Explica, con la resta de los números, por qué ir de C a D directo es peor que C-B-D.</p><ol class="pasos">
@@ -112,12 +118,14 @@ table.datos th{background:#161512;color:#C4A15A}
 <h2>Ejemplo resuelto 3 — Cambia un peso</h2><p>Si el peso de C-B pasa de 1 a 4 y el resto no cambia, ¿cuál es el nuevo mínimo de A a D?</p><ol class="pasos">
 <li>A-B-D no usa C-B: sigue en 4+3 = 7.<span class="glosa">Glosa: un peso que no está en el camino no lo altera.</span></li>
 <li>A-C-D tampoco usa C-B: sigue en 2+5 = 7.<span class="glosa">Glosa: el empate anterior se mantiene.</span></li>
-<li>A-C-B-D pasa a 2+4+3 = 9, que ya es peor que 7.<span class="glosa">Glosa: el antiguo mínimo se rompe porque su arista barata ha dejado de serlo.</span></li>
+<li>A-C-B-D pasa a 2 + 4 = 6<br>
+6 + 3 = <strong>9</strong>, que ya es peor que 7.<span class="glosa">Glosa: el antiguo mínimo se rompe porque su arista barata ha dejado de serlo.</span></li>
 <li>El nuevo mínimo es 7, compartido por A-B-D y A-C-D. Ya no hay un único camino mínimo.<span class="glosa">Glosa: di los dos. Quedarte con el ámbar del gráfico, sin rehacer la suma, es el error.</span></li>
 </ol>
 <h2>Ejercicios</h2>
 <p class="dato">Escribe el razonamiento completo en el editor, no solo la cifra. Si el enunciado pide figura, dibújala en el lienzo de esta misma página.</p>
-<article class="ej"><h3>1. Un cuarto camino que no ayuda</h3><p>Alguien propone A-B-C-D. Con los pesos originales, ¿qué longitud tiene y por qué no mejora el 6?</p><label for="e18a">Tu resolución</label><textarea class="editor" id="e18a" placeholder="Escribe aquí el razonamiento completo…"></textarea><details class="porque"><summary>Por qué (abre cuando hayas escrito)</summary><p>A-B pesa 4, B-C es la misma arista que C-B y pesa 1, C-D pesa 5. Suma 4+1+5 = 10. Es mayor que 6 y también mayor que 7. El paso es sumar las tres aristas de verdad, no reutilizar el 6 del camino ámbar. Además A-B-C-D baja a C para luego pagar el 5 de C-D, justo la arista cara que el mínimo evitaba. Con pesos positivos, meter un vértice de más solo compensa si sustituye una arista cara por varias baratas; aquí no ocurre.</p></details></article>
+<article class="ej"><h3>1. Un cuarto camino que no ayuda</h3><p>Alguien propone A-B-C-D. Con los pesos originales, ¿qué longitud tiene y por qué no mejora el 6?</p><label for="e18a">Tu resolución</label><textarea class="editor" id="e18a" placeholder="Escribe aquí el razonamiento completo…"></textarea><details class="porque"><summary>Por qué (abre cuando hayas escrito)</summary><p>A-B pesa 4, B-C es la misma arista que C-B y pesa 1, C-D pesa 5. Suma 4 + 1 = 5<br>
+5 + 5 = <strong>10</strong>. Es mayor que 6 y también mayor que 7. El paso es sumar las tres aristas de verdad, no reutilizar el 6 del camino ámbar. Además A-B-C-D baja a C para luego pagar el 5 de C-D, justo la arista cara que el mínimo evitaba. Con pesos positivos, meter un vértice de más solo compensa si sustituye una arista cara por varias baratas; aquí no ocurre.</p></details></article>
 <article class="ej"><h3>2. Menos aristas no basta</h3><p>Sin calcular, ¿puedes afirmar que A-C-D es mínimo porque solo tiene dos aristas? Justifica con los números.</p><label for="e18b">Tu resolución</label><textarea class="editor" id="e18b" placeholder="Escribe aquí el razonamiento completo…"></textarea><details class="porque"><summary>Por qué (abre cuando hayas escrito)</summary><p>No. A-C-D suma 7 y A-C-B-D suma 6 teniendo una arista más. El criterio «menos aristas» sería válido si todos los pesos fueran 1. Aquí no lo son: C-D pesa 5 ella sola, más que C-B y B-D juntas (1+3 = 4). El paso es sustituir el recuento de aristas por la suma de pesos antes de declarar un mínimo. El gráfico lo separa con el color: el camino de tres tramos ámbar es el corto.</p></details></article>
 <article class="ej"><h3>3. Peso nuevo en A-B</h3><p>El peso de A-B baja a 1 y los demás siguen igual. Recalcula el mínimo de A a D.</p><label for="e18c">Tu resolución</label><textarea class="editor" id="e18c" placeholder="Escribe aquí el razonamiento completo…"></textarea><details class="porque"><summary>Por qué (abre cuando hayas escrito)</summary><p>A-B-D pasa a 1+3 = 4. A-C-D sigue en 7. A-C-B-D sigue en 6. El mínimo nuevo es 4, por A-B-D. El paso es no conservar el 6 como respuesta solo porque antes ganaba: ha cambiado una arista del camino que iba segundo. Comprueba que 4 es menor que 6 y que 7. El laboratorio sirve para ensayar el caso original; este cambio lo haces a mano y anotas las tres sumas otra vez.</p></details></article>
 <h2>Dibuja en el lienzo</h2>
@@ -128,8 +136,11 @@ table.datos th{background:#161512;color:#C4A15A}
 <section class="bloque-cuerpo">
   <h2>Comprueba</h2>
   <p class="dato">Tres preguntas. Responde mentalmente antes de abrir el porqué.</p>
-  <details class="porque"><summary>¿Cuál es la longitud mínima de A a D en el gráfico?</summary><p>6, por A-C-B-D. Por qué: las otras dos sumas simples valen 7 (4+3 y 2+5). 2+1+3 = 6 es la menor. No es el camino con menos aristas: tiene tres tramos y aun así gana, porque los pesos no valen 1.</p></details>
-<details class="porque"><summary>¿Por qué C-D, que se ve directa, no forma parte del mínimo?</summary><p>C-D no entra en el mínimo porque pesa 5, y el rodeo C-B-D pesa 1 + 3 = 4. El paso es comparar la arista directa con la suma del camino alternativo antes de aceptarla: 5 es mayor que 4, así que la directa no acorta. Metida en el viaje desde A, que ya cuesta 2 hasta C, da 2 + 5 = 7, un kilómetro más que el ámbar A-C-B-D, que suma 2 + 1 + 3 = 6.</p></details>
+  <details class="porque"><summary>¿Cuál es la longitud mínima de A a D en el gráfico?</summary><p>6, por A-C-B-D. Por qué: las otras dos sumas simples valen 7 (4+3 y 2+5).<br>
+2 + 1 = 3<br>
+3 + 3 = <strong>6</strong> es la menor. No es el camino con menos aristas: tiene tres tramos y aun así gana, porque los pesos no valen 1.</p></details>
+<details class="porque"><summary>¿Por qué C-D, que se ve directa, no forma parte del mínimo?</summary><p>C-D no entra en el mínimo porque pesa 5, y el rodeo C-B-D pesa 1 + 3 = 4. El paso es comparar la arista directa con la suma del camino alternativo antes de aceptarla: 5 es mayor que 4, así que la directa no acorta. Metida en el viaje desde A, que ya cuesta 2 hasta C, da 2 + 5 = 7, un kilómetro más que el ámbar A-C-B-D, que suma 2 + 1 = 3<br>
+3 + 3 = <strong>6</strong>.</p></details>
 <details class="porque"><summary>Si todos los pesos fueran 1, ¿cambiaría el criterio?</summary><p>Sí: entonces la longitud coincidiría con el número de aristas y ganaría un camino de dos aristas. Por qué: hoy los pesos no son iguales, así que la suma y el recuento ordenan los caminos de forma distinta. El 6 actual depende de que C-B pese 1.</p></details>
 </section>
 <section class="bloque-reto">

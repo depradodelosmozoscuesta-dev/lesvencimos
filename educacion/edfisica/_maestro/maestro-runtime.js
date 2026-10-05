@@ -34,6 +34,50 @@
     afterIframeMs: 280
   };
 
+  var SPEED = {
+    pausado: { rateScale: 0.82, msPerChar: 78, minLineMs: 1600, betweenLinesMs: 650, betweenStepsMs: 950 },
+    normal: { rateScale: 1, msPerChar: 48, minLineMs: 850, betweenLinesMs: 320, betweenStepsMs: 420 },
+    agil: { rateScale: 1.12, msPerChar: 34, minLineMs: 480, betweenLinesMs: 180, betweenStepsMs: 240 }
+  };
+  var TONE = {
+    maestro: { gender: 'male', pitchMul: 0.92, label: 'Maestro' },
+    maestra: { gender: 'female', pitchMul: 1.16, label: 'Maestra' }
+  };
+
+  function storageGet(k) {
+    try { return global.localStorage.getItem(k); } catch (e) { return null; }
+  }
+  function storageSet(k, v) {
+    try { global.localStorage.setItem(k, v); } catch (e) { /* file:// puede bloquear */ }
+  }
+  function ritmoId() {
+    var id = storageGet('lv-maestro-ritmo') || 'normal';
+    return SPEED[id] ? id : 'normal';
+  }
+  function tonoId() {
+    var id = storageGet('lv-maestro-tono') || 'maestro';
+    return TONE[id] ? id : 'maestro';
+  }
+  function applyRitmo(id) {
+    var key = SPEED[id] ? id : 'normal';
+    var s = SPEED[key];
+    PACE.rateScale = s.rateScale;
+    PACE.msPerChar = s.msPerChar;
+    PACE.minLineMs = s.minLineMs;
+    PACE.betweenLinesMs = s.betweenLinesMs;
+    PACE.betweenStepsMs = s.betweenStepsMs;
+    storageSet('lv-maestro-ritmo', key);
+    return key;
+  }
+  function applyTono(id) {
+    var key = TONE[id] ? id : 'maestro';
+    storageSet('lv-maestro-tono', key);
+    return key;
+  }
+  function currentTone() {
+    return TONE[tonoId()] || TONE.maestro;
+  }
+
   var ROLES = {
     narrador: { pitch: 1, rate: 0.92, gender: 'any', label: 'Narrador', chip: 'narrador' },
     chico: { pitch: 0.88, rate: 0.94, gender: 'male', label: 'Chico', chip: 'chico' },
@@ -359,6 +403,11 @@
       if (!text) { finishEarly(); return; }
 
       var role = resolveRole(opts.voz);
+      var tone = currentTone();
+      role.gender = tone.gender;
+      role.pitch = role.pitch * tone.pitchMul;
+      if (role.pitch < 0.55) role.pitch = 0.55;
+      if (role.pitch > 1.8) role.pitch = 1.8;
       var needMs = estimateLineMs(text, role.rate);
 
       /* Sin TTS: no volar los pasos — respetar tiempo de lectura en voz alta */
@@ -545,8 +594,8 @@
     targets.forEach(function (el) {
       if (!el) return;
       if (state.uiActive) {
-        el.textContent = 'Modo maestro · activo';
-        el.setAttribute('title', 'Abrir o ir a la barra de modo maestro');
+        el.textContent = 'Vista alumno';
+        el.setAttribute('title', 'Ocultar respuestas y volver a la vista del alumno');
         el.setAttribute('aria-pressed', 'true');
         el.classList.add('is-activo');
       } else {
@@ -562,24 +611,9 @@
     if (!el || el.getAttribute('data-maestro-wired') === '1') return;
     el.setAttribute('data-maestro-wired', '1');
     el.addEventListener('click', function (ev) {
-      var href = el.getAttribute('href') || '';
-      // Static ?maestro=1: let navigation reload with the query (works without JS activate).
-      if (/[?&]maestro=1(?:&|#|$)/.test(href) || href.indexOf('?maestro=1') === 0) {
-        return;
-      }
-      // #maestro-barra or other JS activate paths
       ev.preventDefault();
-      if (state.uiActive) {
-        showBar(true);
-        var bar = ensureBar();
-        try {
-          if (bar && typeof bar.scrollIntoView === 'function') {
-            bar.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-          }
-        } catch (e2) { /* ignore */ }
-        return;
-      }
-      activateMaestroUi();
+      if (state.uiActive) deactivateMaestroUi();
+      else activateMaestroUi();
     });
   }
 
@@ -698,10 +732,64 @@
     }
   }
 
+  function markClaves() {
+    qsa('details').forEach(function (d) {
+      if (d.classList.contains('term') || d.classList.contains('extra-placa') || d.classList.contains('opcional')) return;
+      var sumEl = qs('summary', d);
+      var sum = sumEl ? String(sumEl.textContent || '') : '';
+      if (d.classList.contains('porque') || d.classList.contains('correccion') || d.classList.contains('comprueba')) {
+        d.classList.add('lv-clave');
+        return;
+      }
+      if (/^\s*(porqu[eé]|correcci[oó]n|soluci[oó]n|respuesta)\b/i.test(sum)) d.classList.add('lv-clave');
+    });
+  }
+
+  function applyVista(on) {
+    var body = document.body;
+    if (!body) return;
+    body.classList.toggle('modo-maestro', !!on);
+    body.classList.toggle('vista-alumno', !on);
+    if (on) {
+      markClaves();
+      qsa('details.porque, details.correccion, details.comprueba, details.lv-clave').forEach(function (d) {
+        d.open = true;
+      });
+    }
+  }
+
+  function clearUrlMaestro() {
+    try {
+      var u = new URL(global.location.href);
+      if (u.searchParams.get('maestro') !== '1') return;
+      u.searchParams.delete('maestro');
+      var search = u.searchParams.toString();
+      global.history.replaceState({}, '', u.pathname + (search ? '?' + search : '') + u.hash);
+    } catch (e) { /* file:// */ }
+  }
+
+  function deactivateMaestroUi() {
+    state.uiActive = false;
+    state.paused = true;
+    state.running = false;
+    stopSpeech();
+    storageSet('lv-modo-maestro', '0');
+    clearUrlMaestro();
+    applyVista(false);
+    showBar(false);
+    hidePointer();
+    clearFocus();
+    updateAtajoLabel();
+    return true;
+  }
+
   async function activateMaestroUi() {
     state.uiActive = true;
+    storageSet('lv-modo-maestro', '1');
+    applyRitmo(ritmoId());
     setUrlMaestro();
     patchNavLinks();
+    applyVista(true);
     updateAtajoLabel();
     showBar(true);
     setBarText(null, 'cargando guion…');
@@ -719,6 +807,17 @@
     bar.setAttribute('aria-label', 'Modo maestro');
     bar.innerHTML =
       '<p class="maestro-barra-titulo">Modo maestro <span class="maestro-voz-chip" hidden></span></p>' +
+      '<div class="maestro-controles">' +
+      '<label>Voz <select data-maestro-tono aria-label="Voz del maestro">' +
+      '<option value="maestro">Maestro</option>' +
+      '<option value="maestra">Maestra</option>' +
+      '</select></label>' +
+      '<label>Ritmo <select data-maestro-ritmo aria-label="Velocidad de la voz">' +
+      '<option value="pausado">Pausado</option>' +
+      '<option value="normal">Normal</option>' +
+      '<option value="agil">Ágil</option>' +
+      '</select></label>' +
+      '</div>' +
       '<p class="maestro-paso-texto"></p>' +
       '<p class="maestro-estado"></p>' +
       '<div class="maestro-barra-botones">' +
@@ -726,8 +825,15 @@
       '<button type="button" class="secondary" data-cmd="next">Siguiente</button>' +
       '<button type="button" class="secondary" data-cmd="repeat">Repite</button>' +
       '<button type="button" class="secondary" data-cmd="stop">Para</button>' +
+      '<button type="button" class="secondary" data-cmd="alumno">Vista alumno</button>' +
       '</div>';
     document.body.appendChild(bar);
+    var selTono = qs('select[data-maestro-tono]', bar);
+    var selRitmo = qs('select[data-maestro-ritmo]', bar);
+    if (selTono) selTono.value = tonoId();
+    if (selRitmo) selRitmo.value = ritmoId();
+    if (selTono) selTono.addEventListener('change', function () { applyTono(selTono.value); });
+    if (selRitmo) selRitmo.addEventListener('change', function () { applyRitmo(selRitmo.value); });
     bar.addEventListener('click', function (ev) {
       var btn = ev.target && ev.target.closest ? ev.target.closest('[data-cmd]') : null;
       if (!btn) return;
@@ -736,6 +842,7 @@
       else if (cmd === 'next') api.next();
       else if (cmd === 'repeat') api.repeat();
       else if (cmd === 'stop') api.stop();
+      else if (cmd === 'alumno') deactivateMaestroUi();
     });
     state.bar = bar;
     state.chipEl = qs('.maestro-voz-chip', bar);
@@ -879,6 +986,9 @@
     __booted: false,
     roles: ROLES,
     activate: activateMaestroUi,
+    deactivate: deactivateMaestroUi,
+    setRitmo: applyRitmo,
+    setTono: applyTono,
     patchNavLinks: patchNavLinks,
     resolveRole: resolveRole,
     pickVoice: pickVoice,
@@ -968,6 +1078,7 @@
     if (api.__booted) return api;
     api.__booted = true;
     state.reducedMotion = !!(global.matchMedia && global.matchMedia('(prefers-reduced-motion: reduce)').matches);
+    applyRitmo(ritmoId());
 
     // Siempre: atajo junto al progreso (estático o inyectado). Solo queda
     // fijo si la página carece de barra y progreso.
@@ -980,7 +1091,9 @@
     }
 
     var wantUi = paramMaestro() ||
+      storageGet('lv-modo-maestro') === '1' ||
       (document.body && document.body.getAttribute('data-maestro-autostart') === '1');
+    if (!wantUi) applyVista(false);
 
     if (wantUi && hasMaestroPage()) {
       await activateMaestroUi();

@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="es"><head><meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Laboratorio L18 · Modelado básico y espacios</title>
+<style>
+:root{--ink:#0E0E0C;--amber:#C4A15A;--paper:#FAF7F0;--line:rgba(14,14,12,.14)}
+*{box-sizing:border-box} body{margin:0;font-family:Segoe UI,system-ui,sans-serif;background:var(--paper);color:var(--ink);line-height:1.45}
+header{padding:.7rem 1rem;border-bottom:2px solid var(--amber);background:#fff} header h1{margin:0;font-size:1.05rem;font-family:Georgia,serif}
+header p{margin:.2rem 0 0;font-size:.8rem;color:#5C564C} main{padding:.75rem 1rem 2rem;max-width:62rem}
+label{display:block;font-size:.75rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:#5C564C;margin:.55rem 0 .2rem}
+textarea,input[type=text],input[type=number],select{width:100%;font:14px/1.4 ui-monospace,monospace;border:1px solid var(--line);border-radius:6px;padding:.4rem .5rem}
+.nota{font-size:.82rem;color:#5C564C}
+
+.bloque-cuerpo table{width:100%;border-collapse:collapse;font-size:.92rem;margin:0 0 1rem}
+.bloque-cuerpo th,.bloque-cuerpo td{border:1px solid rgba(14,14,12,.12);padding:.45rem .55rem;vertical-align:top;text-align:left}
+.bloque-cuerpo th{background:#F0EBE0;font-weight:650}
+.bloque-cuerpo pre{background:#0E0E0C;color:#FAF7F0;padding:.9rem 1rem;border-radius:8px;overflow:auto;font-size:.82rem;line-height:1.45}
+.bloque-cuerpo pre code{color:inherit;font-size:inherit}
+.bloque-cuerpo code{font-family:ui-monospace,"Cascadia Code","Segoe UI Mono",monospace}
+.figura-svg{margin:1rem 0 1.15rem;background:#fff;border:1px solid rgba(14,14,12,.12);border-radius:10px;padding:.6rem .6rem .35rem}
+.figura-svg svg{width:100%;height:auto;display:block}
+.figura-svg figcaption{font-size:.82rem;color:#5C564C;padding:.35rem .2rem 0}
+details.comprueba{margin:.55rem 0;background:#fff;border:1px solid rgba(14,14,12,.12);border-left:3px solid #C4A15A;border-radius:8px;padding:.55rem .85rem}
+details.comprueba summary{cursor:pointer;font-weight:650;color:#0E0E0C}
+.lab-embed{background:#FAF7F0;border:1px solid rgba(14,14,12,.12);border-radius:8px;padding:.75rem}
+.lab-embed label{display:block;font-size:.78rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:#5C564C;margin:.4rem 0 .2rem}
+.lab-embed textarea,.lab-embed input[type=text],.lab-embed input[type=number],.lab-embed select{width:100%;font-family:ui-monospace,monospace;font-size:.82rem;border:1px solid rgba(14,14,12,.2);border-radius:6px;padding:.4rem .5rem;background:#fff;color:#0E0E0C}
+.lab-embed textarea{min-height:7rem;resize:vertical}
+.lab-row{display:flex;flex-wrap:wrap;gap:.4rem;margin:.45rem 0}
+.lab-embed button{background:#C4A15A;color:#1A160E;border:0;border-radius:4px;padding:.4rem .7rem;font-weight:700;cursor:pointer}
+.lab-embed button.sec{background:#fff;border:1px solid rgba(14,14,12,.2)}
+.lab-out{font-size:.88rem;background:#fff;border:1px solid rgba(14,14,12,.12);border-radius:6px;padding:.5rem .65rem;margin-top:.4rem}
+.lab-out .ok{color:#3D6B4F;font-weight:650}
+.lab-out .bad{color:#A85A3C;font-weight:650}
+.lab-canvas{width:100%;max-width:640px;background:#fff;border:1px solid rgba(14,14,12,.15);border-radius:6px;display:block;touch-action:none}
+.gpio-sim{display:grid;grid-template-columns:7.5rem 1fr;gap:.8rem;align-items:center;background:#0E0E0C;color:#FAF7F0;border-radius:10px;padding:.85rem 1rem;margin:.4rem 0 .6rem}
+.gpio-sim p{margin:.2rem 0;color:#FAF7F0}
+.gpio-sim .pin{font-family:ui-monospace,monospace;color:#C4A15A}
+button.sw{width:4.2rem;height:2rem;min-height:2rem;border-radius:999px;border:1px solid #C4A15A;background:#2A2620;color:#FAF7F0;position:relative;cursor:pointer;padding:0;font-weight:700}
+button.sw[aria-pressed="true"]{background:#C4A15A;color:#1A160E}
+button.sw i{position:absolute;top:2px;left:2px;width:1.6rem;height:1.6rem;border-radius:50%;background:#FAF7F0;display:block}
+button.sw[aria-pressed="true"] i{left:2.2rem;background:#fff}
+</style></head><body>
+<header><h1>Laboratorio · L18 · Modelado básico y espacios</h1>
+<p>Offline, en esta página. No se envía nada a un servidor.</p></header>
+<main><p class="nota">Planta del aula-taller. Los componentes se reutilizan. La lámpara es una salida digital simulada: el interruptor no enciende una placa.</p>
+<div class="gpio-sim" id="gpioL18">
+  <svg viewBox="0 0 120 140" width="120" height="140" role="img" aria-label="LED de la lámpara simulada">
+    <rect x="34" y="78" width="52" height="18" rx="3" fill="#5C564C"/>
+    <rect x="54" y="48" width="12" height="34" fill="#8A8175"/>
+    <circle id="gpioL18-glow" cx="60" cy="36" r="30" fill="#E24B2A" opacity="0"/>
+    <circle id="gpioL18-bulb" cx="60" cy="36" r="22" fill="#3A3530" stroke="#C4A15A" stroke-width="3"/>
+    <text x="60" y="118" text-anchor="middle" fill="#C4A15A" font-size="11" font-family="ui-monospace,monospace">GPIO 18</text>
+  </svg>
+  <div>
+    <p style="letter-spacing:.08em;text-transform:uppercase;font-size:.72rem;color:#C4A15A">Simulación local · sin hardware</p>
+    <p><strong>Raspberry Pi (BCM)</strong> · pin <span class="pin">GPIO 18</span> · paralelo didáctico Arduino UNO D13</p>
+    <p>Estado del pin: <strong id="gpioL18-state">LOW</strong> · lámpara <strong id="gpioL18-led">apagada</strong></p>
+    <p><button type="button" class="sw" id="gpioL18-btn" aria-pressed="false" aria-label="Interruptor ON/OFF de la lámpara en GPIO 18"><i></i></button> <span id="gpioL18-sw">OFF</span></p>
+    <p style="color:#C8C0B4;font-size:.82rem">HIGH enciende la lámpara de la maqueta (3,3 V en la Pi; en Arduino, digitalWrite HIGH). Nada sale de esta página.</p>
+  </div>
+</div>
+<label for="pieza">Componente a colocar (clic en la planta)</label>
+<select id="pieza"><option value="mesa">Mesa (plantilla)</option><option value="pantalla">Pantalla</option><option value="lampara">Lámpara</option></select>
+<div class="lab-row"><button type="button" id="bClear" class="sec">Vaciar planta</button></div>
+<canvas id="cv" class="lab-canvas" width="640" height="300"></canvas>
+<div id="out" class="lab-out">Coloca al menos una mesa y una lámpara. La lámpara obedece al pin.</div>
+</main>
+<script>function byId(id){return document.getElementById(id);}
+var items=[];
+var lampOn=false;
+function paintSwitch(){
+  var btn=byId("gpioL18-btn");
+  btn.setAttribute("aria-pressed", lampOn?"true":"false");
+  byId("gpioL18-sw").textContent=lampOn?"ON":"OFF";
+  byId("gpioL18-bulb").setAttribute("fill", lampOn?"#E24B2A":"#3A3530");
+  byId("gpioL18-glow").setAttribute("opacity", lampOn?"0.35":"0");
+  byId("gpioL18-state").textContent=lampOn?"HIGH":"LOW";
+  byId("gpioL18-led").textContent=lampOn?"encendida":"apagada";
+}
+function draw(){
+  var c=byId("cv"), g=c.getContext("2d");
+  g.fillStyle="#fff"; g.fillRect(0,0,640,300);
+  g.strokeStyle="#0E0E0C"; g.strokeRect(20,20,600,260);
+  g.fillStyle="#5C564C"; g.font="12px sans-serif"; g.fillText("Planta · aula taller IES Duero", 28, 40);
+  items.forEach(function(it){
+    if(it.k==="mesa"){ g.fillStyle="#C4A15A"; g.fillRect(it.x,it.y,70,40); }
+    else if(it.k==="pantalla"){ g.fillStyle="#2F5D7A"; g.fillRect(it.x,it.y,16,50); }
+    else { g.beginPath(); g.arc(it.x,it.y,12,0,6.28); g.fillStyle=lampOn?"#E24B2A":"#3A3530"; g.fill(); g.strokeStyle="#C4A15A"; g.stroke(); }
+  });
+  var nL=items.filter(function(it){return it.k==="lampara";}).length;
+  byId("out").innerHTML="Componentes: "+items.length+" · lámparas: "+nL+" · pin <strong>"+(lampOn?"HIGH":"LOW")+"</strong>. La mesa es plantilla: cada copia es la misma pieza.";
+}
+byId("cv").addEventListener("click", function(ev){
+  var r=byId("cv").getBoundingClientRect();
+  var x=(ev.clientX-r.left)*(byId("cv").width/r.width);
+  var y=(ev.clientY-r.top)*(byId("cv").height/r.height);
+  items.push({k:byId("pieza").value, x:x, y:y});
+  draw();
+});
+byId("bClear").onclick=function(){ items=[]; draw(); };
+byId("gpioL18-btn").onclick=function(){ lampOn=!lampOn; paintSwitch(); draw(); };
+paintSwitch(); draw();
+</script>
+</body></html>

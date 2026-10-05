@@ -71,7 +71,9 @@
 ## Cómo reabrir offline
 
 ```bash
+
 # Desde el explorador de archivos: doble clic en el .html
+
 # O:
 google-chrome "file:///workspace/lescircimos/profesor/1eso-matematicas/lecciones/l07-cajas-zumo.html"
 ```

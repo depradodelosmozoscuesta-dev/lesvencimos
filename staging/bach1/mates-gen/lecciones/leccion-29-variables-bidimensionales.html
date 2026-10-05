@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<meta name="theme-color" content="#0E0E0C"/>
+<title>Lección 29 · Variables bidimensionales · Les vencimos</title>
+<link rel="icon" href="../icons/favicon.svg" type="image/svg+xml"/>
+<link rel="manifest" href="../manifest.webmanifest"/>
+<link rel="stylesheet" href="../leccion-shell.css"/>
+<style>
+.pasos{list-style:none;margin:0 0 1rem;padding:0;counter-reset:paso}
+.pasos li{position:relative;margin:0 0 .7rem;padding:.7rem .8rem .7rem 3.1rem;background:var(--lv-panel);border:1px solid var(--lv-linea);border-radius:10px}
+.pasos li::before{counter-increment:paso;content:counter(paso);position:absolute;left:.65rem;top:.7rem;width:1.7rem;height:1.7rem;border-radius:50%;background:#C4A15A;color:#1A160E;font-weight:700;font-size:.9rem;display:flex;align-items:center;justify-content:center}
+.figura-svg{background:#161512;border:1px solid var(--lv-linea);border-radius:10px;padding:.5rem;margin:.5rem 0 1.1rem}
+.figura-svg svg{width:100%;height:auto;display:block}
+.ej{margin:0 0 1rem;padding:.85rem .95rem;background:var(--lv-panel);border:1px solid var(--lv-linea);border-left:3px solid #C4A15A;border-radius:10px}
+.ej h3{margin:0 0 .35rem;font-family:var(--lv-serif);font-size:1.05rem;color:var(--lv-titulo)}
+.editor,textarea.editor{width:100%;min-height:5.5rem;font-family:ui-monospace,monospace;font-size:.95rem;line-height:1.45;padding:.55rem .65rem;border:1px solid rgba(196,161,90,.45);border-radius:8px;background:#161512;color:#E6E1D6;resize:vertical}
+.lienzo{display:block;width:100%;height:280px;background:#161512;border:1px solid #C4A15A;border-radius:8px;touch-action:none;cursor:crosshair}
+.fila{display:flex;flex-wrap:wrap;gap:.4rem;margin:.45rem 0}
+.boton{font:inherit;font-weight:700;font-size:.85rem;padding:.4rem .8rem;border-radius:999px;border:1px solid #C4A15A;background:transparent;color:#E6E1D6;cursor:pointer}
+.porque{margin-top:.55rem;padding:.65rem .75rem;background:#1a2218;border-radius:8px;color:#E6E1D6}
+.dato{font-size:.95rem;color:var(--lv-suave)}
+.glosa{display:block;font-size:.9rem;color:#9A9488;margin:.25rem 0 .5rem;line-height:1.4}
+.lab-box{margin:1rem 0;padding:.85rem;border:1px dashed rgba(196,161,90,.5);border-radius:10px;background:#141210}
+.lab-box iframe{width:100%;min-height:320px;border:1px solid #C4A15A;border-radius:8px;background:#0E0E0C}
+table.datos{width:100%;border-collapse:collapse;margin:.45rem 0 1rem;font-size:.98rem}
+table.datos th,table.datos td{border:1px solid var(--lv-linea);padding:.4rem .55rem;text-align:left}
+table.datos th{background:#161512;color:#C4A15A}
+</style>
+<script src="../leccion-shell-nav.js" defer></script>
+<link rel="stylesheet" href="../../../../profesor/_maestro/maestro-puntero.css"/>
+<script src="../../../../profesor/_maestro/maestro-runtime.js" defer></script>
+</head>
+<body class="leccion-shell" data-maestro-json="maestro-29.json">
+<div class="leccion-wrap">
+<nav class="leccion-barra" aria-label="Navegación de lección" data-actual="29" data-total="38">
+  <div class="leccion-progreso" role="status">
+    <span class="progreso-texto"><strong>29</strong> de <strong>38</strong></span>
+    <div class="progreso-pista" aria-hidden="true"><div class="progreso-lleno" style="width:76.32%"></div></div>
+  </div>
+  <div class="leccion-atajos">
+    <a class="atajo atajo-calc" href="../../../../modulos/calculadora.html" title="Calculadora offline">Calculadora</a>
+    <a class="atajo atajo-prev" href="leccion-28-estadistica-interpretacion.html">← Anterior</a>
+    <a class="atajo atajo-next" href="leccion-30-regresion-correlacion-causalidad.html">Siguiente →</a>
+  </div>
+</nav>
+<header class="leccion-top">
+  <a class="leccion-marca" href="../../../../index.html">Les <span>vencimos</span></a>
+  <p class="leccion-meta-top">Matemáticas Generales · 1º Bachillerato</p>
+</header>
+<header class="bloque-titulo">
+  <span class="eyebrow">Lección 29 · E · Estocástico</span>
+  <h1 class="titulo-leccion">Variables <em>bidimensionales</em></h1>
+  <p class="meta-leccion">1º Bach Matemáticas Generales · CyL Decreto 40/2022 · E.1 Conjunta, marginales, condicionadas y dependencia</p>
+</header>
+<aside class="bloque-curiosidad" aria-label="Para situarte">
+  <p class="etiqueta-bloque">Para situarte</p>
+  <h2 class="titulo-curiosidad">El denominador cambia cuando se condiciona</h2>
+  <p class="texto-curiosidad">Cuarenta alumnos eligieron estudiar con apuntes o con ejercicios, y luego aprobaron o suspendieron. La tabla de la figura es la distribución conjunta. La columna de totales es la marginal del método; la fila de totales es la marginal del resultado. Una condicionada cambia el denominador: ya no son los 40.</p>
+</aside>
+<section class="bloque-cuerpo">
+  <h2>Objetivos</h2>
+  <ul><li>Leer una tabla de contingencia y localizar conjunta, marginal y condicionada.</li><li>Calcular una probabilidad condicionada restringiendo el denominador a la fila o a la columna indicada.</li><li>Decidir dependencia comparando la condicionada con la marginal, no con una impresión visual.</li></ul>
+</section>
+<section class="bloque-cuerpo">
+<h2>Conjunta, marginal y condicionada</h2>
+<p>Dos variables categóricas sobre las mismas personas se cruzan en una tabla. Cada celda interior es una frecuencia conjunta: las dos cosas a la vez. Sumar una fila o una columna borra una de las variables y deja la marginal. Condicionar es negarse a hacer esa suma y usar como total solo el grupo que ya cumple la condición.</p>
+<p><span class="glosa">conjunta = frecuencia de una celda interior · marginal = suma de una fila o de una columna · condicionada = celda dividida entre el total de su fila o de su columna, no entre el total de la tabla · dependencia = alguna condicionada distinta de la marginal correspondiente</span></p>
+<p>En el ejemplo hay 40 alumnos. Aprueban 24, así que la marginal de aprobar es 24/40 = 0,60. Entre quienes hicieron ejercicios hay 22 personas y aprueban 16, así que la condicionada es 16/22 = 8/11 ≈ 0,727. No es el mismo número: saber el método cambia la probabilidad de aprobar. Entre quienes usaron apuntes, 8/18 = 4/9 ≈ 0,444. Las dos condicionadas se separan de la marginal, una por arriba y otra por abajo.</p>
+<p>Eso no dice que los ejercicios causen el aprobado. La tabla mide asociación en este grupo: puede haber motivación previa, horario u otra variable no recogida. Lo que sí queda cerrado con estas cifras es que las variables no son independientes, porque independencia exigiría que aprobar tuviera la misma proporción en cada fila y, por tanto, la misma que en el total.</p>
+<table class="datos"><thead><tr><th></th><th>Aprueba</th><th>Suspende</th><th>Total</th></tr></thead>
+<tbody>
+<tr><td>Apuntes</td><td>8</td><td>10</td><td>18</td></tr>
+<tr><td>Ejercicios</td><td>16</td><td>6</td><td>22</td></tr>
+<tr><td>Total</td><td>24</td><td>16</td><td>40</td></tr>
+</tbody></table>
+<h2>Gráfico del ejemplo</h2>
+<p class="dato">La figura no es decoración: los trazos corresponden a los números del ejemplo 1.</p>
+<div class="figura-svg"><svg viewBox="0 0 720 320" role="img" aria-label="Tabla de contingencia 8, 10, 16 y 6 con marginales 18, 22, 24, 16 y total 40"><title>Tabla de contingencia 8, 10, 16 y 6 con marginales 18, 22, 24, 16 y total 40</title><rect width="720" height="320" fill="#161512"/>
+<line x1="40" y1="40" x2="680" y2="40" stroke="#C4A15A" stroke-width="1.6"/>
+<line x1="40" y1="90" x2="680" y2="90" stroke="#9A9488" stroke-width="1.2"/>
+<line x1="40" y1="150" x2="680" y2="150" stroke="#9A9488" stroke-width="1.2"/>
+<line x1="40" y1="210" x2="680" y2="210" stroke="#9A9488" stroke-width="1.2"/>
+<line x1="40" y1="270" x2="680" y2="270" stroke="#C4A15A" stroke-width="1.6"/>
+<line x1="40" y1="40" x2="40" y2="270" stroke="#9A9488" stroke-width="1.2"/>
+<line x1="220" y1="40" x2="220" y2="270" stroke="#9A9488" stroke-width="1.2"/>
+<line x1="380" y1="40" x2="380" y2="270" stroke="#9A9488" stroke-width="1.2"/>
+<line x1="530" y1="40" x2="530" y2="270" stroke="#C4A15A" stroke-width="1.6"/>
+<line x1="680" y1="40" x2="680" y2="270" stroke="#9A9488" stroke-width="1.2"/>
+<circle cx="300" cy="120" r="16" fill="#1C1A16" stroke="#C4A15A" stroke-width="2"/>
+<circle cx="455" cy="180" r="16" fill="#1C1A16" stroke="#8F9A72" stroke-width="2"/>
+<text x="70" y="72" fill="#9A9488" font-size="14">método</text>
+<text x="270" y="72" fill="#C4A15A" font-size="14">aprueba</text>
+<text x="420" y="72" fill="#E6E1D6" font-size="14">suspende</text>
+<text x="570" y="72" fill="#C4A15A" font-size="14">total</text>
+<text x="70" y="126" fill="#E6E1D6" font-size="15">apuntes</text>
+<text x="292" y="126" fill="#E6E1D6" font-size="16">8</text>
+<text x="445" y="126" fill="#E6E1D6" font-size="16">10</text>
+<text x="590" y="126" fill="#C4A15A" font-size="16">18</text>
+<text x="70" y="186" fill="#E6E1D6" font-size="15">ejercicios</text>
+<text x="284" y="186" fill="#E6E1D6" font-size="16">16</text>
+<text x="448" y="186" fill="#E6E1D6" font-size="16">6</text>
+<text x="590" y="186" fill="#C4A15A" font-size="16">22</text>
+<text x="70" y="248" fill="#C4A15A" font-size="15">total</text>
+<text x="284" y="248" fill="#C4A15A" font-size="16">24</text>
+<text x="445" y="248" fill="#C4A15A" font-size="16">16</text>
+<text x="590" y="248" fill="#C4A15A" font-size="16">40</text>
+<text x="300" y="124" text-anchor="middle" fill="#C4A15A" font-size="12">8</text>
+</svg></div>
+<h2>Ejemplo resuelto 1 — Marginal y condicionada de aprobar</h2><p>Con la tabla de la figura, calcula la probabilidad marginal de aprobar y la condicionada a haber elegido ejercicios. Explica el cambio de denominador.</p><ol class="pasos">
+<li>Marginal: se usa la fila de totales, no una celda suelta. Aprueban 24 de 40, luego 24/40 = 3/5 = 0,60.<span class="glosa">Glosa: 24 es 8 + 16. Si se olvida una celda, la marginal ya no cuadra con el total 40.</span></li>
+<li>Condicionada a ejercicios: el grupo ya no son los 40, son los 22 de esa fila. Aprueban 16, luego 16/22 = 8/11 ≈ 0,727.<span class="glosa">Glosa: condicionar es cambiar el universo. El 16 sigue siendo la celda conjunta; lo que cambia es el denominador.</span></li>
+<li>Comparación: 0,727 es mayor que 0,60. En este grupo, la fila de ejercicios aprueba en una proporción más alta que el conjunto.<span class="glosa">Glosa: la diferencia no es pequeña ni un redondeo: 8 / 11 = 8/11<br>
+3 / 5 = 3/5<br>
+8/11 − 3/5 = <strong>7/55</strong>.</span></li>
+<li>La otra fila comprueba el desequilibrio: apuntes, 8/18 ≈ 0,444, por debajo de 0,60. Las dos filas no copian la marginal.<span class="glosa">Glosa: si las dos condicionadas valieran 0,60, las celdas serían 0,60·18 y 0,60·22, y no son 8 y 16.</span></li>
+</ol>
+<h2>Ejemplo resuelto 2 — La conjunta no es la condicionada</h2><p>Calcula la probabilidad conjunta de «ejercicios y aprueba» y compárala con la condicionada 16/22. ¿Por qué la conjunta es más pequeña?</p><ol class="pasos">
+<li>Conjunta: la celda 16 sobre el total de la tabla, 16/40 = 0,40. El denominador vuelve a ser todo el grupo.<span class="glosa">Glosa: «y» pide la intersección dentro de los 40, no dentro de los 22.</span></li>
+<li>Condicionada: 16/22 ≈ 0,727, ya calculada. Es mayor porque se han quitado del denominador los 18 de apuntes.<span class="glosa">Glosa: al quitar gente del denominador sin quitar los 16 del numerador, el cociente sube.</span></li>
+<li>Relación: condicionada = conjunta / marginal de la condición.22 / 40 = 0,55<br>
+0,40 / 0,55 = <strong>16/22</strong>. Cuadra.<span class="glosa">Glosa: 22/40 = 0,55 es la marginal de elegir ejercicios. No hace falta memorizar la fórmula si se ve el recorte del denominador.</span></li>
+<li>Error típico: decir que la conjunta es 16/22 porque «son los que hacen ejercicios y aprueban». Esa frase describe la celda, pero el «de cuántos» sigue siendo una decisión aparte.<span class="glosa">Glosa: la celda no trae el denominador escrito. Lo elige la pregunta.</span></li>
+</ol>
+<h2>Ejemplo resuelto 3 — ¿Independientes?</h2><p>Comprueba si «aprobar» y «elegir ejercicios» son independientes comparando la conjunta con el producto de las marginales.</p><ol class="pasos">
+<li>Marginal de aprobar: 24/40 = 0,60. Marginal de ejercicios: 22/40 = 0,55. Producto: 0,60 · 0,55 = 0,33.<span class="glosa">Glosa: independencia significa que la conjunta factoriza en el producto de las marginales.</span></li>
+<li>Conjunta real: 16/40 = 0,40. Como 0,40 no es 0,33, en esta tabla las variables no son independientes.<span class="glosa">Glosa: 0,40 − 0,33 = 0,07. No es un error de redondeo de la celda 16.</span></li>
+<li>La misma conclusión salía al comparar 16/22 con 24/40. Son dos escrituras del mismo hecho: la fila no reproduce la proporción global.<span class="glosa">Glosa: si hubiera independencia, 16 tendría que ser aproximadamente 0,33 · 40 = 13,2, no 16.</span></li>
+<li>Independencia no se decide porque las dos variables «hablen de cosas distintas». Se decide con esta igualdad, y aquí falla.<span class="glosa">Glosa: método y resultado podrían haber sido independientes; los datos dicen que en este grupo no lo son.</span></li>
+</ol>
+<h2>Ejercicios</h2>
+<p class="dato">Escribe el razonamiento completo en el editor, no solo la cifra. Si el enunciado pide figura, dibújala en el lienzo de esta misma página.</p>
+<article class="ej"><h3>1. Condicionada al otro método</h3><p>Calcula la probabilidad de suspender condicionada a haber estudiado con apuntes. No uses el total 40 como denominador.</p><label for="e29a">Tu resolución</label><textarea class="editor" id="e29a" placeholder="Escribe aquí el razonamiento completo…"></textarea><details class="porque"><summary>Por qué (abre cuando hayas escrito)</summary><p>El paso es encerrarse en la fila de apuntes, cuyo total es 18, y leer la celda de suspende, que es 10. La condicionada es 10/18 = 5/9 ≈ 0,556. Si se divide 10 entre 40 se obtiene la conjunta 0,25, que responde a «¿qué fracción del grupo entero usó apuntes y suspendió?», no a «entre quienes usaron apuntes, ¿qué fracción suspendió?». El 16 del margen de suspende tampoco sirve: mezcla los 10 de apuntes con los 6 de ejercicios. La fila de la condición es el único denominador correcto, y 10 + 8 = 18 comprueba que la fila está completa.</p></details></article>
+<article class="ej"><h3>2. Marginal del método</h3><p>¿Qué probabilidad hay de que un alumno del grupo hubiera elegido ejercicios, sin mirar si aprobó? ¿Por qué no vale usar solo la columna de aprobados?</p><label for="e29b">Tu resolución</label><textarea class="editor" id="e29b" placeholder="Escribe aquí el razonamiento completo…"></textarea><details class="porque"><summary>Por qué (abre cuando hayas escrito)</summary><p>El paso es sumar la fila entera de ejercicios, aprobados y suspensos, y dividir entre 40. La fila suma 16 + 6 = 22, luego 22/40 = 0,55. La columna de aprobados tiene 16 ejercicios frente a 8 apuntes, y 16/24 ≈ 0,667 es otra probabilidad: la de haber elegido ejercicios condicionada a haber aprobado. Quien solo mira a los que aprueban está condicionando por el resultado y ya no describe el método en el grupo completo. Las dos cifras, 0,55 y 0,667, se parecen en el tema y no son intercambiables, porque una divide entre 40 y la otra entre 24.</p></details></article>
+<article class="ej"><h3>3. Dependencia en una frase</h3><p>Escribe la comparación numérica que demuestra que aprobar depende del método en esta tabla, y una frase que no convierta esa dependencia en causa.</p><label for="e29c">Tu resolución</label><textarea class="editor" id="e29c" placeholder="Escribe aquí el razonamiento completo…"></textarea><details class="porque"><summary>Por qué (abre cuando hayas escrito)</summary><p>El paso es poner una condicionada al lado de la marginal: 16/22 ≈ 0,727 frente a 24/40 = 0,60. Como no coinciden, la proporción de aprobados cambia al saber el método, y eso es dependencia en la tabla. La frase causal que no está justificada sería «los ejercicios hacen aprobar». La tabla no dice qué pasaría si los de apuntes pasaran a ejercicios: no es un experimento, es un cruce de lo que ya eligieron. Se puede afirmar la diferencia de proporciones y hay que parar antes de la causa. La fila de apuntes, 8/18 ≈ 0,444, refuerza que el método y el resultado van juntos en estos 40 alumnos, sin identificar el mecanismo.</p></details></article>
+<h2>Dibuja en el lienzo</h2>
+<p>Reproduce a mano el gráfico del ejemplo: ejes o nodos, los datos numéricos y una frase con la conclusión. El botón borra el lienzo sin salir de la lección.</p>
+<canvas id="lienzo29" class="lienzo" width="900" height="280"></canvas><div class="fila"><button type="button" class="boton" data-clear="lienzo29">Borrar lienzo</button></div>
+</section>
+
+<section class="bloque-cuerpo">
+  <h2>Comprueba</h2>
+  <p class="dato">Tres preguntas. Responde mentalmente antes de abrir el porqué.</p>
+  <details class="porque"><summary>¿Cuál es el denominador de «aprueba dado ejercicios»?</summary><p>22, el total de la fila de ejercicios. Por qué: la condición fija el grupo antes de mirar el resultado. Los 40 incluyen a quienes usaron apuntes, y esos no entran en esta pregunta. El numerador es la celda 16, así que el cociente es 16/22.</p></details>
+<details class="porque"><summary>¿Por qué 16/40 y 16/22 no son la misma probabilidad?</summary><p>Porque 16/40 es conjunta y 16/22 es condicionada. Por qué: las dos usan la misma celda y cambian el «de cuántos». 16/40 cuenta sobre todo el grupo; 16/22 cuenta solo sobre la fila de la condición. Numéricamente 0,40 frente a aproximadamente 0,727.</p></details>
+<details class="porque"><summary>¿Qué igualdad fallaría si las variables fueran independientes?</summary><p>La conjunta 16/40 = 0,40 tendría que igualar al producto de marginales 0,60 · 0,55 = 0,33. Por qué: independencia significa que saber el método no cambia la proporción de aprobados, y entonces la celda se predice multiplicando. Aquí 0,40 no es 0,33, así que hay dependencia en la tabla, que no es lo mismo que haber demostrado una causa.</p></details>
+</section>
+<section class="bloque-reto">
+  <span class="etiqueta-reto">Reto Profesor</span>
+  <h2 class="titulo-reto">La fila y el total</h2>
+  <p>Copia en el lienzo la tabla de 40 alumnos, rodea la fila que usarías como denominador para condicionar a ejercicios y escribe al lado las dos fracciones 24/40 y 16/22.</p>
+  <p class="reto-id">reto_id: bach1-mates-gen-L29</p>
+</section>
+<footer class="leccion-pie"><strong>Les vencimos</strong> · L29 de 38 · Matemáticas Generales · staging · file:// · sin publicar</footer>
+</div>
+<script type="application/json" data-maestro="guion">{"curso": "bach1-mates-gen", "leccion": 29, "titulo": "Variables bidimensionales", "url": "leccion-29-variables-bidimensionales.html", "musica": false, "pasos": [{"id": "abrir", "dicho": "La cuadrícula es la tabla del ejemplo: celdas 8, 10, 16 y 6, y el 40 en la esquina.", "hacer": "Leer en voz alta el apartado Para situarte y los objetivos."}, {"id": "figura", "dicho": "El círculo ámbar marca la celda 16, la que entra en la condicionada a ejercicios.", "hacer": "Mirar el SVG y decir qué dato numérico marca cada trazo."}, {"id": "ej1", "dicho": "Ejemplo 1: 24/40 = 0,60 y 16/22 ≈ 0,727. El denominador cambia.", "hacer": "Rehacer el ejemplo 1, glosa a glosa, sin mirar el resultado final."}, {"id": "ej2", "dicho": "Ejemplo 2: la conjunta 16/40 = 0,40 no es la condicionada.", "hacer": "Rehacer el ejemplo 2 y contrastarlo con el 1."}, {"id": "ej3", "dicho": "Ejemplo 3: 0,40 no coincide con 0,60 · 0,55 = 0,33, luego no hay independencia.", "hacer": "Rehacer el ejemplo 3 y anotar la comprobación."}, {"id": "practica", "dicho": "Suspender entre los de apuntes usa el 18, no el 40.", "hacer": "Escribir el razonamiento de al menos dos ejercicios y usar el lienzo."}, {"id": "cierre", "dicho": "Dependencia en la tabla no es, por sí sola, una causa.", "hacer": "Contestar Comprueba antes de abrir y dejar el reto por escrito."}]}</script>
+<script>(function(){function liga(c){var ctx=c.getContext('2d');function fondo(){ctx.fillStyle='#161512';ctx.fillRect(0,0,c.width,c.height);ctx.strokeStyle='#C4A15A';ctx.strokeRect(.5,.5,c.width-1,c.height-1);}function fit(){var r=c.getBoundingClientRect();var w=Math.max(320,Math.floor(r.width));if(c.width!==w){c.width=w;c.height=280;fondo();}}var dib=false,last=null;function pos(ev){var r=c.getBoundingClientRect();var s=ev.touches?ev.touches[0]:ev;return{x:(s.clientX-r.left)*c.width/r.width,y:(s.clientY-r.top)*c.height/r.height};}c.addEventListener('pointerdown',function(ev){dib=true;last=pos(ev);ev.preventDefault();});c.addEventListener('pointermove',function(ev){if(!dib)return;var p=pos(ev);ctx.strokeStyle='#E6E1D6';ctx.lineWidth=2.2;ctx.lineCap='round';ctx.beginPath();ctx.moveTo(last.x,last.y);ctx.lineTo(p.x,p.y);ctx.stroke();last=p;ev.preventDefault();});function up(){dib=false;}c.addEventListener('pointerup',up);c.addEventListener('pointerleave',up);var b=document.querySelector('[data-clear="'+c.id+'"]');if(b)b.addEventListener('click',fondo);fit();window.addEventListener('resize',fit);}document.querySelectorAll('canvas.lienzo').forEach(liga);})();</script>
+</body>
+</html>

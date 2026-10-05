@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
+<title>L14 · Laboratorio · Semividas y columna relativa</title>
+<style>
+:root{--bg:#FAF7F0;--ink:#2A2620;--muted:#5C564C;--card:#fff;--gold:#C4A15A;--gold-soft:#F5EDD8;--gold-deep:#8A6B2F;--green:#3D6B4F;--green-soft:#E4F0E8;--blue:#2F5D7A;--blue-soft:#E3EEF4;--rose:#9B3A4A;--rose-soft:#F8E8EB;--line:#E0D0A8}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--ink);font-family:"Segoe UI",system-ui,sans-serif;line-height:1.45}
+body{padding:14px 12px 32px}
+.wrap{max-width:860px;margin:0 auto}
+.badge{display:inline-block;font-size:.75rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--gold-deep);background:var(--gold-soft);padding:4px 10px;border-radius:999px}
+h1{font-size:1.45rem;line-height:1.25;margin:.4rem 0 .3rem}
+.lead{color:var(--muted);margin:0 0 12px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px;margin:0 0 12px}
+.q{font-weight:750;margin:0 0 8px}
+.opts{display:grid;gap:8px}
+button.opt,button.chip{font:inherit;text-align:left;background:#fff;border:2px solid #D9D0C0;border-radius:12px;padding:10px 12px;cursor:pointer;font-weight:650}
+button.opt:hover,button.chip:hover{border-color:var(--gold)}
+button.opt.ok,button.chip.ok{border-color:var(--green);background:var(--green-soft)}
+button.opt.bad{border-color:var(--rose);background:var(--rose-soft)}
+button.opt:disabled{cursor:default}
+.why{margin:8px 0 0;font-size:.95rem}
+.why strong{color:var(--gold-deep)}
+.row{display:flex;flex-wrap:wrap;gap:8px}
+.slot{min-height:42px;border:2px dashed #C4B8A0;border-radius:12px;padding:8px;display:flex;flex-wrap:wrap;gap:6px;background:#FFFcf5}
+.bar{display:flex;justify-content:space-between;gap:8px;align-items:center;margin:8px 0}
+.score{font-weight:800;color:var(--gold-deep)}
+button.action{font:inherit;font-weight:800;border:0;border-radius:999px;background:var(--gold);color:#1A160E;padding:8px 14px;cursor:pointer}
+footer{color:var(--muted);font-size:.8rem;text-align:center}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="badge">Lección 14 · bloque C · sin red</div>
+  <h1>Semividas y columna relativa</h1>
+  <p class="lead">La semivida del carbono-14 es 5730 años. Los resultados son edades de radiocarbono sin calibrar, no fechas de calendario.</p>
+  <div class="bar"><span class="score" id="score">0</span><button type="button" class="action" id="reset">Reiniciar</button></div>
+  <div id="lab"></div>
+  <footer>Les vencimos · laboratorio autónomo · sin red · corrección inmediata</footer>
+</div>
+<script>
+
+function boot(ITEMS){
+  var root=document.getElementById("lab");
+  var score=0, done=0;
+  var sc=document.getElementById("score");
+  function paint(){ sc.textContent=score+" / "+ITEMS.length; }
+  ITEMS.forEach(function(it,i){
+    var card=document.createElement("section");
+    card.className="card";
+    var h=document.createElement("p");
+    h.className="q";
+    h.textContent=(i+1)+". "+it.q;
+    card.appendChild(h);
+    if(it.tipo==="orden"){
+      var slot=document.createElement("div");
+      slot.className="slot";
+      var pool=document.createElement("div");
+      pool.className="row";
+      var picked=[];
+      function judge(){
+        var ok=picked.length===it.correcto.length && picked.every(function(p,k){return p===it.correcto[k];});
+        done++; if(ok) score++;
+        paint();
+        var w=document.createElement("p");
+        w.className="why";
+        w.innerHTML=(ok?"<strong>Correcto.</strong> ":"<strong>No es esa secuencia.</strong> Orden: "+it.correcto.join(" → ")+". ")+it.porque;
+        card.appendChild(w);
+        pool.querySelectorAll("button").forEach(function(b){b.disabled=true;});
+      }
+      it.piezas.forEach(function(txt){
+        var b=document.createElement("button");
+        b.type="button"; b.className="chip"; b.textContent=txt;
+        b.addEventListener("click", function(){
+          if(b.disabled) return;
+          b.disabled=true; b.className="chip ok";
+          picked.push(txt); slot.appendChild(b);
+          if(picked.length===it.correcto.length) judge();
+        });
+        pool.appendChild(b);
+      });
+      var hint=document.createElement("p");
+      hint.className="why";
+      hint.textContent="Pulsa en orden, del primero al último.";
+      card.appendChild(hint); card.appendChild(slot); card.appendChild(pool);
+    } else {
+      var opts=document.createElement("div");
+      opts.className="opts";
+      it.opciones.forEach(function(op){
+        var b=document.createElement("button");
+        b.type="button"; b.className="opt"; b.textContent=op.t;
+        b.addEventListener("click", function(){
+          if(card.dataset.done) return;
+          card.dataset.done="1"; done++;
+          opts.querySelectorAll("button").forEach(function(x){x.disabled=true;});
+          if(op.ok){ b.classList.add("ok"); score++; }
+          else {
+            b.classList.add("bad");
+            opts.querySelectorAll("button").forEach(function(x,idx){ if(it.opciones[idx].ok) x.classList.add("ok"); });
+          }
+          paint();
+          var w=document.createElement("p");
+          w.className="why";
+          w.innerHTML=(op.ok?"<strong>Correcto.</strong> ":"<strong>No.</strong> ")+it.porque;
+          card.appendChild(w);
+        });
+        opts.appendChild(b);
+      });
+      card.appendChild(opts);
+    }
+    root.appendChild(card);
+  });
+  paint();
+  document.getElementById("reset").addEventListener("click", function(){ location.reload(); });
+  window.addEventListener("message", function(ev){
+    var d=ev.data||{};
+    if(d.type==="maestro:reset") location.reload();
+    if(d.type==="maestro:highlight"){
+      var c=root.querySelector(".card"); if(c) c.style.outline="3px solid #C4A15A";
+    }
+  });
+}
+
+boot([{"tipo": "test", "q": "¿Cuál es el orden correcto, de la unidad mayor a la menor?", "opciones": [{"t": "Eón, era, período, época, edad.", "ok": true}, {"t": "Edad, época, eón, era, período.", "ok": false}, {"t": "Período, eón, era, edad, época.", "ok": false}, {"t": "Era, eón, edad, período, época.", "ok": false}], "porque": "El eón contiene eras; la era, períodos; el período, épocas; la época, edades. El Holoceno es una época, no un eón."}, {"tipo": "test", "q": "Datar en relativo una falla que corta una caliza permite afirmar…", "opciones": [{"t": "Que la falla es posterior a esa caliza, no cuántos años tiene.", "ok": true}, {"t": "Que la falla tiene 5730 años.", "ok": false}, {"t": "Que la caliza es del Holoceno.", "ok": false}, {"t": "La temperatura del magma.", "ok": false}], "porque": "La relación de corte ordena. El año exigiría un reloj, y este enunciado no lo trae."}, {"tipo": "test", "q": "Queda 1/4 del carbono-14 inicial. Con T = 5730 años y sistema cerrado, sin calibrar, la edad de radiocarbono es…", "opciones": [{"t": "11 460 años.", "ok": true}, {"t": "5730 años.", "ok": false}, {"t": "2865 años, porque se divide la semivida.", "ok": false}, {"t": "11 460 millones de años.", "ok": false}], "porque": "1/4 = (1/2)^2. Dos semividas: 2 × 5730 = 11 460 años, no millones. No está calibrada."}, {"tipo": "test", "q": "¿Qué supuesto está ya usado al aceptar ese resultado?", "opciones": [{"t": "Que no entró carbono moderno después del cierre del sistema.", "ok": true}, {"t": "Que el carbono-14 atmosférico fue idéntico todos los milenios, porque ya calibramos.", "ok": false}, {"t": "Que la semivida de Libby, 5568 años, es la que hemos aplicado.", "ok": false}, {"t": "Que la muestra puede ser un granito.", "ok": false}], "porque": "Sistema cerrado y semivida 5730. La calibración atmosférica no se ha hecho. El granito no entra en este reloj."}, {"tipo": "test", "q": "¿Para cuál de estas muestras es razonable plantear carbono-14?", "opciones": [{"t": "Carbón vegetal de un hogar de hace unos pocos miles de años.", "ok": true}, {"t": "Un trilobites del Paleozoico.", "ok": false}, {"t": "El basalto de una dorsal actual, para saber la edad de la Tierra.", "ok": false}, {"t": "Un granito del zócalo.", "ok": false}], "porque": "Hace falta carbono que dejó de intercambiarse dentro de la ventana del método, del orden de hasta unas decenas de miles de años."}, {"tipo": "orden", "q": "Serie normal, de muro a techo. Ordena los sucesos del más antiguo al más moderno.", "piezas": ["Conglomerado con cantos de arenisca", "Erosión", "Dique que corta las capas", "Arenisca", "Caliza con trilobites"], "correcto": ["Caliza con trilobites", "Arenisca", "Dique que corta las capas", "Erosión", "Conglomerado con cantos de arenisca"], "porque": "En serie normal, abajo es más antiguo. El dique es posterior a lo que corta. La erosión es posterior al dique si lo bisela. El conglomerado incluye cantos que ya existían. En el laboratorio se ha omitido la lutita intermedia para acortar: el orden de las piezas presentes no cambia."}, {"tipo": "test", "q": "Los trilobites de esa caliza…", "opciones": [{"t": "Sitúan la fauna en el Paleozoico, sin dar por sí solos el millón de años.", "ok": true}, {"t": "Demuestran que la caliza tiene 17 190 años.", "ok": false}, {"t": "Prueban que el dique es más antiguo que la caliza.", "ok": false}, {"t": "Calibran el carbono-14 atmosférico.", "ok": false}], "porque": "La sucesión faunística da una edad relativa dentro de la escala de fósiles. Otro método tendría que poner el número."}, {"tipo": "test", "q": "Si la serie estuviera volcada y nadie lo hubiera dicho, ¿qué fallaría?", "opciones": [{"t": "Leer «abajo = más antiguo» como si la superposición estuviera en posición normal.", "ok": true}, {"t": "La semivida del carbono-14, que pasaría a ser 2865 años.", "ok": false}, {"t": "El hecho de que un canto es más antiguo que el conglomerado que lo incluye.", "ok": false}, {"t": "La definición de eón.", "ok": false}], "porque": "La superposición se aplica a una serie que sigue en el orden de depósito. Las inclusiones no dependen de qué lado quedó arriba tras el pliegue."}]);
+</script>
+</body>
+</html>

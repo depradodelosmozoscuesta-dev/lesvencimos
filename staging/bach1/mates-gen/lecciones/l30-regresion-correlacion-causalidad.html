@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="es"><head><meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Lab L30 · Recta, predicción y causa</title>
+<link rel="stylesheet" href="../leccion-shell.css"/>
+<style>body{margin:0;padding:1rem;background:#0E0E0C;color:#E6E1D6;font-family:system-ui,sans-serif}
+h1{font-size:1.15rem;color:#C4A15A} .panel{background:#161512;border:1px solid #C4A15A;border-radius:10px;padding:.8rem;margin:.6rem 0}
+button{font:inherit;font-weight:700;padding:.35rem .75rem;border-radius:999px;border:1px solid #C4A15A;background:transparent;color:#E6E1D6;cursor:pointer;margin:.2rem}
+canvas{display:block;width:100%;max-width:640px;background:#12100e;border:1px solid #9A9488;border-radius:8px}
+input,select{background:#161512;color:#E6E1D6;border:1px solid #C4A15A;border-radius:6px;padding:.3rem .5rem}
+.out{min-height:2rem;color:#8F9A72;margin-top:.5rem}</style></head>
+<body>
+<p><a href="leccion-30-regresion-correlacion-causalidad.html" style="color:#C4A15A">← Volver a la lección 30</a></p>
+<h1>Laboratorio · L30 · Recta, predicción y causa</h1>
+
+<div class="panel">
+<p>Datos del ejemplo: horas 1, 2, 3, 4, 5 y notas 2, 4, 5, 6, 8. Recta ŷ = 0,8 + 1,4x. Mueve x. Si sales de 1 a 5, la cifra es una extrapolación, no un hecho. La recta no demuestra que estudiar cause la nota.</p>
+<label>x (horas) <input id="x" type="range" min="0" max="7" step="0.5" value="3"/></label>
+<div class="out" id="out"></div>
+<canvas id="c" width="640" height="220"></canvas>
+</div>
+<script>
+function pintar(){
+  var x=parseFloat(document.getElementById('x').value);
+  var yhat=0.8+1.4*x;
+  var aviso = (x<1 || x>5) ? ' Extrapolación: x no está entre 1 y 5. No es una causa demostrada.' : ' Interpolación dentro del rango. Sigue sin ser una causa: solo asociación.';
+  document.getElementById('out').textContent='x = '+String(x).replace('.',',')+' · ŷ = '+yhat.toFixed(2).replace('.',',')+'.'+aviso;
+  var cv=document.getElementById('c'), ctx=cv.getContext('2d');
+  ctx.fillStyle='#12100e'; ctx.fillRect(0,0,640,220);
+  function X(v){return 50+(v)*70;} function Y(v){return 190-v*16;}
+  ctx.strokeStyle='#9A9488'; ctx.beginPath(); ctx.moveTo(40,190); ctx.lineTo(600,190); ctx.moveTo(50,200); ctx.lineTo(50,20); ctx.stroke();
+  var pts=[[1,2],[2,4],[3,5],[4,6],[5,8]];
+  ctx.strokeStyle='#C4A15A'; ctx.beginPath(); ctx.moveTo(X(1),Y(2.2)); ctx.lineTo(X(5),Y(7.8)); ctx.stroke();
+  ctx.fillStyle='#E6E1D6';
+  pts.forEach(function(p){ctx.beginPath(); ctx.arc(X(p[0]),Y(p[1]),4,0,6.3); ctx.fill();});
+  ctx.strokeStyle='#8F9A72'; ctx.beginPath(); ctx.arc(X(x),Y(yhat),6,0,6.3); ctx.stroke();
+}
+document.getElementById('x').oninput=pintar; pintar();
+</script>
+
+</body></html>

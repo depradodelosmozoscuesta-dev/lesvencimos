@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
+<title>L07 · Laboratorio · Cuatro ciclos, depósito y flujo</title>
+<style>
+:root{--bg:#FAF7F0;--ink:#2A2620;--muted:#5C564C;--card:#fff;--gold:#C4A15A;--gold-soft:#F5EDD8;--gold-deep:#8A6B2F;--green:#3D6B4F;--green-soft:#E4F0E8;--blue:#2F5D7A;--blue-soft:#E3EEF4;--rose:#9B3A4A;--rose-soft:#F8E8EB;--shadow:0 10px 32px rgba(42,38,32,.09);--radius:18px}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{min-height:100%;background:var(--bg);color:var(--ink);font-family:"Segoe UI",system-ui,-apple-system,sans-serif}
+body{padding:14px 10px 36px}
+.wrap{width:100%;max-width:920px;margin:0 auto}
+header{text-align:center;margin-bottom:12px}
+.badge{display:inline-block;font-size:.75rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--gold-deep);background:var(--gold-soft);padding:4px 12px;border-radius:999px;margin-bottom:8px}
+h1{font-size:clamp(1.25rem,4vw,1.7rem);line-height:1.25;font-weight:800}
+.subtitle{margin-top:6px;color:var(--muted);font-size:.98rem}
+.card{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);padding:16px 14px 18px;margin-bottom:14px}
+.card h2{font-size:1.15rem;margin-bottom:8px}
+.hint{color:var(--muted);font-size:.92rem;line-height:1.45;margin-bottom:10px}
+.q{border:2px solid #E0D0A8;border-radius:14px;padding:12px;margin:10px 0;background:#FFFcf5}
+.q h3{font-size:1rem;margin-bottom:8px;line-height:1.35}
+.opt{display:block;width:100%;text-align:left;padding:10px 12px;margin:6px 0;border:2px solid #D9D0C0;border-radius:12px;background:#fff;font-weight:650;cursor:pointer;font-family:inherit;font-size:.95rem;line-height:1.35;color:var(--ink)}
+.opt:hover{border-color:var(--gold)}
+.opt.ok{border-color:var(--green);background:var(--green-soft)}
+.opt.bad{border-color:var(--rose);background:var(--rose-soft)}
+.why{display:none;margin-top:8px;padding:8px 10px;border-radius:10px;background:var(--blue-soft);font-size:.92rem;line-height:1.4}
+.why.show{display:block}
+.score{font-weight:800;color:var(--gold-deep);margin-top:8px}
+button.action{appearance:none;border:none;border-radius:999px;padding:10px 16px;font-weight:800;cursor:pointer;background:var(--gold);color:#fff;margin:4px 6px 4px 0;font-family:inherit}
+button.action.secondary{background:#fff;color:var(--gold-deep);border:2px solid var(--gold)}
+.topbar{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:8px}
+footer{text-align:center;font-size:.8rem;color:var(--muted);margin-top:8px}
+svg.fig{width:100%;height:auto;display:block;margin:8px 0}
+</style>
+</head>
+<body>
+<div class="wrap" id="lab">
+  <header>
+    <div class="badge">Lección 07 · Bloque B · Ecología y sostenibilidad</div>
+    <h1>Cuatro ciclos, depósito y flujo</h1>
+    <p class="subtitle">N2 cerca del 78 %. El fósforo no tiene un gas que lo cierre.</p>
+  </header>
+  <section class="card">
+    <div class="topbar">
+      <h2>Laboratorio · 7 preguntas</h2>
+      <div>
+        <button type="button" class="action secondary" id="btnFs">Pantalla completa</button>
+        <button type="button" class="action secondary" id="btnReset">Reiniciar</button>
+      </div>
+    </div>
+    <p class="hint">Corrección inmediata. Sin toneladas locales inventadas.</p>
+    
+    <div id="quiz"></div>
+    <p class="score" id="score" aria-live="polite">Aciertos: 0 / 7</p>
+  </section>
+  <footer>1º Bachillerato · Biología, Geología y Ciencias Ambientales · Castilla y León · Decreto 40/2022 · Offline file:// · sin red</footer>
+</div>
+<script>
+(function(){
+  const ITEMS = [{"q": "¿Dónde está el depósito mayor de nitrógeno accesible como N2?", "opts": ["En la atmósfera, cerca del 78 % del aire seco.", "En los huesos, como el fósforo.", "En el argón, que es el 21 %.", "En el oxígeno, que es el 78 %."], "ok": 0, "why": "El aire seco es aproximadamente 78 % de N2, 21 % de O2 y 0,9 % de argón. El depósito grande de nitrógeno es el N2 atmosférico, que la mayoría de los seres vivos no puede usar directamente."}, {"q": "¿Qué proceso devuelve nitrógeno a la atmósfera como N2?", "opts": ["La nitrificación.", "La desnitrificación.", "La fotosíntesis.", "La meteorización de la apatita."], "ok": 1, "why": "La desnitrificación, en ausencia de oxígeno, reduce nitrato hasta N2. La nitrificación va al revés: de amonio hacia nitrato."}, {"q": "En el esquema clásico, ¿quién oxida el nitrito a nitrato?", "opts": ["Nitrosomonas, que pasa de amonio a nitrito.", "Nitrobacter.", "Rhizobium, que fija N2 en la raíz.", "Un hongo que no interviene."], "ok": 1, "why": "El esquema de curso es de dos pasos: Nitrosomonas de amonio a nitrito y Nitrobacter de nitrito a nitrato. En el suelo hay más microbios; este es el par que debes saber nombrar."}, {"q": "¿Por qué el fósforo no tiene un depósito atmosférico comparable al del nitrógeno?", "opts": ["Porque no existe el elemento fósforo.", "Porque su ciclo es sobre todo sedimentario: roca, suelo, agua, organismos y sedimento, sin fase gaseosa importante.", "Porque las plantas no lo usan.", "Porque se evapora como el agua."], "ok": 1, "why": "No hay un gas de fósforo que cierre el ciclo en años. El retorno geológico es lento. Por eso un aporte agrícola se queda en el agua y puede eutrofizar."}, {"q": "¿Qué flujo saca carbono del ciclo rápido y lo deja fuera del alcance de la fotosíntesis durante mucho tiempo?", "opts": ["La respiración de un animal, que devuelve CO2 en seguida.", "La sedimentación y el enterramiento, que forman carbonatos o materia orgánica fósil.", "La lluvia de una tarde.", "La desnitrificación."], "ok": 1, "why": "Respirar devuelve CO2 al aire en el ciclo rápido. El carbón, el petróleo y los carbonatos son depósitos lentos. Quemarlos mete en décadas un carbono que no estaba en ese ciclo corto."}, {"q": "El SO2 de quemar combustibles con azufre, ¿qué problema atmosférico produce al oxidarse?", "opts": ["Fija nitrógeno como el rayo.", "Ácido sulfúrico, responsable de la lluvia ácida.", "Ozono estratosférico.", "Apatita."], "ok": 1, "why": "El azufre oxidado en la atmósfera forma ácido sulfúrico. Es un flujo humano añadido al ciclo, no el depósito principal, que está en rocas y en el sulfato oceánico."}, {"q": "Haber-Bosch, ¿qué flujo del nitrógeno aumenta?", "opts": ["La fijación industrial de N2 a amoniaco.", "La sedimentación del fósforo.", "La fotosíntesis del azufre.", "La salida de argón."], "ok": 0, "why": "N2 + 3 H2 → 2 NH3, a alta temperatura y presión, con catalizador de hierro. Es fijación humana, distinta de la de Rhizobium y de la del rayo."}];
+  const quiz = document.getElementById('quiz');
+  const scoreEl = document.getElementById('score');
+  let aciertos = 0;
+  function render(){
+    aciertos = 0;
+    quiz.innerHTML = '';
+    ITEMS.forEach((it, i) => {
+      const box = document.createElement('div');
+      box.className = 'q';
+      const h = document.createElement('h3');
+      h.textContent = (i+1) + '. ' + it.q;
+      box.appendChild(h);
+      const why = document.createElement('p');
+      why.className = 'why';
+      let locked = false;
+      it.opts.forEach((t, j) => {
+        const b = document.createElement('button');
+        b.type = 'button';
+        b.className = 'opt';
+        b.textContent = t;
+        b.addEventListener('click', () => {
+          if (locked) return;
+          locked = true;
+          const buttons = box.querySelectorAll('.opt');
+          buttons.forEach((bb, k) => {
+            bb.disabled = true;
+            if (k === it.ok) bb.classList.add('ok');
+          });
+          if (j === it.ok) {
+            aciertos += 1;
+          } else {
+            b.classList.add('bad');
+          }
+          why.textContent = (j === it.ok ? 'Correcto. ' : 'No es la mejor opción. ') + it.why;
+          why.classList.add('show');
+          scoreEl.textContent = 'Aciertos: ' + aciertos + ' / ' + ITEMS.length;
+        });
+        box.appendChild(b);
+      });
+      box.appendChild(why);
+      quiz.appendChild(box);
+    });
+    scoreEl.textContent = 'Aciertos: 0 / ' + ITEMS.length;
+  }
+  document.getElementById('btnReset').addEventListener('click', render);
+  document.getElementById('btnFs').addEventListener('click', () => {
+    const el = document.documentElement;
+    if (!document.fullscreenElement) {
+      if (el.requestFullscreen) el.requestFullscreen();
+    } else if (document.exitFullscreen) {
+      document.exitFullscreen();
+    }
+  });
+  window.addEventListener('message', (ev) => {
+    const d = ev.data || {};
+    if (d.type === 'maestro:reset') render();
+    if (d.type === 'maestro:highlight') {
+      const f = document.querySelector('.q');
+      if (f) f.style.outline = '3px solid #C4A15A';
+    }
+  });
+  render();
+})();
+</script>
+</body>
+</html>

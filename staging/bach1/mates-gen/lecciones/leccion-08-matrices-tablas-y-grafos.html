@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<meta name="theme-color" content="#0E0E0C"/>
+<title>Lección 08 · Matrices, tablas y grafos · Les vencimos</title>
+<link rel="icon" href="../icons/favicon.svg" type="image/svg+xml"/>
+<link rel="manifest" href="../manifest.webmanifest"/>
+<link rel="stylesheet" href="../leccion-shell.css"/>
+<style>
+.pasos{list-style:none;margin:0 0 1rem;padding:0;counter-reset:paso}
+.pasos li{position:relative;margin:0 0 .7rem;padding:.7rem .8rem .7rem 3.1rem;background:var(--lv-panel);border:1px solid var(--lv-linea);border-radius:10px}
+.pasos li::before{counter-increment:paso;content:counter(paso);position:absolute;left:.65rem;top:.7rem;width:1.7rem;height:1.7rem;border-radius:50%;background:#C4A15A;color:#1A160E;font-weight:700;font-size:.9rem;display:flex;align-items:center;justify-content:center}
+.figura-svg{background:#161512;border:1px solid var(--lv-linea);border-radius:10px;padding:.5rem;margin:.5rem 0 1.1rem}
+.figura-svg svg{width:100%;height:auto;display:block}
+.ej{margin:0 0 1rem;padding:.85rem .95rem;background:var(--lv-panel);border:1px solid var(--lv-linea);border-left:3px solid #C4A15A;border-radius:10px}
+.ej h3{margin:0 0 .35rem;font-family:var(--lv-serif);font-size:1.05rem;color:var(--lv-titulo)}
+.editor,textarea.editor{width:100%;min-height:5.5rem;font-family:ui-monospace,monospace;font-size:.95rem;line-height:1.45;padding:.55rem .65rem;border:1px solid rgba(196,161,90,.45);border-radius:8px;background:#161512;color:#E6E1D6;resize:vertical}
+.lienzo{display:block;width:100%;height:280px;background:#161512;border:1px solid #C4A15A;border-radius:8px;touch-action:none;cursor:crosshair}
+.fila{display:flex;flex-wrap:wrap;gap:.4rem;margin:.45rem 0}
+.boton{font:inherit;font-weight:700;font-size:.85rem;padding:.4rem .8rem;border-radius:999px;border:1px solid #C4A15A;background:transparent;color:#E6E1D6;cursor:pointer}
+.porque{margin-top:.55rem;padding:.65rem .75rem;background:#1a2218;border-radius:8px;color:#E6E1D6}
+.dato{font-size:.95rem;color:var(--lv-suave)}
+.glosa{display:block;font-size:.9rem;color:#9A9488;margin:.25rem 0 .5rem;line-height:1.4}
+.lab-box{margin:1rem 0;padding:.85rem;border:1px dashed rgba(196,161,90,.5);border-radius:10px;background:#141210}
+.lab-box iframe{width:100%;min-height:320px;border:1px solid #C4A15A;border-radius:8px;background:#0E0E0C}
+table.datos{width:100%;border-collapse:collapse;margin:.45rem 0 1rem;font-size:.98rem}
+table.datos th,table.datos td{border:1px solid var(--lv-linea);padding:.4rem .55rem;text-align:left}
+table.datos th{background:#161512;color:#C4A15A}
+</style>
+<script src="../leccion-shell-nav.js" defer></script>
+<link rel="stylesheet" href="../../../../profesor/_maestro/maestro-puntero.css"/>
+<script src="../../../../profesor/_maestro/maestro-runtime.js" defer></script>
+</head>
+<body class="leccion-shell" data-maestro-json="maestro-08.json">
+<div class="leccion-wrap">
+<nav class="leccion-barra" aria-label="Navegación de lección" data-actual="8" data-total="38">
+  <div class="leccion-progreso" role="status">
+    <span class="progreso-texto"><strong>8</strong> de <strong>38</strong></span>
+    <div class="progreso-pista" aria-hidden="true"><div class="progreso-lleno" style="width:21.05%"></div></div>
+  </div>
+  <div class="leccion-atajos">
+    <a class="atajo atajo-calc" href="../../../../modulos/calculadora.html" title="Calculadora offline">Calculadora</a>
+    <a class="atajo atajo-prev" href="leccion-07-matrices-clasificacion-operaciones.html">← Anterior</a>
+    <a class="atajo atajo-next" href="leccion-09-razones-proporciones-porcentajes.html">Siguiente →</a>
+  </div>
+</nav>
+<header class="leccion-top">
+  <a class="leccion-marca" href="../../../../index.html">Les <span>vencimos</span></a>
+  <p class="leccion-meta-top">Matemáticas Generales · 1º Bachillerato</p>
+</header>
+<header class="bloque-titulo">
+  <span class="eyebrow">Lección 08 · A · Numérico</span>
+  <h1 class="titulo-leccion">Matrices, tablas y <em>grafos</em></h1>
+  <p class="meta-leccion">1º Bach Matemáticas Generales · CyL Decreto 40/2022 · A.2 Matrices como herramienta en tablas y grafos</p>
+</header>
+<aside class="bloque-curiosidad" aria-label="Para situarte">
+  <p class="etiqueta-bloque">Para situarte</p>
+  <h2 class="titulo-curiosidad">El 1 que significa «hay arista»</h2>
+  <p class="texto-curiosidad">La matriz de adyacencia guarda un grafo en una tabla. El dibujo de la izquierda tiene cuatro vértices y cuatro aristas; la rejilla de la derecha es exactamente esa información, casilla a casilla.</p>
+</aside>
+<section class="bloque-cuerpo">
+  <h2>Objetivos</h2>
+  <ul><li>Construir la matriz de adyacencia de un grafo sin lazos.</li><li>Leer grados y el número de aristas desde la matriz.</li><li>Contar caminos de longitud 2 con el producto de la matriz por sí misma.</li></ul>
+</section>
+<section class="bloque-cuerpo">
+<h2>Del dibujo a la tabla, sin perder aristas</h2>
+<p>Un grafo pequeño se puede mirar. En cuanto crece, conviene una matriz: filas y columnas con los mismos vértices, y un 1 en la casilla (i, j) si hay arista entre ellos. En un grafo no dirigido esa tabla es simétrica: la arista AB se anota arriba y abajo de la diagonal.</p>
+<p><span class="glosa">vértice = punto del grafo · arista = trazo que une dos vértices · lazo = arista de un vértice a sí mismo, que aquí no hay · grado de un vértice = número de aristas que inciden en él · E = número de aristas</span></p>
+<p>En el ejemplo hay vértices A, B, C y D. Las aristas dibujadas son AB, BC, CA y AD. No hay BD, ni CD, ni lazos. Por eso la diagonal de la matriz es 0, 0, 0, 0 y las casillas BD, DB, CD y DC también son 0. El grado de A es 3 (llega a B, a C y a D) y la primera fila suma 3.</p>
+<p>Sumar todos los grados cuenta cada arista dos veces, una por cada extremo. Aquí 3 + 2 = 5<br>
+5 + 2 = 7<br>
+7 + 1 = <strong>8</strong> = 2E, luego E = 4, que son las cuatro líneas del dibujo. Multiplicar la matriz por sí misma no dibuja aristas nuevas: la casilla (A, C) de M² cuenta caminos de dos pasos desde A hasta C.</p>
+<table class="datos"><thead><tr><th>Vértice</th><th>Vecinos en el dibujo</th><th>Grado</th><th>Suma de su fila</th></tr></thead>
+<tbody>
+<tr><td>A</td><td>B, C, D</td><td>3</td><td><br>
+0 + 1 = 1<br>
+1 + 1 = 2<br>
+2 + 1 = <strong>3</strong></td></tr>
+<tr><td>B</td><td>A, C</td><td>2</td><td><br>
+1 + 0 = 1<br>
+1 + 1 = 2<br>
+2 + 0 = <strong>2</strong></td></tr>
+<tr><td>C</td><td>A, B</td><td>2</td><td><br>
+1 + 1 = 2<br>
+2 + 0 = 2<br>
+2 + 0 = <strong>2</strong></td></tr>
+<tr><td>D</td><td>A</td><td>1</td><td><br>
+1 + 0 = 1<br>
+1 + 0 = 1<br>
+1 + 0 = <strong>1</strong></td></tr>
+</tbody></table>
+<h2>Gráfico del ejemplo</h2>
+<p class="dato">La figura no es decoración: los trazos corresponden a los números del ejemplo 1.</p>
+<div class="figura-svg"><svg viewBox="0 0 720 320" role="img" aria-label="Grafo A-B, B-C, C-A, A-D y su matriz de adyacencia 4×4"><title>Grafo A-B, B-C, C-A, A-D y su matriz de adyacencia 4×4</title><rect width="720" height="320" fill="#161512"/>
+<line x1="150" y1="70" x2="340" y2="70" stroke="#C4A15A" stroke-width="2.5"/>
+<line x1="340" y1="70" x2="340" y2="230" stroke="#C4A15A" stroke-width="2.5"/>
+<line x1="150" y1="70" x2="340" y2="230" stroke="#C4A15A" stroke-width="2.5"/>
+<line x1="150" y1="70" x2="150" y2="230" stroke="#C4A15A" stroke-width="2.5"/>
+<circle cx="150" cy="70" r="16" fill="#1C1A16" stroke="#E6E1D6" stroke-width="2"/>
+<circle cx="340" cy="70" r="16" fill="#1C1A16" stroke="#E6E1D6" stroke-width="2"/>
+<circle cx="340" cy="230" r="16" fill="#1C1A16" stroke="#E6E1D6" stroke-width="2"/>
+<circle cx="150" cy="230" r="16" fill="#1C1A16" stroke="#E6E1D6" stroke-width="2"/>
+<text x="150" y="75" text-anchor="middle" fill="#E6E1D6" font-size="14">A</text>
+<text x="340" y="75" text-anchor="middle" fill="#E6E1D6" font-size="14">B</text>
+<text x="340" y="235" text-anchor="middle" fill="#E6E1D6" font-size="14">C</text>
+<text x="150" y="235" text-anchor="middle" fill="#E6E1D6" font-size="14">D</text>
+<line x1="430" y1="40" x2="680" y2="40" stroke="#C4A15A"/>
+<line x1="430" y1="82" x2="680" y2="82" stroke="#9A9488"/>
+<line x1="430" y1="124" x2="680" y2="124" stroke="#9A9488"/>
+<line x1="430" y1="166" x2="680" y2="166" stroke="#9A9488"/>
+<line x1="430" y1="208" x2="680" y2="208" stroke="#C4A15A"/>
+<line x1="430" y1="40" x2="430" y2="208" stroke="#C4A15A"/>
+<line x1="492" y1="40" x2="492" y2="208" stroke="#9A9488"/>
+<line x1="554" y1="40" x2="554" y2="208" stroke="#9A9488"/>
+<line x1="616" y1="40" x2="616" y2="208" stroke="#9A9488"/>
+<line x1="680" y1="40" x2="680" y2="208" stroke="#C4A15A"/>
+<text x="461" y="70" text-anchor="middle" fill="#E6E1D6" font-size="14">0</text>
+<text x="523" y="70" text-anchor="middle" fill="#C4A15A" font-size="14">1</text>
+<text x="585" y="70" text-anchor="middle" fill="#C4A15A" font-size="14">1</text>
+<text x="648" y="70" text-anchor="middle" fill="#C4A15A" font-size="14">1</text>
+<text x="461" y="112" text-anchor="middle" fill="#C4A15A" font-size="14">1</text>
+<text x="523" y="112" text-anchor="middle" fill="#E6E1D6" font-size="14">0</text>
+<text x="585" y="112" text-anchor="middle" fill="#C4A15A" font-size="14">1</text>
+<text x="648" y="112" text-anchor="middle" fill="#E6E1D6" font-size="14">0</text>
+<text x="461" y="154" text-anchor="middle" fill="#C4A15A" font-size="14">1</text>
+<text x="523" y="154" text-anchor="middle" fill="#C4A15A" font-size="14">1</text>
+<text x="585" y="154" text-anchor="middle" fill="#E6E1D6" font-size="14">0</text>
+<text x="648" y="154" text-anchor="middle" fill="#E6E1D6" font-size="14">0</text>
+<text x="461" y="196" text-anchor="middle" fill="#C4A15A" font-size="14">1</text>
+<text x="523" y="196" text-anchor="middle" fill="#E6E1D6" font-size="14">0</text>
+<text x="585" y="196" text-anchor="middle" fill="#E6E1D6" font-size="14">0</text>
+<text x="648" y="196" text-anchor="middle" fill="#E6E1D6" font-size="14">0</text>
+<text x="430" y="236" fill="#9A9488" font-size="13">Filas y columnas en orden A, B, C, D. Un 1 es una arista.</text>
+</svg></div>
+<h2>Ejemplo resuelto 1 — De las líneas a los unos</h2><p>Escribe la matriz de adyacencia del grafo dibujado, en el orden A, B, C, D, y justifica la simetría.</p><ol class="pasos">
+<li>Lista las aristas del dibujo: AB, BC, CA y AD. Son cuatro. No inventes BD ni CD: no hay trazo.<span class="glosa">Glosa: cada segmento del SVG es una arista; la diagonal del triángulo es CA, no un adorno.</span></li>
+<li>Coloca un 1 en (A,B), (B,A), (B,C), (C,B), (C,A), (A,C), (A,D) y (D,A). El resto, ceros.<span class="glosa">Glosa: al ser no dirigido, cada arista escribe dos unos, salvo que fuera un lazo.</span></li>
+<li>La diagonal queda a cero porque ningún vértice está unido consigo mismo.<span class="glosa">Glosa: un lazo se vería como un bucle en el dibujo y un 1 en la diagonal; aquí no aparece.</span></li>
+<li>Comprueba la simetría: la casilla (fila i, columna j) coincide con (fila j, columna i). Si no, te falta uno de los dos sentidos de la misma arista.<span class="glosa">Glosa: en un grafo dirigido la matriz puede dejar de ser simétrica; este dibujo no tiene flechas.</span></li>
+</ol>
+<h2>Ejemplo resuelto 2 — Grados y doble conteo</h2><p>Calcula el grado de cada vértice sumando filas y deduce E.</p><ol class="pasos">
+<li>Suma la fila A: 3. Fila B: 2. Fila C: 2. Fila D: 1. Esos son los grados.<span class="glosa">Glosa: el grado no es el número de vértices vecinos «a ojo» si hay lazos; aquí, al no haberlos, coincide con la suma de la fila.</span></li>
+<li>Suma de grado3 + 2 = 5<br>
+5 + 2 = 7<br>
+7 + 1 = 8<br>
+s = <strong>8</strong>.<span class="glosa">Glosa: 8 no es el número de aristas. Cada arista aporta a dos grados.</span></li>
+<li>Por el lema del apretón de manos, suma de grados = 2E. Entonces 2E = 8 y E = 4.<span class="glosa">Glosa: divide entre 2 al final, no al principio. Si divides cada grado, pierdes el sentido del doble conteo.</span></li>
+<li>Comprueba contando segmentos en el SVG: AB, BC, CA, AD. Cuatro. Cuadra con E = 4.<span class="glosa">Glosa: si la matriz y el dibujo no dan el mismo E, hay un 1 de más o un trazo sin casilla.</span></li>
+</ol>
+<h2>Ejemplo resuelto 3 — Caminos de dos pasos</h2><p>Calcula la casilla (A, C) de M² y nombra el único camino de longitud 2 de A a C.</p><ol class="pasos">
+<li>La casilla (A, C) de M² es el producto de la fila A por la columna C: (0, 1, 1, 1) · (1, 1, 0, 0).<span class="glosa">Glosa: fila A es 0,1,1,1 y columna C es 1,1,0,0 porque la matriz es simétrica y la columna C copia la fila C.</span></li>
+<li>0 · 1 = 0<br>
+1 · 1 = 1<br>
+0 + 1 = 1<br>
+1 · 0 = 0<br>
+1 + 0 = 1<br>
+1 · 0 = 0<br>
+1 + 0 = <strong>1</strong>.<span class="glosa">Glosa: el único sumando no nulo es el de la columna B: se sale de A hacia B y desde B se puede seguir a C.</span></li>
+<li>Ese 1 es el camino A-B-C. A-C-C no existe (no hay lazo) y A-D-C tampoco (D no toca a C).<span class="glosa">Glosa: A-C es un camino de longitud 1, no de longitud 2; M² no lo cuenta.</span></li>
+<li>Comprueba que hay arista A-B y arista B-C en el dibujo. Las dos hacen falta. Una sola no crea camino de dos pasos.<span class="glosa">Glosa: por eso el producto mira parejas de aristas encadenadas, no aristas sueltas.</span></li>
+</ol>
+<h2>Ejercicios</h2>
+<p class="dato">Escribe el razonamiento completo en el editor, no solo la cifra. Si el enunciado pide figura, dibújala en el lienzo de esta misma página.</p>
+<article class="ej"><h3>1. Un cero que importa</h3><p>Alguien pone un 1 en la casilla (B, D) «porque B y D están en el grafo». ¿Qué afirma de más y cómo se ve en el dibujo?</p><label for="e08a">Tu resolución</label><textarea class="editor" id="e08a" placeholder="Escribe aquí el razonamiento completo…"></textarea><details class="porque"><summary>Por qué (abre cuando hayas escrito)</summary><p>Un 1 en (B, D) afirmaría que existe la arista BD. En el dibujo B está unido a A y a C, y D solo a A: no hay segmento BD. El paso erróneo confunde «pertenecer al mismo grafo» con «estar unidos». La matriz solo registra adyacencia, no convivencia. Si aceptaras ese 1, el grado de B pasaría de 2 a 3, la suma de grados subiría en 2 (también el 1 simétrico en D,B) y E pasaría de 4 a 5, en contradicción con los cuatro segmentos visibles.</p></details></article>
+<article class="ej"><h3>2. ¿Por qué la diagonal es cero?</h3><p>Explica, con este grafo concreto, qué significaría un 1 en la casilla (C, C) y por qué no debe ponerse.</p><label for="e08b">Tu resolución</label><textarea class="editor" id="e08b" placeholder="Escribe aquí el razonamiento completo…"></textarea><details class="porque"><summary>Por qué (abre cuando hayas escrito)</summary><p>La casilla (C, C) es la intersección de la fila C con la columna C. Un 1 diría que C tiene un lazo, una arista con los dos extremos en C. El grado de C contaría ese lazo según el convenio del curso (aquí no usamos lazos, así que la diagonal se queda en 0). En el SVG no hay ningún bucle sobre el círculo C: sus únicos trazos van a A y a B. Poner el 1 copiaría un dato que el dibujo no contiene y rompería la lectura «unos = segmentos que se ven».</p></details></article>
+<article class="ej"><h3>3. Otro camino</h3><p>¿Cuántos caminos de longitud 2 hay de A a A? Relaciónalos con el grado de A sin multiplicar la matriz entera.</p><label for="e08c">Tu resolución</label><textarea class="editor" id="e08c" placeholder="Escribe aquí el razonamiento completo…"></textarea><details class="porque"><summary>Por qué (abre cuando hayas escrito)</summary><p>Un camino de longitud 2 que empieza y acaba en A es salir por una arista y volver por la misma, porque los vecinos de A no están unidos entre sí de forma que cierren otro ciclo de dos (un ciclo de dos no existe en un grafo simple). Desde A se puede ir a B y volver, a C y volver, o a D y volver: tres paseos. Coincide con el grado de A. El paso es emparejar cada arista incidente con su vuelta inmediata. Si el grafo tuviera un triángulo que vuelva a A en dos pasos por vecinos distintos, habría que contarlos aparte; aquí los vecinos B, C y D no se conectan todos entre sí en un triángulo que incluya solo dos pasos distintos de la ida y vuelta. El triángulo es A-B-C-A, que es longitud 3. Por eso los retornos de longitud 2 son exactamente las tres idas y vueltas, y la casilla (A, A) de M² vale 3.</p></details></article>
+<h2>Dibuja en el lienzo</h2>
+<p>Reproduce a mano el gráfico del ejemplo: ejes o nodos, los datos numéricos y una frase con la conclusión. El botón borra el lienzo sin salir de la lección.</p>
+<canvas id="lienzo08" class="lienzo" width="900" height="280"></canvas><div class="fila"><button type="button" class="boton" data-clear="lienzo08">Borrar lienzo</button></div>
+</section>
+
+<section class="bloque-cuerpo">
+  <h2>Comprueba</h2>
+  <p class="dato">Tres preguntas. Responde mentalmente antes de abrir el porqué.</p>
+  <details class="porque"><summary>¿Qué significa el 1 de la fila B, columna C?</summary><p>Que la arista BC está en el grafo, la misma que el segmento vertical del dibujo. Por qué: la fila elige el extremo B y la columna el extremo C. El 1 no es una distancia ni un peso: en esta lección solo dice si la arista existe. El peso llegará en grafos ponderados.</p></details>
+<details class="porque"><summary>¿Por qué dividimos entre 2 la suma de los grados?</summary><p>Porque cada arista se ha contado en los dos extremos. Por qué: AB suma 1 al grado de A y 1 al de B. Si no divides, obtienes 8, que es el doble de las cuatro aristas. La fórmula suma de grados = 2E obliga a ese paso final.</p></details>
+<details class="porque"><summary>¿Un camino de longitud 1 aparece en M²?</summary><p>No. Por qué: M² combina dos aristas seguidas. La arista CA es un camino de longitud 1 y vive en la propia matriz M, casilla (C, A), no en el cuadrado. Confundirlas mezcla «estar unidos» con «llegar en dos saltos».</p></details>
+</section>
+<section class="bloque-reto">
+  <span class="etiqueta-reto">Reto Profesor</span>
+  <h2 class="titulo-reto">Matriz de un plano</h2>
+  <p>Dibuja en el lienzo cuatro lugares de tu instituto y las conexiones que usas. Escribe la matriz 4×4 y la suma de grados.</p>
+  <p class="reto-id">reto_id: bach1-mates-gen-L08</p>
+</section>
+<footer class="leccion-pie"><strong>Les vencimos</strong> · L08 de 38 · Matemáticas Generales · staging · file:// · sin publicar</footer>
+</div>
+<script type="application/json" data-maestro="guion">{"curso": "bach1-mates-gen", "leccion": 8, "titulo": "Matrices, tablas y grafos", "url": "leccion-08-matrices-tablas-y-grafos.html", "musica": false, "pasos": [{"id": "abrir", "dicho": "El SVG parte el grafo a la izquierda y la matriz a la derecha: mismos cuatro vértices.", "hacer": "Leer en voz alta el apartado Para situarte y los objetivos."}, {"id": "figura", "dicho": "Hay cuatro aristas: AB, BC, CA y AD. La diagonal de la matriz está a cero.", "hacer": "Mirar el SVG y decir qué dato numérico marca cada trazo."}, {"id": "ej1", "dicho": "Ejemplo 1: cada arista escribe dos unos, y la tabla queda simétrica.", "hacer": "Rehacer el ejemplo 1, glosa a glosa, sin mirar el resultado final."}, {"id": "ej2", "dicho": "Ejemplo 2: grados 3, 2, 2 y 1; suma 8; E = 4.", "hacer": "Rehacer el ejemplo 2 y contrastarlo con el 1."}, {"id": "ej3", "dicho": "Ejemplo 3: de A a C en dos pasos solo se puede A-B-C, y la casilla de M² vale 1.", "hacer": "Rehacer el ejemplo 3 y anotar la comprobación."}, {"id": "practica", "dicho": "No pongas un 1 solo porque dos vértices existan: tiene que verse el trazo.", "hacer": "Escribir el razonamiento de al menos dos ejercicios y usar el lienzo."}, {"id": "cierre", "dicho": "Comprueba simetría y doble conteo antes de dar por buena la matriz.", "hacer": "Contestar Comprueba antes de abrir y dejar el reto por escrito."}]}</script>
+<script>(function(){function liga(c){var ctx=c.getContext('2d');function fondo(){ctx.fillStyle='#161512';ctx.fillRect(0,0,c.width,c.height);ctx.strokeStyle='#C4A15A';ctx.strokeRect(.5,.5,c.width-1,c.height-1);}function fit(){var r=c.getBoundingClientRect();var w=Math.max(320,Math.floor(r.width));if(c.width!==w){c.width=w;c.height=280;fondo();}}var dib=false,last=null;function pos(ev){var r=c.getBoundingClientRect();var s=ev.touches?ev.touches[0]:ev;return{x:(s.clientX-r.left)*c.width/r.width,y:(s.clientY-r.top)*c.height/r.height};}c.addEventListener('pointerdown',function(ev){dib=true;last=pos(ev);ev.preventDefault();});c.addEventListener('pointermove',function(ev){if(!dib)return;var p=pos(ev);ctx.strokeStyle='#E6E1D6';ctx.lineWidth=2.2;ctx.lineCap='round';ctx.beginPath();ctx.moveTo(last.x,last.y);ctx.lineTo(p.x,p.y);ctx.stroke();last=p;ev.preventDefault();});function up(){dib=false;}c.addEventListener('pointerup',up);c.addEventListener('pointerleave',up);var b=document.querySelector('[data-clear="'+c.id+'"]');if(b)b.addEventListener('click',fondo);fit();window.addEventListener('resize',fit);}document.querySelectorAll('canvas.lienzo').forEach(liga);})();</script>
+</body>
+</html>

@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
+<title>L02 · Laboratorio · Fuente, bulo y retractación</title>
+<style>
+:root{--bg:#FAF7F0;--ink:#2A2620;--muted:#5C564C;--card:#fff;--gold:#C4A15A;--gold-soft:#F5EDD8;--gold-deep:#8A6B2F;--green:#3D6B4F;--green-soft:#E4F0E8;--blue:#2F5D7A;--blue-soft:#E3EEF4;--rose:#9B3A4A;--rose-soft:#F8E8EB;--shadow:0 10px 32px rgba(42,38,32,.09);--radius:18px}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{min-height:100%;background:var(--bg);color:var(--ink);font-family:"Segoe UI",system-ui,-apple-system,sans-serif}
+body{padding:14px 10px 36px}
+.wrap{width:100%;max-width:920px;margin:0 auto}
+header{text-align:center;margin-bottom:12px}
+.badge{display:inline-block;font-size:.75rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--gold-deep);background:var(--gold-soft);padding:4px 12px;border-radius:999px;margin-bottom:8px}
+h1{font-size:clamp(1.25rem,4vw,1.7rem);line-height:1.25;font-weight:800}
+.subtitle{margin-top:6px;color:var(--muted);font-size:.98rem}
+.card{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);padding:16px 14px 18px;margin-bottom:14px}
+.card h2{font-size:1.15rem;margin-bottom:8px}
+.hint{color:var(--muted);font-size:.92rem;line-height:1.45;margin-bottom:10px}
+.q{border:2px solid #E0D0A8;border-radius:14px;padding:12px;margin:10px 0;background:#FFFcf5}
+.q h3{font-size:1rem;margin-bottom:8px;line-height:1.35}
+.opt{display:block;width:100%;text-align:left;padding:10px 12px;margin:6px 0;border:2px solid #D9D0C0;border-radius:12px;background:#fff;font-weight:650;cursor:pointer;font-family:inherit;font-size:.95rem;line-height:1.35;color:var(--ink)}
+.opt:hover{border-color:var(--gold)}
+.opt.ok{border-color:var(--green);background:var(--green-soft)}
+.opt.bad{border-color:var(--rose);background:var(--rose-soft)}
+.why{display:none;margin-top:8px;padding:8px 10px;border-radius:10px;background:var(--blue-soft);font-size:.92rem;line-height:1.4}
+.why.show{display:block}
+.score{font-weight:800;color:var(--gold-deep);margin-top:8px}
+button.action{appearance:none;border:none;border-radius:999px;padding:10px 16px;font-weight:800;cursor:pointer;background:var(--gold);color:#fff;margin:4px 6px 4px 0;font-family:inherit}
+button.action.secondary{background:#fff;color:var(--gold-deep);border:2px solid var(--gold)}
+.topbar{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:8px}
+footer{text-align:center;font-size:.8rem;color:var(--muted);margin-top:8px}
+svg.fig{width:100%;height:auto;display:block;margin:8px 0}
+</style>
+</head>
+<body>
+<div class="wrap" id="lab">
+  <header>
+    <div class="badge">Lección 02 · Bloque A · Proyecto científico</div>
+    <h1>Fuente, bulo y retractación</h1>
+    <p class="subtitle">Cinco filtros y un bulo que no necesita un paper inventado.</p>
+  </header>
+  <section class="card">
+    <div class="topbar">
+      <h2>Laboratorio · 2 preguntas</h2>
+      <div>
+        <button type="button" class="action secondary" id="btnFs">Pantalla completa</button>
+        <button type="button" class="action secondary" id="btnReset">Reiniciar</button>
+      </div>
+    </div>
+    <p class="hint">Corrección al pulsar. No hay datos de un aula real.</p>
+    
+    <div id="quiz"></div>
+    <p class="score" id="score" aria-live="polite">Aciertos: 0 / 7</p>
+  </section>
+  <footer>1º Bachillerato · Biología, Geología y Ciencias Ambientales · Castilla y León · Decreto 40/2022 · Offline file:// · sin red</footer>
+</div>
+<script>
+(function(){
+  const ITEMS = [{"q": "¿Qué criterio falla si un texto no dice cómo se midió el dato?", "opts": ["La autoría, porque no hay nombre.", "El método: no puedes repetir ni juzgar el procedimiento.", "El conflicto de interés, siempre.", "La replicación, que ya está hecha."], "ok": 1, "why": "Sin método no hay contraste posible. Autoría y conflicto son otros criterios, que pueden cumplirse o no aparte."}, {"q": "Un laboratorio repite el ensayo y no obtiene el mismo efecto. ¿Qué significa?", "opts": ["El primer grupo mintió seguro.", "La afirmación queda en suspenso: o el efecto no es estable o el método no estaba bien descrito.", "La ciencia ha fracasado y vale la pseudociencia.", "Hay que quedarse con el resultado que prefieras."], "ok": 1, "why": "La replicación no es un voto de popularidad. Si un resultado no se repite, no se da por sentado."}, {"q": "¿Cuál de estas frases describe la ciencia provisional sin convertirla en «todo vale»?", "opts": ["Cualquier opinión equivale a un contraste.", "Las conclusiones se mantienen mientras resisten pruebas nuevas y se revisan si dejan de hacerlo.", "Un resultado publicado ya no se toca.", "Si hay desacuerdo, no se sabe nada."], "ok": 1, "why": "Provisional no es arbitrario: hace falta una prueba mejor, no una preferencia."}, {"q": "El bulo «solo usamos el 10 % del cerebro». ¿Por qué no hace falta inventar un artículo para rechazarlo?", "opts": ["Porque es una frase sin mecanismo ni prueba, y choca con lo que muestran lesiones y la actividad de distintas zonas.", "Porque el 10 % es la regla ecológica y aquí se aplica al cerebro.", "Porque un famoso lo dijo en 1950 en una revista que no existe.", "Porque el cerebro es el 10 % del cuerpo."], "ok": 0, "why": "Es un bulo de divulgación, no un paper. El 10 % trófico es otro modelo y no se traslada al encéfalo. No hace falta fabricar una cita."}, {"q": "Una persona firma un informe sobre un suplemento y cobra de la empresa que lo vende, sin decirlo. ¿Qué criterio está roto?", "opts": ["La replicación.", "El conflicto de interés no declarado.", "La falsabilidad del Sol.", "El porcentaje de argón en el aire."], "ok": 1, "why": "El conflicto no demuestra que el dato sea falso, pero oculta un motivo para sesgar y la fuente deja de ser fiable hasta que se declara y se revisa el método."}, {"q": "¿Qué hizo inútil como fuente el artículo de Wakefield de 1998 en The Lancet sobre la triple vírica y el autismo?", "opts": ["Que hablara de biología.", "Que se retractó en 2010: la muestra era mínima y había conflictos no declarados; no sirve como prueba.", "Que fuera largo.", "Que lo leyeran médicos."], "ok": 1, "why": "Es un caso real, no un artículo inventado. Una retractación no es un detalle menor: el texto deja de ser evidencia."}, {"q": "Una web sin autores afirma que una pulsera «equilibra la energía celular» y no acepta ninguna medición que pudiera fallar. ¿Cómo la clasificas?", "opts": ["Fuente primaria.", "Pseudociencia: apariencia científica, sin método y sin posibilidad de contraste.", "Hipótesis falsable.", "Revisión por pares."], "ok": 1, "why": "El vocabulario científico no sustituye autoría, método, revisión ni un resultado que pudiera decir que no."}];
+  const quiz = document.getElementById('quiz');
+  const scoreEl = document.getElementById('score');
+  let aciertos = 0;
+  function render(){
+    aciertos = 0;
+    quiz.innerHTML = '';
+    ITEMS.forEach((it, i) => {
+      const box = document.createElement('div');
+      box.className = 'q';
+      const h = document.createElement('h3');
+      h.textContent = (i+1) + '. ' + it.q;
+      box.appendChild(h);
+      const why = document.createElement('p');
+      why.className = 'why';
+      let locked = false;
+      it.opts.forEach((t, j) => {
+        const b = document.createElement('button');
+        b.type = 'button';
+        b.className = 'opt';
+        b.textContent = t;
+        b.addEventListener('click', () => {
+          if (locked) return;
+          locked = true;
+          const buttons = box.querySelectorAll('.opt');
+          buttons.forEach((bb, k) => {
+            bb.disabled = true;
+            if (k === it.ok) bb.classList.add('ok');
+          });
+          if (j === it.ok) {
+            aciertos += 1;
+          } else {
+            b.classList.add('bad');
+          }
+          why.textContent = (j === it.ok ? 'Correcto. ' : 'No es la mejor opción. ') + it.why;
+          why.classList.add('show');
+          scoreEl.textContent = 'Aciertos: ' + aciertos + ' / ' + ITEMS.length;
+        });
+        box.appendChild(b);
+      });
+      box.appendChild(why);
+      quiz.appendChild(box);
+    });
+    scoreEl.textContent = 'Aciertos: 0 / ' + ITEMS.length;
+  }
+  document.getElementById('btnReset').addEventListener('click', render);
+  document.getElementById('btnFs').addEventListener('click', () => {
+    const el = document.documentElement;
+    if (!document.fullscreenElement) {
+      if (el.requestFullscreen) el.requestFullscreen();
+    } else if (document.exitFullscreen) {
+      document.exitFullscreen();
+    }
+  });
+  window.addEventListener('message', (ev) => {
+    const d = ev.data || {};
+    if (d.type === 'maestro:reset') render();
+    if (d.type === 'maestro:highlight') {
+      const f = document.querySelector('.q');
+      if (f) f.style.outline = '3px solid #C4A15A';
+    }
+  });
+  render();
+})();
+</script>
+</body>
+</html>

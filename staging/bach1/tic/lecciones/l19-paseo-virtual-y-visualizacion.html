@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="es"><head><meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Laboratorio L19 · Paseo virtual y visualización</title>
+<style>
+:root{--ink:#0E0E0C;--amber:#C4A15A;--paper:#FAF7F0;--line:rgba(14,14,12,.14)}
+*{box-sizing:border-box} body{margin:0;font-family:Segoe UI,system-ui,sans-serif;background:var(--paper);color:var(--ink);line-height:1.45}
+header{padding:.7rem 1rem;border-bottom:2px solid var(--amber);background:#fff} header h1{margin:0;font-size:1.05rem;font-family:Georgia,serif}
+header p{margin:.2rem 0 0;font-size:.8rem;color:#5C564C} main{padding:.75rem 1rem 2rem;max-width:62rem}
+label{display:block;font-size:.75rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:#5C564C;margin:.55rem 0 .2rem}
+textarea,input[type=text],input[type=number],select{width:100%;font:14px/1.4 ui-monospace,monospace;border:1px solid var(--line);border-radius:6px;padding:.4rem .5rem}
+.nota{font-size:.82rem;color:#5C564C}
+
+.bloque-cuerpo table{width:100%;border-collapse:collapse;font-size:.92rem;margin:0 0 1rem}
+.bloque-cuerpo th,.bloque-cuerpo td{border:1px solid rgba(14,14,12,.12);padding:.45rem .55rem;vertical-align:top;text-align:left}
+.bloque-cuerpo th{background:#F0EBE0;font-weight:650}
+.bloque-cuerpo pre{background:#0E0E0C;color:#FAF7F0;padding:.9rem 1rem;border-radius:8px;overflow:auto;font-size:.82rem;line-height:1.45}
+.bloque-cuerpo pre code{color:inherit;font-size:inherit}
+.bloque-cuerpo code{font-family:ui-monospace,"Cascadia Code","Segoe UI Mono",monospace}
+.figura-svg{margin:1rem 0 1.15rem;background:#fff;border:1px solid rgba(14,14,12,.12);border-radius:10px;padding:.6rem .6rem .35rem}
+.figura-svg svg{width:100%;height:auto;display:block}
+.figura-svg figcaption{font-size:.82rem;color:#5C564C;padding:.35rem .2rem 0}
+details.comprueba{margin:.55rem 0;background:#fff;border:1px solid rgba(14,14,12,.12);border-left:3px solid #C4A15A;border-radius:8px;padding:.55rem .85rem}
+details.comprueba summary{cursor:pointer;font-weight:650;color:#0E0E0C}
+.lab-embed{background:#FAF7F0;border:1px solid rgba(14,14,12,.12);border-radius:8px;padding:.75rem}
+.lab-embed label{display:block;font-size:.78rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:#5C564C;margin:.4rem 0 .2rem}
+.lab-embed textarea,.lab-embed input[type=text],.lab-embed input[type=number],.lab-embed select{width:100%;font-family:ui-monospace,monospace;font-size:.82rem;border:1px solid rgba(14,14,12,.2);border-radius:6px;padding:.4rem .5rem;background:#fff;color:#0E0E0C}
+.lab-embed textarea{min-height:7rem;resize:vertical}
+.lab-row{display:flex;flex-wrap:wrap;gap:.4rem;margin:.45rem 0}
+.lab-embed button{background:#C4A15A;color:#1A160E;border:0;border-radius:4px;padding:.4rem .7rem;font-weight:700;cursor:pointer}
+.lab-embed button.sec{background:#fff;border:1px solid rgba(14,14,12,.2)}
+.lab-out{font-size:.88rem;background:#fff;border:1px solid rgba(14,14,12,.12);border-radius:6px;padding:.5rem .65rem;margin-top:.4rem}
+.lab-out .ok{color:#3D6B4F;font-weight:650}
+.lab-out .bad{color:#A85A3C;font-weight:650}
+.lab-canvas{width:100%;max-width:640px;background:#fff;border:1px solid rgba(14,14,12,.15);border-radius:6px;display:block;touch-action:none}
+.gpio-sim{display:grid;grid-template-columns:7.5rem 1fr;gap:.8rem;align-items:center;background:#0E0E0C;color:#FAF7F0;border-radius:10px;padding:.85rem 1rem;margin:.4rem 0 .6rem}
+.gpio-sim p{margin:.2rem 0;color:#FAF7F0}
+.gpio-sim .pin{font-family:ui-monospace,monospace;color:#C4A15A}
+button.sw{width:4.2rem;height:2rem;min-height:2rem;border-radius:999px;border:1px solid #C4A15A;background:#2A2620;color:#FAF7F0;position:relative;cursor:pointer;padding:0;font-weight:700}
+button.sw[aria-pressed="true"]{background:#C4A15A;color:#1A160E}
+button.sw i{position:absolute;top:2px;left:2px;width:1.6rem;height:1.6rem;border-radius:50%;background:#FAF7F0;display:block}
+button.sw[aria-pressed="true"] i{left:2.2rem;background:#fff}
+</style></head><body>
+<header><h1>Laboratorio · L19 · Paseo virtual y visualización</h1>
+<p>Offline, en esta página. No se envía nada a un servidor.</p></header>
+<main><p class="nota">Cuatro puestos de cámara. Reproducir no renderiza un mundo: enseña el orden del paseo.</p>
+<label for="cap">Qué se ve</label><input id="cap" type="text"/>
+<label for="cam">Cámara</label>
+<select id="cam"><option>General de entrada</option><option>Travelling lateral</option><option>Acercamiento a la pieza</option><option>Contrapicado del rótulo</option></select>
+<div class="lab-row">
+  <button type="button" id="bPrev" class="sec">←</button>
+  <button type="button" id="bNext" class="sec">→</button>
+  <button type="button" id="bPlay">Reproducir paseo</button>
+</div>
+<p id="num" class="nota"></p>
+<canvas id="cv" class="lab-canvas" width="640" height="280"></canvas>
+<div id="out" class="lab-out"></div>
+</main>
+<script>function byId(id){return document.getElementById(id);}
+var frames=[
+  {cap:"Umbral del aula, se ve la planta entera", cam:"General de entrada"},
+  {cap:"Se recorre la mesa de trabajo de izquierda a derecha", cam:"Travelling lateral"},
+  {cap:"La marca del proyecto ocupa el encuadre", cam:"Acercamiento a la pieza"},
+  {cap:"El rótulo del IES cierra, sin gente en medio", cam:"Contrapicado del rótulo"}
+];
+var i=0, timer=null;
+function read(){ frames[i].cap=byId("cap").value; frames[i].cam=byId("cam").value; }
+function draw(fr, idx){
+  var c=byId("cv"), g=c.getContext("2d");
+  g.fillStyle="#0E0E0C"; g.fillRect(0,0,640,280);
+  g.strokeStyle="#C4A15A"; g.strokeRect(80,50,480,150);
+  g.fillStyle="#FAF7F0"; g.font="14px sans-serif";
+  g.fillText("Puesto "+(idx+1)+" · "+fr.cam, 92, 78);
+  g.font="20px Georgia, serif"; g.fillText(fr.cap, 92, 130);
+  var ox=120+idx*90;
+  g.strokeStyle="#C4A15A"; g.beginPath(); g.moveTo(ox,200); g.lineTo(ox+40,170); g.stroke();
+  g.fillText("cam", ox, 220);
+}
+function show(){
+  var f=frames[i];
+  byId("cap").value=f.cap; byId("cam").value=f.cam;
+  byId("num").textContent="Plano de cámara "+(i+1)+" de "+frames.length;
+  draw(f,i);
+  byId("out").textContent="Un paseo es una lista de cámaras, no un archivo de motor 3D. Si el pie no dice qué se entiende, el puesto sobra.";
+}
+byId("bPrev").onclick=function(){ read(); i=Math.max(0,i-1); show(); };
+byId("bNext").onclick=function(){ read(); i=Math.min(frames.length-1,i+1); show(); };
+byId("bPlay").onclick=function(){
+  read(); if(timer) clearInterval(timer); var k=0;
+  timer=setInterval(function(){ draw(frames[k],k); k++; if(k>=frames.length){ clearInterval(timer); timer=null; } }, 900);
+};
+["cap","cam"].forEach(function(id){ byId(id).addEventListener("input", function(){ read(); show(); }); });
+show();
+</script>
+</body></html>

@@ -1,0 +1,181 @@
+<!DOCTYPE html><html lang="es"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Lección 23 · Temperatura y calor</title><link rel="stylesheet" href="leccion-shell.css"/>
+<script src="leccion-shell-nav.js" defer></script><style>
+  .pasos{list-style:none;margin:0 0 1rem;padding:0;counter-reset:paso}
+  .pasos li{position:relative;margin:0 0 .7rem;padding:.7rem .8rem .7rem 3.1rem;background:#fff;border:1px solid rgba(14,14,12,.12);border-radius:10px}
+  .pasos li::before{counter-increment:paso;content:counter(paso);position:absolute;left:.65rem;top:.7rem;width:1.7rem;height:1.7rem;border-radius:50%;background:#2F5D7A;color:#fff;font-weight:700;font-size:.9rem;display:flex;align-items:center;justify-content:center}
+  .figura-svg{background:#fff;border:1px solid rgba(14,14,12,.12);border-radius:10px;padding:.4rem;margin:.4rem 0 1rem}
+  .figura-svg svg{width:100%;height:auto;display:block}
+  .ej{margin:0 0 1rem;padding:.85rem .95rem;background:#fff;border:1px solid rgba(14,14,12,.12);border-left:3px solid #C4A15A;border-radius:10px}
+  .ej h3{margin:0 0 .35rem;font-family:var(--lv-serif);font-size:1.05rem;color:#2A2620}
+  .editor,textarea.editor{width:100%;min-height:4.4rem;font-family:ui-monospace,"Cascadia Code","Segoe UI Mono",monospace;font-size:.95rem;line-height:1.4;padding:.55rem .65rem;border:1px solid rgba(14,14,12,.22);border-radius:8px;background:#FFFCF5;color:#2A2620;resize:vertical}
+  .lienzo{display:block;width:100%;height:220px;background:#fff;border:1px solid #2F5D7A;border-radius:8px;touch-action:none;cursor:crosshair}
+  .fila{display:flex;flex-wrap:wrap;gap:.4rem;margin:.45rem 0}
+  .boton{font:inherit;font-weight:700;font-size:.85rem;padding:.35rem .75rem;border-radius:999px;border:1px solid #C4A15A;background:#fff;color:#2A2620;cursor:pointer}
+  .boton.verde{border-color:#3D6B4F;background:#3D6B4F;color:#fff}
+  .porque{margin-top:.5rem;padding:.6rem .7rem;background:#E4F0E8;border-radius:8px;color:#2A2620}
+  .dato{font-size:.95rem;color:#5C564C}
+  .panel-int{padding:.75rem}
+  .panel-int label{display:block;font-weight:650;font-size:.92rem;margin:.35rem 0 .15rem}
+  .ok{color:#3D6B4F}.mal{color:#A85A3C}
+  table.masas{width:100%;border-collapse:collapse;margin:.4rem 0 1rem;font-size:.98rem}
+  table.masas th,table.masas td{border:1px solid rgba(14,14,12,.12);padding:.35rem .5rem;text-align:left}
+  table.masas th{background:#F0EBE0}
+</style></head>
+<body class="leccion-shell"><div class="leccion-wrap">
+<nav class="leccion-barra" aria-label="Navegación de lección" data-actual="23" data-total="23">
+<div class="leccion-progreso" role="status"><span class="progreso-texto"><strong>23</strong> de <strong>23</strong></span>
+<div class="progreso-pista"><div class="progreso-lleno" style="width:100.00%"></div></div></div>
+<div class="leccion-atajos"><a class="atajo atajo-calc" href="../../../modulos/calculadora.html">Calculadora</a><a class="atajo atajo-prev" href="leccion-22-energia-mecanica.html">← Anterior</a><span class="atajo atajo-next is-disabled" aria-disabled="true">Siguiente →</span></div></nav>
+<header class="leccion-top"><a class="leccion-marca" href="../../index.html">Les <span>vencimos</span></a><p class="leccion-meta-top">Física y Química · 1º Bachillerato</p></header>
+<header class="bloque-titulo" id="maestro-titulo"><span class="eyebrow">Lección 23 · Bloque F · Termodinámica</span><h1 class="titulo-leccion">Veinte kelvin no son <em>doscientos noventa y tres</em></h1>
+<p class="meta-leccion">1º Bachillerato Física y Química · Ciencias · Decreto 40/2022 CyL</p></header>
+
+<aside class="bloque-curiosidad" id="maestro-curiosidad"><p class="etiqueta-bloque">Límite del curso</p>
+<h2 class="titulo-curiosidad">Calor y temperatura no son lo mismo</h2>
+<p class="texto-curiosidad">Esta lección se queda en lo que el decreto de 1º pide: variables de un sistema, cómo cambia su temperatura y qué energía intercambia con el entorno. No hay entropía ni energía de Gibbs: eso es de cursos posteriores. Aquí el calor Q es energía que pasa por una diferencia de temperatura, y se calcula con Q = m·c·ΔT cuando el estado no cambia de sólido a líquido.</p></aside>
+<section class="bloque-cuerpo" id="maestro-objetivos"><h2>Objetivos</h2><ul>
+<li>Nombrar temperatura, masa, presión y volumen como variables que describen el estado, sin abrir la termodinámica de 2º.</li>
+<li>Calcular Q = m·c·ΔT para agua líquida, con c = 4180 J/(kg·K).</li>
+<li>Distinguir ΔT en kelvin y en grados Celsius: el intervalo es el mismo número.</li>
+<li>Hallar la temperatura de equilibrio de dos masas de agua que se mezclan, sin pérdidas.</li>
+</ul></section>
+<section class="bloque-cuerpo" id="maestro-explicacion"><h2>Letras</h2>
+<ul>
+<li>T, temperatura. En la fórmula del calor usamos el incremento. ΔT = 20 °C es el mismo intervalo que 20 K. No sumes 273 dentro de ΔT.</li>
+<li>c, calor específico. Para agua líquida, en esta lección, c = 4180 J/(kg·K). No vale para hielo ni para vapor.</li>
+<li>Q = m·c·ΔT, en julios si m está en kg. Si el sistema se calienta, Q es positivo hacia el sistema. Si se enfría, Q sale y el signo es negativo.</li>
+<li>Equilibrio térmico: al final, las dos porciones quedan a la misma T. Si no hay pérdidas y es la misma sustancia, el calor que sale de la caliente entra en la fría.</li>
+</ul>
+<table class="masas">
+<thead><tr><th>Mezcla de agua líquida</th><th>Temperaturas</th><th>Final</th><th>Por qué</th></tr></thead>
+<tbody>
+<tr><td>0,20 kg y 0,20 kg</td><td>90 °C y 10 °C</td><td>50 °C</td><td>Masas iguales: media</td></tr>
+<tr><td>0,50 kg y 0,50 kg</td><td>80 °C y 20 °C</td><td>50 °C</td><td>Otra media, mismos intervalos</td></tr>
+<tr><td>0,30 kg y 0,10 kg</td><td>80 °C y 20 °C</td><td>65 °C</td><td>Pesa más la caliente</td></tr>
+<tr><td>0,40 kg y 0,10 kg</td><td>60 °C y 20 °C</td><td>52 °C</td><td>Segundo ejemplo</td></tr>
+</tbody>
+</table>
+<p class="dato">c = 4180 J/(kg·K) se cancela si las dos porciones son agua líquida. No lo uses para hielo ni para vapor. ΔT es un intervalo: 20 °C de subida son 20 K. No sumes 273 dentro de ΔT.</p>
+<div class="figura-svg"><svg viewBox="0 0 720 180" role="img" aria-labelledby="t23"><title id="t23">Dos vasos de agua que se mezclan a 50 grados</title>
+<rect width="720" height="180" fill="#FAF7F0"/>
+<rect x="60" y="40" width="70" height="90" fill="#C4A15A" stroke="#2A2620"/>
+<text x="68" y="150" font-size="13">0,20 kg · 90 °C</text>
+<rect x="220" y="40" width="70" height="90" fill="#2F5D7A" stroke="#2A2620"/>
+<text x="228" y="150" font-size="13" fill="#2A2620">0,20 kg · 10 °C</text>
+<rect x="430" y="50" width="90" height="80" fill="#3D6B4F" stroke="#2A2620"/>
+<text x="440" y="150" font-size="13">0,40 kg · 50 °C</text>
+</svg></div>
+<h2>Ejemplo</h2>
+<ol class="pasos">
+<li>Calientas m = 0,250 kg de agua líquida. c = 4180 J/(kg·K). ΔT = 20 K (lo mismo que subir 20 °C).</li>
+<li>Q = 0,250·4180·20. Primero 0,250·4180 = 1045. Luego 1045·20 = 20900 J.</li>
+<li>Mezcla, sin pérdidas: 0,20 kg a 90 °C con 0,20 kg a 10 °C, la misma c.</li>
+<li>El calor que suelta una es el que toma la otra: m·c·(90 − T) = m·c·(T − 10). m y c se cancelan. 90 − T = T − 10. 100 = 2T. T = 50 °C.</li>
+<li>Comprueba: la caliente baja 40 °C y la fría sube 40 °C. Masas iguales, intervalos iguales. La mezcla son 0,40 kg a 50 °C.</li>
+</ol>
+<h2>Segundo ejemplo resuelto</h2>
+<p>El primero mezclaba masas iguales y calentaba 0,250 kg en 20 K. Aquí las masas no son iguales, y el calor que cruza se calcula con el mismo c del agua líquida.</p>
+<div class="figura-svg">
+<svg viewBox="0 0 720 210" role="img" aria-labelledby="t23b">
+<title id="t23b">0,40 kg a 60 grados y 0,10 kg a 20 grados acaban a 52 grados</title>
+<rect width="720" height="210" fill="#FAF7F0"/>
+<rect x="50" y="36" width="86" height="96" fill="#C4A15A" stroke="#2A2620"/>
+<text x="40" y="156" font-size="13" fill="#2A2620">0,40 kg · 60 °C</text>
+<rect x="230" y="84" width="50" height="48" fill="#2F5D7A" stroke="#2A2620"/>
+<text x="200" y="156" font-size="13" fill="#2A2620">0,10 kg · 20 °C</text>
+<rect x="430" y="48" width="100" height="84" fill="#3D6B4F" stroke="#2A2620"/>
+<text x="420" y="156" font-size="13" fill="#2A2620">0,50 kg · 52 °C</text>
+<text x="40" y="186" font-size="14" fill="#5C564C">0,40·(60 − 52) = 3,2 y 0,10·(52 − 20) = 3,2. La c se cancela.</text>
+<text x="40" y="206" font-size="14" fill="#2A2620">|Q| = 0,10·4180·32 = 13376 J.</text>
+</svg>
+</div>
+<ol class="pasos">
+<li>Sin pérdidas, agua líquida con agua líquida: 0,40 kg a 60 °C y 0,10 kg a 20 °C. c = 4180 J/(kg·K) en las dos, así que se cancela al buscar la temperatura final. No es la mezcla de 0,30 kg y 0,10 kg del ejercicio 5, que acababa a 65 °C.</li>
+<li>0,40·(60 − T) = 0,10·(T − 20). Multiplica los dos lados por 10: 4·(60 − T) = T − 20. 240 − 4T = T − 20. 240 + 20 = 5T. 260 = 5T. T = 52 °C.</li>
+<li>La final queda entre 20 °C y 60 °C, más cerca de 60 porque hay más masa caliente. La media sin masas, (60 + 20)/2 = 40 °C, es falsa aquí. 52 no es 40.</li>
+<li>La fría sube ΔT = 52 − 20 = 32 K. No sumes 273: el intervalo ya está en kelvin. Q = 0,10·4180·32. 4180·30 = 125400 y 4180·2 = 8360, suma 133760. Por 0,10 son 13376 J. La fría gana 13376 J.</li>
+<li>La caliente baja 60 − 52 = 8 K. Q = −0,40·4180·8. 4180·8 = 33440 y 0,40·33440 = 13376, así que Q = −13376 J. El valor absoluto coincide con el de la fría. 0,40·8 = 3,2 y 0,10·32 = 3,2: los productos m·ΔT son iguales, por eso los calores también, con signo contrario. La masa total es 0,50 kg a 52 °C.</li>
+</ol>
+<p class="dato">El error de meter 273 en el primer ejemplo: ΔT falso = 20 + 273 = 293. Q = 0,250·4180·293. 0,250·4180 = 1045 y 1045·293 = 306185 J. No es el calor de subir 20 grados. El bueno sigue siendo 20900 J.</p>
+<h2>La media con masas, si c es la misma</h2>
+<p>Cuando las dos porciones son agua líquida, la temperatura final también se puede escribir T = (m₁·T₁ + m₂·T₂) / (m₁ + m₂). m₁ y m₂ son las dos masas, en kg; T₁ y T₂, sus temperaturas en la misma escala. Es la ecuación del balance, reordenada: c se ha cancelado. No vale si una porción no es agua líquida, porque entonces las c no son iguales y no se van.</p>
+<ul>
+<li>0,20 kg a 90 °C y 0,20 kg a 10 °C: (0,20·90 + 0,20·10) / 0,40 = (18 + 2) / 0,40 = 20 / 0,40 = 50 °C. La misma final del primer ejemplo.</li>
+<li>0,30 kg a 80 °C y 0,10 kg a 20 °C: (0,30·80 + 0,10·20) / 0,40 = (24 + 2) / 0,40 = 26 / 0,40 = 65 °C. La misma final del ejercicio 5.</li>
+<li>0,40 kg a 60 °C y 0,10 kg a 20 °C: (0,40·60 + 0,10·20) / 0,50 = (24 + 2) / 0,50 = 26 / 0,50 = 52 °C. La misma final del segundo ejemplo. 24 + 2 = 26 en los dos últimos, y el denominador cambia: 0,40 kg frente a 0,50 kg.</li>
+</ul>
+<p>No sumes 273 a una sola temperatura. Si lo sumas a las dos, la media sube 273 y al restarlo vuelves al mismo grado Celsius: en la primera mezcla, 0,20·(90+273) + 0,20·(10+273) = 0,20·363 + 0,20·283 = 72,6 + 56,6 = 129,2. Partido de 0,40 da 323, y 323 − 273 = 50 °C. Si sumas 273 solo al final, 50 + 273 = 323, y ese 323 no es un ΔT. Q sigue usando el intervalo, no 323.</p>
+<p>El producto m·ΔT manda el calor. El primer ejemplo tiene 0,250·20 = 5,0 kg·K y Q = 20900 J. La mezcla ya unida del segundo ejemplo son 0,50 kg a 52 °C. Subirla otros 10 K, todavía agua líquida, pide Q = 0,50·4180·10. 0,50·4180 = 2090 y 2090·10 = 20900 J. Otra vez 20900 J, porque 0,50·10 = 5,0 kg·K, el mismo producto. No es la misma agua. Enfriarla esos 10 K sería Q = −20900 J, el signo del ejercicio 3 con otras cifras y el mismo producto.</p>
+<p>El interactivo da la masa en gramos. 250 g = 0,250 kg. Si dejas 250·4180·20 sin pasar a kilos, salen 20900000 J, mil veces el calor bueno: falta dividir entre 1000. 250·4180·20 / 1000 = 20900 J. En un extremo del deslizador, 100 g y 5 K: m = 0,100 kg y Q = 0,100·4180·5 = 2090 J. En el otro, 500 g y 40 K: m = 0,500 kg y Q = 0,500·4180·40. 0,500·4180 = 2090 y 2090·40 = 83600 J. Es el calor de 1 kg que sube 20 K, porque 0,500·40 = 20 y 1·20 = 20: el mismo producto m·ΔT, en kg·K.</p>
+<h2>Ejercicios</h2>
+<article class="ej"><h3>1. El ejemplo, escrito</h3><p>Repite Q para 0,250 kg y ΔT = 20 K con c = 4180.</p>
+<textarea class="editor" id="e1"></textarea>
+<details class="porque"><summary>Porqué</summary><p>0,250·4180 = 1045 y 1045·20 = 20900 J. Si olvidas el 0,250 y haces 4180·20, sale el calor de 1 kg: 83600 J, cuatro veces más, porque 1/0,250 = 4. Si además sumas 273 al intervalo, 1045·293 = 306185 J, que no es este calentamiento.</p></details></article>
+<article class="ej"><h3>2. Intervalo</h3><p>El agua pasa de 20 °C a 40 °C. ¿ΔT en kelvin?</p>
+<textarea class="editor" id="e2"></textarea>
+<details class="porque"><summary>Porqué</summary><p>ΔT = 40 − 20 = 20 K. No es 293 ni 313: 20 + 273 = 293 y 40 + 273 = 313 serían las temperaturas absolutas de cada extremo, y su diferencia vuelve a ser 20. Q usa el incremento, 20, no 293. Por eso en el ejemplo 0,250·4180·20 = 20900 J y no 0,250·4180·293.</p></details></article>
+<article class="ej"><h3>3. Enfriar</h3><p>0,250 kg de agua bajan 20 K. ¿Q para el agua, con signo?</p>
+<textarea class="editor" id="e3"></textarea>
+<details class="porque"><summary>Porqué</summary><p>Q = 0,250·4180·(−20) = −20900 J. El valor absoluto es el del ejemplo; el signo dice que la energía sale del agua. En la mezcla del segundo ejemplo el signo se reparte: la fría gana 13376 J y la caliente pierde 13376 J.</p></details></article>
+<article class="ej"><h3>4. Masas iguales</h3><p>0,50 kg a 80 °C con 0,50 kg a 20 °C, sin pérdidas, misma c. Temperatura final.</p>
+<textarea class="editor" id="e4"></textarea>
+<details class="porque"><summary>Porqué</summary><p>50 °C. (80 + 20)/2 = 50. Comprueba con los productos m·ΔT: 0,50·(80 − 50) = 15 y 0,50·(50 − 20) = 15. Coinciden, y c no hace falta. No es la mezcla 0,40 kg y 0,10 kg, que no da la media y acaba a 52 °C.</p></details></article>
+<article class="ej"><h3>5. Masas distintas</h3><p>0,30 kg a 80 °C y 0,10 kg a 20 °C. Sin pérdidas. Plantea la ecuación y halla T. c es la misma y se cancela.</p>
+<textarea class="editor" id="e5"></textarea>
+<details class="porque"><summary>Porqué</summary><p>0,30·(80 − T) = 0,10·(T − 20). 24 − 0,30T = 0,10T − 2. 26 = 0,40T. T = 65 °C. Pesa más el agua caliente, y la final queda más cerca de 80 que de 20.</p></details></article>
+<canvas id="lienzo23" class="lienzo" aria-label="Mezcla"></canvas>
+<div class="fila"><button class="boton" id="b23" type="button">Borrar lienzo</button></div>
+</section>
+<section class="bloque-vida-real" id="maestro-vida"><p class="etiqueta-bloque">En la vida real</p>
+<h2 class="titulo-vida">El vaso, no el motor de Carnot</h2>
+<ul>
+<li>Templar la sopa con un poco de agua fría es la mezcla del ejercicio 5: 0,30 kg a 80 °C y 0,10 kg a 20 °C acaban a 65 °C, no a 50 °C. Con 0,40 kg a 60 °C y 0,10 kg a 20 °C la final es 52 °C, tampoco la media.</li>
+<li>El radiador de casa cede calor al aire de la habitación. La energía que sale del agua caliente es Q, y la temperatura del agua baja.</li>
+<li>Un termómetro marca temperatura, no calor. Hace falta la masa y el calor específico para pasar de ΔT a julios.</li>
+</ul></section>
+<section class="bloque-interactivo" id="maestro-interactivo"><div class="panel-int">
+<p>Agua líquida, c = 4180 J/(kg·K). Elige masa y ΔT. Escribe Q en julios.</p>
+<label>m: <span id="om">250</span> g</label><input id="mm" type="range" min="100" max="500" step="50" value="250"/>
+<label>ΔT: <span id="od">20</span> K</label><input id="DD" type="range" min="5" max="40" step="5" value="20"/>
+<textarea class="editor" id="resp23"></textarea>
+<button class="boton verde" id="chk23" type="button">Comprobar</button>
+<p id="msg23"></p></div></section>
+<section class="bloque-reto" id="maestro-reto"><span class="etiqueta-reto">Reto Profesor</span>
+<h2 class="titulo-reto">Tu mezcla, sin pérdidas inventadas</h2>
+<p>Elige dos masas de agua líquida y dos temperaturas. En el editor, la ecuación y la T final. En el lienzo, los dos vasos y el vaso mezcla. Si supones que no se pierde calor, dilo. No calcules entropía.</p>
+<textarea class="editor" id="reto23"></textarea>
+<canvas id="retoCv" class="lienzo"></canvas>
+<button class="boton" id="bReto" type="button">Borrar</button>
+<ul><li>c se cancela si las dos porciones son agua líquida.</li><li>La final queda entre las dos temperaturas.</li><li>ΔT no lleva +273.</li></ul>
+<p class="reto-id">reto_id: bach1-fyq-23-termo</p></section>
+
+<footer class="leccion-pie"><strong>Les vencimos</strong> · Decreto 40/2022 CyL · sin CDN</footer>
+</div><script>
+function liga(id, btn){
+  var c=document.getElementById(id); if(!c) return;
+  var ctx=c.getContext("2d");
+  function fondo(){ctx.fillStyle="#fff";ctx.fillRect(0,0,c.width,c.height);ctx.strokeStyle="#C4A15A";ctx.strokeRect(0.5,0.5,c.width-1,c.height-1);}
+  function fit(){var r=c.getBoundingClientRect();var w=Math.max(300,Math.floor(r.width));if(c.width!==w){c.width=w;c.height=220;fondo();}}
+  var dib=false,last=null;
+  function pos(ev){var r=c.getBoundingClientRect();var src=ev.touches?ev.touches[0]:ev;return{x:(src.clientX-r.left)*c.width/r.width,y:(src.clientY-r.top)*c.height/r.height};}
+  c.addEventListener("pointerdown",function(ev){dib=true;last=pos(ev);ev.preventDefault();});
+  c.addEventListener("pointermove",function(ev){if(!dib)return;var p=pos(ev);ctx.strokeStyle="#2A2620";ctx.lineWidth=2.2;ctx.lineCap="round";ctx.beginPath();ctx.moveTo(last.x,last.y);ctx.lineTo(p.x,p.y);ctx.stroke();last=p;ev.preventDefault();});
+  window.addEventListener("pointerup",function(){dib=false;});
+  document.getElementById(btn).addEventListener("click",fondo);
+  fit(); window.addEventListener("resize",fit);
+}
+
+liga("lienzo23","b23"); liga("retoCv","bReto");
+var mm=document.getElementById("mm"), DD=document.getElementById("DD");
+function ref(){document.getElementById("om").textContent=mm.value; document.getElementById("od").textContent=DD.value;}
+mm.oninput=ref; DD.oninput=ref; ref();
+document.getElementById("chk23").onclick=function(){
+  var Q=(mm.value/1000)*4180*(+DD.value);
+  var nums=(document.getElementById("resp23").value.replace(/,/g,".").match(/\d+(?:\.\d+)?/g)||[]).map(Number);
+  var ok=nums.some(function(n){return Math.abs(n-Q)<1.1;});
+  var msg=document.getElementById("msg23");
+  if(ok){msg.className="ok"; msg.textContent="Q = "+Q.toFixed(0)+" J.";}
+  else{msg.className="mal"; msg.textContent="Pasa los gramos a kg y haz m·4180·ΔT = "+Q.toFixed(0)+" J.";}
+};
+</script></body></html>

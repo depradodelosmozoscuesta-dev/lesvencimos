@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
+<title>L40 · Laboratorio · Procariotas y Rhizobium</title>
+<style>
+:root{--bg:#FAF7F0;--ink:#2A2620;--muted:#5C564C;--card:#fff;--gold:#C4A15A;--gold-soft:#F5EDD8;--gold-deep:#8A6B2F;--green:#3D6B4F;--green-soft:#E4F0E8;--blue:#2F5D7A;--blue-soft:#E3EEF4;--rose:#9B3A4A;--rose-soft:#F8E8EB;--shadow:0 10px 32px rgba(42,38,32,.09);--radius:18px}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{min-height:100%;background:var(--bg);color:var(--ink);font-family:"Segoe UI",system-ui,-apple-system,sans-serif}
+body{padding:14px 10px 36px}
+.wrap{width:100%;max-width:920px;margin:0 auto}
+header{text-align:center;margin-bottom:12px}
+.badge{display:inline-block;font-size:.75rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--gold-deep);background:var(--gold-soft);padding:4px 12px;border-radius:999px;margin-bottom:8px}
+h1{font-size:clamp(1.25rem,4vw,1.7rem);line-height:1.25;font-weight:800}
+.subtitle{margin-top:6px;color:var(--muted);font-size:.98rem}
+.card{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);padding:16px 14px 18px;margin-bottom:14px}
+.card h2{font-size:1.15rem;margin-bottom:8px}
+.hint{color:var(--muted);font-size:.92rem;line-height:1.45;margin-bottom:10px}
+.q{border:2px solid #E0D0A8;border-radius:14px;padding:12px;margin:10px 0;background:#FFFcf5}
+.q h3{font-size:1rem;margin-bottom:8px;line-height:1.35}
+.opt{display:block;width:100%;text-align:left;padding:10px 12px;margin:6px 0;border:2px solid #D9D0C0;border-radius:12px;background:#fff;font-weight:650;cursor:pointer;font-family:inherit;font-size:.95rem;line-height:1.35;color:var(--ink)}
+.opt:hover{border-color:var(--gold)}
+.opt.ok{border-color:var(--green);background:var(--green-soft)}
+.opt.bad{border-color:var(--rose);background:var(--rose-soft)}
+.why{display:none;margin-top:8px;padding:8px 10px;border-radius:10px;background:var(--blue-soft);font-size:.92rem;line-height:1.4}
+.why.show{display:block}
+.score{font-weight:800;color:var(--gold-deep);margin-top:8px}
+button.action{appearance:none;border:none;border-radius:999px;padding:10px 16px;font-weight:800;cursor:pointer;background:var(--gold);color:#fff;margin:4px 6px 4px 0;font-family:inherit}
+button.action.secondary{background:#fff;color:var(--gold-deep);border:2px solid var(--gold)}
+.topbar{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:8px}
+footer{text-align:center;font-size:.8rem;color:var(--muted);margin-top:8px}
+</style>
+</head>
+<body>
+<div class="wrap" id="lab">
+  <header>
+    <div class="badge">Lección 40 · Bloque G</div>
+    <h1>Procariotas y Rhizobium</h1>
+    <p class="subtitle">Dominios y nódulos.</p>
+  </header>
+  <section class="card">
+    <div class="topbar">
+      <h2>Laboratorio · preguntas</h2>
+      <div>
+        <button type="button" class="action secondary" id="btnFs">Pantalla completa</button>
+        <button type="button" class="action secondary" id="btnReset">Reiniciar</button>
+      </div>
+    </div>
+    <p class="hint">Corrección inmediata. Los números que cite alguna pregunta son datos de ejemplo, no un informe oficial.</p>
+    <div id="quiz"></div>
+    <p class="score" id="score" aria-live="polite">Aciertos: 0 / 7</p>
+  </section>
+  <footer>1º Bachillerato · Biología, Geología y Ciencias Ambientales · Castilla y León · Decreto 40/2022 · Offline file:// · sin red</footer>
+</div>
+<script>
+(function(){
+  const ITEMS = [{"q": "Archaea y Bacteria…", "opts": ["Son el mismo dominio", "Son dominios distintos de procariotas", "Son ambos eucariotas", "Solo existen en géiseres"], "ok": 1, "why": "Linajes distintos."}, {"q": "«Toda arquea es extremófila» es…", "opts": ["Verdadero", "Falso como regla", "Solo cierto en plantas", "Igual que Rhizobium"], "ok": 1, "why": "Hay arqueas en ambientes comunes."}, {"q": "Rhizobium en leguminosas…", "opts": ["Fotosintetiza la hoja", "Fija N₂ en nódulos", "Es un virus", "Es siempre patógeno"], "ok": 1, "why": "Mutualismo de fijación."}, {"q": "La planta aporta al simbionte sobre todo…", "opts": ["Nitrógeno puro", "Carbono (azúcares)", "Luz directa al nódulo", "Pétalos"], "ok": 1, "why": "Coste energético cubierto por la planta."}, {"q": "Extremófilo significa…", "opts": ["Que es arquea por definición", "Que prospera en condiciones extremas", "Que es un helecho", "Que fija siempre N₂"], "ok": 1, "why": "Nicho, no sinónimo de Archaea."}, {"q": "Datos de ejemplo de biomasa mayor con inoculo…", "opts": ["Cierran la causa para toda CyL", "Son compatibles con el mutualismo en ese ensayo", "Miden calidad del aire", "Demuestran que no hay control"], "ok": 1, "why": "Ejemplo de aula."}, {"q": "Sin bacteria compatible, la leguminosa…", "opts": ["Fija igual el N₂ del aire sola en el nódulo", "Depende más del N del suelo o abono", "Se vuelve arquea", "Deja de ser planta"], "ok": 1, "why": "El nódulo efectivo requiere el simbionte."}];
+  const quiz = document.getElementById('quiz');
+  const scoreEl = document.getElementById('score');
+  let aciertos = 0;
+  function render(){
+    aciertos = 0;
+    quiz.innerHTML = '';
+    ITEMS.forEach((it, i) => {
+      const box = document.createElement('div');
+      box.className = 'q';
+      const h = document.createElement('h3');
+      h.textContent = (i+1) + '. ' + it.q;
+      box.appendChild(h);
+      const why = document.createElement('p');
+      why.className = 'why';
+      let locked = false;
+      it.opts.forEach((t, j) => {
+        const b = document.createElement('button');
+        b.type = 'button';
+        b.className = 'opt';
+        b.textContent = t;
+        b.addEventListener('click', () => {
+          if (locked) return;
+          locked = true;
+          const ok = j === it.ok;
+          b.classList.add(ok ? 'ok' : 'bad');
+          if (ok) { aciertos++; scoreEl.textContent = 'Aciertos: ' + aciertos + ' / ' + ITEMS.length; }
+          else { box.querySelectorAll('.opt')[it.ok].classList.add('ok'); }
+          why.textContent = it.why;
+          why.classList.add('show');
+        });
+        box.appendChild(b);
+      });
+      box.appendChild(why);
+      quiz.appendChild(box);
+    });
+    scoreEl.textContent = 'Aciertos: 0 / ' + ITEMS.length;
+  }
+  document.getElementById('btnReset').addEventListener('click', render);
+  document.getElementById('btnFs').addEventListener('click', () => {
+    const el = document.getElementById('lab');
+    if (!document.fullscreenElement) el.requestFullscreen().catch(()=>{});
+    else document.exitFullscreen().catch(()=>{});
+  });
+  render();
+})();
+</script>
+</body>
+</html>

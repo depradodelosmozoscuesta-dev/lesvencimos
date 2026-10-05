@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
+<title>L27 · Laboratorio · Mineral, clase y ensayo</title>
+<style>
+:root{--bg:#FAF7F0;--ink:#2A2620;--muted:#5C564C;--card:#fff;--gold:#C4A15A;--gold-soft:#F5EDD8;--gold-deep:#8A6B2F;--green:#3D6B4F;--green-soft:#E4F0E8;--blue:#2F5D7A;--blue-soft:#E3EEF4;--rose:#9B3A4A;--rose-soft:#F8E8EB;--shadow:0 10px 32px rgba(42,38,32,.09);--radius:18px}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{min-height:100%;background:var(--bg);color:var(--ink);font-family:"Segoe UI",system-ui,-apple-system,sans-serif}
+body{padding:14px 10px 36px}
+.wrap{width:100%;max-width:920px;margin:0 auto}
+header{text-align:center;margin-bottom:12px}
+.badge{display:inline-block;font-size:.75rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--gold-deep);background:var(--gold-soft);padding:4px 12px;border-radius:999px;margin-bottom:8px}
+h1{font-size:clamp(1.25rem,4vw,1.7rem);line-height:1.25;font-weight:800}
+.subtitle{margin-top:6px;color:var(--muted);font-size:.98rem}
+.card{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);padding:16px 14px 18px;margin-bottom:14px}
+.card h2{font-size:1.15rem;margin-bottom:8px}
+.hint{color:var(--muted);font-size:.92rem;line-height:1.45;margin-bottom:10px}
+.q{border:2px solid #E0D0A8;border-radius:14px;padding:12px;margin:10px 0;background:#FFFcf5}
+.q h3{font-size:1rem;margin-bottom:8px;line-height:1.35}
+.opt{display:block;width:100%;text-align:left;padding:10px 12px;margin:6px 0;border:2px solid #D9D0C0;border-radius:12px;background:#fff;font-weight:650;cursor:pointer;font-family:inherit;font-size:.95rem;line-height:1.35;color:var(--ink)}
+.opt:hover{border-color:var(--gold)}
+.opt.ok{border-color:var(--green);background:var(--green-soft)}
+.opt.bad{border-color:var(--rose);background:var(--rose-soft)}
+.why{display:none;margin-top:8px;padding:8px 10px;border-radius:10px;background:var(--blue-soft);font-size:.92rem;line-height:1.4}
+.why.show{display:block}
+.score{font-weight:800;color:var(--gold-deep);margin-top:8px}
+button.action{appearance:none;border:none;border-radius:999px;padding:10px 16px;font-weight:800;cursor:pointer;background:var(--gold);color:#1A160E;margin:4px 6px 4px 0;font-family:inherit}
+button.action.secondary{background:#fff;color:var(--gold-deep);border:2px solid var(--gold)}
+.topbar{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:8px}
+footer{text-align:center;font-size:.8rem;color:var(--muted);margin-top:8px}
+</style>
+</head>
+<body>
+<div class="wrap" id="lab">
+  <header>
+    <div class="badge">Lección 27 · bloque D · sin red</div>
+    <h1>Mineral, clase y ensayo</h1>
+    <p class="subtitle">La roca no tiene una fórmula. Mohs no es lineal. La pirita no es oro.</p>
+  </header>
+  <section class="card">
+    <div class="topbar">
+      <h2>Laboratorio · 7 preguntas</h2>
+      <div>
+        <button type="button" class="action secondary" id="btnFs">Pantalla completa</button>
+        <button type="button" class="action secondary" id="btnReset">Reiniciar</button>
+      </div>
+    </div>
+    <p class="hint">Corrección inmediata. Si una pregunta cita números, son datos de ejemplo, no un informe oficial.</p>
+    <div id="quiz"></div>
+    <p class="score" id="score" aria-live="polite">Aciertos: 0 / 7</p>
+  </section>
+  <footer>1º Bachillerato · Biología, Geología y Ciencias Ambientales · Castilla y León · Decreto 40/2022 · Offline file:// · sin red</footer>
+</div>
+<script>
+(function(){
+  const ITEMS = [{"q": "¿Cuál es un mineral y cuál no?", "opts": ["El granito es un mineral; el cuarzo, una roca.", "El cuarzo es un mineral; el granito es una roca hecha de varios minerales.", "Los dos son minerales porque los dos son naturales.", "Ninguno es natural."], "ok": 1, "why": "El mineral es una fase cristalina de composición definida. La roca es el agregado. El granito reúne cuarzo, feldespato y mica."}, {"q": "La obsidiana no tiene cristales. ¿Qué consecuencia tiene para la definición?", "opts": ["Entonces no es una roca.", "Es una roca (vidrio volcánico) y no cumple la de mineral, que exige estructura cristalina.", "Es un mineral amorfo de la clase de los sulfuros.", "Es un fósil."], "ok": 1, "why": "Roca y mineral no se solapan siempre. El vidrio volcánico y el carbón avisan de que la definición corta tiene borde."}, {"q": "Un grano raya el vidrio y no raya a otro grano que también raya el vidrio. ¿Puedes llamarlo diamante?", "opts": ["Sí: todo lo que raya el vidrio es diamante.", "No. Rayar el vidrio solo sitúa la dureza por encima de unos 5,5. El cuarzo (7) ya lo hace. El diamante es el 10 y raya al cuarzo.", "Sí, si el color es gris.", "No, porque Mohs es lineal y el vidrio es el 10."], "ok": 1, "why": "La escala es ordinal y de referencias. Saltarse del vidrio al diamante ignora el cuarzo, el topacio y el corindón."}, {"q": "Pirita y oro. ¿Qué ensayo de raya los separa?", "opts": ["Los dos dejan raya amarilla.", "La pirita, raya negra; el oro, raya amarilla y además es blando.", "Ninguno deja raya porque los dos son silicatos.", "La raya de la pirita es roja, como la hematites, y por eso es oro."], "ok": 1, "why": "El color del ejemplar engaña. El polvo y la dureza no. La pirita es un sulfuro; el oro, un elemento nativo."}, {"q": "¿Qué rotura corresponde a la mica y cuál al cuarzo?", "opts": ["Los dos exfolian en cubos.", "La mica exfolia en láminas (tetraedros en hoja). El cuarzo no exfolia: fractura.", "El cuarzo exfolia en láminas y la mica no se rompe.", "Ninguno se rompe: son vidrios."], "ok": 1, "why": "La exfoliación sigue la estructura. El armazón del cuarzo no ofrece un plano dominante."}, {"q": "HCl diluido en frío sobre un fragmento. ¿Qué esperas?", "opts": ["Efervescencia fuerte en cuarzo y en calcita por igual.", "Efervescencia en calcita; dolomita en fragmento casi muda; granito mudo.", "Burbujeo solo en los sulfuros.", "El ácido sirve para medir Mohs."], "ok": 1, "why": "El CO2 sale del carbonato. La dolomita pide polvo o condiciones más enérgicas. Silicatos y óxidos no dan ese ensayo."}, {"q": "¿Qué uso está bien ligado a una propiedad, sin cifras de producción?", "opts": ["La calcita es cemento tal cual, y España produce una cantidad que nos inventamos.", "El yeso (blando, sulfato) se usa en escayola; la calcita, cocida, da cal. No hace falta la tonelada.", "El grafito se usa como mena de hierro porque es negro.", "El diamante se clasifica como sulfuro por su brillo."], "ok": 1, "why": "El uso se deduce de la clase y de la propiedad. Inventar producción no añade mecanismo y sí errores."}];
+  const quiz = document.getElementById('quiz');
+  const scoreEl = document.getElementById('score');
+  let aciertos = 0;
+  function render(){
+    aciertos = 0;
+    quiz.innerHTML = '';
+    ITEMS.forEach((it, i) => {
+      const box = document.createElement('div');
+      box.className = 'q';
+      const h = document.createElement('h3');
+      h.textContent = (i+1) + '. ' + it.q;
+      box.appendChild(h);
+      const why = document.createElement('p');
+      why.className = 'why';
+      let locked = false;
+      it.opts.forEach((t, j) => {
+        const b = document.createElement('button');
+        b.type = 'button';
+        b.className = 'opt';
+        b.textContent = t;
+        b.addEventListener('click', () => {
+          if (locked) return;
+          locked = true;
+          const buttons = box.querySelectorAll('.opt');
+          buttons.forEach((bb, k) => {
+            bb.disabled = true;
+            if (k === it.ok) bb.classList.add('ok');
+          });
+          if (j === it.ok) aciertos += 1; else b.classList.add('bad');
+          why.textContent = (j === it.ok ? 'Correcto. ' : 'No es la mejor opción. ') + it.why;
+          why.classList.add('show');
+          scoreEl.textContent = 'Aciertos: ' + aciertos + ' / ' + ITEMS.length;
+        });
+        box.appendChild(b);
+      });
+      box.appendChild(why);
+      quiz.appendChild(box);
+    });
+    scoreEl.textContent = 'Aciertos: 0 / ' + ITEMS.length;
+  }
+  document.getElementById('btnReset').addEventListener('click', render);
+  document.getElementById('btnFs').addEventListener('click', () => {
+    const el = document.documentElement;
+    if (!document.fullscreenElement) { if (el.requestFullscreen) el.requestFullscreen(); }
+    else if (document.exitFullscreen) document.exitFullscreen();
+  });
+  window.addEventListener('message', (ev) => {
+    const d = ev.data || {};
+    if (d.type === 'maestro:reset') render();
+  });
+  render();
+})();
+</script>
+</body>
+</html>
