@@ -40,7 +40,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 DL = ROOT / "downloads"
 STAGING = ROOT / "offline-pack-completo-embed"
-VERSION = "v20261001embed-k6"
+VERSION = "v20261006embed-todo"
 SOFT_WARN_BYTES = 70 * 1024 * 1024
 
 PRIMARY = DL / "completo-offline.zip"
@@ -48,6 +48,9 @@ ALIAS = DL / "pack-completo-offline.zip"
 SNAPSHOT = DL / f"completo-offline-{VERSION}.zip"
 # Prefer thin Completo shell snapshot (no modules/) so re-runs stay clean.
 SHELL_CANDIDATES = [
+    # Prefer previous fat Completo embed as base (keeps educacion/arduino/clarity max set)
+    DL / "completo-offline-v20261005embed-claridad.zip",
+    DL / "completo-offline.zip",
     DL / "pack-completo-offline-v20261001k6.zip",
     DL / "pack-completo-offline-v20261001k5.zip",
     DL / "pack-completo-offline-v20261001k3.zip",
@@ -262,11 +265,73 @@ def flatten_shelf_modulos(staging: Path) -> int:
         shutil.copytree(guias_src, guias_dest)
         n += sum(1 for f in guias_dest.rglob("*") if f.is_file())
 
+    # Extra published shelf HTML not in EMBED_SOURCES (Completo max set)
+    EXTRA_HTML = [
+        "aliados.html",
+        "apagon.html",
+        "caligrafia.html",
+        "conducir.html",
+        "newpipe.html",
+        "oposiciones.html",
+    ]
+    for name in EXTRA_HTML:
+        p = src / name
+        if p.is_file() and name not in seen:
+            low = name.lower()
+            if any(part in low for part in FORBIDDEN_NAME_PARTS):
+                continue
+            shutil.copy2(p, dest / name)
+            seen.add(name)
+            n += 1
+
+    # Asset / course directories beside flat HTML (packLocal hrefs)
+    EXTRA_DIRS = [
+        "arduino",
+        "raspberry",
+        "robot",
+        "conducir",
+        "oposiciones",
+        "nomenclator",
+        "espana-offline",
+        "valladolid-offline",
+        "podcast",
+    ]
+    for dname in EXTRA_DIRS:
+        dsrc = src / dname
+        if not dsrc.is_dir():
+            continue
+        # never ship QA fixtures
+        def _ignore(dirpath, names):
+            skip = set()
+            if Path(dirpath).name == dname or Path(dirpath).name in {"podcast"}:
+                if "_qa" in names:
+                    skip.add("_qa")
+            for nm in names:
+                low = nm.lower()
+                if low.endswith((".wav", ".png")) and "_qa" in Path(dirpath).parts:
+                    skip.add(nm)
+            return skip
+        ddest = dest / dname
+        if ddest.exists():
+            shutil.rmtree(ddest)
+        shutil.copytree(dsrc, ddest, ignore=_ignore)
+        n += sum(1 for f in ddest.rglob("*") if f.is_file())
+
+    # LEEME-*.txt next to modules (optional docs)
+    for p in sorted(src.glob("LEEME-*.txt")):
+        low = p.name.lower()
+        if any(part in low for part in FORBIDDEN_NAME_PARTS):
+            continue
+        shutil.copy2(p, dest / p.name)
+        n += 1
+
     # Sanity: bajo + guitarra must exist at flat path
     for must in ("bajo.html", "guitarra.html", "hogar.html"):
         if not (dest / must).is_file():
             raise SystemExit(f"flatten_shelf_modulos: missing {must}")
-    print(f"  flat modulos/ → {len(seen)} html (+ assets); bajo/guitarra OK")
+    if not (dest / "podcast" / "estudio.html").is_file():
+        raise SystemExit("flatten_shelf_modulos: missing podcast/estudio.html")
+    print(f"  flat modulos/ → {len(seen)} html (+ assets); bajo/guitarra/podcast OK")
     return n
 
 
@@ -555,56 +620,110 @@ def main() -> None:
     if not (STAGING / "educacion").is_dir():
         raise SystemExit("shell ZIP missing educacion/")
 
-    # Monolithic embed: strip Añadir / file picker / download-pack UI (keep parade k5)
+    # Prefer LIVE repo estanteria (layoutRev / new shelf icons), then strip embed UI
+    live_est = ROOT / "estanteria.html"
     est_path = STAGING / "estanteria.html"
+    if live_est.is_file():
+        print("== Overlay live estanteria.html ==")
+        est_html = live_est.read_text(encoding="utf-8")
+    else:
+        est_html = est_path.read_text(encoding="utf-8")
     print("== Strip EMBED_NO_ADD (Añadir / file picker) ==")
-    est_html = est_path.read_text(encoding="utf-8")
     est_path.write_text(strip_embed_no_add(est_html), encoding="utf-8")
 
     modules_dir = STAGING / "modules"
     modules_dir.mkdir(parents=True, exist_ok=True)
 
     modules_meta: list[dict] = []
-    print("== Unpack 7 thematic packs → modules/<id>/ ==")
-    for spec in THEMATIC:
-        zpath = DL / spec["zip"]
-        if not zpath.exists():
-            raise SystemExit(f"missing thematic pack: {zpath}")
-        assert_clean_zip(zpath)
-        dest = modules_dir / spec["id"]
-        print(f"  {spec['zip']} → modules/{spec['id']}/")
-        unpack_pack_into_modules(zpath, dest)
-        entrada = dest / spec["entrada"]
-        if not entrada.is_file():
-            # fallback ABRE-AQUI
-            if (dest / "ABRE-AQUI.html").is_file():
-                spec = {**spec, "entrada": "ABRE-AQUI.html"}
-            else:
-                raise SystemExit(f"no entry HTML in modules/{spec['id']}/")
-        # strip download-flow wording from pack LEEME is optional; keep as-is
-        meta = {
-            "id": spec["id"],
-            "nombre": spec["nombre"],
-            "path": f"modules/{spec['id']}/",
-            "entrada": spec["entrada"],
-            "defaultVisible": spec["defaultVisible"],
-            "nota": spec["nota"],
-            "bytes": sum(p.stat().st_size for p in dest.rglob("*") if p.is_file()),
-        }
-        # refresh module.json sha placeholder if present
-        mj = dest / "module.json"
-        if mj.is_file():
-            try:
-                data = json.loads(mj.read_text(encoding="utf-8"))
-                data["embed"] = True
-                data["path"] = meta["path"]
-                mj.write_text(json.dumps(data, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
-            except json.JSONDecodeError:
-                pass
-        modules_meta.append(meta)
+    base_has_modules = any(modules_dir.glob("pack-*"))
+    if base_has_modules:
+        print("== Base already has modules/ (previous fat embed) — keep + refresh meta ==")
+        for spec in THEMATIC:
+            dest = modules_dir / spec["id"]
+            if not dest.is_dir():
+                print(f"  WARN missing modules/{spec['id']}/ — will unpack")
+                base_has_modules = False
+                break
+            meta = {
+                "id": spec["id"],
+                "nombre": spec["nombre"],
+                "path": f"modules/{spec['id']}/",
+                "entrada": spec["entrada"],
+                "defaultVisible": spec["defaultVisible"],
+                "nota": spec["nota"],
+                "bytes": sum(p.stat().st_size for p in dest.rglob("*") if p.is_file()),
+            }
+            modules_meta.append(meta)
+
+    if not base_has_modules:
+        modules_meta = []
+        print("== Unpack 7 thematic packs → modules/<id>/ ==")
+        for spec in THEMATIC:
+            zpath = DL / spec["zip"]
+            if not zpath.exists():
+                raise SystemExit(f"missing thematic pack: {zpath}")
+            assert_clean_zip(zpath)
+            dest = modules_dir / spec["id"]
+            print(f"  {spec['zip']} → modules/{spec['id']}/")
+            unpack_pack_into_modules(zpath, dest)
+            entrada = dest / spec["entrada"]
+            if not entrada.is_file():
+                # fallback ABRE-AQUI
+                if (dest / "ABRE-AQUI.html").is_file():
+                    spec = {**spec, "entrada": "ABRE-AQUI.html"}
+                else:
+                    raise SystemExit(f"no entry HTML in modules/{spec['id']}/")
+            # strip download-flow wording from pack LEEME is optional; keep as-is
+            meta = {
+                "id": spec["id"],
+                "nombre": spec["nombre"],
+                "path": f"modules/{spec['id']}/",
+                "entrada": spec["entrada"],
+                "defaultVisible": spec["defaultVisible"],
+                "nota": spec["nota"],
+                "bytes": sum(p.stat().st_size for p in dest.rglob("*") if p.is_file()),
+            }
+            # refresh module.json sha placeholder if present
+            mj = dest / "module.json"
+            if mj.is_file():
+                try:
+                    data = json.loads(mj.read_text(encoding="utf-8"))
+                    data["embed"] = True
+                    data["path"] = meta["path"]
+                    mj.write_text(json.dumps(data, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+                except json.JSONDecodeError:
+                    pass
+            modules_meta.append(meta)
 
     print("== Flatten shelf modulos/ at ZIP root (estantería paths) ==")
     flatten_shelf_modulos(STAGING)
+
+    # Keep mi-dia from pack-midia at flat path (not in repo modulos/)
+    midia_src = STAGING / "modules" / "pack-midia" / "modulos" / "mi-dia.html"
+    if midia_src.is_file():
+        shutil.copy2(midia_src, STAGING / "modulos" / "mi-dia.html")
+        print("  copied mi-dia.html from pack-midia")
+
+    # Sync biblioteca-libros (Celestina completa, etc.) into thematic pack copy
+    books_src = ROOT / "modulos" / "biblioteca-libros"
+    biblio_html = ROOT / "modulos" / "biblioteca.html"
+    for pack_books in [
+        STAGING / "modules" / "pack-biblioteca" / "modulos" / "biblioteca-libros",
+        STAGING / "modulos" / "biblioteca-libros",
+    ]:
+        if books_src.is_dir():
+            if pack_books.exists():
+                shutil.rmtree(pack_books)
+            pack_books.parent.mkdir(parents=True, exist_ok=True)
+            shutil.copytree(books_src, pack_books)
+            print(f"  synced biblioteca-libros → {pack_books.relative_to(STAGING)}")
+    for pack_html in [
+        STAGING / "modules" / "pack-biblioteca" / "modulos" / "biblioteca.html",
+        STAGING / "modulos" / "biblioteca.html",
+    ]:
+        if biblio_html.is_file():
+            pack_html.parent.mkdir(parents=True, exist_ok=True)
+            shutil.copy2(biblio_html, pack_html)
 
     # Count files before catalog/LEEME finalize
     files = [p for p in STAGING.rglob("*") if p.is_file()]
@@ -644,11 +763,18 @@ def main() -> None:
         pe_txt = pe.read_text(encoding="utf-8")
         import re as _re
         pe_new, n_pe = _re.subn(
-            r'public static final String EXPECTED_VERSION = "[^"]+";',
-            f'public static final String EXPECTED_VERSION = "{VERSION}";',
+            r'(\?\s*"v20261001k6"\s*:\s*")([^"]+)(")',
+            rf'\g<1>{VERSION}\3',
             pe_txt,
             count=1,
         )
+        if n_pe != 1:
+            pe_new, n_pe = _re.subn(
+                r'public static final String EXPECTED_VERSION = "[^"]+";',
+                f'public static final String EXPECTED_VERSION = "{VERSION}";',
+                pe_txt,
+                count=1,
+            )
         if n_pe == 1 and pe_new != pe_txt:
             pe.write_text(pe_new, encoding="utf-8")
             print(f"== PackExtractor.EXPECTED_VERSION → {VERSION} ==")
@@ -679,6 +805,15 @@ def main() -> None:
         "modulos/hogar.html",
         "modulos/biblioteca.html",
         "modulos/biblioteca-libros/catalog.json",
+        "modulos/biblioteca-libros/celestina-1.json",
+        "modulos/biblioteca-libros/celestina-11.json",
+        "modulos/podcast/estudio.html",
+        "modulos/podcast/efectos.js",
+        "modulos/podcast/sonido/lv-podcast-audio.js",
+        "modulos/conducir.html",
+        "modulos/oposiciones.html",
+        "modulos/aliados.html",
+        "modulos/grabadora.html",
     ]
     name_set = set(names)
     for m in must:

@@ -1,0 +1,1426 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Estudio · les vencimos</title>
+<link rel="icon" href="data:,">
+<style>
+:root{--fondo:#0E0E0C;--superficie:#161512;--panel:#1C1A16;--tinta:#E6E1D6;--suave:#9A9488;--acento:#C4A15A;--acento-texto:#1A160E;--peligro:#C46A4A;--ok:#8F9A72;--linea:rgba(230,225,214,.14);--nota:#B3AC9F;--serif:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;--sans:"Segoe UI",system-ui,sans-serif}
+*{box-sizing:border-box}html,body{margin:0;background:var(--fondo);color:var(--tinta)}
+body{font-family:var(--sans);font-size:16px;font-weight:400;line-height:1.4;padding:16px 18px 32px}
+button,input,select,textarea{font:inherit;color:inherit}button{font-weight:600}
+h1,h2{font-family:var(--serif);font-weight:400;margin:0 0 8px}h1{font-size:2.6rem;margin:0}p{margin:0}
+.marca{font-variant:all-small-caps;letter-spacing:.16em;font-weight:600;color:var(--nota)}
+.cabecera{border-bottom:1px solid var(--linea);padding-bottom:12px;margin-bottom:12px}
+.estado{font-variant:all-small-caps;letter-spacing:.08em;color:var(--nota);min-height:1.4em;margin:8px 0}
+.transporte,.export,.marcas-caja,.guion-caja,.tira,.carro,.paleta{background:var(--panel);border:1px solid var(--linea);border-radius:2px}
+.transporte,.export,.marcas-caja,.paleta{padding:12px;margin-top:12px}.transporte{margin-top:0}
+.fila{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.escenas{overflow-x:auto;margin-bottom:8px}.escenas .fila{flex-wrap:nowrap;width:max-content}
+button,.btn,select,.campo{min-height:44px;border-radius:2px;border:1px solid var(--linea);background:var(--superficie);padding:8px 12px}
+button,.btn{cursor:pointer}
+button[data-escena][aria-pressed="true"]{background:#C4A15A;color:#1A160E;border-color:#C4A15A}
+.acento{background:#C4A15A;color:#1A160E;border-color:#C4A15A}
+.peligro{color:var(--peligro)}.suave{color:var(--nota)}
+.contador{font-family:var(--serif);font-size:3.2rem;font-weight:400;font-variant-numeric:tabular-nums;line-height:1;margin:10px 0 4px}
+.nota{color:var(--nota);font-size:.92rem;margin-top:8px}
+.cuerpo{display:grid;grid-template-columns:minmax(0,max-content) minmax(280px,1fr);gap:12px;align-items:start}
+.tiras-scroll{min-width:0;max-width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch}
+.tiras{display:flex;gap:8px;align-items:flex-start;width:max-content}
+.tira{width:262px;flex:0 0 262px;padding:10px}.tira .campo,.tira select,.tira input[type=file]{display:block;width:100%;max-width:100%;margin-top:6px}.tira[hidden]{display:none !important}
+.rol,.caps{font-variant:all-small-caps;letter-spacing:.12em;font-weight:600;color:var(--nota);font-size:.86rem}
+.cadena{color:var(--nota);font-size:.86rem;margin:4px 0 8px}
+.par{display:flex;gap:8px;align-items:flex-end}
+.fader-caja{position:relative;width:76px;height:220px;flex:0 0 76px}
+.fader-caja input[type=range]{position:absolute;width:210px;height:44px;left:50%;top:50%;margin:0;transform:translate(-50%,-50%) rotate(-90deg);touch-action:none;accent-color:#C4A15A;background:transparent}
+.metro{width:78px;display:flex;flex-direction:column;align-items:center;gap:6px}
+.pista-metro{width:10px;height:180px;background:var(--fondo);border:1px solid var(--linea);border-radius:2px;display:flex;align-items:flex-end}
+.nivel{width:100%;height:0;background:#C4A15A}
+.cifra{font-variant-numeric:tabular-nums;background:transparent;min-height:44px}
+.botones{display:flex;flex-direction:column;gap:8px;margin-top:8px}.botones button{width:100%}
+details{border-top:1px solid var(--linea);margin-top:8px}summary{min-height:44px;display:flex;align-items:center;cursor:pointer;font-weight:600}
+.knob{display:block;margin:0 0 8px}.knob span{display:flex;justify-content:space-between;gap:8px;font-size:.86rem}
+input[type=range]{width:100%;accent-color:#C4A15A;min-height:44px}
+.guion-caja{min-width:0;padding:12px}
+textarea{width:100%;min-height:240px;background:var(--fondo);border:1px solid var(--linea);border-radius:2px;padding:10px}
+.carros{display:grid;grid-template-columns:repeat(4,minmax(170px,1fr));gap:8px;margin-top:12px}.carro{padding:10px}
+.rejilla{display:flex;flex-wrap:wrap;gap:8px}.rejilla button{min-height:44px}
+.sirena-viva{display:flex;flex-wrap:wrap;gap:12px;align-items:flex-end;margin-top:8px}.sirena-viva label{min-width:150px}
+.pie{margin-top:18px;padding-top:10px;border-top:1px solid var(--linea);color:var(--nota);font-variant:all-small-caps;letter-spacing:.08em}
+:focus-visible{outline:1px solid #C4A15A;outline-offset:2px}
+@media(max-width:900px){.cuerpo{grid-template-columns:minmax(0,1fr)}.guion-caja{width:100%}.carros{grid-template-columns:1fr 1fr}}
+label{min-height:44px}.nota label,.carro label{display:inline-flex;align-items:center;gap:6px}
+input[type=checkbox]{width:22px;height:22px}
+@media(max-width:520px){body{padding:12px 10px 24px}h1{font-size:2rem}.contador{font-size:2.4rem}.carros{grid-template-columns:minmax(0,1fr)}.carro input[type=file],.tira input[type=file]{max-width:100%}#marca-nombre{flex:1 1 100%;min-width:0}.fila>button{flex:1 1 auto}.sirena-viva label{min-width:0;flex:1 1 100%}.rejilla button{flex:1 1 calc(50% - 8px);min-width:0;white-space:normal}.transporte,.export,.marcas-caja,.paleta,.guion-caja{padding:10px}html,body{overflow-x:hidden}}
+</style>
+</head>
+<body>
+<header class="cabecera"><p class="marca">les vencimos</p><h1>Estudio</h1></header>
+<p id="estado-linea" class="estado" aria-live="polite"></p>
+<section class="transporte" aria-label="Transporte">
+<div class="escenas" role="group" aria-label="Escenas"><div class="fila" id="escenas"></div></div>
+<p id="nota-escena" class="nota"></p>
+<p id="contador" class="contador">00:00:00</p>
+<div class="fila">
+<button type="button" id="btn-encender" class="acento">Encender mesa</button>
+<button type="button" id="btn-escucha">Escuchar</button>
+<button type="button" id="btn-grabar">Grabar</button>
+<button type="button" id="btn-marca">Marca</button>
+<input id="marca-nombre" class="campo" type="text" placeholder="Nombre de la marca (opcional)" autocomplete="off">
+<button type="button" id="btn-prueba">Prueba de nivel</button>
+</div>
+<p id="resultado-nivel" class="nota"></p>
+<p id="aviso-toma" class="nota peligro" hidden></p>
+<p id="politica-micro" class="nota"></p>
+<p class="nota"><label><input id="anti-bleed" type="checkbox"> Anti-bleed</label></p>
+<p id="aviso-micro" class="peligro"></p>
+<p id="avisos" class="nota"></p>
+<p class="nota">Espacio graba o para. M silencia la pista armada. La escucha no entra en la toma.</p>
+</section>
+<div class="cuerpo">
+<div class="tiras-scroll"><div id="tiras" class="tiras"></div></div>
+<aside class="guion-caja"><h2>Guion</h2>
+<button type="button" id="btn-tiempo">Insertar tiempo</button>
+<textarea id="guion" placeholder="Una línea [INTRO], [CAMA], [OUTRO] o [CUÑA] dispara ese carro."></textarea>
+<div id="disparos"></div></aside>
+</div>
+<section id="carros" class="carros" aria-label="Carros"></section>
+<section class="paleta" aria-label="Efectos">
+<h2>Fondo</h2>
+<p class="nota">Osciladores en bucle hacia la melodía, volumen bajo. Humor no lleva melodía.</p>
+<div id="fondos" class="rejilla"></div>
+<div class="fila"><button type="button" id="fondo-parar">Parar fondo</button></div>
+<p id="fondo-activa" class="nota">Fondo: ninguno</p>
+<h2>Efectos</h2>
+<p class="nota">Van a la cama de efectos, con el duck de la escena. Los de bucle comparten un solo ambiente.</p>
+<div id="efectos" class="rejilla"></div>
+<div class="fila"><button type="button" id="ambiente-parar">Parar ambiente</button></div>
+<p id="ambiente-activa" class="nota">Ambiente: ninguno</p>
+<h2>Humanos</h2>
+<div id="humanos" class="rejilla"></div>
+<h2>Sirenas</h2>
+<p class="nota">Oscilador y LFO, en bucle hasta parar. Elige una y luego retócala.</p>
+<div id="sirenas" class="rejilla"></div>
+<div class="sirena-viva">
+<label>Tono (Hz)<input id="sirena-tono" type="range" min="40" max="4000" step="1" value="600"></label>
+<label>Velocidad del barrido<input id="sirena-vel" type="range" min="0.05" max="12" step="0.01" value="0.5"></label>
+<label>Volumen<input id="sirena-vol" type="range" min="0" max="1" step="0.01" value="0.2"></label>
+<button type="button" id="sirena-parar">Parar sirena</button>
+</div>
+<p id="sirena-activa" class="nota">Sirena: ninguna</p>
+</section>
+<section class="marcas-caja"><h2>Marcas</h2><ul id="marcas"></ul></section>
+<section class="export"><h2>Sesión y toma</h2>
+<div class="fila">
+<button type="button" id="btn-guardar">Guardar sesión</button>
+<button type="button" id="btn-json">Exportar JSON</button>
+<button type="button" id="btn-txt">Exportar rundown</button>
+<label class="btn">Importar JSON<input id="import-json" type="file" accept="application/json,.json" hidden></label>
+<button type="button" id="btn-wav">Exportar WAV</button>
+<button type="button" id="btn-ligero" hidden>Exportar copia ligera</button>
+</div>
+<p class="nota">El WAV sale del master, después del limitador, sin pasar por el fader de escucha. Cabe unos diez minutos en memoria.</p>
+</section>
+<footer class="pie">les vencimos · estudio · offline · el audio no sale del aparato</footer>
+<script src="sonido/lv-podcast-audio.js"></script>
+<script src="efectos.js"></script>
+<script>
+'use strict';
+/* Enganche: LVPodcastAudio.create, addMic, addBed, setScene, setBleedGuard,
+   mic.setGainDb, mic.mute, mic.solo, mic.setParam, mic.getParams, mic.input,
+   bed.setGainDb, bed.setDuckDb, studio.meters, studio.master.connect,
+   LVPodcastAudio.micConstraints. create no une destination. */
+(function () {
+  var CLAVE = 'lv-estudio-podcast';
+  var CADENA = 'pasaaltos, puerta, de-esser, EQ, rider, compresor';
+  var ROLES = [
+    { id: 'locutor', rol: 'Locutor' },
+    { id: 'invitado-1', rol: 'Invitado 1' },
+    { id: 'invitado-2', rol: 'Invitado 2' },
+    { id: 'invitado-3', rol: 'Invitado 3' }
+  ];
+  var IDS_ESCENA = ['radio','directo','futbol','entrevista','intima','mesa','humor','emotivo','audiolibro','educativo','historia','seco','improvisacion'];
+  var ETIQUETA_ESCENA = {
+    radio: 'Radio', directo: 'Directo', futbol: 'Fútbol', entrevista: 'Entrevista',
+    intima: 'Entrevista íntima', mesa: 'Mesa redonda', humor: 'Humor', emotivo: 'Emotivo',
+    audiolibro: 'Audiolibros', educativo: 'Educativo', historia: 'Historia', seco: 'Seco',
+    improvisacion: 'Improvisación'
+  };
+  var PISTAS_ESCENA = {
+    radio: ['locutor'],
+    directo: ['locutor','invitado-1'],
+    futbol: ['locutor','invitado-1','invitado-2'],
+    entrevista: ['locutor','invitado-1'],
+    intima: ['locutor','invitado-1'],
+    mesa: ['locutor','invitado-1','invitado-2','invitado-3'],
+    humor: ['locutor','invitado-1'],
+    emotivo: ['locutor','invitado-1'],
+    audiolibro: ['locutor'],
+    educativo: ['locutor','invitado-1'],
+    historia: ['locutor'],
+    seco: ['locutor','invitado-1','invitado-2','invitado-3'],
+    improvisacion: ['locutor','invitado-1','invitado-2','invitado-3']
+  };
+  var PANES = {
+    radio: { locutor: 0 },
+    directo: { locutor: 0, 'invitado-1': 0 },
+    futbol: { locutor: -0.4, 'invitado-1': 0, 'invitado-2': 0.4 },
+    entrevista: { locutor: -0.15, 'invitado-1': 0.15 },
+    intima: { locutor: 0, 'invitado-1': 0 },
+    mesa: { locutor: -0.6, 'invitado-1': -0.2, 'invitado-2': 0.2, 'invitado-3': 0.6 },
+    humor: { locutor: -0.2, 'invitado-1': 0.2 },
+    emotivo: { locutor: -0.05, 'invitado-1': 0.05 },
+    audiolibro: { locutor: 0 },
+    educativo: { locutor: 0, 'invitado-1': 0.12 },
+    historia: { locutor: 0 },
+    seco: { locutor: 0, 'invitado-1': 0, 'invitado-2': 0, 'invitado-3': 0 },
+    improvisacion: { locutor: -0.45, 'invitado-1': -0.15, 'invitado-2': 0.15, 'invitado-3': 0.45 }
+  };
+  var BLOQUE = {
+    gateThresholdDb:'puerta', gateRangeDb:'puerta', gateAttackMs:'puerta', gateHoldMs:'puerta', gateReleaseMs:'puerta', gateHysteresisDb:'puerta',
+    hpfHz:'eq', lowHz:'eq', lowGainDb:'eq', presenceHz:'eq', presenceGainDb:'eq', presenceQ:'eq', airHz:'eq', airGainDb:'eq',
+    deEssFreqHz:'deesser', deEssThresholdDb:'deesser', deEssMaxDb:'deesser', deEssAttackMs:'deesser', deEssReleaseMs:'deesser',
+    riderEnabled:'rider', riderTargetDb:'rider', riderMaxBoostDb:'rider', riderMaxCutDb:'rider',
+    compThresholdDb:'comp', compRatio:'comp', compKneeDb:'comp', compAttackMs:'comp', compReleaseMs:'comp', compMakeupDb:'comp', compMix:'comp'
+  };
+  var TITULO = { puerta:'Puerta', eq:'EQ', deesser:'De-esser', rider:'Rider', comp:'Compresor' };
+  var SUMARIO = { puerta:'gateThresholdDb', eq:'hpfHz', deesser:'deEssMaxDb', rider:'riderEnabled', comp:'compRatio' };
+  var ORDEN = ['puerta','eq','deesser','rider','comp'];
+  var ETIQUETA = {
+    gateThresholdDb:'Umbral', gateRangeDb:'Rango', gateAttackMs:'Ataque', gateHoldMs:'Retención', gateReleaseMs:'Relajación', gateHysteresisDb:'Histéresis',
+    hpfHz:'Pasaaltos', lowHz:'Graves', lowGainDb:'Graves ganancia', presenceHz:'Presencia', presenceGainDb:'Presencia ganancia', presenceQ:'Presencia Q', airHz:'Aire', airGainDb:'Aire ganancia',
+    deEssFreqHz:'Frecuencia', deEssThresholdDb:'Umbral', deEssMaxDb:'Tope', deEssAttackMs:'Ataque', deEssReleaseMs:'Relajación',
+    riderEnabled:'Activo', riderTargetDb:'Objetivo', riderMaxBoostDb:'Subida máx.', riderMaxCutDb:'Bajada máx.',
+    compThresholdDb:'Umbral', compRatio:'Ratio', compKneeDb:'Rodilla', compAttackMs:'Ataque', compReleaseMs:'Relajación', compMakeupDb:'Make-up', compMix:'Mezcla', pan:'Panorama'
+  };
+  var FICHA_LOCAL = [
+    ['gateThresholdDb','dB',-90,0,-42],['gateRangeDb','dB',-90,0,-45],['gateAttackMs','ms',0.1,200,4],['gateHoldMs','ms',0,1000,90],['gateReleaseMs','ms',5,2000,140],['gateHysteresisDb','dB',0,18,4],
+    ['hpfHz','Hz',20,400,85],['lowHz','Hz',40,500,160],['lowGainDb','dB',-18,18,0],['presenceHz','Hz',800,8000,3200],['presenceGainDb','dB',-18,18,2],['presenceQ','Q',0.3,8,1],['airHz','Hz',3000,16000,10000],['airGainDb','dB',-18,18,1.5],
+    ['deEssFreqHz','Hz',2000,12000,6500],['deEssThresholdDb','dB',-60,0,-22],['deEssMaxDb','dB',0,24,7],['deEssAttackMs','ms',0.1,50,1],['deEssReleaseMs','ms',5,300,45],
+    ['riderEnabled','0 o 1',0,1,1],['riderTargetDb','dB',-48,-6,-18],['riderMaxBoostDb','dB',0,18,6],['riderMaxCutDb','dB',0,24,8],
+    ['compThresholdDb','dB',-60,0,-20],['compRatio',':1',1,20,2.5],['compKneeDb','dB',0,30,6],['compAttackMs','ms',0.2,200,12],['compReleaseMs','ms',10,2000,130],['compMakeupDb','dB',-12,24,2],['compMix','0..1',0,1,1],
+    ['pan','-1..+1',-1,1,0]
+  ].map(function (r) { return { nombre: r[0], unidad: r[1], duro: [r[2], r[3]], defecto: r[4], nota: '' }; });
+
+  var estado = {
+    escena: 'radio', antiBleed: false, escuchaDb: 0, escuchando: false, masterDb: 0,
+    guion: '', marcas: [], fadersPorEscena: {}, fase: 'apagada', cuenta: 3, inicio: 0, duracion: 0,
+    cerrando: false, probando: false, picoPrueba: -80, rmsPrueba: -80, huboPico: false, textoPrueba: '',
+    resultadoWav: null, blobLigero: null, mimeLigero: '', avisos: [], sesionPendiente: false,
+    dispositivos: [], pcmL: [], pcmR: [], muestras: 0, grabandoPcm: false, sirenaUi: false
+  };
+  var ctx = null, studio = null, melodia = null, camaFx = null, pistas = [], carros = [], ficha = [], porNombre = {};
+  var silencioUi = false, relojId = 0, guardarId = 0, timerCuenta = 0, soltarMedidores = null, escenaCargada = null;
+
+  function $(id) { return document.getElementById(id); }
+  function el(tag, cls, texto) {
+    var n = document.createElement(tag);
+    if (cls) n.className = cls;
+    if (texto != null) n.textContent = texto;
+    return n;
+  }
+  function dos(n) { return (n < 10 ? '0' : '') + n; }
+  function sello() {
+    var d = new Date();
+    return d.getFullYear() + '-' + dos(d.getMonth() + 1) + '-' + dos(d.getDate()) + '-' + dos(d.getHours()) + dos(d.getMinutes());
+  }
+  function relojTxt(seg) {
+    if (!isFinite(seg) || seg < 0) seg = 0;
+    var s = Math.floor(seg);
+    return dos(Math.floor(s / 3600)) + ':' + dos(Math.floor((s % 3600) / 60)) + ':' + dos(s % 60);
+  }
+  function dbLin(db) { if (db <= -89.9) return 0; return Math.pow(10, db / 20); }
+  function textoDb(db) {
+    if (!isFinite(db)) return '—';
+    var n = (Math.round(db * 10) / 10).toFixed(1).replace('.', ',');
+    return (db > 0 ? '+' : '') + n + ' dB';
+  }
+  function textoPan(v) {
+    if (Math.abs(v) < 0.03) return 'centro';
+    return (v < 0 ? 'L ' : 'R ') + Math.round(Math.abs(v) * 100);
+  }
+  function anotar(msg) {
+    estado.avisos.unshift(String(msg));
+    if (estado.avisos.length > 5) estado.avisos.length = 5;
+    var n = $('avisos');
+    if (n) n.textContent = estado.avisos.join(' · ');
+  }
+  function hayMotor() {
+    return typeof window.LVPodcastAudio !== 'undefined' && LVPodcastAudio && typeof LVPodcastAudio.create === 'function';
+  }
+  function palabraNivel(db) {
+    if (db > -1) return 'recorte';
+    if (db > -8) return 'alto';
+    if (db >= -24) return 'bien';
+    return 'bajo';
+  }
+  function pasoDe(f) {
+    var span = f.duro[1] - f.duro[0];
+    if (f.nombre === 'riderEnabled') return 1;
+    if (f.nombre === 'compMix' || f.nombre === 'pan') return 0.01;
+    if (f.unidad === 'Q') return 0.05;
+    if (f.unidad === ':1') return 0.1;
+    if (String(f.unidad).indexOf('ms') !== -1) return span > 80 ? 1 : 0.1;
+    if (String(f.unidad).indexOf('Hz') !== -1) return span > 1000 ? 10 : 1;
+    return 0.5;
+  }
+  function textoValor(f, v) {
+    if (!f) return String(v);
+    if (f.nombre === 'riderEnabled') return v >= 0.5 ? 'activo' : 'quieto';
+    if (f.nombre === 'pan') return textoPan(v);
+    var n = Math.round(v * 100) / 100;
+    var s = (Math.abs(n - Math.round(n)) < 0.001 ? String(Math.round(n)) : n.toFixed(2)).replace('.', ',');
+    if (f.unidad === ':1') return s + ':1';
+    if (!f.unidad || f.unidad === '0 o 1' || f.unidad === '0..1' || f.unidad === '-1..+1') return s;
+    return s + ' ' + f.unidad;
+  }
+  function cargarFicha() {
+    if (window.LVPodcastAudio && LVPodcastAudio.FICHA && LVPodcastAudio.FICHA.length) {
+      ficha = Array.prototype.map.call(LVPodcastAudio.FICHA, function (f) {
+        return { nombre: f.nombre, unidad: f.unidad, duro: [f.duro[0], f.duro[1]], defecto: f.defecto, nota: f.nota || '' };
+      });
+    } else {
+      ficha = FICHA_LOCAL.map(function (f) { return { nombre: f.nombre, unidad: f.unidad, duro: f.duro.slice(), defecto: f.defecto, nota: '' }; });
+    }
+    porNombre = {};
+    ficha.forEach(function (f) { porNombre[f.nombre] = f; });
+  }
+  function paramsDefecto() {
+    var o = {};
+    ficha.forEach(function (f) { o[f.nombre] = f.defecto; });
+    return o;
+  }
+  function pistaDe(id) { for (var i = 0; i < pistas.length; i++) if (pistas[i].id === id) return pistas[i]; return null; }
+  function carro(id) { for (var i = 0; i < carros.length; i++) if (carros[i].id === id) return carros[i]; return null; }
+  function notaEscena(id) {
+    var cat = (window.LVPodcastAudio && LVPodcastAudio.scenes) || [];
+    for (var i = 0; i < cat.length; i++) if (cat[i].id === id && cat[i].blurb) return cat[i].blurb;
+    return '';
+  }
+  function montarPistas() {
+    pistas = ROLES.map(function (r, i) {
+      return {
+        id: r.id, rol: r.rol, nombre: r.rol, mute: false, solo: false, armada: i === 0,
+        gainDb: 0, pan: 0, params: paramsDefecto(), offset: 0, modo: 'archivo', deviceId: '',
+        buffer: null, file: null, nombreArchivo: '', oculta: false, cortada: false,
+        stream: null, fuente: null, src: null, reproduciendo: false, mic: null,
+        outDb: -80, picoHold: null, puerta: null, controles: {}, sumarios: {}
+      };
+    });
+  }
+  function montarCarros() {
+    carros = [
+      { id: 'intro', etiqueta: 'Intro', loop: false, alGrabar: false, alParar: false, auto: 'grabar' },
+      { id: 'cama', etiqueta: 'Cama', loop: true, alGrabar: false, alParar: false, auto: '' },
+      { id: 'outro', etiqueta: 'Outro', loop: false, alGrabar: false, alParar: false, auto: 'parar' },
+      { id: 'cuna', etiqueta: 'Cuña', loop: false, alGrabar: false, alParar: false, auto: '' }
+    ].map(function (c) {
+      c.faderDb = 0; c.buffer = null; c.file = null; c.nombreArchivo = ''; c.gain = null; c.src = null; c.sonando = false;
+      return c;
+    });
+  }
+  function pintarEscenas() {
+    var caja = $('escenas');
+    caja.textContent = '';
+    IDS_ESCENA.forEach(function (id) {
+      var b = el('button', '', ETIQUETA_ESCENA[id]);
+      b.type = 'button';
+      b.dataset.escena = id;
+      b.setAttribute('aria-pressed', id === estado.escena ? 'true' : 'false');
+      b.addEventListener('click', function () { cambiarEscena(id); });
+      caja.appendChild(b);
+    });
+  }
+  function construirTiras() {
+    var caja = $('tiras');
+    caja.textContent = '';
+    pistas.forEach(function (p) {
+      var tira = el('article', 'tira');
+      tira.dataset.pista = p.id;
+      tira.appendChild(el('p', 'rol', p.rol));
+      var nom = document.createElement('input');
+      nom.className = 'campo'; nom.type = 'text'; nom.value = p.nombre;
+      nom.setAttribute('aria-label', 'Nombre de ' + p.rol);
+      nom.addEventListener('input', function () { p.nombre = nom.value; programarGuardado(); });
+      tira.appendChild(nom);
+      var cadena = el('p', 'cadena', CADENA);
+      cadena.title = 'La cadena vive en el motor. Las perillas llaman a setParam.';
+      tira.appendChild(cadena);
+      var entrada = document.createElement('select');
+      entrada.setAttribute('aria-label', 'Entrada de ' + p.rol);
+      [['archivo','Archivo local'],['micro','Micrófono']].forEach(function (op) {
+        var o = document.createElement('option'); o.value = op[0]; o.textContent = op[1]; entrada.appendChild(o);
+      });
+      entrada.value = p.modo;
+      entrada.addEventListener('change', function () { p.modo = entrada.value; if (p.modo === 'micro') listarMicros().then(function () { llenarMicros(p); }); programarGuardado(); });
+      tira.appendChild(entrada);
+      var micro = document.createElement('select');
+      micro.setAttribute('aria-label', 'Micrófono de ' + p.rol);
+      micro.addEventListener('change', function () { p.deviceId = micro.value; if (p.modo === 'micro' && p.stream) conectarMicro(p); programarGuardado(); });
+      tira.appendChild(micro);
+      var file = document.createElement('input');
+      file.type = 'file'; file.accept = 'audio/*'; file.setAttribute('aria-label', 'Archivo de ' + p.rol);
+      file.addEventListener('change', function () { if (file.files[0]) cargarArchivoPista(p, file.files[0]); });
+      tira.appendChild(file);
+      var nomArch = el('p', 'nota', '');
+      tira.appendChild(nomArch);
+      var off = document.createElement('input');
+      off.className = 'campo'; off.type = 'number'; off.min = '0'; off.step = '0.1'; off.value = '0';
+      off.setAttribute('aria-label', 'Offset en segundos');
+      off.addEventListener('input', function () { p.offset = Math.max(0, parseFloat(off.value) || 0); programarGuardado(); });
+      tira.appendChild(off);
+      var par = el('div', 'par');
+      var faderCaja = el('div', 'fader-caja');
+      var fader = document.createElement('input');
+      fader.type = 'range'; fader.min = '-18'; fader.max = '6'; fader.step = '0.5'; fader.value = String(p.gainDb);
+      fader.setAttribute('aria-label', 'Fader de ' + p.rol);
+      fader.setAttribute('aria-orientation', 'vertical');
+      fader.addEventListener('input', function () { p.gainDb = parseFloat(fader.value); empujarFader(p); programarGuardado(); });
+      faderCaja.appendChild(fader);
+      var metro = el('div', 'metro');
+      var pistaM = el('div', 'pista-metro');
+      var nivel = el('div', 'nivel');
+      pistaM.appendChild(nivel);
+      var cifra = el('p', 'cifra', '—');
+      var recorte = el('p', 'peligro', '');
+      var puerta = el('p', 'suave', '');
+      metro.appendChild(pistaM); metro.appendChild(cifra); metro.appendChild(recorte); metro.appendChild(puerta);
+      par.appendChild(faderCaja); par.appendChild(metro);
+      tira.appendChild(par);
+      var pan = document.createElement('input');
+      pan.type = 'range'; pan.min = '-1'; pan.max = '1'; pan.step = '0.01'; pan.value = '0';
+      pan.setAttribute('aria-label', 'Panorama de ' + p.rol);
+      var panTxt = el('p', 'nota', 'centro');
+      pan.addEventListener('input', function () {
+        p.pan = parseFloat(pan.value);
+        panTxt.textContent = textoPan(p.pan);
+        if (p.mic) { try { p.mic.setParam('pan', p.pan); } catch (e) { anotar(e.message || e); } }
+        programarGuardado();
+      });
+      tira.appendChild(pan); tira.appendChild(panTxt);
+      var bots = el('div', 'botones');
+      function boton(txt, fn) { var b = el('button', '', txt); b.type = 'button'; b.addEventListener('click', fn); bots.appendChild(b); return b; }
+      var bArm = boton('Armar', function () { p.armada = !p.armada; pintarBoton(bArm, p.armada, 'Armada', 'Armar'); programarGuardado(); });
+      var bMute = boton('Silencio', function () { p.mute = !p.mute; if (p.mic && !p.oculta) p.mic.mute(p.mute); pintarBoton(bMute, p.mute, 'En silencio', 'Silencio'); programarGuardado(); });
+      var bSolo = boton('Solo', function () { p.solo = !p.solo; if (p.mic) p.mic.solo(p.solo); pintarBoton(bSolo, p.solo, 'En solo', 'Solo'); programarGuardado(); });
+      var bPlay = boton('Reproducir archivo', function () { reproducirPista(p); });
+      var bStop = boton('Parar archivo', function () { pararPista(p); });
+      tira.appendChild(bots);
+      ORDEN.forEach(function (bloque) {
+        var det = document.createElement('details');
+        var sum = document.createElement('summary');
+        sum.textContent = TITULO[bloque];
+        det.appendChild(sum);
+        var resumen = el('p', 'nota', '');
+        det.appendChild(resumen);
+        ficha.forEach(function (f) {
+          if (BLOQUE[f.nombre] !== bloque) return;
+          var lab = el('label', 'knob');
+          var span = document.createElement('span');
+          var nomP = document.createElement('b'); nomP.textContent = ETIQUETA[f.nombre] || f.nombre;
+          var val = document.createElement('b');
+          span.appendChild(nomP); span.appendChild(val);
+          var sl = document.createElement('input');
+          sl.type = 'range'; sl.min = String(f.duro[0]); sl.max = String(f.duro[1]); sl.step = String(pasoDe(f)); sl.value = String(p.params[f.nombre]);
+          sl.setAttribute('aria-label', (ETIQUETA[f.nombre] || f.nombre) + ' de ' + p.rol);
+          val.textContent = textoValor(f, p.params[f.nombre]);
+          sl.addEventListener('input', function () {
+            var v = parseFloat(sl.value);
+            p.params[f.nombre] = v;
+            val.textContent = textoValor(f, v);
+            if (f.nombre === 'pan') p.pan = v;
+            if (p.mic && !silencioUi) { try { p.mic.setParam(f.nombre, v); } catch (e) { anotar(e.message || e); } }
+            pintarSumario(p, bloque);
+            programarGuardado();
+          });
+          lab.appendChild(span); lab.appendChild(sl);
+          det.appendChild(lab);
+          p.controles[f.nombre] = { input: sl, valor: val };
+        });
+        tira.appendChild(det);
+        p.sumarios[bloque] = resumen;
+      });
+      caja.appendChild(tira);
+      p.ui = {
+        tira: tira, nombre: nom, entrada: entrada, micro: micro, archivo: nomArch, offset: off,
+        fader: fader, nivel: nivel, cifra: cifra, recorte: recorte, puerta: puerta,
+        pan: pan, panTxt: panTxt, arm: bArm, mute: bMute, solo: bSolo, play: bPlay
+      };
+    });
+  }
+  function pintarBoton(b, on, si, no) { b.textContent = on ? si : no; b.setAttribute('aria-pressed', on ? 'true' : 'false'); if (on) b.classList.add('acento'); else b.classList.remove('acento'); }
+  function pintarSumario(p, bloque) {
+    var n = p.sumarios[bloque];
+    var clave = SUMARIO[bloque];
+    var f = porNombre[clave];
+    if (!n || !f) return;
+    n.textContent = (ETIQUETA[clave] || clave) + ' ' + textoValor(f, p.params[clave]);
+  }
+  function pintarMedidor(p) {
+    if (!p.ui) return;
+    var db = isFinite(p.outDb) ? p.outDb : -80;
+    if (db < -80) db = -80;
+    var pct = db <= -60 ? 0 : Math.max(0, Math.min(100, ((db + 60) / 60) * 100));
+    p.ui.nivel.style.height = pct + '%';
+    var pico = p.picoHold == null ? db : p.picoHold;
+    p.ui.cifra.textContent = textoDb(pico);
+    if (pico > -1) { p.ui.recorte.textContent = 'recorte'; p.ui.recorte.className = 'peligro'; }
+    else { p.ui.recorte.textContent = ''; }
+    if (p.puerta == null) p.ui.puerta.textContent = '';
+    else p.ui.puerta.textContent = p.puerta ? 'puerta abierta' : 'puerta cerrada';
+  }
+  function llenarMicros(p) {
+    var sel = p.ui.micro;
+    sel.textContent = '';
+    var def = document.createElement('option');
+    def.value = ''; def.textContent = estado.dispositivos.length ? 'Micrófono por defecto' : 'Pide permiso para listar';
+    sel.appendChild(def);
+    estado.dispositivos.forEach(function (d, i) {
+      var o = document.createElement('option');
+      o.value = d.deviceId;
+      o.textContent = d.label || ('Micrófono ' + (i + 1));
+      sel.appendChild(o);
+    });
+    sel.value = p.deviceId || '';
+  }
+  function construirCarros() {
+    var caja = $('carros');
+    caja.textContent = '';
+    carros.forEach(function (c) {
+      var art = el('article', 'carro');
+      art.appendChild(el('p', 'rol', c.etiqueta));
+      var file = document.createElement('input');
+      file.type = 'file'; file.accept = 'audio/*';
+      file.setAttribute('aria-label', 'Archivo de ' + c.etiqueta);
+      file.addEventListener('change', function () { if (file.files[0]) cargarCarro(c, file.files[0]); });
+      art.appendChild(file);
+      var nom = el('p', 'nota', 'Sin archivo');
+      var fader = document.createElement('input');
+      fader.type = 'range'; fader.min = '-40'; fader.max = '6'; fader.step = '0.5'; fader.value = String(c.faderDb);
+      fader.setAttribute('aria-label', 'Fader de ' + c.etiqueta);
+      var cifra = el('p', 'cifra', textoDb(c.faderDb));
+      fader.addEventListener('input', function () {
+        c.faderDb = parseFloat(fader.value);
+        cifra.textContent = textoDb(c.faderDb);
+        if (c.gain && ctx) c.gain.gain.setTargetAtTime(dbLin(c.faderDb), ctx.currentTime, 0.02);
+        programarGuardado();
+      });
+      art.appendChild(fader); art.appendChild(cifra);
+      var loop = document.createElement('label');
+      var chk = document.createElement('input');
+      chk.type = 'checkbox'; chk.checked = c.loop;
+      chk.addEventListener('change', function () { c.loop = chk.checked; programarGuardado(); });
+      loop.appendChild(chk); loop.appendChild(document.createTextNode(' Bucle'));
+      art.appendChild(loop);
+      var bPlay = el('button', '', 'Tocar ' + c.etiqueta); bPlay.type = 'button';
+      var bStop = el('button', '', 'Parar ' + c.etiqueta); bStop.type = 'button';
+      bPlay.addEventListener('click', function () { tocarCarro(c); });
+      bStop.addEventListener('click', function () { pararCarro(c); });
+      art.appendChild(bPlay); art.appendChild(bStop);
+      if (c.auto === 'grabar') {
+        var a = document.createElement('label');
+        var k = document.createElement('input'); k.type = 'checkbox';
+        k.addEventListener('change', function () { c.alGrabar = k.checked; programarGuardado(); });
+        a.appendChild(k); a.appendChild(document.createTextNode(' al empezar grabación'));
+        art.appendChild(a); c.uiAuto = k;
+      }
+      if (c.auto === 'parar') {
+        var a2 = document.createElement('label');
+        var k2 = document.createElement('input'); k2.type = 'checkbox';
+        k2.addEventListener('change', function () { c.alParar = k2.checked; programarGuardado(); });
+        a2.appendChild(k2); a2.appendChild(document.createTextNode(' al parar'));
+        art.appendChild(a2); c.uiAuto = k2;
+      }
+      caja.appendChild(art);
+      c.ui = { nombre: nom, fader: fader, cifra: cifra, loop: chk, play: bPlay };
+    });
+  }
+  function asegurarNodos() {
+    if (!ctx || !melodia) return;
+    carros.forEach(function (c) {
+      if (!c.gain) {
+        c.gain = ctx.createGain();
+        c.gain.gain.value = dbLin(c.faderDb);
+        c.gain.connect(melodia.input);
+      }
+    });
+    if (!estado.fxGain) {
+      estado.fxGain = ctx.createGain();
+      estado.fxGain.gain.value = 0.35;
+      estado.fxGain.connect(camaFx.input);
+      if (window.LVEfectos && typeof LVEfectos.montar === 'function') {
+        LVEfectos.montar({
+          ctxFn: function () { return ctx; },
+          destFn: function () { return estado.fxGain; }
+        });
+      }
+    }
+    if (!estado.tomaDest) {
+      estado.tomaDest = ctx.createMediaStreamDestination();
+      estado.procesador = ctx.createScriptProcessor(4096, 2, 2);
+      estado.procesador.onaudioprocess = alPcm;
+      studio.master.connect(estado.procesador);
+      estado.procesador.connect(estado.tomaDest);
+      // Chrome solo hace correr un ScriptProcessor si acaba en destination: tirón mudo, no es el monitor.
+      estado.tironMudo = ctx.createGain();
+      estado.tironMudo.gain.value = 0;
+      estado.procesador.connect(estado.tironMudo);
+      estado.tironMudo.connect(ctx.destination);
+    }
+  }
+  function alPcm(ev) {
+    var inn = ev.inputBuffer;
+    var out = ev.outputBuffer;
+    var ch = inn.numberOfChannels;
+    var i0 = inn.getChannelData(0);
+    var i1 = ch > 1 ? inn.getChannelData(1) : i0;
+    out.getChannelData(0).set(i0);
+    if (out.numberOfChannels > 1) out.getChannelData(1).set(i1);
+    if (!estado.grabandoPcm) return;
+    estado.pcmL.push(new Float32Array(i0));
+    estado.pcmR.push(new Float32Array(i1));
+    estado.muestras += i0.length;
+  }
+  function faderMaestro(db) {
+    if (!studio || !studio.master || !studio.master.gain) return;
+    var nodo = studio.master.gain;
+    if (nodo.gain && typeof nodo.gain.setTargetAtTime === 'function') {
+      nodo.gain.setTargetAtTime(dbLin(db), ctx.currentTime, 0.02);
+    }
+  }
+  function ponerEscucha(on) {
+    if (!studio || !ctx) { anotar('Enciende la mesa para escuchar.'); return; }
+    if (!estado.ganEscucha) {
+      estado.ganEscucha = ctx.createGain();
+      estado.ganEscucha.gain.value = dbLin(estado.escuchaDb);
+    }
+    if (on && !estado.escuchando) {
+      studio.master.connect(estado.ganEscucha);
+      estado.ganEscucha.connect(ctx.destination);
+      estado.escuchando = true;
+    } else if (!on && estado.escuchando) {
+      try { studio.master.output.disconnect(estado.ganEscucha); } catch (e) {}
+      try { estado.ganEscucha.disconnect(); } catch (e2) {}
+      estado.escuchando = false;
+    }
+    var b = $('btn-escucha');
+    if (b) { b.textContent = estado.escuchando ? 'Dejar de escuchar' : 'Escuchar'; b.setAttribute('aria-pressed', estado.escuchando ? 'true' : 'false'); }
+  }
+  function desconectarFuente(p) {
+    if (p.src) { try { p.src.stop(); } catch (e) {} try { p.src.disconnect(); } catch (e2) {} p.src = null; p.reproduciendo = false; }
+    if (p.fuente) { try { p.fuente.disconnect(); } catch (e3) {} p.fuente = null; }
+    if (p.stream) { p.stream.getTracks().forEach(function (t) { try { t.stop(); } catch (e4) {} }); p.stream = null; }
+  }
+  function aplicarVisibilidad() {
+    var vivas = PISTAS_ESCENA[estado.escena] || ['locutor'];
+    pistas.forEach(function (p) {
+      var ver = vivas.indexOf(p.id) !== -1;
+      p.oculta = !ver;
+      if (p.ui) p.ui.tira.hidden = !ver;
+      if (!p.mic) return;
+      if (!ver) {
+        desconectarFuente(p);
+        p.mic.mute(true);
+        p.mic.solo(false);
+        p.cortada = true;
+      } else if (p.cortada) {
+        p.mic.mute(!!p.mute);
+        p.mic.solo(!!p.solo);
+        p.cortada = false;
+      }
+    });
+  }
+  function leerMic(p) {
+    if (!p.mic) return;
+    var got = p.mic.getParams();
+    if (got) Object.keys(got).forEach(function (k) { if (porNombre[k]) p.params[k] = got[k]; });
+    if (typeof p.mic.getGainDb === 'function') p.gainDb = p.mic.getGainDb();
+    p.pan = typeof p.params.pan === 'number' ? p.params.pan : p.pan;
+    pintarPista(p);
+  }
+  function empujarFader(p) {
+    if (p.mic) p.mic.setGainDb(p.gainDb);
+    if (p.ui) p.ui.fader.value = String(p.gainDb);
+  }
+  function aplicarPan(id) {
+    var mapa = PANES[id] || {};
+    pistas.forEach(function (p) {
+      if (typeof mapa[p.id] !== 'number' || !p.mic) return;
+      p.pan = mapa[p.id];
+      p.params.pan = p.pan;
+      try { p.mic.setParam('pan', p.pan); } catch (e) { anotar(e.message || e); }
+      if (p.ui) { p.ui.pan.value = String(p.pan); p.ui.panTxt.textContent = textoPan(p.pan); }
+      if (p.controles.pan) { p.controles.pan.input.value = String(p.pan); p.controles.pan.valor.textContent = textoPan(p.pan); }
+    });
+  }
+  function reflejarBleed(id) {
+    var on = id === 'directo' || id === 'futbol' ? true : false;
+    estado.antiBleed = on;
+    var chk = $('anti-bleed');
+    if (chk) chk.checked = on;
+  }
+  function cambiarEscena(id) {
+    if (IDS_ESCENA.indexOf(id) === -1) return;
+    var anterior = estado.escena;
+    if (!estado.fadersPorEscena[anterior]) estado.fadersPorEscena[anterior] = {};
+    pistas.forEach(function (p) { estado.fadersPorEscena[anterior][p.id] = p.gainDb; });
+    estado.escena = id;
+    if (studio) {
+      try { studio.setScene(id); }
+      catch (e) { anotar('La escena no entró en el motor. La mesa sigue en la anterior receta.'); }
+      pistas.forEach(leerMic);
+      aplicarPan(id);
+      var mem = estado.fadersPorEscena[id];
+      if (mem && id !== 'audiolibro') {
+        pistas.forEach(function (p) { if (typeof mem[p.id] === 'number') { p.gainDb = mem[p.id]; empujarFader(p); } });
+      }
+    }
+    var bleedAntes = estado.antiBleed;
+    reflejarBleed(id);
+    aplicarVisibilidad();
+    if (studio && bleedAntes !== estado.antiBleed) {
+      pistas.forEach(function (p) {
+        if (p.stream && p.modo === 'micro' && !p.oculta) conectarMicro(p);
+      });
+    }
+    pintarEscenaUi();
+    if (id === 'directo' && studio && !estado.escuchando) ponerEscucha(true);
+    programarGuardado();
+  }
+  function lineaEstado() {
+    var n = $('estado-linea');
+    if (!n) return;
+    var cadena = !hayMotor() ? 'falta el motor de sonido' : (!studio ? 'mesa apagada' : (studio.usingWorklet ? 'cadena: motor worklet' : 'cadena: motor'));
+    var fase = estado.fase === 'grabando' ? 'grabando' : (estado.fase === 'cuenta' ? 'cuenta atrás' : (estado.fase === 'parada' ? 'toma parada' : ''));
+    n.textContent = [cadena, ETIQUETA_ESCENA[estado.escena] || estado.escena, fase].filter(Boolean).join(' · ');
+  }
+  function pintarEscenaUi() {
+    lineaEstado();
+    var botones = document.querySelectorAll('[data-escena]');
+    for (var i = 0; i < botones.length; i++) botones[i].setAttribute('aria-pressed', botones[i].dataset.escena === estado.escena ? 'true' : 'false');
+    var n = $('nota-escena');
+    if (n) n.textContent = notaEscena(estado.escena);
+  }
+  function pintarPista(p) {
+    if (!p.ui) return;
+    silencioUi = true;
+    p.ui.nombre.value = p.nombre;
+    p.ui.entrada.value = p.modo;
+    p.ui.offset.value = String(p.offset);
+    p.ui.archivo.textContent = p.nombreArchivo || 'Sin archivo';
+    p.ui.fader.value = String(p.gainDb);
+    p.ui.pan.value = String(p.pan);
+    p.ui.panTxt.textContent = textoPan(p.pan);
+    pintarBoton(p.ui.arm, p.armada, 'Armada', 'Armar');
+    pintarBoton(p.ui.mute, p.mute, 'En silencio', 'Silencio');
+    pintarBoton(p.ui.solo, p.solo, 'En solo', 'Solo');
+    Object.keys(p.controles).forEach(function (k) {
+      var c = p.controles[k];
+      var v = p.params[k];
+      if (typeof v !== 'number') return;
+      c.input.value = String(v);
+      c.valor.textContent = textoValor(porNombre[k], v);
+    });
+    ORDEN.forEach(function (b) { pintarSumario(p, b); });
+    silencioUi = false;
+    pintarMedidor(p);
+  }
+  function empujarSesion() {
+    pistas.forEach(function (p) {
+      if (!p.mic) return;
+      p.mic.setGainDb(p.gainDb);
+      p.mic.mute(p.oculta ? true : !!p.mute);
+      p.mic.solo(!!p.solo);
+      Object.keys(p.params).forEach(function (k) {
+        if (!porNombre[k] || typeof p.params[k] !== 'number') return;
+        try { p.mic.setParam(k, p.params[k]); } catch (e) {}
+      });
+    });
+    carros.forEach(function (c) {
+      if (c.gain && ctx) c.gain.gain.value = dbLin(c.faderDb);
+    });
+    faderMaestro(estado.masterDb);
+    if (estado.ganEscucha) estado.ganEscucha.gain.value = dbLin(estado.escuchaDb);
+  }
+  async function encender() {
+    var AC = window.AudioContext || window.webkitAudioContext;
+    if (!AC) { anotar('Este navegador no tiene AudioContext.'); return; }
+    if (!hayMotor()) {
+      anotar('falta el motor de sonido');
+      $('estado-linea').textContent = 'falta el motor de sonido';
+      return;
+    }
+    if (!ctx) ctx = new AC();
+    if (ctx.state === 'suspended') await ctx.resume();
+    if (!studio) {
+      studio = await LVPodcastAudio.create(ctx);
+      pistas.forEach(function (p) { p.mic = studio.addMic(p.id); });
+      melodia = studio.addBed('melodia');
+      camaFx = studio.addBed('efectos');
+      melodia.setGainDb(-12);
+      melodia.setDuckDb(-28);
+      camaFx.setGainDb(0);
+      camaFx.setDuckDb(null);
+      asegurarNodos();
+      if (soltarMedidores) soltarMedidores();
+      soltarMedidores = studio.meters(alMedidor);
+      faderMaestro(estado.masterDb);
+      if (estado.sesionPendiente && estado.escena === escenaCargada) {
+        try { studio.setScene(estado.escena); } catch (e) { anotar(e.message || e); }
+        studio.setBleedGuard(!!estado.antiBleed);
+        empujarSesion();
+        aplicarVisibilidad();
+      } else {
+        cambiarEscena(estado.escena);
+      }
+      estado.sesionPendiente = false;
+    }
+    estado.fase = 'lista';
+    $('btn-encender').textContent = 'Mesa encendida';
+    lineaEstado();
+    anotar('Mesa encendida. El audio no sale del aparato.');
+  }
+  async function cambiarEscenaAsync() {
+    cambiarEscena(estado.escena);
+  }
+  function alMedidor(m) {
+    if (!m) return;
+    var ids = m.mics || {};
+    pistas.forEach(function (p) {
+      var mm = ids[p.id];
+      if (!mm) return;
+      var db = typeof mm.outDb === 'number' ? mm.outDb : -80;
+      p.outDb = db;
+      if (p.picoHold == null || db > p.picoHold) p.picoHold = db;
+      p.puerta = typeof mm.gateOpen === 'number' ? mm.gateOpen > 0.5 : null;
+      pintarMedidor(p);
+      if (estado.probando && !p.oculta && db > estado.picoPrueba) { estado.picoPrueba = db; estado.huboPico = true; }
+    });
+    if (typeof m.masterDb === 'number') {
+      if (estado.probando && m.masterDb > estado.rmsPrueba) estado.rmsPrueba = m.masterDb;
+    }
+  }
+  function fraseMicro(err) {
+    var nombre = err && err.name ? err.name : 'Error';
+    return 'No se pudo abrir el micrófono (' + nombre + '). Chrome suele bloquearlo al abrir un archivo local; Firefox suele permitirlo. Importar archivos sigue funcionando igual.';
+  }
+  async function listarMicros() {
+    if (!navigator.mediaDevices || !navigator.mediaDevices.enumerateDevices) return;
+    var lista = await navigator.mediaDevices.enumerateDevices();
+    estado.dispositivos = lista.filter(function (d) { return d.kind === 'audioinput'; });
+    pistas.forEach(llenarMicros);
+  }
+  function audioDeMicro(deviceId) {
+    if (!hayMotor()) throw new Error('falta el motor de sonido');
+    var base = LVPodcastAudio.micConstraints({ bleedGuard: !!estado.antiBleed });
+    var audio = {};
+    Object.keys(base).forEach(function (k) { audio[k] = base[k]; });
+    if (deviceId) audio.deviceId = { exact: deviceId };
+    return { audio: audio };
+  }
+  async function conectarMicro(p) {
+    if (!ctx || !p.mic) { anotar('Enciende la mesa antes del micrófono.'); return; }
+    desconectarFuente(p);
+    try {
+      var stream = await navigator.mediaDevices.getUserMedia(audioDeMicro(p.deviceId));
+      p.stream = stream;
+      p.fuente = ctx.createMediaStreamSource(stream);
+      p.fuente.connect(p.mic.input);
+      await listarMicros();
+      if (p.deviceId) p.ui.micro.value = p.deviceId;
+      $('aviso-micro').textContent = '';
+    } catch (err) {
+      $('aviso-micro').textContent = fraseMicro(err);
+      anotar(fraseMicro(err));
+    }
+  }
+  function cargarArchivoPista(p, file) {
+    if (!ctx) { anotar('Enciende la mesa antes de decodificar.'); return; }
+    p.file = file;
+    p.nombreArchivo = file.name;
+    p.modo = 'archivo';
+    p.ui.entrada.value = 'archivo';
+    p.ui.archivo.textContent = file.name;
+    file.arrayBuffer().then(function (buf) { return ctx.decodeAudioData(buf); }).then(function (audio) {
+      p.buffer = audio;
+      anotar(p.rol + ': archivo listo.');
+    }).catch(function () { anotar('No se pudo decodificar ' + file.name); });
+  }
+  function reproducirPista(p) {
+    if (!ctx || !p.mic || !p.buffer) { anotar('Enciende la mesa y carga un archivo.'); return; }
+    pararPista(p);
+    if (p.fuente) { try { p.fuente.disconnect(); } catch (e) {} p.fuente = null; }
+    var src = ctx.createBufferSource();
+    src.buffer = p.buffer;
+    src.connect(p.mic.input);
+    var off = Math.min(p.offset || 0, Math.max(0, p.buffer.duration - 0.01));
+    src.start(0, off);
+    p.src = src;
+    p.reproduciendo = true;
+    src.onended = function () { if (p.src === src) { p.reproduciendo = false; p.src = null; } };
+  }
+  function pararPista(p) {
+    if (!p.src) return;
+    try { p.src.stop(); } catch (e) {}
+    try { p.src.disconnect(); } catch (e2) {}
+    p.src = null;
+    p.reproduciendo = false;
+  }
+  function cargarCarro(c, file) {
+    if (!ctx || !melodia) { anotar('Enciende la mesa antes de cargar el carro.'); return; }
+    asegurarNodos();
+    c.file = file;
+    c.nombreArchivo = file.name;
+    c.ui.nombre.textContent = file.name;
+    file.arrayBuffer().then(function (buf) { return ctx.decodeAudioData(buf); }).then(function (audio) {
+      c.buffer = audio;
+      anotar(c.etiqueta + ' cargado.');
+    }).catch(function () { anotar('No se pudo decodificar ' + file.name); });
+  }
+  function tocarCarro(c) {
+    if (!ctx || !c.gain || !c.buffer) { anotar('Enciende la mesa y carga ' + c.etiqueta + '.'); return; }
+    if (estado.escena === 'audiolibro') anotar('Audiolibros deja las camas a −80 dB en el motor. El carro entra, pero casi no se oye.');
+    pararCarro(c);
+    var src = ctx.createBufferSource();
+    src.buffer = c.buffer;
+    src.loop = !!c.loop;
+    src.connect(c.gain);
+    src.start();
+    c.src = src;
+    c.sonando = true;
+    src.onended = function () { if (c.src === src) { c.sonando = false; c.src = null; } };
+  }
+  function pararCarro(c) {
+    if (!c.src) return;
+    try { c.src.stop(); } catch (e) {}
+    try { c.src.disconnect(); } catch (e2) {}
+    c.src = null;
+    c.sonando = false;
+  }
+  function pistaArmada() {
+    for (var i = 0; i < pistas.length; i++) if (pistas[i].armada && !pistas[i].oculta) return pistas[i];
+    for (var j = 0; j < pistas.length; j++) if (!pistas[j].oculta) return pistas[j];
+    return pistas[0];
+  }
+  function actualizarReloj() {
+    var seg = estado.duracion;
+    if (estado.fase === 'grabando') seg = (ctx ? ctx.currentTime : 0) - estado.inicio;
+    $('contador').textContent = estado.fase === 'cuenta' ? String(estado.cuenta) : relojTxt(seg);
+    var aviso = $('aviso-toma');
+    if (estado.fase === 'grabando' && seg > 600) { aviso.hidden = false; aviso.textContent = 'La toma pasa de diez minutos. El WAV crece en memoria.'; }
+  }
+  function prepararRecorder() {
+    estado.blobLigero = null;
+    estado.mimeLigero = '';
+    $('btn-ligero').hidden = true;
+    if (typeof MediaRecorder === 'undefined' || !estado.tomaDest) return;
+    var tipos = ['audio/webm;codecs=opus', 'audio/webm', 'audio/mp4'];
+    var mime = '';
+    for (var i = 0; i < tipos.length; i++) {
+      if (MediaRecorder.isTypeSupported && MediaRecorder.isTypeSupported(tipos[i])) { mime = tipos[i]; break; }
+    }
+    try {
+      estado.recorder = mime ? new MediaRecorder(estado.tomaDest.stream, { mimeType: mime }) : new MediaRecorder(estado.tomaDest.stream);
+    } catch (e) { estado.recorder = null; return; }
+    var trozos = [];
+    estado.recorder.ondataavailable = function (ev) { if (ev.data && ev.data.size) trozos.push(ev.data); };
+    estado.recorder.onstop = function () {
+      if (!trozos.length) return;
+      estado.mimeLigero = estado.recorder.mimeType || mime || 'audio/webm';
+      estado.blobLigero = new Blob(trozos, { type: estado.mimeLigero });
+      $('btn-ligero').hidden = false;
+    };
+  }
+  function abrirMicrosArmados() {
+    var jobs = [];
+    pistas.forEach(function (p) { if (p.armada && p.modo === 'micro' && !p.oculta && !p.stream) jobs.push(conectarMicro(p)); });
+    return Promise.all(jobs);
+  }
+  async function grabar() {
+    if (estado.fase === 'cuenta') return;
+    if (estado.fase === 'grabando') { pararGrabacion(); return; }
+    if (!studio) { anotar('Enciende la mesa para grabar.'); return; }
+    asegurarNodos();
+    await abrirMicrosArmados();
+    estado.pcmL = []; estado.pcmR = []; estado.muestras = 0;
+    estado.resultadoWav = null;
+    prepararRecorder();
+    estado.fase = 'cuenta';
+    lineaEstado();
+    estado.cuenta = 3;
+    $('btn-grabar').textContent = 'Cancelar cuenta';
+    actualizarReloj();
+    clearInterval(timerCuenta);
+    timerCuenta = setInterval(function () {
+      estado.cuenta -= 1;
+      if (estado.cuenta > 0) { actualizarReloj(); return; }
+      clearInterval(timerCuenta);
+      estado.fase = 'grabando';
+      estado.inicio = ctx.currentTime;
+      estado.grabandoPcm = true;
+      if (estado.recorder && estado.recorder.state === 'inactive') estado.recorder.start(1000);
+      var intro = carro('intro');
+      if (intro && intro.alGrabar) tocarCarro(intro);
+      $('btn-grabar').textContent = 'Parar grabación';
+      lineaEstado();
+      actualizarReloj();
+    }, 1000);
+  }
+  function pararGrabacion() {
+    if (estado.fase === 'cuenta') {
+      clearInterval(timerCuenta);
+      estado.fase = 'lista';
+      lineaEstado();
+      $('btn-grabar').textContent = 'Grabar';
+      $('contador').textContent = '00:00:00';
+      return;
+    }
+    if (estado.fase !== 'grabando') return;
+    var outro = carro('outro');
+    if (outro && outro.alParar) tocarCarro(outro);
+    estado.duracion = ctx.currentTime - estado.inicio;
+    estado.grabandoPcm = false;
+    estado.fase = 'parada';
+    if (estado.recorder && estado.recorder.state === 'recording') estado.recorder.stop();
+    $('btn-grabar').textContent = 'Grabar';
+    lineaEstado();
+    actualizarReloj();
+    estado.resultadoWav = wavDeToma();
+    anotar('Toma lista. Exporta el WAV cuando quieras.');
+  }
+  function ponerMarca() {
+    if (estado.fase !== 'grabando' && estado.fase !== 'parada') { anotar('La marca se pone durante o justo después de la toma.'); return; }
+    var t = estado.fase === 'grabando' ? (ctx.currentTime - estado.inicio) : estado.duracion;
+    var nombre = $('marca-nombre').value.trim();
+    estado.marcas.push({ t: Math.max(0, t), nombre: nombre });
+    pintarMarcas();
+    programarGuardado();
+  }
+  function pintarMarcas() {
+    var ul = $('marcas');
+    ul.textContent = '';
+    estado.marcas.forEach(function (m) {
+      var li = document.createElement('li');
+      li.textContent = relojTxt(m.t) + (m.nombre ? ' — ' + m.nombre : '');
+      ul.appendChild(li);
+    });
+  }
+  function pruebaNivel() {
+    if (!studio) { anotar('Enciende la mesa para la prueba de nivel.'); return; }
+    estado.probando = true;
+    estado.picoPrueba = -80;
+    estado.rmsPrueba = -80;
+    estado.huboPico = false;
+    $('resultado-nivel').textContent = 'Prueba de nivel: 8 segundos.';
+    setTimeout(function () {
+      estado.probando = false;
+      var db = estado.huboPico ? estado.picoPrueba : estado.rmsPrueba;
+      var palabra = palabraNivel(db);
+      $('resultado-nivel').textContent = 'Pico ' + textoDb(db) + ' · ' + palabra;
+    }, 8000);
+  }
+  function wavDeToma() {
+    var sr = ctx ? ctx.sampleRate : 48000;
+    var n = estado.muestras;
+    if (!n) return null;
+    var datos = n * 4;
+    var buf = new ArrayBuffer(44 + datos);
+    var v = new DataView(buf);
+    function txt(o, s) { for (var i = 0; i < s.length; i++) v.setUint8(o + i, s.charCodeAt(i)); }
+    txt(0, 'RIFF'); v.setUint32(4, 36 + datos, true); txt(8, 'WAVE'); txt(12, 'fmt ');
+    v.setUint32(16, 16, true); v.setUint16(20, 1, true); v.setUint16(22, 2, true);
+    v.setUint32(24, sr, true); v.setUint32(28, sr * 4, true); v.setUint16(32, 4, true); v.setUint16(34, 16, true);
+    txt(36, 'data'); v.setUint32(40, datos, true);
+    var o = 44, i, j, l, r, sL, sR;
+    for (i = 0; i < estado.pcmL.length; i++) {
+      l = estado.pcmL[i]; r = estado.pcmR[i];
+      for (j = 0; j < l.length; j++) {
+        sL = Math.max(-1, Math.min(1, l[j])); sR = Math.max(-1, Math.min(1, r[j]));
+        v.setInt16(o, sL < 0 ? sL * 0x8000 : sL * 0x7FFF, true); o += 2;
+        v.setInt16(o, sR < 0 ? sR * 0x8000 : sR * 0x7FFF, true); o += 2;
+      }
+    }
+    return new Blob([buf], { type: 'audio/wav' });
+  }
+  function descargar(blob, nombre) {
+    if (!blob) { anotar('No hay nada que exportar.'); return; }
+    var a = document.createElement('a');
+    var url = URL.createObjectURL(blob);
+    a.href = url; a.download = nombre;
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(function () { URL.revokeObjectURL(url); }, 2000);
+  }
+  function sesion() {
+    return {
+      version: 3, escena: estado.escena, antiBleed: estado.antiBleed, escuchaDb: estado.escuchaDb,
+      masterDb: estado.masterDb, guion: $('guion').value, marcas: estado.marcas,
+      fadersPorEscena: estado.fadersPorEscena,
+      pistas: pistas.map(function (p) {
+        return { id: p.id, nombre: p.nombre, mute: p.mute, solo: p.solo, armada: p.armada, gainDb: p.gainDb, pan: p.pan, params: p.params, offset: p.offset, modo: p.modo, deviceId: p.deviceId };
+      }),
+      carros: carros.map(function (c) { return { id: c.id, faderDb: c.faderDb, loop: c.loop, alGrabar: c.alGrabar, alParar: c.alParar }; })
+    };
+  }
+  function programarGuardado() {
+    clearTimeout(guardarId);
+    guardarId = setTimeout(function () {
+      try { localStorage.setItem(CLAVE, JSON.stringify(sesion())); } catch (e) { anotar('No se pudo guardar la sesión en este navegador.'); }
+    }, 250);
+  }
+  function aplicarSesion(data) {
+    if (!data || !data.pistas) return;
+    estado.escena = IDS_ESCENA.indexOf(data.escena) !== -1 ? data.escena : 'radio';
+    estado.antiBleed = !!data.antiBleed;
+    estado.escuchaDb = typeof data.escuchaDb === 'number' ? data.escuchaDb : 0;
+    estado.masterDb = typeof data.masterDb === 'number' ? data.masterDb : 0;
+    estado.marcas = Array.isArray(data.marcas) ? data.marcas : [];
+    estado.fadersPorEscena = data.fadersPorEscena || {};
+    $('guion').value = data.guion || '';
+    $('anti-bleed').checked = estado.antiBleed;
+    data.pistas.forEach(function (s) {
+      var p = pistaDe(s.id); if (!p) return;
+      p.nombre = s.nombre || p.nombre; p.mute = !!s.mute; p.solo = !!s.solo; p.armada = !!s.armada;
+      p.gainDb = typeof s.gainDb === 'number' ? s.gainDb : 0;
+      p.pan = typeof s.pan === 'number' ? s.pan : 0;
+      p.offset = s.offset || 0; p.modo = s.modo || 'archivo'; p.deviceId = s.deviceId || '';
+      if (s.params) Object.keys(s.params).forEach(function (k) { if (porNombre[k] && typeof s.params[k] === 'number') p.params[k] = s.params[k]; });
+      p.params.pan = p.pan;
+    });
+    (data.carros || []).forEach(function (s) {
+      var c = carro(s.id); if (!c) return;
+      c.faderDb = typeof s.faderDb === 'number' ? s.faderDb : 0;
+      c.loop = !!s.loop; c.alGrabar = !!s.alGrabar; c.alParar = !!s.alParar;
+    });
+    escenaCargada = estado.escena;
+    estado.sesionPendiente = !studio;
+    pistas.forEach(pintarPista);
+    carros.forEach(function (c) {
+      if (!c.ui) return;
+      c.ui.fader.value = String(c.faderDb);
+      c.ui.cifra.textContent = textoDb(c.faderDb);
+      c.ui.loop.checked = c.loop;
+      if (c.uiAuto) c.uiAuto.checked = c.auto === 'grabar' ? c.alGrabar : c.alParar;
+    });
+    pintarMarcas();
+    pintarEscenaUi();
+    aplicarVisibilidad();
+    if (studio) {
+      try { studio.setScene(estado.escena); } catch (e) { anotar(e.message || e); }
+      if (typeof studio.setBleedGuard === 'function') studio.setBleedGuard(!!estado.antiBleed);
+      empujarSesion();
+      aplicarVisibilidad();
+    }
+  }
+  function rundown() {
+    var lineas = ['les vencimos · estudio', 'Escena: ' + ETIQUETA_ESCENA[estado.escena], ''];
+    pistas.forEach(function (p) { if (!p.oculta) lineas.push(p.nombre + ' · ' + p.rol + ' · fader ' + textoDb(p.gainDb)); });
+    lineas.push('', 'Guion', $('guion').value, '', 'Marcas');
+    if (!estado.marcas.length) lineas.push('(sin marcas)');
+    estado.marcas.forEach(function (m) { lineas.push(relojTxt(m.t) + (m.nombre ? ' — ' + m.nombre : '')); });
+    return lineas.join('\n');
+  }
+  function refrescarDisparos() {
+    var caja = $('disparos');
+    caja.textContent = '';
+    var mapa = { INTRO: 'intro', CAMA: 'cama', OUTRO: 'outro', 'CUÑA': 'cuna' };
+    var vistos = {};
+    $('guion').value.split(/\n/).forEach(function (linea) {
+      var m = linea.match(/^\s*\[(INTRO|CAMA|OUTRO|CUÑA)\]/);
+      if (!m || vistos[m[1]]) return;
+      vistos[m[1]] = true;
+      var id = mapa[m[1]];
+      var b = el('button', '', 'Disparar ' + m[1]);
+      b.type = 'button';
+      b.addEventListener('click', function () { tocarCarro(carro(id)); });
+      caja.appendChild(b);
+    });
+  }
+  function insertarTiempo() {
+    var ta = $('guion');
+    var t = estado.fase === 'grabando' && ctx ? relojTxt(ctx.currentTime - estado.inicio) : relojTxt(estado.duracion);
+    var pos = ta.selectionStart || 0;
+    ta.value = ta.value.slice(0, pos) + '[' + t + '] ' + ta.value.slice(pos);
+    ta.focus();
+    refrescarDisparos();
+    programarGuardado();
+  }
+  function campoTexto(nodo) {
+    if (!nodo) return false;
+    var tag = nodo.tagName;
+    return tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT' || nodo.isContentEditable;
+  }
+  function alTiempo(t) { return Math.max(ctx.currentTime, t || 0); }
+  function envOut(g, t0, ataque, dur, cola) {
+    var t = alTiempo(t0);
+    g.gain.cancelScheduledValues(t);
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.exponentialRampToValueAtTime(1, t + Math.max(0.005, ataque));
+    g.gain.setValueAtTime(1, t + ataque + dur);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + ataque + dur + cola);
+  }
+  function ruidoBuf() {
+    if (estado.ruidoBuf) return estado.ruidoBuf;
+    var n = ctx.sampleRate * 2;
+    var b = ctx.createBuffer(1, n, ctx.sampleRate);
+    var d = b.getChannelData(0);
+    for (var i = 0; i < n; i++) d[i] = Math.random() * 2 - 1;
+    estado.ruidoBuf = b;
+    return b;
+  }
+  function soplo(t0, dur, freq, q, gan) {
+    if (!estado.fxGain) return;
+    var src = ctx.createBufferSource();
+    src.buffer = ruidoBuf();
+    src.loop = true;
+    var bp = ctx.createBiquadFilter();
+    bp.type = 'bandpass'; bp.frequency.value = freq; bp.Q.value = q || 1;
+    var g = ctx.createGain();
+    src.connect(bp); bp.connect(g); g.connect(estado.fxGain);
+    envOut(g, t0, 0.01, Math.max(0.02, dur - 0.08), 0.08);
+    src.start(alTiempo(t0));
+    src.stop(alTiempo(t0) + dur + 0.2);
+  }
+  function tono(t0, dur, f0, f1, tipo, gan) {
+    if (!estado.fxGain) return;
+    var o = ctx.createOscillator();
+    o.type = tipo || 'sine';
+    var g = ctx.createGain();
+    g.gain.value = gan || 0.2;
+    o.connect(g); g.connect(estado.fxGain);
+    var t = alTiempo(t0);
+    o.frequency.setValueAtTime(f0, t);
+    if (f1 != null) o.frequency.exponentialRampToValueAtTime(Math.max(30, f1), t + dur);
+    envOut(g, t0, 0.01, Math.max(0.02, dur * 0.6), dur * 0.35);
+    o.start(t); o.stop(t + dur + 0.05);
+  }
+  function rafaga(t0, veces, cada, fn) {
+    for (var i = 0; i < veces; i++) fn(t0 + i * cada, i);
+  }
+  function efecto(id) {
+    if (!ctx || !estado.fxGain) { anotar('Enciende la mesa para los efectos.'); return; }
+    var t = ctx.currentTime;
+    if (id === 'whoosh') soplo(t, 0.7, 800, 0.6, 0.4);
+    else if (id === 'aplauso') rafaga(t, 14, 0.045, function (tt) { soplo(tt, 0.05, 1800, 0.7, 0.5); });
+    else if (id === 'campana') { tono(t, 1.4, 880, 880, 'sine', 0.25); tono(t, 1.6, 1320, 1320, 'sine', 0.08); }
+    else if (id === 'silbato') tono(t, 0.45, 1800, 2400, 'sine', 0.2);
+    else if (id === 'error') { tono(t, 0.18, 220, 180, 'square', 0.12); tono(t + 0.2, 0.22, 160, 120, 'square', 0.12); }
+    else if (id === 'tren') {
+      rafaga(t, 8, 0.42, function (tt, i) {
+        soplo(tt, 0.16, 140, 2.5, 0.6);
+        soplo(tt + 0.08, 0.12, 90, 1.2, 0.4);
+        if (i % 2 === 0) tono(tt + 0.18, 0.08, 520, 480, 'triangle', 0.08);
+      });
+    }
+    else if (id === 'portazo') { soplo(t, 0.08, 120, 0.8, 0.9); tono(t, 0.2, 90, 45, 'sine', 0.4); }
+    else if (id === 'puerta') { soplo(t, 0.55, 700, 0.5, 0.25); tono(t + 0.35, 0.12, 1400, 900, 'sine', 0.05); }
+    else if (id === 'chispa') rafaga(t, 7, 0.03, function (tt, i) { tono(tt, 0.02, 1800 + i * 400, 400, 'sawtooth', 0.08); });
+    else if (id === 'abra') { tono(t, 0.35, 520, 1040, 'triangle', 0.15); tono(t + 0.12, 0.4, 780, 1560, 'sine', 0.1); }
+    else if (id === 'tachan') { tono(t, 0.5, 660, 660, 'triangle', 0.18); tono(t + 0.08, 0.7, 990, 990, 'sine', 0.12); }
+    else if (id === 'ganador') {
+      rafaga(t, 12, 0.08, function (tt, i) { tono(tt, 0.06, 180 + i * 20, 140, 'sine', 0.12); });
+      tono(t + 1.05, 0.8, 523, 523, 'triangle', 0.16);
+      tono(t + 1.05, 0.9, 659, 659, 'triangle', 0.12);
+      tono(t + 1.05, 1.0, 784, 784, 'sine', 0.1);
+    }
+  }
+  function humano(id) {
+    if (!ctx || !estado.fxGain) { anotar('Enciende la mesa para los efectos.'); return; }
+    var t = ctx.currentTime;
+    function glug(tt) { tono(tt, 0.09, 280, 140, 'sine', 0.2); soplo(tt, 0.06, 400, 1, 0.2); }
+    if (id === 'beber') rafaga(t, 4, 0.28, glug);
+    else if (id === 'comer') rafaga(t, 6, 0.16, function (tt) { soplo(tt, 0.07, 900, 2, 0.35); });
+    else if (id === 'agonizar') { tono(t, 1.6, 180, 90, 'sawtooth', 0.08); soplo(t, 1.4, 300, 0.6, 0.2); }
+    else if (id === 'sufrir') { tono(t, 0.7, 240, 160, 'triangle', 0.12); tono(t + 0.4, 0.5, 200, 140, 'sine', 0.08); }
+    else if (id === 'malo') rafaga(t, 5, 0.22, function (tt, i) { tono(tt, 0.18, 140 - i * 8, 90, 'sawtooth', 0.1); });
+    else if (id === 'bueno') rafaga(t, 4, 0.18, function (tt, i) { tono(tt, 0.16, 320 + i * 30, 260, 'triangle', 0.12); });
+    else if (id === 'timida') rafaga(t, 3, 0.2, function (tt) { tono(tt, 0.08, 520, 480, 'sine', 0.06); });
+    else if (id === 'descontrol') rafaga(t, 10, 0.09, function (tt, i) { tono(tt, 0.08, 300 + (i % 3) * 80, 220, 'triangle', 0.1); });
+    else if (id === 'llanto') rafaga(t, 5, 0.32, function (tt) { tono(tt, 0.28, 400, 260, 'sine', 0.1); soplo(tt, 0.2, 1200, 0.8, 0.15); });
+    else if (id === 'sorpresa') tono(t, 0.25, 600, 980, 'sine', 0.16);
+    else if (id === 'grito-c') tono(t, 0.35, 420, 700, 'sawtooth', 0.12);
+    else if (id === 'grito-l') tono(t, 1.1, 380, 640, 'sawtooth', 0.1);
+    else if (id === 'jadeo') rafaga(t, 6, 0.28, function (tt, i) { soplo(tt, 0.18, i % 2 ? 1400 : 500, 1.2, 0.3); });
+    else if (id === 'quejido') tono(t, 0.6, 220, 180, 'triangle', 0.12);
+    else if (id === 'bostezo') { soplo(t, 0.9, 500, 0.5, 0.25); tono(t, 0.8, 200, 140, 'sine', 0.08); }
+    else if (id === 'tos') rafaga(t, 3, 0.18, function (tt) { soplo(tt, 0.08, 600, 1.4, 0.45); });
+    else if (id === 'estornudo') { soplo(t, 0.05, 2000, 0.8, 0.3); soplo(t + 0.08, 0.16, 700, 0.6, 0.5); }
+    else if (id === 'suspiro') soplo(t, 0.8, 900, 0.5, 0.25);
+    else if (id === 'aplauso-lento') rafaga(t, 4, 0.45, function (tt) { soplo(tt, 0.08, 1600, 0.8, 0.4); });
+    else if (id === 'carcajada') rafaga(t, 8, 0.12, function (tt, i) { tono(tt, 0.1, 280 + (i % 2) * 40, 200, 'triangle', 0.12); });
+    else if (id === 'risita') rafaga(t, 4, 0.1, function (tt) { tono(tt, 0.06, 700, 640, 'sine', 0.07); });
+    else if (id === 'sollozo') rafaga(t, 4, 0.35, function (tt) { tono(tt, 0.22, 360, 240, 'sine', 0.1); });
+    else if (id === 'gemido') tono(t, 0.7, 260, 190, 'sine', 0.12);
+    else if (id === 'alivio') tono(t, 0.9, 300, 220, 'sine', 0.14);
+    else if (id === 'asco') { soplo(t, 0.25, 500, 2, 0.3); tono(t, 0.3, 180, 90, 'sawtooth', 0.08); }
+    else if (id === 'miedo') { tono(t, 0.5, 480, 320, 'triangle', 0.08); soplo(t, 0.4, 1500, 1, 0.15); }
+  }
+  var SIRENAS = [
+    ['bomberos','Bomberos',450,750,0.5],['policia','Policía',700,950,1.6],['ambulancia','Ambulancia',650,900,0.9],
+    ['ambulante','Ambulante',520,680,0.35],['feria','Feria',400,1200,3],['barco','Barco',90,110,0.15],
+    ['niebla','Niebla',180,220,0.08],['submarino','Submarino',420,480,0.25],['ataque','Ataque aéreo',300,800,0.2],
+    ['guerra','Guerra',200,500,2.2],['tornado','Tornado',150,600,0.12],['tsunami','Tsunami',80,160,0.06],
+    ['prision','Prisión',800,1100,1.1],['fabrica','Fábrica',250,400,0.4],['escolar','Escolar',700,980,1.3],
+    ['retro','Retro',440,660,0.7],['scifi','Sci-fi',200,2000,0.3],['alien','Alienígena',300,1800,4],
+    ['pez','Pez',600,900,6],['ballena','Ballena',80,140,0.1],['delfin','Delfín',1200,2200,5],
+    ['casa','Alarma de casa',1000,1400,2],['torre','Reloj de torre',220,220,0.4],['victoria','Victoria',523,784,0.8]
+  ];
+  var sirena = null;
+  function pararSirena() {
+    if (!sirena) return;
+    try { sirena.osc.stop(); } catch (e) {}
+    try { sirena.lfo.stop(); } catch (e2) {}
+    try { sirena.g.disconnect(); } catch (e3) {}
+    sirena = null;
+    estado.sirenaUi = false;
+    $('sirena-activa').textContent = 'Sirena: ninguna';
+  }
+  function arrancarSirena(preset) {
+    if (!ctx || !estado.fxGain) { anotar('Enciende la mesa para las sirenas.'); return; }
+    pararSirena();
+    var osc = ctx.createOscillator();
+    var lfo = ctx.createOscillator();
+    var prof = ctx.createGain();
+    var g = ctx.createGain();
+    osc.type = preset[0] === 'pez' ? 'sine' : 'sawtooth';
+    osc.frequency.value = preset[2];
+    lfo.frequency.value = preset[4];
+    prof.gain.value = Math.abs(preset[3] - preset[2]) / 2;
+    g.gain.value = parseFloat($('sirena-vol').value) || 0.2;
+    lfo.connect(prof); prof.connect(osc.frequency);
+    osc.connect(g); g.connect(estado.fxGain);
+    var ahora = ctx.currentTime;
+    osc.start(ahora); lfo.start(ahora);
+    sirena = { osc: osc, lfo: lfo, prof: prof, g: g, id: preset[0], base: (preset[2] + preset[3]) / 2, span: Math.abs(preset[3] - preset[2]) / 2 };
+    estado.sirenaUi = true;
+    $('sirena-activa').textContent = 'Sirena: ' + preset[1];
+    $('sirena-tono').value = String(Math.round(sirena.base));
+    $('sirena-vel').value = String(preset[4]);
+  }
+  function retocarSirena() {
+    if (!sirena || !ctx) return;
+    var tonoV = parseFloat($('sirena-tono').value);
+    var vel = parseFloat($('sirena-vel').value);
+    var vol = parseFloat($('sirena-vol').value);
+    sirena.osc.frequency.setTargetAtTime(tonoV, ctx.currentTime, 0.05);
+    sirena.lfo.frequency.setTargetAtTime(Math.max(0.05, vel), ctx.currentTime, 0.05);
+    sirena.g.gain.setTargetAtTime(vol, ctx.currentTime, 0.05);
+  }
+  function construirPaleta() {
+    var ef = [
+      ['whoosh','Whoosh'],['aplauso','Aplauso'],['campana','Campana'],['silbato','Silbato'],['error','Error'],
+      ['tren','Tren chu-chu'],['portazo','Portazo'],['puerta','Puerta'],['chispa','Descarga eléctrica'],
+      ['abra','Abracadabra'],['tachan','Tachán'],['ganador','el ganador es']
+    ];
+    var hum = [
+      ['beber','Beber'],['comer','Comer'],['agonizar','Agonizar'],['sufrir','Sufrir'],
+      ['malo','Risa de malo'],['bueno','Risa de bueno'],['timida','Risa tímida'],['descontrol','Risa descontrolada'],
+      ['llanto','Llanto'],['sorpresa','Sorpresa'],['grito-c','Grito corto'],['grito-l','Grito largo'],
+      ['jadeo','Jadeo'],['quejido','Quejido'],['bostezo','Bostezo'],['tos','Tos'],['estornudo','Estornudo'],
+      ['suspiro','Suspiro'],['aplauso-lento','Aplauso lento'],['carcajada','Carcajada'],['risita','Risita'],
+      ['sollozo','Sollozo'],['gemido','Gemido'],['alivio','Alivio (ahhh)'],['asco','Asco'],['miedo','Miedo']
+    ];
+    ef.forEach(function (x) {
+      var b = el('button', '', x[1]); b.type = 'button';
+      b.addEventListener('click', function () { efecto(x[0]); });
+      $('efectos').appendChild(b);
+    });
+    hum.forEach(function (x) {
+      var b = el('button', '', x[1]); b.type = 'button';
+      b.addEventListener('click', function () { humano(x[0]); });
+      $('humanos').appendChild(b);
+    });
+    SIRENAS.forEach(function (x) {
+      var b = el('button', '', x[1]); b.type = 'button';
+      b.addEventListener('click', function () { arrancarSirena(x); });
+      $('sirenas').appendChild(b);
+    });
+    $('sirena-tono').addEventListener('input', retocarSirena);
+    $('sirena-vel').addEventListener('input', retocarSirena);
+    $('sirena-vol').addEventListener('input', retocarSirena);
+    $('sirena-parar').addEventListener('click', pararSirena);
+  }
+  function enlazar() {
+    $('btn-encender').addEventListener('click', function () { encender().catch(function (e) { anotar(e.message || e); }); });
+    $('btn-escucha').addEventListener('click', function () { ponerEscucha(!estado.escuchando); });
+    $('btn-grabar').addEventListener('click', function () { grabar(); });
+    $('btn-marca').addEventListener('click', ponerMarca);
+    $('btn-prueba').addEventListener('click', pruebaNivel);
+    $('btn-tiempo').addEventListener('click', insertarTiempo);
+    $('guion').addEventListener('input', function () { refrescarDisparos(); programarGuardado(); });
+    $('anti-bleed').addEventListener('change', function () {
+      estado.antiBleed = $('anti-bleed').checked;
+      if (studio) studio.setBleedGuard(estado.antiBleed);
+      pistas.forEach(function (p) { if (p.stream && p.modo === 'micro') conectarMicro(p); });
+      programarGuardado();
+    });
+    $('btn-guardar').addEventListener('click', function () { programarGuardado(); anotar('Sesión guardada en este aparato.'); });
+    $('btn-json').addEventListener('click', function () {
+      descargar(new Blob([JSON.stringify(sesion(), null, 2)], { type: 'application/json' }), 'estudio-' + sello() + '.json');
+    });
+    $('btn-txt').addEventListener('click', function () {
+      descargar(new Blob([rundown()], { type: 'text/plain' }), 'estudio-' + sello() + '.txt');
+    });
+    $('btn-wav').addEventListener('click', function () {
+      var blob = estado.resultadoWav || wavDeToma();
+      descargar(blob, 'estudio-' + sello() + '.wav');
+    });
+    $('btn-ligero').addEventListener('click', function () {
+      if (!estado.blobLigero) return;
+      var ext = estado.mimeLigero.indexOf('mp4') !== -1 ? 'm4a' : 'webm';
+      descargar(estado.blobLigero, 'estudio-' + sello() + '.' + ext);
+    });
+    $('import-json').addEventListener('change', function () {
+      var f = $('import-json').files[0];
+      if (!f) return;
+      f.text().then(function (txt) { aplicarSesion(JSON.parse(txt)); anotar('Sesión importada.'); }).catch(function () { anotar('El JSON no se pudo leer.'); });
+    });
+    document.addEventListener('keydown', function (ev) {
+      if (campoTexto(ev.target)) return;
+      if (ev.code === 'Space') { ev.preventDefault(); grabar(); }
+      else if (ev.key === 'm' || ev.key === 'M') {
+        var p = pistaArmada();
+        if (!p) return;
+        p.mute = !p.mute;
+        if (p.mic && !p.oculta) p.mic.mute(p.mute);
+        pintarBoton(p.ui.mute, p.mute, 'En silencio', 'Silencio');
+        programarGuardado();
+      }
+    });
+    var faderM = document.createElement('label');
+    faderM.className = 'nota';
+    faderM.appendChild(document.createTextNode(' Fader maestro '));
+    var sl = document.createElement('input');
+    sl.type = 'range'; sl.min = '-24'; sl.max = '6'; sl.step = '0.5'; sl.value = '0';
+    sl.setAttribute('aria-label', 'Fader maestro');
+    sl.addEventListener('input', function () { estado.masterDb = parseFloat(sl.value); faderMaestro(estado.masterDb); programarGuardado(); });
+    faderM.appendChild(sl);
+    $('btn-prueba').parentNode.appendChild(faderM);
+  }
+  function iniciar() {
+    cargarFicha();
+    montarPistas();
+    montarCarros();
+    pintarEscenas();
+    construirTiras();
+    construirCarros();
+    construirPaleta();
+    enlazar();
+    pistas.forEach(pintarPista);
+    try {
+      var raw = localStorage.getItem(CLAVE);
+      if (raw) aplicarSesion(JSON.parse(raw));
+    } catch (e) {}
+    if (!estado.sesionPendiente) cambiarEscena('radio');
+    else pintarEscenaUi();
+    $('politica-micro').textContent = 'El micrófono pide permiso al armar una pista en modo micrófono. Sin permiso, la mesa sigue sirviendo para mezclar archivos.';
+    lineaEstado();
+    relojId = setInterval(actualizarReloj, 200);
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', iniciar);
+  else iniciar();
+})();
+
+</script>
+</body>
+</html>
