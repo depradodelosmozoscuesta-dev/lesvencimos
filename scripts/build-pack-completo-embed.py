@@ -40,7 +40,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 DL = ROOT / "downloads"
 STAGING = ROOT / "offline-pack-completo-embed"
-VERSION = "v20261006embed-2.0.21"
+VERSION = "v20261006embed-2.0.22"
 SOFT_WARN_BYTES = 70 * 1024 * 1024
 
 PRIMARY = DL / "completo-offline.zip"
@@ -581,6 +581,33 @@ def sync_live_educacion_bach(staging: Path) -> None:
             shutil.copy2(sp, dst_root / hub)
 
 
+def sync_1eso_shell_chrome(staging: Path) -> None:
+    """Apply lv-chrome-2026 plantilla shell to all 1º ESO flat packs in the embed.
+
+    Flat 1ESO packs historically kept an older leccion-shell.css with
+    color: var(--lv-azul) on links/h3/etiquetas (cheap hyperlink look).
+    Source of truth: profesor/_plantilla-leccion/leccion-shell.css (carbón/ámbar).
+    """
+    src = ROOT / "profesor" / "_plantilla-leccion" / "leccion-shell.css"
+    if not src.is_file():
+        raise SystemExit(f"sync_1eso_shell_chrome: missing {src}")
+    targets: list[Path] = []
+    edu = staging / "educacion"
+    if edu.is_dir():
+        targets.extend(sorted(edu.glob("1eso-*/leccion-shell.css")))
+    pack = staging / "modules" / "pack-1eso" / "educacion"
+    if pack.is_dir():
+        targets.extend(sorted(pack.glob("1eso-*/leccion-shell.css")))
+    if not targets:
+        raise SystemExit("sync_1eso_shell_chrome: no 1eso leccion-shell.css targets")
+    data = src.read_bytes()
+    if b"lv-chrome-2026" not in data:
+        raise SystemExit("sync_1eso_shell_chrome: plantilla missing lv-chrome-2026")
+    for dst in targets:
+        dst.write_bytes(data)
+    print(f"  synced lv-chrome shell → {len(targets)} 1eso leccion-shell.css")
+
+
 def force_sync_jardin(staging: Path) -> None:
     """Always take live modulos/jardin.html (195KB+) — never keep stale embed ~111KB."""
     src = ROOT / "modulos" / "jardin.html"
@@ -791,6 +818,8 @@ def main() -> None:
 
     print("== Sync live educacion Bach (Maestro local _maestro) ==")
     sync_live_educacion_bach(STAGING)
+    print("== Sync 1eso shell chrome (no blue link headers) ==")
+    sync_1eso_shell_chrome(STAGING)
     print("== Force sync jardin.html from live modulos/ ==")
     force_sync_jardin(STAGING)
 
@@ -918,6 +947,15 @@ def main() -> None:
             raise SystemExit(f"ZIP expected >=5 Bach _maestro runtimes, got {len(bach_rt)}: {bach_rt}")
         print(f"MAESTRO_BACH_RUNTIMES {len(bach_rt)}")
         print(f"JARDIN_BYTES {jardin_info.file_size}")
+        eso_shell = zf.read("educacion/1eso-matematicas/leccion-shell.css")
+        if b"lv-chrome-2026" not in eso_shell:
+            raise SystemExit("ZIP 1eso-matematicas leccion-shell.css missing lv-chrome-2026")
+        if b"color: var(--lv-azul)" in eso_shell.split(b"lv-chrome-2026")[0]:
+            # azul before chrome block on .leccion-shell a is the old bug
+            head = eso_shell.split(b"lv-chrome-2026")[0]
+            if b".leccion-shell a" in head and b"color: var(--lv-azul)" in head:
+                raise SystemExit("ZIP 1eso shell still has azul link color before chrome block")
+
 
     print("---")
     print(f"PRIMARY  {PRIMARY}")

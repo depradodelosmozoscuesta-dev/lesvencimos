@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Build Fat Completo release 2.0.21 — SOLO desde /workspace/lesvencimos (canónico).
+# Build Fat Completo release 2.0.22 — SOLO desde /workspace/lesvencimos (canónico).
 set -euo pipefail
 ROOT="$(cd "$(dirname "$0")" && pwd)"
 case "$ROOT" in
@@ -26,7 +26,7 @@ export JAVA_HOME="${JAVA_HOME:-/usr/lib/jvm/java-21-openjdk-amd64}"
 export ANDROID_HOME="${ANDROID_HOME:-/workspace/lesvencimos/.android-sdk}"
 cd "$ROOT"
 EMBED="app/src/main/assets/embed/completo-offline.zip"
-EXPECTED_EMBED_MD5="da9f208ddcf79be6808786d4af567808"
+EXPECTED_EMBED_MD5="1eaee405da12433fe1d19975d4ee8379"
 BAD_OLD_FE01_MD5="fe01eac7abf1d3ede6653b892d625716"
 BAD_216_MD5="673b9bf813b1638eb0081015eeb8b8a0"
 BAD_LIVE_483_MD5="483865a228d3abb518405a8ee5e16f3c"
@@ -49,7 +49,7 @@ if [[ "$MD5" == "3b01f2942147c87990e9d6a5c3ad246f" || "$MD5" == "fe01eac7abf1d3e
   exit 3
 fi
 if [[ "$MD5" != "$EXPECTED_EMBED_MD5" ]]; then
-  echo "ABORT: embed MD5 $MD5 != $EXPECTED_EMBED_MD5 (ZIP 2.0.21 v20261006embed-2.0.21)" >&2
+  echo "ABORT: embed MD5 $MD5 != $EXPECTED_EMBED_MD5 (ZIP 2.0.22 v20261006embed-2.0.22)" >&2
   exit 3
 fi
 ./gradlew assembleRelease "$@"
@@ -65,12 +65,12 @@ if [[ "$APK_EMBED_MD5" != "$EXPECTED_EMBED_MD5" ]]; then
   exit 5
 fi
 cp -f "$OUT" /workspace/lesvencimos/app/lesvencimos-completo.apk
-cp -f "$OUT" /workspace/lesvencimos/app/lesvencimos-completo-2.0.21.apk
+cp -f "$OUT" /workspace/lesvencimos/app/lesvencimos-completo-2.0.22.apk
 cp -f "$OUT" /workspace/lesvencimos/app/lesvencimos.apk
 cp -f "$OUT" /workspace/lesvencimos/downloads/lesvencimos-completo.apk
-cp -f "$OUT" /workspace/lesvencimos/downloads/lesvencimos-completo-2.0.21.apk
+cp -f "$OUT" /workspace/lesvencimos/downloads/lesvencimos-completo-2.0.22.apk
 cp -f "$OUT" /workspace/lesvencimos/downloads/lesvencimos.apk
-echo "OK fat release 2.0.21 (embed gate passed):"
-md5sum "$OUT" /workspace/lesvencimos/app/lesvencimos-completo-2.0.21.apk
-echo "marker EXPECTED: v20261006embed-2.0.21"
+echo "OK fat release 2.0.22 (embed gate passed):"
+md5sum "$OUT" /workspace/lesvencimos/app/lesvencimos-completo-2.0.22.apk
+echo "marker EXPECTED: v20261006embed-2.0.22"
 echo "embed MD5: $APK_EMBED_MD5"
