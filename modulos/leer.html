@@ -1,0 +1,625 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0E0E0C">
+<meta name="description" content="Leer — libros a pantalla completa. Texto primero. Offline.">
+<title>Leer — Les vencimos</title>
+<style>
+:root{
+  --fondo:#0E0E0C; --fondo-2:#161512; --fondo-3:#1C1A16;
+  --tinta:#E6E1D6; --suave:#9A9488;
+  --acento:#C4A15A; --acento-texto:#1A160E;
+  --linea:rgba(230,225,214,.14);
+  --serif:"Iowan Old Style","Palatino Linotype",Palatino,"Times New Roman",Georgia,serif;
+  --sans:"Segoe UI",system-ui,-apple-system,sans-serif;
+  --radio:2px;
+  --fs:1.2rem; --lh:1.7; --pad:1.25rem;
+}
+html.dia{
+  --fondo:#F4F0E6; --fondo-2:#EBE6D8; --fondo-3:#E2DCC8;
+  --tinta:#1A160E; --suave:#5C564A;
+  --linea:rgba(26,22,14,.14);
+  --acento:#8A6B2E; --acento-texto:#F4F0E6;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;height:100%;background:var(--fondo);color:var(--tinta);font-family:var(--sans)}
+button,a.btn{min-height:44px;min-width:44px;padding:.45rem .85rem;font:600 .88rem var(--sans);
+  border:1px solid var(--linea);border-radius:var(--radio);background:var(--fondo-3);color:var(--tinta);cursor:pointer}
+button.primary,a.btn.primary{background:var(--acento);color:var(--acento-texto);border-color:var(--acento)}
+button.ghost{background:transparent}
+button:disabled{opacity:.35;cursor:not-allowed}
+.hidden{display:none!important}
+
+/* ── Catálogo ── */
+#catalog{min-height:100%;padding:1rem 1rem 3rem;max-width:40rem;margin:0 auto}
+.lv-brandbar{display:flex;align-items:baseline;justify-content:space-between;gap:.75rem;
+  padding:0 0 .7rem;margin:0 0 .85rem;border-bottom:1px solid var(--linea)}
+.lv-brandbar a{color:inherit;text-decoration:none;font-family:var(--serif);font-weight:600;font-size:1rem}
+.lv-off{font-size:.7rem;letter-spacing:.12em;text-transform:uppercase;opacity:.65;font-weight:600}
+#catalog h1{margin:0 0 .2rem;font-family:var(--serif);font-size:1.65rem;font-weight:600}
+#catalog .lead{margin:0 0 1rem;color:var(--suave);font-size:.9rem;line-height:1.4}
+#q{width:100%;min-height:48px;padding:.65rem .85rem;margin:0 0 .85rem;font:inherit;
+  background:var(--fondo-3);color:var(--tinta);border:1px solid var(--linea);border-radius:var(--radio)}
+#q:focus{outline:none;border-color:var(--acento)}
+#count{color:var(--suave);font-size:.8rem;margin:0 0 .55rem}
+.book{display:block;width:100%;text-align:left;padding:.9rem 1rem;margin:0 0 .45rem;
+  background:var(--fondo-2);border:1px solid var(--linea);border-radius:var(--radio);color:inherit;font:inherit;cursor:pointer}
+.book:hover,.book:focus{border-color:var(--acento)}
+.book .t{font-family:var(--serif);font-weight:600;font-size:1.08rem;line-height:1.3}
+.book .m{color:var(--suave);font-size:.85rem;margin-top:.25rem}
+.book .parts{display:inline-block;margin-left:.4rem;padding:.1rem .4rem;border:1px solid var(--linea);
+  border-radius:var(--radio);font-size:.68rem;letter-spacing:.06em;text-transform:uppercase;color:var(--acento);font-family:var(--sans);font-weight:600}
+.empty{color:var(--suave);padding:1rem 0}
+.err{color:#C46A4A;padding:.75rem;border-left:3px solid #C46A4A;background:var(--fondo-2);margin:0 0 1rem}
+
+/* ── Lector ── */
+#reader{position:fixed;inset:0;display:flex;flex-direction:column;background:var(--fondo);z-index:10}
+#reader.hidden{display:none!important}
+#chrome{position:absolute;left:0;right:0;top:0;z-index:20;background:color-mix(in srgb,var(--fondo) 92%,transparent);
+  border-bottom:1px solid var(--linea);padding:.45rem .55rem calc(.45rem + env(safe-area-inset-top,0px));
+  display:flex;flex-direction:column;gap:.4rem;transition:opacity .2s,transform .2s}
+#chrome.hide{opacity:0;pointer-events:none;transform:translateY(-8px)}
+#chrome .row{display:flex;flex-wrap:wrap;align-items:center;gap:.35rem}
+#chrome .title{flex:1 1 8rem;min-width:0;font-family:var(--serif);font-weight:600;font-size:.95rem;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding:0 .35rem}
+#chrome .meta{font-size:.72rem;color:var(--suave);padding:0 .35rem;letter-spacing:.04em}
+#page{flex:1;overflow:auto;-webkit-overflow-scrolling:touch;padding:calc(0.5rem + env(safe-area-inset-top,0px)) var(--pad) 4rem;
+  scroll-behavior:auto}
+#page.chrome-pad{padding-top:calc(5.5rem + env(safe-area-inset-top,0px))}
+#text{max-width:38rem;margin:0 auto;font-family:var(--serif);font-size:var(--fs);line-height:var(--lh);
+  white-space:pre-wrap;word-wrap:break-word;letter-spacing:.01em}
+#text p{margin:0 0 1.1em}
+#hitzones{position:absolute;inset:0;z-index:15;display:flex;pointer-events:none}
+#hitzones .z{flex:1;pointer-events:auto;background:transparent;border:0;min-height:0;padding:0;min-width:0}
+#hitzones .z:focus{outline:none}
+#status{position:absolute;bottom:.6rem;left:50%;transform:translateX(-50%);z-index:18;
+  font-size:.72rem;color:var(--suave);letter-spacing:.06em;text-transform:uppercase;
+  background:color-mix(in srgb,var(--fondo) 85%,transparent);padding:.25rem .65rem;border-radius:var(--radio);
+  pointer-events:none;opacity:0;transition:opacity .3s}
+#status.on{opacity:1}
+@media(max-width:380px){
+  :root{--fs:1.12rem;--pad:1rem}
+  #chrome .title{font-size:.88rem}
+}
+</style>
+</head>
+<body>
+<section id="catalog" aria-label="Catálogo">
+  <div class="lv-brandbar">
+    <a href="../index.html">Les vencimos</a>
+    <span class="lv-off">Leer · offline</span>
+  </div>
+  <h1>Leer</h1>
+  <p class="lead">Texto a pantalla completa. Elige un libro. Menús mínimos; el libro es lo primero.</p>
+  <div id="load-err" class="err hidden" role="alert"></div>
+  <input id="q" type="search" placeholder="Buscar título o autor…" autocomplete="off" enterkeyhint="search">
+  <p id="count"></p>
+  <div id="list" role="list"></div>
+</section>
+
+<section id="reader" class="hidden" aria-label="Lector">
+  <div id="chrome" class="hide" role="toolbar" aria-label="Controles">
+    <div class="row">
+      <button type="button" id="btn-back" class="ghost" aria-label="Volver al catálogo">←</button>
+      <span class="title" id="r-title">—</span>
+      <button type="button" id="btn-prev" aria-label="Parte anterior" title="Parte anterior">‹</button>
+      <button type="button" id="btn-next" class="primary" aria-label="Parte siguiente" title="Parte siguiente">›</button>
+    </div>
+    <div class="row">
+      <span class="meta" id="r-part"></span>
+      <button type="button" id="btn-smaller" aria-label="Texto más pequeño">A−</button>
+      <button type="button" id="btn-bigger" aria-label="Texto más grande">A+</button>
+      <button type="button" id="btn-theme" aria-label="Tema día o noche">Día</button>
+      <button type="button" id="btn-ambient" aria-label="Ambiente">Silencio</button>
+      <button type="button" id="btn-tts" class="ghost" aria-label="Leer en voz alta" hidden>▶</button>
+    </div>
+  </div>
+  <div id="hitzones" aria-hidden="true">
+    <button type="button" class="z" id="hz-left" aria-label="Mostrar u ocultar menú"></button>
+    <button type="button" class="z" id="hz-center" aria-label="Mostrar u ocultar menú"></button>
+    <button type="button" class="z" id="hz-right" aria-label="Mostrar u ocultar menú"></button>
+  </div>
+  <div id="page" class="chrome-pad">
+    <div id="text"></div>
+  </div>
+  <div id="status" role="status"></div>
+</section>
+
+<script>
+(function () {
+  'use strict';
+
+  var LIB = 'biblioteca-libros/';
+  var LS_SET = 'lv-leer-settings';
+  var LS_POS = 'lv-leer-pos:';
+  var LS_SERIES = 'lv-leer-series:';
+
+  var catalog = [];      /* raw catalog entries */
+  var works = [];        /* grouped works for list */
+  var byId = {};
+  var current = null;    /* { work, partIndex, meta, texto } */
+  var chromeVisible = false;
+  var chromeTimer = null;
+  var settings = loadSettings();
+  var ambientCtx = null;
+  var ambientNodes = null;
+  var ambientMode = 'off'; /* off | rain */
+  var ttsSpeaking = false;
+  var saveScrollTimer = null;
+  var tapGuard = 0;
+
+  /* ── Settings ── */
+  function loadSettings() {
+    try {
+      var o = JSON.parse(localStorage.getItem(LS_SET) || '{}');
+      return {
+        fontSize: Math.min(1.8, Math.max(0.95, parseFloat(o.fontSize) || 1.2)),
+        theme: o.theme === 'dia' ? 'dia' : 'noche',
+        ambient: o.ambient === 'rain' ? 'rain' : 'off'
+      };
+    } catch (e) {
+      return { fontSize: 1.2, theme: 'noche', ambient: 'off' };
+    }
+  }
+  function saveSettings() {
+    try { localStorage.setItem(LS_SET, JSON.stringify(settings)); } catch (e) {}
+  }
+  function applySettings() {
+    document.documentElement.style.setProperty('--fs', settings.fontSize + 'rem');
+    document.documentElement.classList.toggle('dia', settings.theme === 'dia');
+    var th = document.getElementById('btn-theme');
+    if (th) th.textContent = settings.theme === 'dia' ? 'Noche' : 'Día';
+    var amb = document.getElementById('btn-ambient');
+    if (amb) amb.textContent = ambientMode === 'rain' ? 'Lluvia' : 'Silencio';
+    document.querySelector('meta[name="theme-color"]').setAttribute(
+      'content', settings.theme === 'dia' ? '#F4F0E6' : '#0E0E0C'
+    );
+  }
+
+  /* ── Progress ── */
+  function posKey(id) { return LS_POS + id; }
+  function savePos(id, pageEl) {
+    if (!id || !pageEl) return;
+    var max = Math.max(1, pageEl.scrollHeight - pageEl.clientHeight);
+    var ratio = pageEl.scrollTop / max;
+    try {
+      localStorage.setItem(posKey(id), JSON.stringify({
+        ratio: ratio, top: pageEl.scrollTop, t: Date.now()
+      }));
+    } catch (e) {}
+    if (current && current.work) {
+      try {
+        localStorage.setItem(LS_SERIES + current.work.key, JSON.stringify({
+          id: id, t: Date.now()
+        }));
+      } catch (e2) {}
+    }
+  }
+  function restorePos(id, pageEl) {
+    try {
+      var raw = localStorage.getItem(posKey(id));
+      if (!raw) return;
+      var o = JSON.parse(raw);
+      requestAnimationFrame(function () {
+        var max = Math.max(1, pageEl.scrollHeight - pageEl.clientHeight);
+        if (typeof o.ratio === 'number') pageEl.scrollTop = o.ratio * max;
+        else if (typeof o.top === 'number') pageEl.scrollTop = o.top;
+      });
+    } catch (e) {}
+  }
+
+  /* ── Grouping multi-part ── */
+  function seriesKey(id) {
+    var m = String(id || '').match(/^(.*)-(\d+)$/);
+    return m ? m[1] : id;
+  }
+  function partNum(id) {
+    var m = String(id || '').match(/^(.*)-(\d+)$/);
+    return m ? parseInt(m[2], 10) : 1;
+  }
+  function cleanTitle(titulo) {
+    var t = String(titulo || '');
+    t = t.replace(/\s*·\s*parte\s+\d+\s*\/\s*\d+\s*·.*/i, '');
+    t = t.replace(/\s*·\s*part\s+\d+\s*\/\s*\d+\s*·.*/i, '');
+    t = t.replace(/\s*\(\s*parte\s+\d+\s*\/\s*\d+\s*\).*/i, '');
+    return t.replace(/\s+/g, ' ').trim() || titulo;
+  }
+  function buildWorks(list) {
+    var groups = {};
+    var order = [];
+    list.forEach(function (b) {
+      if (!b || !b.id) return;
+      if ((b.categoria || '') === 'nota') return;
+      byId[b.id] = b;
+      var key = seriesKey(b.id);
+      if (!groups[key]) {
+        groups[key] = { key: key, parts: [], autor: b.autor || '', titulo: cleanTitle(b.titulo), categoria: b.categoria || '', idioma: b.idioma || '' };
+        order.push(key);
+      }
+      groups[key].parts.push(b);
+      /* Prefer shorter clean title from first part */
+      if (groups[key].parts.length === 1) groups[key].titulo = cleanTitle(b.titulo);
+    });
+    order.forEach(function (k) {
+      groups[k].parts.sort(function (a, b) { return partNum(a.id) - partNum(b.id); });
+    });
+    return order.map(function (k) { return groups[k]; });
+  }
+
+  /* ── Catalog UI ── */
+  function escapeHtml(s) {
+    return String(s == null ? '' : s)
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
+  }
+  function renderList() {
+    var q = (document.getElementById('q').value || '').toLowerCase().trim();
+    var list = document.getElementById('list');
+    list.innerHTML = '';
+    var n = 0;
+    works.forEach(function (w) {
+      var hay = (w.titulo + ' ' + w.autor).toLowerCase();
+      if (q && hay.indexOf(q) < 0) return;
+      n++;
+      var btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'book';
+      btn.setAttribute('role', 'listitem');
+      var partsBadge = w.parts.length > 1
+        ? '<span class="parts">' + w.parts.length + ' partes</span>'
+        : '';
+      btn.innerHTML = '<span class="t">' + escapeHtml(w.titulo) + partsBadge + '</span>' +
+        '<span class="m">' + escapeHtml(w.autor) + '</span>';
+      btn.addEventListener('click', function () { openWork(w); });
+      list.appendChild(btn);
+    });
+    document.getElementById('count').textContent = n
+      ? (n + ' obra' + (n === 1 ? '' : 's'))
+      : 'Ningún título';
+    if (!n) {
+      var p = document.createElement('p');
+      p.className = 'empty';
+      p.textContent = q ? 'Nada con ese filtro.' : 'Catálogo vacío.';
+      list.appendChild(p);
+    }
+  }
+
+  function openWork(w) {
+    var startId = w.parts[0].id;
+    try {
+      var raw = localStorage.getItem(LS_SERIES + w.key);
+      if (raw) {
+        var o = JSON.parse(raw);
+        if (o && o.id && byId[o.id]) startId = o.id;
+      }
+    } catch (e) {}
+    openPart(startId);
+  }
+
+  /* ── Load book JSON ── */
+  function bookUrl(id) {
+    return LIB + encodeURIComponent(id) + '.json';
+  }
+  function fetchJson(url) {
+    return fetch(url).then(function (r) {
+      if (!r.ok) throw new Error('HTTP ' + r.status);
+      return r.json();
+    });
+  }
+  function openPart(id) {
+    var meta = byId[id];
+    if (!meta) {
+      flash('No está en el catálogo');
+      return;
+    }
+    var work = null;
+    var partIndex = 0;
+    for (var i = 0; i < works.length; i++) {
+      var w = works[i];
+      for (var j = 0; j < w.parts.length; j++) {
+        if (w.parts[j].id === id) { work = w; partIndex = j; break; }
+      }
+      if (work) break;
+    }
+    stopTts();
+    document.getElementById('text').textContent = 'Cargando…';
+    showReaderChrome(true);
+    document.getElementById('catalog').classList.add('hidden');
+    document.getElementById('reader').classList.remove('hidden');
+    document.getElementById('r-title').textContent = work ? work.titulo : cleanTitle(meta.titulo);
+    updatePartControls(work, partIndex);
+
+    fetchJson(bookUrl(id)).then(function (data) {
+      var texto = (data && data.texto) ? data.texto : '';
+      if (!texto) throw new Error('Sin texto');
+      current = { work: work, partIndex: partIndex, meta: meta, texto: texto, id: id };
+      renderText(texto);
+      var page = document.getElementById('page');
+      page.scrollTop = 0;
+      restorePos(id, page);
+      try {
+        history.replaceState({ leer: id }, '', '?id=' + encodeURIComponent(id));
+      } catch (e) {}
+      document.title = (work ? work.titulo : meta.titulo) + ' — Leer';
+      /* hide chrome after a moment so text is first */
+      setTimeout(function () { showReaderChrome(false); }, 1600);
+    }).catch(function () {
+      document.getElementById('text').textContent =
+        'No se pudo cargar este libro. Comprueba que biblioteca-libros/' + id + '.json está junto a este módulo.';
+      flash('Error al cargar');
+    });
+  }
+
+  function renderText(texto) {
+    var el = document.getElementById('text');
+    el.innerHTML = '';
+    var parts = String(texto).split(/\n\n+/);
+    parts.forEach(function (para) {
+      var p = document.createElement('p');
+      p.textContent = para;
+      el.appendChild(p);
+    });
+  }
+
+  function updatePartControls(work, partIndex) {
+    var prev = document.getElementById('btn-prev');
+    var next = document.getElementById('btn-next');
+    var label = document.getElementById('r-part');
+    if (!work || work.parts.length < 2) {
+      prev.disabled = true;
+      next.disabled = true;
+      label.textContent = '';
+      return;
+    }
+    prev.disabled = partIndex <= 0;
+    next.disabled = partIndex >= work.parts.length - 1;
+    label.textContent = 'Parte ' + (partIndex + 1) + ' / ' + work.parts.length;
+  }
+
+  function goPrevPart() {
+    if (!current || !current.work) return;
+    if (current.partIndex <= 0) return;
+    savePos(current.id, document.getElementById('page'));
+    openPart(current.work.parts[current.partIndex - 1].id);
+  }
+  function goNextPart() {
+    if (!current || !current.work) return;
+    if (current.partIndex >= current.work.parts.length - 1) {
+      flash('Fin de la obra');
+      return;
+    }
+    savePos(current.id, document.getElementById('page'));
+    openPart(current.work.parts[current.partIndex + 1].id);
+  }
+
+  /* ── Chrome show/hide ── */
+  function showReaderChrome(on) {
+    chromeVisible = !!on;
+    var ch = document.getElementById('chrome');
+    var page = document.getElementById('page');
+    ch.classList.toggle('hide', !chromeVisible);
+    page.classList.toggle('chrome-pad', chromeVisible);
+    if (chromeTimer) clearTimeout(chromeTimer);
+    if (chromeVisible) {
+      chromeTimer = setTimeout(function () { showReaderChrome(false); }, 5000);
+    }
+  }
+  function toggleChrome() {
+    var now = Date.now();
+    if (now - tapGuard < 280) return;
+    tapGuard = now;
+    showReaderChrome(!chromeVisible);
+  }
+
+  function flash(msg) {
+    var s = document.getElementById('status');
+    s.textContent = msg;
+    s.classList.add('on');
+    setTimeout(function () { s.classList.remove('on'); }, 1600);
+  }
+
+  function backToCatalog() {
+    savePos(current && current.id, document.getElementById('page'));
+    stopTts();
+    stopAmbient();
+    ambientMode = 'off';
+    settings.ambient = 'off';
+    saveSettings();
+    applySettings();
+    current = null;
+    document.getElementById('reader').classList.add('hidden');
+    document.getElementById('catalog').classList.remove('hidden');
+    document.title = 'Leer — Les vencimos';
+    try { history.replaceState({}, '', location.pathname + location.search.replace(/\?id=[^&]*/, '').replace(/^$/, '') || 'leer.html'); } catch (e) {}
+    /* clean query */
+    try {
+      if (/\bid=/.test(location.search)) {
+        history.replaceState({}, '', location.pathname.split('/').pop() || 'leer.html');
+      }
+    } catch (e2) {}
+  }
+
+  /* ── Ambient (Web Audio, no files) ── */
+  function ensureAudio() {
+    if (ambientCtx) return ambientCtx;
+    var AC = window.AudioContext || window.webkitAudioContext;
+    if (!AC) return null;
+    ambientCtx = new AC();
+    return ambientCtx;
+  }
+  function stopAmbient() {
+    if (ambientNodes) {
+      try { ambientNodes.gain.gain.value = 0; } catch (e) {}
+      try { ambientNodes.src.stop(); } catch (e2) {}
+      try { ambientNodes.src.disconnect(); ambientNodes.filter.disconnect(); ambientNodes.gain.disconnect(); } catch (e3) {}
+      ambientNodes = null;
+    }
+  }
+  function startRain() {
+    var ctx = ensureAudio();
+    if (!ctx) { flash('Audio no disponible'); return; }
+    stopAmbient();
+    if (ctx.state === 'suspended') ctx.resume();
+    var bufferSize = 2 * ctx.sampleRate;
+    var buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+    var data = buffer.getChannelData(0);
+    for (var i = 0; i < bufferSize; i++) data[i] = (Math.random() * 2 - 1) * 0.4;
+    var src = ctx.createBufferSource();
+    src.buffer = buffer;
+    src.loop = true;
+    var filter = ctx.createBiquadFilter();
+    filter.type = 'lowpass';
+    filter.frequency.value = 780;
+    filter.Q.value = 0.7;
+    var gain = ctx.createGain();
+    gain.gain.value = 0.028; /* very quiet */
+    src.connect(filter);
+    filter.connect(gain);
+    gain.connect(ctx.destination);
+    src.start(0);
+    ambientNodes = { src: src, filter: filter, gain: gain };
+  }
+  function toggleAmbient() {
+    if (ambientMode === 'rain') {
+      ambientMode = 'off';
+      stopAmbient();
+      flash('Silencio');
+    } else {
+      ambientMode = 'rain';
+      startRain();
+      flash('Lluvia suave');
+    }
+    settings.ambient = ambientMode;
+    saveSettings();
+    applySettings();
+    showReaderChrome(true);
+  }
+
+  /* ── TTS (optional) ── */
+  function ttsAvailable() {
+    return !!(window.speechSynthesis && window.SpeechSynthesisUtterance);
+  }
+  function stopTts() {
+    ttsSpeaking = false;
+    try { if (window.speechSynthesis) speechSynthesis.cancel(); } catch (e) {}
+    var b = document.getElementById('btn-tts');
+    if (b) b.textContent = '▶';
+  }
+  function toggleTts() {
+    if (!ttsAvailable() || !current) return;
+    if (ttsSpeaking) { stopTts(); flash('Voz parada'); return; }
+    var u = new SpeechSynthesisUtterance(current.texto.slice(0, 120000));
+    u.lang = (current.meta && current.meta.idioma === 'en') ? 'en-US' : 'es-ES';
+    u.rate = 1;
+    u.onend = function () { ttsSpeaking = false; document.getElementById('btn-tts').textContent = '▶'; };
+    u.onerror = function () { ttsSpeaking = false; document.getElementById('btn-tts').textContent = '▶'; };
+    ttsSpeaking = true;
+    document.getElementById('btn-tts').textContent = '■';
+    try { speechSynthesis.speak(u); } catch (e) { ttsSpeaking = false; }
+    showReaderChrome(true);
+  }
+
+  /* ── Deep link ── */
+  function queryId() {
+    try {
+      var m = location.search.match(/[?&]id=([^&]+)/);
+      return m ? decodeURIComponent(m[1]) : '';
+    } catch (e) { return ''; }
+  }
+
+  /* ── Init ── */
+  function bind() {
+    document.getElementById('q').addEventListener('input', renderList);
+    document.getElementById('btn-back').addEventListener('click', backToCatalog);
+    document.getElementById('btn-prev').addEventListener('click', goPrevPart);
+    document.getElementById('btn-next').addEventListener('click', goNextPart);
+    document.getElementById('btn-smaller').addEventListener('click', function () {
+      settings.fontSize = Math.max(0.95, +(settings.fontSize - 0.08).toFixed(2));
+      saveSettings(); applySettings(); showReaderChrome(true);
+    });
+    document.getElementById('btn-bigger').addEventListener('click', function () {
+      settings.fontSize = Math.min(1.8, +(settings.fontSize + 0.08).toFixed(2));
+      saveSettings(); applySettings(); showReaderChrome(true);
+    });
+    document.getElementById('btn-theme').addEventListener('click', function () {
+      settings.theme = settings.theme === 'dia' ? 'noche' : 'dia';
+      saveSettings(); applySettings(); showReaderChrome(true);
+    });
+    document.getElementById('btn-ambient').addEventListener('click', toggleAmbient);
+    document.getElementById('btn-tts').addEventListener('click', toggleTts);
+    ['hz-left', 'hz-center', 'hz-right'].forEach(function (id) {
+      document.getElementById(id).addEventListener('click', function (e) {
+        e.preventDefault();
+        toggleChrome();
+      });
+    });
+    /* Allow scrolling: hitzones only capture taps, not scroll — use pointer events carefully.
+       Hitzones sit above page but we disable them for touch-move by only listening click.
+       Actually hitzones block scroll! Fix: only top strip for chrome, edges for tap without covering scroll.
+       Better approach: remove full-height hitzones; use tap on page with detection. */
+    var page = document.getElementById('page');
+    var touchY0 = 0, touchX0 = 0, moved = false;
+    page.addEventListener('touchstart', function (e) {
+      if (!e.touches || !e.touches[0]) return;
+      touchY0 = e.touches[0].clientY;
+      touchX0 = e.touches[0].clientX;
+      moved = false;
+    }, { passive: true });
+    page.addEventListener('touchmove', function (e) {
+      if (!e.touches || !e.touches[0]) return;
+      if (Math.abs(e.touches[0].clientY - touchY0) > 10 || Math.abs(e.touches[0].clientX - touchX0) > 10) moved = true;
+    }, { passive: true });
+    page.addEventListener('click', function (e) {
+      if (moved) return;
+      /* Don't toggle when interacting with chrome */
+      if (e.target.closest && e.target.closest('#chrome')) return;
+      toggleChrome();
+    });
+    page.addEventListener('scroll', function () {
+      if (!current) return;
+      if (saveScrollTimer) clearTimeout(saveScrollTimer);
+      saveScrollTimer = setTimeout(function () {
+        savePos(current.id, page);
+      }, 200);
+    }, { passive: true });
+
+    /* Disable blocking hitzones — keep for a11y but pointer-events none on container; page handles taps */
+    document.getElementById('hitzones').style.pointerEvents = 'none';
+  }
+
+  function boot() {
+    applySettings();
+    ambientMode = 'off'; /* always start off; user enables */
+    settings.ambient = 'off';
+    bind();
+    if (ttsAvailable()) {
+      document.getElementById('btn-tts').hidden = false;
+    }
+    var errEl = document.getElementById('load-err');
+    fetchJson(LIB + 'catalog.json').then(function (data) {
+      if (!Array.isArray(data)) throw new Error('catálogo inválido');
+      catalog = data;
+      works = buildWorks(catalog);
+      renderList();
+      var id = queryId();
+      if (id) {
+        if (byId[id]) openPart(id);
+        else {
+          errEl.textContent = 'No hay libro con id «' + id + '».';
+          errEl.classList.remove('hidden');
+        }
+      }
+    }).catch(function () {
+      errEl.textContent = 'No se pudo cargar biblioteca-libros/catalog.json. Abre este módulo desde la carpeta modulos/ (file:// o web).';
+      errEl.classList.remove('hidden');
+    });
+  }
+
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);
+  else boot();
+})();
+</script>
+</body>
+</html>
