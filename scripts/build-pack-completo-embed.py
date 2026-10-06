@@ -40,7 +40,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 DL = ROOT / "downloads"
 STAGING = ROOT / "offline-pack-completo-embed"
-VERSION = "v20261006embed-todo"
+VERSION = "v20261006embed-2.0.21"
 SOFT_WARN_BYTES = 70 * 1024 * 1024
 
 PRIMARY = DL / "completo-offline.zip"
@@ -549,6 +549,70 @@ lesvencimos.com
 """
 
 
+
+def sync_live_educacion_bach(staging: Path) -> None:
+    """Overlay live educacion Bach (+ shared assets) so Maestro/_maestro is in the ZIP.
+
+    Base fat shells keep stale Bach HTML pointing at ../../../../profesor/_maestro
+    (missing inside APK). Source of truth: repo educacion/<curso>/ with local _maestro/.
+    """
+    src_root = ROOT / "educacion"
+    dst_root = staging / "educacion"
+    if not src_root.is_dir() or not dst_root.is_dir():
+        raise SystemExit("sync_live_educacion_bach: missing educacion/")
+    courses = [
+        "mates-i", "bgca", "griego", "ingles", "mates-gen", "fyq", "edfisica",
+        "mates-ccs", "dibujo-tec", "economia", "tic",
+    ]
+    for name in courses:
+        src = src_root / name
+        if not src.is_dir():
+            print(f"  WARN skip missing educacion/{name}")
+            continue
+        dst = dst_root / name
+        if dst.exists():
+            shutil.rmtree(dst)
+        shutil.copytree(src, dst, ignore=shutil.ignore_patterns("__pycache__", "*.pyc", "_gen"))
+        print(f"  synced educacion/{name}/")
+    # Profesor hub if present live
+    for hub in ("Profesor.html",):
+        sp = src_root / hub
+        if sp.is_file():
+            shutil.copy2(sp, dst_root / hub)
+
+
+def force_sync_jardin(staging: Path) -> None:
+    """Always take live modulos/jardin.html (195KB+) — never keep stale embed ~111KB."""
+    src = ROOT / "modulos" / "jardin.html"
+    if not src.is_file():
+        raise SystemExit(f"force_sync_jardin: missing {src}")
+    size = src.stat().st_size
+    if size < 150_000:
+        raise SystemExit(f"force_sync_jardin: live jardin too small ({size} bytes) — expected ~195KB")
+    targets = [
+        staging / "modulos" / "jardin.html",
+        staging / "modules" / "pack-casa" / "modulos" / "jardin.html",
+    ]
+    for t in targets:
+        t.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copy2(src, t)
+        print(f"  forced jardin.html → {t.relative_to(staging)} ({t.stat().st_size} bytes)")
+    # LEEME if present
+    leeme = ROOT / "modulos" / "LEEME-jardin.txt"
+    if leeme.is_file():
+        for t in [
+            staging / "modulos" / "LEEME-jardin.txt",
+            staging / "modules" / "pack-casa" / "modulos" / "LEEME-jardin.txt",
+        ]:
+            t.parent.mkdir(parents=True, exist_ok=True)
+            shutil.copy2(leeme, t)
+    # offline zip into downloads path inside pack if we keep downloads/ copies elsewhere — shelf uses html
+    zip_src = ROOT / "downloads" / "jardin-offline.zip"
+    if zip_src.is_file():
+        # optional: not required inside embed APK for WebView shelf
+        pass
+
+
 def zip_tree(src: Path, out: Path) -> list[str]:
     if out.exists():
         out.unlink()
@@ -725,6 +789,11 @@ def main() -> None:
             pack_html.parent.mkdir(parents=True, exist_ok=True)
             shutil.copy2(biblio_html, pack_html)
 
+    print("== Sync live educacion Bach (Maestro local _maestro) ==")
+    sync_live_educacion_bach(STAGING)
+    print("== Force sync jardin.html from live modulos/ ==")
+    force_sync_jardin(STAGING)
+
     # Count files before catalog/LEEME finalize
     files = [p for p in STAGING.rglob("*") if p.is_file()]
     # provisional catalog
@@ -814,6 +883,14 @@ def main() -> None:
         "modulos/oposiciones.html",
         "modulos/aliados.html",
         "modulos/grabadora.html",
+        "modulos/jardin.html",
+        "educacion/mates-i/index.html",
+        "educacion/mates-i/_maestro/maestro-runtime.js",
+        "educacion/mates-i/lecciones/leccion-02-logaritmos.html",
+        "educacion/fyq/_maestro/maestro-runtime.js",
+        "educacion/bgca/_maestro/maestro-runtime.js",
+        "educacion/mates-gen/_maestro/maestro-runtime.js",
+        "educacion/edfisica/_maestro/maestro-runtime.js",
     ]
     name_set = set(names)
     for m in must:
@@ -823,6 +900,24 @@ def main() -> None:
     # Soft warn
     if size > SOFT_WARN_BYTES:
         print(f"SOFT WARN: ZIP {size} bytes ({size/1024/1024:.1f} MB) > 70 MB")
+
+
+    # Maestro Bach + jardin content gates (APK WebView)
+    with zipfile.ZipFile(PRIMARY) as zf:
+        sample = zf.read("educacion/mates-i/lecciones/leccion-02-logaritmos.html").decode("utf-8", "replace")
+        if "atajo-maestro" not in sample or "_maestro/maestro-runtime.js" not in sample:
+            raise SystemExit("ZIP mates-i L02 missing Maestro markers")
+        if "profesor/_maestro" in sample:
+            raise SystemExit("ZIP mates-i L02 still points at profesor/_maestro")
+        jardin_info = zf.getinfo("modulos/jardin.html")
+        if jardin_info.file_size < 150_000:
+            raise SystemExit(f"ZIP jardin.html too small: {jardin_info.file_size}")
+        # count maestro runtimes under educacion Bach
+        bach_rt = [n for n in zf.namelist() if n.startswith("educacion/") and n.endswith("/_maestro/maestro-runtime.js")]
+        if len(bach_rt) < 5:
+            raise SystemExit(f"ZIP expected >=5 Bach _maestro runtimes, got {len(bach_rt)}: {bach_rt}")
+        print(f"MAESTRO_BACH_RUNTIMES {len(bach_rt)}")
+        print(f"JARDIN_BYTES {jardin_info.file_size}")
 
     print("---")
     print(f"PRIMARY  {PRIMARY}")
