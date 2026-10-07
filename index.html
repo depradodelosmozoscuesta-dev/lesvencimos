@@ -17,9 +17,9 @@
   <!-- 1) Splash de marca (misma animación/audio que la app) -->
   <div id="lv-land-splash" class="lv-land-stage lv-land-splash" aria-label="Entrada">
     <video id="lv-land-vid" playsinline muted autoplay preload="auto" poster="/brand/splash/poster-umb.jpg">
-      <source src="/brand/splash/entrada.mp4?v=20261007a" type="video/mp4">
+      <source src="/brand/splash/entrada.mp4?v=20261007b" type="video/mp4">
     </video>
-    <audio id="lv-land-melody" preload="auto" src="/brand/splash/entrada-sonido.m4a?v=20261007a"></audio>
+    <audio id="lv-land-melody" preload="auto" src="/brand/splash/entrada-sonido.m4a?v=20261007b"></audio>
     <div id="lv-land-chorus" hidden></div>
     <audio id="lv-land-love" preload="auto"></audio>
     <p class="lv-land-caption" id="lv-land-caption" aria-live="polite"></p>
@@ -84,11 +84,11 @@
       </header>
 
       <div class="lv-land-hub-actions" aria-label="Empezar">
-        <a class="lv-square lv-square-primary" id="lv-land-apk" href="/downloads/lesvencimos-completo-2.0.23.apk" download="lesvencimos-completo-2.0.23.apk">Descargar la aplicación</a>
+        <a class="lv-square lv-square-primary" id="lv-land-apk" href="/downloads/lesvencimos-completo-2.0.24.apk" download="lesvencimos-completo-2.0.24.apk">Descargar la aplicación</a>
         <a class="lv-square lv-square-secondary" href="/estanteria.html">Usar en web</a>
       </div>
       <p class="lv-pillar-desc lv-land-apk-meta" id="lv-land-apk-meta">
-        Completo <strong>v2.0.23</strong> · MD5 <code>45520de77e1d0df9da74bcea6cfa6628</code>
+        Completo <strong>v2.0.24</strong> · MD5 <code>043b3a2af02dcba873a5e59336d5ce71</code>
         · <a href="/app/instalar.html">cómo instalar</a>
       </p>
 
@@ -391,7 +391,7 @@
 
 <script>
 (function () {
-  var V = '20261007a';
+  var V = '20261007b';
   var splash = document.getElementById('lv-land-splash');
   var gate = document.getElementById('lv-land-gate');
   var hub = document.getElementById('lv-land-hub');
@@ -402,7 +402,9 @@
   var chorusBox = document.getElementById('lv-land-chorus');
   var done = false;
   var lovePlayed = false;
-  var CHORUS_AT = 0.22, CHORUS_STEP = 0.82, CHORUS_N = 5, LOVE_AT = 4.70, FINISH_AT = 6.86;
+  /* v20261007b: sequential hola — measured durations, no overlap */
+  var CHORUS_AT = 0.22, CHORUS_GAP = 0.14, CHORUS_N = 5, LOVE_AT = 4.70, FINISH_AT = 6.86;
+  var HI_DUR = {es:0.577,en:0.755,fr:0.894,pt:0.620,it:0.682,de:0.678,ro:0.718,ru:0.627,ja:0.944,ko:1.097};
   var LANGS = [
     {id:'es',label:'Español',hi:'voz/hi-es.m4a',bye:'voz/bye-es.m4a',hiText:'¡Hola!',byeText:'Te queremos'},
     {id:'en',label:'English',hi:'voz/hi-en.m4a',bye:'voz/bye-en.m4a',hiText:'Hello!',byeText:'We love you'},
@@ -424,6 +426,10 @@
   var chorusAudios = [];
   var chorusFired = {};
   var capStack = [];
+  var chorusStarted = false;
+  var chorusDone = false;
+  var chorusIdx = 0;
+  var chorusTimer = null;
 
   function showStage(el) {
     [splash, gate, hub].forEach(function (s) {
@@ -467,25 +473,59 @@
       chorusAudios.push(a);
     }
   }
-  function playChorusHit(i) {
-    if (chorusFired[i]) return;
-    chorusFired[i] = true;
-    var L = chorus[i];
-    if (!L) return;
-    ensureChorus();
-    setCap(L.hiText, L.label, true);
-    playClip(chorusAudios[i], L.hi);
-  }
-  function tickChorus(t) {
-    for (var i = 0; i < chorus.length; i++) {
-      if (t >= CHORUS_AT + i * CHORUS_STEP) playChorusHit(i);
-    }
+  function clearChorusTimer() {
+    if (chorusTimer) { try { clearTimeout(chorusTimer); } catch (e) {} chorusTimer = null; }
   }
   function playLove() {
-    if (lovePlayed) return;
+    if (lovePlayed || done) return;
+    if (!chorusDone) return;
     lovePlayed = true;
     setCap(loveLang.byeText, loveLang.label, false);
     playClip(loveEl, loveLang.bye);
+  }
+  function afterChorus() {
+    chorusDone = true;
+    clearChorusTimer();
+    try {
+      var tNow = (vid && !isNaN(vid.currentTime)) ? vid.currentTime : LOVE_AT;
+      if (tNow >= LOVE_AT) playLove();
+    } catch (e) { playLove(); }
+  }
+  function playChorusNext() {
+    if (done) return;
+    if (chorusIdx >= chorus.length) { afterChorus(); return; }
+    var i = chorusIdx;
+    if (chorusFired[i]) { chorusIdx++; playChorusNext(); return; }
+    chorusFired[i] = true;
+    var L = chorus[i];
+    if (!L) { chorusIdx++; playChorusNext(); return; }
+    ensureChorus();
+    if (i > 0) { try { chorusAudios[i - 1].pause(); } catch (e) {} }
+    setCap(L.hiText, L.label, true);
+    var a = chorusAudios[i];
+    var advanced = false;
+    function advance() {
+      if (advanced || done) return;
+      advanced = true;
+      clearChorusTimer();
+      try { a.onended = null; } catch (e) {}
+      chorusIdx = i + 1;
+      chorusTimer = setTimeout(playChorusNext, Math.round(CHORUS_GAP * 1000));
+    }
+    try { a.onended = advance; } catch (e) {}
+    var dur = HI_DUR[L.id] || 1.15;
+    chorusTimer = setTimeout(advance, Math.round((dur + 0.08) * 1000));
+    playClip(a, L.hi);
+  }
+  function startChorus() {
+    if (chorusStarted || done) return;
+    chorusStarted = true;
+    ensureChorus();
+    playChorusNext();
+  }
+  function tickChorus(t) {
+    if (!chorusStarted && t >= CHORUS_AT) startChorus();
+    if (chorusDone && !lovePlayed && t >= LOVE_AT) playLove();
   }
   function stopSplashMedia(keepLove) {
     try { if (melody) { melody.pause(); } } catch (e) {}
