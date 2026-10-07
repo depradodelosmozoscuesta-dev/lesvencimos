@@ -518,8 +518,13 @@ public class MainActivity extends AppCompatActivity {
      * Crítico: WebView reporta prefers-reduced-motion:reduce y speechSynthesis mudo.
      */
     private static String bootScript() {
+        String fatEarly = BuildConfig.FLACO_MODE ? ""
+                : ("try{window.__lvFatOffline=1;window.__lvNoDownload=1;"
+                + "localStorage.setItem('lv-fat-offline','1');"
+                + "localStorage.setItem('lv-no-download','1');}catch(eFat){}");
         return "(function(){"
                 + "try{if(!window.__lvBoot){window.__lvBoot=1;"
+                + fatEarly
                 + "window.__lvNoParade=1;window.__lvForceParade=0;"
                 + "try{window.startShelfDrift=function(){};window.__lvKickParade=function(){};window.__lvRestartParade=function(){};}catch(e){}"
                 + "var __mm=window.matchMedia;window.matchMedia=function(q){q=String(q||'');"
@@ -631,6 +636,7 @@ public class MainActivity extends AppCompatActivity {
                 + "try{var P=JSON.parse('" + safePrefs + "');"
                 + "localStorage.setItem('lv-app-prefs',JSON.stringify(P));"
                 + "window.__lvAppPrefs=P;"
+                + "if(P&&P.wizardDone){try{localStorage.setItem('lv-onboarding-done-v1','1');}catch(eOn){}}"
                 + "if(P&&P.mode==='custom'&&Array.isArray(P.visibleModules)){"
                 + "var allow={};P.visibleModules.forEach(function(id){allow[id]=1;});allow['pack-1eso']=1;"
                 + "function hide(){try{"

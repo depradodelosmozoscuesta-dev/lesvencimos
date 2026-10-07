@@ -9129,6 +9129,34 @@
       { id: 'profesor', label: 'Profesor', blurb: 'Hub educación · aparte' }
     ];
     var STARTER_DEFAULT = ['hogar', 'salud', 'medicacion', 'biblioteca', 'tinta-escritura'];
+    var ONBOARD_KEY = 'lv-onboarding-done-v1';
+    function markOnboardingDone() {
+      try { localStorage.setItem(ONBOARD_KEY, '1'); } catch (eO) {}
+    }
+    function isOnboardingDone() {
+      try { if (localStorage.getItem(ONBOARD_KEY) === '1') return true; } catch (eO) {}
+      try {
+        var P = window.__lvAppPrefs || JSON.parse(localStorage.getItem('lv-app-prefs') || 'null');
+        if (P && P.wizardDone) return true;
+      } catch (eP) {}
+      try {
+        if (window.__lvFatOffline || localStorage.getItem('lv-fat-offline') === '1') {
+          /* Completo APK: el wizard nativo ya eligió iconos; no repetir picker HTML */
+          if (state && state.items && state.items.length) return true;
+        }
+      } catch (eF) {}
+      return false;
+    }
+    function isFatCompleto() {
+      try {
+        if (window.__lvFatOffline || localStorage.getItem('lv-fat-offline') === '1') return true;
+        if (window.LvBridge && typeof LvBridge.isFatOffline === 'function' && LvBridge.isFatOffline()) return true;
+        /* Entrada fat APK: …/completo/estanteria.html (antes de injectHelpers) */
+        var path = String(location.pathname || '');
+        if (path.indexOf('/completo/') >= 0) return true;
+      } catch (e) {}
+      return false;
+    }
 
     function pushCatalogModule(id) {
       var mod = catalogById(id);
@@ -9178,12 +9206,22 @@
       arrangeToShelves();
       state.layoutRev = Math.max(40, state.layoutRev || 0);
       state.version = 5;
+      /* Tras el primer uso: estantería limpia; ajustes/módulos solo cuando el usuario quiera */
+      state.ajustesHidden = true;
+      state.toolbarCollapsed = true;
+      markOnboardingDone();
       saveState();
+      applyAjustesHidden();
+      applyToolbarCollapsed();
       renderDesktop();
       showToast(asCompleto ? 'Estantería · Completo' : 'Estantería · ' + (ids || []).length + ' módulos');
     }
 
     function showFirstRun() {
+      if (isOnboardingDone()) {
+        finalizeStarterShelf(null, isFatCompleto());
+        return;
+      }
       var fr = document.getElementById('lv-first-run');
       var grid = document.getElementById('lv-fr-grid');
       var go = document.getElementById('lv-fr-go');
@@ -9244,12 +9282,13 @@
       var lovePlayed = false;
       var chorusStarted = false;
       /* h: finish with Jorge melody (~6.86s); chorus greetings; love near warm end; NO adiós. */
-      var CHORUS_AT = 0.20;
-      var CHORUS_STEP = 0.20;
-      var CHORUS_N = 7;
-      var LOVE_AT = 4.55;
+      /* v20261007a: step matches real hi durations (0.58–1.10s); was 0.20 → cortado */
+      var CHORUS_AT = 0.22;
+      var CHORUS_STEP = 0.82;
+      var CHORUS_N = 5;
+      var LOVE_AT = 4.70;
       var FINISH_AT = 6.86;
-      var V = '20261001i';
+      var V = '20261007a';
       var LANGS = [{"id":"es","label":"Español","voice":"en-US-AvaMultilingualNeural","hi":"voz/hi-es.m4a","bye":"voz/bye-es.m4a","hiText":"¡Hola!","byeText":"Te queremos"},{"id":"en","label":"English","voice":"en-US-AvaMultilingualNeural","hi":"voz/hi-en.m4a","bye":"voz/bye-en.m4a","hiText":"Hello!","byeText":"We love you"},{"id":"fr","label":"Français","voice":"fr-FR-VivienneMultilingualNeural","hi":"voz/hi-fr.m4a","bye":"voz/bye-fr.m4a","hiText":"Bonjour!","byeText":"On t'aime"},{"id":"pt","label":"Português","voice":"pt-BR-ThalitaMultilingualNeural","hi":"voz/hi-pt.m4a","bye":"voz/bye-pt.m4a","hiText":"Olá!","byeText":"A gente te quer"},{"id":"it","label":"Italiano","voice":"en-US-AvaMultilingualNeural","hi":"voz/hi-it.m4a","bye":"voz/bye-it.m4a","hiText":"Ciao!","byeText":"Ti vogliamo bene"},{"id":"de","label":"Deutsch","voice":"de-DE-SeraphinaMultilingualNeural","hi":"voz/hi-de.m4a","bye":"voz/bye-de.m4a","hiText":"Hallo!","byeText":"Wir haben dich lieb"},{"id":"ro","label":"Română","voice":"ro-RO-AlinaNeural","hi":"voz/hi-ro.m4a","bye":"voz/bye-ro.m4a","hiText":"Bună!","byeText":"Te iubim"},{"id":"ru","label":"Русский","voice":"ru-RU-SvetlanaNeural","hi":"voz/hi-ru.m4a","bye":"voz/bye-ru.m4a","hiText":"Привет!","byeText":"Мы вас любим"},{"id":"ja","label":"日本語","voice":"ja-JP-NanamiNeural","hi":"voz/hi-ja.m4a","bye":"voz/bye-ja.m4a","hiText":"こんにちは","byeText":"大好き"},{"id":"ko","label":"한국어","voice":"ko-KR-SunHiNeural","hi":"voz/hi-ko.m4a","bye":"voz/bye-ko.m4a","hiText":"안녕하세요!","byeText":"사랑해요"}];
       var cast = pickSplashChorus(LANGS, CHORUS_N);
       var chorusLangs = cast.chorus;
@@ -9345,9 +9384,7 @@
           if (vid && !isNaN(vid.currentTime) && vid.currentTime >= (LOVE_AT - 0.35)) playLove();
         } catch (eNear) {}
         try { if (aud) { aud.pause(); } } catch (eA) {}
-        for (var i = 0; i < chorusAudios.length; i++) {
-          try { chorusAudios[i].pause(); } catch (eC2) {}
-        }
+        /* no pausar coro: cada hi debe terminar (antes se cortaban al finish) */
         try { if (hiAud) { hiAud.pause(); } } catch (eH) {}
         try { if (vid) { vid.pause(); } } catch (eV) {}
         if (splash) {
@@ -9357,7 +9394,7 @@
             stopSplashAudio(true);
             splash.hidden = true;
             if (typeof thenFn === 'function') thenFn();
-            setTimeout(function () { stopSplashAudio(false); }, 1600);
+            setTimeout(function () { stopSplashAudio(false); }, 2400);
           }, 420);
         } else if (typeof thenFn === 'function') {
           thenFn();
@@ -9697,11 +9734,20 @@
       var needCamaraFotos = !needSeed && state.layoutRev < 22;
       var needMusica = !needSeed && state.layoutRev < 28;
       var pendingFirstRun = false;
+      if (state.items && state.items.length) {
+        markOnboardingDone(); /* usuarios ya sembrados: no re-preguntar */
+      }
       if (needSeed) {
-        /* No llenar Completo a ciegas: splash → elegir 5–6 starters (o Completo). */
-        pendingFirstRun = true;
         state.layoutRev = 40;
         state.version = 5;
+        if (isOnboardingDone() || isFatCompleto()) {
+          /* Completo APK / ya onboarding: sembrar y a baldas — sin picker ni ajustes forzados */
+          finalizeStarterShelf(null, true);
+          pendingFirstRun = false;
+        } else {
+          /* Web / primera vez: splash → elegir 5–6 (o Completo). Solo una vez. */
+          pendingFirstRun = true;
+        }
       } else if (needRearrange || needEdu || needVariosEdu || needRapido || needLeads || needCamaraQr || needMapasLead || needAppShortcuts || needCasaModules || needCasaDeep || needFolders || needCompletoPurity || needCanonicalIds || needEducacionHub || needCamaraFotos || needMusica) {
         if (needEdu || needVariosEdu) {
           /* Packs escolares legacy: añadir si faltan; luego van a carpeta Educación */
@@ -10436,8 +10482,10 @@
 
       /* Entrada: splash → (primer uso: elegir módulos) → estantería */
       runEntrySplash(function () {
-        if (pendingFirstRun) {
+        if (pendingFirstRun && !isOnboardingDone()) {
           showFirstRun();
+        } else if (pendingFirstRun) {
+          finalizeStarterShelf(null, true);
         }
         /* k7: parade OFF — updateShelfOverflow only (startShelfDrift is no-op) */
         requestAnimationFrame(function () {

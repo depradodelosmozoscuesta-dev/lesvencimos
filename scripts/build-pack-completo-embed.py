@@ -40,7 +40,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 DL = ROOT / "downloads"
 STAGING = ROOT / "offline-pack-completo-embed"
-VERSION = "v20261006embed-2.0.22"
+VERSION = "v20261007embed-2.0.23"
 SOFT_WARN_BYTES = 70 * 1024 * 1024
 
 PRIMARY = DL / "completo-offline.zip"
