@@ -8437,7 +8437,7 @@
     viewThread.classList.remove("hidden");
     btnBack.classList.remove("hidden");
     title.textContent = displayName || shortId(peerId);
-    subtitle.textContent = "Conversación cifrada";
+    subtitle.textContent = "Vista previa · demo";
     setNav("thread");
     await refreshThread();
     startPoll();
