@@ -6,6 +6,8 @@ canvas{border:1px solid #888;image-rendering:pixelated;width:256px;height:256px}
 <body>
 <h1>Imagen por audio</h1>
 <p>Cada <b>acorde</b> son 6 voces simultáneas con 16 tonos posibles cada una: 16<sup>6</sup> = 16.777.216 variaciones = 3 bytes por acorde. La imagen se reduce a escala de grises de 4 bits.</p>
+<h2>Análisis de colores (paleta de 1.000.000)</h2>
+<button id="an">Analizar imagen</button> <pre id="anOut"></pre>
 <h2>Emitir</h2>
 <input type="file" id="file" accept="image/*"><br>
 Tamaño: <select id="size"><option>16</option><option selected>32</option><option>48</option></select> px
@@ -16,6 +18,7 @@ Duración del acorde: <select id="sym"><option value="0.08" selected>80 ms</opti
 <button id="rec">Grabar (acercar al altavoz)</button> <button id="stop" disabled>Parar y decodificar</button> <span id="infoRx"></span><br>
 <canvas id="dst" width="32" height="32"></canvas>
 <script src="codec.js"></script>
+<script src="colores.js"></script>
 <script>
 const $ = id => document.getElementById(id);
 let img = null;
@@ -37,6 +40,14 @@ $('play').onclick = () => {
   const buf = ctx.createBuffer(1, pcm.length, ctx.sampleRate); buf.copyToChannel(pcm, 0);
   const src = ctx.createBufferSource(); src.buffer = buf; src.connect(ctx.destination); src.start();
   $('infoTx').textContent = chords.length + ' acordes · ' + (pcm.length / ctx.sampleRate).toFixed(1) + ' s';
+};
+$('an').onclick = () => {
+  if (!img) { $('anOut').textContent = 'Elige una imagen'; return; }
+  const c = document.createElement('canvas'), w = c.width = img.naturalWidth, h = c.height = img.naturalHeight, x = c.getContext('2d');
+  x.drawImage(img, 0, 0);
+  const r = Colores.analyze(x.getImageData(0, 0, w, h).data, w, h);
+  $('anOut').textContent = 'Píxeles: ' + r.totalPixels + ' (' + w + '×' + h + ')\nColores distintos: ' + r.distinctColors + ' de ' + r.paletteSize +
+    '\nTop 10:\n' + r.colors.slice(0, 10).map(k => 'rgb(' + k.rgb + ') ×' + k.count + ' p.ej. (' + k.pixels[0].x + ',' + k.pixels[0].y + ')').join('\n');
 };
 let rec = null;
 $('rec').onclick = async () => {
