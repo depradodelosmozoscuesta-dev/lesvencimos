@@ -1,7 +1,7 @@
-// Analisis de color: paleta de 1.000.000 de colores (100 niveles por canal RGB, 100^3).
+// Analisis de color: paleta de 97.336 colores (~100.000: 46 niveles por canal RGB, 46^3).
 // Devuelve nº de pixeles, nº de colores distintos y las posiciones de cada color.
 (function (root) {
-  const LEVELS = 100; // 100^3 = 1.000.000
+  const LEVELS = 46; // 46^3 = 97.336 (~100.000)
   const q = v => Math.round(v * (LEVELS - 1) / 255);
   const index = (r, g, b) => (q(r) * LEVELS + q(g)) * LEVELS + q(b); // 0..999999
   const toRGB = i => [Math.round((i / (LEVELS * LEVELS) | 0) * 255 / (LEVELS - 1)),

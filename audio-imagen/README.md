@@ -7,3 +7,6 @@ Prueba del códec: `node test.js`.
 
 ## Colores
 `colores.js`: paleta de 1.000.000 colores (100 niveles/canal). `Colores.analyze(rgba,w,h)` devuelve nº de píxeles, colores distintos y las posiciones (x,y) de cada color. Prueba: `node test-colores.js`.
+
+## Bloques (bloques.js)
+Paleta reducida a ~100.000 colores (46³ = 97.336). La imagen se trocea en bloques 8×8 en orden de lectura (la posición se deduce, no se envía). Cada bloque es un símbolo/acorde: `FLAT` (color liso), `GRAD` (gradiente exacto: color base + pendiente por canal), `REF` (bloque ya enviado, diccionario adaptativo) o `RAW`. Reconstrucción exacta respecto a la paleta. Prueba: `node test-bloques.js`.
