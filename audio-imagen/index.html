@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Imagen por audio · 6 voces / 16,7 M variaciones</title>
+<style>body{font-family:system-ui,sans-serif;max-width:640px;margin:1rem auto;padding:0 1rem}
+canvas{border:1px solid #888;image-rendering:pixelated;width:256px;height:256px}button,input,select{font-size:1rem;margin:.25rem 0}</style></head>
+<body>
+<h1>Imagen por audio</h1>
+<p>Cada <b>acorde</b> son 6 voces simultáneas con 16 tonos posibles cada una: 16<sup>6</sup> = 16.777.216 variaciones = 3 bytes por acorde. La imagen se reduce a escala de grises de 4 bits.</p>
+<h2>Análisis de colores (paleta de 1.000.000)</h2>
+<button id="an">Analizar imagen</button> <pre id="anOut"></pre>
+<h2>Emitir</h2>
+<input type="file" id="file" accept="image/*"><br>
+Tamaño: <select id="size"><option>16</option><option selected>32</option><option>48</option></select> px
+Duración del acorde: <select id="sym"><option value="0.08" selected>80 ms</option><option value="0.12">120 ms (más robusto)</option></select><br>
+<canvas id="src" width="32" height="32"></canvas><br>
+<button id="play">Reproducir</button> <span id="infoTx"></span>
+<h2>Recibir</h2>
+<button id="rec">Grabar (acercar al altavoz)</button> <button id="stop" disabled>Parar y decodificar</button> <span id="infoRx"></span><br>
+<canvas id="dst" width="32" height="32"></canvas>
+<script src="codec.js"></script>
+<script src="colores.js"></script>
+<script>
+const $ = id => document.getElementById(id);
+let img = null;
+function draw() {
+  const s = +$('size').value, c = $('src'); c.width = c.height = s;
+  if (img) c.getContext('2d').drawImage(img, 0, 0, s, s);
+}
+$('size').onchange = draw;
+$('file').onchange = e => { const f = e.target.files[0]; if (!f) return; const i = new Image(); i.onload = () => { img = i; draw(); }; i.src = URL.createObjectURL(f); };
+function gray() {
+  const s = +$('size').value, d = $('src').getContext('2d').getImageData(0, 0, s, s).data, g = new Uint8Array(s * s);
+  for (let i = 0; i < s * s; i++) g[i] = (d[4 * i] * 0.299 + d[4 * i + 1] * 0.587 + d[4 * i + 2] * 0.114) | 0;
+  return g;
+}
+$('play').onclick = () => {
+  if (!img) { $('infoTx').textContent = 'Elige una imagen'; return; }
+  const s = +$('size').value, sym = +$('sym').value, chords = AudioImg.bytesToChords(AudioImg.packImage(gray(), s, s));
+  const ctx = new AudioContext(), pcm = AudioImg.synth(chords, ctx.sampleRate, sym);
+  const buf = ctx.createBuffer(1, pcm.length, ctx.sampleRate); buf.copyToChannel(pcm, 0);
+  const src = ctx.createBufferSource(); src.buffer = buf; src.connect(ctx.destination); src.start();
+  $('infoTx').textContent = chords.length + ' acordes · ' + (pcm.length / ctx.sampleRate).toFixed(1) + ' s';
+};
+$('an').onclick = () => {
+  if (!img) { $('anOut').textContent = 'Elige una imagen'; return; }
+  const c = document.createElement('canvas'), w = c.width = img.naturalWidth, h = c.height = img.naturalHeight, x = c.getContext('2d');
+  x.drawImage(img, 0, 0);
+  const r = Colores.analyze(x.getImageData(0, 0, w, h).data, w, h);
+  $('anOut').textContent = 'Píxeles: ' + r.totalPixels + ' (' + w + '×' + h + ')\nColores distintos: ' + r.distinctColors + ' de ' + r.paletteSize +
+    '\nTop 10:\n' + r.colors.slice(0, 10).map(k => 'rgb(' + k.rgb + ') ×' + k.count + ' p.ej. (' + k.pixels[0].x + ',' + k.pixels[0].y + ')').join('\n');
+};
+let rec = null;
+$('rec').onclick = async () => {
+  const stream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: false, noiseSuppression: false, autoGainControl: false } });
+  const ctx = new AudioContext(), src = ctx.createMediaStreamSource(stream), chunks = [];
+  const proc = ctx.createScriptProcessor(4096, 1, 1);
+  proc.onaudioprocess = e => chunks.push(new Float32Array(e.inputBuffer.getChannelData(0)));
+  src.connect(proc); proc.connect(ctx.destination);
+  rec = { ctx, stream, proc, chunks }; $('rec').disabled = true; $('stop').disabled = false; $('infoRx').textContent = 'Grabando…';
+};
+$('stop').onclick = () => {
+  const { ctx, stream, proc, chunks } = rec; proc.disconnect(); stream.getTracks().forEach(t => t.stop());
+  const x = new Float32Array(chunks.reduce((a, c) => a + c.length, 0)); let o = 0; for (const c of chunks) { x.set(c, o); o += c.length; }
+  const r = AudioImg.decode(x, ctx.sampleRate, +$('sym').value);
+  $('rec').disabled = false; $('stop').disabled = true;
+  if (!r) { $('infoRx').textContent = 'No se pudo decodificar (sincronía o CRC)'; return; }
+  const c = $('dst'); c.width = r.w; c.height = r.h; const id = c.getContext('2d').createImageData(r.w, r.h);
+  r.gray.forEach((v, i) => { id.data.set([v, v, v, 255], 4 * i); });
+  c.getContext('2d').putImageData(id, 0, 0); $('infoRx').textContent = 'Imagen ' + r.w + '×' + r.h + ' recibida (CRC ok)';
+};
+</script></body></html>
