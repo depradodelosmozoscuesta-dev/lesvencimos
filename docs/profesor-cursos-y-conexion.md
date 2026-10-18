@@ -17,3 +17,13 @@
 - No se ha tocado ninguna lección ni el modo Maestro.
 - En la app (host appassets) los 1º ESO enlazan a `/educacion/1eso-*/index.html` (packs planos del embed).
 - `scripts/build-pack-completo-embed.py`: copia también `educacion/profesor-clasico.html` al embed.
+
+## 3. Modo Maestro en 4 materias de 1º Bach (v20261018b)
+- Dibujo Técnico I (31), TIC I (32), Matemáticas CCSS I (33), Economía (26) + EEAE (18): 140 lecciones con guion.
+- Mismo runtime local que el resto de Bach: `<materia>/_maestro/maestro-runtime.js` + `maestro-puntero.css` (copiados de `educacion/fyq/_maestro`, md5 8deca3f0…).
+- Guion incrustado en cada lección (`<script type="application/json" data-maestro="guion">`), derivado solo del texto: título (h1) y cada apartado (h2) con su primera frase. Los h2 sin id reciben `id="maestro-pN"`; los que ya tenían id (TIC) se usan tal cual. Máximo 14 pasos.
+- En mates-ccs había 17 plantillas vacías de guion (sin pasos): se sustituyeron.
+- El atajo «Modo maestro» lo inyecta el runtime (barra de progreso o botón fijo).
+- Generador reproducible: `scripts/maestro-bach4-guion.py` (se salta lecciones que ya tengan runtime).
+- ZIP de descarga regenerados: `downloads/bach1-{dibujo-tec,tic,mates-ccs,economia}-offline.zip`.
+- Comprobado en Chrome sin interfaz: 140/140 lecciones cargan con `?maestro=1` sin errores de consola, con el guion cargado y todas las anclas presentes.

@@ -45,6 +45,8 @@ main{max-width:1100px;margin:0 auto;padding:16px 16px calc(32px + env(safe-area-
 .chip[aria-pressed="true"]{border-color:var(--verde);background:var(--verde);color:#fff}
 .chip[aria-pressed="true"] small{color:#e8fff4}
 .chip:disabled{opacity:.5;cursor:default}
+.chip.vacio{padding:6px 12px;font-size:.8rem;border-style:dashed}
+.chip[aria-pressed="true"]{box-shadow:0 0 0 3px rgba(31,157,107,.22)}
 .intro{margin:6px 0 16px;padding:16px 18px;border-radius:var(--radio);background:var(--blanco);border:1px solid var(--linea);box-shadow:var(--sombra)}
 .intro h2{margin:0 0 4px;font:800 1.5rem/1.2 var(--titulo)}
 .intro p{margin:0;color:var(--suave);font-size:.92rem}
@@ -126,10 +128,10 @@ var CURSOS=[
   {nom:'Matemáticas I',ico:'∑',color:'#e7eef8',url:'/educacion/mates-i/index.html',lec:48,maestro:1,graf:1,grupo:'Ciencias y Tecnología'},
   {nom:'Física y Química',ico:'⚛',color:'#e4f1ee',url:'/educacion/fyq/index.html',lec:23,maestro:1,graf:1,grupo:'Ciencias y Tecnología'},
   {nom:'Biología, Geología y Ciencias Ambientales',ico:'🧬',color:'#e4f1ee',url:'/educacion/bgca/index.html',lec:45,maestro:1,graf:1,grupo:'Ciencias y Tecnología'},
-  {nom:'Dibujo Técnico I',ico:'📐',color:'#e7eef8',url:'/educacion/dibujo-tec/index.html',lec:31,maestro:0,graf:1,grupo:'Ciencias y Tecnología'},
-  {nom:'Tecnologías de la Información y la Comunicación I',ico:'💻',color:'#e7eef8',url:'/educacion/tic/index.html',lec:32,maestro:0,graf:1,grupo:'Ciencias y Tecnología'},
-  {nom:'Matemáticas Aplicadas a las CC. Sociales I',ico:'📊',color:'#e7eef8',url:'/educacion/mates-ccs/lecciones/leccion-01-metodo.html',lec:33,maestro:0,graf:1,grupo:'Humanidades y Ciencias Sociales'},
-  {nom:'Economía y Economía, Emprendimiento y Actividad Empresarial',ico:'€',color:'#e4f1ee',url:'/educacion/economia/index.html',lec:26,maestro:0,graf:1,grupo:'Humanidades y Ciencias Sociales'},
+  {nom:'Dibujo Técnico I',ico:'📐',color:'#e7eef8',url:'/educacion/dibujo-tec/index.html',lec:31,maestro:1,graf:1,grupo:'Ciencias y Tecnología'},
+  {nom:'Tecnologías de la Información y la Comunicación I',ico:'💻',color:'#e7eef8',url:'/educacion/tic/index.html',lec:32,maestro:1,graf:1,grupo:'Ciencias y Tecnología'},
+  {nom:'Matemáticas Aplicadas a las CC. Sociales I',ico:'📊',color:'#e7eef8',url:'/educacion/mates-ccs/lecciones/leccion-01-metodo.html',lec:33,maestro:1,graf:1,grupo:'Humanidades y Ciencias Sociales'},
+  {nom:'Economía y Economía, Emprendimiento y Actividad Empresarial',ico:'€',color:'#e4f1ee',url:'/educacion/economia/index.html',lec:26,maestro:1,graf:1,grupo:'Humanidades y Ciencias Sociales'},
   {nom:'Griego I',ico:'Ω',color:'#e7eef8',url:'/educacion/griego/index.html',lec:40,maestro:1,graf:1,grupo:'Humanidades y Ciencias Sociales'},
   {nom:'Matemáticas Generales',ico:'∫',color:'#e7eef8',url:'/educacion/mates-gen/index.html',lec:38,maestro:1,graf:1,grupo:'General'},
   {nom:'Inglés I',ico:'EN',color:'#e4f1ee',url:'/educacion/ingles/index.html',lec:40,maestro:1,graf:1,grupo:'Comunes'},
@@ -166,6 +168,7 @@ var EXTRA=[
  ]}
 ];
 var KEY='lv-profesor-curso';
+var primera=true;
 var main=document.getElementById('main');
 var tabC=document.getElementById('tab-cursos'), tabE=document.getElementById('tab-extra');
 function esc(s){return String(s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
@@ -185,9 +188,10 @@ function pintaCursos(id){
   document.body.setAttribute('data-vista','cursos');
   document.body.setAttribute('data-nivel',String(c.nivel));
   var h='<nav class="cursos" aria-label="Cursos">';
-  CURSOS.forEach(function(x){
+  // Primero los cursos con temario; los vacíos van después, pequeños.
+  CURSOS.filter(function(x){return x.materias.length;}).concat(CURSOS.filter(function(x){return !x.materias.length;})).forEach(function(x){
     var vacio=!x.materias.length;
-    h+='<button type="button" class="chip" data-curso="'+x.id+'" aria-pressed="'+(x.id===c.id)+'"'+(vacio?' disabled':'')+'>'+x.nom+(vacio?'<small>Sin temario todavía</small>':'<small>'+x.materias.length+' materias</small>')+'</button>';
+    h+='<button type="button" class="chip'+(vacio?' vacio':'')+'" data-curso="'+x.id+'" aria-pressed="'+(x.id===c.id)+'"'+(vacio?' disabled':'')+'>'+x.nom+(vacio?'<small>Sin temario todavía</small>':'<small>'+x.materias.length+' materias</small>')+'</button>';
   });
   h+='</nav>';
   var lec=0,mae=0; c.materias.forEach(function(m){lec+=m.lec;if(m.maestro)mae++;});
@@ -206,6 +210,9 @@ function pintaCursos(id){
   h+='<p class="pie">Funciona sin internet. Tu avance se queda en este aparato.</p>';
   main.innerHTML=h;
   try{localStorage.setItem(KEY,c.id);}catch(e){}
+  var sel=main.querySelector('.chip[aria-pressed="true"]');
+  if(sel){try{sel.scrollIntoView({inline:'center',block:'nearest',behavior:primera?'auto':'smooth'});}catch(e){sel.scrollIntoView();}}
+  primera=false;
   tabC.setAttribute('aria-selected','true');tabE.setAttribute('aria-selected','false');
 }
 function pintaExtra(){
