@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#ffffff">
+<meta name="referrer" content="no-referrer">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; connect-src 'none'; base-uri 'self'; form-action 'none'">
+<title>Profesor · Les vencimos</title>
+<!--
+  Profesor · hub por cursos (v20261018a, rama profesor-cursos).
+  Solo navegación: las lecciones, el modo Maestro y los gráficos siguen en
+  sus carpetas de siempre (/profesor/1eso-*, /educacion/<materia>/) sin tocar.
+  Extraescolares va aparte (Linux, Arduino, Raspberry, Robot, Oposiciones,
+  Conducir, Dibujo, Informática y El Profesor clásico).
+  Sin red, sin cookies: solo guarda en este aparato el último curso abierto.
+-->
+<style>
+:root{
+  --blanco:#ffffff; --fondo:#f6fbfa; --linea:#dcebe7; --tinta:#17323a; --suave:#5b7480;
+  --verde:#1f9d6b; --verde-2:#e3f5ec; --azul:#2563eb; --azul-2:#e6efff; --cielo:#0ea5e9; --cielo-2:#e2f5fd;
+  --menta:#14b8a6; --menta-2:#dff7f3; --sombra:0 6px 18px rgba(23,50,58,.08);
+  --radio:22px; --radio-chip:999px; --titulo:"Nunito","Varela Round","Trebuchet MS",system-ui,sans-serif;
+  --cuerpo:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+}
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%}
+body{background:var(--fondo);color:var(--tinta);font:16px/1.5 var(--cuerpo);-webkit-tap-highlight-color:transparent}
+a{color:inherit;text-decoration:none}
+.cab{position:sticky;top:0;z-index:5;background:var(--blanco);border-bottom:1px solid var(--linea);padding:calc(10px + env(safe-area-inset-top)) 16px 10px}
+.cab-fila{display:flex;align-items:center;gap:12px;max-width:1100px;margin:0 auto}
+.logo{width:40px;height:40px;border-radius:12px;display:grid;place-items:center;background:linear-gradient(135deg,var(--verde),var(--cielo));color:#fff;font-weight:800;font-size:1.2rem;flex:0 0 auto}
+.cab h1{margin:0;font:800 1.25rem/1.1 var(--titulo);letter-spacing:.01em}
+.cab p{margin:2px 0 0;color:var(--suave);font-size:.82rem}
+.volver{margin-left:auto;border:1px solid var(--linea);background:var(--blanco);border-radius:999px;padding:8px 14px;font:600 .85rem var(--cuerpo);color:var(--suave);cursor:pointer}
+.secciones{display:flex;gap:8px;max-width:1100px;margin:12px auto 0}
+.secciones button{flex:1;border:2px solid var(--linea);background:var(--blanco);border-radius:14px;padding:10px 12px;font:700 .95rem var(--cuerpo);color:var(--suave);cursor:pointer}
+.secciones button[aria-selected="true"]{border-color:var(--verde);background:var(--verde-2);color:#0f5e40}
+.secciones button.extra[aria-selected="true"]{border-color:var(--azul);background:var(--azul-2);color:#1d3f9a}
+main{max-width:1100px;margin:0 auto;padding:16px 16px calc(32px + env(safe-area-inset-bottom))}
+.cursos{display:flex;gap:8px;overflow-x:auto;padding:2px 2px 10px;scrollbar-width:none}
+.cursos::-webkit-scrollbar{display:none}
+.chip{flex:0 0 auto;border:2px solid var(--linea);background:var(--blanco);border-radius:var(--radio-chip);padding:8px 16px;font:700 .92rem var(--cuerpo);color:var(--tinta);cursor:pointer;white-space:nowrap}
+.chip small{display:block;font-weight:500;font-size:.68rem;color:var(--suave)}
+.chip[aria-pressed="true"]{border-color:var(--verde);background:var(--verde);color:#fff}
+.chip[aria-pressed="true"] small{color:#e8fff4}
+.chip:disabled{opacity:.5;cursor:default}
+.intro{margin:6px 0 16px;padding:16px 18px;border-radius:var(--radio);background:var(--blanco);border:1px solid var(--linea);box-shadow:var(--sombra)}
+.intro h2{margin:0 0 4px;font:800 1.5rem/1.2 var(--titulo)}
+.intro p{margin:0;color:var(--suave);font-size:.92rem}
+.cifras{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.cifra{border-radius:999px;padding:4px 12px;font-size:.8rem;font-weight:700;background:var(--verde-2);color:#0f5e40}
+.cifra.azul{background:var(--azul-2);color:#1d3f9a}
+.rejilla{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:12px}
+.tarjeta{display:flex;gap:12px;align-items:flex-start;background:var(--blanco);border:1px solid var(--linea);border-radius:var(--radio);padding:14px;box-shadow:var(--sombra);transition:transform .12s ease,border-color .12s}
+.tarjeta:active{transform:scale(.98)}
+.tarjeta:hover{border-color:var(--verde)}
+.ico{flex:0 0 auto;width:52px;height:52px;border-radius:16px;display:grid;place-items:center;font-size:1.6rem}
+.t-cuerpo{min-width:0}
+.t-cuerpo h3{margin:0;font:800 1.02rem/1.25 var(--titulo)}
+.t-cuerpo p{margin:3px 0 6px;color:var(--suave);font-size:.84rem}
+.sellos{display:flex;flex-wrap:wrap;gap:5px}
+.sello{font-size:.7rem;font-weight:700;border-radius:999px;padding:2px 8px;background:var(--fondo);border:1px solid var(--linea);color:var(--suave)}
+.sello.maestro{background:var(--verde-2);border-color:#bfe7d3;color:#0f5e40}
+.sello.graf{background:var(--cielo-2);border-color:#bfe6f8;color:#0b5f86}
+.vacio{padding:28px;text-align:center;color:var(--suave);background:var(--blanco);border:2px dashed var(--linea);border-radius:var(--radio)}
+.grupo{margin:22px 0 10px;font:800 .78rem var(--cuerpo);letter-spacing:.08em;text-transform:uppercase;color:var(--suave)}
+.pie{margin-top:26px;color:var(--suave);font-size:.78rem;text-align:center}
+
+/* ── Formalidad progresiva: ESO alegre y redondeado → Bach sobrio ── */
+body[data-nivel="1"] .ico{border-radius:50%}
+body[data-nivel="1"] .tarjeta{border-width:2px}
+body[data-nivel="2"]{--radio:20px}
+body[data-nivel="3"]{--radio:17px}
+body[data-nivel="4"]{--radio:14px}
+body[data-nivel="5"],body[data-nivel="6"]{
+  --radio:8px; --radio-chip:8px; --fondo:#f7f9fb; --linea:#d9e2ea; --tinta:#13283d; --suave:#566a7d;
+  --verde:#1d6f5f; --verde-2:#e4f1ee; --azul:#1e4f8f; --azul-2:#e7eef8; --sombra:0 2px 8px rgba(19,40,61,.06);
+  --titulo:Georgia,"Times New Roman",serif;
+}
+body[data-nivel="5"] .ico,body[data-nivel="6"] .ico{font-size:1.25rem;border-radius:6px;filter:saturate(.55)}
+body[data-nivel="5"] .t-cuerpo h3,body[data-nivel="6"] .t-cuerpo h3{font-weight:700;letter-spacing:.005em}
+body[data-nivel="5"] .intro h2,body[data-nivel="6"] .intro h2{font-weight:700}
+body[data-nivel="5"] .tarjeta:active{transform:none}
+body[data-vista="extra"]{--verde:#2563eb;--verde-2:#e6efff;--radio:16px}
+body[data-vista="extra"] .tarjeta:hover{border-color:var(--azul)}
+@media (min-width:860px){.rejilla{grid-template-columns:repeat(3,1fr)}.cab h1{font-size:1.45rem}}
+@media (prefers-reduced-motion:reduce){.tarjeta{transition:none}}
+</style>
+</head>
+<body data-nivel="1" data-vista="cursos">
+<header class="cab">
+  <div class="cab-fila">
+    <div class="logo" aria-hidden="true">P</div>
+    <div><h1>Profesor</h1><p>Temario oficial por cursos · sin internet</p></div>
+    <button class="volver" type="button" id="volver" hidden>Volver</button>
+  </div>
+  <div class="secciones" role="tablist" aria-label="Secciones">
+    <button type="button" role="tab" id="tab-cursos" aria-selected="true">Cursos</button>
+    <button type="button" role="tab" id="tab-extra" class="extra" aria-selected="false">Extraescolares</button>
+  </div>
+</header>
+<main id="main" aria-live="polite"></main>
+<script>
+(function(){
+'use strict';
+/* Rutas absolutas: en la web van tal cual; en la app Completo el cascarón
+   sirve /profesor/** desde educacion/**, y /educacion/** y /modulos/** locales. */
+var CURSOS=[
+ {id:'1eso',nom:'1º ESO',nivel:1,etapa:'Educación Secundaria Obligatoria',nota:'Currículo oficial de Castilla y León (LOMLOE, Decreto 39/2022).',materias:[
+  {nom:'Matemáticas',ico:'➗',color:'#e6efff',url:'/profesor/1eso-matematicas/1eso-matematicas.html',lec:47,maestro:1,graf:1},
+  {nom:'Lengua Castellana y Literatura',ico:'📖',color:'#e3f5ec',url:'/profesor/1eso-lengua-castellana/1eso-lengua-castellana.html',lec:40,maestro:1,graf:1},
+  {nom:'Biología y Geología',ico:'🌱',color:'#dff7f3',url:'/profesor/1eso-biologia-geologia/1eso-biologia-geologia.html',lec:40,maestro:1,graf:1},
+  {nom:'Geografía e Historia',ico:'🗺️',color:'#e2f5fd',url:'/profesor/1eso-geografia-historia/1eso-geografia-historia.html',lec:36,maestro:1,graf:1},
+  {nom:'Inglés',ico:'🇬🇧',color:'#e6efff',url:'/profesor/1eso-ingles/1eso-ingles.html',lec:40,maestro:1,graf:1},
+  {nom:'Francés',ico:'🇫🇷',color:'#e2f5fd',url:'/profesor/1eso-frances/1eso-frances.html',lec:40,maestro:1,graf:1},
+  {nom:'Educación Plástica, Visual y Audiovisual',ico:'🎨',color:'#fff3e0',url:'/profesor/1eso-plastica-visual/1eso-plastica-visual.html',lec:31,maestro:1,graf:1},
+  {nom:'Educación Física',ico:'🏃',color:'#e3f5ec',url:'/profesor/1eso-educacion-fisica/1eso-educacion-fisica.html',lec:32,maestro:1,graf:1},
+  {nom:'Religión Católica',ico:'⛪',color:'#f3eefc',url:'/profesor/1eso-religion/1eso-religion.html',lec:30,maestro:1,graf:0,extra:'Confesional'},
+  {nom:'Atención educativa (alternativa a Religión)',ico:'🤝',color:'#dff7f3',url:'/profesor/1eso-alternativa-religion/1eso-alternativa-religion.html',lec:28,maestro:1,graf:1,extra:'Laica'}
+ ]},
+ {id:'2eso',nom:'2º ESO',nivel:2,materias:[]},
+ {id:'3eso',nom:'3º ESO',nivel:3,materias:[]},
+ {id:'4eso',nom:'4º ESO',nivel:4,materias:[]},
+ {id:'1bach',nom:'1º Bach',nivel:5,etapa:'Bachillerato',nota:'Currículo oficial de Castilla y León. Modalidades de Ciencias, Humanidades y CC. Sociales.',materias:[
+  {nom:'Matemáticas I',ico:'∑',color:'#e7eef8',url:'/educacion/mates-i/index.html',lec:48,maestro:1,graf:1,grupo:'Ciencias y Tecnología'},
+  {nom:'Física y Química',ico:'⚛',color:'#e4f1ee',url:'/educacion/fyq/index.html',lec:23,maestro:1,graf:1,grupo:'Ciencias y Tecnología'},
+  {nom:'Biología, Geología y Ciencias Ambientales',ico:'🧬',color:'#e4f1ee',url:'/educacion/bgca/index.html',lec:45,maestro:1,graf:1,grupo:'Ciencias y Tecnología'},
+  {nom:'Dibujo Técnico I',ico:'📐',color:'#e7eef8',url:'/educacion/dibujo-tec/index.html',lec:31,maestro:0,graf:1,grupo:'Ciencias y Tecnología'},
+  {nom:'Tecnologías de la Información y la Comunicación I',ico:'💻',color:'#e7eef8',url:'/educacion/tic/index.html',lec:32,maestro:0,graf:1,grupo:'Ciencias y Tecnología'},
+  {nom:'Matemáticas Aplicadas a las CC. Sociales I',ico:'📊',color:'#e7eef8',url:'/educacion/mates-ccs/lecciones/leccion-01-metodo.html',lec:33,maestro:0,graf:1,grupo:'Humanidades y Ciencias Sociales'},
+  {nom:'Economía y Economía, Emprendimiento y Actividad Empresarial',ico:'€',color:'#e4f1ee',url:'/educacion/economia/index.html',lec:26,maestro:0,graf:1,grupo:'Humanidades y Ciencias Sociales'},
+  {nom:'Griego I',ico:'Ω',color:'#e7eef8',url:'/educacion/griego/index.html',lec:40,maestro:1,graf:1,grupo:'Humanidades y Ciencias Sociales'},
+  {nom:'Matemáticas Generales',ico:'∫',color:'#e7eef8',url:'/educacion/mates-gen/index.html',lec:38,maestro:1,graf:1,grupo:'General'},
+  {nom:'Inglés I',ico:'EN',color:'#e4f1ee',url:'/educacion/ingles/index.html',lec:40,maestro:1,graf:1,grupo:'Comunes'},
+  {nom:'Educación Física',ico:'🏃',color:'#e4f1ee',url:'/educacion/edfisica/index.html',lec:32,maestro:1,graf:1,grupo:'Comunes'}
+ ]},
+ {id:'2bach',nom:'2º Bach',nivel:6,materias:[]}
+];
+var EXTRA=[
+ {grupo:'Tecnología',items:[
+  {nom:'Linux Essentials',ico:'🐧',color:'#fff7e0',url:'/profesor/linux-essentials/linux-essentials.html',txt:'Piloto · temario LPI 010-160'},
+  {nom:'Arduino · Enseñanza',ico:'🔌',color:'#e2f5fd',url:'/modulos/arduino/arduino-ensenanza.html',txt:'Lecciones con modo Maestro'},
+  {nom:'Arduino · Hardware',ico:'🔧',color:'#e2f5fd',url:'/modulos/arduino/arduino-hardware.html',txt:'Placas, sensores y módulos'},
+  {nom:'Arduino · Software',ico:'⌨️',color:'#e2f5fd',url:'/modulos/arduino/arduino-software.html',txt:'IDE, librerías y código'},
+  {nom:'Arduino · Proyectos',ico:'🛠️',color:'#e2f5fd',url:'/modulos/arduino/arduino-proyectos.html',txt:'Montajes paso a paso'},
+  {nom:'Raspberry Pi · Enseñanza',ico:'🍓',color:'#fde8ee',url:'/modulos/raspberry/raspberry-ensenanza.html',txt:'Curso con modo Maestro'},
+  {nom:'Raspberry Pi · Hardware',ico:'🔩',color:'#fde8ee',url:'/modulos/raspberry/raspberry-hardware.html',txt:'Modelos, GPIO y accesorios'},
+  {nom:'Raspberry Pi · Software',ico:'🖥️',color:'#fde8ee',url:'/modulos/raspberry/raspberry-software.html',txt:'Sistema y programas'},
+  {nom:'Raspberry Pi · Proyectos',ico:'📦',color:'#fde8ee',url:'/modulos/raspberry/raspberry-proyectos.html',txt:'Montajes completos'},
+  {nom:'Robot humanoide · Enseñanza',ico:'🤖',color:'#e6efff',url:'/modulos/robot/robot-ensenanza.html',txt:'Montaje y lecciones'},
+  {nom:'Robot · Electrónica',ico:'⚡',color:'#e6efff',url:'/modulos/robot/robot-electronica.html',txt:'Servos, placas y alimentación'},
+  {nom:'Robot · Control',ico:'🎮',color:'#e6efff',url:'/modulos/robot/robot-control.html',txt:'Movimiento y programación'},
+  {nom:'Robot · Diseño',ico:'📏',color:'#e6efff',url:'/modulos/robot/robot-diseno.html',txt:'Piezas y estructura'},
+  {nom:'Informática',ico:'🧭',color:'#e3f5ec',url:'/modulos/informatica.html',txt:'Cultura general informática'}
+ ]},
+ {grupo:'Oposiciones y permisos',items:[
+  {nom:'Oposiciones',ico:'🏛️',color:'#e7eef8',url:'/modulos/oposiciones.html',txt:'Hub de oposiciones'},
+  {nom:'Policía Nacional · Escala Básica',ico:'🛡️',color:'#e7eef8',url:'/modulos/oposiciones/policia-nacional.html',txt:'Temario oficial (BOE)'},
+  {nom:'Conducir',ico:'🚗',color:'#e3f5ec',url:'/modulos/conducir.html',txt:'Permiso B'},
+  {nom:'Test permiso B',ico:'✅',color:'#e3f5ec',url:'/modulos/conducir/test.html',txt:'Preguntas tipo DGT'}
+ ]},
+ {grupo:'Arte y cultura general',items:[
+  {nom:'Curso de dibujo',ico:'✏️',color:'#fff3e0',url:'/modulos/curso-dibujo.html',txt:'Itinerario · 54 lecciones'},
+  {nom:'El Profesor clásico',ico:'🎓',color:'#f3eefc',url:'/educacion/profesor-clasico.html',txt:'37 cursos de cultura general · 269 lecciones'}
+ ]}
+];
+var KEY='lv-profesor-curso';
+var main=document.getElementById('main');
+var tabC=document.getElementById('tab-cursos'), tabE=document.getElementById('tab-extra');
+function esc(s){return String(s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
+// App Completo: los 1º ESO van planos en educacion/1eso-X/index.html
+var EN_APP=location.hostname==='appassets.androidplatform.net';
+function destino(u){
+  if(EN_APP){var m=/^\/profesor\/(1eso-[a-z-]+)\/\1\.html$/.exec(u);if(m)return '/educacion/'+m[1]+'/index.html';}
+  return u;
+}
+function tarjeta(m,txt,sellos){
+  return '<a class="tarjeta" href="'+esc(destino(m.url))+'"><span class="ico" style="background:'+m.color+'" aria-hidden="true">'+m.ico+'</span>'
+   +'<span class="t-cuerpo"><h3>'+esc(m.nom)+'</h3><p>'+esc(txt)+'</p>'+(sellos?'<span class="sellos">'+sellos+'</span>':'')+'</span></a>';
+}
+function pintaCursos(id){
+  var c=CURSOS.filter(function(x){return x.id===id;})[0]||CURSOS[0];
+  if(!c.materias.length) c=CURSOS[0];
+  document.body.setAttribute('data-vista','cursos');
+  document.body.setAttribute('data-nivel',String(c.nivel));
+  var h='<nav class="cursos" aria-label="Cursos">';
+  CURSOS.forEach(function(x){
+    var vacio=!x.materias.length;
+    h+='<button type="button" class="chip" data-curso="'+x.id+'" aria-pressed="'+(x.id===c.id)+'"'+(vacio?' disabled':'')+'>'+x.nom+(vacio?'<small>Sin temario todavía</small>':'<small>'+x.materias.length+' materias</small>')+'</button>';
+  });
+  h+='</nav>';
+  var lec=0,mae=0; c.materias.forEach(function(m){lec+=m.lec;if(m.maestro)mae++;});
+  h+='<section class="intro"><h2>'+c.nom+'</h2><p>'+esc(c.etapa)+'. '+esc(c.nota)+'</p><div class="cifras"><span class="cifra">'+c.materias.length+' materias</span><span class="cifra azul">'+lec+' lecciones</span><span class="cifra">'+mae+' con modo Maestro</span></div></section>';
+  var grupos=[],porG={};
+  c.materias.forEach(function(m){var g=m.grupo||'';if(!porG[g]){porG[g]=[];grupos.push(g);}porG[g].push(m);});
+  grupos.forEach(function(g){
+    if(g) h+='<h3 class="grupo">'+esc(g)+'</h3>';
+    h+='<div class="rejilla">';
+    porG[g].forEach(function(m){
+      var s=(m.maestro?'<span class="sello maestro">Modo Maestro</span>':'')+(m.graf?'<span class="sello graf">Gráficos</span>':'')+(m.extra?'<span class="sello">'+esc(m.extra)+'</span>':'');
+      h+=tarjeta(m,m.lec+' lecciones',s);
+    });
+    h+='</div>';
+  });
+  h+='<p class="pie">Funciona sin internet. Tu avance se queda en este aparato.</p>';
+  main.innerHTML=h;
+  try{localStorage.setItem(KEY,c.id);}catch(e){}
+  tabC.setAttribute('aria-selected','true');tabE.setAttribute('aria-selected','false');
+}
+function pintaExtra(){
+  document.body.setAttribute('data-vista','extra');
+  document.body.setAttribute('data-nivel','3');
+  var h='<section class="intro"><h2>Extraescolares</h2><p>Lo que no es del currículo escolar: tecnología, oposiciones, carné de conducir, dibujo y cultura general. Aparte de los cursos.</p></section>';
+  EXTRA.forEach(function(g){
+    h+='<h3 class="grupo">'+esc(g.grupo)+'</h3><div class="rejilla">';
+    g.items.forEach(function(m){h+=tarjeta(m,m.txt,'');});
+    h+='</div>';
+  });
+  h+='<p class="pie">Funciona sin internet.</p>';
+  main.innerHTML=h;
+  tabE.setAttribute('aria-selected','true');tabC.setAttribute('aria-selected','false');
+}
+function ruta(){
+  var h=(location.hash||'').replace('#','');
+  if(h==='extraescolares'){pintaExtra();return;}
+  var guardado=null;try{guardado=localStorage.getItem(KEY);}catch(e){}
+  pintaCursos(h||guardado||'1eso');
+}
+main.addEventListener('click',function(ev){
+  var b=ev.target.closest&&ev.target.closest('[data-curso]');
+  if(b&&!b.disabled){location.hash=b.getAttribute('data-curso');}
+});
+tabC.addEventListener('click',function(){var g=null;try{g=localStorage.getItem(KEY);}catch(e){}location.hash=g||'1eso';});
+tabE.addEventListener('click',function(){location.hash='extraescolares';});
+var volver=document.getElementById('volver');
+if(history.length>1){volver.hidden=false;volver.addEventListener('click',function(){history.back();});}
+window.addEventListener('hashchange',ruta);
+ruta();
+})();
+</script>
+</body>
+</html>

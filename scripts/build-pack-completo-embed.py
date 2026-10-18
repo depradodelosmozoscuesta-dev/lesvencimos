@@ -574,8 +574,8 @@ def sync_live_educacion_bach(staging: Path) -> None:
             shutil.rmtree(dst)
         shutil.copytree(src, dst, ignore=shutil.ignore_patterns("__pycache__", "*.pyc", "_gen"))
         print(f"  synced educacion/{name}/")
-    # Profesor hub if present live
-    for hub in ("Profesor.html",):
+    # Profesor hub por cursos (v20261018a) + El Profesor clásico (Extraescolares)
+    for hub in ("Profesor.html", "profesor-clasico.html"):
         sp = src_root / hub
         if sp.is_file():
             shutil.copy2(sp, dst_root / hub)
