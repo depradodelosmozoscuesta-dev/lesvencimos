@@ -188,6 +188,7 @@ table.historial th,table.historial td{text-align:left;padding:8px 6px;border-bot
     <div class="campo"><label for="c-persona">Nombre de la persona (para saludarla)</label><input id="c-persona" autocomplete="off" placeholder="Ej. Carmen"></div>
     <div class="campo"><label for="c-pin">PIN del cuidador (4 a 8 números)</label><input id="c-pin" inputmode="numeric" autocomplete="off" placeholder="Ej. 2580"></div>
     <div class="campo"><label for="c-pin2">Repite el PIN</label><input id="c-pin2" inputmode="numeric" autocomplete="off"></div>
+    <div class="campo oculto" id="c-codigo-campo"><label for="c-codigo">Código de la central (sale en la pantalla del ordenador donde funciona el servidor)</label><input id="c-codigo" inputmode="numeric" autocomplete="off" placeholder="Ej. 123456"></div>
     <p class="error" id="c-error"></p>
     <button class="btn primario" id="c-guardar">Guardar y seguir</button>
   </div>
@@ -222,7 +223,7 @@ table.historial th,table.historial td{text-align:left;padding:8px 6px;border-bot
 <!-- Panel del cuidador -->
 <div id="cuidador" class="capa oculto">
   <div class="caja">
-    <div class="fila" style="justify-content:space-between"><h1 style="margin:0">Cuidador</h1><button class="btn" id="k-salir">← Volver a la pantalla</button></div>
+    <div class="fila" style="justify-content:space-between"><h1 style="margin:0">Cuidador</h1><div class="fila"><a class="btn oculto" id="k-salida" style="display:inline-flex;align-items:center;text-decoration:none;color:inherit"></a><button class="btn" id="k-salir">← Volver a la pantalla</button></div></div>
     <div class="pestanas" role="tablist">
       <button data-p="meds" class="activa">Medicinas</button>
       <button data-p="historial">Historial</button>
@@ -363,6 +364,108 @@ function horaHablada(d){   // «son las 8 y 5», «es la 1 en punto»
   return base + (m===0 ? ' en punto' : ' y '+m);
 }
 
+/* ════════ PIN con hash (PBKDF2-SHA256 con sal). Nunca se guarda el PIN en claro. ════════
+   Usa WebCrypto si está disponible y, si no (http:// en la red de casa, navegadores viejos),
+   el mismo cálculo en JavaScript: el resultado es idéntico. */
+var LVPin = (function(){
+  var K=[0x428a2f98,0x71374491,0xb5c0fbcf,0xe9b5dba5,0x3956c25b,0x59f111f1,0x923f82a4,0xab1c5ed5,0xd807aa98,0x12835b01,0x243185be,0x550c7dc3,0x72be5d74,0x80deb1fe,0x9bdc06a7,0xc19bf174,0xe49b69c1,0xefbe4786,0x0fc19dc6,0x240ca1cc,0x2de92c6f,0x4a7484aa,0x5cb0a9dc,0x76f988da,0x983e5152,0xa831c66d,0xb00327c8,0xbf597fc7,0xc6e00bf3,0xd5a79147,0x06ca6351,0x14292967,0x27b70a85,0x2e1b2138,0x4d2c6dfc,0x53380d13,0x650a7354,0x766a0abb,0x81c2c92e,0x92722c85,0xa2bfe8a1,0xa81a664b,0xc24b8b70,0xc76c51a3,0xd192e819,0xd6990624,0xf40e3585,0x106aa070,0x19a4c116,0x1e376c08,0x2748774c,0x34b0bcb5,0x391c0cb3,0x4ed8aa4a,0x5b9cca4f,0x682e6ff3,0x748f82ee,0x78a5636f,0x84c87814,0x8cc70208,0x90befffa,0xa4506ceb,0xbef9a3f7,0xc67178f2];
+  var H0=[0x6a09e667,0xbb67ae85,0x3c6ef372,0xa54ff53a,0x510e527f,0x9b05688c,0x1f83d9ab,0x5be0cd19];
+  var W=new Array(64);
+  function bloque(h, b, o){   // comprime un bloque de 64 bytes (b desde o) sobre el estado h
+    var i,t1,t2,a=h[0],c1=h[1],c=h[2],d=h[3],e=h[4],f=h[5],g=h[6],hh=h[7];
+    for(i=0;i<16;i++) W[i]=(b[o+4*i]<<24)|(b[o+4*i+1]<<16)|(b[o+4*i+2]<<8)|b[o+4*i+3];
+    for(i=16;i<64;i++){
+      var x=W[i-15], y=W[i-2];
+      var s0=((x>>>7)|(x<<25))^((x>>>18)|(x<<14))^(x>>>3);
+      var s1=((y>>>17)|(y<<15))^((y>>>19)|(y<<13))^(y>>>10);
+      W[i]=(W[i-16]+s0+W[i-7]+s1)|0;
+    }
+    for(i=0;i<64;i++){
+      t1=(hh+(((e>>>6)|(e<<26))^((e>>>11)|(e<<21))^((e>>>25)|(e<<7)))+((e&f)^(~e&g))+K[i]+W[i])|0;
+      t2=((((a>>>2)|(a<<30))^((a>>>13)|(a<<19))^((a>>>22)|(a<<10)))+((a&c1)^(a&c)^(c1&c)))|0;
+      hh=g; g=f; f=e; e=(d+t1)|0; d=c; c=c1; c1=a; a=(t1+t2)|0;
+    }
+    h[0]=(h[0]+a)|0; h[1]=(h[1]+c1)|0; h[2]=(h[2]+c)|0; h[3]=(h[3]+d)|0;
+    h[4]=(h[4]+e)|0; h[5]=(h[5]+f)|0; h[6]=(h[6]+g)|0; h[7]=(h[7]+hh)|0;
+  }
+  function sha(h, msg, yaHechos){   // termina un SHA-256 cuyo estado h ya lleva yaHechos bytes
+    var n=msg.length, total=n+yaHechos, largo=((n+9+63)>>6)<<6, b=new Uint8Array(largo), i;
+    b.set(msg); b[n]=0x80;
+    var bits=total*8; b[largo-4]=(bits>>>24)&255; b[largo-3]=(bits>>>16)&255; b[largo-2]=(bits>>>8)&255; b[largo-1]=bits&255;
+    b[largo-5]=Math.floor(total/536870912)&255;
+    for(i=0;i<largo;i+=64) bloque(h,b,i);
+    var out=new Uint8Array(32);
+    for(i=0;i<8;i++){ out[4*i]=h[i]>>>24; out[4*i+1]=(h[i]>>>16)&255; out[4*i+2]=(h[i]>>>8)&255; out[4*i+3]=h[i]&255; }
+    return out;
+  }
+  function pbkdf2JS(clave, sal, iter){   // PBKDF2-HMAC-SHA256, 32 bytes
+    var k=clave; if(k.length>64) k=sha(H0.slice(), k, 0);
+    var ip=new Uint8Array(64), op=new Uint8Array(64), i, j;
+    for(i=0;i<64;i++){ ip[i]=(k[i]||0)^0x36; op[i]=(k[i]||0)^0x5c; }
+    var hi=H0.slice(); bloque(hi,ip,0); var ho=H0.slice(); bloque(ho,op,0);
+    function hmac(m){ return sha(ho.slice(), sha(hi.slice(), m, 64), 64); }
+    var m1=new Uint8Array(sal.length+4); m1.set(sal); m1[sal.length+3]=1;
+    var u=hmac(m1), t=u.slice();
+    for(i=1;i<iter;i++){ u=hmac(u); for(j=0;j<32;j++) t[j]^=u[j]; }
+    return t;
+  }
+  function utf8(s){ s=unescape(encodeURIComponent(String(s))); var b=new Uint8Array(s.length); for(var i=0;i<s.length;i++) b[i]=s.charCodeAt(i); return b; }
+  function hex(b){ var s=''; for(var i=0;i<b.length;i++) s+=(b[i]<16?'0':'')+b[i].toString(16); return s; }
+  function deHex(s){ var b=new Uint8Array(s.length>>1); for(var i=0;i<b.length;i++) b[i]=parseInt(s.substr(2*i,2),16); return b; }
+  function derivar(pin, sal, iter){
+    var sub = window.crypto && window.crypto.subtle;
+    var js = function(){ return Promise.resolve(pbkdf2JS(utf8(pin), sal, iter)); };
+    if(!sub) return js();
+    try{
+      return sub.importKey('raw', utf8(pin), 'PBKDF2', false, ['deriveBits'])
+        .then(function(k){ return sub.deriveBits({name:'PBKDF2', salt:sal, iterations:iter, hash:'SHA-256'}, k, 256); })
+        .then(function(bits){ return new Uint8Array(bits); }, js);
+    }catch(e){ return js(); }
+  }
+  var ITER=20000;
+  function crear(pin){   // → Promise<'pbkdf2-sha256$iter$salHex$hashHex'>
+    var sal=new Uint8Array(16);
+    if(window.crypto && window.crypto.getRandomValues) window.crypto.getRandomValues(sal);
+    else for(var i=0;i<16;i++) sal[i]=Math.floor(Math.random()*256);
+    return derivar(pin, sal, ITER).then(function(h){ return 'pbkdf2-sha256$'+ITER+'$'+hex(sal)+'$'+hex(h); });
+  }
+  function comprobar(pin, guardado){   // → Promise<bool>, comparación sin atajos
+    var p=String(guardado||'').split('$');
+    if(p.length!==4 || p[0]!=='pbkdf2-sha256' || !(+p[1]>0)) return Promise.resolve(false);
+    return derivar(pin, deHex(p[2]), +p[1]).then(function(h){
+      var a=hex(h), b=p[3], dif=a.length^b.length;
+      for(var i=0;i<a.length;i++) dif|=a.charCodeAt(i)^(b.charCodeAt(i)|0);
+      return dif===0;
+    });
+  }
+  /* Intentos fallidos: tras 5 seguidos, espera creciente (30 s, 1 min, 2 min… hasta 5 min) */
+  function bloqueo(clave){
+    function leer(){ try{ return JSON.parse(localStorage.getItem(clave)||'{}')||{}; }catch(e){ return {}; } }
+    return {
+      espera: function(){ var b=leer(); return Math.max(0, Math.ceil(((b.hasta||0)-Date.now())/1000)); },
+      fallo: function(){ var b=leer(); b.fallos=(b.fallos||0)+1;
+        if(b.fallos>=5) b.hasta=Date.now()+Math.min(300, 30*Math.pow(2,b.fallos-5))*1000;
+        try{ localStorage.setItem(clave, JSON.stringify(b)); }catch(e){} },
+      acierto: function(){ try{ localStorage.removeItem(clave); }catch(e){} }
+    };
+  }
+  return { crear:crear, comprobar:comprobar, bloqueo:bloqueo, _pbkdf2JS:pbkdf2JS, _utf8:utf8, _hex:hex };
+})();
+
+/* Fotos: solo imágenes guardadas dentro (data:image) o archivos locales relativos. Nada de
+   javascript:, http(s):// ni rutas absolutas: la pantalla de la persona no carga nada de fuera. */
+function fotoSegura(s){
+  if(typeof s!=='string' || !s || s.length>3000000) return null;
+  if(/^data:image\/(png|jpeg|webp|gif);base64,[A-Za-z0-9+\/]+={0,2}$/.test(s)) return s;
+  if(/^(?![\/\\])(?!.*\.\.)[^:?#\\<>"'\s]+\.(png|jpe?g|webp|gif)$/i.test(s)) return s;
+  return null;
+}
+/* Teléfonos de tarificación especial: llamar cuesta dinero. */
+function telLimpio(t){ var d=String(t||'').replace(/[^\d+]/g,''); if(d.indexOf('+34')===0) d=d.slice(3); else if(d.indexOf('0034')===0) d=d.slice(4); return d; }
+function telDePago(t){ return /^(803|806|807|905|907|118)/.test(telLimpio(t)); }       // tarificación adicional y 118xx
+function telDudoso(t){ var d=String(t||'').replace(/[^\d+]/g,''); return /^(901|902)/.test(telLimpio(t)) || (/^(\+|00)/.test(d) && !/^(\+34|0034)/.test(d)); }
+var AVISO_PAGO = 'Ese número es de tarificación especial (803, 806, 807, 905, 118…): llamar cuesta dinero. No se puede poner como contacto.';
+
 /* ════════ Datos ════════ */
 var CONFIG_BASE = {
   persona:'', meds:[], avisos:[], contactos:[],
@@ -370,7 +473,9 @@ var CONFIG_BASE = {
   ventana:{ antes:30, despues:120 }, repetirMin:5, creado:''
 };
 var estado = { version:0, config:null, tomas:{} };  // config sin PIN
-var pinLocal = null;                                  // solo en modo local
+var pinHashLocal = null;                              // solo en modo local: hash del PIN, nunca el PIN
+var pinAntiguo = null;                                // PIN en claro de versiones anteriores: se convierte al arrancar
+var bloqueoPin = LVPin.bloqueo('midia-pin-intentos');
 var modo = 'local';                                   // 'local' | 'red'
 var red = { ok:false, fallos:0 };
 var aparato = leerLS('midia-aparato', null);          // {rol, sala, sonido, voz}
@@ -383,6 +488,8 @@ function completarConfig(c){
   var r = JSON.parse(JSON.stringify(CONFIG_BASE));
   if(!c) return r;
   for(var k in c) r[k]=c[k];
+  r.meds = (Array.isArray(c.meds)?c.meds:[]).filter(function(m){ return m && typeof m==='object'; })
+    .map(function(m){ return Object.assign({}, m, {foto:fotoSegura(m.foto)}); });
   r.noche = Object.assign({}, CONFIG_BASE.noche, c.noche||{});
   r.ventana = Object.assign({}, CONFIG_BASE.ventana, c.ventana||{});
   return r;
@@ -391,11 +498,16 @@ function completarConfig(c){
 /* Guardado local (un solo aparato, sin red) */
 function cargarLocal(){
   var d = leerLS(LS_DATOS, null);
-  if(d && d.config){ estado.config=completarConfig(d.config); estado.tomas=d.tomas||{}; pinLocal=d.pin||null; }
+  if(d && d.config){ estado.config=completarConfig(d.config); estado.tomas=d.tomas||{}; pinHashLocal=d.pinHash||null;
+    if(!pinHashLocal && d.pin) pinAntiguo=String(d.pin); }
+}
+function migrarPinAntiguo(){   // versiones anteriores guardaban el PIN tal cual: se cambia por su hash, mismo PIN
+  if(!pinAntiguo) return Promise.resolve();
+  return LVPin.crear(pinAntiguo).then(function(h){ pinHashLocal=h; pinAntiguo=null; guardarLocal(); });
 }
 function guardarLocal(){
   cambios++;
-  if(!escribirLS(LS_DATOS, {config:estado.config, tomas:estado.tomas, pin:pinLocal}))
+  if(!escribirLS(LS_DATOS, {config:estado.config, tomas:estado.tomas, pinHash:pinHashLocal}))
     toast('No se ha podido guardar en este aparato');
 }
 
@@ -415,6 +527,7 @@ function aplicarRemoto(j){
   if(!j || j.version===undefined) return;
   cambios++;
   estado.version=j.version; estado.config=j.config?completarConfig(j.config):null; estado.tomas=j.tomas||{};
+  estado.necesitaCodigo=!!j.necesitaCodigo;
   escribirLS(LS_DATOS+'-cache', j);   // por si se va la red, seguimos viendo lo último
 }
 function sondear(){
@@ -460,12 +573,17 @@ function deshacerToma(clave){
 }
 function guardarConfig(nueva, pin, nuevoPin){
   if(modo==='local'){
-    estado.config=nueva; if(nuevoPin) pinLocal=nuevoPin; guardarLocal(); pintarTodo(); return Promise.resolve();
+    return (nuevoPin ? LVPin.crear(nuevoPin) : Promise.resolve(pinHashLocal)).then(function(h){
+      pinHashLocal=h; estado.config=completarConfig(nueva); guardarLocal(); pintarTodo(); });
   }
   return api('config', {pin:pin, nuevoPin:nuevoPin||null, config:nueva}).then(function(j){ aplicarRemoto(j); pintarTodo(); });
 }
 function comprobarPin(pin){
-  if(modo==='local') return Promise.resolve(pin===pinLocal);
+  if(modo==='local'){
+    var espera=bloqueoPin.espera();
+    if(espera) return Promise.reject(Object.assign(new Error('bloqueado'),{respuesta:{error:'bloqueado',espera:espera}}));
+    return LVPin.comprobar(pin, pinHashLocal).then(function(ok){ if(ok) bloqueoPin.acierto(); else bloqueoPin.fallo(); return ok; });
+  }
   return api('pin', {pin:pin}).then(function(j){ return !!j.ok; });
 }
 function reemplazarTodo(copia, pin){
@@ -609,7 +727,8 @@ function tarjetaPastillas(toca, pronto, tomadasRecientes, ahora){
 }
 function filaMed(d, conBoton){
   // Sin foto no se pone dibujo: un dibujo de pastilla de otro color confundiría.
-  var foto = d.med.foto ? el('img',{src:d.med.foto, alt:'Foto de '+d.med.nombre}) : null;
+  var fs = fotoSegura(d.med.foto);
+  var foto = fs ? el('img',{src:fs, alt:'Foto de '+d.med.nombre}) : null;
   var txt = el('div',null,[
     el('div',{clase:'nombre',texto:d.med.nombre+(d.med.dosis?' · '+d.med.dosis:'')}),
     el('div',{clase:'detalle',texto:[ 'A las '+d.hora, d.med.aspecto, d.med.nota ].filter(Boolean).join(' · ')})
@@ -648,10 +767,11 @@ function pintarAvisos(ahora){
 }
 function pintarContactos(){
   var caja=$('v-contactos-caja'), cont=$('v-contactos'); cont.innerHTML='';
-  var ver = aparato && aparato.rol==='movil' && (estado.config.contactos||[]).length;
+  var lista = (estado.config.contactos||[]).filter(function(c){ return c && c.tel && !telDePago(c.tel); });
+  var ver = aparato && aparato.rol==='movil' && lista.length;
   caja.classList.toggle('oculto', !ver);
   if(!ver) return;
-  estado.config.contactos.forEach(function(c){
+  lista.forEach(function(c){
     cont.appendChild(el('a',{href:'tel:'+c.tel.replace(/[^\d+]/g,'')},['📞 ', c.nombre]));
   });
 }
@@ -711,8 +831,9 @@ function mantenerEncendida(){
 }
 document.addEventListener('visibilitychange', function(){ if(document.visibilityState==='visible'){ mantenerEncendida(); sondear(); pintarTodo(); } });
 
+function textoEspera(e){ var s=(e&&e.respuesta&&e.respuesta.espera)||60; return 'Demasiados intentos. Espera '+(s>=120?Math.ceil(s/60)+' minutos':s+' segundos')+' y vuelve a probar.'; }
 function siguientePaso(){
-  if(!estado.config){ mostrar('configurar'); return; }
+  if(!estado.config){ $('c-codigo-campo').classList.toggle('oculto', !(modo==='red' && estado.necesitaCodigo)); mostrar('configurar'); return; }
   if(!aparato){ mostrar('elegir-rol'); prepararRol(); return; }
   aplicarRol();
   if(aparato.rol==='cuidador'){ abrirPin(); return; }
@@ -730,9 +851,13 @@ $('c-guardar').addEventListener('click', function(){
   if(!/^\d{4,8}$/.test(p1)){ $('c-error').textContent='El PIN tiene que ser de 4 a 8 números.'; return; }
   if(p1!==p2){ $('c-error').textContent='Los dos PIN no coinciden.'; return; }
   var cfg = completarConfig({persona:nom, creado:fechaISO(new Date())});
-  if(modo==='local'){ pinLocal=p1; estado.config=cfg; guardarLocal(); siguientePaso(); return; }
-  api('config', {pin:null, nuevoPin:p1, config:cfg}).then(function(j){ aplicarRemoto(j); siguientePaso(); })
-    .catch(function(e){ $('c-error').textContent = e.message==='pin' ? 'Ya estaba configurado desde otra pantalla. Recarga la página.' : 'No hay conexión con la central.'; });
+  if(modo==='local'){ LVPin.crear(p1).then(function(h){ pinHashLocal=h; estado.config=cfg; guardarLocal(); siguientePaso(); }); return; }
+  var codigo = $('c-codigo').value.trim();
+  if(estado.necesitaCodigo && !codigo){ $('c-error').textContent='Escribe el código que sale en la pantalla del ordenador de la central.'; return; }
+  api('config', {pin:null, nuevoPin:p1, codigo:codigo||null, config:cfg}).then(function(j){ aplicarRemoto(j); siguientePaso(); })
+    .catch(function(e){ $('c-error').textContent = e.message==='pin' ? 'Ya estaba configurado desde otra pantalla. Recarga la página.'
+      : e.message==='codigo' ? 'El código no es correcto. Míralo en la pantalla del ordenador donde funciona el servidor.'
+      : e.message==='bloqueado' ? textoEspera(e) : 'No hay conexión con la central.'; });
 });
 
 var rolElegido = null;
@@ -767,7 +892,7 @@ $('p-entrar').addEventListener('click', function(){
   comprobarPin(p).then(function(ok){
     if(!ok){ $('p-error').textContent='PIN incorrecto.'; return; }
     pinOk=p; abrirCuidador();
-  }).catch(function(){ $('p-error').textContent='No hay conexión con la central.'; });
+  }).catch(function(e){ $('p-error').textContent = e && e.message==='bloqueado' ? textoEspera(e) : 'No hay conexión con la central.'; });
 });
 $('k-salir').addEventListener('click', function(){
   if(aparato && aparato.rol==='cuidador'){ toast('Este aparato es solo del cuidador'); return; }
@@ -786,7 +911,7 @@ function copiaConfig(){ return JSON.parse(JSON.stringify(estado.config)); }
 function cambiar(fn, ok){
   var c = copiaConfig(); fn(c);
   return guardarConfig(c, pinOk).then(function(){ pintarCuidador(); if(ok) toast(ok); })
-    .catch(function(e){ toast(e && e.message==='pin' ? 'PIN no válido, vuelve a entrar' : 'No se ha guardado: sin conexión con la central'); });
+    .catch(function(e){ toast(e && e.message==='pin' ? 'PIN no válido, vuelve a entrar' : e && e.message==='bloqueado' ? textoEspera(e) : 'No se ha guardado: sin conexión con la central'); });
 }
 function pintarCuidador(){
   if($('cuidador').classList.contains('oculto')) return;
@@ -794,7 +919,8 @@ function pintarCuidador(){
   var km=$('k-meds'); km.innerHTML='';
   if(!estado.config.meds.length) km.appendChild(el('p',{texto:'Todavía no hay medicinas. Añade la primera abajo.'}));
   estado.config.meds.forEach(function(m){
-    var foto = m.foto ? el('img',{src:m.foto,alt:''}) : el('div',{clase:'sinfoto',texto:'💊'});
+    var fs = fotoSegura(m.foto);
+    var foto = fs ? el('img',{src:fs,alt:''}) : el('div',{clase:'sinfoto',texto:'💊'});
     var ed = el('button',{clase:'btn',texto:'Editar'}); ed.addEventListener('click', function(){ editarMed(m); });
     var bo = el('button',{clase:'btn peligro',texto:'Quitar'}); bo.addEventListener('click', function(){
       if(confirm('¿Quitar '+m.nombre+'? El historial ya guardado se conserva.')) cambiar(function(c){ c.meds=c.meds.filter(function(x){ return x.id!==m.id; }); }, 'Medicina quitada'); });
@@ -815,7 +941,8 @@ function pintarCuidador(){
   var kc=$('k-contactos'); kc.innerHTML='';
   (estado.config.contactos||[]).forEach(function(t){
     var bo = el('button',{clase:'btn peligro',texto:'Quitar'}); bo.addEventListener('click', function(){ cambiar(function(c){ c.contactos=c.contactos.filter(function(x){ return x.id!==t.id; }); }); });
-    kc.appendChild(el('div',{clase:'item'},[ el('div',{clase:'sinfoto',texto:'📞'}), el('div',null,[ el('b',{texto:t.nombre}), el('small',{texto:t.tel}) ]), bo ]));
+    var nota = telDePago(t.tel) ? '⚠ Número de pago: no se enseña a la persona. Quítalo.' : telDudoso(t.tel) ? '⚠ 901/902 o extranjero: puede costar más que una llamada normal.' : '';
+    kc.appendChild(el('div',{clase:'item'},[ el('div',{clase:'sinfoto',texto:'📞'}), el('div',null,[ el('b',{texto:t.nombre}), el('small',{texto:t.tel}), nota?el('small',{texto:nota}):null ]), bo ]));
   });
   // Aparato
   var nombresRol = {pantalla:'Pantalla de habitación', movil:'Móvil de la persona', cuidador:'Solo cuidador'};
@@ -865,7 +992,7 @@ function limpiarFormMed(){
   $('k-med-titulo').textContent='Añadir medicina'; $('m-cancelar').classList.add('oculto'); pintarHorasForm();
 }
 function editarMed(m){
-  medEditando=m.id; horasForm=(m.horas||[]).slice(); fotoForm=m.foto||null;
+  medEditando=m.id; horasForm=(m.horas||[]).slice(); fotoForm=fotoSegura(m.foto);
   $('m-nombre').value=m.nombre; $('m-dosis').value=m.dosis||''; $('m-aspecto').value=m.aspecto||''; $('m-nota').value=m.nota||'';
   if(fotoForm){ $('m-foto-prev').src=fotoForm; $('m-foto-prev').classList.remove('oculto'); } else $('m-foto-prev').classList.add('oculto');
   $('k-med-titulo').textContent='Editar: '+m.nombre; $('m-cancelar').classList.remove('oculto'); pintarHorasForm();
@@ -936,6 +1063,8 @@ $('a-guardar').addEventListener('click', function(){
 $('t-guardar').addEventListener('click', function(){
   var n=$('t-nombre').value.trim(), t=$('t-tel').value.trim();
   if(!n||!/[\d]{3,}/.test(t)){ $('t-error').textContent='Pon nombre y un teléfono.'; return; }
+  if(telDePago(t)){ $('t-error').textContent=AVISO_PAGO; return; }
+  if(telDudoso(t) && !confirm('Ese número (901, 902 o de fuera de España) puede costar más que una llamada normal. ¿Guardarlo igualmente?')) return;
   $('t-error').textContent='';
   cambiar(function(c){ c.contactos=(c.contactos||[]).concat([{id:uid(), nombre:n, tel:t}]); }, 'Contacto guardado').then(function(){ $('t-nombre').value=''; $('t-tel').value=''; });
 });
@@ -970,7 +1099,11 @@ $('j-importar').addEventListener('change', function(){
   var f=this.files&&this.files[0]; if(!f) return; var inp=this;
   f.text().then(function(t){
     var j=JSON.parse(t);
-    if(j.app!=='mi-dia'||!j.config) throw new Error('formato');
+    if(j.app!=='mi-dia'||!j.config||typeof j.config!=='object') throw new Error('formato');
+    j.config = completarConfig(j.config);
+    var dePago = (j.config.contactos||[]).filter(function(c){ return c && telDePago(c.tel); }).length;
+    j.config.contactos = (j.config.contactos||[]).filter(function(c){ return c && c.tel && !telDePago(c.tel); });
+    if(dePago) toast('Se han quitado '+dePago+' contactos con número de pago');
     if(!confirm('Esto sustituye todas las medicinas, avisos e historial de ahora por los de la copia. ¿Seguir?')) return;
     return reemplazarTodo(j, pinOk).then(function(){ pintarCuidador(); toast('Copia cargada'); });
   }).catch(function(){ toast('Ese archivo no es una copia de Mi día'); }).then(function(){ inp.value=''; });
@@ -985,13 +1118,19 @@ function arrancar(){
   var intento = enServidor ? api('estado').then(function(j){ modo='red'; red.ok=true; aplicarRemoto(j); },
     function(){ var c=leerLS(LS_DATOS+'-cache',null); if(c && c.version!==undefined){ modo='red'; red.ok=false; aplicarRemoto(c); } else { modo='local'; cargarLocal(); } })
     : Promise.resolve(cargarLocal());
-  intento.then(function(){
+  intento.then(function(){ return modo==='local' ? migrarPinAntiguo() : null; }).then(function(){
     aplicarRol();
     mostrar('empezar');
     setInterval(function(){ if($('cuidador').classList.contains('oculto')) pintarTodo(); else pintarReloj(new Date()); }, 1000);
     setInterval(sondear, 3000);
   });
 }
+/* Salida a la estantería del pack (solo en copias de pack, con data-salida en <body>): dentro del cuidador, tras el PIN */
+(function(){
+  var dest = document.body.getAttribute('data-salida');
+  if(!dest || /^[a-z][a-z0-9+.\-]*:/i.test(dest) || dest.indexOf('//')===0) return;
+  var a=$('k-salida'); a.href=dest; a.textContent=document.body.getAttribute('data-salida-texto')||'← Salir de Mi día'; a.classList.remove('oculto');
+})();
 arrancar();
 })();
 </script>
