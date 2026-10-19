@@ -104,6 +104,13 @@ input,select{width:100%;min-height:48px;padding:.55rem .75rem;font:inherit;backg
 .status-line.is-error,.empty.is-error{color:#ffd0c8;font-weight:600;background:rgba(180,60,40,.28);border:1px solid rgba(255,160,140,.55);border-radius:var(--radio);padding:.65rem .75rem}
 .checkrow{display:flex;align-items:center;gap:.5rem;margin:.5rem 0 .85rem;font-size:.9rem;color:var(--suave)}
 .checkrow input{width:auto;min-height:auto}
+/* Modo Alzheimer-friendly con PIN: sin salidas (estantería, Salud, CIMA) */
+body.encerrado .lv-brandbar a.brand{pointer-events:none;cursor:default}
+body.encerrado #crossLinks,body.encerrado a.btn-link,body.encerrado #cimaOpen,body.encerrado #cimaProspecto,body.encerrado #cimaFt{display:none!important}
+.pin-capa{position:fixed;inset:0;background:rgba(14,14,12,.92);z-index:30;display:flex;align-items:center;justify-content:center;padding:1rem}
+.pin-caja{background:var(--fondo-2);border:1px solid var(--linea);border-radius:var(--radio);padding:1.1rem;max-width:24rem;width:100%}
+.pin-caja h2{margin-top:0;color:var(--tinta);font-size:.85rem}
+.pin-error{color:#ffd0c8;font-weight:600;min-height:1.3em;font-size:.9rem}
 </style>
 </head>
 <body>
@@ -125,6 +132,7 @@ input,select{width:100%;min-height:48px;padding:.55rem .75rem;font:inherit;backg
 <div class="toolbar">
   <span class="toggle-label">Modo sencillo</span>
   <button type="button" id="btnSimple" aria-pressed="false">Alzheimer-friendly: no</button>
+  <span class="hint hidden" id="simpleNota" style="margin:0">Puesto sin PIN: quítalo y vuelve a ponerlo para elegir un PIN y cerrar las salidas.</span>
 </div>
 
 <nav class="tabs" role="tablist" aria-label="Secciones">
@@ -235,15 +243,117 @@ input,select{width:100%;min-height:48px;padding:.55rem .75rem;font:inherit;backg
   </section>
 </div>
 
+<div class="pin-capa hidden" id="pinCapa" role="dialog" aria-modal="true" aria-labelledby="pinTitulo">
+  <div class="pin-caja">
+    <h2 id="pinTitulo">PIN del cuidador</h2>
+    <p class="hint" id="pinTexto"></p>
+    <label class="field"><span>PIN (4 a 8 números)</span><input id="pinA" type="password" inputmode="numeric" autocomplete="off"></label>
+    <label class="field" id="pinBCampo"><span>Repite el PIN</span><input id="pinB" type="password" inputmode="numeric" autocomplete="off"></label>
+    <p class="pin-error" id="pinError" role="alert"></p>
+    <div class="toolbar" style="margin-bottom:0">
+      <button type="button" class="primary" id="pinAceptar">Aceptar</button>
+      <button type="button" class="ghost" id="pinCancelar">Cancelar</button>
+    </div>
+  </div>
+</div>
+
 <input type="file" id="photoInput" accept="image/*" class="hidden" capture="environment">
 
-<p class="foot">localStorage + IndexedDB (fotos) · sin nube · Les vencimos · v20261003a</p>
+<p class="foot">localStorage + IndexedDB (fotos) · sin nube · Les vencimos · v20261019a</p>
 <script src="medicacion-db.js"></script>
 <script src="nomenclator/pako-inflate.min.js"></script>
 <script src="nomenclator/cima-index.embed.js"></script>
 <script src="medicacion-nomenclator.js"></script>
 <script>
 (function(){
+/* ════════ PIN con hash (PBKDF2-SHA256 con sal). Nunca se guarda el PIN en claro. ════════
+   Usa WebCrypto si está disponible y, si no (http:// en la red de casa, navegadores viejos),
+   el mismo cálculo en JavaScript: el resultado es idéntico. */
+var LVPin = (function(){
+  var K=[0x428a2f98,0x71374491,0xb5c0fbcf,0xe9b5dba5,0x3956c25b,0x59f111f1,0x923f82a4,0xab1c5ed5,0xd807aa98,0x12835b01,0x243185be,0x550c7dc3,0x72be5d74,0x80deb1fe,0x9bdc06a7,0xc19bf174,0xe49b69c1,0xefbe4786,0x0fc19dc6,0x240ca1cc,0x2de92c6f,0x4a7484aa,0x5cb0a9dc,0x76f988da,0x983e5152,0xa831c66d,0xb00327c8,0xbf597fc7,0xc6e00bf3,0xd5a79147,0x06ca6351,0x14292967,0x27b70a85,0x2e1b2138,0x4d2c6dfc,0x53380d13,0x650a7354,0x766a0abb,0x81c2c92e,0x92722c85,0xa2bfe8a1,0xa81a664b,0xc24b8b70,0xc76c51a3,0xd192e819,0xd6990624,0xf40e3585,0x106aa070,0x19a4c116,0x1e376c08,0x2748774c,0x34b0bcb5,0x391c0cb3,0x4ed8aa4a,0x5b9cca4f,0x682e6ff3,0x748f82ee,0x78a5636f,0x84c87814,0x8cc70208,0x90befffa,0xa4506ceb,0xbef9a3f7,0xc67178f2];
+  var H0=[0x6a09e667,0xbb67ae85,0x3c6ef372,0xa54ff53a,0x510e527f,0x9b05688c,0x1f83d9ab,0x5be0cd19];
+  var W=new Array(64);
+  function bloque(h, b, o){   // comprime un bloque de 64 bytes (b desde o) sobre el estado h
+    var i,t1,t2,a=h[0],c1=h[1],c=h[2],d=h[3],e=h[4],f=h[5],g=h[6],hh=h[7];
+    for(i=0;i<16;i++) W[i]=(b[o+4*i]<<24)|(b[o+4*i+1]<<16)|(b[o+4*i+2]<<8)|b[o+4*i+3];
+    for(i=16;i<64;i++){
+      var x=W[i-15], y=W[i-2];
+      var s0=((x>>>7)|(x<<25))^((x>>>18)|(x<<14))^(x>>>3);
+      var s1=((y>>>17)|(y<<15))^((y>>>19)|(y<<13))^(y>>>10);
+      W[i]=(W[i-16]+s0+W[i-7]+s1)|0;
+    }
+    for(i=0;i<64;i++){
+      t1=(hh+(((e>>>6)|(e<<26))^((e>>>11)|(e<<21))^((e>>>25)|(e<<7)))+((e&f)^(~e&g))+K[i]+W[i])|0;
+      t2=((((a>>>2)|(a<<30))^((a>>>13)|(a<<19))^((a>>>22)|(a<<10)))+((a&c1)^(a&c)^(c1&c)))|0;
+      hh=g; g=f; f=e; e=(d+t1)|0; d=c; c=c1; c1=a; a=(t1+t2)|0;
+    }
+    h[0]=(h[0]+a)|0; h[1]=(h[1]+c1)|0; h[2]=(h[2]+c)|0; h[3]=(h[3]+d)|0;
+    h[4]=(h[4]+e)|0; h[5]=(h[5]+f)|0; h[6]=(h[6]+g)|0; h[7]=(h[7]+hh)|0;
+  }
+  function sha(h, msg, yaHechos){   // termina un SHA-256 cuyo estado h ya lleva yaHechos bytes
+    var n=msg.length, total=n+yaHechos, largo=((n+9+63)>>6)<<6, b=new Uint8Array(largo), i;
+    b.set(msg); b[n]=0x80;
+    var bits=total*8; b[largo-4]=(bits>>>24)&255; b[largo-3]=(bits>>>16)&255; b[largo-2]=(bits>>>8)&255; b[largo-1]=bits&255;
+    b[largo-5]=Math.floor(total/536870912)&255;
+    for(i=0;i<largo;i+=64) bloque(h,b,i);
+    var out=new Uint8Array(32);
+    for(i=0;i<8;i++){ out[4*i]=h[i]>>>24; out[4*i+1]=(h[i]>>>16)&255; out[4*i+2]=(h[i]>>>8)&255; out[4*i+3]=h[i]&255; }
+    return out;
+  }
+  function pbkdf2JS(clave, sal, iter){   // PBKDF2-HMAC-SHA256, 32 bytes
+    var k=clave; if(k.length>64) k=sha(H0.slice(), k, 0);
+    var ip=new Uint8Array(64), op=new Uint8Array(64), i, j;
+    for(i=0;i<64;i++){ ip[i]=(k[i]||0)^0x36; op[i]=(k[i]||0)^0x5c; }
+    var hi=H0.slice(); bloque(hi,ip,0); var ho=H0.slice(); bloque(ho,op,0);
+    function hmac(m){ return sha(ho.slice(), sha(hi.slice(), m, 64), 64); }
+    var m1=new Uint8Array(sal.length+4); m1.set(sal); m1[sal.length+3]=1;
+    var u=hmac(m1), t=u.slice();
+    for(i=1;i<iter;i++){ u=hmac(u); for(j=0;j<32;j++) t[j]^=u[j]; }
+    return t;
+  }
+  function utf8(s){ s=unescape(encodeURIComponent(String(s))); var b=new Uint8Array(s.length); for(var i=0;i<s.length;i++) b[i]=s.charCodeAt(i); return b; }
+  function hex(b){ var s=''; for(var i=0;i<b.length;i++) s+=(b[i]<16?'0':'')+b[i].toString(16); return s; }
+  function deHex(s){ var b=new Uint8Array(s.length>>1); for(var i=0;i<b.length;i++) b[i]=parseInt(s.substr(2*i,2),16); return b; }
+  function derivar(pin, sal, iter){
+    var sub = window.crypto && window.crypto.subtle;
+    var js = function(){ return Promise.resolve(pbkdf2JS(utf8(pin), sal, iter)); };
+    if(!sub) return js();
+    try{
+      return sub.importKey('raw', utf8(pin), 'PBKDF2', false, ['deriveBits'])
+        .then(function(k){ return sub.deriveBits({name:'PBKDF2', salt:sal, iterations:iter, hash:'SHA-256'}, k, 256); })
+        .then(function(bits){ return new Uint8Array(bits); }, js);
+    }catch(e){ return js(); }
+  }
+  var ITER=20000;
+  function crear(pin){   // → Promise<'pbkdf2-sha256$iter$salHex$hashHex'>
+    var sal=new Uint8Array(16);
+    if(window.crypto && window.crypto.getRandomValues) window.crypto.getRandomValues(sal);
+    else for(var i=0;i<16;i++) sal[i]=Math.floor(Math.random()*256);
+    return derivar(pin, sal, ITER).then(function(h){ return 'pbkdf2-sha256$'+ITER+'$'+hex(sal)+'$'+hex(h); });
+  }
+  function comprobar(pin, guardado){   // → Promise<bool>, comparación sin atajos
+    var p=String(guardado||'').split('$');
+    if(p.length!==4 || p[0]!=='pbkdf2-sha256' || !(+p[1]>0)) return Promise.resolve(false);
+    return derivar(pin, deHex(p[2]), +p[1]).then(function(h){
+      var a=hex(h), b=p[3], dif=a.length^b.length;
+      for(var i=0;i<a.length;i++) dif|=a.charCodeAt(i)^(b.charCodeAt(i)|0);
+      return dif===0;
+    });
+  }
+  /* Intentos fallidos: tras 5 seguidos, espera creciente (30 s, 1 min, 2 min… hasta 5 min) */
+  function bloqueo(clave){
+    function leer(){ try{ return JSON.parse(localStorage.getItem(clave)||'{}')||{}; }catch(e){ return {}; } }
+    return {
+      espera: function(){ var b=leer(); return Math.max(0, Math.ceil(((b.hasta||0)-Date.now())/1000)); },
+      fallo: function(){ var b=leer(); b.fallos=(b.fallos||0)+1;
+        if(b.fallos>=5) b.hasta=Date.now()+Math.min(300, 30*Math.pow(2,b.fallos-5))*1000;
+        try{ localStorage.setItem(clave, JSON.stringify(b)); }catch(e){} },
+      acierto: function(){ try{ localStorage.removeItem(clave); }catch(e){} }
+    };
+  }
+  return { crear:crear, comprobar:comprobar, bloqueo:bloqueo, _pbkdf2JS:pbkdf2JS, _utf8:utf8, _hex:hex };
+})();
+
   const KEY='lv-medicacion-v1';
   const HIST_KEY='lv-salud-hist-v1';
   const DAYKEY=()=>'lv-med-check-'+new Date().toISOString().slice(0,10);
@@ -806,20 +916,78 @@ input,select{width:100%;min-height:48px;padding:.55rem .75rem;font:inherit;backg
   };
   cancelEdit.onclick=function(){ resetForm(); };
 
-  btnSimple.onclick=function(){
-    const on=document.body.classList.toggle('simple');
+  /* —— Modo Alzheimer-friendly: letra grande y, con PIN del cuidador, sin salidas ——
+     Para ponerlo se elige un PIN (una vez); para quitarlo hace falta ese PIN.
+     Mientras está puesto no se sale a la estantería, a Salud ni a CIMA. */
+  const PIN_KEY='lv-med-pin-v1';
+  const bloqueoPin=LVPin.bloqueo('lv-med-pin-intentos');
+  function pinGuardado(){ try{ return localStorage.getItem(PIN_KEY)||''; }catch(e){ return ''; } }
+  function setSimple(on){
+    document.body.classList.toggle('simple', on);
+    document.body.classList.toggle('encerrado', on && !!pinGuardado());
     btnSimple.setAttribute('aria-pressed', on?'true':'false');
     btnSimple.textContent=on?'Alzheimer-friendly: sí':'Alzheimer-friendly: no';
     btnSimple.classList.toggle('on', on);
+    document.getElementById('simpleNota').classList.toggle('hidden', !(on && !pinGuardado()));
     try{localStorage.setItem('lv-med-simple', on?'1':'0')}catch(e){}
+  }
+  var pinModo=null;   // 'crear' | 'quitar'
+  function abrirPin(modo){
+    pinModo=modo;
+    document.getElementById('pinA').value=''; document.getElementById('pinB').value='';
+    document.getElementById('pinError').textContent='';
+    document.getElementById('pinBCampo').classList.toggle('hidden', modo!=='crear');
+    document.getElementById('pinTexto').textContent = modo==='crear'
+      ? 'Con este modo no se puede salir de Medicación (ni a la estantería, ni a Salud, ni a CIMA). Para quitarlo hará falta este PIN. Apúntalo en lugar seguro.'
+      : 'Para quitar el modo Alzheimer-friendly, escribe el PIN del cuidador.';
+    document.getElementById('pinCapa').classList.remove('hidden');
+    setTimeout(function(){ document.getElementById('pinA').focus(); }, 30);
+  }
+  function cerrarPin(){ pinModo=null; document.getElementById('pinCapa').classList.add('hidden'); }
+  document.getElementById('pinCancelar').onclick=cerrarPin;
+  document.getElementById('pinA').addEventListener('keydown', function(e){ if(e.key==='Enter') document.getElementById('pinAceptar').click(); });
+  document.getElementById('pinB').addEventListener('keydown', function(e){ if(e.key==='Enter') document.getElementById('pinAceptar').click(); });
+  document.getElementById('pinAceptar').onclick=function(){
+    var a=document.getElementById('pinA').value.trim(), err=document.getElementById('pinError');
+    if(pinModo==='crear'){
+      if(!/^\d{4,8}$/.test(a)){ err.textContent='El PIN tiene que ser de 4 a 8 números.'; return; }
+      if(a!==document.getElementById('pinB').value.trim()){ err.textContent='Los dos PIN no coinciden.'; return; }
+      LVPin.crear(a).then(function(h){
+        try{ localStorage.setItem(PIN_KEY, h); }catch(e){ err.textContent='No se ha podido guardar en este aparato.'; return; }
+        cerrarPin(); setSimple(true); toast('Modo Alzheimer-friendly puesto');
+      });
+      return;
+    }
+    var espera=bloqueoPin.espera();
+    if(espera){ err.textContent='Demasiados intentos. Espera '+(espera>=120?Math.ceil(espera/60)+' minutos':espera+' segundos')+'.'; return; }
+    LVPin.comprobar(a, pinGuardado()).then(function(ok){
+      if(!ok){ bloqueoPin.fallo(); err.textContent='PIN incorrecto.'; return; }
+      bloqueoPin.acierto(); cerrarPin(); setSimple(false);
+    });
   };
-  try{if(localStorage.getItem('lv-med-simple')==='1'){btnSimple.click()}}catch(e){}
+  btnSimple.onclick=function(){
+    var on=document.body.classList.contains('simple');
+    if(!on){ if(pinGuardado()) setSimple(true); else abrirPin('crear'); return; }
+    if(pinGuardado()) abrirPin('quitar'); else setSimple(false);   // puesto antes de haber PIN: se quita como antes
+  };
+  try{ if(localStorage.getItem('lv-med-simple')==='1') setSimple(true); }catch(e){}
+  /* Con el modo puesto, ningún enlace saca de esta página */
+  document.addEventListener('click', function(ev){
+    if(!document.body.classList.contains('encerrado')) return;
+    var a = ev.target && ev.target.closest ? ev.target.closest('a[href]') : null;
+    if(!a) return;
+    var h = a.getAttribute('href')||'';
+    if(h.charAt(0)==='#' || /^blob:/.test(h)) return;
+    ev.preventDefault(); ev.stopPropagation();
+    toast('En modo Alzheimer-friendly no se sale de Medicación. El cuidador lo quita con el PIN.');
+  }, true);
 
   (function(){
     var a=document.getElementById('linkSalud');
     if(!a) return;
     a.addEventListener('click', function(ev){
       try{
+        if(document.body.classList.contains('encerrado')) return;
         if(window.parent && window.parent !== window){
           ev.preventDefault();
           window.parent.postMessage({ lvOpen: 'salud' }, '*');
